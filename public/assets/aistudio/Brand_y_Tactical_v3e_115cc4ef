@@ -1,0 +1,170 @@
+﻿Brand y Tactical de Spatialgineers
+2026-10-13 · Danelson Maldonado González
+Estado y uso de este documento
+Este documento es la guía única de marca y de interfaz de Spatialgineers LLC. Reúne en un solo lugar lo que antes estaba repartido entre el Brand Guide de marzo y el Tactical UI/UX de mayo. Cuando haya diferencia entre esos dos documentos y este, manda este.
+
+
+Tema
+	Detalle
+	Versión
+	v2026.10
+	Reemplaza
+	Brand Guide de marzo y Tactical UI/UX de mayo. Se archivan, no se borran.
+	Quién lo usa
+	Todo el equipo, el Guild y cualquier persona que produzca material con nuestra marca.
+	Idioma
+	Español primero. Las piezas públicas también van en inglés.
+	Qué no cubre
+	Marcas, paletas y reglas de clientes. Cada cliente tiene las suyas (ver Paletas de clientes).
+	Puntos sin confirmar
+	Sin puntos abiertos de decisión.
+	
+
+Cómo se usa: si vas a hacer una pieza nueva, lee la paleta, la tipografía y las reglas de interfaz antes de empezar. Si algo no está cubierto, no lo improvises: anótalo y consúltalo con Danelson antes de publicar.
+Paleta oficial
+Estos son los únicos colores de la marca. Se usan con estos nombres y estos valores, sin variaciones.
+
+
+Nombre
+	Hex
+	Uso
+	Azul metálico
+	#32527B
+	Color principal de la marca, paneles y estructuras.
+	Amarillo oro
+	#FDCC0D
+	Acento principal, bordes de botones, llamadas a la acción.
+	Cobre
+	#B87000
+	Acento secundario, detalles metálicos, estados intermedios.
+	Cian
+	#00DDFF
+	Acento digital, HUD, énfasis tecnológico.
+	Ámbar
+	#FFBB00
+	Alertas suaves y resaltados.
+	Gris carbón
+	#333333
+	Fondos de paneles y texto sobre claro.
+	Gris medio
+	#888888
+	Texto secundario y líneas de apoyo.
+	
+
+Colores retirados, que no se usan en ninguna pieza nueva: #B87333 (el cobre anterior, sustituido por #B87000), #00FFFF (sustituido por #00DDFF) y #FFAA00 (sustituido por #FFBB00). Si encuentras uno en material existente, se corrige en la próxima revisión de esa pieza.
+
+
+Los fondos casi negros #1A1A1A y #050505 ya están en uso en la marca.
+Tipografía
+Usamos solo fuentes con licencia libre o con licencia que ya tenemos. Antes de publicar una pieza se verifica la licencia de cada fuente que lleva.
+
+
+Uso
+	Fuente
+	Licencia
+	Títulos y elementos de HUD
+	Orbitron
+	SIL Open Font License (Google Fonts)
+	Texto corrido
+	Space Grotesk
+	SIL Open Font License (Google Fonts)
+	Datos, código y cifras
+	Roboto Mono
+	Apache 2.0 (Google Fonts)
+	
+
+Fuentes que no usamos porque no tenemos licencia: Disket Mono, Arian LT Demi, Data 70 y Horta. Si aparecen en piezas anteriores, se sustituyen por los equivalentes de la tabla: Data 70 por Orbitron (títulos) y Horta por Space Grotesk (texto corrido). Roboto Mono sigue siendo el equivalente para texto tipo terminal.
+
+
+Reglas de tamaño: los tamaños se definen con clamp() para que se ajusten a la pantalla. No se usan tamaños fijos en píxeles para texto en piezas web.
+Logo
+El logo oficial combina el engranaje y el rayo. El engranaje representa la ingeniería y el rayo representa la energía digital. Los archivos oficiales son los que están en el sistema de diseño de Spatialgineers, que es el maestro de los logos de SGX, del Summit y del Guild; no se redibujan, no se recrean y no se toman de capturas de pantalla.
+
+
+Reglas de uso:
+
+
+* Se usa el archivo maestro tal como está, sin estirarlo, rotarlo ni cambiar sus colores fuera de la paleta oficial.
+* Va sobre fondo oscuro o sobre fondo claro con contraste suficiente para leerse.
+* No se le agregan sombras, brillos ni efectos que no estén en el archivo maestro.
+* El ícono del rayo que se usa dentro de PRISMA es un ícono de producto. No es el logo de la empresa y no lo sustituye.
+* Mientras no tengamos una marca registrada, se escribe ™ junto al nombre y no ®. No decimos que nada esté patentado. Hoy no hay ningún registro oficial más allá de la LLC. El registro del nombre y del logo se evalúa después del Summit y a más tardar en abril de 2027, empezando por Spatialgineers y el logo.
+
+
+Espacio libre y tamaño mínimo: el espacio libre mínimo es la mitad de la altura del logo por los cuatro lados. El tamaño mínimo es de 32 px de alto en pantalla y de 15 mm de alto impreso. Por debajo de ese tamaño se usa solo el ícono.
+Lema y voz
+El lema oficial es:
+
+
+Idioma
+	Lema
+	Español
+	Ingeniando Imaginación, Construyendo Realidades
+	English
+	Engineering Imagination, Building Realities
+	
+
+"Realities" va en plural. El Dossier anterior decía "Reality" y se corrige en la versión nueva.
+
+
+Tono: hablamos en primera persona del plural ("nosotros"), con lenguaje claro, neutro y profesional. Español primero y luego inglés cuando la pieza es pública. No usamos rayas largas en los textos.
+
+
+Apodos y ¡Wepa!: tienen lugar en las biografías del equipo, en las redes sociales y dentro del Guild. No van en contratos, propuestas, informes ni en ningún documento legal o formal.
+Voz por canal: en el correo y en las propuestas el tono es formal, en primera persona del plural, sin apodos ni ¡Wepa!. En redes y YouTube el tono es cercano, se permite ¡Wepa!, los mensajes son cortos y van en español primero, con inglés cuando sea público. En el Guild el tono es cercano, pero los correos oficiales llevan asunto y cuerpo.
+Lenguaje que evitamos y pie legal
+Evitamos
+	Por qué
+	En su lugar
+	"Metaverso"
+	Es un término genérico y no describe lo que hacemos.
+	Experiencias inmersivas, mundos 3D, XR. Solo se escribe si es el nombre de una plataforma.
+	"Patentado"
+	No tenemos nada patentado.
+	"Propio" o "desarrollado por Spatialgineers", con ™ si aplica.
+	Superlativos sin evidencia ("el mejor", "el primero", "el único")
+	No se pueden respaldar.
+	Lo que hicimos, con datos verificables.
+	"Become a Spatian"
+	Eslogan retirado.
+	Invitación directa al programa que corresponda.
+	Nombres de herramientas viejas
+	No se usan en material nuevo.
+	VisGen y Showcase Builder (ya están hechos). PRISMA, Grimoire OS y Omni-Canvas siguen vigentes.
+	
+
+Pie legal oficial para documentos y piezas: "© 2026 Spatialgineers LLC. Todos los derechos reservados." En inglés: "© 2026 Spatialgineers LLC. All rights reserved."
+
+
+El uso de "Nakama" como nombre propio de nuestro código se limita al uso interno del Guild y de la Guía del Iniciado (Código Nakama). En las piezas públicas se dice Código del Guild. No se registra como marca.
+Reglas de interfaz táctica
+Estas reglas aplican a toda interfaz web o inmersiva con estilo táctico de Spatialgineers.
+
+
+Elemento
+	Regla
+	Paneles
+	Esquinas cortadas a 45 grados de 15 px (chamfer) y desenfoque de fondo de 10 px.
+	Botones
+	Borde amarillo (#FDCC0D). Al pasar el cursor, el botón se rellena de amarillo sólido.
+	HUD
+	Texto "POWERED BY SPATIALGINEERS" al 40 % de opacidad.
+	Fondo
+	Casi negro (#1A1A1A o #050505), con contraste suficiente para el texto.
+	Tamaños
+	Siempre con clamp(), nunca píxeles fijos para texto. Las medidas del chamfer y del desenfoque son la excepción.
+	Colores
+	Solo los de la paleta oficial.
+	Tipografía
+	Orbitron para títulos y HUD, Space Grotesk para texto, Roboto Mono para datos.
+	
+
+Three.js y desarrollo: las versiones, la herramienta de construcción y las limitaciones de dispositivos se describen en el Grimorio del Desarrollador. Este documento solo define lo visual.
+Paletas de clientes
+Cuando producimos una pieza para un cliente, esa pieza puede usar la paleta y las reglas de la marca del cliente. La paleta de Spatialgineers no se mezcla con la del cliente dentro de la misma pieza. Lo único nuestro que aparece es el crédito "POWERED BY SPATIALGINEERS" o el logo oficial, según lo que acuerde el SOW, y el pie legal que corresponda.
+
+
+El crédito POWERED BY SPATIALGINEERS (al 40 % de opacidad) se incluye por defecto en toda pieza web o inmersiva. Solo se puede quitar en el Tier 4 o superior, por escrito en el SOW.
+Las marcas, los logos y los colores del cliente son del cliente. Los usamos solo con su autorización y para el proyecto acordado.
+Anejo A. Puntos por confirmar
+Sin puntos abiertos de decisión.

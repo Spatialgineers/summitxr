@@ -1,0 +1,693 @@
+{
+  "entities": {
+    "Admin": {
+      "title": "Admin",
+      "description": "Authorized administrator profiles with access to director control panels and event moderation.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Authorized administrator email address."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["SUPER_ADMIN", "DIRECTOR", "OPERATOR"],
+          "description": "Permission level within the SGX Live Engine."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of admin registration."
+        }
+      },
+      "required": ["email", "role"]
+    },
+    "Tenant": {
+      "title": "Tenant",
+      "description": "Isolated brand, client, or event organizer account.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Tenant display name."
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "description": "URL-friendly tenant slug."
+        },
+        "primaryColor": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Hex branding color."
+        },
+        "accentColor": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "description": "Hex accent color."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of creation."
+        }
+      },
+      "required": ["name", "slug"]
+    },
+    "Question": {
+      "title": "Question",
+      "description": "Interactive Choose-Your-Own-Adventure voting node or trivia question.",
+      "type": "object",
+      "properties": {
+        "tenantId": {
+          "type": "string",
+          "description": "Identifier of the tenant owner."
+        },
+        "eventId": {
+          "type": "string",
+          "description": "Identifier of the associated live event."
+        },
+        "prompt": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Main question or scenario prompt."
+        },
+        "category": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Category or narrative chapter."
+        },
+        "answerType": {
+          "type": "string",
+          "enum": ["KNOWLEDGE", "OPINION_CYOA"],
+          "description": "Type of interactive decision."
+        },
+        "durationSeconds": {
+          "type": "number",
+          "description": "Countdown window in seconds."
+        },
+        "basePoints": {
+          "type": "number",
+          "description": "Base points awarded for voting."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of creation."
+        }
+      },
+      "required": ["tenantId", "eventId", "prompt", "category", "answerType"]
+    },
+    "EventSession": {
+      "title": "EventSession",
+      "description": "Live broadcast state and active visualizer presets.",
+      "type": "object",
+      "properties": {
+        "tenantId": {
+          "type": "string",
+          "description": "Tenant identifier."
+        },
+        "eventId": {
+          "type": "string",
+          "description": "Event identifier."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["IDLE", "VOTING_ACTIVE", "VOTING_CLOSED", "RESULT_REVEALED", "EVENT_ENDED"],
+          "description": "Current lifecycle status of the live stage."
+        },
+        "activePresetId": {
+          "type": "string",
+          "description": "Active WebGL 3D Shader Preset."
+        },
+        "currentQuestionId": {
+          "type": "string",
+          "description": "Active question ID if voting is live."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last director action."
+        }
+      },
+      "required": ["tenantId", "eventId", "status", "activePresetId"]
+    },
+    "Player": {
+      "title": "Player",
+      "description": "Anonymous or registered attendee profile with optional email, username, and live score telemetry.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Unique Firebase Auth user ID."
+        },
+        "username": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "Player nickname or handle."
+        },
+        "email": {
+          "type": "string",
+          "maxLength": 150,
+          "description": "Optional attendee contact email address."
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "Associated tenant organization."
+        },
+        "eventId": {
+          "type": "string",
+          "description": "Associated live event session."
+        },
+        "avatarSeed": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Avatar seed for visual identification."
+        },
+        "totalScore": {
+          "type": "number",
+          "description": "Total accumulated game points."
+        },
+        "highestStreak": {
+          "type": "number",
+          "description": "Highest voting streak achieved."
+        },
+        "totalInteractions": {
+          "type": "number",
+          "description": "Total votes cast during the live event."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last update."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of initial registration."
+        }
+      },
+      "required": ["uid", "username", "tenantId", "eventId"]
+    },
+    "TicketInquiry": {
+      "title": "TicketInquiry",
+      "description": "Attendee summit ticket registration or inquiry.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Attendee email."
+        },
+        "fullName": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Full name of the attendee."
+        },
+        "ticketType": {
+          "type": "string",
+          "enum": ["DIGITAL", "SHOWCASE_PHYSICAL", "VIP", "CREATOR"],
+          "description": "Type of summit pass or showcase application."
+        },
+        "referenceCode": {
+          "type": "string",
+          "maxLength": 60,
+          "description": "Generated pass verification code."
+        },
+        "roleTitle": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Attendee professional role or community title."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["CONFIRMED", "PENDING"],
+          "description": "Registration status."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Optional linked Firebase Auth UID."
+        }
+      },
+      "required": ["email", "ticketType", "referenceCode"]
+    },
+    "SponsorInquiry": {
+      "title": "SponsorInquiry",
+      "description": "Sponsor application and brand partnership inquiry.",
+      "type": "object",
+      "properties": {
+        "companyName": {
+          "type": "string",
+          "maxLength": 120,
+          "description": "Company or brand name."
+        },
+        "contactName": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Contact person name."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Contact email address."
+        },
+        "phone": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Phone number."
+        },
+        "selectedTierId": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Selected sponsorship tier identifier."
+        },
+        "referenceCode": {
+          "type": "string",
+          "maxLength": 60,
+          "description": "Generated tracking reference code."
+        }
+      },
+      "required": ["companyName", "contactName", "email", "selectedTierId"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Real-time summit networking chat message.",
+      "type": "object",
+      "properties": {
+        "channelId": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Channel identifier or DM room."
+        },
+        "senderId": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Sender user ID or session ID."
+        },
+        "senderName": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Sender display name."
+        },
+        "senderRole": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Role badge of sender."
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Message content."
+        },
+        "timestamp": {
+          "type": "number",
+          "description": "Unix millisecond timestamp."
+        }
+      },
+      "required": ["channelId", "senderId", "senderName", "text"]
+    },
+    "Speaker": {
+      "title": "Speaker",
+      "description": "Speaker, presenter, artist, or performer profile for the Spatialgineers Summit 2026.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Full name or artist stage name."
+        },
+        "role": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Role, title, or creative discipline."
+        },
+        "organization": {
+          "type": "string",
+          "maxLength": 150,
+          "description": "Company, studio, collective, or independent."
+        },
+        "bio": {
+          "type": "string",
+          "maxLength": 3000,
+          "description": "Biography and talk/showcase overview."
+        },
+        "avatarUrl": {
+          "type": "string",
+          "description": "Compressed avatar photo or artwork (< 1MB data URI or image URL)."
+        },
+        "day": {
+          "type": "number",
+          "description": "Summit day (1: Dec 11, 2: Dec 12, 3: Dec 13)."
+        },
+        "pillarId": {
+          "type": "string",
+          "description": "Primary summit pillar association."
+        },
+        "handle": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Social media or artist handle."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Optional linked Firebase Auth UID."
+        }
+      },
+      "required": ["name", "role", "organization", "bio", "avatarUrl", "day"]
+    },
+    "SummitSessionItem": {
+      "title": "SummitSessionItem",
+      "description": "Summit agenda schedule session, keynote, workshop, panel, or live show.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "maxLength": 150,
+          "description": "Title of the session or keynote."
+        },
+        "day": {
+          "type": "number",
+          "description": "Day number (1, 2, or 3)."
+        },
+        "dateStr": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Formatted date label."
+        },
+        "startTime": {
+          "type": "string",
+          "maxLength": 30,
+          "description": "Start time e.g. 10:00 AM."
+        },
+        "endTime": {
+          "type": "string",
+          "maxLength": 30,
+          "description": "End time e.g. 10:45 AM."
+        },
+        "venueLocation": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Physical studio stage, virtual room, or YouTube live stream."
+        },
+        "format": {
+          "type": "string",
+          "enum": ["DIGITAL", "HYBRID", "PHYSICAL", "ROBLOX_STREAM"],
+          "description": "Broadcast and attendance format."
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 3000,
+          "description": "Detailed synopsis of the session."
+        },
+        "pillarId": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Summit pillar identifier."
+        },
+        "speakerIds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Array of assigned speaker and artist IDs."
+        }
+      },
+      "required": ["title", "day", "startTime", "endTime", "venueLocation", "format", "description"]
+    },
+    "GamificationReward": {
+      "title": "GamificationReward",
+      "description": "Redeemable services, webapp subscriptions, and perks.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 150 },
+        "category": { "type": "string", "maxLength": 50 },
+        "description": { "type": "string", "maxLength": 1500 },
+        "xpCost": { "type": "number" },
+        "originalValueUsd": { "type": "string", "maxLength": 50 },
+        "inventoryCount": { "type": "number" },
+        "claimedCount": { "type": "number" },
+        "active": { "type": "boolean" },
+        "accessUrl": { "type": "string", "maxLength": 500 }
+      },
+      "required": ["title", "category", "description", "xpCost"]
+    },
+    "RedeemedPrize": {
+      "title": "RedeemedPrize",
+      "description": "Claimed reward record for an attendee.",
+      "type": "object",
+      "properties": {
+        "rewardId": { "type": "string", "maxLength": 128 },
+        "rewardTitle": { "type": "string", "maxLength": 150 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "userEmail": { "type": "string", "maxLength": 150 },
+        "voucherCode": { "type": "string", "maxLength": 100 },
+        "xpSpent": { "type": "number" },
+        "claimedAt": { "type": "number" }
+      },
+      "required": ["rewardId", "rewardTitle", "voucherCode", "xpSpent"]
+    },
+    "LeaderboardScore": {
+      "title": "LeaderboardScore",
+      "description": "Live participant score and engagement metric for the weekend rankings.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "username": { "type": "string", "maxLength": 100 },
+        "totalXp": { "type": "number" },
+        "votesCount": { "type": "number" },
+        "questsCount": { "type": "number" },
+        "rankTitle": { "type": "string", "maxLength": 100 },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["username", "totalXp"]
+    },
+    "SocialPost": {
+      "title": "SocialPost",
+      "description": "Real live social post ingested from Instagram, attendee submission, or staff broadcast.",
+      "type": "object",
+      "properties": {
+        "content": { "type": "string", "maxLength": 2000 },
+        "platform": { "type": "string" },
+        "instagramPostUrl": { "type": "string" },
+        "mediaUrl": { "type": "string" },
+        "mediaType": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorHandle": { "type": "string" },
+        "authorAvatar": { "type": "string" },
+        "hashtags": { "type": "array", "items": { "type": "string" } },
+        "likes": { "type": "number" },
+        "commentsCount": { "type": "number" },
+        "createdAt": { "type": "number" },
+        "isFeaturedOnStage": { "type": "boolean" }
+      },
+      "required": ["content", "platform", "createdAt"]
+    },
+    "MatchProfileEntity": {
+      "title": "MatchProfileEntity",
+      "description": "Entrepreneur matchmaking card and complementary needs profile.",
+      "type": "object",
+      "properties": {
+        "pitch": { "type": "string", "maxLength": 80 },
+        "brings": { "type": "array", "items": { "type": "string" } },
+        "customBringsText": { "type": "string", "maxLength": 60 },
+        "seeking": { "type": "array", "items": { "type": "string" } },
+        "pillar": { "type": "string", "enum": ["story", "showcase", "spark", "stage", "systems", "synthesize"] },
+        "openTo": { "type": "array", "items": { "type": "string" } },
+        "visible": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["pitch", "brings", "seeking", "pillar"]
+    },
+    "MatchIntentEntity": {
+      "title": "MatchIntentEntity",
+      "description": "Single direction connect intent sent from founder A to founder B.",
+      "type": "object",
+      "properties": {
+        "fromUser": { "type": "string" },
+        "toUser": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING", "MATCHED", "DISMISSED"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["fromUser", "toUser", "status", "createdAt"]
+    },
+    "MutualMatchEntity": {
+      "title": "MutualMatchEntity",
+      "description": "Reciprocal mutual connection between two entrepreneurs.",
+      "type": "object",
+      "properties": {
+        "userA": { "type": "string" },
+        "userB": { "type": "string" },
+        "matchedAt": { "type": "string" }
+      },
+      "required": ["userA", "userB", "matchedAt"]
+    },
+    "PilotProfileEntity": {
+      "title": "PilotProfileEntity",
+      "description": "Persistent pilot gamification profile, weekend XP activity log, and drone stats.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "nickname": { "type": "string", "maxLength": 100 },
+        "rankTitle": { "type": "string", "maxLength": 100 },
+        "level": { "type": "number" },
+        "totalXp": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["uid", "nickname", "totalXp"]
+    },
+    "PilotLeaderboardEntry": {
+      "title": "PilotLeaderboardEntry",
+      "description": "Global pilot leaderboard entry with XP, drone high score, tricks, and votes.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "nickname": { "type": "string", "maxLength": 100 },
+        "rankTitle": { "type": "string", "maxLength": 100 },
+        "level": { "type": "number" },
+        "totalXp": { "type": "number" },
+        "droneHighScore": { "type": "number" },
+        "totalTricks": { "type": "number" },
+        "connectionsCount": { "type": "number" },
+        "votesCount": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["uid", "nickname", "totalXp"]
+    },
+    "TelemetryEventEntity": {
+      "title": "TelemetryEventEntity",
+      "description": "Anonymized summit telemetry interaction event.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "sessionId": { "type": "string", "maxLength": 128 },
+        "category": { "type": "string", "maxLength": 60 },
+        "action": { "type": "string", "maxLength": 120 },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["sessionId", "category", "action", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/pilot_profiles/{profileId}": {
+      "schema": {
+        "$ref": "#/entities/PilotProfileEntity"
+      },
+      "description": "Stores persistent pilot XP profiles, weekend activity breakdown, and drone high scores."
+    },
+    "/pilot_leaderboard/{pilotId}": {
+      "schema": {
+        "$ref": "#/entities/PilotLeaderboardEntry"
+      },
+      "description": "Stores real-time global pilot leaderboard rankings."
+    },
+    "/telemetry_events/{eventId}": {
+      "schema": {
+        "$ref": "#/entities/TelemetryEventEntity"
+      },
+      "description": "Stores anonymized real-time summit telemetry interaction events."
+    },
+    "/telemetry_aggregates/{aggId}": {
+      "schema": {
+        "$ref": "#/entities/TelemetryEventEntity"
+      },
+      "description": "Stores aggregated summit telemetry counters."
+    },
+    "/match_profiles/{profileId}": {
+      "schema": {
+        "$ref": "#/entities/MatchProfileEntity"
+      },
+      "description": "Stores entrepreneur pitch cards, skills brought, and needs sought."
+    },
+    "/match_intents/{intentId}": {
+      "schema": {
+        "$ref": "#/entities/MatchIntentEntity"
+      },
+      "description": "Stores unidirectional connect intents."
+    },
+    "/matches/{matchId}": {
+      "schema": {
+        "$ref": "#/entities/MutualMatchEntity"
+      },
+      "description": "Stores reciprocal founder connections."
+    },
+    "/social_posts/{postId}": {
+      "schema": {
+        "$ref": "#/entities/SocialPost"
+      },
+      "description": "Stores real social posts, Instagram sourced media, and attendee community feed."
+    },
+    "/gamification_rewards/{rewardId}": {
+      "schema": {
+        "$ref": "#/entities/GamificationReward"
+      },
+      "description": "Stores redeemable webapp subscriptions, services, and prizes."
+    },
+    "/redeemed_prizes/{redemptionId}": {
+      "schema": {
+        "$ref": "#/entities/RedeemedPrize"
+      },
+      "description": "Stores user claimed prize vouchers and license keys."
+    },
+    "/leaderboard_scores/{scoreId}": {
+      "schema": {
+        "$ref": "#/entities/LeaderboardScore"
+      },
+      "description": "Stores weekend leaderboard scores and rankings."
+    },
+    "/admins/{adminId}": {
+      "schema": {
+        "$ref": "#/entities/Admin"
+      },
+      "description": "Stores authorized administrator identities and roles."
+    },
+    "/tenants/{tenantId}": {
+      "schema": {
+        "$ref": "#/entities/Tenant"
+      },
+      "description": "Stores tenant organization metadata and branding configurations."
+    },
+    "/questions/{questionId}": {
+      "schema": {
+        "$ref": "#/entities/Question"
+      },
+      "description": "Stores CYOA scenario branches and trivia questions."
+    },
+    "/sessions/{sessionId}": {
+      "schema": {
+        "$ref": "#/entities/EventSession"
+      },
+      "description": "Stores persistent live session states and active visualizer presets."
+    },
+    "/players/{playerId}": {
+      "schema": {
+        "$ref": "#/entities/Player"
+      },
+      "description": "Stores individual player profile and lead information for audience attendees."
+    },
+    "/ticket_inquiries/{inquiryId}": {
+      "schema": {
+        "$ref": "#/entities/TicketInquiry"
+      },
+      "description": "Stores attendee summit registrations and digital passes."
+    },
+    "/sponsor_inquiries/{inquiryId}": {
+      "schema": {
+        "$ref": "#/entities/SponsorInquiry"
+      },
+      "description": "Stores brand sponsorship inquiries."
+    },
+    "/chat_messages/{messageId}": {
+      "schema": {
+        "$ref": "#/entities/ChatMessage"
+      },
+      "description": "Stores real-time live chat messages across channels."
+    },
+    "/summit_speakers/{speakerId}": {
+      "schema": {
+        "$ref": "#/entities/Speaker"
+      },
+      "description": "Stores speaker, performer, and artist profiles for the summit."
+    },
+    "/summit_sessions/{sessionId}": {
+      "schema": {
+        "$ref": "#/entities/SummitSessionItem"
+      },
+      "description": "Stores summit agenda sessions, schedule, and assigned speakers."
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Spatialgineers Summit Gamified Engine",
+  "description": "Multi-tenant real-time interactive CYOA event engine & WebGL visualizer for live broadcasts and audience engagement.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,110 @@
+﻿Markdown
+# SGX SYSTEM: TACTICAL UI/UX & BRAND GUIDE
+**Documento Maestro para Estandarización de Apps y WebGL Environments**
+**Tagline:** "Ingeniando Imaginación, Construyendo Realidades"
+
+---
+
+## 1. CORE FILOSÓFICO Y VIBRA VISUAL
+El objetivo del ecosistema SGX (Nivel 1 a Nivel 3) es la **Fricción Cero**. Las interfaces operan como un "Heads-Up Display" (HUD) táctico de ingeniería espacial. El fondo siempre debe tender al negro absoluto (`#1A1A1A`) para permitir que el canvas WebGL (Three.js) y los acentos de neón dominen la jerarquía visual.
+
+---
+
+## 2. PALETA DE COLORES (CORE & ACCENTS)
+Estos son los valores hexadecimales estrictos para el ecosistema inmersivo en Unreal, Unity, WebApps y decks.
+
+| ROL | COLOR | HEX CODE | USO |
+| :--- | :--- | :--- | :--- |
+| **Fondo/Base** | Metal Dark | `#1A1A1A` | Fondos de app, paneles, espacios negativos. |
+| **Estructura** | Azul Metálico | `#32527B` | Bordes de paneles, líneas arquitectónicas, logos base. |
+| **Energía/Action** | Amarillo Metálico | `#FDCC0D` | Botones (Hover), Call to Actions, rayos del logo. |
+| **Ground/Action** | Anaranjado Cobrizo | `#B87333` | Botones secundarios, zonas de alta energía. |
+| **Acento/Glow** | Neon Cyan | `#00FFFF` | Guías visuales, datos en tiempo real (FPS, estados). |
+| **Acento/Glow** | Neon Orange | `#FFAA00` | Alertas, variables críticas en los shaders. |
+| **Texto/Detalles** | Gris Medio | `#888888` | Texto secundario o inactivo. |
+
+---
+
+## 3. TIPOGRAFÍA Y FLUID SCALING
+Para asegurar que la UI no se rompa entre monitores 4K y pantallas móviles, **NUNCA** utilices píxeles fijos en el tamaño de fuente. Utiliza matemática fluida `clamp()`.
+
+| JERARQUÍA | FONT FAMILY | APLICACIÓN |
+| :--- | :--- | :--- |
+| **Títulos Principales** | Data 70 | Encabezados sci-fi, Tiers, títulos de eventos (Summit). |
+| **HUD / UI Core** | Orbitron | Menús, botones, telemetría espacial. |
+| **Cuerpo / Técnico** | Horta | Descripciones, SOWs, textos largos, legibilidad máxima. |
+
+### CSS de Referencia (Fluid Typography)
+```css
+/* Títulos Principales UI */
+.sgx-title {
+ font-family: 'Orbitron', sans-serif;
+ font-size: clamp(1.2rem, 3vw, 2.5rem);
+ font-weight: 700;
+ text-transform: uppercase;
+}
+
+/* Texto de Paneles/Botones */
+.sgx-text {
+ font-family: 'Orbitron', sans-serif;
+ font-size: clamp(0.8rem, 1.5vw, 1rem);
+}
+
+4. ESTRUCTURA DE PANELES Y BOTONES (GLASSMORPHISM + 45° CUTS)
+Todo panel superpuesto al canvas debe tener opacidad y desenfoque para mantener la inmersión 3D. Los cortes de ingeniería a 45 grados (Chamfer) son obligatorios vía clip-path.
+Paneles
+
+
+
+
+
+
+CSS
+.sgx-panel {
+ background: rgba(26, 26, 26, 0.6);
+ backdrop-filter: blur(10px);
+ -webkit-backdrop-filter: blur(10px); /* Soporte iOS */
+ border: 1px solid rgba(50, 82, 123, 0.5); /* Azul Metálico */
+ clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+ padding: clamp(10px, 2vw, 20px);
+}
+
+Interacción de Botones (Hardware Switch Vibe)
+El estado inactivo es transparente con borde. El hover es sólido, emulando luces LED activándose.
+
+
+
+
+
+
+CSS
+.sgx-btn {
+ background: rgba(253, 204, 13, 0.05); /* Amarillo Metálico base */
+ color: #FDCC0D;
+ border: 1px solid #FDCC0D;
+ font-family: 'Orbitron', sans-serif;
+ text-transform: uppercase;
+ cursor: pointer;
+ transition: all 0.3s ease;
+ clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+.sgx-btn:hover {
+ background: #FDCC0D;
+ color: #050505; /* Texto en negativo */
+ box-shadow: 0 0 15px rgba(253, 204, 13, 0.5);
+}
+
+5. ARQUITECTURA DEL HUD Y Z-INDEX
+La distribución no debe bloquear el centro de visión, dejando la acción WebGL libre.
+* Z-Index 0: Canvas de Three.js (La base absoluta).
+* Z-Index 10+: Overlays y componentes Glassmorphism.
+* Top-Left: Logo del proyecto o branding "POWERED BY SPATIALGINEERS" (tipografía pequeña, 40% de opacidad).
+* Top-Right: Controles de estado global (FPS, Botón de Exportar, Mute, Fullscreen).
+* Bottom-Center / Side-Panels: Controles tácticos (Sliders, selectores de shaders, parámetros MediaPipe). Agrupar en .sgx-panel colapsables.
+6. REGLAS DE PERFORMANCE WEBGL & IA
+* Shaders sobre CSS: NUNCA usar filtros CSS nativos (ctx.filter) para video. Usar Ubershaders (GLSL) en el Fragment Shader para manipulaciones a nivel de GPU.
+* Manejo de Modelos 3D: Blindar GLTFLoader con decodificadores DRACOLoader, KTX2Loader y MeshoptDecoder.
+* Iluminación Base: Integrar RoomEnvironment o mapas HDR invisibles para evitar que los materiales PBR metálicos se vean planos.
+* Gestión de Memoria: Implementar siempre un método clearModel() con una función traverse() profunda para purgar mallas, geometrías y materiales de la GPU antes de inyectar nuevos objetos.
+* Tracking: Usar MediaPipe (Tasks Vision) con cámara frontal (Selfie-Anchor) extrayendo coordenadas (X,Y,Z). WebXR no es el estándar móvil inicial por bloqueos de iOS.

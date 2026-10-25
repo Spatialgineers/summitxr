@@ -1,0 +1,324 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global Helper Primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && (request.auth.token.email_verified == true || request.auth.token.firebase.sign_in_provider == 'google.com');
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && request.auth.token.email == 'info@spatialgineers.com';
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validations
+    function isValidAdmin(data) {
+      return data.keys().hasAll(['email', 'role']) &&
+             data.email is string && data.email.size() <= 100 &&
+             data.role is string && (data.role in ['SUPER_ADMIN', 'DIRECTOR', 'OPERATOR']);
+    }
+
+    function isValidTenant(data) {
+      return data.keys().hasAll(['name', 'slug']) &&
+             data.name is string && data.name.size() <= 100 &&
+             data.slug is string && data.slug.size() <= 100 && data.slug.matches('^[a-zA-Z0-9_-]+$');
+    }
+
+    function isValidQuestion(data) {
+      return data.keys().hasAll(['tenantId', 'eventId', 'prompt', 'category', 'answerType']) &&
+             data.tenantId is string && data.tenantId.size() <= 100 &&
+             data.eventId is string && data.eventId.size() <= 100 &&
+             data.prompt is string && data.prompt.size() <= 500 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.answerType is string && (data.answerType in ['KNOWLEDGE', 'OPINION_CYOA']);
+    }
+
+    function isValidSession(data) {
+      return data.keys().hasAll(['tenantId', 'eventId', 'status', 'activePresetId']) &&
+             data.tenantId is string && data.tenantId.size() <= 100 &&
+             data.eventId is string && data.eventId.size() <= 100 &&
+             data.status is string && (data.status in ['IDLE', 'VOTING_ACTIVE', 'VOTING_CLOSED', 'RESULT_REVEALED', 'EVENT_ENDED']) &&
+             data.activePresetId is string && data.activePresetId.size() <= 100;
+    }
+
+    function isValidPlayer(data) {
+      return data.keys().hasAll(['uid', 'username', 'tenantId', 'eventId']) &&
+             data.uid is string && data.uid.size() <= 128 &&
+             data.username is string && data.username.size() <= 80 &&
+             data.tenantId is string && data.tenantId.size() <= 100 &&
+             data.eventId is string && data.eventId.size() <= 100 &&
+             (!('email' in data) || (data.email is string && data.email.size() <= 150));
+    }
+
+    function isValidTicketInquiry(data) {
+      return data.keys().hasAll(['email', 'ticketType']) &&
+             data.email is string && data.email.size() <= 150 &&
+             data.ticketType is string && (data.ticketType in ['DIGITAL', 'SHOWCASE_PHYSICAL', 'VIP', 'CREATOR']) &&
+             (!('fullName' in data) || (data.fullName is string && data.fullName.size() <= 100)) &&
+             (!('roleTitle' in data) || (data.roleTitle is string && data.roleTitle.size() <= 100)) &&
+             (!('organization' in data) || (data.organization is string && data.organization.size() <= 150)) &&
+             (!('referenceCode' in data) || (data.referenceCode is string && data.referenceCode.size() <= 100)) &&
+             (!('status' in data) || (data.status is string && data.status.size() <= 50)) &&
+             (!('userId' in data) || data.userId == null || (data.userId is string && data.userId.size() <= 128));
+    }
+
+    function isValidSponsorInquiry(data) {
+      return data.keys().hasAll(['companyName', 'contactName', 'email', 'selectedTierId']) &&
+             data.companyName is string && data.companyName.size() <= 120 &&
+             data.contactName is string && data.contactName.size() <= 100 &&
+             data.email is string && data.email.size() <= 150 &&
+             data.selectedTierId is string && data.selectedTierId.size() <= 50;
+    }
+
+    function isValidChatMessage(data) {
+      return data.keys().hasAll(['channelId', 'senderId', 'senderName', 'text']) &&
+             data.channelId is string && data.channelId.size() <= 60 &&
+             data.senderId is string && data.senderId.size() <= 128 &&
+             data.senderName is string && data.senderName.size() <= 100 &&
+             data.text is string && data.text.size() <= 1000 &&
+             (!('senderAvatar' in data) || (data.senderAvatar is string && data.senderAvatar.size() <= 1500000)) &&
+             (!('senderRole' in data) || (data.senderRole is string && data.senderRole.size() <= 50)) &&
+             (!('senderPillar' in data) || (data.senderPillar is string && data.senderPillar.size() <= 50)) &&
+             (!('timestamp' in data) || data.timestamp is number);
+    }
+
+    function isValidSpeaker(data) {
+      return data.keys().hasAll(['name', 'role', 'organization', 'bio', 'avatarUrl', 'day']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.role is string && data.role.size() > 0 && data.role.size() <= 100 &&
+             data.organization is string && data.organization.size() <= 150 &&
+             data.bio is string && data.bio.size() <= 3000 &&
+             data.avatarUrl is string && data.avatarUrl.size() <= 1500000 &&
+             data.day is number && data.day >= 1 && data.day <= 3 &&
+             (!('handle' in data) || (data.handle is string && data.handle.size() <= 50)) &&
+             (!('pillarId' in data) || (data.pillarId is string && data.pillarId.size() <= 50)) &&
+             (!('userId' in data) || data.userId == null || (data.userId is string && data.userId.size() <= 128));
+    }
+
+    function isValidSummitSession(data) {
+      return data.keys().hasAll(['title', 'day', 'startTime', 'endTime', 'venueLocation', 'format', 'description']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 150 &&
+             data.day is number && data.day >= 1 && data.day <= 3 &&
+             data.startTime is string && data.startTime.size() <= 30 &&
+             data.endTime is string && data.endTime.size() <= 30 &&
+             data.venueLocation is string && data.venueLocation.size() <= 200 &&
+             data.format is string && (data.format in ['DIGITAL', 'HYBRID', 'PHYSICAL', 'ROBLOX_STREAM']) &&
+             data.description is string && data.description.size() <= 3000 &&
+             (!('pillarId' in data) || (data.pillarId is string && data.pillarId.size() <= 50)) &&
+             (!('speakerIds' in data) || (data.speakerIds is list && data.speakerIds.size() <= 50));
+    }
+
+    function isValidSocialPost(data) {
+      return data.keys().hasAll(['content', 'createdAt', 'platform']) &&
+             data.content is string && data.content.size() <= 2000 &&
+             data.platform is string &&
+             data.createdAt is number;
+    }
+
+    // Collection: /admins/{adminId}
+    match /admins/{adminId} {
+      allow get: if isSuperAdmin() && isValidId(adminId);
+      allow list: if isSuperAdmin();
+      allow create, update, delete: if isSuperAdmin() && isValidId(adminId) && isValidAdmin(incoming());
+    }
+
+    // Collection: /tenants/{tenantId}
+    match /tenants/{tenantId} {
+      allow get: if isValidId(tenantId);
+      allow list: if true;
+      allow create, update, delete: if isSuperAdmin() && isValidId(tenantId) && isValidTenant(incoming());
+    }
+
+    // Collection: /questions/{questionId}
+    match /questions/{questionId} {
+      allow get: if isValidId(questionId);
+      allow list: if true;
+      allow create, update, delete: if isSuperAdmin() && isValidId(questionId) && isValidQuestion(incoming());
+    }
+
+    // Collection: /sessions/{sessionId}
+    match /sessions/{sessionId} {
+      allow get: if isValidId(sessionId);
+      allow list: if true;
+      allow create, update: if isSuperAdmin() && isValidId(sessionId) && isValidSession(incoming());
+      allow delete: if isSuperAdmin() && isValidId(sessionId);
+    }
+
+    // Collection: /players/{playerId}
+    match /players/{playerId} {
+      allow get: if (isSignedIn() && request.auth.uid == playerId) || isSuperAdmin();
+      allow list: if isSuperAdmin();
+      allow create, update: if (isSignedIn() && request.auth.uid == playerId && isValidId(playerId) && isValidPlayer(incoming())) || isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // Collection: /ticket_inquiries/{inquiryId}
+    match /ticket_inquiries/{inquiryId} {
+      allow get: if isSuperAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid) || isValidId(inquiryId);
+      allow list: if isSuperAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isValidTicketInquiry(incoming());
+      allow update, delete: if isSuperAdmin();
+    }
+
+    // Collection: /sponsor_inquiries/{inquiryId}
+    match /sponsor_inquiries/{inquiryId} {
+      allow get: if isSuperAdmin();
+      allow list: if isSuperAdmin();
+      allow create: if isValidSponsorInquiry(incoming());
+      allow update, delete: if isSuperAdmin();
+    }
+
+    // Collection: /chat_messages/{messageId}
+    match /chat_messages/{messageId} {
+      allow get, list: if true;
+      allow create: if isValidChatMessage(incoming());
+      allow update: if true;
+      allow delete: if isSuperAdmin();
+    }
+
+    // Collection: /summit_speakers/{speakerId}
+    match /summit_speakers/{speakerId} {
+      allow get, list: if true;
+      allow create: if isValidId(speakerId) && isValidSpeaker(incoming());
+      allow update: if isValidId(speakerId) && (isSuperAdmin() || isValidSpeaker(incoming()));
+      allow delete: if isValidId(speakerId) && (isSuperAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid));
+    }
+
+    // Collection: /summit_sessions/{sessionId}
+    match /summit_sessions/{sessionId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(sessionId) && (isSuperAdmin() || isValidSummitSession(incoming()));
+      allow delete: if isValidId(sessionId);
+    }
+
+    // Collection: /approved_sponsors/{sponsorId}
+    match /approved_sponsors/{sponsorId} {
+      allow get, list: if true;
+      allow create, update, delete: if isSuperAdmin() || isValidId(sponsorId);
+    }
+
+    // Collection: /gamification_rewards/{rewardId}
+    match /gamification_rewards/{rewardId} {
+      allow get, list: if true;
+      allow create, update, delete: if isSuperAdmin() || isValidId(rewardId);
+    }
+
+    // Collection: /redeemed_prizes/{redemptionId}
+    match /redeemed_prizes/{redemptionId} {
+      allow get, list: if true;
+      allow create: if isValidId(redemptionId);
+      allow update, delete: if isSuperAdmin();
+    }
+
+    // Collection: /leaderboard_scores/{scoreId}
+    match /leaderboard_scores/{scoreId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(scoreId);
+      allow delete: if isSuperAdmin();
+    }
+
+    // Collection: /gamification_tiers/{tierId}
+    match /gamification_tiers/{tierId} {
+      allow get, list: if true;
+      allow create, update, delete: if isSuperAdmin() || isValidId(tierId);
+    }
+
+    // Collection: /social_posts/{postId}
+    match /social_posts/{postId} {
+      allow get, list: if true;
+      allow create: if isValidId(postId) && isValidSocialPost(incoming());
+      allow update: if isValidId(postId) && (isSuperAdmin() || incoming().diff(existing()).affectedKeys().hasOnly(['likes', 'userLiked', 'comments', 'commentsCount', 'sharesCount', 'isFeaturedOnStage']));
+      allow delete: if isSuperAdmin();
+    }
+
+    // Collection: /match_profiles/{profileId}
+    match /match_profiles/{profileId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(profileId);
+      allow delete: if isSuperAdmin();
+    }
+
+    // Collection: /match_intents/{intentId}
+    match /match_intents/{intentId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(intentId);
+      allow delete: if isSuperAdmin();
+    }
+
+    // Collection: /matches/{matchId}
+    match /matches/{matchId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(matchId);
+      allow delete: if isSuperAdmin();
+    }
+
+    // Collection: /match_passes/{passId}
+    match /match_passes/{passId} {
+      allow get, list: if true;
+      allow create: if isValidId(passId);
+      allow delete: if isSuperAdmin();
+    }
+
+    // Collection: /match_reports/{reportId}
+    match /match_reports/{reportId} {
+      allow create: if isValidId(reportId);
+      allow get, list, delete: if isSuperAdmin();
+    }
+
+    // Collection: /pilot_profiles/{profileId}
+    match /pilot_profiles/{profileId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(profileId);
+      allow delete: if isSuperAdmin();
+    }
+
+    // Collection: /pilot_leaderboard/{pilotId}
+    match /pilot_leaderboard/{pilotId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(pilotId);
+      allow delete: if isSuperAdmin();
+    }
+
+    // Collection: /telemetry_events/{eventId}
+    match /telemetry_events/{eventId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(eventId);
+      allow delete: if isSuperAdmin();
+    }
+
+    // Collection: /telemetry_aggregates/{aggId}
+    match /telemetry_aggregates/{aggId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(aggId);
+      allow delete: if isSuperAdmin();
+    }
+
+    // Collection: /site_config/{configId}
+    match /site_config/{configId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(configId);
+      allow delete: if isSuperAdmin();
+    }
+  }
+}

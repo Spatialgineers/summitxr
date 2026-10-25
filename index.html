@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spatialgineers Summit 2026 · 11–13 Dic · San Juan, PR</title>
+    <meta name="description" content="Ingeniando Imaginación, Construyendo Realidades. Tres días de computación espacial, XR, mundos 3D en Roblox e inteligencia artificial en Chroma Space Studios. Explora y gana XP." />
+    <!-- Google Fonts: Orbitron (Titles/HUD), Space Grotesk (Body Prose) & Roboto Mono (Data/Code) per Brand Guide v2026.10 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- OpenGraph Social Cards (WhatsApp, LinkedIn, Discord, Facebook) -->
+    <meta property="og:site_name" content="Spatialgineers Summit 2026" />
+    <meta property="og:title" content="Spatialgineers Summit 2026 · Ingeniando Imaginación, Construyendo Realidades" />
+    <meta property="og:description" content="Tres días de computación espacial, mundos 3D en Roblox y producción virtual desde Chroma Space Studios (San Juan, PR). Explora el núcleo 3D interactivo." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_PR" />
+    <meta property="og:image" content="https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Spatialgineers Summit 2026 - San Juan Puerto Rico" />
+
+    <!-- Twitter / X Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Spatialgineers Summit 2026 · 11–13 Dic · San Juan, PR" />
+    <meta name="twitter:description" content="Tres días de computación espacial, mundos 3D en Roblox y producción virtual desde Chroma Space Studios. Explora el núcleo 3D y gana XP." />
+    <meta name="twitter:image" content="https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png" />
+
+    <!-- Schema.org Event Structured Data (JSON-LD) for Search Engine Rich Snippets -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Event",
+      "name": "Spatialgineers Summit 2026",
+      "description": "Tres días de computación espacial, experiencias inmersivas XR, mundos 3D en Roblox e inteligencia artificial en Chroma Space Studios.",
+      "startDate": "2026-12-11T10:00:00-04:00",
+      "endDate": "2026-12-13T16:00:00-04:00",
+      "eventAttendanceMode": "https://schema.org/MixedEventAttendanceMode",
+      "eventStatus": "https://schema.org/EventScheduled",
+      "location": [
+        {
+          "@type": "Place",
+          "name": "Chroma Space Studios",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "San Juan",
+            "addressLocality": "San Juan",
+            "addressRegion": "PR",
+            "postalCode": "00901",
+            "addressCountry": "US"
+          }
+        },
+        {
+          "@type": "VirtualLocation",
+          "url": "https://www.roblox.com"
+        }
+      ],
+      "organizer": {
+        "@type": "Organization",
+        "name": "Spatialgineers LLC",
+        "url": "https://spatialgineers.com"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "validFrom": "2026-01-01T00:00:00-04:00"
+      }
+    }
+    </script>
+
+    <script>
+      // Suppress benign WebSocket/HMR connection rejections in AI Studio preview iframe
+      window.addEventListener('unhandledrejection', function (event) {
+        var reason = event.reason;
+        var message = reason ? (reason.message || String(reason)) : '';
+        var stack = reason ? (reason.stack || '') : '';
+        if (
+          message.indexOf('WebSocket') !== -1 ||
+          message.indexOf('failed to connect') !== -1 ||
+          stack.indexOf('@vite/client') !== -1 ||
+          stack.indexOf('client.mjs') !== -1
+        ) {
+          event.preventDefault();
+        }
+      });
+    </script>
+  </head>
+  <body class="bg-[#050505] text-slate-100 font-['Space_Grotesk',sans-serif] antialiased select-none overflow-x-hidden">
+    <div id="root">
+      <noscript>
+        <div style="padding: 2.5rem; max-width: 800px; margin: 0 auto; color: #ffffff; background: #1A1A1A; font-family: sans-serif; line-height: 1.6;">
+          <h1 style="color: #00DDFF; font-size: 1.8rem; margin-bottom: 0.5rem;">Spatialgineers Summit 2026 · San Juan, Puerto Rico & Mundos 3D en Roblox</h1>
+          <p style="color: #FDCC0D; font-weight: bold;">Diciembre 11, 12 & 13, 2026 · Chroma Space Studios & Transmisión Global</p>
+          <p>Tres días de computación espacial, desarrollo de mundos 3D, experiencias inmersivas XR, portafolios de los 8 Initiates del SGX Guild y showcase en vivo.</p>
+          <p>© 2026 Spatialgineers LLC. Todos los derechos reservados.</p>
+        </div>
+      </noscript>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

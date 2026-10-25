@@ -1,0 +1,25 @@
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+import { AuthProvider } from './context/AuthContext.tsx';
+import { TenantThemeProvider } from './context/TenantThemeContext.tsx';
+import { LanguageProvider } from './context/LanguageContext.tsx';
+import { PilotProfileProvider } from './context/PilotProfileContext.tsx';
+import { SummitFeatureProvider } from './context/SummitFeatureContext.tsx';
+import './index.css';
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <AuthProvider>
+      <TenantThemeProvider>
+        <LanguageProvider>
+          <PilotProfileProvider>
+            <SummitFeatureProvider>
+              <App />
+            </SummitFeatureProvider>
+          </PilotProfileProvider>
+        </LanguageProvider>
+      </TenantThemeProvider>
+    </AuthProvider>
+  </StrictMode>,
+);

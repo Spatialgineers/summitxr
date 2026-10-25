@@ -11,7 +11,9 @@ export type WeekendActivityCategory =
   | 'stage_cyoa'
   | 'rewards_claim'
   | 'tour_complete'
-  | 'avatar_customized';
+  | 'avatar_customized'
+  | 'quest_complete'
+  | 'energy_cell';
 
 export type DroneTrickType = 
   | 'barrel_roll'

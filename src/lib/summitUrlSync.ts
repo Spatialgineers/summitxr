@@ -352,6 +352,8 @@ export function syncAppUrl(options: {
     } else {
       window.history.pushState(window.history.state, '', newUrl);
     }
+    // Lets listeners outside the router (e.g. the immersion layer) follow navigation.
+    window.dispatchEvent(new CustomEvent('sgx:route_changed', { detail: getAppRouteAndSectionFromUrl() }));
   } catch (err) {
     console.warn('URL sync notice:', err);
   }

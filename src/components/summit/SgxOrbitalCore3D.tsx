@@ -304,7 +304,7 @@ function createSponsorBillboardTexture(
     ctx.fillStyle = colorHex;
     ctx.fillRect(24, 22, 280, 28);
     ctx.fillStyle = '#050505';
-    ctx.font = 'bold 13px "Roboto Mono", monospace';
+    ctx.font = 'bold 13px "Share Tech Mono", monospace';
     ctx.fillText(`★ ${tierLabel}`, 34, 41);
 
     // Sponsor Name in Orbitron
@@ -314,7 +314,7 @@ function createSponsorBillboardTexture(
 
     // Role Subtitle
     ctx.fillStyle = '#CBD5E1';
-    ctx.font = '500 15px "Space Grotesk", sans-serif';
+    ctx.font = '500 15px "Exo 2", sans-serif';
     ctx.fillText(roleSubtitle, 24, 136);
 
     // Dividing accent bar
@@ -327,7 +327,7 @@ function createSponsorBillboardTexture(
 
     // Footer Interactive Telemetry
     ctx.fillStyle = colorHex;
-    ctx.font = 'bold 12px "Roboto Mono", monospace';
+    ctx.font = 'bold 12px "Share Tech Mono", monospace';
     ctx.fillText('▲ ESTACIÓN DE PATROCINIO 3D · TOCAR PARA ACTIVAR', 24, 202);
 
     ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
@@ -460,6 +460,20 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   const pointerDownPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const dragDistanceRef = useRef<number>(0);
   const triggerShockwaveRef = useRef<((worldPos: THREE.Vector3, colorHex: number) => void) | null>(null);
+
+  // Immersion layer: SGX pulses and overdrive ripple through the 3D core.
+  useEffect(() => {
+    const ring = (delay: number, color: number) =>
+      window.setTimeout(() => triggerShockwaveRef.current?.(new THREE.Vector3(0, 0, 0), color), delay);
+    const onPulse = () => { ring(0, 0xFDCC0D); ring(140, 0x00DDFF); };
+    const onOverdrive = () => { [0, 220, 440, 660, 880].forEach((d, i) => ring(d, i % 2 ? 0x00DDFF : 0xFFBB00)); };
+    window.addEventListener('sgx:pulse', onPulse);
+    window.addEventListener('sgx:overdrive', onOverdrive);
+    return () => {
+      window.removeEventListener('sgx:pulse', onPulse);
+      window.removeEventListener('sgx:overdrive', onOverdrive);
+    };
+  }, []);
 
   useEffect(() => {
     focusedSponsorRef.current = focusedSponsorId;
@@ -1587,7 +1601,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
             className="w-6 h-6 sm:w-7 sm:h-7 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(253,204,13,0.5)]"
           />
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-['Roboto_Mono',monospace]">
+            <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-mono">
               <span className="font-extrabold tracking-wider" style={{ color: readableAccent }}>
                 {activeNode.code}
               </span>
@@ -1600,7 +1614,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           </div>
         </div>
 
-        <div className="relative flex items-center gap-1 sm:gap-1.5 shrink-0 font-['Roboto_Mono',monospace] text-xs">
+        <div className="relative flex items-center gap-1 sm:gap-1.5 shrink-0 font-mono text-xs">
           {/* Quick 1-Click Boleto Trigger */}
           {onOpenTickets && (
             <button
@@ -1708,7 +1722,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           {/* Clean Options Dropdown Popover */}
           {optionsMenuOpen && (
             <div
-              className="absolute top-full right-0 mt-2 z-50 w-64 p-2 bg-[#0D1017] border-2 border-[#32527B] shadow-[0_15px_40px_rgba(0,0,0,0.9)] space-y-1.5 font-['Roboto_Mono',monospace] text-xs"
+              className="absolute top-full right-0 mt-2 z-50 w-64 p-2 bg-[#0D1017] border-2 border-[#32527B] shadow-[0_15px_40px_rgba(0,0,0,0.9)] space-y-1.5 font-mono text-xs"
               style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
             >
               <div className="px-2 py-1 text-[10px] font-bold text-slate-400 border-b border-[#32527B]/60 uppercase tracking-wider">
@@ -1843,7 +1857,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               <button
                 type="button"
                 onClick={() => setClocksCollapsedMobile(false)}
-                className="sm:hidden px-2.5 py-1.5 bg-[#050505]/95 border border-[#FDCC0D] text-white font-['Roboto_Mono',monospace] text-[11px] font-bold flex items-center gap-2 shadow-2xl cursor-pointer"
+                className="sm:hidden px-2.5 py-1.5 bg-[#050505]/95 border border-[#FDCC0D] text-white font-mono text-[11px] font-bold flex items-center gap-2 shadow-2xl cursor-pointer"
                 style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
                 title="Expandir relojes del Summit"
               >
@@ -1864,7 +1878,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
             >
               <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-[#32527B]/50">
                 <div className="min-w-0">
-                  <div className="text-[9px] font-['Roboto_Mono',monospace] font-bold text-[#FDCC0D] tracking-widest uppercase">
+                  <div className="text-[9px] font-mono font-bold text-[#FDCC0D] tracking-widest uppercase">
                     11–13 DIC 2026 · 10:00 AM
                   </div>
                   <div className="text-xs font-black text-white font-['Orbitron',sans-serif] tracking-wide truncate">
@@ -1874,12 +1888,12 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 <button
                   type="button"
                   onClick={() => setClocksCollapsedMobile(true)}
-                  className="sm:hidden px-1.5 py-0.5 bg-[#050505] border border-[#32527B] text-[10px] font-['Roboto_Mono',monospace] text-[#00DDFF] cursor-pointer"
+                  className="sm:hidden px-1.5 py-0.5 bg-[#050505] border border-[#32527B] text-[10px] font-mono text-[#00DDFF] cursor-pointer"
                   title="Minimizar relojes"
                 >
                   ▲
                 </button>
-                <span className="hidden sm:inline-block px-1.5 py-0.5 bg-[#00DDFF]/15 border border-[#00DDFF]/50 text-[9px] font-['Roboto_Mono',monospace] font-bold text-[#00DDFF] shrink-0">
+                <span className="hidden sm:inline-block px-1.5 py-0.5 bg-[#00DDFF]/15 border border-[#00DDFF]/50 text-[9px] font-mono font-bold text-[#00DDFF] shrink-0">
                   EN VIVO
                 </span>
               </div>
@@ -1957,7 +1971,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
                           <span
-                            className="text-xs sm:text-sm font-black font-['Roboto_Mono',monospace] tabular-nums tracking-tight text-white group-hover:scale-110 transition-transform"
+                            className="text-xs sm:text-sm font-black font-mono tabular-nums tracking-tight text-white group-hover:scale-110 transition-transform"
                             style={{ textShadow: `0 0 10px ${dial.color}90` }}
                           >
                             {dial.value}
@@ -2016,7 +2030,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                   alt="SGX Core"
                   className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
                 />
-                <span className="text-[8px] font-['Roboto_Mono',monospace] font-bold text-black bg-white/90 px-1 mt-0.5">CORE</span>
+                <span className="text-[8px] font-mono font-bold text-black bg-white/90 px-1 mt-0.5">CORE</span>
               </div>
 
               {SGX_ORBITAL_PILLARS.map((p, idx) => {
@@ -2057,7 +2071,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               })}
             </div>
 
-            <div className="mt-4 px-3.5 py-2 bg-[#1A1A1A] border border-[#FFBB00]/50 text-[#FFBB00] font-['Space_Grotesk',sans-serif] text-xs flex items-center gap-2">
+            <div className="mt-4 px-3.5 py-2 bg-[#1A1A1A] border border-[#FFBB00]/50 text-[#FFBB00] font-body text-xs flex items-center gap-2">
               <Zap className="w-4 h-4 text-[#FFBB00] shrink-0" />
               <span>Modo Ligero Activo · Ahorro de GPU y Batería al 100% · Toca cualquier pilar para inspeccionar</span>
             </div>
@@ -2133,7 +2147,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
             >
               {/* Mobile Top Grabber & Quick Close Bar */}
               <div className="md:hidden flex items-center justify-between px-4 py-2.5 bg-[#050505] border-b border-[#32527B]/60 shrink-0">
-                <span className="text-[11px] font-['Roboto_Mono',monospace] font-bold text-[#FDCC0D] uppercase tracking-wider">
+                <span className="text-[11px] font-mono font-bold text-[#FDCC0D] uppercase tracking-wider">
                   MODAL DE INSPECCIÓN NÚCLEO 3D
                 </span>
                 <button
@@ -2169,7 +2183,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                     </div>
                     <div className="min-w-0">
                       <div
-                        className="text-[11px] font-['Roboto_Mono',monospace] font-bold uppercase tracking-wider"
+                        className="text-[11px] font-mono font-bold uppercase tracking-wider"
                         style={{ color: readableAccent }}
                       >
                         ESTACIÓN ACOPLADA · {activeNode.code}
@@ -2283,7 +2297,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                           </div>
                           {mod.xpReward && (
                             <span
-                              className="px-2.5 py-0.5 bg-[#050505] border font-['Roboto_Mono',monospace] font-bold tabular-nums shrink-0"
+                              className="px-2.5 py-0.5 bg-[#050505] border font-mono font-bold tabular-nums shrink-0"
                               style={{
                                 fontSize: 'clamp(0.75rem, 0.9vw, 0.85rem)',
                                 color: readableAccent,
@@ -2296,13 +2310,13 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                         </div>
 
                         <p
-                          className="text-slate-100 font-['Space_Grotesk',sans-serif] leading-relaxed text-sm sm:text-base"
+                          className="text-slate-100 font-body leading-relaxed text-sm sm:text-base"
                         >
                           {mod.description}
                         </p>
 
                         <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#32527B]/40">
-                          <span className="text-xs font-['Roboto_Mono',monospace] text-slate-300 truncate">
+                          <span className="text-xs font-mono text-slate-300 truncate">
                             {mod.subtitle}
                           </span>
                           <span className="sgx-btn px-3 py-1.5 text-xs flex items-center gap-1.5 shrink-0">
@@ -2328,16 +2342,16 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                           <Building2 className="w-4 h-4 text-[#FDCC0D]" />
                           <span>4 ÁREAS DE PATROCINIO 3D EN EL NÚCLEO</span>
                         </span>
-                        <span className="font-['Roboto_Mono',monospace] text-xs text-[#00DDFF]">+25 XP / VISITA</span>
+                        <span className="font-mono text-xs text-[#00DDFF]">+25 XP / VISITA</span>
                       </div>
-                      <p className="text-slate-200 font-['Space_Grotesk',sans-serif] text-xs sm:text-sm leading-relaxed">
+                      <p className="text-slate-200 font-body text-xs sm:text-sm leading-relaxed">
                         Toca cualquier monolito rotando en la arena 3D o pulsa <strong className="text-[#FDCC0D]">"Enfocar en 3D"</strong> para volar la cámara hacia esa estación de patrocinio oficial.
                       </p>
                     </div>
 
                     {/* The 4 Rotating 3D Sponsor Stations */}
                     <div className="space-y-3">
-                      <div className="text-xs font-['Roboto_Mono',monospace] font-bold text-slate-400 uppercase tracking-wider px-1">
+                      <div className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider px-1">
                         Estaciones 3D Activas en el Espacio:
                       </div>
 
@@ -2356,7 +2370,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                           >
                             <div className="flex items-center justify-between gap-2">
                               <span
-                                className="px-2.5 py-0.5 text-xs font-['Roboto_Mono',monospace] font-bold uppercase"
+                                className="px-2.5 py-0.5 text-xs font-mono font-bold uppercase"
                                 style={{
                                   backgroundColor: `${station.colorHex}18`,
                                   color: station.colorHex,
@@ -2376,7 +2390,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                               0{sIdx + 1}. {station.name}
                             </div>
 
-                            <p className="text-slate-200 font-['Space_Grotesk',sans-serif] text-sm leading-relaxed">
+                            <p className="text-slate-200 font-body text-sm leading-relaxed">
                               {station.roleSubtitle}
                             </p>
 
@@ -2401,7 +2415,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                                   setTimeout(() => setFloatingXpNotice(null), 2000);
                                   recordActivity('tour_complete', `Estación Sponsor 3D: ${station.name}`, station.tierLabel, 25);
                                 }}
-                                className="px-3 py-1.5 bg-[#1A1A1A] hover:bg-[#00DDFF] hover:text-black border border-[#00DDFF]/60 text-xs font-['Roboto_Mono',monospace] text-[#00DDFF] font-bold cursor-pointer transition-colors"
+                                className="px-3 py-1.5 bg-[#1A1A1A] hover:bg-[#00DDFF] hover:text-black border border-[#00DDFF]/60 text-xs font-mono text-[#00DDFF] font-bold cursor-pointer transition-colors"
                               >
                                 +25 XP Descubrir
                               </button>
@@ -2413,7 +2427,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
 
                     {/* Official Sponsorship Packages (Tiers 1–5) */}
                     <div className="space-y-3 pt-3 border-t border-[#32527B]/60">
-                      <div className="text-xs font-['Roboto_Mono',monospace] font-bold text-slate-400 uppercase tracking-wider px-1">
+                      <div className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider px-1">
                         Paquetes Oficiales de Alianza (Tiers 1 al 5):
                       </div>
 
@@ -2441,7 +2455,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                           >
                             <div className="flex items-center justify-between gap-2">
                               <span
-                                className="px-2.5 py-0.5 text-xs font-['Roboto_Mono',monospace] font-bold uppercase"
+                                className="px-2.5 py-0.5 text-xs font-mono font-bold uppercase"
                                 style={{
                                   backgroundColor: `${tierColor}18`,
                                   color: tierColor,
@@ -2458,7 +2472,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                                   setTimeout(() => setFloatingXpNotice(null), 2000);
                                   recordActivity('tour_complete', `Baliza Sponsor: ${tier.name}`, tier.priceRange, 15);
                                 }}
-                                className="text-xs font-['Roboto_Mono',monospace] font-bold text-[#00DDFF] hover:text-[#FDCC0D] underline cursor-pointer"
+                                className="text-xs font-mono font-bold text-[#00DDFF] hover:text-[#FDCC0D] underline cursor-pointer"
                               >
                                 Escanear (+15 XP)
                               </button>
@@ -2468,7 +2482,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                               {sponsorName}
                             </div>
 
-                            <p className="text-slate-200 font-['Space_Grotesk',sans-serif] text-xs sm:text-sm leading-relaxed">
+                            <p className="text-slate-200 font-body text-xs sm:text-sm leading-relaxed">
                               {tier.keyBenefit}
                             </p>
 
@@ -2504,11 +2518,11 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                           <Sliders className="w-4 h-4" />
                           <span>FIDELIDAD .GLB & SHADER 3D</span>
                         </span>
-                        <span className="font-['Roboto_Mono',monospace] text-xs text-[#FDCC0D]">
+                        <span className="font-mono text-xs text-[#FDCC0D]">
                           {loadedModelsCount}/7 GLBs Activos
                         </span>
                       </div>
-                      <p className="text-slate-200 font-['Space_Grotesk',sans-serif] text-xs sm:text-sm leading-relaxed">
+                      <p className="text-slate-200 font-body text-xs sm:text-sm leading-relaxed">
                         El domo volumétrico GLSL, las partículas cuánticas circulares y las 4 áreas de sponsors giran en tiempo real respetando los materiales nativos PBR de cada escultura <strong className="text-[#FDCC0D]">.glb</strong>.
                       </p>
                     </div>
@@ -2525,7 +2539,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                           <Volume2 className="w-4 h-4" />
                           <span>SINTETIZADOR ARMÓNICO 432Hz</span>
                         </span>
-                        <span className="font-['Roboto_Mono',monospace] text-xs text-slate-300">Ondas 3D</span>
+                        <span className="font-mono text-xs text-slate-300">Ondas 3D</span>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         {[
@@ -2555,7 +2569,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                     >
                       <div className="flex items-center justify-between text-white font-['Orbitron',sans-serif] font-bold text-xs sm:text-sm">
                         <span>VELOCIDAD DE REACTOR ORBITAL</span>
-                        <span className="font-['Roboto_Mono',monospace] text-[#00DDFF] tabular-nums">
+                        <span className="font-mono text-[#00DDFF] tabular-nums">
                           {orbitSpeedMultiplier.toFixed(1)}x
                         </span>
                       </div>
@@ -2574,7 +2588,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               </div>
 
               {/* Modal Footer Telemetry */}
-              <div className="px-4 py-2.5 bg-[#050505] border-t border-[#32527B]/60 flex items-center justify-between text-xs font-['Roboto_Mono',monospace] text-slate-300 shrink-0">
+              <div className="px-4 py-2.5 bg-[#050505] border-t border-[#32527B]/60 flex items-center justify-between text-xs font-mono text-slate-300 shrink-0">
                 <span>
                   Orbes 3D: <strong className="text-[#FDCC0D] tabular-nums">{xpOrbsCollected}</strong>
                 </span>
@@ -2594,7 +2608,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         )}
 
         {/* Bottom Status Bar / Mobile Bottom Sheet Launcher inside 3D Viewport */}
-        <div className="absolute bottom-2.5 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-auto text-xs font-['Roboto_Mono',monospace] text-slate-200">
+        <div className="absolute bottom-2.5 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-auto text-xs font-mono text-slate-200">
           <div className="px-3 py-1.5 bg-[#050505]/85 backdrop-blur-md border border-[#32527B]/70 pointer-events-none hidden sm:block">
             Toca cualquier escultura <strong className="text-[#FDCC0D]">.GLB</strong> o los orbes en 3D · Arrastra para orbitar el espacio
           </div>
@@ -2628,7 +2642,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       </div>
 
       {/* Direct 6-Pillar Quick Docking Strip (Bottom Bar — Sleek Horizontal Swipe Dock on Mobile, 6-Col Grid on Desktop) */}
-      <div className="relative z-30 flex items-center gap-1.5 p-2 bg-[#050505] border-t border-[#32527B]/60 font-['Roboto_Mono',monospace] text-xs overflow-x-auto scroll-smooth no-scrollbar lg:grid lg:grid-cols-6">
+      <div className="relative z-30 flex items-center gap-1.5 p-2 bg-[#050505] border-t border-[#32527B]/60 font-mono text-xs overflow-x-auto scroll-smooth no-scrollbar lg:grid lg:grid-cols-6">
         {SGX_ORBITAL_PILLARS.map((p, index) => {
           const isSelected = p.id === activePillarId;
           const pillAccent = p.colorHex === '#32527B' ? '#00DDFF' : p.colorHex;

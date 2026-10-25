@@ -170,6 +170,12 @@ export const SummitDroneMiniGame: React.FC = () => {
 
   // Core Game State
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+
+  // Tells global shortcuts (immersion layer) to stand down while the pilot flies.
+  useEffect(() => {
+    document.body.toggleAttribute('data-sgx-game', isPlaying);
+    return () => document.body.removeAttribute('data-sgx-game');
+  }, [isPlaying]);
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [score, setScore] = useState<number>(0);
   const [energy, setEnergy] = useState<number>(100);

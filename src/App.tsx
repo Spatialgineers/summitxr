@@ -30,6 +30,7 @@ import { telemetry } from './lib/telemetry';
 import { getAppRouteAndSectionFromUrl, syncAppUrl } from './lib/summitUrlSync';
 import { SummitIntroSplash } from './components/summit/SummitIntroSplash';
 import { PilotProfileModal } from './components/summit/PilotProfileModal';
+import { ImmersionLayer } from './immersion/ImmersionLayer';
 
 export default function App() {
   const { isAdmin } = useAuth();
@@ -139,11 +140,22 @@ export default function App() {
       }
     };
 
+    // Page-level navigation requests from outside the header (command terminal, HUD).
+    const handleNavigatePage = (e: Event) => {
+      const detail = (e as CustomEvent<{ page?: PageRoute; section?: string }>).detail;
+      if (!detail?.page) return;
+      syncAppUrl({ page: detail.page, section: detail.section, replace: false });
+      setCurrentPage(detail.page);
+      if (detail.page === 'summit') setActiveSummitSection(detail.section || 'OVERVIEW');
+    };
+
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('sgx:switch_summit_section', handleSwitchSection as EventListener);
+    window.addEventListener('sgx:navigate_page', handleNavigatePage);
     return () => {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('sgx:switch_summit_section', handleSwitchSection as EventListener);
+      window.removeEventListener('sgx:navigate_page', handleNavigatePage);
     };
   }, []);
 
@@ -983,6 +995,9 @@ export default function App() {
 
       {/* Global Pilot Profile, XP Log & Live Leaderboard Modal */}
       <PilotProfileModal />
+
+      {/* SGX Immersion Engine: quests, energy cells, terminal, HUD and FX */}
+      <ImmersionLayer currentPage={currentPage} />
     </div>
   );
 }

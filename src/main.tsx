@@ -6,6 +6,7 @@ import { TenantThemeProvider } from './context/TenantThemeContext.tsx';
 import { LanguageProvider } from './context/LanguageContext.tsx';
 import { PilotProfileProvider } from './context/PilotProfileContext.tsx';
 import { SummitFeatureProvider } from './context/SummitFeatureContext.tsx';
+import { ImmersionProvider } from './immersion/ImmersionContext.tsx';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
@@ -15,7 +16,9 @@ createRoot(document.getElementById('root')!).render(
         <LanguageProvider>
           <PilotProfileProvider>
             <SummitFeatureProvider>
-              <App />
+              <ImmersionProvider>
+                <App />
+              </ImmersionProvider>
             </SummitFeatureProvider>
           </PilotProfileProvider>
         </LanguageProvider>

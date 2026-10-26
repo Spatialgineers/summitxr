@@ -13,6 +13,7 @@ import { MissionRail } from './MissionRail';
 import { CommandTerminal } from './CommandTerminal';
 import { EnergyCell, boltBurst } from './EnergyCell';
 import { Atmosphere, CursorReticle, Holodeck, OverdriveFrame, PulseWaves, WarpTransition, XpTicker, useScrollReveal } from './ImmersionFX';
+import { SgxMobileDock } from './SgxMobileDock';
 
 /** Pages that get the full game layer. The broadcast stage and multiview stay clean for projection. */
 const GAME_PAGES: PageRoute[] = ['summit', 'play'];
@@ -211,6 +212,7 @@ export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPa
       {!stageMode && isGamePage && <XpTicker />}
       <CommandTerminal />
       <HudToasts />
+      {!stageMode && currentPage === 'summit' && <SgxMobileDock section={section} />}
     </div>
   );
 };

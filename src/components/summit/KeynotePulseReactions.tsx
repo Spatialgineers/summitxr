@@ -293,7 +293,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
       </div>
 
       {/* Persistent Floating Widget Button (Bottom Right) */}
-      <div className={`fixed bottom-4 right-4 z-40 ${className}`}>
+      <div className={`sgx-pulse-widget fixed bottom-4 right-4 z-40 ${className}`}>
         {!isExpanded ? (
           <div className="flex items-center space-x-2">
             {/* Main Trigger Button */}

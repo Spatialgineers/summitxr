@@ -42,6 +42,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
   const [isAutoRotate, setIsAutoRotate] = useState(true);
   const [isGyroActive, setIsGyroActive] = useState<boolean>(false);
   const [isTextureLoading, setIsTextureLoading] = useState<boolean>(true);
+  const [textureFailed, setTextureFailed] = useState<boolean>(false);
   const [activeHotspot, setActiveHotspot] = useState<Map360Hotspot | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -164,18 +165,38 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
     const geometry = new THREE.SphereGeometry(500, 60, 40);
     geometry.scale(-1, 1, 1); // Invert normals so texture is visible inside
 
-    // Fallback Canvas Texture in case image is loading
+    // Fallback: an SGX holodeck (equirectangular grid, horizon and the venue
+    // name around you) while the photo loads, or if it can't load at all.
     const canvas = document.createElement('canvas');
-    canvas.width = 1024;
-    canvas.height = 512;
+    canvas.width = 2048;
+    canvas.height = 1024;
     const ctx = canvas.getContext('2d');
     if (ctx) {
-      const grad = ctx.createLinearGradient(0, 0, 1024, 512);
-      grad.addColorStop(0, '#0d0d0d');
-      grad.addColorStop(0.5, '#1a1a1a');
-      grad.addColorStop(1, '#0A0A0A');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 1024, 512);
+      const W = 2048, H = 1024, horizon = H / 2;
+      const sky = ctx.createLinearGradient(0, 0, 0, H);
+      sky.addColorStop(0, '#050505');
+      sky.addColorStop(0.45, '#0c1626');
+      sky.addColorStop(0.5, '#32527B');
+      sky.addColorStop(0.55, '#0c1626');
+      sky.addColorStop(1, '#050505');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = 'rgba(0, 221, 255, 0.18)';
+      ctx.lineWidth = 1.5;
+      for (let x = 0; x <= W; x += W / 36) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+      for (let y = 0; y <= H; y += H / 18) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+      ctx.strokeStyle = 'rgba(0, 221, 255, 0.35)';
+      for (let i = 1; i < 10; i++) { const y = horizon + (H / 2) * Math.pow(i / 10, 1.6); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+      ctx.strokeStyle = '#FDCC0D';
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(0, horizon); ctx.lineTo(W, horizon); ctx.stroke();
+      ctx.fillStyle = 'rgba(253, 204, 13, 0.9)';
+      ctx.font = '700 18px Orbitron, sans-serif';
+      ctx.textAlign = 'center';
+      for (let i = 0; i < 6; i++) ctx.fillText('CHROMA SPACE STUDIOS · SAN JUAN', (i + 0.5) * (W / 6), horizon - 16);
+      ctx.fillStyle = 'rgba(0, 221, 255, 0.7)';
+      ctx.font = '500 12px monospace';
+      for (let i = 0; i < 6; i++) ctx.fillText('SGX SHOWCASE · DÍA 3 · 13 DIC 2026', (i + 0.5) * (W / 6), horizon + 26);
     }
     const defaultTex = new THREE.CanvasTexture(canvas);
     const material = new THREE.MeshBasicMaterial({ map: defaultTex });
@@ -186,6 +207,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
 
     // Load panorama texture with proper aspect ratio & color space
     setIsTextureLoading(true);
+    setTextureFailed(false);
     if (activeNode?.panorama360Url) {
       textureLoaderRef.current.load(
         activeNode.panorama360Url,
@@ -203,6 +225,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
         (err) => {
           console.warn('Could not load 360 panorama texture, using fallback mesh', err);
           setIsTextureLoading(false);
+          setTextureFailed(true);
         }
       );
     } else {
@@ -516,6 +539,13 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {textureFailed && viewMode === '360_PANORAMA' && (
+          <div className="absolute top-3 left-3 z-20 sgx-alert" role="status">
+            <span className="sgx-alert__tag">VISTA HOLOGRÁFICA</span>
+            <span className="sgx-alert__msg">La foto 360° de este nodo no cargó. Puedes seguir recorriendo los nodos o usar la vista táctica 2D.</span>
           </div>
         )}
 

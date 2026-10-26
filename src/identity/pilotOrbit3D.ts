@@ -155,6 +155,9 @@ export function createPilotOrbit(scene: THREE.Scene) {
       pos.lerp(target, 0.035);
       cardRig.position.copy(pos);
       cardRig.lookAt(camera.position);
+      // Phones (portrait): a smaller card so it never covers the pillars.
+      const aspect = (camera as THREE.PerspectiveCamera).aspect || 1.6;
+      cardRig.scale.setScalar(aspect < 0.8 ? 0.55 : 1);
       cardRig.rotateZ(Math.sin(elapsed * 0.9) * 0.05);
       glowMat.opacity = 0.14 + Math.sin(elapsed * 2.4) * 0.06;
       const p = tetherGeo.attributes.position as THREE.BufferAttribute;

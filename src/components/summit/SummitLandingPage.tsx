@@ -531,14 +531,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
   return (
     <div className={`w-full ${activeSection === 'OVERVIEW' ? 'bg-[var(--sgx-bg)]' : 'bg-transparent'} text-slate-100 flex flex-col font-sans selection:bg-[var(--sgx-neon)] selection:text-black ${activeSection === 'OVERVIEW' ? 'h-full min-h-0 overflow-hidden' : 'min-h-screen'}`}>
       
-      {/* 1. Global Interactive Sponsor Banner Ticker (Hidden on OVERVIEW so 3D core fits 100% on screen) */}
-      {isFeatureVisible('exp_sponsor_ticker') && activeSection !== 'OVERVIEW' && (
-        <SummitSponsorTicker 
-          sponsors={approvedSponsors} 
-          onSelectSponsor={(sponsor) => setSelectedBrandShowcase(sponsor)} 
-        />
-      )}
-
       {/* 2. Tactical section HUD (only away from the 3D Cockpit OVERVIEW) */}
       {activeSection !== 'OVERVIEW' && (
         <SgxSectionHudBar
@@ -575,6 +567,17 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           }
         />
       )}
+
+      {/* 1b. Sponsor ticker sits under the HUD so the HUD bar never moves between pages */}
+      {isFeatureVisible('exp_sponsor_ticker') && activeSection !== 'OVERVIEW' && (
+        <div className="sgx-ticker-wrap">
+          <SummitSponsorTicker 
+            sponsors={approvedSponsors} 
+            onSelectSponsor={(sponsor) => setSelectedBrandShowcase(sponsor)} 
+          />
+        </div>
+      )}
+
 
       {/* 5. Main Dynamic Body Views */}
       <main id="summit-main-tab-content" className={`w-full flex flex-col ${activeSection === 'OVERVIEW' ? 'flex-1 min-h-0 overflow-hidden p-0 max-w-none' : 'max-w-[1750px] mx-auto p-2 sm:p-4 lg:p-5 flex-1'}`}>

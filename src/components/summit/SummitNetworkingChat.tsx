@@ -674,7 +674,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   >
                     <span className="w-2 h-2 bg-[#FDCC0D] animate-pulse rounded-full" />
-                    <span className="font-bold">{isLiveConnected ? 'FIRESTORE LIVE SYNC' : 'MODO LOCAL CACHE'}</span>
+                    <span className="font-bold">{isLiveConnected ? 'EN VIVO' : 'SIN CONEXIÓN · GUARDADO LOCAL'}</span>
                   </div>
                   <span className="hidden lg:inline">{displayedMessages.length} MENSAJES</span>
                 </div>

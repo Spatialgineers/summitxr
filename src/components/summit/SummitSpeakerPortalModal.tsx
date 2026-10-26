@@ -289,7 +289,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
                     className="w-full sm:w-auto bg-cyan-500/20 border border-cyan-400 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold px-5 py-2.5 text-xs font-mono transition-all flex items-center justify-center space-x-1.5 cursor-pointer shadow-lg shadow-cyan-500/10"
                   >
                     <Sparkles className="w-4 h-4" />
-                    <span>🎨 HOLO CARD GENERATOR EN VIVO</span>
+                    <span>Crear mi Holo Card de speaker</span>
                   </button>
 
                   <button

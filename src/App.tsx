@@ -29,7 +29,7 @@ import { telemetry } from './lib/telemetry';
 
 import { getAppRouteAndSectionFromUrl, syncAppUrl } from './lib/summitUrlSync';
 import { SummitIntroSplash } from './components/summit/SummitIntroSplash';
-import { PilotProfileModal } from './components/summit/PilotProfileModal';
+import { SgxPassHost } from './identity/SgxPassHost';
 import { ImmersionLayer } from './immersion/ImmersionLayer';
 import { SgxBootSequence } from './immersion/SgxBootSequence';
 import { recordVisit } from './lib/visitTracker';
@@ -1006,8 +1006,8 @@ export default function App() {
         {renderCurrentView()}
       </div>
 
-      {/* Global Pilot Profile, XP Log & Live Leaderboard Modal */}
-      <PilotProfileModal />
+      {/* SGX Pass: Forja de identidad + Hangar del piloto (replaces taquilla, profile, passport, tours) */}
+      <SgxPassHost />
 
       {/* SGX Immersion Engine: quests, energy cells, terminal, HUD and FX */}
       <ImmersionLayer currentPage={currentPage} />

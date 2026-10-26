@@ -7,6 +7,10 @@ import { SgxBolt } from '../../immersion/SgxSymbols';
 import { navigateToPillar, runPillarModule } from '../../immersion/navigation';
 import { SGX_PILLARS, SgxPillar, bi, findPillar } from '../../lib/sgxPillars';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
+import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
+import { missionsOfPillar } from '../../identity/reactor';
+import { goToMission } from '../../identity/missionNav';
+import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
 
 const DAYS = {
   1: { es: 'Día 1 · Viernes 11 dic · Digital', en: 'Day 1 · Fri Dec 11 · Digital' },
@@ -48,6 +52,7 @@ export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pil
   const { language } = useLanguage();
   const { state } = useImmersion();
   const pillar = findPillar(pillarSlug) || SGX_PILLARS[0];
+  const sgx = useOptionalSgxIdentity();
   const prev = SGX_PILLARS[(pillar.index + 4) % 6];
   const next = SGX_PILLARS[pillar.index % 6];
   const es = language === 'es';
@@ -165,6 +170,37 @@ export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pil
           </p>
         </section>
       </div>
+
+      {sgx && (() => {
+        const list = missionsOfPillar(sgx.missions, pillar.key);
+        const stamped = !!sgx.identity.stamps[`pillar:${pillar.key}`];
+        return (
+          <section className={`sgx-station__reactor sgx-hangar__pillar ${stamped ? 'is-stamped' : ''}`} style={{ ['--pillar-accent' as string]: PILLAR_ACCENT[pillar.key] }} aria-labelledby="station-reactor">
+            <header>
+              <SgxBolt size={20} />
+              <div>
+                <h4 id="station-reactor">{es ? `Reactor · misiones de ${pillar.name}` : `Reactor · ${pillar.name} missions`}</h4>
+                <p>{es ? 'Complétalas y este pilar queda sellado en tu SGX Pass.' : 'Finish them and this pillar is stamped on your SGX Pass.'}</p>
+              </div>
+              <span className="sgx-hangar__stamp">{stamped ? (es ? 'SELLADO' : 'STAMPED') : `${list.filter((m) => sgx.isDone(m.id)).length}/${list.length}`}</span>
+            </header>
+            <ul>
+              {list.map((m) => {
+                const ok = sgx.isDone(m.id);
+                const copy = es ? m.es : m.en;
+                return (
+                  <li key={m.id} className={ok ? 'is-done' : ''}>
+                    <span className="sgx-hangar__check" aria-hidden="true">{ok ? '◆' : '◇'}</span>
+                    <div><strong>{copy.title}{m.day3 ? (es ? ' · Día 3' : ' · Day 3') : ''}</strong><small>{copy.hint}</small></div>
+                    <span className="sgx-hangar__mxp">+{m.xp}</span>
+                    {!ok && m.go && <button type="button" className="sgx-hangar__go" onClick={() => { playUiChirp(760); goToMission(m); }}>{es ? 'Ir' : 'Go'} →</button>}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        );
+      })()}
 
       <nav className="sgx-station__pager" aria-label={es ? 'Estaciones' : 'Stations'}>
         <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => go(prev)}>

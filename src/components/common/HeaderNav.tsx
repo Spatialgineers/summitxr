@@ -1,3 +1,6 @@
+import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
+import { SgxPilotGlyph } from '../../identity/SgxPilotGlyph';
+import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Radio, 
@@ -45,7 +48,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useTenantTheme, hexToRgbStr } from '../../context/TenantThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { HeaderPillarNav, PillarDirectoryGrid } from './SgxPillarNav';
-import { UserProfilePassportDrawer } from './UserProfilePassportDrawer';
 import { usePilotProfile } from '../../context/PilotProfileContext';
 import { playUiChirp, getIsAudioMuted, toggleAudioMute } from '../../lib/cyberAudioEngine';
 import { syncAppUrl, getAppRouteAndSectionFromUrl } from '../../lib/summitUrlSync';
@@ -140,7 +142,6 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   isConnected,
 }) => {
   const [copiedPath, setCopiedPath] = useState(false);
-  const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSystemMenuOpen, setIsSystemMenuOpen] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState<boolean>(() => getIsAudioMuted());
@@ -148,7 +149,8 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   const [activeSummitSection, setActiveSummitSection] = useState<string>('OVERVIEW');
   const { tenant, tenants, selectTenant, selectPillar, styles } = useTenantTheme();
   const { language, setLanguage, t } = useLanguage();
-  const { profile, liteMode, setLiteMode, setIsRoleModalOpen } = usePilotProfile();
+  const { profile, liteMode, setLiteMode } = usePilotProfile();
+  const sgxId = useOptionalSgxIdentity();
 
   const { 
     user, 
@@ -194,7 +196,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   }, []);
 
   useEffect(() => {
-    const handleOpenDrawer = () => setIsProfileDrawerOpen(true);
+    const handleOpenDrawer = () => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } }));
     window.addEventListener('sgx:open_profile_drawer', handleOpenDrawer);
     return () => window.removeEventListener('sgx:open_profile_drawer', handleOpenDrawer);
   }, []);
@@ -295,7 +297,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           { id: 'summit_map', label: 'TOUR 360° CHROMA', icon: Globe, type: 'SUMMIT_SECTION', sectionKey: 'MAP_360', isActive: currentPage === 'summit' && activeSummitSection === 'MAP_360' },
           { id: 'summit_match', label: 'SGX.MATCH (PITCHING)', icon: Flame, type: 'SUMMIT_SECTION', sectionKey: 'ENTREPRENEUR_MATCH', isActive: currentPage === 'summit' && activeSummitSection === 'ENTREPRENEUR_MATCH' },
           { id: 'summit_sponsors', label: 'PATROCINADORES & MARCAS', icon: Building2, type: 'SUMMIT_SECTION', sectionKey: 'SPONSORS_HUB', isActive: currentPage === 'summit' && activeSummitSection === 'SPONSORS_HUB' },
-          { id: 'summit_credential', label: 'CREDENTIAL GENERATOR', icon: Award, type: 'SUMMIT_SECTION', sectionKey: 'CREDENTIAL_GENERATOR', isActive: currentPage === 'summit' && activeSummitSection === 'CREDENTIAL_GENERATOR' },
+          { id: 'summit_credential', label: 'SGX PASS', icon: Award, type: 'SUMMIT_SECTION', sectionKey: 'CREDENTIAL_GENERATOR', isActive: currentPage === 'summit' && activeSummitSection === 'CREDENTIAL_GENERATOR' },
           { id: 'summit_social', label: 'LIVE STREAM', icon: MessageSquare, type: 'SUMMIT_SECTION', sectionKey: 'SOCIAL_STREAM', isActive: currentPage === 'summit' && activeSummitSection === 'SOCIAL_STREAM' },
         ];
 
@@ -333,7 +335,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
     if (tab.type === 'ACTION') {
       if (tab.actionKey === 'open_passport') {
-        setIsProfileDrawerOpen(true);
+        window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } }));
       }
     } else if (tab.type === 'PAGE') {
       if (tab.pageRoute) {
@@ -437,22 +439,6 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               </button>
             </div>
 
-            {/* Astronaut Guide / Pilot Route Indicator */}
-            <button
-              onClick={() => {
-                playUiChirp(840);
-                setIsRoleModalOpen(true);
-              }}
-              className="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 bg-slate-900/90 hover:bg-[#292929] border border-cyan-400/70 hover:border-cyan-300 text-cyan-200 hover:text-white transition-all cursor-pointer text-xs font-mono font-bold"
-              style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title="Abre el selector de ruta del Astronauta Guía"
-            >
-              <span className="text-sm">🧑‍🚀</span>
-              <span className="text-[10px] uppercase font-bold tracking-wider">
-                {profile.selectedRole ? profile.selectedRole : 'RUTA (+50 XP)'}
-              </span>
-            </button>
-
             {/* Master Audio Mute/Unmute Toggle */}
             <button
               onClick={() => {
@@ -487,20 +473,6 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             >
               <Zap className={`w-3 h-3 ${liteMode ? 'fill-black' : 'text-amber-400'}`} />
               <span>{liteMode ? 'LIGERO' : '3D'}</span>
-            </button>
-
-            {/* Direct Ticket Registration CTA */}
-            <button
-              onClick={() => {
-                playUiChirp(880);
-                window.dispatchEvent(new CustomEvent('sgx:open_tickets'));
-              }}
-              className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-[#FDCC0D] hover:bg-white text-black font-hud font-bold uppercase tracking-wider text-[12px] transition-colors cursor-pointer drop-shadow-[0_0_10px_rgba(253,204,13,0.55)]"
-              style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-              title="Obtener Taquilla Oficial en PDF"
-            >
-              <Ticket className="w-3.5 h-3.5" />
-              <span>REGISTRO</span>
             </button>
 
             {/* System Utilities Popover Trigger */}
@@ -576,20 +548,12 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                     onClick={() => {
                       setIsSystemMenuOpen(false);
                       playUiChirp(840);
-                      window.dispatchEvent(new CustomEvent('sgx:open_holo_card', {
-                        detail: {
-                          name: playerProfile?.nickname || displayName || 'Piloto Espacial',
-                          title: playerProfile?.specialty || 'Creador SGX',
-                          org: playerProfile?.faction || 'Spatialgineers Guild',
-                          photoUrl: userAvatar || playerProfile?.avatar,
-                          tier: 'PILOT'
-                        }
-                      }));
+                      window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } }));
                     }}
                     className="w-full text-left px-2.5 py-1.5 hover:bg-cyan-950/70 text-cyan-300 hover:text-white text-xs font-mono flex items-center space-x-2 transition-colors cursor-pointer"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>🎨 Holo Card Generator</span>
+                    <span>Mi SGX Pass</span>
                   </button>
 
                   <button
@@ -607,30 +571,6 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   <button
                     onClick={() => {
                       setIsSystemMenuOpen(false);
-                      playUiChirp(840);
-                      window.dispatchEvent(new CustomEvent('sgx:open_tour'));
-                    }}
-                    className="w-full text-left px-2.5 py-1.5 hover:bg-cyan-950/70 text-slate-200 hover:text-cyan-300 text-xs font-mono flex items-center space-x-2 transition-colors cursor-pointer"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Tour Táctico Guiado</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setIsSystemMenuOpen(false);
-                      playUiChirp(840);
-                      setIsRoleModalOpen(true);
-                    }}
-                    className="w-full text-left px-2.5 py-1.5 hover:bg-cyan-950/70 text-slate-200 hover:text-cyan-300 text-xs font-mono flex items-center space-x-2 transition-colors cursor-pointer"
-                  >
-                    <span className="text-xs">🧑‍🚀</span>
-                    <span>Ruta Piloto: {profile.selectedRole || 'Elegir (+50 XP)'}</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setIsSystemMenuOpen(false);
                       playUiChirp(820);
                       setLiteMode(prev => !prev);
                     }}
@@ -643,36 +583,37 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               )}
             </div>
 
-            {/* User Profile & Passport Trigger */}
+            {/* SGX Pass chip: the one "me" button (pass, Hangar, XP). Unforged = Forge CTA. */}
             <button
               data-tour="user-passport-btn"
               onClick={() => {
                 playUiChirp(840);
-                setIsProfileDrawerOpen(true);
+                window.dispatchEvent(new CustomEvent(sgxId?.isForged ? 'sgx:open_hangar' : 'sgx:open_forge', { detail: { tab: 'pass' } }));
               }}
-              className="flex items-center space-x-1.5 bg-[var(--sgx-card-bg)] hover:bg-[var(--sgx-bg)] border border-[var(--sgx-primary)] px-2 py-1 text-left transition-all group cursor-pointer"
-              style={{ 
-                clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)',
-              }}
-              title="Abrir Pasaporte de Misiones y Perfil"
+              className={`sgx-passchip ${sgxId?.isForged ? '' : 'sgx-passchip--forge'}`}
+              title={sgxId?.isForged ? 'Abrir mi Hangar (SGX Pass, Reactor, Rolodex)' : 'Forja tu SGX Pass'}
             >
-              <div className="w-5 h-5 rounded-full overflow-hidden bg-black border border-[var(--sgx-primary)] flex items-center justify-center shrink-0">
-                {userAvatar ? (
-                  <img 
-                    src={userAvatar} 
-                    alt="Avatar" 
-                    className="w-full h-full object-cover"
-                  />
+              <span className="sgx-passchip__face">
+                {sgxId?.identity.avatar.png ? (
+                  <img src={sgxId.identity.avatar.png} alt="" />
+                ) : sgxId?.isForged ? (
+                  <SgxPilotGlyph seed={sgxId.identity.avatar.seed} accent={sgxId.identity.affinity ? PILLAR_ACCENT[sgxId.identity.affinity] : '#FDCC0D'} size={20} />
                 ) : isAdmin ? (
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#FDCC0D]" />
+                  <ShieldCheck className="w-3.5 h-3.5" />
                 ) : (
-                  <User className="w-3 h-3 text-[var(--sgx-primary)]" />
+                  <Ticket className="w-3.5 h-3.5" />
                 )}
-              </div>
-              <span className="hidden md:inline text-[10px] text-white font-bold truncate max-w-[90px]">
-                {displayName}
               </span>
-              <ChevronDown className="w-3 h-3 text-[var(--sgx-primary)] shrink-0" />
+              <span className="sgx-passchip__label">
+                {sgxId?.isForged ? (
+                  <>
+                    <b>{sgxId.identity.callsign}</b>
+                    <small>#{sgxId.identity.pass!.serial} · {sgxId.xpEarned.toLocaleString('es-PR')} XP</small>
+                  </>
+                ) : (
+                  <b>{language === 'es' ? 'FORJAR PASE' : 'FORGE PASS'}</b>
+                )}
+              </span>
             </button>
 
             {/* Share / Copy Link Button */}
@@ -764,19 +705,19 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                 >
                   <Ticket className="w-3.5 h-3.5 fill-black" />
-                  <span>REGISTRO OFICIAL</span>
+                  <span>SGX PASS</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     setIsMobileMenuOpen(false);
-                    setIsProfileDrawerOpen(true);
+                    window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } }));
                   }}
                   className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold flex items-center gap-1 cursor-pointer"
                   style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                 >
                   <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>PASAPORTE & XP</span>
+                  <span>HANGAR & XP</span>
                 </button>
                 <button
                   type="button"
@@ -801,12 +742,6 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
         </div>
       )}
 
-      {/* Slide-over User Profile & Passport Drawer */}
-      <UserProfilePassportDrawer
-        isOpen={isProfileDrawerOpen}
-        onClose={() => setIsProfileDrawerOpen(false)}
-        onNavigate={onNavigate}
-      />
     </>
   );
 };

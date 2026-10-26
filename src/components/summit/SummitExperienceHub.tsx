@@ -15,8 +15,6 @@ import {
   Calendar,
   Users,
   Award,
-  Compass,
-  HelpCircle,
   Ticket,
   ScanLine,
   Radio,
@@ -147,9 +145,9 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
       id: 'STORY',
       name: 'SGX.STORY',
       title: 'Identidad, Narrativa & Reliquias 3D',
-      subtitle: 'Story opt.glb • Manifiesto • Avatar Studio 3D (+200 XP) • Pasaporte XP',
+      subtitle: 'Story opt.glb • Manifiesto • Avatar Studio 3D (+200 XP) • SGX Pass',
       description:
-        'El origen conceptual de Spatialgineers ("Ingeniando Imaginación, Construyendo Realidades"). Inspecciona la escultura oficial Story opt.glb, construye tu avatar (+200 XP) y desbloquea sellos en tu pasaporte.',
+        'El origen conceptual de Spatialgineers ("Ingeniando Imaginación, Construyendo Realidades"). Inspecciona la escultura oficial Story opt.glb, construye tu avatar (+200 XP) y desbloquea sellos en tu SGX Pass.',
       icon: Boxes,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Story1.png',
       themeColor: '#FDCC0D',
@@ -182,12 +180,12 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_passport',
-          title: 'Pasaporte Oficial del Summit',
-          subtitle: 'Misiones Interactivas & Sellos Digitales',
+          title: 'Reactor de misiones',
+          subtitle: 'Misiones por pilar & sellos en tu SGX Pass',
           description:
-            'Revisa tus misiones completadas en cada pilar y reclama bonificaciones de experiencia del evento.',
-          xpReward: '+150 XP',
-          actionLabel: 'Abrir Pasaporte',
+            'Cada pilar tiene 2 o 3 misiones. Complétalas y el pilar queda sellado en tu pase. El XP se gasta en la Tienda del Reactor sin bajar de rango.',
+          xpReward: '+60–250 XP',
+          actionLabel: 'Abrir Reactor',
           icon: Award,
           onLaunch: () => {
             if (onOpenPassport) onOpenPassport();
@@ -271,10 +269,10 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_qr_scanner',
-          title: 'Escáner QR WebXR de Credenciales',
-          subtitle: 'Rolodex Digital de Contactos (+50 XP por escaneo)',
+          title: 'Escáner de SGX Pass',
+          subtitle: 'Rolodex mutuo (+50 XP por intercambio)',
           description:
-            'Escanea los códigos QR del evento y de otros asistentes en el SGX Showcase (Día 3) para sumar +50 XP y guardar su perfil.',
+            'Escanea el SGX Pass de otra persona: tú quedas en su Rolodex y esa persona en el tuyo. En el Día 3 es el bloque de networking.',
           xpReward: '+50 XP',
           actionLabel: 'Escanear QR (+50 XP)',
           icon: ScanLine,
@@ -296,12 +294,12 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_credential_generator',
-          title: 'SGX Credential & Holo Card Generator',
-          subtitle: 'Pase Holográfico 3D Personalizable',
+          title: 'SGX Pass',
+          subtitle: 'Registro + Holo Card + credencial en uno',
           description:
-            'Crea y descarga tu credencial cibernética oficial con efecto foil 3D, soporte HEIC/PNG y modo Visitante.',
-          xpReward: '+150 XP',
-          actionLabel: 'Generar Credencial',
+            'Forja tu pase en un minuto: nombre, pilar y piloto. Gana sellos completando las misiones de cada pilar.',
+          xpReward: '+120 XP',
+          actionLabel: 'Abrir mi pase',
           icon: Award,
           onLaunch: () => onSelectSection('CREDENTIAL_GENERATOR'),
         },
@@ -356,20 +354,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           onLaunch: () => {
             if (onNavigateToPlayVote) onNavigateToPlayVote();
             else onSelectSection('EMBEDS_GAMES');
-          },
-        },
-        {
-          id: 'mod_guided_tour',
-          title: 'Misión de Reconocimiento Guiado',
-          subtitle: 'Recorrido Interactivo por la Plataforma',
-          description:
-            'Completa el briefing táctico interactivo de los módulos del Summit y recibe tu bonificación de bienvenida.',
-          xpReward: '+100 XP',
-          actionLabel: 'Iniciar Misión Tour',
-          icon: Compass,
-          onLaunch: () => {
-            if (onOpenTour) onOpenTour();
-            else window.dispatchEvent(new CustomEvent('sgx:open_tour'));
           },
         },
       ],
@@ -534,7 +518,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
       id: 'SYNTHESIZE',
       name: 'SGX.SYNTHESIZE',
       title: 'Convergencia Maestra, Comunidad & Registro',
-      subtitle: 'Synthesize opt.glb • Foros de Networking • Taquilla Oficial PDF',
+      subtitle: 'Synthesize opt.glb • Foros de Networking • SGX Pass',
       description:
         'La unión armónica de los 6 Pilares en un solo organismo vivo. Únete a los foros de conversación en tiempo real, descarga tu pase oficial en PDF y sincroniza tu participación.',
       icon: Layers,
@@ -554,17 +538,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           onLaunch: () => onSelectSection('NETWORKING'),
         },
         {
-          id: 'mod_vip_ticket',
-          title: 'Acreditación & Taquilla Oficial PDF',
-          subtitle: 'Pase Digital con Código QR Verificable',
-          description:
-            'Genera y descarga tu entrada oficial gratuita para los días digitales o solicita invitación para el Día 3 en Chroma Space Studios (aforo 40–60 personas).',
-          xpReward: '+100 XP',
-          actionLabel: 'Obtener Mi Pase PDF',
-          icon: Ticket,
-          onLaunch: () => onOpenTickets(),
-        },
-        {
           id: 'mod_sponsor_apply',
           title: 'Postular Marca como Patrocinador',
           subtitle: 'Convocatoria Abierta Tiers 1 al 5',
@@ -574,20 +547,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           actionLabel: 'Solicitar Dossier / Tier',
           icon: Building2,
           onLaunch: () => onOpenSponsors('tier_3'),
-        },
-        {
-          id: 'mod_full_tour',
-          title: 'Tour Guiado del Ecosistema Unificado',
-          subtitle: 'Recorrido Paso a Paso por los 6 Pilares',
-          description:
-            'Activa el asistente de navegación espacial para descubrir cada rincón del SGX Framework.',
-          xpReward: '+100 XP',
-          actionLabel: 'Iniciar Tour Guiado',
-          icon: HelpCircle,
-          onLaunch: () => {
-            if (onOpenTour) onOpenTour();
-            else window.dispatchEvent(new CustomEvent('sgx:open_tour'));
-          },
         },
       ],
     },

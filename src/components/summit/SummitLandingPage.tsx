@@ -1,8 +1,7 @@
-import { SummitTicketModal } from "./SummitTicketModal";
+import { SgxPassSection } from '../../identity/SgxPassSection';
 import React, { useState, useEffect, useRef } from 'react';
 import { SpatialTiltCard } from '../common/SpatialTiltCard';
 import { SummitAnalyticsView } from '../analytics/SummitAnalyticsView';
-import { SgxNativeCredentialStudio } from './SgxNativeCredentialStudio';
 import { 
   Compass, 
   Calendar, 
@@ -94,13 +93,11 @@ import { SummitBrandShowcaseModal } from './SummitBrandShowcaseModal';
 import { SummitSpeakerPortalModal } from './SummitSpeakerPortalModal';
 import { SummitSectionsDropdown, SummitSectionKey } from './SummitSectionsDropdown';
 import { SummitExperienceHub } from './SummitExperienceHub';
-import { SummitPassportModal } from './SummitPassportModal';
 import { SummitRewardsStoreModal } from './SummitRewardsStoreModal';
 import { KeynotePulseReactions } from './KeynotePulseReactions';
 import { AttendeeAvatarGenerator } from './AttendeeAvatarGenerator';
 import { NetworkingQrScannerModal } from './NetworkingQrScannerModal';
-import { SgxHoloCardGeneratorModal, HoloCardProfile, resolveStoredUserHoloProfile } from './SgxHoloCardGeneratorModal';
-import { SummitGuidedSpotlightTour } from './SummitGuidedSpotlightTour';
+import { SgxHoloCardGeneratorModal, HoloCardProfile } from './SgxHoloCardGeneratorModal';
 import { SgxSectionHudBar, HudSectionChip } from './SgxSectionHudBar';
 import { SgxPillarStation } from './SgxPillarStation';
 import { SummitVisitRadar } from './SummitVisitRadar';
@@ -121,7 +118,6 @@ import { useLanguage } from '../../context/LanguageContext';
 import { usePilotProfile } from '../../context/PilotProfileContext';
 import { useSummitFeatures } from '../../context/SummitFeatureContext';
 import { SummitContentAuditModal } from './SummitContentAuditModal';
-import { PilotRoleSelectorModal } from './PilotRoleSelectorModal';
 import { SummitWeeklyCapsules } from './SummitWeeklyCapsules';
 
 // Every section's home pillar, chips and icons come from the single six-pillar source (lib/sgxPillars).
@@ -290,26 +286,20 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
         return () => clearTimeout(timer);
       }
     };
-    const handleOpenTickets = () => setTicketModalOpen(true);
     const handleOpenAudit = () => setAuditModalOpen(true);
     const handleOpenAnalytics = () => setAnalyticsModalOpen(true);
     const handleOpenSponsor = () => handleOpenSponsorModal('tier_2');
-    const handleOpenTour = () => setOnboardingTourOpen(true);
 
     window.addEventListener('sgx:switch_summit_section', handleSwitchSectionEvent);
-    window.addEventListener('sgx:open_tickets', handleOpenTickets);
     window.addEventListener('sgx:open_audit_modal', handleOpenAudit);
     window.addEventListener('sgx:open_analytics', handleOpenAnalytics);
     window.addEventListener('sgx:open_sponsor_modal', handleOpenSponsor);
-    window.addEventListener('sgx:open_tour', handleOpenTour);
 
     return () => {
       window.removeEventListener('sgx:switch_summit_section', handleSwitchSectionEvent);
-      window.removeEventListener('sgx:open_tickets', handleOpenTickets);
       window.removeEventListener('sgx:open_audit_modal', handleOpenAudit);
       window.removeEventListener('sgx:open_analytics', handleOpenAnalytics);
       window.removeEventListener('sgx:open_sponsor_modal', handleOpenSponsor);
-      window.removeEventListener('sgx:open_tour', handleOpenTour);
     };
   }, []);
 
@@ -388,13 +378,10 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
   const [selectedSessionModal, setSelectedSessionModal] = useState<SummitSession | null>(null);
   const [selectedSpeakerModal, setSelectedSpeakerModal] = useState<SummitSpeaker | null>(null);
   const [selectedMapNodeId, setSelectedMapNodeId] = useState<string>('node_chroma_studios');
-  const [ticketModalOpen, setTicketModalOpen] = useState<boolean>(false);
-  const [passportModalOpen, setPassportModalOpen] = useState<boolean>(false);
   const [rewardsStoreModalOpen, setRewardsStoreModalOpen] = useState<boolean>(false);
   const [avatarGeneratorModalOpen, setAvatarGeneratorModalOpen] = useState<boolean>(false);
   const [qrScannerModalOpen, setQrScannerModalOpen] = useState<boolean>(false);
   const [privacyModalOpen, setPrivacyModalOpen] = useState<boolean>(false);
-  const [onboardingTourOpen, setOnboardingTourOpen] = useState<boolean>(false);
   const [isAmbiancePlaying, setIsAmbiancePlaying] = useState<boolean>(false);
   const [sponsorInquiryModalOpen, setSponsorInquiryModalOpen] = useState<boolean>(false);
   const [selectedSponsorTierId, setSelectedSponsorTierId] = useState<string>('tier_2');
@@ -409,18 +396,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     return false;
   });
 
-  // Auto-launch guided onboarding tour for first-time visitors
-  useEffect(() => {
-    try {
-      const completed = localStorage.getItem('sgx_onboarding_completed');
-      if (!completed) {
-        const timer = setTimeout(() => {
-          setOnboardingTourOpen(true);
-        }, 800);
-        return () => clearTimeout(timer);
-      }
-    } catch {}
-  }, []);
+  // First-time visitors get the Forja de identidad (SgxPassHost), not a tour.
 
   const handleToggleAmbiance = () => {
     const isPlaying = toggleCyberAmbiance();
@@ -439,16 +415,11 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       setSponsors(loadPersistedSponsorshipTiers());
     };
 
-    const handleOpenPassport = () => setPassportModalOpen(true);
-    const handleOpenTicket = () => setTicketModalOpen(true);
     const handleOpenRewards = () => setRewardsStoreModalOpen(true);
     const handleOpenAvatar = () => setAvatarGeneratorModalOpen(true);
     const handleOpenQrScanner = () => setQrScannerModalOpen(true);
-    const handleOpenTour = () => setOnboardingTourOpen(true);
 
     window.addEventListener('storage', handleStorage);
-    window.addEventListener('sgx:open_passport', handleOpenPassport);
-    window.addEventListener('sgx:open_ticket', handleOpenTicket);
     const handleOpenSponsorshipsEvent = (e: any) => {
       if (e.detail?.preferredTier) {
         setSelectedSponsorTierId(e.detail.preferredTier);
@@ -465,21 +436,18 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     window.addEventListener('sgx:open_rewards', handleOpenRewards);
     window.addEventListener('sgx:open_avatar', handleOpenAvatar);
     window.addEventListener('sgx:open_qr_scanner', handleOpenQrScanner);
-    window.addEventListener('sgx:open_tour', handleOpenTour);
     window.addEventListener('sgx:open_sponsorships', handleOpenSponsorshipsEvent);
     window.addEventListener('sgx:open_brand_showcase', handleOpenBrandShowcaseEvent);
 
+    // Speaker / sponsor / guild holo cards still open here. "My card" (no
+    // profile attached) is the SGX Pass, handled by SgxPassHost.
     const handleOpenHoloCardEvent = (e: any) => {
-      if (e.detail) {
-        setHoloCardProfile(e.detail);
-      } else {
-        setHoloCardProfile(null);
-      }
+      if (!e.detail) return;
+      setHoloCardProfile(e.detail);
       setIsHoloCardModalOpen(true);
     };
 
     window.addEventListener('sgx:open_holo_card', handleOpenHoloCardEvent);
-    window.addEventListener('sgx:open_credential_generator', handleOpenHoloCardEvent);
 
     const handleSwitchSummitSection = (e: any) => {
       if (e.detail?.section) {
@@ -514,16 +482,12 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
     return () => {
       window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('sgx:open_passport', handleOpenPassport);
-      window.removeEventListener('sgx:open_ticket', handleOpenTicket);
       window.removeEventListener('sgx:open_rewards', handleOpenRewards);
       window.removeEventListener('sgx:open_avatar', handleOpenAvatar);
       window.removeEventListener('sgx:open_qr_scanner', handleOpenQrScanner);
-      window.removeEventListener('sgx:open_tour', handleOpenTour);
       window.removeEventListener('sgx:open_sponsorships', handleOpenSponsorshipsEvent);
       window.removeEventListener('sgx:open_brand_showcase', handleOpenBrandShowcaseEvent);
       window.removeEventListener('sgx:open_holo_card', handleOpenHoloCardEvent);
-      window.removeEventListener('sgx:open_credential_generator', handleOpenHoloCardEvent);
       window.removeEventListener('sgx:switch_summit_section', handleSwitchSummitSection);
       window.removeEventListener('message', handleCredentialMessage);
     };
@@ -535,7 +499,19 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       setHasRegisteredTicket(Boolean(localStorage.getItem('sgx_summit_registered_pass')));
       setHasGeneratedHoloCard(localStorage.getItem('sgx_holo_card_generated') === 'true');
     } catch {}
-  }, [ticketModalOpen, isHoloCardModalOpen, activeSection]);
+  }, [isHoloCardModalOpen, activeSection]);
+
+  // The SGX Pass is forged outside this page (SgxPassHost); follow it live.
+  useEffect(() => {
+    const sync = () => {
+      try {
+        setHasRegisteredTicket(Boolean(localStorage.getItem('sgx_summit_registered_pass')));
+        setHasGeneratedHoloCard(localStorage.getItem('sgx_holo_card_generated') === 'true');
+      } catch {}
+    };
+    window.addEventListener('sgx:identity_changed', sync);
+    return () => window.removeEventListener('sgx:identity_changed', sync);
+  }, []);
 
   const handleBroadcastPush = (notif: SummitNotification) => {
     setActiveToastNotif(notif);
@@ -585,7 +561,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           }}
           onBack={() => handleSelectSection('OVERVIEW')}
           onTour={() => {
-            setOnboardingTourOpen(true);
+            window.dispatchEvent(new CustomEvent('sgx:open_tour'));
             playUiChirp(850);
           }}
           onShare={() => {
@@ -599,9 +575,9 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <SummitSectionsDropdown
               activeSection={activeSection}
               onSelectSection={(sec) => handleSelectSection(sec)}
-              onOpenTickets={() => setTicketModalOpen(true)}
+              onOpenTickets={() => window.dispatchEvent(new CustomEvent('sgx:open_tickets'))}
               onOpenSponsors={(tier) => handleOpenSponsorModal(tier || 'tier_2')}
-              onOpenTour={() => setOnboardingTourOpen(true)}
+              onOpenTour={() => window.dispatchEvent(new CustomEvent('sgx:open_tour'))}
               className="shrink-0"
             />
           }
@@ -653,16 +629,16 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div id="summit-section-overview" className="h-full w-full flex-1 min-h-0 flex flex-col overflow-hidden">
             <SummitExperienceHub
               onSelectSection={(sec) => handleSelectSection(sec)}
-              onOpenTickets={() => setTicketModalOpen(true)}
+              onOpenTickets={() => window.dispatchEvent(new CustomEvent('sgx:open_tickets'))}
               onOpenSponsors={(tier) => handleOpenSponsorModal(tier || 'tier_2')}
               onNavigateToPlayVote={onNavigateToPlayVote}
               onNavigateToVisualizer={onNavigateToVisualizer}
               onOpenRewardsStore={() => setRewardsStoreModalOpen(true)}
               onOpenAvatarGenerator={() => setAvatarGeneratorModalOpen(true)}
               onOpenQrScanner={() => setQrScannerModalOpen(true)}
-              onOpenPassport={() => setPassportModalOpen(true)}
+              onOpenPassport={() => window.dispatchEvent(new CustomEvent('sgx:open_passport'))}
               onOpenSpeakerPortal={() => setSpeakerPortalOpen(true)}
-              onOpenTour={() => setOnboardingTourOpen(true)}
+              onOpenTour={() => window.dispatchEvent(new CustomEvent('sgx:open_tour'))}
               onOpenTimeCapsules={() => setTimeCapsulesModalOpen(true)}
               sponsorCount={approvedSponsors.length}
             />
@@ -1192,13 +1168,13 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               onExploreAgenda={() => handleSelectSection('AGENDA')}
               onExploreGuild={() => handleSelectSection('GUILD')}
               onExploreSponsors={() => handleSelectSection('SPONSORS_HUB')}
-              onOpenTickets={() => setTicketModalOpen(true)}
+              onOpenTickets={() => window.dispatchEvent(new CustomEvent('sgx:open_tickets'))}
               onOpenDroneSimulator={() => handleSelectSection('EMBEDS_GAMES')}
               onOpen360Tour={() => handleSelectSection('MAP_360')}
               onOpenMatchModule={() => handleSelectSection('ENTREPRENEUR_MATCH')}
               onOpenSpeakerPortal={() => setSpeakerPortalOpen(true)}
               onOpenAvatarGenerator={() => setAvatarGeneratorModalOpen(true)}
-              onOpenPassportModal={() => setPassportModalOpen(true)}
+              onOpenPassportModal={() => window.dispatchEvent(new CustomEvent('sgx:open_passport'))}
               onOpenBroadcastRooms={() => handleSelectSection('BROADCAST_ROOMS')}
               onOpenSponsorInquiry={() => handleOpenSponsorModal('tier_2')}
               onOpenNetworkingChat={() => handleSelectSection('NETWORKING')}
@@ -1473,7 +1449,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png"
             />
             <MatchModule
-              onOpenPassport={() => setPassportModalOpen(true)}
+              onOpenPassport={() => window.dispatchEvent(new CustomEvent('sgx:open_passport'))}
               onOpenAvatarGenerator={() => setAvatarGeneratorModalOpen(true)}
             />
           </div>
@@ -1580,37 +1556,21 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           </div>
         )}
 
-        {/* TAB: SGX CREDENTIAL GENERATOR & HOLO CARD (100% NATIVE REACT 3D STUDIO) */}
-        {activeSection === 'CREDENTIAL_GENERATOR' && (() => {
-          const fallbackName = playerProfile?.nickname || user?.displayName || undefined;
-          const resolvedHolo = resolveStoredUserHoloProfile(holoCardProfile, fallbackName, profile.selectedRole, playerProfile?.avatar);
-
-          return (
-            <div className="space-y-4">
-              <SummitSectionBanner
-                sectionKey="CREDENTIAL_GENERATOR"
-                title="SGX Credential Generator & Holo Card 3D"
-                subtitle="Diseña, gira en 3D y descarga tu credencial holográfica oficial subiendo tu foto desde tu dispositivo (100% privado, sin base de datos) y gana +150 XP."
-                pillarBadge="SGX.SHOWCASE"
-                pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png"
-              />
-
-              <div
-                className="relative w-full bg-[#0B0B0B] border border-cyan-400/60 overflow-hidden shadow-2xl"
-                style={{ boxShadow: '0 0 28px rgba(0, 221, 255, 0.18)' }}
-              >
-                <SgxNativeCredentialStudio
-                  initialProfile={resolvedHolo}
-                  hasRegisteredTicket={hasRegisteredTicket}
-                  onOpenTicketModal={() => {
-                    playUiChirp(860);
-                    setTicketModalOpen(true);
-                  }}
-                />
-              </div>
-            </div>
-          );
-        })()}
+        {/* TAB: SGX PASS (ticket + Holo Card + credential are one pass now) */}
+        {activeSection === 'CREDENTIAL_GENERATOR' && (
+          <div className="space-y-4">
+            <SummitSectionBanner
+              sectionKey="CREDENTIAL_GENERATOR"
+              title="SGX Pass"
+              subtitle={language === 'es'
+                ? 'Tu registro, tu Holo Card, tu credencial y tu QR de networking en un solo pase que evoluciona con cada misión.'
+                : 'Your registration, Holo Card, credential and networking QR in one pass that evolves with every mission.'}
+              pillarBadge="SGX.SYSTEM"
+              pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/System1.png"
+            />
+            <SgxPassSection />
+          </div>
+        )}
 
       </main>
 
@@ -1736,20 +1696,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
         onClose={() => setSelectedBrandShowcase(null)}
       />
 
-      {/* 9. Tickets, Passport & Gamification Rewards Modals */}
-      {ticketModalOpen && <SummitTicketModal onClose={() => setTicketModalOpen(false)} />}
-      {passportModalOpen && (
-        <SummitPassportModal
-          onClose={() => setPassportModalOpen(false)}
-          onNavigateToSection={(sec) => setActiveSection(sec as SummitSectionKey)}
-          onOpenTickets={() => setTicketModalOpen(true)}
-          onOpenSponsors={() => handleOpenSponsorModal('tier_2')}
-          onOpenRewardsStore={() => setRewardsStoreModalOpen(true)}
-          onOpenAvatarGenerator={() => setAvatarGeneratorModalOpen(true)}
-          onOpenQrScanner={() => setQrScannerModalOpen(true)}
-          onOpenTour={() => setOnboardingTourOpen(true)}
-        />
-      )}
+      {/* 9. Reactor store (the pass, passport and tickets live in SgxPassHost) */}
       {rewardsStoreModalOpen && (
         <SummitRewardsStoreModal
           onClose={() => setRewardsStoreModalOpen(false)}
@@ -1757,13 +1704,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           isAdmin={isAdmin}
         />
       )}
-
-      {/* 9b. Interactive Guided Onboarding Tour with Spotlight & Neon Glow */}
-      <SummitGuidedSpotlightTour
-        isOpen={onboardingTourOpen}
-        onClose={() => setOnboardingTourOpen(false)}
-        onNavigateToSection={(sec) => setActiveSection(sec as any)}
-      />
 
       {/* 10. Avatar Studio Generator Modal */}
       {avatarGeneratorModalOpen && (
@@ -1928,13 +1868,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       <SummitContentAuditModal
         isOpen={isAuditModalOpen}
         onClose={() => setAuditModalOpen(false)}
-      />
-
-      {/* Astronaut Guide: Pilot Route Onboarding Modal */}
-      <PilotRoleSelectorModal
-        isOpen={isRoleModalOpen}
-        onClose={() => setIsRoleModalOpen(false)}
-        onNavigateToSection={handleSelectSection}
       />
 
       {/* SGX Holo Card / Credential Generator Modal */}

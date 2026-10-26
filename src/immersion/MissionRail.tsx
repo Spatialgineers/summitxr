@@ -6,18 +6,21 @@ import { getIsAudioMuted, toggleAudioMute } from '../lib/cyberAudioEngine';
 import { QUESTS, TOTAL_CELLS } from './quests';
 import { SECTION_META } from './sections';
 import { SgxBolt } from './SgxSymbols';
+import { useOptionalSgxIdentity } from '../identity/SgxIdentityContext';
+import { missionsOfPillar } from '../identity/reactor';
+import { SGX_PILLARS } from '../lib/sgxPillars';
 
 const COPY = {
   es: {
     rail: 'Misiones', title: 'Control de Misión', close: 'Cerrar', energy: 'Energía', cells: 'Celdas de energía',
     cellsHint: 'Hay un rayo SGX escondido en cada sección. Aparece cerca de los bordes unos segundos después de llegar.',
-    main: 'Main Quests', side: 'Side Quests', secret: 'Secretos', terminal: 'Terminal', pulse: 'Pulso', stage: 'Escenario',
+    main: 'Main Quests', side: 'Side Quests', secret: 'Secretos', reactor: 'Reactor · misiones por pilar', reactorHint: 'Completa un pilar y queda sellado en tu SGX Pass.', openReactor: 'Abrir Reactor', terminal: 'Terminal', pulse: 'Pulso', stage: 'Escenario',
     sound: 'Sonido', keys: 'Atajos', overdrive: 'OVERDRIVE ACTIVO',
   },
   en: {
     rail: 'Quests', title: 'Mission Control', close: 'Close', energy: 'Energy', cells: 'Energy cells',
     cellsHint: 'There is an SGX bolt hidden in every section. It shows up near the edges a few seconds after you arrive.',
-    main: 'Main Quests', side: 'Side Quests', secret: 'Secrets', terminal: 'Terminal', pulse: 'Pulse', stage: 'Stage',
+    main: 'Main Quests', side: 'Side Quests', secret: 'Secrets', reactor: 'Reactor · missions per pillar', reactorHint: 'Finish a pillar and it is stamped on your SGX Pass.', openReactor: 'Open Reactor', terminal: 'Terminal', pulse: 'Pulse', stage: 'Stage',
     sound: 'Sound', keys: 'Shortcuts', overdrive: 'OVERDRIVE ACTIVE',
   },
 };
@@ -62,6 +65,9 @@ export const MissionRail: React.FC = () => {
   }, []);
 
   const energy = overdrive ? 100 : Math.round(state.energy);
+  const sgx = useOptionalSgxIdentity();
+  const reactorDone = sgx ? sgx.missions.filter((m) => sgx.isDone(m.id)).length : 0;
+  const reactorTotal = sgx ? sgx.missions.length : 0;
 
   const renderGroup = (kind: 'main' | 'side' | 'secret', label: string) => (
     <section className="sgx-mission__group">
@@ -101,7 +107,7 @@ export const MissionRail: React.FC = () => {
       >
         <span className={`sgx-led ${overdrive ? 'sgx-led--alert' : 'sgx-led--action'}`} aria-hidden="true" />
         <span className="sgx-rail__label">{c.rail}</span>
-        <span className="sgx-rail__count">{completedCount}/{QUESTS.length}</span>
+        <span className="sgx-rail__count">{completedCount + reactorDone}/{QUESTS.length + reactorTotal}</span>
         <span className="sgx-rail__meter" aria-label={`${c.energy} ${energy}%`}>
           <span style={{ transform: `scaleY(${energy / 100})` }} />
         </span>
@@ -141,6 +147,30 @@ export const MissionRail: React.FC = () => {
             </div>
             <p className="sgx-mission__note">{c.cellsHint}</p>
           </div>
+
+          {sgx && (
+            <section className="sgx-mission__group">
+              <h3 className="sgx-mission__group-title">{c.reactor} · {reactorDone}/{reactorTotal}</h3>
+              <ul className="sgx-mission__list sgx-mission__reactor">
+                {SGX_PILLARS.map((p) => {
+                  const list = missionsOfPillar(sgx.missions, p.key);
+                  const n = list.filter((m) => sgx.isDone(m.id)).length;
+                  const stamped = !!sgx.identity.stamps[`pillar:${p.key}`];
+                  return (
+                    <li key={p.key} className={`sgx-quest ${stamped ? 'is-done' : ''}`}>
+                      <span className="sgx-quest__check" aria-hidden="true">{stamped ? <SgxBolt size={10} /> : null}</span>
+                      <span className="sgx-quest__text">
+                        <span className="sgx-quest__title">{p.name}</span>
+                        <span className="sgx-quest__hint">{list.filter((m) => !sgx.isDone(m.id)).map((m) => m[lang].title).slice(0, 2).join(' · ') || c.reactorHint}</span>
+                      </span>
+                      <span className="sgx-quest__meta"><span className="sgx-readout">{n}/{list.length}</span></span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => { setPanelOpen(false); window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'reactor' } })); }}>{c.openReactor}</button>
+            </section>
+          )}
 
           {renderGroup('main', c.main)}
           {renderGroup('side', c.side)}

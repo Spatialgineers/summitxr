@@ -36,6 +36,7 @@ import {
 } from '../../lib/rewardsStore';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useAuth } from '../../context/AuthContext';
+import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 
 interface SummitRewardsStoreModalProps {
   onClose: () => void;
@@ -67,28 +68,10 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
   const [latestVoucher, setLatestVoucher] = useState<RedeemedPrize | null>(null);
   const [redeemError, setRedeemError] = useState<string | null>(null);
 
-  // User Current XP (persisted / calculated)
-  const [userXp, setUserXp] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('sgx_summit_user_xp');
-      if (saved) return parseInt(saved, 10);
-      
-      // Calculate from completed passport quests
-      const questsJson = localStorage.getItem('sgx_passport_quests');
-      if (questsJson) {
-        const quests = JSON.parse(questsJson);
-        let calculated = 0; // base welcome points
-        if (quests.quest_ticket) calculated += 250;
-        if (quests.quest_360) calculated += 200;
-        if (quests.quest_drone) calculated += 200;
-        if (quests.quest_forum) calculated += 150;
-        if (quests.quest_guild) calculated += 200;
-        if (quests.quest_sponsors) calculated += 150;
-        return calculated;
-      }
-    } catch {}
-    return currentUserXp || 0;
-  });
+  // One XP for the whole Summit: the balance is the SGX Pass balance
+  // (earned XP minus what was already spent), so rank never drops.
+  const sgxIdentity = useOptionalSgxIdentity();
+  const userXp = sgxIdentity ? sgxIdentity.xpBalance : currentUserXp;
 
   // Load initial data
   useEffect(() => {
@@ -122,7 +105,8 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
       }
     };
     fetchData();
-  }, [user, userXp]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -148,8 +132,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
     const result = await redeemPrize(reward, currentUserObj);
     if (result.success && result.voucher) {
       const newXp = Math.max(0, userXp - reward.xpCost);
-      setUserXp(newXp);
-      localStorage.setItem('sgx_summit_user_xp', newXp.toString());
+      sgxIdentity?.spendXp({ rewardId: reward.id, title: reward.title, cost: reward.xpCost, voucher: result.voucher.voucherCode });
       if (onXpChange) onXpChange(newXp);
 
       setRedeemedPrizes(prev => [result.voucher!, ...prev]);

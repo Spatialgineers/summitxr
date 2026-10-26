@@ -1,0 +1,352 @@
+/* =========================================================================
+   SGX IDENTITY: SGX Pass, Forja de identidad, Hangar del piloto.
+   Built on the SGX design system tokens (sgx-design-system.css).
+   ========================================================================= */
+
+@layer components {
+  /* ---------- SGX PASS ---------- */
+  .sgx-pass {
+    --pass-accent: var(--SGX_Yellow);
+    --pass-cut: 18px;
+    position: relative;
+    width: min(100%, 560px);
+    aspect-ratio: 1.62;
+    perspective: 1400px;
+    margin-inline: auto;
+    font-family: var(--font-hud);
+    color: var(--SGX_White);
+  }
+  .sgx-pass--compact { width: min(100%, 420px); }
+  .sgx-pass__inner {
+    position: absolute; inset: 0;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .sgx-pass.is-flipped .sgx-pass__inner { transform: rotateY(180deg); }
+  .sgx-pass__face {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    padding: clamp(10px, 2.4vw, 18px) clamp(12px, 2.8vw, 22px);
+    backface-visibility: hidden;
+    background:
+      radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--pass-accent) 16%, transparent), transparent 60%),
+      linear-gradient(160deg, #15181e 0%, var(--SGX_Metal_Dark) 45%, var(--SGX_Black_Base) 100%);
+    clip-path: polygon(var(--pass-cut) 0, 100% 0, 100% calc(100% - var(--pass-cut)), calc(100% - var(--pass-cut)) 100%, 0 100%, 0 var(--pass-cut));
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--pass-accent) 70%, transparent);
+    overflow: hidden;
+  }
+  .sgx-pass__face::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+  }
+  .sgx-pass__face::after {
+    /* the 45° cut edges, drawn */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      linear-gradient(135deg, transparent calc(50% - 1px), var(--pass-accent) calc(50% - 1px), var(--pass-accent) calc(50% + 1px), transparent calc(50% + 1px)) top left / var(--pass-cut) var(--pass-cut) no-repeat,
+      linear-gradient(135deg, transparent calc(50% - 1px), var(--pass-accent) calc(50% - 1px), var(--pass-accent) calc(50% + 1px), transparent calc(50% + 1px)) bottom right / var(--pass-cut) var(--pass-cut) no-repeat;
+  }
+  .sgx-pass__back { transform: rotateY(180deg); }
+  .sgx-pass__holo {
+    position: absolute; inset: -40%; pointer-events: none; mix-blend-mode: screen; opacity: 0.22;
+    background: conic-gradient(from 0deg, transparent, var(--SGX_Cyan), transparent 30%, var(--SGX_Yellow), transparent 60%, var(--SGX_Cyan), transparent);
+    animation: sgx-pass-holo 9s linear infinite;
+  }
+  @keyframes sgx-pass-holo { to { transform: rotate(360deg); } }
+
+  .sgx-pass__head { position: relative; display: flex; align-items: center; gap: 10px; }
+  .sgx-pass__bolt { width: clamp(18px, 3.4vw, 26px); height: auto; filter: drop-shadow(0 0 6px var(--SGX_Yellow)); }
+  .sgx-pass__brand { font-family: var(--font-display); font-weight: 800; font-size: clamp(0.85rem, 2.4vw, 1.15rem); letter-spacing: 0.14em; color: var(--SGX_Yellow); }
+  .sgx-pass__event { font-family: var(--font-mono); font-size: clamp(0.5rem, 1.4vw, 0.62rem); letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.6); }
+  .sgx-pass__serial { margin-left: auto; font-family: var(--font-mono); font-size: clamp(1rem, 3.4vw, 1.6rem); color: var(--pass-accent); text-shadow: 0 0 12px color-mix(in srgb, var(--pass-accent) 60%, transparent); }
+
+  .sgx-pass__body { position: relative; flex: 1; display: grid; grid-template-columns: auto 1fr auto; gap: clamp(8px, 2vw, 16px); align-items: center; min-height: 0; padding-block: 6px; }
+  .sgx-pass__portrait { position: relative; display: grid; place-items: center; width: clamp(64px, 17vw, 112px); aspect-ratio: 5 / 6; background: #0b0d12; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pass-accent) 60%, transparent); clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+  .sgx-pass__portrait img, .sgx-pass__portrait svg { width: 100%; height: 100%; object-fit: cover; }
+  .sgx-pass__tier { position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 4px; font-family: var(--font-mono); font-size: clamp(0.42rem, 1.2vw, 0.55rem); text-align: center; letter-spacing: 0.06em; background: var(--pass-accent); color: var(--SGX_Black_Base); font-weight: 700; }
+  .sgx-pass__who { min-width: 0; }
+  .sgx-pass__label { font-family: var(--font-mono); font-size: clamp(0.5rem, 1.3vw, 0.6rem); color: rgba(255, 255, 255, 0.5); letter-spacing: 0.12em; text-transform: uppercase; }
+  .sgx-pass__name { font-family: var(--font-display); font-weight: 700; font-size: clamp(0.85rem, 2.8vw, 1.35rem); line-height: 1.1; text-transform: uppercase; overflow-wrap: anywhere; }
+  .sgx-pass__callsign { font-family: var(--font-mono); font-size: clamp(0.65rem, 1.8vw, 0.85rem); color: var(--SGX_Cyan); margin-top: 2px; }
+  .sgx-pass__pillar { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; padding: 2px 8px 2px 3px; font-size: clamp(0.55rem, 1.5vw, 0.72rem); letter-spacing: 0.08em; text-transform: uppercase; color: var(--pass-accent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pass-accent) 50%, transparent); }
+  .sgx-pass__pillar img { width: 16px; height: 16px; object-fit: contain; }
+  .sgx-pass__rank { margin-top: 4px; font-family: var(--font-mono); font-size: clamp(0.5rem, 1.3vw, 0.62rem); color: rgba(255, 255, 255, 0.55); text-transform: uppercase; }
+  .sgx-pass__qr { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .sgx-pass__qr img, .sgx-pass__qr-wait { width: clamp(64px, 18vw, 116px); aspect-ratio: 1; image-rendering: pixelated; box-shadow: 0 0 18px color-mix(in srgb, var(--SGX_Yellow) 35%, transparent); }
+  .sgx-pass__qr-wait { background: repeating-linear-gradient(45deg, #222 0 4px, #111 4px 8px); }
+  .sgx-pass__qr code { font-family: var(--font-mono); font-size: clamp(0.45rem, 1.2vw, 0.58rem); color: rgba(255, 255, 255, 0.7); letter-spacing: 0.04em; }
+
+  .sgx-pass__stamps { position: relative; display: flex; gap: clamp(4px, 1vw, 8px); align-items: center; }
+  .sgx-pass__stamp { display: grid; place-items: center; width: clamp(22px, 5vw, 32px); aspect-ratio: 1; opacity: 0.22; filter: grayscale(1); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25); clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px); transition: opacity 0.4s, filter 0.4s; }
+  .sgx-pass__stamp img { width: 72%; height: 72%; object-fit: contain; }
+  .sgx-pass__stamp.is-on { opacity: 1; filter: none; box-shadow: inset 0 0 0 1px var(--pass-accent), 0 0 10px color-mix(in srgb, var(--pass-accent) 45%, transparent); animation: sgx-stamp-in 0.6s cubic-bezier(0.2, 1.6, 0.4, 1); }
+  .sgx-pass__stamp--chroma { width: auto; aspect-ratio: auto; height: clamp(22px, 5vw, 32px); padding-inline: 8px; margin-left: auto; font-family: var(--font-mono); font-size: clamp(0.5rem, 1.3vw, 0.62rem); letter-spacing: 0.12em; }
+  .sgx-pass__stamp--chroma.is-on { color: var(--SGX_Black_Base); background: var(--SGX_Yellow); }
+  @keyframes sgx-stamp-in { from { transform: scale(1.8) rotate(-12deg); opacity: 0; } }
+  .sgx-pass__pending { position: absolute; right: 18px; bottom: calc(clamp(22px, 5vw, 32px) + clamp(14px, 3vw, 22px)); padding: 1px 8px; font-family: var(--font-mono); font-size: clamp(0.45rem, 1.2vw, 0.55rem); letter-spacing: 0.1em; text-transform: uppercase; color: var(--SGX_Neon_Orange); background: rgba(5, 5, 5, 0.85); white-space: nowrap; }
+
+  .sgx-pass__stats { position: relative; flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+  .sgx-pass__stats div { padding: 6px 8px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12); }
+  .sgx-pass__stats dt { font-family: var(--font-mono); font-size: clamp(0.5rem, 1.3vw, 0.62rem); color: rgba(255, 255, 255, 0.5); text-transform: uppercase; letter-spacing: 0.1em; }
+  .sgx-pass__stats dd { margin: 0; font-family: var(--font-display); font-size: clamp(0.9rem, 2.8vw, 1.3rem); color: var(--pass-accent); }
+  .sgx-pass__fine { position: relative; font-family: var(--font-body); font-size: clamp(0.55rem, 1.5vw, 0.72rem); line-height: 1.35; color: rgba(255, 255, 255, 0.62); margin: 0; }
+  .sgx-pass__issued { position: relative; margin-top: 6px; font-family: var(--font-mono); font-size: 0.6rem; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; }
+
+  .sgx-pass__flip { position: absolute; right: 10px; bottom: -34px; padding: 4px 10px; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--SGX_Cyan); background: transparent; border: 1px solid color-mix(in srgb, var(--SGX_Cyan) 50%, transparent); cursor: pointer; }
+  .sgx-pass__flip:hover { background: color-mix(in srgb, var(--SGX_Cyan) 14%, transparent); }
+
+  /* the ceremony: the pass prints in from a scan line */
+  .sgx-pass.is-printing .sgx-pass__front { animation: sgx-pass-print 2.1s cubic-bezier(0.6, 0, 0.2, 1) both; }
+  .sgx-pass.is-printing .sgx-pass__front::before { background: linear-gradient(180deg, transparent 0 calc(var(--scan, 0%) - 2%), var(--SGX_Yellow) var(--scan, 0%), transparent calc(var(--scan, 0%) + 1%)); }
+  @keyframes sgx-pass-print {
+    0% { clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); filter: brightness(2.2); }
+    80% { filter: brightness(1.3); }
+    100% { clip-path: polygon(var(--pass-cut) 0, 100% 0, 100% calc(100% - var(--pass-cut)), calc(100% - var(--pass-cut)) 100%, 0 100%, 0 var(--pass-cut)); filter: none; }
+  }
+
+  /* ---------- FORJA DE IDENTIDAD ---------- */
+  .sgx-forge {
+    --pass-accent: var(--SGX_Yellow);
+    position: fixed; inset: 0; z-index: 100000;
+    display: grid; grid-template-columns: minmax(0, 1fr); place-items: center;
+    padding: 16px;
+    background: radial-gradient(80% 70% at 50% 40%, rgba(50, 82, 123, 0.35), rgba(5, 5, 5, 0.96) 70%);
+    backdrop-filter: blur(6px);
+    color: var(--SGX_White);
+    animation: sgx-forge-in 0.4s ease-out;
+    overflow-y: auto;
+  }
+  @keyframes sgx-forge-in { from { opacity: 0; } }
+  .sgx-forge__grid { position: absolute; inset: 0; pointer-events: none; opacity: 0.35;
+    background-image: linear-gradient(rgba(0, 221, 255, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 221, 255, 0.08) 1px, transparent 1px);
+    background-size: 44px 44px; mask-image: radial-gradient(70% 60% at 50% 50%, #000, transparent); }
+  .sgx-forge__frame {
+    position: relative; width: min(100%, 860px); max-height: calc(100dvh - 32px); overflow-y: auto;
+    padding: clamp(16px, 3vw, 28px);
+    background: linear-gradient(180deg, rgba(26, 26, 26, 0.92), rgba(5, 5, 5, 0.94));
+    clip-path: polygon(22px 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%, 0 22px);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pass-accent) 55%, transparent);
+  }
+  .sgx-forge__head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+  .sgx-forge__title { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--SGX_Yellow); font-size: clamp(0.8rem, 2vw, 1rem); }
+  .sgx-forge__title img { width: 22px; filter: drop-shadow(0 0 6px var(--SGX_Yellow)); }
+  .sgx-forge__steps { display: flex; gap: 6px; margin: 0 0 0 auto; padding: 0; list-style: none; }
+  .sgx-forge__steps li { font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 7px; color: rgba(255, 255, 255, 0.4); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15); }
+  .sgx-forge__steps li.is-on { color: var(--SGX_Black_Base); background: var(--SGX_Yellow); box-shadow: none; }
+  .sgx-forge__steps li.is-done { color: var(--SGX_Cyan); box-shadow: inset 0 0 0 1px var(--SGX_Cyan); }
+  .sgx-forge__close { margin-left: 4px; width: 32px; height: 32px; color: rgba(255, 255, 255, 0.7); background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer; }
+  .sgx-forge__close:hover { color: var(--SGX_Black_Base); background: var(--SGX_Yellow); }
+  .sgx-forge__stage { display: flex; flex-direction: column; gap: 14px; animation: sgx-forge-step 0.35s ease-out; }
+  @keyframes sgx-forge-step { from { opacity: 0; transform: translateY(8px); } }
+  .sgx-forge__stage h2 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: clamp(1.2rem, 3.6vw, 2rem); line-height: 1.1; text-transform: uppercase; }
+  .sgx-forge__stage > p, .sgx-forge__intro p { margin: 0; font-family: var(--font-body); font-size: 1rem; line-height: 1.5; color: rgba(255, 255, 255, 0.75); max-width: 62ch; }
+  .sgx-forge__kicker { margin: 0; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--SGX_Cyan); }
+  .sgx-forge__bullets { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .sgx-forge__bullets li { position: relative; padding-left: 22px; font-family: var(--font-body); color: rgba(255, 255, 255, 0.85); }
+  .sgx-forge__bullets li::before { content: "◆"; position: absolute; left: 0; color: var(--SGX_Yellow); font-size: 0.75rem; top: 3px; }
+  .sgx-forge__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 4px; }
+  .sgx-forge__fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .sgx-forge__field { display: flex; flex-direction: column; gap: 5px; }
+  .sgx-forge__field span { font-family: var(--font-hud); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); }
+  .sgx-forge__field input {
+    padding: 10px 12px; font-family: var(--font-body); font-size: 1rem; color: var(--SGX_White);
+    background: rgba(5, 5, 5, 0.8); border: 1px solid rgba(255, 255, 255, 0.18); outline: none;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  }
+  .sgx-forge__field input:focus { border-color: var(--SGX_Yellow); box-shadow: 0 0 0 1px var(--SGX_Yellow); }
+  .sgx-forge__tiers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; border: 0; }
+  .sgx-forge__tiers legend { margin-bottom: 8px; font-family: var(--font-hud); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); }
+  .sgx-forge__tiers label { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15); clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); transition: box-shadow 0.2s, background 0.2s; }
+  .sgx-forge__tiers label.is-on { box-shadow: inset 0 0 0 1.5px var(--SGX_Yellow); background: rgba(253, 204, 13, 0.07); }
+  .sgx-forge__tiers input { position: absolute; opacity: 0; pointer-events: none; }
+  .sgx-forge__tiers strong { font-family: var(--font-display); font-size: 0.9rem; text-transform: uppercase; color: var(--SGX_Yellow); }
+  .sgx-forge__tiers span { font-family: var(--font-body); font-size: 0.85rem; color: rgba(255, 255, 255, 0.7); line-height: 1.35; }
+  .sgx-forge__error { margin: 0; color: var(--SGX_Neon_Orange); font-family: var(--font-hud); }
+  .sgx-forge__fine { margin: 0; font-family: var(--font-mono); font-size: 0.72rem; color: rgba(255, 255, 255, 0.5); }
+  .sgx-forge__pillars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .sgx-forge__pillar {
+    --pillar-accent: var(--SGX_Yellow);
+    display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 14px; text-align: left; color: inherit; cursor: pointer;
+    background: rgba(26, 26, 26, 0.7); border: 0; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  .sgx-forge__pillar:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 1px var(--pillar-accent); }
+  .sgx-forge__pillar.is-on { background: color-mix(in srgb, var(--pillar-accent) 12%, rgba(26, 26, 26, 0.8)); box-shadow: inset 0 0 0 2px var(--pillar-accent), 0 0 24px color-mix(in srgb, var(--pillar-accent) 30%, transparent); }
+  .sgx-forge__pillar img { width: 40px; height: 40px; object-fit: contain; }
+  .sgx-forge__pillar-name { font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--pillar-accent); text-transform: uppercase; }
+  .sgx-forge__pillar-line { font-family: var(--font-body); font-size: 0.82rem; line-height: 1.3; color: rgba(255, 255, 255, 0.72); }
+  .sgx-forge__pilots { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+  .sgx-forge__pilot { padding: 10px; background: #0b0d12; border: 0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14); clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); transition: transform 0.2s, box-shadow 0.2s; }
+  .sgx-forge__pilot:hover { transform: translateY(-3px); }
+  .sgx-forge__pilot.is-on { box-shadow: inset 0 0 0 2px var(--pass-accent), 0 0 26px color-mix(in srgb, var(--pass-accent) 35%, transparent); }
+  .sgx-forge__print { align-items: center; text-align: center; padding-bottom: 8px; }
+  .sgx-forge__print .sgx-forge__actions { justify-content: center; }
+  .sgx-forge__done { color: var(--SGX_Yellow); text-shadow: 0 0 18px rgba(253, 204, 13, 0.5); margin-top: 26px !important; }
+  .sgx-forge__strike { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 2; }
+  .sgx-forge__strike img { width: 120px; filter: drop-shadow(0 0 30px var(--SGX_Yellow)) brightness(1.4); animation: sgx-strike 1.1s cubic-bezier(0.5, 0, 0.2, 1) both; }
+  @keyframes sgx-strike {
+    0% { transform: translateY(-60vh) scale(0.6); opacity: 0; }
+    35% { transform: translateY(0) scale(1.25); opacity: 1; }
+    55% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2.6); opacity: 0; }
+  }
+
+  /* ---------- HANGAR DEL PILOTO ---------- */
+  .sgx-hangar {
+    position: fixed; inset: 0; z-index: 99990;
+    display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: 16px;
+    background: rgba(5, 5, 5, 0.86); backdrop-filter: blur(6px);
+    color: var(--SGX_White);
+    animation: sgx-forge-in 0.25s ease-out;
+  }
+  .sgx-hangar__frame {
+    position: relative; display: flex; flex-direction: column;
+    width: min(100%, 1080px); height: min(100%, 860px); max-height: calc(100dvh - 32px);
+    background: linear-gradient(180deg, #121418, var(--SGX_Black_Base));
+    clip-path: polygon(22px 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%, 0 22px);
+    box-shadow: inset 0 0 0 1px rgba(0, 221, 255, 0.45);
+  }
+  .sgx-hangar__head { display: flex; align-items: center; gap: 14px; padding: 16px 20px 10px 26px; }
+  .sgx-hangar__title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .sgx-hangar__title img { width: 26px; filter: drop-shadow(0 0 6px var(--SGX_Yellow)); }
+  .sgx-hangar__title h2 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: clamp(1rem, 2.6vw, 1.4rem); text-transform: uppercase; letter-spacing: 0.06em; }
+  .sgx-hangar__title p { margin: 0; font-family: var(--font-mono); font-size: 0.75rem; color: var(--SGX_Cyan); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sgx-hangar__xp { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; font-family: var(--font-hud); }
+  .sgx-hangar__xp b { font-family: var(--font-display); font-size: 1.3rem; color: var(--SGX_Yellow); }
+  .sgx-hangar__xp-sub { font-family: var(--font-mono); font-size: 0.68rem; color: rgba(255, 255, 255, 0.55); text-transform: uppercase; }
+  .sgx-hangar__close { width: 34px; height: 34px; flex: none; color: rgba(255, 255, 255, 0.75); background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer; }
+  .sgx-hangar__close:hover { color: var(--SGX_Black_Base); background: var(--SGX_Yellow); }
+  .sgx-hangar__tabs { display: flex; gap: 4px; padding: 0 20px; overflow-x: auto; border-bottom: 1px solid rgba(255, 255, 255, 0.1); scrollbar-width: none; }
+  .sgx-hangar__tabs button { flex: none; padding: 10px 14px; font-family: var(--font-hud); font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); background: transparent; border: 0; border-bottom: 2px solid transparent; cursor: pointer; }
+  .sgx-hangar__tabs button:hover { color: var(--SGX_White); }
+  .sgx-hangar__tabs button.is-on { color: var(--SGX_Yellow); border-bottom-color: var(--SGX_Yellow); }
+  .sgx-hangar__body { flex: 1; overflow-y: auto; padding: 20px clamp(14px, 3vw, 26px) 30px; }
+  .sgx-hangar__empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 40px 16px; text-align: center; }
+  .sgx-hangar__empty h3 { margin: 0; font-family: var(--font-display); text-transform: uppercase; color: var(--SGX_Yellow); }
+  .sgx-hangar__empty p { margin: 0; max-width: 52ch; font-family: var(--font-body); color: rgba(255, 255, 255, 0.72); }
+  .sgx-hangar__empty--sm { padding: 24px; font-family: var(--font-mono); font-size: 0.8rem; color: rgba(255, 255, 255, 0.55); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); }
+  .sgx-hangar__pass { display: flex; flex-direction: column; align-items: center; gap: 46px; }
+  .sgx-hangar__pass > div:first-child { width: 100%; }
+  .sgx-hangar__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+  .sgx-hangar__note { margin: 0; max-width: 62ch; text-align: center; font-family: var(--font-body); font-size: 0.85rem; color: rgba(255, 255, 255, 0.55); }
+  .sgx-hangar__reactor-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  .sgx-hangar__reactor-top p { margin: 0; font-family: var(--font-body); color: rgba(255, 255, 255, 0.7); max-width: 60ch; }
+  .sgx-hangar__pillars { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; }
+  .sgx-hangar__pillar { --pillar-accent: var(--SGX_Yellow); padding: 12px 14px; background: rgba(26, 26, 26, 0.7); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); }
+  .sgx-hangar__pillar.is-stamped { box-shadow: inset 0 0 0 1.5px var(--pillar-accent), 0 0 20px color-mix(in srgb, var(--pillar-accent) 20%, transparent); }
+  .sgx-hangar__pillar header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .sgx-hangar__pillar header img { width: 32px; height: 32px; object-fit: contain; }
+  .sgx-hangar__pillar h4 { margin: 0; font-family: var(--font-display); font-size: 0.9rem; color: var(--pillar-accent); text-transform: uppercase; }
+  .sgx-hangar__pillar header p { margin: 0; font-family: var(--font-body); font-size: 0.75rem; color: rgba(255, 255, 255, 0.55); }
+  .sgx-hangar__stamp { margin-left: auto; padding: 2px 8px; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; color: var(--pillar-accent, var(--SGX_Yellow)); box-shadow: inset 0 0 0 1px currentColor; white-space: nowrap; }
+  .sgx-hangar__stamp.is-big { display: inline-block; margin: 0; padding: 8px 14px; font-size: 0.9rem; color: var(--SGX_Black_Base); background: var(--SGX_Yellow); box-shadow: 0 0 20px rgba(253, 204, 13, 0.5); }
+  .sgx-hangar__pillar ul, .sgx-hangar__contacts, .sgx-hangar__activity, .sgx-hangar__board, .sgx-hangar__vouchers ul { margin: 0; padding: 0; list-style: none; }
+  .sgx-hangar__pillar li { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 8px; padding: 7px 0; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+  .sgx-hangar__pillar li strong { display: block; font-family: var(--font-hud); font-size: 0.85rem; }
+  .sgx-hangar__pillar li small { display: block; font-family: var(--font-body); font-size: 0.75rem; color: rgba(255, 255, 255, 0.55); line-height: 1.3; }
+  .sgx-hangar__pillar li.is-done strong { color: var(--pillar-accent); }
+  .sgx-hangar__pillar li.is-done small { text-decoration: line-through; opacity: 0.6; }
+  .sgx-hangar__check { color: var(--pillar-accent); font-size: 0.8rem; }
+  .sgx-hangar__mxp { font-family: var(--font-mono); font-size: 0.72rem; color: var(--SGX_Yellow); }
+  .sgx-hangar__go { padding: 3px 8px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--SGX_Cyan); background: transparent; border: 1px solid color-mix(in srgb, var(--SGX_Cyan) 45%, transparent); cursor: pointer; }
+  .sgx-hangar__go:hover { color: var(--SGX_Black_Base); background: var(--SGX_Cyan); }
+  .sgx-hangar__slot { opacity: 0.6; }
+  .sgx-hangar__rolodex { display: flex; flex-direction: column; gap: 14px; align-items: stretch; }
+  .sgx-hangar__rolodex .sgx-hangar__note { text-align: left; }
+  .sgx-hangar__rolodex .sgx-hangar__actions { justify-content: flex-start; }
+  .sgx-hangar__contacts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 8px; }
+  .sgx-hangar__contacts li { display: flex; align-items: center; gap: 10px; padding: 10px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); }
+  .sgx-hangar__contacts strong { display: block; font-family: var(--font-hud); }
+  .sgx-hangar__contacts small { display: block; font-family: var(--font-mono); font-size: 0.7rem; color: rgba(255, 255, 255, 0.55); }
+  .sgx-hangar__cav { --pillar-accent: var(--SGX_Cyan); flex: none; display: grid; place-items: center; width: 34px; height: 34px; font-family: var(--font-display); color: var(--SGX_Black_Base); background: var(--pillar-accent); clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px); }
+  .sgx-hangar__via { margin-left: auto; font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; color: var(--SGX_Cyan); white-space: nowrap; }
+  .sgx-hangar__day3 { display: grid; grid-template-columns: minmax(0, 300px) 1fr; gap: 24px; align-items: start; }
+  .sgx-hangar__bigqr { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px; background: var(--SGX_Yellow); clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px); }
+  .sgx-hangar__bigqr img { width: 100%; image-rendering: pixelated; }
+  .sgx-hangar__bigqr code { font-family: var(--font-mono); font-weight: 700; color: var(--SGX_Black_Base); }
+  .sgx-hangar__day3-info h3 { margin: 0 0 10px; font-family: var(--font-display); text-transform: uppercase; color: var(--SGX_Yellow); }
+  .sgx-hangar__day3-info ol { margin: 0 0 16px; padding-left: 18px; display: grid; gap: 8px; font-family: var(--font-body); color: rgba(255, 255, 255, 0.8); }
+  .sgx-hangar__day3-info b { color: var(--SGX_Cyan); font-family: var(--font-hud); text-transform: uppercase; }
+  .sgx-hangar__checkin p { margin: 8px 0 0; font-family: var(--font-mono); font-size: 0.8rem; color: var(--SGX_Cyan); }
+  .sgx-hangar__vouchers { margin-top: 18px; }
+  .sgx-hangar__vouchers h4, .sgx-hangar__log h4 { margin: 0 0 8px; font-family: var(--font-hud); font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); }
+  .sgx-hangar__vouchers li { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-top: 1px solid rgba(255, 255, 255, 0.08); font-family: var(--font-body); font-size: 0.85rem; }
+  .sgx-hangar__vouchers code { font-family: var(--font-mono); color: var(--SGX_Yellow); }
+  .sgx-hangar__log { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; }
+  .sgx-hangar__activity li { display: grid; grid-template-columns: 48px 1fr; gap: 8px; padding: 7px 0; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+  .sgx-hangar__activity strong { display: block; font-family: var(--font-hud); font-size: 0.82rem; }
+  .sgx-hangar__activity small { display: block; font-family: var(--font-body); font-size: 0.72rem; color: rgba(255, 255, 255, 0.5); }
+  .sgx-hangar__board { margin-bottom: 14px !important; }
+  .sgx-hangar__board li { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; padding: 6px 0; border-top: 1px solid rgba(255, 255, 255, 0.06); font-family: var(--font-hud); font-size: 0.85rem; }
+  .sgx-hangar__board span { font-family: var(--font-mono); color: rgba(255, 255, 255, 0.4); }
+  .sgx-hangar__board b { font-family: var(--font-mono); color: var(--SGX_Yellow); }
+  .sgx-hangar__board li.is-me { color: var(--SGX_Cyan); }
+
+  .sgx-incoming__card { --pass-accent: var(--SGX_Yellow); width: min(100%, 460px); padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+  .sgx-incoming__who { display: flex; align-items: center; gap: 14px; }
+  .sgx-incoming__who h3 { margin: 0; font-family: var(--font-display); text-transform: uppercase; }
+  .sgx-incoming__who p { margin: 4px 0 0; font-family: var(--font-mono); font-size: 0.75rem; color: var(--pass-accent); }
+  .sgx-incoming__ok { margin: 0; font-family: var(--font-body); color: var(--SGX_Cyan); }
+
+  /* ---------- SGX PASS SECTION (page) ---------- */
+  .sgx-pass-section { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 28px; align-items: start; padding-bottom: 36px; }
+  .sgx-pass-section__side { display: flex; flex-direction: column; gap: 14px; }
+  .sgx-pass-section__bars { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .sgx-pass-section__bars li { display: grid; grid-template-columns: 120px 1fr 44px; align-items: center; gap: 10px; font-family: var(--font-hud); font-size: 0.8rem; text-transform: uppercase; }
+  .sgx-pass-section__bars i { position: relative; height: 6px; background: rgba(255, 255, 255, 0.08); }
+  .sgx-pass-section__bars i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--fill, 0%); background: linear-gradient(90deg, var(--SGX_Cyan), var(--SGX_Yellow)); transition: width 0.6s; }
+  .sgx-pass-section__bars b { font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); text-align: right; }
+  .sgx-pass-section__bars li.is-on b { color: var(--SGX_Yellow); }
+  .sgx-pass-section--empty { grid-template-columns: auto 1fr; align-items: center; padding: 22px; }
+  .sgx-pass-section__ghost { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; width: 200px; aspect-ratio: 1.62; font-family: var(--font-display); letter-spacing: 0.14em; color: rgba(253, 204, 13, 0.5); box-shadow: inset 0 0 0 1px rgba(253, 204, 13, 0.35); background: repeating-linear-gradient(135deg, rgba(253, 204, 13, 0.05) 0 8px, transparent 8px 16px); clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
+  .sgx-pass-section__ghost img { width: 28px; opacity: 0.6; }
+  .sgx-pass-section__ghost code { font-family: var(--font-mono); color: rgba(255, 255, 255, 0.35); }
+
+  /* ---------- Header pass chip ---------- */
+  .sgx-passchip {
+    display: inline-flex; align-items: center; gap: 7px; padding: 3px 9px 3px 4px; cursor: pointer;
+    color: var(--SGX_White); background: rgba(26, 26, 26, 0.9); border: 0;
+    box-shadow: inset 0 0 0 1px rgba(0, 221, 255, 0.6);
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    transition: box-shadow 0.2s, background 0.2s;
+  }
+  .sgx-passchip:hover { box-shadow: inset 0 0 0 1px var(--SGX_Yellow); background: rgba(50, 82, 123, 0.5); }
+  .sgx-passchip__face { display: grid; place-items: center; width: 24px; height: 28px; overflow: hidden; background: #0b0d12; color: var(--SGX_Yellow); }
+  .sgx-passchip__face img, .sgx-passchip__face svg { width: 100%; height: 100%; object-fit: cover; }
+  .sgx-passchip__label { display: flex; flex-direction: column; line-height: 1.05; text-align: left; }
+  .sgx-passchip__label b { font-family: var(--font-hud); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; }
+  .sgx-passchip__label small { font-family: var(--font-mono); font-size: 0.58rem; color: var(--SGX_Cyan); white-space: nowrap; }
+  .sgx-passchip--forge { color: var(--SGX_Black_Base); background: var(--SGX_Yellow); box-shadow: 0 0 14px rgba(253, 204, 13, 0.5); }
+  .sgx-passchip--forge:hover { background: var(--SGX_White); }
+  .sgx-passchip--forge .sgx-passchip__face { background: var(--SGX_Black_Base); }
+
+  @media (max-width: 760px) {
+    .sgx-forge__fields, .sgx-forge__tiers { grid-template-columns: 1fr; }
+    .sgx-forge__pillars { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .sgx-forge__steps { display: none; }
+    .sgx-hangar { padding: 0; }
+    .sgx-hangar__frame { max-height: 100dvh; height: 100%; clip-path: none; }
+    .sgx-hangar__head { padding: 12px 14px 8px; flex-wrap: wrap; }
+    .sgx-hangar__xp { order: 3; width: 100%; flex-direction: row; justify-content: space-between; align-items: baseline; }
+    .sgx-hangar__tabs { padding: 0 10px; }
+    .sgx-hangar__day3, .sgx-hangar__log, .sgx-pass-section, .sgx-pass-section--empty { grid-template-columns: 1fr; }
+    .sgx-hangar__day3 .sgx-hangar__bigqr { max-width: 300px; margin-inline: auto; }
+    .sgx-pass-section__ghost { width: 100%; max-width: 280px; margin-inline: auto; }
+    .sgx-passchip__label small { display: none; }
+  }
+  @media (max-width: 420px) {
+    .sgx-pass { --pass-cut: 12px; }
+    .sgx-pass__body { grid-template-columns: auto 1fr; }
+    .sgx-pass__qr { display: none; }
+    .sgx-hangar__day3 .sgx-pass__qr { display: flex; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sgx-pass__holo, .sgx-pass.is-printing .sgx-pass__front, .sgx-forge__strike img, .sgx-pass__stamp.is-on { animation: none; }
+    .sgx-pass__inner { transition: none; }
+  }
+}
+
+/* Reactor block inside each pillar station page */
+.sgx-station__reactor { margin-top: 18px; }
+.sgx-station__reactor header svg { color: var(--pillar-accent); flex: none; }

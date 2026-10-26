@@ -629,6 +629,39 @@
         }
       },
       "required": ["regionId", "createdAt"]
+    },
+    "PassExchange": {
+      "title": "PassExchange",
+      "description": "SGX Pass mutual Rolodex: the scanner's card dropped in the scanned pass owner's inbox. Create-only, one per pair, readable only by the owner.",
+      "type": "object",
+      "properties": {
+        "toUid": { "type": "string" },
+        "fromUid": { "type": "string" },
+        "card": {
+          "type": "object",
+          "properties": {
+            "c": { "type": "string" },
+            "n": { "type": "string" },
+            "s": { "type": "string" },
+            "p": { "type": "string" },
+            "r": { "type": "string" },
+            "o": { "type": "string" }
+          }
+        },
+        "at": { "type": "string" }
+      },
+      "required": ["toUid", "fromUid", "card", "at"]
+    },
+    "ChromaCheckin": {
+      "title": "ChromaCheckin",
+      "description": "Day 3 entrance check-in at Chroma Space Studios, one per device, coarse region only.",
+      "type": "object",
+      "properties": {
+        "regionId": { "type": "string" },
+        "regionName": { "type": "string" },
+        "at": { "type": "string" }
+      },
+      "required": ["regionId", "regionName", "at"]
     }
   },
   "firestore": {
@@ -775,6 +808,18 @@
         "$ref": "#/entities/Visitor"
       },
       "description": "Create-only device registry that keeps unique visitors unique."
+    },
+    "/summit_pass_exchanges/{pairId}": {
+      "schema": {
+        "$ref": "#/entities/PassExchange"
+      },
+      "description": "SGX Pass contact exchanges (pairId = toUid_fromUid)."
+    },
+    "/summit_checkins/{uid}": {
+      "schema": {
+        "$ref": "#/entities/ChromaCheckin"
+      },
+      "description": "Day 3 check-ins at Chroma Space Studios; lights municipios on the visit radar."
     }
   }
 }

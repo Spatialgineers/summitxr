@@ -27,9 +27,15 @@ export function navigateToPage(page: PageRoute) {
   window.dispatchEvent(new CustomEvent('sgx:navigate_page', { detail: { page } }));
 }
 
+const GLOBAL_IDENTITY_EVENTS = [
+  'sgx:open_forge', 'sgx:open_hangar', 'sgx:open_tickets', 'sgx:open_ticket', 'sgx:open_passport',
+  'sgx:open_profile_drawer', 'sgx:open_tour', 'sgx:open_credential_generator',
+];
+
 /** Fires a landing-page modal event; hops to the summit page first if needed. */
 export function openSummitModal(eventName: string) {
-  if (eventName === 'sgx:open_terminal') {
+  // The terminal and every SGX Pass surface are global: no need to hop pages.
+  if (eventName === 'sgx:open_terminal' || GLOBAL_IDENTITY_EVENTS.includes(eventName)) {
     window.dispatchEvent(new CustomEvent(eventName));
     return;
   }

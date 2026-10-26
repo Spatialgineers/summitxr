@@ -232,9 +232,9 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     },
     {
       key: 'CREDENTIAL_GENERATOR',
-      title: 'SGX Credential Generator & Holo Card',
-      shortLabel: 'Credential Generator',
-      description: 'Generador de credencial holográfica oficial y pase 3D para Speakers, Initiates, Sponsors y Visitantes.',
+      title: 'SGX Pass',
+      shortLabel: 'SGX Pass',
+      description: 'Tu registro, Holo Card, credencial y QR de networking en un solo pase que evoluciona con cada misión.',
       icon: Award,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
       badge: 'SGX.SHOWCASE',

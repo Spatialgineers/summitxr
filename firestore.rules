@@ -379,5 +379,51 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if isSuperAdmin();
     }
+    // ---------------------------------------------------------------------
+    // SGX Pass. Mutual Rolodex: whoever scans a pass drops their own card in
+    // the owner's inbox (one doc per pair, create-only). Only the owner can
+    // read their inbox. No emails travel here, only what the pass QR shows.
+    // ---------------------------------------------------------------------
+    function isShortString(v, max) {
+      return v is string && v.size() <= max;
+    }
+
+    // Collection: /summit_pass_exchanges/{pairId}   pairId = toUid_fromUid
+    match /summit_pass_exchanges/{pairId} {
+      allow get, list: if isSignedIn() && resource.data.toUid == request.auth.uid;
+      allow create: if isSignedIn() &&
+        incoming().keys().hasOnly(['toUid', 'fromUid', 'card', 'at']) &&
+        incoming().fromUid == request.auth.uid &&
+        isValidId(incoming().toUid) &&
+        incoming().toUid != request.auth.uid &&
+        pairId == incoming().toUid + '_' + request.auth.uid &&
+        incoming().at == request.time &&
+        incoming().card is map &&
+        incoming().card.keys().hasOnly(['c', 'n', 's', 'p', 'r', 'o']) &&
+        isShortString(incoming().card.c, 40) && incoming().card.c.size() > 0 &&
+        isShortString(incoming().card.n, 80) && incoming().card.n.size() > 0 &&
+        isShortString(incoming().card.s, 20) &&
+        incoming().card.p in ['', 'STORY', 'SHOWCASE', 'SPARK', 'STAGE', 'SYSTEM', 'SYNTHESIZE'] &&
+        isShortString(incoming().card.r, 80) &&
+        isShortString(incoming().card.o, 80);
+      allow update: if false;
+      allow delete: if isSuperAdmin() || (isSignedIn() && resource.data.toUid == request.auth.uid);
+    }
+
+    // Collection: /summit_checkins/{uid}  Day 3 entrance at Chroma Space
+    // Studios. Public (coarse region only) so the radar can light municipios;
+    // one per device, only during Day 3 (Dec 13 2026, Puerto Rico time).
+    match /summit_checkins/{uid} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && uid == request.auth.uid &&
+        incoming().keys().hasOnly(['regionId', 'regionName', 'at']) &&
+        isShortString(incoming().regionId, 64) &&
+        isShortString(incoming().regionName, 80) &&
+        incoming().at == request.time &&
+        request.time >= timestamp.value('2026-12-13T04:00:00Z') &&
+        request.time <= timestamp.value('2026-12-14T10:00:00Z');
+      allow update: if false;
+      allow delete: if isSuperAdmin();
+    }
   }
 }

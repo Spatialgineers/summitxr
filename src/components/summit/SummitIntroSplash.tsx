@@ -217,6 +217,7 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
 
   return (
     <div 
+      data-sgx-splash="true"
       className={`fixed inset-0 z-[9999] flex flex-col justify-between bg-[#090909] text-white select-none transition-opacity duration-300 ${
         isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}

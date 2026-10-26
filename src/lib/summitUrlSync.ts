@@ -19,7 +19,7 @@ export const SECTION_TO_SLUG: Record<SummitSectionKey, string> = {
   ENTREPRENEUR_MATCH: 'match',
   EMBEDS_GAMES: 'games',
   SPONSORS_HUB: 'sponsors',
-  CREDENTIAL_GENERATOR: 'credential-generator',
+  CREDENTIAL_GENERATOR: 'pase',
   PILLAR: 'pillar',
   VISITS: 'visitas',
 };
@@ -138,6 +138,10 @@ export const SLUG_TO_SECTION: Record<string, SummitSectionKey> = {
 
   // Credential Generator
   'credential-generator': 'CREDENTIAL_GENERATOR',
+  pase: 'CREDENTIAL_GENERATOR',
+  'sgx-pass': 'CREDENTIAL_GENERATOR',
+  pass: 'CREDENTIAL_GENERATOR',
+  hangar: 'CREDENTIAL_GENERATOR',
   credential_generator: 'CREDENTIAL_GENERATOR',
   credentials: 'CREDENTIAL_GENERATOR',
   credencial: 'CREDENTIAL_GENERATOR',

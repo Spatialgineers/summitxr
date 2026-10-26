@@ -37,7 +37,7 @@ export const CommandTerminal: React.FC = () => {
   const imm = useImmersion();
   const { terminalOpen, setTerminalOpen } = imm;
   const { language } = useLanguage();
-  const { profile, setIsProfileModalOpen } = usePilotProfile();
+  const { profile } = usePilotProfile();
   const es = language === 'es';
   const [input, setInput] = useState('');
   const [cursor, setCursor] = useState(0);
@@ -83,13 +83,13 @@ export const CommandTerminal: React.FC = () => {
       { id: 'fx', label: `FX ${imm.settings.fx ? 'OFF' : 'ON'}`, group: act, keywords: ['fx', 'efectos', 'effects', 'motion'], run: () => { imm.setSettings({ fx: !imm.settings.fx }); return `FX ${imm.settings.fx ? 'OFF' : 'ON'}`; } },
       { id: 'sfx', label: `SFX ${imm.settings.sfx ? 'OFF' : 'ON'}`, group: act, keywords: ['sfx', 'sonidos', 'sounds'], run: () => { imm.setSettings({ sfx: !imm.settings.sfx }); return `SFX ${imm.settings.sfx ? 'OFF' : 'ON'}`; } },
       { id: 'mute', label: es ? 'Silenciar / activar audio' : 'Mute / unmute audio', group: act, keywords: ['mute', 'silencio', 'audio', 'm'], run: () => (toggleAudioMute() ? 'AUDIO OFF' : 'AUDIO ON') },
-      { id: 'profile', label: es ? 'Perfil de piloto' : 'Pilot profile', group: open, keywords: ['perfil', 'profile', 'piloto', 'pilot', 'leaderboard'], run: () => { setTerminalOpen(false); setIsProfileModalOpen(true); } },
-      { id: 'tickets', label: es ? 'Boleto SGX Access' : 'SGX Access ticket', group: open, keywords: ['boleto', 'ticket', 'registro', 'register', 'pdf'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_tickets'); } },
-      { id: 'passport', label: es ? 'Pasaporte del Summit' : 'Summit passport', group: open, keywords: ['pasaporte', 'passport', 'sellos', 'stamps'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_passport'); } },
+      { id: 'profile', label: es ? 'Hangar del piloto' : 'Pilot hangar', group: open, keywords: ['hangar', 'perfil', 'profile', 'piloto', 'pilot', 'leaderboard', 'rolodex'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_hangar'); } },
+      { id: 'tickets', label: es ? 'SGX Pass (registro, Holo Card, PDF)' : 'SGX Pass (registration, Holo Card, PDF)', group: open, keywords: ['pase', 'pass', 'boleto', 'ticket', 'registro', 'register', 'pdf', 'holo', 'credencial', 'forja', 'forge'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_tickets'); } },
+      { id: 'passport', label: es ? 'Reactor de misiones' : 'Mission reactor', group: open, keywords: ['reactor', 'misiones', 'missions', 'pasaporte', 'passport', 'sellos', 'stamps'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_passport'); } },
       { id: 'rewards', label: es ? 'Tienda de recompensas' : 'Rewards store', group: open, keywords: ['recompensas', 'rewards', 'tienda', 'store', 'premios'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_rewards'); } },
       { id: 'avatar', label: es ? 'Generador de avatar' : 'Avatar generator', group: open, keywords: ['avatar'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_avatar'); } },
       { id: 'qr', label: es ? 'Escáner QR de networking' : 'Networking QR scanner', group: open, keywords: ['qr', 'scanner', 'escaner', 'escanear'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_qr_scanner'); } },
-      { id: 'tour', label: es ? 'Tour guiado' : 'Guided tour', group: open, keywords: ['tour', 'guia', 'guide', 'onboarding'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_tour'); } },
+      { id: 'tour', label: es ? 'Forja de identidad' : 'Identity forge', group: open, keywords: ['tour', 'guia', 'guide', 'onboarding', 'forja', 'forge'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_forge'); } },
       {
         id: 'status', label: es ? 'Estado del piloto' : 'Pilot status', group: 'SGX.System', keywords: ['estado', 'status', 'stats', 'whoami'],
         run: () => [
@@ -106,7 +106,7 @@ export const CommandTerminal: React.FC = () => {
       { id: 'clear', label: es ? 'Limpiar terminal' : 'Clear terminal', group: 'SGX.System', keywords: ['limpiar', 'clear', 'cls'], run: () => { setLog([]); } },
     );
     return list;
-  }, [es, imm, profile, setIsProfileModalOpen, setTerminalOpen, language]);
+  }, [es, imm, profile, setTerminalOpen, language]);
 
   const matches = useMemo(() => {
     const q = normalize(input);

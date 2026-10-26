@@ -122,7 +122,8 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
         if (ctx) {
           ctx.drawImage(img, 0, 0, 400, 400);
           const dataUrl = canvas.toDataURL('image/png');
-          
+          // The avatar is printed on the SGX Pass (SgxIdentity listens for this).
+          window.dispatchEvent(new CustomEvent('sgx:avatar_saved', { detail: { png: dataUrl, seed: config.seed, pillar: config.pillar } }));
           if (onApplyAvatar) {
             onApplyAvatar(dataUrl, config);
           }

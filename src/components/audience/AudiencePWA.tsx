@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import { runAnime } from '../../lib/animeHelper';
 import { 
   Question, 
@@ -93,6 +94,14 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
 }) => {
   const { savePlayerProfile, user: firebaseAuthUser, isAnonymous } = useAuth();
   const { recordActivity, setIsProfileModalOpen } = usePilotProfile();
+  // With an SGX Pass the voter is already identified: the pass callsign is the nickname.
+  const sgx = useOptionalSgxIdentity();
+  const passCallsign = sgx?.isForged ? sgx.identity.callsign : '';
+  useEffect(() => {
+    if (!passCallsign || user.nickname === passCallsign) return;
+    savePlayerProfile?.({ nickname: passCallsign }).catch?.(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [passCallsign]);
   const [activeTab, setActiveTab] = useState<'vote' | 'visualizer'>('vote');
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
   const [showRewardsModal, setShowRewardsModal] = useState<boolean>(false);
@@ -173,7 +182,7 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
                   {user.nickname}
                 </span>
                 <span className="text-[9px] font-mono text-[var(--sgx-accent)] px-1.5 py-0.2 bg-[var(--sgx-accent)]/10 border border-[var(--sgx-accent)]/30">
-                  {isAnonymous ? 'ANON' : 'AUTH'}
+                  {passCallsign ? 'SGX PASS' : isAnonymous ? 'ANON' : 'AUTH'}
                 </span>
               </div>
               <span className="text-[9px] text-[var(--sgx-neon)] font-mono block underline">

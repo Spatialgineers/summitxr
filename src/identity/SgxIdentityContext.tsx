@@ -1,0 +1,310 @@
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { usePilotProfile } from '../context/PilotProfileContext';
+import { useLanguage } from '../context/LanguageContext';
+import { useImmersion } from '../immersion/ImmersionContext';
+import { findPillar, PILLAR_BY_KEY, type PillarKey } from '../lib/sgxPillars';
+import { getAppRouteAndSectionFromUrl } from '../lib/summitUrlSync';
+import { loadAllApprovedSponsors } from '../lib/summitData';
+import { getMyRegion } from '../lib/visitTracker';
+import {
+  callsignFromName, IDENTITY_EVENT, IDENTITY_KEY, loadIdentity, newPassCode, PILLAR_ACCENT, saveIdentity,
+  serialFromCode, type PassContact, type PassQrPayload, type PassTier, type Redemption, type SgxIdentity,
+} from './sgxIdentity';
+import {
+  REACTOR_MISSIONS, sponsorMissions, isPillarComplete, isDay3Open, type IdentityFlag, type ReactorMission,
+} from './reactor';
+import { payloadToCard, recordCheckin, registerPass, sendExchange, subscribeExchanges } from './passNetwork';
+
+export interface ForgeInput {
+  fullName: string;
+  email: string;
+  tier: PassTier;
+  affinity: PillarKey;
+  roleTitle?: string;
+  organization?: string;
+  avatarSeed: string;
+  avatarPng?: string;
+}
+
+export type CheckinResult = 'ok' | 'already' | 'closed' | 'no_pass';
+
+interface SgxIdentityValue {
+  identity: SgxIdentity;
+  isForged: boolean;
+  /** Lifetime XP (rank, leaderboard). */
+  xpEarned: number;
+  /** What the Reactor store can still spend. */
+  xpBalance: number;
+  missions: ReactorMission[];
+  isDone: (missionId: string) => boolean;
+  forge: (input: ForgeInput) => void;
+  setAvatar: (png: string | undefined, seed: string, affinity?: PillarKey) => void;
+  setAffinity: (affinity: PillarKey) => void;
+  addContact: (payload: PassQrPayload) => 'added' | 'self' | 'known';
+  spendXp: (r: Omit<Redemption, 'at'>) => boolean;
+  /** rehearsal: stamps locally only, outside the Day 3 window, never written to Firestore. */
+  checkIn: (rehearsal?: boolean) => Promise<CheckinResult>;
+  myUid: string | null;
+}
+
+const Ctx = createContext<SgxIdentityValue | null>(null);
+
+function currentVisitKey(): string {
+  const parsed = getAppRouteAndSectionFromUrl();
+  if (parsed.page !== 'summit') return `PAGE_${parsed.page.toUpperCase()}`;
+  if (parsed.summitSection === 'PILLAR') return `PILLAR:${findPillar(new URLSearchParams(window.location.search).get('subtab'))?.slug || 'story'}`;
+  return parsed.summitSection || 'OVERVIEW';
+}
+
+export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+  const { profile, recordActivity, updateProfileName, updateAvatar } = usePilotProfile();
+  const { language } = useLanguage();
+  const { pushToast, questProgress } = useImmersion();
+  const [identity, setIdentity] = useState<SgxIdentity>(() => loadIdentity());
+  const idRef = useRef(identity);
+  idRef.current = identity;
+  const langRef = useRef(language);
+  langRef.current = language;
+  const myUid = user?.uid || null;
+
+  const missions = useMemo(() => [...REACTOR_MISSIONS, ...sponsorMissions(loadAllApprovedSponsors())], []);
+  const missionsRef = useRef(missions);
+
+  const commit = useCallback((mutate: (draft: SgxIdentity) => void) => {
+    const next: SgxIdentity = JSON.parse(JSON.stringify(idRef.current));
+    mutate(next);
+    idRef.current = next;
+    saveIdentity(next);
+    setIdentity(next);
+  }, []);
+
+  // Other tabs, and legacy modules that write the avatar PNG, stay in sync.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === IDENTITY_KEY) setIdentity(loadIdentity());
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  /** Pays a mission once, then stamps its pillar when the pillar is complete. */
+  const completeMission = useCallback((m: ReactorMission) => {
+    if (idRef.current.missions[m.id]) return;
+    const es = langRef.current === 'es';
+    const copy = es ? m.es : m.en;
+    const pillar = PILLAR_BY_KEY[m.pillar];
+    let stamped = false;
+    commit((d) => {
+      d.missions[m.id] = Date.now();
+      if ('sponsor' in m.trigger) d.stamps[`sponsor:${m.trigger.sponsor}`] = Date.now();
+      if (!d.stamps[`pillar:${m.pillar}`] && isPillarComplete(missionsRef.current, m.pillar, d.missions)) {
+        d.stamps[`pillar:${m.pillar}`] = Date.now();
+        stamped = true;
+      }
+    });
+    recordActivity('quest_complete', `Reactor · ${pillar.name} · ${copy.title}`, copy.hint, m.xp, PILLAR_ACCENT[m.pillar]);
+    pushToast({ tag: `REACTOR · ${pillar.name.toUpperCase()}`, title: copy.title, detail: copy.hint, xp: m.xp, tone: 'action' });
+    if (stamped) {
+      window.setTimeout(() => pushToast({
+        tag: es ? 'SELLO IMPRESO' : 'STAMP PRINTED',
+        title: es ? `${pillar.name} sellado en tu SGX Pass` : `${pillar.name} stamped on your SGX Pass`,
+        detail: es ? 'Abre el Hangar para verlo.' : 'Open the Hangar to see it.',
+        tone: 'telemetry',
+      }), 900);
+    }
+    window.dispatchEvent(new CustomEvent('sgx:reactor_mission', { detail: { missionId: m.id, pillar: m.pillar, stamped } }));
+  }, [commit, pushToast, recordActivity]);
+
+  const completeWhere = useCallback((pred: (m: ReactorMission) => boolean) => {
+    missionsRef.current.filter(pred).forEach(completeMission);
+  }, [completeMission]);
+
+  const flag = useCallback((f: IdentityFlag) => {
+    completeWhere((m) => 'flag' in m.trigger && m.trigger.flag === f);
+  }, [completeWhere]);
+
+  // Visits: every navigation source ends in a URL sync or the section bus.
+  useEffect(() => {
+    const visit = (key: string) => completeWhere((m) => 'visit' in m.trigger && m.trigger.visit.includes(key));
+    const onRoute = () => visit(currentVisitKey());
+    const onSwitch = (e: Event) => {
+      const s = (e as CustomEvent<{ section?: string }>).detail?.section;
+      if (s && s !== 'PILLAR') visit(s);
+    };
+    const onPage = (e: Event) => {
+      const p = (e as CustomEvent<{ page?: string }>).detail?.page;
+      if (p) visit(`PAGE_${p.toUpperCase()}`);
+    };
+    const onQuest = (e: Event) => {
+      const q = (e as CustomEvent<{ questId?: string }>).detail?.questId;
+      if (q) completeWhere((m) => 'quest' in m.trigger && m.trigger.quest === q);
+    };
+    const onSponsor = (e: Event) => {
+      const sp = (e as CustomEvent<{ sponsor?: { id?: string } }>).detail?.sponsor;
+      if (sp?.id) completeWhere((m) => 'sponsor' in m.trigger && m.trigger.sponsor === sp.id);
+    };
+    const onAvatar = (e: Event) => {
+      const d = (e as CustomEvent<{ png?: string; seed?: string; pillar?: string }>).detail || {};
+      const aff = findPillar(d.pillar || '')?.key;
+      commit((draft) => {
+        if (d.png) draft.avatar.png = d.png;
+        if (d.seed) draft.avatar.seed = d.seed;
+        if (aff && !draft.affinity) draft.affinity = aff;
+      });
+      flag('avatar');
+    };
+    onRoute();
+    window.addEventListener('sgx:route_changed', onRoute);
+    window.addEventListener('popstate', onRoute);
+    window.addEventListener('sgx:switch_summit_section', onSwitch);
+    window.addEventListener('sgx:navigate_page', onPage);
+    window.addEventListener('sgx:quest_complete', onQuest);
+    window.addEventListener('sgx:open_brand_showcase', onSponsor);
+    window.addEventListener('sgx:avatar_saved', onAvatar);
+    return () => {
+      window.removeEventListener('sgx:route_changed', onRoute);
+      window.removeEventListener('popstate', onRoute);
+      window.removeEventListener('sgx:switch_summit_section', onSwitch);
+      window.removeEventListener('sgx:navigate_page', onPage);
+      window.removeEventListener('sgx:quest_complete', onQuest);
+      window.removeEventListener('sgx:open_brand_showcase', onSponsor);
+      window.removeEventListener('sgx:avatar_saved', onAvatar);
+    };
+  }, [commit, completeWhere, flag]);
+
+  // Quests finished before the Reactor existed still count, a moment after load.
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      completeWhere((m) => 'quest' in m.trigger && questProgress(m.trigger.quest).done);
+      if (idRef.current.pass) flag('forged');
+      if (idRef.current.avatar.png) flag('avatar');
+      if (idRef.current.contacts.length) flag('contact');
+    }, 3500);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Mutual exchange: whoever scanned my pass lands in my Rolodex too.
+  useEffect(() => {
+    if (!myUid) return;
+    return subscribeExchanges(myUid, (cards) => {
+      const known = new Set(idRef.current.contacts.map((c) => c.code));
+      const fresh = cards.filter((c) => c.c && !known.has(c.c) && c.c !== idRef.current.pass?.code);
+      if (!fresh.length) return;
+      commit((d) => {
+        fresh.forEach((c) => d.contacts.unshift({ code: c.c, name: c.n, callsign: c.s, pillar: c.p, role: c.r, organization: c.o, via: 'received', at: c.at }));
+      });
+      const es = langRef.current === 'es';
+      pushToast({
+        tag: es ? 'ROLODEX' : 'ROLODEX',
+        title: es ? `${fresh[0].n} escaneó tu pase` : `${fresh[0].n} scanned your pass`,
+        detail: es ? 'Ya está en tu Rolodex.' : 'Already in your Rolodex.',
+        tone: 'telemetry',
+      });
+      flag('contact');
+    });
+  }, [myUid, commit, pushToast, flag]);
+
+  const forge = useCallback((input: ForgeInput) => {
+    const code = idRef.current.pass?.code || newPassCode();
+    const callsign = idRef.current.callsign || callsignFromName(input.fullName);
+    const pass = {
+      code,
+      serial: serialFromCode(code),
+      tier: input.tier,
+      status: input.tier === 'DIGITAL' ? 'CONFIRMED' as const : 'PENDING' as const,
+      fullName: input.fullName.trim(),
+      email: input.email.trim(),
+      roleTitle: input.roleTitle?.trim() || undefined,
+      organization: input.organization?.trim() || undefined,
+      forgedAt: Date.now(),
+    };
+    commit((d) => {
+      d.pass = pass;
+      d.callsign = callsign;
+      d.affinity = input.affinity;
+      d.avatar = { seed: input.avatarSeed, png: input.avatarPng || d.avatar.png };
+    });
+    updateProfileName(input.fullName.trim().split(/\s+/)[0] || input.fullName, callsign);
+    updateAvatar(input.avatarSeed, PILLAR_ACCENT[input.affinity]);
+    registerPass(pass, myUid);
+    flag('forged');
+    window.dispatchEvent(new CustomEvent('sgx:pass_forged', { detail: { code } }));
+  }, [commit, flag, myUid, updateAvatar, updateProfileName]);
+
+  const setAvatar = useCallback((png: string | undefined, seed: string, affinity?: PillarKey) => {
+    commit((d) => {
+      d.avatar = { seed, png: png || d.avatar.png };
+      if (affinity) d.affinity = affinity;
+    });
+    if (png) flag('avatar');
+  }, [commit, flag]);
+
+  const setAffinity = useCallback((affinity: PillarKey) => {
+    commit((d) => { d.affinity = affinity; });
+  }, [commit]);
+
+  const addContact = useCallback((p: PassQrPayload): 'added' | 'self' | 'known' => {
+    if (p.c === idRef.current.pass?.code) return 'self';
+    if (idRef.current.contacts.some((c) => c.code === p.c)) return 'known';
+    const contact: PassContact = { code: p.c, name: p.n, callsign: p.s, pillar: p.p, role: p.r, organization: p.o, via: 'scanned', at: Date.now() };
+    commit((d) => { d.contacts.unshift(contact); });
+    recordActivity('match_connection', `Rolodex · ${p.n}`, p.o || p.r || 'SGX Pass', 50, '#00DDFF');
+    const mine = idRef.current;
+    if (p.u && myUid && mine.pass) {
+      sendExchange(p.u, myUid, { c: mine.pass.code, n: mine.pass.fullName, s: mine.callsign, p: mine.affinity, r: mine.pass.roleTitle, o: mine.pass.organization });
+    }
+    flag('contact');
+    return 'added';
+  }, [commit, flag, myUid, recordActivity]);
+
+  const spendXp = useCallback((r: Omit<Redemption, 'at'>): boolean => {
+    const balance = profile.totalXp - idRef.current.xpSpent;
+    if (r.cost > balance) return false;
+    commit((d) => {
+      d.xpSpent += r.cost;
+      d.redemptions.unshift({ ...r, at: Date.now() });
+    });
+    flag('redeem');
+    return true;
+  }, [commit, flag, profile.totalXp]);
+
+  const checkIn = useCallback(async (rehearsal = false): Promise<CheckinResult> => {
+    const mine = idRef.current;
+    if (!mine.pass) return 'no_pass';
+    if (mine.stamps['chroma:checkin']) return 'already';
+    if (!isDay3Open(Date.now(), rehearsal)) return 'closed';
+    commit((d) => { d.stamps['chroma:checkin'] = Date.now(); });
+    // Rehearsals stamp locally only; the radar counts the real day.
+    if (myUid && !rehearsal) recordCheckin(myUid, getMyRegion());
+    flag('checkin');
+    return 'ok';
+  }, [commit, flag, myUid]);
+
+  const value = useMemo<SgxIdentityValue>(() => ({
+    identity,
+    isForged: !!identity.pass,
+    xpEarned: profile.totalXp,
+    xpBalance: Math.max(0, profile.totalXp - identity.xpSpent),
+    missions,
+    isDone: (id) => !!identity.missions[id],
+    forge, setAvatar, setAffinity, addContact, spendXp, checkIn, myUid,
+  }), [identity, profile.totalXp, missions, forge, setAvatar, setAffinity, addContact, spendXp, checkIn, myUid]);
+
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+};
+
+export function useSgxIdentity(): SgxIdentityValue {
+  const v = useContext(Ctx);
+  if (!v) throw new Error('useSgxIdentity must be used inside SgxIdentityProvider');
+  return v;
+}
+
+/** Safe variant for components that can render outside the provider. */
+export function useOptionalSgxIdentity(): SgxIdentityValue | null {
+  return useContext(Ctx);
+}
+
+export { IDENTITY_EVENT };

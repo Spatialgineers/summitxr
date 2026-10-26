@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { subscribeVisitRegions, subscribeVisitStats, VisitRegion, VisitStats } from '../../lib/visitTracker';
+import { subscribeCheckins, type ChromaCheckin } from '../../identity/passNetwork';
 
 /*
  * One shared Firestore subscription per collection, however many counters are
@@ -32,6 +33,7 @@ function sharedSubscription<T>(subscribe: (cb: (v: T) => void) => () => void) {
 
 const statsSub = sharedSubscription<VisitStats | null>(subscribeVisitStats);
 const regionsSub = sharedSubscription<VisitRegion[] | null>(subscribeVisitRegions);
+const checkinsSub = sharedSubscription<ChromaCheckin[] | null>(subscribeCheckins);
 
 /** undefined = loading, null = radar unavailable (offline or rules not deployed). */
 export function useVisitStats(): VisitStats | null | undefined {
@@ -43,6 +45,13 @@ export function useVisitStats(): VisitStats | null | undefined {
 export function useVisitRegions(): VisitRegion[] | null | undefined {
   const [v, setV] = useState(regionsSub.get());
   useEffect(() => regionsSub.add(setV), []);
+  return v;
+}
+
+/** Day 3 check-ins at Chroma Space Studios (SGX Pass). */
+export function useChromaCheckins(): ChromaCheckin[] | null | undefined {
+  const [v, setV] = useState(checkinsSub.get());
+  useEffect(() => checkinsSub.add(setV), []);
   return v;
 }
 

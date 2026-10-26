@@ -119,7 +119,7 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     id: 'SYNTHESIZE',
     code: 'SGX.SYNTHESIZE',
     title: 'Innovación que une disciplinas',
-    shortRole: 'Foros Chat • Taquilla PDF • Tour Guía',
+    shortRole: 'Foros Chat • SGX Pass • Rolodex',
     colorHex: '#FDCC0D',
     threeColor: 0xFDCC0D,
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Synthesize1.png',
@@ -1619,23 +1619,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         <div className="relative flex items-center gap-1 sm:gap-1.5 shrink-0 font-mono text-xs">
           {/* Public visit counter (SGX.System · Radar de visitas) */}
           <VisitCounterChip className="hidden md:inline-flex" onOpen={() => navigateToSection('VISITS')} />
-          {/* Quick 1-Click Boleto Trigger */}
-          {onOpenTickets && (
-            <button
-              type="button"
-              onClick={() => {
-                playUiChirp(880);
-                onOpenTickets();
-              }}
-              className="px-2 sm:px-2.5 py-1.5 bg-[#FDCC0D] hover:bg-yellow-300 text-black font-extrabold flex items-center gap-1 cursor-pointer text-xs"
-              style={{ clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}
-              title="Obtener o ver Boleto Oficial en PDF"
-            >
-              <Ticket className="w-3.5 h-3.5 fill-black shrink-0" />
-              <span className="hidden sm:inline">Boleto PDF</span>
-            </button>
-          )}
-
           {/* Quick 1-Click Agenda Trigger */}
           {onSelectSection && (
             <button
@@ -1663,10 +1646,10 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               }}
               className="hidden lg:flex px-2 sm:px-2.5 py-1.5 bg-[#1A1A1A] hover:bg-[#32527B] border border-cyan-500/50 text-cyan-300 hover:text-white items-center gap-1 cursor-pointer text-xs font-bold"
               style={{ clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}
-              title="Diseñar Credencial Holográfica 3D"
+              title="Tu SGX Pass: registro, Holo Card y credencial en uno"
             >
               <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-              <span>Credencial 3D</span>
+              <span>SGX Pass</span>
             </button>
           )}
 

@@ -101,8 +101,8 @@ export const SGX_PILLARS: SgxPillar[] = [
     modules: [
       { kind: 'section', key: 'EMBEDS_GAMES', icon: Gamepad2, label: { es: 'Simulador de dron 3D', en: '3D drone simulator' }, desc: { es: 'Vuela entre conferencias, haz trucos y gana XP.', en: 'Fly between talks, pull tricks and earn XP.' } },
       { kind: 'page', page: 'play', icon: Vote, label: { es: 'Arena de votación en vivo', en: 'Live voting arena' }, desc: { es: 'Votación estilo Kahoot durante la transmisión (+25 XP).', en: 'Kahoot-style voting during the stream (+25 XP).' } },
-      { kind: 'action', event: 'sgx:open_passport', icon: MapIcon, label: { es: 'Pasaporte de misiones', en: 'Mission passport' }, desc: { es: 'Misiones del Summit y sellos digitales.', en: 'Summit missions and digital stamps.' } },
-      { kind: 'action', event: 'sgx:open_rewards', icon: Gift, label: { es: 'Tienda de premios', en: 'Rewards store' }, desc: { es: 'Canjea tu XP por premios mayormente digitales.', en: 'Redeem your XP for mostly digital prizes.' } },
+      { kind: 'action', event: 'sgx:open_passport', icon: MapIcon, label: { es: 'Reactor de misiones', en: 'Mission reactor' }, desc: { es: 'Misiones por pilar; cada pilar completo sella tu SGX Pass.', en: 'Missions per pillar; every finished pillar stamps your SGX Pass.' } },
+      { kind: 'action', event: 'sgx:open_rewards', icon: Gift, label: { es: 'Tienda del Reactor', en: 'Reactor store' }, desc: { es: 'Gasta el mismo XP que ganas, sin bajar de rango.', en: 'Spend the same XP you earn, without losing rank.' } },
     ],
   },
   {
@@ -138,8 +138,8 @@ export const SGX_PILLARS: SgxPillar[] = [
     ],
     modules: [
       { kind: 'section', key: 'VISITS', icon: Radar, label: { es: 'Radar de visitas', en: 'Visit radar' }, desc: { es: 'Desde dónde nos visitan, en vivo: mapa de PR, contadores y leaderboards.', en: 'Where our visitors come from, live: PR map, counters and leaderboards.' } },
-      { kind: 'section', key: 'CREDENTIAL_GENERATOR', icon: BadgeCheck, label: { es: 'Credencial & Holo Card', en: 'Credential & Holo Card' }, desc: { es: 'Genera tu credencial del Summit con QR propio.', en: 'Generate your Summit credential with your own QR.' } },
-      { kind: 'action', event: 'sgx:open_qr_scanner', icon: ScanLine, label: { es: 'Escáner QR & Rolodex', en: 'QR scanner & Rolodex' }, desc: { es: 'Escanea credenciales (+50 XP) y exporta contactos a vCard.', en: 'Scan credentials (+50 XP) and export contacts to vCard.' } },
+      { kind: 'section', key: 'CREDENTIAL_GENERATOR', icon: BadgeCheck, label: { es: 'SGX Pass', en: 'SGX Pass' }, desc: { es: 'Registro, Holo Card, credencial y QR en un solo pase.', en: 'Registration, Holo Card, credential and QR in one pass.' } },
+      { kind: 'action', event: 'sgx:open_qr_scanner', icon: ScanLine, label: { es: 'Escáner de pases & Rolodex', en: 'Pass scanner & Rolodex' }, desc: { es: 'Escanea un SGX Pass: quedan en los dos Rolodex (+50 XP).', en: 'Scan an SGX Pass: you land in both Rolodexes (+50 XP).' } },
       { kind: 'action', event: 'sgx:open_terminal', icon: Terminal, label: { es: 'Terminal de mando', en: 'Command terminal' }, desc: { es: 'Navega toda la plataforma escribiendo. Ctrl+K.', en: 'Navigate the whole platform by typing. Ctrl+K.' } },
     ],
   },

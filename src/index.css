@@ -2,6 +2,7 @@
 @import "./styles/sgx-design-system.css";
 @import "./styles/sgx-platform.css";
 @import "./immersion/immersion.css";
+@import "./identity/identity.css";
 
 @layer base {
   :root {

@@ -5,7 +5,7 @@ import { Globe2, MapPin } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { PR_GEOJSON_URL, PR_MUNICIPIOS } from '../../lib/prMunicipios';
 import { getMyRegion, VisitRegion } from '../../lib/visitTracker';
-import { formatCount, useVisitRegions, useVisitStats } from './visitRadarStore';
+import { formatCount, useChromaCheckins, useVisitRegions, useVisitStats } from './visitRadarStore';
 
 // globe.gl ships in its own chunk, loaded only when the 3D view opens.
 const SgxVisitGlobe = lazy(() => import('./SgxVisitGlobe'));
@@ -58,6 +58,14 @@ export const SummitVisitRadar: React.FC = () => {
   const regions = sample ? sample.regions : liveRegions;
   const mine = getMyRegion();
   const [view, setView] = useState<'globe' | 'pr'>('globe');
+  // Day 3: every SGX Pass checked in at Chroma lights its municipio's border.
+  const checkins = useChromaCheckins();
+  const presentByRegion = useMemo(() => {
+    const m = new Map<string, number>();
+    (checkins || []).forEach((c) => m.set(c.regionId, (m.get(c.regionId) || 0) + 1));
+    return m;
+  }, [checkins]);
+  const presentTotal = checkins?.length || 0;
 
   const mapEl = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -106,9 +114,10 @@ export const SummitVisitRadar: React.FC = () => {
         const r = byId.get(`pr_${f?.properties?.id}`);
         const h = heat(r?.totalVisits || 0, maxMuni);
         const isMine = mine?.id === `pr_${f?.properties?.id}`;
+        const present = presentByRegion.get(`pr_${f?.properties?.id}`) || 0;
         return {
-          color: isMine ? '#00DDFF' : '#32527B',
-          weight: isMine ? 2 : 0.8,
+          color: present ? '#FFBB00' : isMine ? '#00DDFF' : '#32527B',
+          weight: present ? 2.4 : isMine ? 2 : 0.8,
           fillColor: '#FDCC0D',
           fillOpacity: h ? 0.12 + h * 0.6 : 0.03,
         };
@@ -116,15 +125,16 @@ export const SummitVisitRadar: React.FC = () => {
       onEachFeature: (f, layer) => {
         const r = byId.get(`pr_${f.properties.id}`);
         const v = r?.totalVisits || 0;
+        const present = presentByRegion.get(`pr_${f.properties.id}`) || 0;
         layer.bindTooltip(
-          `<strong>${f.properties.name}</strong><br/>${v.toLocaleString('es-PR')} ${es ? 'visitas' : 'visits'} · ${(r?.uniqueVisitors || 0).toLocaleString('es-PR')} ${es ? 'únicas' : 'unique'}`,
+          `<strong>${f.properties.name}</strong><br/>${v.toLocaleString('es-PR')} ${es ? 'visitas' : 'visits'} · ${(r?.uniqueVisitors || 0).toLocaleString('es-PR')} ${es ? 'únicas' : 'unique'}${present ? `<br/>◆ ${present} ${es ? 'presentes en Chroma' : 'present at Chroma'}` : ''}`,
           { sticky: true, className: 'sgx-map-tip' },
         );
         layer.on('mouseover', () => (layer as L.Path).setStyle({ weight: 2, color: '#FDCC0D' }));
         layer.on('mouseout', () => geoLayer.current?.resetStyle(layer as L.Path));
       },
     }).addTo(map);
-  }, [geo, byId, maxMuni, mine?.id, es]);
+  }, [geo, byId, maxMuni, mine?.id, es, presentByRegion]);
 
   // Markers: outside PR sized by visits, and a pulse wherever someone visited in the last 15 minutes.
   useEffect(() => {
@@ -184,6 +194,12 @@ export const SummitVisitRadar: React.FC = () => {
           <span className="sgx-field__label">{es ? 'Países' : 'Countries'}</span>
           <span className="sgx-radar__value">{countries}</span>
         </div>
+        {presentTotal > 0 && (
+          <div className="sgx-radar__counter is-primary is-chroma">
+            <span className="sgx-field__label">{es ? 'Presentes en Chroma · Día 3' : 'Present at Chroma · Day 3'}</span>
+            <span className="sgx-radar__value"><CountUp value={presentTotal} /></span>
+          </div>
+        )}
       </div>
 
       {preview && (

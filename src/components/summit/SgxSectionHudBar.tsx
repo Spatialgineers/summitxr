@@ -132,9 +132,9 @@ export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
             <span className="sgx-readout__k">SYNC</span>
             {ordered.filter((c) => state.visited.includes(c.key)).length}/{ordered.length}
           </span>
-          <button type="button" className="sgx-btn sgx-btn--sm" onClick={onTour} title="Tour guiado">
+          <button type="button" className="sgx-btn sgx-btn--sm" onClick={onTour} title="Reactor: misiones por pilar de tu SGX Pass">
             <HelpCircle className="w-3.5 h-3.5" />
-            <span className="hidden lg:inline">Tour</span>
+            <span className="hidden lg:inline">Reactor</span>
           </button>
           <button type="button" className="sgx-btn sgx-btn--sm" onClick={onShare} title="Copiar enlace directo">
             <Share2 className="w-3.5 h-3.5" />

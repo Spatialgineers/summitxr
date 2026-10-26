@@ -29,6 +29,8 @@ import {
 import { playScanSuccessSound, playUiChirp, playCyberBurstSound } from '../../lib/cyberAudioEngine';
 import { useAuth } from '../../context/AuthContext';
 import { PILLAR_COLORS } from './AttendeeAvatarGenerator';
+import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
+import { parsePassQr, passQrUrl } from '../../identity/sgxIdentity';
 
 export interface SummitContact {
   id: string;
@@ -103,6 +105,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
   initialTab = 'SCANNER'
 }) => {
   const { user, playerProfile, savePlayerProfile } = useAuth();
+  const sgx = useOptionalSgxIdentity();
   const [activeTab, setActiveTab] = useState<'SCANNER' | 'MY_BADGE' | 'ROLODEX'>(initialTab);
 
   // Contacts storage
@@ -159,7 +162,11 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
       };
 
       try {
-        const qrString = `sgx:contact?data=${encodeURIComponent(JSON.stringify(payload))}`;
+        // With a forged SGX Pass, "my badge" is the pass QR itself: one QR for everything.
+        const pass = sgx?.identity.pass;
+        const qrString = pass
+          ? passQrUrl({ c: pass.code, n: pass.fullName, s: sgx!.identity.callsign, p: sgx!.identity.affinity, r: pass.roleTitle, o: pass.organization, u: sgx!.myUid || undefined })
+          : `sgx:contact?data=${encodeURIComponent(JSON.stringify(payload))}`;
         const url = await QRCode.toDataURL(qrString, {
           width: 320,
           margin: 2,
@@ -175,7 +182,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
     };
 
     generatePersonalQr();
-  }, [user, playerProfile]);
+  }, [user, playerProfile, sgx?.identity.pass, sgx?.identity.callsign, sgx?.identity.affinity, sgx?.myUid]);
 
   // Camera start & stop hooks
   useEffect(() => {
@@ -291,8 +298,22 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
 
     let parsedContact: SummitContact;
 
+    const sgxPass = parsePassQr(rawData);
     try {
-      if (rawData.startsWith('sgx:contact?data=')) {
+      if (sgxPass) {
+        // An SGX Pass: lands in both Rolodexes through SgxIdentity (+50 XP there).
+        sgx?.addContact(sgxPass);
+        parsedContact = {
+          id: sgxPass.c,
+          name: sgxPass.n,
+          role: sgxPass.r || sgxPass.s || 'SGX Pass',
+          company: sgxPass.o || 'Spatialgineers Summit 2026',
+          pillar: sgxPass.p ? `SGX.${sgxPass.p}` : 'SGX.SYNTHESIZE',
+          email: '',
+          scannedAt: new Date().toLocaleDateString('es-ES'),
+          tags: ['SGX Pass'],
+        };
+      } else if (rawData.startsWith('sgx:contact?data=')) {
         const jsonStr = decodeURIComponent(rawData.replace('sgx:contact?data=', ''));
         parsedContact = JSON.parse(jsonStr);
       } else if (rawData.startsWith('{')) {

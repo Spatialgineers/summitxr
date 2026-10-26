@@ -22,7 +22,7 @@ const ALIASES: Record<string, string[]> = {
   AGENDA: ['agenda', 'programa', 'schedule', 'run of show'],
   BROADCAST_ROOMS: ['salas', 'broadcast', 'stream', 'live', 'youtube'],
   SPEAKERS: ['speakers', 'ponentes', 'artistas', 'artists'],
-  CREDENTIAL_GENERATOR: ['credencial', 'credential', 'holo', 'holocard', 'qr'],
+  CREDENTIAL_GENERATOR: ['pase', 'pass', 'sgx pass', 'credencial', 'credential', 'holo', 'holocard', 'qr', 'registro'],
   ENTREPRENEUR_MATCH: ['match', 'pitch', 'conexiones'],
   NETWORKING: ['foros', 'chat', 'networking', 'forums'],
   GUILD: ['guild', 'initiates', 'iniciados'],

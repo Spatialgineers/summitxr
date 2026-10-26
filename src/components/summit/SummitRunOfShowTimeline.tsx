@@ -167,8 +167,8 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
               Línea de Tiempo & Minuto a Minuto del Summit
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl mt-1">
-              Estructura cronológica oficial basada en el <strong className="text-[#FDCC0D]">Countdown Master Plan</strong>. 
-              Navega cada bloque, conferencias de pilares, intermisiones musicales en Roblox y la exhibición performativa en Chroma Space Studios.
+              Estructura cronológica oficial basada en el <strong className="text-[#FDCC0D]">Run of Show v2026.10.1</strong>. 
+              Navega cada bloque: pilares e Initiates (Día 1), Día de la Industria (Día 2) y el SGX Showcase (Día 3). Artistas y speakers se anuncian solo cuando estén confirmados por escrito.
             </p>
           </div>
 

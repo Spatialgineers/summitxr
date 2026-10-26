@@ -180,12 +180,12 @@ export const SummitTicketModal: React.FC<SummitTicketModalProps> = ({ onClose, i
     const receipt = `=====================================================
 SPATIALGINEERS SUMMIT 2026 • REGISTRO
 Fecha: Diciembre 11 - 13, 2026
-Sede Presencial: San Juan, Puerto Rico
-Transmisión Digital: YouTube Live & Servidor Roblox
+Días 1 y 2: digitales por YouTube Live
+Día 3 (SGX Showcase): Chroma Space Studios, San Juan, PR · por invitación y cupo limitado (sujeto a la firma del acuerdo)
 =====================================================
 
 CÓDIGO DE REGISTRO: ${activePass.referenceCode}
-TIPO DE PASE: ${activePass.ticketType === 'DIGITAL' ? 'Pase Digital Global' : 'Solicitud Showcase Presencial'}
+TIPO DE PASE: ${activePass.ticketType === 'DIGITAL' ? 'Pase Digital Global' : 'Solicitud SGX Showcase Presencial (por invitación)'}
 ESTADO: ${activePass.status === 'CONFIRMED' ? 'CONFIRMADO' : 'SOLICITUD EN REVISIÓN'}
 
 DATOS REGISTRADOS:
@@ -270,7 +270,7 @@ INFORMACIÓN:
               <p className="text-xs text-slate-300 leading-relaxed">
                 {activePass.ticketType === 'DIGITAL'
                   ? `Tu registro está activo. Puedes descargar tu taquilla oficial en PDF lista para imprimir o guardar.`
-                  : `Hemos recibido tu solicitud para el Showcase presencial en San Juan. Descarga tu comprobante en PDF con tu código de verificación.`}
+                  : `Hemos recibido tu solicitud para el SGX Showcase presencial (Día 3) en San Juan. El acceso es por invitación y cupo limitado; te confirmaremos por correo. Descarga tu comprobante en PDF.`}
               </p>
             </div>
 
@@ -344,7 +344,7 @@ INFORMACIÓN:
                   )}
                   <div className="pt-2 text-[10px] text-slate-400 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono">
                     <span className="whitespace-normal">📅 Dic 11–13, 2026</span>
-                    <span className="whitespace-normal">📍 Chroma Space Studios (San Juan) • 4K Stream</span>
+                    <span className="whitespace-normal">📍 Días 1–2 por YouTube Live • Día 3: Chroma Space Studios (San Juan, sujeto a la firma del acuerdo)</span>
                   </div>
                 </div>
 
@@ -475,7 +475,7 @@ INFORMACIÓN:
                         : 'bg-[#FDCC0D]/20 text-[#FDCC0D] border border-[#FDCC0D]/50'
                     }`}
                   >
-                    {selectedType === 'DIGITAL' ? 'PASE DIGITAL 4K + ROBLOX' : 'SHOWCASE SAN JUAN PR'}
+                    {selectedType === 'DIGITAL' ? 'PASE DIGITAL · YOUTUBE LIVE' : 'SGX SHOWCASE · SAN JUAN PR'}
                   </span>
                 </div>
 
@@ -520,7 +520,7 @@ INFORMACIÓN:
                 </div>
                 <div className="text-[10px] text-cyan-300 font-bold mb-1">GRATIS • ONLINE</div>
                 <p className="text-[10px] text-slate-400 leading-tight">
-                  Transmisión 4K en vivo, Roblox, chat y votaciones interactivas.
+                  Transmisión en vivo por YouTube Live, chat y votaciones interactivas los 3 días.
                 </p>
               </button>
 
@@ -537,11 +537,11 @@ INFORMACIÓN:
               >
                 <div className="flex items-center space-x-1.5 mb-1">
                   <MapPin className="w-4 h-4 text-amber-400" />
-                  <span className="text-xs font-bold text-white uppercase">Showcase Físico</span>
+                  <span className="text-xs font-bold text-white uppercase">SGX Showcase (Día 3)</span>
                 </div>
-                <div className="text-[10px] text-amber-300 font-bold mb-1">POR SOLICITUD • SAN JUAN</div>
+                <div className="text-[10px] text-amber-300 font-bold mb-1">POR INVITACIÓN • SAN JUAN</div>
                 <p className="text-[10px] text-slate-400 leading-tight">
-                  Para marcas, líderes de industria, medios y creadores.
+                  Presencial por invitación y cupo limitado (40 a 60 personas). Domingo 13 de diciembre, 10:00 a.m. a 4:00 p.m.
                 </p>
               </button>
             </div>

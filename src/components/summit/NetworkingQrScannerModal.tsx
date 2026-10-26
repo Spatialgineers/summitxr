@@ -51,9 +51,9 @@ const DEMO_CONTACTS_POOL: SummitContact[] = [
     id: 'sgx_user_elena_vega',
     name: 'Elena Vega',
     role: 'Lead Spatial Architect',
-    company: 'Chroma Space Studios',
+    company: 'Demo Studio (datos simulados)',
     pillar: 'SGX.SYNTHESIZE',
-    email: 'elena@chromaspace.io',
+    email: 'elena@demo.example',
     linkedin: 'linkedin.com/in/elenavega-spatial',
     twitter: '@elenaspatial',
     bio: 'Pionera en pipelines WebGPU y shaders reactivos para eventos masivos en San Juan.',
@@ -623,7 +623,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                   {/* Instant Demo Scans (For Testing without 2 devices) */}
                   <div className="w-full max-w-md pt-3 border-t border-slate-800 space-y-2">
                     <div className="text-[10px] text-slate-400 flex items-center justify-between">
-                      <span>Probar con credenciales de muestra en San Juan:</span>
+                      <span>Probar con credenciales de muestra (datos simulados, no son asistentes reales):</span>
                       <span className="text-amber-400 font-bold">+50 XP por escaneo</span>
                     </div>
 
@@ -739,7 +739,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                     {playerProfile?.nickname || user?.email?.split('@')[0] || 'ASISTENTE_SGX'}
                   </div>
                   <div className="text-xs text-amber-300 font-bold">
-                    {playerProfile?.prizeTier || 'EXPLORER INITIATE'} • SAN JUAN, PR
+                    {playerProfile?.prizeTier || 'EXPLORER CADET'} • SAN JUAN, PR
                   </div>
                 </div>
 

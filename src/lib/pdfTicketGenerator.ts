@@ -161,13 +161,13 @@ export function generateSummitPassPDF(pass: SummitPassRecord): void {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(6.5);
   doc.setTextColor(148, 163, 184);
-  doc.text('Transmisión 4K & Roblox Server', 14, 64.5);
+  doc.text('Días 1–2 digitales · YouTube Live', 14, 64.5);
 
   // Right column: Sede
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(6.5);
   doc.setTextColor(...primaryRgb);
-  doc.text('SEDE PRESENCIAL:', 75, 55);
+  doc.text('DÍA 3 · SGX SHOWCASE:', 75, 55);
 
   doc.setFontSize(8);
   doc.setTextColor(255, 255, 255);
@@ -176,7 +176,7 @@ export function generateSummitPassPDF(pass: SummitPassRecord): void {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(6.5);
   doc.setTextColor(148, 163, 184);
-  doc.text('San Juan, Puerto Rico', 75, 64.5);
+  doc.text('San Juan, PR · Por invitación', 75, 64.5);
 
   // Bottom Notice / Hash
   doc.setFont('courier', 'normal');
@@ -189,7 +189,7 @@ export function generateSummitPassPDF(pass: SummitPassRecord): void {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(6);
   doc.setTextColor(148, 163, 184);
-  doc.text('Presenta este comprobante o código digital para acceso en vivo, votaciones interactivas y dinámicas en Roblox.', 10, 81);
+  doc.text('Presenta este comprobante o código digital para acceso en vivo y votaciones interactivas. Día 3 presencial: por invitación y cupo limitado.', 10, 81);
 
   // 6. Right Side Ticket Stub (X = 153 to 205)
   // Stub Header

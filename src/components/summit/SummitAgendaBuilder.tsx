@@ -293,7 +293,7 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
                         'bg-cyan-500/20 border-cyan-400 text-cyan-300'
                       }`}>
                         {session.format === 'HYBRID' ? '🔴 HÍBRIDO (SAN JUAN + STREAM)' :
-                         session.format === 'ROBLOX_STREAM' ? '🎮 EN VIVO EN ROBLOX' : '🌐 DIGITAL YOUTUBE LIVE'}
+                         session.format === 'ROBLOX_STREAM' ? '🎵 INTERMEDIO DE ARTISTA (ROBLOX SI SE USA)' : '🌐 DIGITAL YOUTUBE LIVE'}
                       </span>
 
                       {session.pillarId && (

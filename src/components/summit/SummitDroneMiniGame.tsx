@@ -155,7 +155,7 @@ const DRONE_GUIDE_STEPS: GuideStep[] = [
       'Cruza el portal estelar al final de cada corredor (-860m) para saltar al siguiente mundo exótico con +100 XP de bonificación.',
     icon: Trophy,
     tips: [
-      'Las cajas doradas de Chroma Space Studios y Los Mismos TV restauran +25% de batería al instante.',
+      'Las cajas doradas de sponsors restauran +25% de batería al instante.',
       'Mantén una racha de anillos limpios sin colisiones para multiplicar tu puntaje final.',
     ],
   },
@@ -775,7 +775,7 @@ export const SummitDroneMiniGame: React.FC = () => {
     }
 
     // Spawn Official Partner Suministro Crates (Canonical Partners Only)
-    const sponsors = ['Chroma Space Studios', 'Los Mismos TV', 'Spatialgineers SGX'];
+    const sponsors = ['Spatialgineers SGX', 'Tu Marca Aquí (Tier 2+)', 'Spatialgineers Summit 2026'];
     for (let i = 1; i <= 12; i++) {
       const crateGroup = new THREE.Group();
       const crateGeo = new THREE.BoxGeometry(2.5, 2.5, 2.5);

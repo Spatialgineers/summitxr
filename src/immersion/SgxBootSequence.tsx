@@ -14,7 +14,8 @@ const COLORS = ['#FDCC0D', '#FDCC0D', '#FDCC0D', '#FFBB00', '#00DDFF', '#32527B'
 
 interface Particle { x: number; y: number; sx: number; sy: number; tx: number; ty: number; c: string; d: number; s: number }
 
-const PILLARS = ['SGX.SPARK', 'SGX.STAGE', 'SGX.SHOWCASE', 'SGX.STORY', 'SGX.SYSTEM', 'SGX.SYNTHESIZE'];
+// Official order (Ground Truth §8).
+const PILLARS = ['SGX.STORY', 'SGX.SHOWCASE', 'SGX.SPARK', 'SGX.STAGE', 'SGX.SYSTEM', 'SGX.SYNTHESIZE'];
 
 function easeOutCubic(t: number) { return 1 - Math.pow(1 - t, 3); }
 function easeInOutCubic(t: number) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
@@ -43,7 +44,7 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
   const { language } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, setPhase] = useState<'swarm' | 'ignite' | 'title' | 'out'>('swarm');
-  const [log, setLog] = useState<string[]>(['SGX://BOOT v2026.10']);
+  const [log, setLog] = useState<string[]>(['SGX://BOOT v2026.10.1']);
   const doneRef = useRef(false);
 
   const finish = () => {
@@ -188,7 +189,7 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
       {(phase === 'title' || phase === 'out') && (
         <div className="sgx-boot__title">
           <h1><ScrambleText text="SPATIALGINEERS SUMMIT 2026" durationMs={650} /></h1>
-          <p className="sgx-boot__meta">11–13 DIC · SAN JUAN, PUERTO RICO · YOUTUBE LIVE</p>
+          <p className="sgx-boot__meta">11–13 DIC · YOUTUBE LIVE · DÍA 3 EN SAN JUAN</p>
           <p className="sgx-boot__tagline">
             {es ? 'Ingeniando imaginación, construyendo realidades.' : 'Engineering imagination, building reality.'}
           </p>

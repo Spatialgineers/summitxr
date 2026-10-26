@@ -25,7 +25,7 @@ const DEFAULT_PARTNERS: ApprovedSponsor[] = [
     tagline: 'Venue del Día 3 (SGX Showcase) • San Juan, Puerto Rico',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
-    websiteUrl: 'https://chromaspace.pr',
+    websiteUrl: '',
     description: 'Estudio de producción en San Juan, venue del Día 3.',
     highlights: ['Venue del Día 3', 'Estudio de producción en San Juan'],
     ctaButtonText: 'CONOCE MÁS',
@@ -39,12 +39,12 @@ const DEFAULT_PARTNERS: ApprovedSponsor[] = [
     id: 'sp_default_los_mismos',
     companyName: 'Los Mismos TV',
     brandSlug: 'los-mismos-tv',
-    tierId: 'tier_4',
+    tierId: 'media_partner',
     tierName: 'Transmite junto a nosotros',
     tagline: 'Transmite el Summit desde su canal, junto al de Spatialgineers',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
-    websiteUrl: 'https://youtube.com',
+    websiteUrl: '',
     description: 'Los Mismos TV transmite el Spatialgineers Summit 2026 junto a nosotros.',
     highlights: ['Transmite junto a nosotros', 'YouTube Live'],
     ctaButtonText: 'CONOCE MÁS',
@@ -65,7 +65,7 @@ const DEFAULT_PARTNERS: ApprovedSponsor[] = [
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
     websiteUrl: 'https://summit.spatialgineers.com',
     description: 'Posición destacada para patrocinadores y empresas del sector XR.',
-    highlights: ['Visibilidad global', 'Exposición interactiva'],
+    highlights: ['Logo en webapp y transmisión', 'Exposición interactiva'],
     ctaButtonText: 'POSTULAR MARCA',
     activeInVisualizer: true,
     activeInMiniGame: true,
@@ -79,7 +79,7 @@ const DEFAULT_PARTNERS: ApprovedSponsor[] = [
     brandSlug: 'tu-marca-tier-4',
     tierId: 'tier_4',
     tierName: 'Signature Experience (Tier 4)',
-    tagline: 'Patrocinador Titular de Experiencia & Activación Híbrida',
+    tagline: 'Experience by [Marca] · activación híbrida',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
     websiteUrl: 'https://summit.spatialgineers.com',
@@ -111,6 +111,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
   // Calculate tier level helper
   const getTierLevel = (sp: ApprovedSponsor): number => {
     if (sp.tierId === 'tier_5') return 5;
+    if (sp.tierId === 'media_partner') return 3;
     if (sp.tierId === 'tier_4') return 4;
     if (sp.tierId === 'tier_3') return 3;
     if (sp.tierId === 'tier_2') return 2;

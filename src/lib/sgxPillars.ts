@@ -55,16 +55,17 @@ export const SGX_PILLARS: SgxPillar[] = [
     title: { es: 'Historias que mueven ideas', en: 'Stories that move ideas' },
     line: { es: 'Toda innovación necesita una historia.', en: 'Every innovation needs a story.' },
     scope: { es: 'Lore, cine 360, arte, música, preservación cultural y efectos visuales.', en: 'Lore, 360 film, art, music, cultural preservation and visual effects.' },
-    guildTeam: 'Storytellers',
+    guildTeam: 'SGX.Storytellers',
     iconUrl: `${ICON_BASE}Story1.png`,
     program: [
       { day: 1, time: '10:30–10:45 AM', label: { es: 'Artista invitado (por anunciar)', en: 'Guest artist (to be announced)' } },
       { day: 1, time: '10:45–11:10 AM', label: { es: 'Bloque SGX.Story', en: 'SGX.Story block' } },
       { day: 2, time: '10:30–11:15 AM', label: { es: 'Conversación de industria SGX.Story', en: 'SGX.Story industry conversation' } },
+      { day: 3, time: '10:00 AM–4:00 PM', label: { es: 'SGX Showcase en Chroma Space Studios: todos los pilares (demos en vivo y networking)', en: 'SGX Showcase at Chroma Space Studios: every pillar (live demos and networking)' } },
     ],
     modules: [
       { kind: 'section', key: 'PILLARS_MANIFESTO', icon: Boxes, label: { es: 'Manifiesto de los 6 pilares', en: 'The 6 pillars manifesto' }, desc: { es: 'El SGX Framework y la historia detrás de cada pilar.', en: 'The SGX Framework and the story behind each pillar.' } },
-      { kind: 'section', key: 'SOCIAL_STREAM', icon: Instagram, label: { es: 'Radar social', en: 'Social radar' }, desc: { es: 'Las historias de la comunidad en vivo con #SGXSummit2026.', en: 'Community stories live with #SGXSummit2026.' } },
+      { kind: 'section', key: 'SOCIAL_STREAM', icon: Instagram, label: { es: 'Radar social', en: 'Social radar' }, desc: { es: 'Las historias de la comunidad en vivo con #SpatialgineersSummit.', en: 'Community stories live with #SGXSummit2026.' } },
       { kind: 'action', event: 'sgx:open_avatar', icon: UserCircle2, label: { es: 'Avatar Studio', en: 'Avatar Studio' }, desc: { es: 'Crea tu identidad de piloto en pixel art o low-poly.', en: 'Create your pilot identity in pixel art or low-poly.' } },
     ],
   },
@@ -73,12 +74,13 @@ export const SGX_PILLARS: SgxPillar[] = [
     title: { es: 'Visuales que comunican innovación', en: 'Visuals that communicate innovation' },
     line: { es: 'No mostramos cosas. Mostramos mundos.', en: "We don't show things. We show worlds." },
     scope: { es: 'Renders, animación 3D, galerías, gemelos digitales y entornos XR.', en: 'Renders, 3D animation, galleries, digital twins and XR environments.' },
-    guildTeam: 'Showcasers',
+    guildTeam: 'SGX.Showcasers',
     iconUrl: `${ICON_BASE}Showcase1.png`,
     program: [
       { day: 1, time: '11:10–11:25 AM', label: { es: 'Artista invitado (por anunciar)', en: 'Guest artist (to be announced)' } },
       { day: 1, time: '11:25–11:50 AM', label: { es: 'Bloque SGX.Showcase', en: 'SGX.Showcase block' } },
       { day: 2, time: '11:25 AM–12:10 PM', label: { es: 'Conversación de industria SGX.Showcase', en: 'SGX.Showcase industry conversation' } },
+      { day: 3, time: '10:00 AM–4:00 PM', label: { es: 'SGX Showcase en Chroma Space Studios: todos los pilares (demos en vivo y networking)', en: 'SGX Showcase at Chroma Space Studios: every pillar (live demos and networking)' } },
     ],
     modules: [
       { kind: 'section', key: 'MAP_360', icon: Globe, label: { es: 'Recorrido 360° Chroma Space Studios', en: '360° Chroma Space Studios walk-through' }, desc: { es: 'Recorre Chroma Space Studios, la sede del Día 3 en San Juan.', en: 'Walk Chroma Space Studios, the Day 3 venue in San Juan.' } },
@@ -90,7 +92,7 @@ export const SGX_PILLARS: SgxPillar[] = [
     title: { es: 'Experiencias que activan la conexión', en: 'Experiences that spark connection' },
     line: { es: 'Jugamos para entender. Creamos para conectar.', en: 'We play to understand. We create to connect.' },
     scope: { es: 'Videojuegos, gamificación, simulaciones, activaciones y juego educativo.', en: 'Games, gamification, simulations, activations and educational play.' },
-    guildTeam: 'Sparkers',
+    guildTeam: 'SGX.Sparkers',
     iconUrl: `${ICON_BASE}Spark1.png`,
     program: [
       { day: 1, time: '11:50 AM–12:05 PM', label: { es: 'Artista invitado (por anunciar)', en: 'Guest artist (to be announced)' } },
@@ -110,7 +112,7 @@ export const SGX_PILLARS: SgxPillar[] = [
     title: { es: 'Creatividad en tiempo real', en: 'Creativity in real time' },
     line: { es: 'Porque el show no solo se ve, se vive.', en: "Because the show isn't just watched, it's lived." },
     scope: { es: 'Conciertos, podcasts, visualizers, performances y transmisiones híbridas.', en: 'Concerts, podcasts, visualizers, performances and hybrid broadcasts.' },
-    guildTeam: 'Stagers',
+    guildTeam: 'SGX.Stagers',
     iconUrl: `${ICON_BASE}Stage1.png`,
     program: [
       { day: 1, time: '12:30–12:45 PM', label: { es: 'Artista invitado (por anunciar)', en: 'Guest artist (to be announced)' } },
@@ -129,12 +131,13 @@ export const SGX_PILLARS: SgxPillar[] = [
     title: { es: 'Tecnología que soluciona', en: 'Technology that solves' },
     line: { es: 'Diseñamos tecnología que resuelve, conecta y amplifica ideas.', en: 'We design technology that solves, connects and amplifies ideas.' },
     scope: { es: 'Webapps, IA, dashboards, backends, AR, Web3, manufactura y robótica.', en: 'Web apps, AI, dashboards, backends, AR, Web3, manufacturing and robotics.' },
-    guildTeam: 'Systematizers',
+    guildTeam: 'SGX.Systematizers',
     iconUrl: `${ICON_BASE}Systems1.png`,
     program: [
       { day: 1, time: '1:10–1:25 PM', label: { es: 'Artista invitado (por anunciar)', en: 'Guest artist (to be announced)' } },
       { day: 1, time: '1:25–1:50 PM', label: { es: 'Bloque SGX.System', en: 'SGX.System block' } },
       { day: 2, time: '2:10–2:55 PM', label: { es: 'Conversación de industria SGX.System', en: 'SGX.System industry conversation' } },
+      { day: 3, time: '10:00 AM–4:00 PM', label: { es: 'SGX Showcase en Chroma Space Studios: todos los pilares (demos en vivo y networking)', en: 'SGX Showcase at Chroma Space Studios: every pillar (live demos and networking)' } },
     ],
     modules: [
       { kind: 'section', key: 'VISITS', icon: Radar, label: { es: 'Radar de visitas', en: 'Visit radar' }, desc: { es: 'Desde dónde nos visitan, en vivo: mapa de PR, contadores y leaderboards.', en: 'Where our visitors come from, live: PR map, counters and leaderboards.' } },
@@ -148,7 +151,7 @@ export const SGX_PILLARS: SgxPillar[] = [
     title: { es: 'Innovación que une disciplinas', en: 'Innovation that unites disciplines' },
     line: { es: 'Imaginación y tecnología, trabajando como una sola.', en: 'Imagination and technology, working as one.' },
     scope: { es: 'Donde todo converge: proyectos multi-pilar, comunidad y el SGX Guild.', en: 'Where everything converges: multi-pillar projects, community and the SGX Guild.' },
-    guildTeam: 'Synthesizers',
+    guildTeam: 'SGX.Synthesizers',
     iconUrl: `${ICON_BASE}Synthesize1.png`,
     program: [
       { day: 1, time: '1:50–2:05 PM', label: { es: 'Artista invitado (por anunciar)', en: 'Guest artist (to be announced)' } },

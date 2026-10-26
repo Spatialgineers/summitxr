@@ -1,3 +1,4 @@
+import { navigateToPage, navigateToSection } from '../../immersion/navigation';
 import React, { useState, useEffect } from 'react';
 import { 
   Sparkles, 
@@ -138,20 +139,20 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       industryScope: 'Cineastas, estudios de cine, creadores independientes, instituciones culturales, museos, historiadores, coleccionistas y casas de moda.',
       features: [
         {
-          title: 'Portal de Creadores & Speakers',
-          desc: 'Directorio de oradores, artistas y visionarios del ecosistema creativo.',
-          actionLabel: 'Ver Speakers & Artistas',
-          icon: Users,
-          onClick: onOpenSpeakerPortal,
-          badge: 'CREADORES'
+          title: 'Avatar Studio',
+          desc: 'Crea tu identidad de piloto en pixel art o low-poly; queda impresa en tu SGX Pass.',
+          actionLabel: 'Abrir Avatar Studio',
+          icon: UserCheck,
+          onClick: onOpenAvatarGenerator,
+          badge: 'IDENTIDAD'
         },
         {
-          title: 'Galería Retrospectiva SGX',
-          desc: 'Línea de tiempo de hitos, coleccionables Taínos y archivo digital.',
-          actionLabel: 'Ver Reactor de misiones',
+          title: 'Radar social',
+          desc: 'Las historias de la comunidad en vivo con #SpatialgineersSummit.',
+          actionLabel: 'Ver radar social',
           icon: Sparkles,
-          onClick: onOpenPassportModal,
-          badge: 'ARCHIVO CULTURAL'
+          onClick: () => navigateToSection('SOCIAL_STREAM'),
+          badge: 'COMUNIDAD'
         },
         {
           title: 'Sesiones de Narrativa & Cine XR',
@@ -164,9 +165,9 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       ],
       realDeployments: [
         {
-          name: 'Infinite Borikua — Metaverse Fashion Week 2025 (Decentraland)',
-          metric: 'Metaverse Fashion Week 2025',
-          desc: 'Digitalización de artefactos Taínos (cemí y wayuko) como coleccionables 3D en la blockchain de Polygon (token DCL-SC-INFNTBRK) con trivias históricas interactivas.',
+          name: 'Metaverse Fashion Week 2025',
+          metric: 'Panel "Infinite Identities"',
+          desc: 'The Highgineer en el panel "Infinite Identities" sobre cultura e identidad digital.',
         },
         {
           name: 'Unidos Jam 2024 (Latinx in Gaming)',
@@ -258,20 +259,20 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           badge: 'SIMULADOR EN VIVO'
         },
         {
-          title: 'SGX Ranked Trials & Portafolios',
-          desc: 'Los 8 Initiates activos presentan su portafolio el Día 1 (8 min c/u).',
-          actionLabel: 'Ver Sesiones Gamificadas',
-          icon: TrophyIcon,
-          onClick: onExploreAgenda,
-          badge: 'AGENDA GAMIFICADA'
+          title: 'Votación en vivo estilo Kahoot',
+          desc: 'Vota durante los bloques del Summit desde tu teléfono (+25 XP por voto).',
+          actionLabel: 'Abrir consola /play',
+          icon: Zap,
+          onClick: () => navigateToPage('play'),
+          badge: 'INTERACCIÓN EN VIVO'
         },
         {
-          title: 'Votación Interactiva CYOA',
-          desc: 'Mecánica en vivo para que la audiencia tome decisiones narrativas en directo.',
+          title: 'Reactor & tienda de premios',
+          desc: 'Misiones por pilar y premios mayormente digitales, con el mismo XP.',
           actionLabel: 'Abrir Reactor de misiones',
-          icon: Zap,
+          icon: TrophyIcon,
           onClick: onOpenPassportModal,
-          badge: 'INTERACCIÓN EN VIVO'
+          badge: 'GAMIFICACIÓN'
         }
       ],
       realDeployments: [
@@ -362,28 +363,28 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       industryScope: 'Departamentos técnicos, instituciones tecnológicas, empresas de manufactura, logística, startups y makers.',
       features: [
         {
-          title: 'Generador de Avatares',
-          desc: 'Avatar en pixel art o low-poly para tu credencial del Summit (+200 XP).',
-          actionLabel: 'Generar Avatar 3D',
-          icon: UserCheck,
-          onClick: onOpenAvatarGenerator,
-          badge: 'AVATAR STUDIO'
+          title: 'SGX Pass & Holo Card',
+          desc: 'Registro, Holo Card, credencial y QR en un solo pase.',
+          actionLabel: 'Abrir mi SGX Pass',
+          icon: Ticket,
+          onClick: onOpenTickets,
+          badge: 'IDENTIDAD'
         },
         {
-          title: 'Directorio SGX Guild Initiates',
-          desc: 'Los 8 Initiates activos de los SGX Ranked Trials.',
-          actionLabel: 'Ver SGX Guild Initiates',
-          icon: GraduationCap,
-          onClick: onExploreGuild,
-          badge: 'TALENTO TÉCNICO'
-        },
-        {
-          title: 'Telemetría de Servidores & Arquitectura',
-          desc: 'Infraestructura cloud en tiempo real de alta concurrencia con Firestore.',
-          actionLabel: 'Explorar Agenda Técnica',
+          title: 'Radar de visitas',
+          desc: 'Desde dónde nos visitan, en vivo: mapa, contadores y leaderboards.',
+          actionLabel: 'Ver el radar',
           icon: Code2,
-          onClick: onExploreAgenda,
-          badge: 'INFRAESTRUCTURA'
+          onClick: () => navigateToSection('VISITS'),
+          badge: 'TELEMETRÍA'
+        },
+        {
+          title: 'Escáner de pases & Rolodex',
+          desc: 'Escanea un SGX Pass: quedan en los dos Rolodex.',
+          actionLabel: 'Abrir escáner',
+          icon: UserCheck,
+          onClick: () => window.dispatchEvent(new CustomEvent('sgx:open_qr_scanner')),
+          badge: 'NETWORKING'
         }
       ],
       realDeployments: [
@@ -419,11 +420,11 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       features: [
         {
           title: 'SGX.Match — Speed Pitching',
-          desc: 'Algoritmo inteligente de matchmaking para fundadores, inversionistas y VCs.',
+          desc: 'Conecta con creadores y marcas de todos los pilares.',
           actionLabel: 'Lanzar SGX.Match',
           icon: Flame,
           onClick: onOpenMatchModule,
-          badge: 'MATCHMAKING VCs'
+          badge: 'SGX.MATCH'
         },
         {
           title: 'Foros de Networking & Red de Asistentes',
@@ -434,22 +435,22 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           badge: 'NETWORKING'
         },
         {
-          title: 'Registro Oficial & Pases del Summit',
-          desc: 'Registro gratuito para los días digitales e invitación para el Día 3 (cupo limitado).',
-          actionLabel: 'Registrarme Gratis',
-          icon: Ticket,
-          onClick: onOpenTickets,
-          badge: 'PASES OFICIALES'
+          title: 'SGX Guild Initiates',
+          desc: 'Los 8 Initiates activos; los 6 mejores presentan en la Ranked Trials Pitch Session del Día 3.',
+          actionLabel: 'Ver SGX Guild Initiates',
+          icon: GraduationCap,
+          onClick: onExploreGuild,
+          badge: 'SGX GUILD'
         }
       ],
       realDeployments: [
         {
-          name: 'FITUR Madrid 2026 — Gemelo Digital Inmersivo en VR',
-          metric: '700+ personas (estimado; 570 registros de waiver)',
+          name: 'FITUR — Gemelo Digital Inmersivo en VR',
+          metric: '700+ personas (estimado de Spatialgineers; 570 waivers registrados)',
           desc: 'Gemelo digital inmersivo en VR presentado en FITUR, la feria internacional de turismo de Madrid.',
         },
         {
-          name: 'Justas LAI 2026 (Ecosistema WebXR de Alta Densidad)',
+          name: 'Justas LAI (Ecosistema WebXR)',
           metric: 'Ecosistema móvil WebXR para evento deportivo universitario',
           desc: 'Ecosistema móvil WebXR desplegado durante un evento deportivo universitario en Puerto Rico.',
         },
@@ -837,7 +838,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span><strong>Pausas de 10 minutos</strong> con votación gamificada entre conversaciones.</span>
+              <span><strong>Pausas de 10 minutos</strong> entre conversaciones.</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
@@ -919,7 +920,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             },
             {
               title: 'SGX.Match',
-              desc: 'Matchmaking para fundadores y VCs',
+              desc: 'Conecta creadores y marcas',
               icon: Flame,
               color: '#00DDFF',
               badge: 'SGX.SHOWCASE',

@@ -70,7 +70,7 @@ export const SUMMIT_TABS: TabItemMeta[] = [
   },
   {
     key: 'BROADCAST_ROOMS',
-    label: 'Salas Broadcast 4K',
+    label: 'Salas de transmisión',
     pillarBadge: 'STAGE',
     icon: Radio,
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png',

@@ -484,7 +484,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 }`}
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
-                STREAMS 4K
+                STREAMS EN VIVO
               </button>
               <button
                 onClick={() => setSelectedCategory('CUSTOM_CODE')}
@@ -756,7 +756,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                       <option value="WEBAPP">WebApp / Herramienta</option>
                       <option value="MINI_GAME">Minijuego 2D/3D</option>
                       <option value="WEBGL_XR">WebGL / WebXR / Spline 3D</option>
-                      <option value="STREAM_VIDEO">Stream / Video 4K (YouTube / Twitch)</option>
+                      <option value="STREAM_VIDEO">Stream / Video (YouTube)</option>
                       <option value="METAVERSE_ROBLOX">Mundo Virtual / Roblox Portal</option>
                       <option value="CUSTOM_CODE">Sandbox de Código Personalizado</option>
                     </select>

@@ -114,7 +114,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
       const saved = localStorage.getItem('sgx_summit_contacts_book');
       if (saved) return JSON.parse(saved);
     } catch {}
-    return [DEMO_CONTACTS_POOL[0]]; // Initial sample
+    return []; // Real scans only: the Rolodex starts empty
   });
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -641,27 +641,6 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                     </label>
                   </div>
 
-                  {/* Instant Demo Scans (For Testing without 2 devices) */}
-                  <div className="w-full max-w-md pt-3 border-t border-slate-800 space-y-2">
-                    <div className="text-[10px] text-slate-400 flex items-center justify-between">
-                      <span>Probar con credenciales de muestra (datos simulados, no son asistentes reales):</span>
-                      <span className="text-amber-400 font-bold">+50 XP por escaneo</span>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2">
-                      {DEMO_CONTACTS_POOL.map(demo => (
-                        <button
-                          key={demo.id}
-                          onClick={() => handleProcessQrData(JSON.stringify(demo))}
-                          className="p-2 bg-[#1A1A1A] border border-slate-700 hover:border-cyan-400 text-left hover:bg-[#232323] transition-colors"
-                        >
-                          <div className="font-bold text-[11px] text-cyan-300 break-words line-clamp-2">{demo.name}</div>
-                          <div className="text-[9px] text-slate-400 break-words line-clamp-2">{demo.role}</div>
-                          <div className="text-[8px] text-amber-400 mt-1">{demo.pillar}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               ) : (
                 /* Detected Contact Result Card */

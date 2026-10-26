@@ -200,7 +200,7 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
               <span>POSTÚLATE COMO PATROCINADOR SGX</span>
             </h2>
             <p className="text-xs text-slate-300 font-mono">
-              Posiciona tu marca ante más de 1,200 creadores, desarrolladores 3D e inversionistas espaciales en vivo y en transmisión 4K.
+              Posiciona tu marca en la transmisión de YouTube Live y en la webapp del Summit.
             </p>
           </div>
 

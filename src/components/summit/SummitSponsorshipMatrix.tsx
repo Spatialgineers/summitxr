@@ -328,7 +328,7 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
           onClick={() => onOpenInquiryModal && onOpenInquiryModal()}
           className="text-xs font-mono font-bold text-[#FDCC0D] hover:underline flex items-center gap-1 shrink-0"
         >
-          <span>Contactar a Dirección de Alianzas SGX</span>
+          <span>Escríbenos a info@spatialgineers.com</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>

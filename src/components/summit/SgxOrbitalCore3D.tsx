@@ -1,3 +1,4 @@
+import { PILLAR_BY_KEY, type PillarKey } from '../../lib/sgxPillars';
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -58,77 +59,83 @@ export const SGX_CORE_LOGO_GLB_URL = 'https://cdn.spatialgineers.com/3D%20Brandi
 
 // Official v2026.10 Pillar Order: 1. Story, 2. Showcase, 3. Spark, 4. Stage, 5. System, 6. Synthesize
 // Official v2026.10 Palette: #32527B, #FDCC0D, #B87000, #00DDFF, #FFBB00
+// Module list per pillar comes from the single source (lib/sgxPillars), so the
+// core never lists a module under the wrong pillar.
+function pillarModulesLine(key: PillarKey): string {
+  return PILLAR_BY_KEY[key].modules.map((m) => m.label.es).join(' • ');
+}
+
 export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
   {
     id: 'STORY',
     code: 'SGX.STORY',
     title: 'Historias que mueven ideas',
-    shortRole: 'Manifiesto • Avatar 3D • SGX Pass',
+    shortRole: pillarModulesLine('STORY'),
     colorHex: '#FDCC0D',
     threeColor: 0xFDCC0D,
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Story1.png',
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Story%20opt.glb',
-    moduleCount: 5,
+    moduleCount: PILLAR_BY_KEY['STORY'].modules.length,
     physicsLabel: 'Pilar 01 • Brasas Ascendentes 432Hz',
   },
   {
     id: 'SHOWCASE',
     code: 'SGX.SHOWCASE',
     title: 'Visuales que comunican innovación',
-    shortRole: 'Recorrido 360° • SGX.Match • Sponsors • QR',
+    shortRole: pillarModulesLine('SHOWCASE'),
     colorHex: '#00DDFF',
     threeColor: 0x00DDFF,
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Showcase%20opt.glb',
-    moduleCount: 6,
+    moduleCount: PILLAR_BY_KEY['SHOWCASE'].modules.length,
     physicsLabel: 'Pilar 02 • Galería Holográfica Cian',
   },
   {
     id: 'SPARK',
     code: 'SGX.SPARK',
     title: 'Experiencias que activan la conexión',
-    shortRole: 'Dron 3D Colisiones • Tienda XP • Retos',
+    shortRole: pillarModulesLine('SPARK'),
     colorHex: '#FFBB00',
     threeColor: 0xFFBB00,
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png',
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Spark%20Opt.glb',
-    moduleCount: 4,
+    moduleCount: PILLAR_BY_KEY['SPARK'].modules.length,
     physicsLabel: 'Pilar 03 • Vórtice Cinético Ignis',
   },
   {
     id: 'STAGE',
     code: 'SGX.STAGE',
     title: 'Creatividad en tiempo real',
-    shortRole: 'Run of Show • Salas 4K • Speakers 3D',
+    shortRole: pillarModulesLine('STAGE'),
     colorHex: '#B87000',
     threeColor: 0xB87000,
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png',
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Stage%20opt.glb',
-    moduleCount: 5,
+    moduleCount: PILLAR_BY_KEY['STAGE'].modules.length,
     physicsLabel: 'Pilar 04 • Ondas Acústicas en Vivo',
   },
   {
     id: 'SYSTEM',
     code: 'SGX.SYSTEM',
     title: 'Tecnología que soluciona',
-    shortRole: '8 Guild Initiates • Consola /play • Ranking',
+    shortRole: pillarModulesLine('SYSTEM'),
     colorHex: '#32527B',
     threeColor: 0x32527B,
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png',
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/System%20opt.glb',
-    moduleCount: 5,
+    moduleCount: PILLAR_BY_KEY['SYSTEM'].modules.length,
     physicsLabel: 'Pilar 05 • Retícula Cuántica Cloud',
   },
   {
     id: 'SYNTHESIZE',
     code: 'SGX.SYNTHESIZE',
     title: 'Innovación que une disciplinas',
-    shortRole: 'Foros Chat • SGX Pass • Rolodex',
+    shortRole: pillarModulesLine('SYNTHESIZE'),
     colorHex: '#FDCC0D',
     threeColor: 0xFDCC0D,
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Synthesize1.png',
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Synthesize%20opt.glb',
-    moduleCount: 4,
+    moduleCount: PILLAR_BY_KEY['SYNTHESIZE'].modules.length,
     physicsLabel: 'Pilar 06 • Convergencia Armónica SGX',
   },
 ];
@@ -187,7 +194,7 @@ export const SGX_3D_SPONSOR_STATIONS: SgxSponsorStationData[] = [
     angle: Math.PI * 0.22,
     radius: 94,
     yPos: 5,
-    websiteUrl: 'https://chromaspace.pr',
+    websiteUrl: '',
   },
   {
     id: 'roblox',
@@ -201,21 +208,21 @@ export const SGX_3D_SPONSOR_STATIONS: SgxSponsorStationData[] = [
     angle: Math.PI * 0.72,
     radius: 94,
     yPos: -6,
-    websiteUrl: 'https://example.com',
+    websiteUrl: 'https://summit.spatialgineers.com',
   },
   {
     id: 'losmismos',
-    tierId: 'tier_5',
+    tierId: 'media_partner',
     name: 'Los Mismos TV',
-    tierLabel: 'TRANSMISIÓN · YOUTUBE LIVE',
-    tierNumber: 5,
+    tierLabel: 'ALIADO DE TRANSMISIÓN',
+    tierNumber: 0,
     roleSubtitle: 'Transmite el Summit junto a nosotros',
     colorHex: '#FFBB00',
     threeColor: 0xFFBB00,
     angle: Math.PI * 1.22,
     radius: 94,
     yPos: 6,
-    websiteUrl: 'https://youtube.com',
+    websiteUrl: '',
   },
   {
     id: 'sgxaudio',
@@ -229,7 +236,7 @@ export const SGX_3D_SPONSOR_STATIONS: SgxSponsorStationData[] = [
     angle: Math.PI * 1.72,
     radius: 94,
     yPos: -5,
-    websiteUrl: 'https://example.com',
+    websiteUrl: 'https://summit.spatialgineers.com',
   },
 ];
 
@@ -435,7 +442,10 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   const sponsorMarkerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   // Live 4-Clock Circular Countdown State (Target: Dec 11, 2026 10:00 AM AST per Run of Show v2026.10)
-  const [countdown, setCountdown] = useState({ days: 48, hours: 10, minutes: 38, seconds: 20 });
+  const [countdown, setCountdown] = useState(() => {
+    const diff = Math.max(0, new Date('2026-12-11T10:00:00-04:00').getTime() - Date.now());
+    return { days: Math.floor(diff / 86400000), hours: Math.floor((diff % 86400000) / 3600000), minutes: Math.floor((diff % 3600000) / 60000), seconds: Math.floor((diff % 60000) / 1000) };
+  });
   useEffect(() => {
     const targetMs = new Date('2026-12-11T10:00:00-04:00').getTime();
     const updateClock = () => {
@@ -1909,10 +1919,13 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-[#32527B]/50">
                 <div className="min-w-0">
                   <div className="text-[9px] font-mono font-bold text-[#FDCC0D] tracking-widest uppercase">
-                    11–13 DIC 2026 · 10:00 AM
+                    11–13 DIC 2026 · 10:00 AM AST
                   </div>
                   <div className="text-xs font-black text-white font-['Orbitron',sans-serif] tracking-wide truncate">
                     RELOJES DEL SUMMIT
+                  </div>
+                  <div className="text-[9px] font-mono text-slate-300 leading-snug mt-0.5">
+                    Días 1–2 por YouTube Live · Día 3 en Chroma Space Studios (por invitación) · Gratis · En español
                   </div>
                 </div>
                 <button
@@ -1924,7 +1937,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                   ▲
                 </button>
                 <span className="hidden sm:inline-block px-1.5 py-0.5 bg-[#00DDFF]/15 border border-[#00DDFF]/50 text-[9px] font-mono font-bold text-[#00DDFF] shrink-0">
-                  EN VIVO
+                  CUENTA ATRÁS
                 </span>
               </div>
 

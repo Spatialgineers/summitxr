@@ -335,7 +335,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
 
                 {/* Bio snippet */}
                 <p className="text-xs text-slate-400 mt-3 line-clamp-2 leading-relaxed font-sans">
-                  {speaker.bio || 'Participante oficial en Spatialgineers Summit 2026.'}
+                  {speaker.bio || 'Postulación sin confirmar.'}
                 </p>
 
                 {/* Organization & Session Count */}

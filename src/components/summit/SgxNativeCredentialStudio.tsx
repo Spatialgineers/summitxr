@@ -138,7 +138,7 @@ const PASS_TYPE_META: Record<
 > = {
   digital: {
     label: 'Pase Digital',
-    tag: 'YOUTUBE LIVE + ROBLOX',
+    tag: 'YOUTUBE LIVE',
     color: '#00DDFF',
     days: 'DIC 11–13 · YOUTUBE LIVE'
   },
@@ -548,7 +548,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         ctx.fillText('SPATIALGINEERS SUMMIT 2026', 102, 46);
         ctx.fillStyle = primaryAccent;
         ctx.font = '700 13px monospace';
-        ctx.fillText('DIC 11–13, 2026 · SAN JUAN, PR · YOUTUBE LIVE & ROBLOX', 102, 68);
+        ctx.fillText('DIC 11–13, 2026 · YOUTUBE LIVE · DÍA 3 SAN JUAN, PR', 102, 68);
 
         // Top Right Role Clearance Pill
         const clearanceW = 285;
@@ -1074,7 +1074,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         sctx.fillStyle = primaryAccent;
         sctx.font = '700 22px monospace';
         sctx.fillText(
-          '11 · 12 · 13 DICIEMBRE 2026 · SAN JUAN, PR & ROBLOX',
+          '11 · 12 · 13 DICIEMBRE 2026 · YOUTUBE LIVE · DÍA 3 SAN JUAN, PR',
           sw / 2,
           cy - 48
         );

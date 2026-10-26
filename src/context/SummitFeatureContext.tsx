@@ -92,7 +92,7 @@ export const DEFAULT_FEATURE_CONFIG: Record<string, FeatureToggleItem> = {
   },
   section_broadcast_rooms: {
     id: 'section_broadcast_rooms',
-    name: 'Salones Broadcast 4K & Streaming',
+    name: 'Salas de transmisión',
     category: 'SECTIONS',
     pillar: 'SGX.STAGE',
     description: 'Salas de transmisión simultánea en vivo junto a Los Mismos TV y YouTube Live.',

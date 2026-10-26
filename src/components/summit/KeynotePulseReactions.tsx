@@ -34,43 +34,38 @@ export interface KeynotePoll {
   options: KeynotePollOption[];
 }
 
+// Polls tied to the real Run of Show. Speakers are named only when confirmed in writing.
+const PILLAR_OPTIONS = [
+  { id: 'opt_story', label: 'SGX.Story (lore)', votes: 0, color: '#FFBB00' },
+  { id: 'opt_showcase', label: 'SGX.Showcase (inmersión)', votes: 0, color: '#00DDFF' },
+  { id: 'opt_spark', label: 'SGX.Spark (interactividad y juegos)', votes: 0, color: '#FDCC0D' },
+  { id: 'opt_stage', label: 'SGX.Stage (eventos)', votes: 0, color: '#B87000' },
+  { id: 'opt_system', label: 'SGX.System (herramientas, IA y backend)', votes: 0, color: '#32527B' },
+  { id: 'opt_synthesize', label: 'SGX.Synthesize (todo converge)', votes: 0, color: '#888888' },
+];
+
 const DEFAULT_POLLS: KeynotePoll[] = [
   {
-    id: 'poll_keynote_1',
-    sessionTitle: 'Opening Keynote: The Spatial Revolution',
-    speaker: 'Dr. Aris Thorne & Alex Rivera',
-    question: '¿Qué tecnología acelerará más la adopción masiva de Computación Espacial en 2026-2027?',
-    options: [
-      { id: 'opt_1', label: 'WebGPU & Shaders en Navegador', votes: 0, color: '#00DDFF' },
-      { id: 'opt_2', label: 'Agentes IA Multimodales en Tiempo Real', votes: 0, color: '#5F86B4' },
-      { id: 'opt_3', label: 'Visores Ligeros Micro-OLED Passthrough', votes: 0, color: '#10B981' },
-      { id: 'opt_4', label: 'Motores CYOA & Broadcast Interactivos', votes: 0, color: '#FDCC0D' }
-    ]
+    id: 'poll_day1_open',
+    sessionTitle: 'Día 1 · Apertura',
+    speaker: 'Danelson Maldonado González',
+    question: '¿Qué pilar te mueve más?',
+    options: PILLAR_OPTIONS.map((o) => ({ ...o })),
   },
   {
-    id: 'poll_keynote_2',
-    sessionTitle: 'System Architectures for 100k Simultaneous Users',
-    speaker: 'Elena Vance & SGX Core Team',
-    question: '¿Cuál es el principal reto de sincronización en eventos WebXR multijugador?',
-    options: [
-      { id: 'opt_1', label: 'Latencia y Consenso de Red (<20ms)', votes: 0, color: '#F43F5E' },
-      { id: 'opt_2', label: 'Presupuesto de Polígonos & Texturas', votes: 0, color: '#3B82F6' },
-      { id: 'opt_3', label: 'Audio Espacial Acústico Concurrente', votes: 0, color: '#10B981' },
-      { id: 'opt_4', label: 'Orquestación de Servidores Edge Regionales', votes: 0, color: '#FDCC0D' }
-    ]
+    id: 'poll_day2_industry',
+    sessionTitle: 'Día 2 · Día de la Industria',
+    speaker: 'Personas invitadas (por anunciar)',
+    question: '¿Qué conversación de industria quieres escuchar primero?',
+    options: PILLAR_OPTIONS.map((o) => ({ ...o })),
   },
   {
-    id: 'poll_keynote_3',
-    sessionTitle: 'Spatialgineers 6 Pillars Roadmap',
-    speaker: 'Consejo de Fundadores Spatialgineers',
-    question: '¿En qué pilar planeas enfocar tu proyecto o empresa este fin de semana?',
-    options: [
-      { id: 'opt_1', label: 'SGX.SYNTHESIZE (IA Generativa & Shaders)', votes: 0, color: '#00DDFF' },
-      { id: 'opt_2', label: 'SGX.STAGE (Live Broadcast & CYOA Engine)', votes: 0, color: '#FDCC0D' },
-      { id: 'opt_3', label: 'SGX.SYSTEM (Infraestructura Distribuida)', votes: 0, color: '#10B981' },
-      { id: 'opt_4', label: 'SGX.SHOWCASE (Experiencias Comerciales & Marcas)', votes: 0, color: '#5F86B4' }
-    ]
-  }
+    id: 'poll_day3_showcase',
+    sessionTitle: 'Día 3 · SGX Showcase',
+    speaker: 'Initiates del SGX Guild',
+    question: '¿En qué pilar quieres ver el próximo proyecto de un Initiate?',
+    options: PILLAR_OPTIONS.map((o) => ({ ...o })),
+  },
 ];
 
 interface FloatingReactionParticle {

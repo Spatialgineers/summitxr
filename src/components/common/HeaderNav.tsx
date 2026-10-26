@@ -271,7 +271,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
         return [
           { id: 'summit_overview', label: 'INICIO', icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
           { id: 'summit_agenda', label: 'RUN OF SHOW & AGENDA', icon: Calendar, type: 'SUMMIT_SECTION', sectionKey: 'AGENDA', isActive: currentPage === 'summit' && activeSummitSection === 'AGENDA' },
-          { id: 'summit_broadcast', label: 'SALAS BROADCAST 4K', icon: Tv, type: 'SUMMIT_SECTION', sectionKey: 'BROADCAST_ROOMS', isActive: currentPage === 'summit' && activeSummitSection === 'BROADCAST_ROOMS' },
+          { id: 'summit_broadcast', label: 'SALAS DE TRANSMISIÓN', icon: Tv, type: 'SUMMIT_SECTION', sectionKey: 'BROADCAST_ROOMS', isActive: currentPage === 'summit' && activeSummitSection === 'BROADCAST_ROOMS' },
           { id: 'summit_speakers', label: 'SPEAKERS', icon: Users, type: 'SUMMIT_SECTION', sectionKey: 'SPEAKERS', isActive: currentPage === 'summit' && activeSummitSection === 'SPEAKERS' },
           { id: 'page_play', label: 'ARENA 3D EN VIVO', icon: Vote, type: 'PAGE', pageRoute: 'play', isActive: currentPage === 'play' },
         ];

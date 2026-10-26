@@ -713,24 +713,24 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                           <span className="text-[11px]">VIE 11 DIC • 10:00 AM – 4:30 PM</span>
                         </div>
                         <h4 className="text-base font-bold text-white font-['Orbitron',sans-serif]">
-                          6 PILARES, ROBLOX & 8 INITIATES
+                          6 PILARES, ARTISTAS & 8 INITIATES
                         </h4>
                         <div className="flex flex-wrap gap-1.5">
-                          <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">6h 30m • YouTube + Roblox</span>
-                          <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">6 Artistas en Roblox</span>
+                          <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">6h 30m • YouTube Live</span>
+                          <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">6 artistas invitados (por anunciar)</span>
                           <span className="px-1.5 py-0.5 bg-[#FDCC0D]/10 border border-[#FDCC0D]/40 text-[#FDCC0D] text-[10px]">8 Initiates × 8 min</span>
                         </div>
                         <p className="text-slate-300 leading-relaxed text-xs">
-                          Bloques de los 6 pilares en orden oficial (Story, Showcase, Spark, Stage, System, Synthesize) intercalados con 6 presentaciones de artistas dentro de Roblox y los portafolios de los 8 Initiates activos.
+                          Bloques de los 6 pilares en orden oficial (Story, Showcase, Spark, Stage, System, Synthesize) intercalados con 6 intermedios de artistas invitados (por anunciar; el Artista 1 dentro de Roblox, si se usa) y los portafolios de los 8 Initiates activos.
                         </p>
 
                         {expandedDayId === 'day_1' && (
                           <div className="pt-3 border-t border-slate-800 space-y-2 text-[11px] text-slate-300">
                             <p className="leading-relaxed">
-                              • <strong>10:00–10:30 AM:</strong> Apertura con Danelson (el espacio de Roblox ya está activo).
+                              • <strong>10:00–10:30 AM:</strong> Apertura con Danelson (el espacio de Roblox activo, si se usa).
                             </p>
                             <p className="leading-relaxed">
-                              • <strong>10:30 AM–2:30 PM:</strong> 6 Artistas en vivo en Roblox (15m c/u) + 6 Bloques de Pilares (25m c/u): Story → Showcase → Spark → Stage → System → Synthesize.
+                              • <strong>10:30 AM–2:30 PM:</strong> 6 artistas invitados (15 min c/u; Roblox si se usa) + 6 Bloques de Pilares (25m c/u): Story → Showcase → Spark → Stage → System → Synthesize.
                             </p>
                             <p className="leading-relaxed">
                               • <strong>2:30–4:00 PM:</strong> Portafolios de los 8 Initiates activos (8 min c/u = 64 de los 90 min).
@@ -875,7 +875,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                           onClick={() => handleSelectSection('BROADCAST_ROOMS')}
                           className="w-full py-1.5 px-3 bg-[#FDCC0D] hover:bg-[#00DDFF] text-black font-extrabold text-center transition-colors cursor-pointer text-[11px]"
                         >
-                          Salones Broadcast 4K →
+                          Salas de transmisión →
                         </button>
                       </div>
                     </div>
@@ -1005,7 +1005,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       Chroma Space Studios
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                      Sede propuesta del Día 3, el SGX Showcase: networking y demos en vivo mientras presentan los Initiates. Por invitación y cupo limitado (40 a 60 personas). El estudio cuenta con luces, proyectores y cámaras integrados.
+                      Sede del Día 3, el SGX Showcase: networking y demos en vivo mientras presentan los Initiates. Por invitación y cupo limitado (40 a 60 personas). El estudio cuenta con luces, proyectores y cámaras integrados.
                     </p>
                     <div className="flex flex-wrap gap-2 pt-2">
                       <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">Domingo 13 dic · 10:00 AM–4:00 PM</span>
@@ -1202,7 +1202,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div className="space-y-4">
             <SummitSectionBanner
               sectionKey="BROADCAST_ROOMS"
-              title="Salones Broadcast 4K & Canales en Vivo"
+              title="Salas de transmisión & canales en vivo"
               subtitle="Transmisiones simultáneas de alta fidelidad con audio espacial y selector multivista."
               pillarBadge="SGX.STAGE"
               pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png"
@@ -1246,8 +1246,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                   <SgxStandby
                     title={language === 'es' ? 'Salas de transmisión' : 'Broadcast rooms'}
                     body={language === 'es'
-                      ? 'Los Días 1 y 2 se transmiten por YouTube Live, con LinkedIn y Facebook Live. Las salas se encienden aquí cuando empiece la señal.'
-                      : 'Days 1 and 2 stream on YouTube Live, plus LinkedIn and Facebook Live. Rooms light up here when the signal starts.'}
+                      ? 'Los 3 días se transmiten por YouTube Live (canal principal), con LinkedIn y Facebook Live; Los Mismos TV transmite junto a nosotros. Las salas se encienden aquí cuando empiece la señal.'
+                      : 'All 3 days stream on YouTube Live (main channel), plus LinkedIn and Facebook Live; Los Mismos TV streams alongside us. Rooms light up here when the signal starts.'}
                     actions={[
                       { label: language === 'es' ? 'Ver la agenda' : 'See the agenda', primary: true, onClick: () => handleSelectSection('AGENDA') },
                       { label: language === 'es' ? 'Mi SGX Pass' : 'My SGX Pass', onClick: () => window.dispatchEvent(new CustomEvent('sgx:open_tickets')) },
@@ -1394,7 +1394,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <SummitSectionBanner
               sectionKey="SPEAKERS"
               title="Directorio Oficial de Speakers & Artistas"
-              subtitle="Parrilla curada de expertos internacionales, artistas inmersivos y creadores de mundos espaciales."
+              subtitle="Se publican solo speakers y artistas confirmados por escrito. Los anuncios van del 7 al 21 de noviembre."
               pillarBadge="SGX.STAGE"
               pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png"
             />
@@ -1448,7 +1448,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <SummitSectionBanner
               sectionKey="ENTREPRENEUR_MATCH"
               title="SGX.Match — Speed Pitching & Citas Estratégicas"
-              subtitle="Algoritmo de emparejamiento inteligente entre fundadores de startups espaciales, VCs e instituciones."
+              subtitle="Conecta con creadores y marcas de todos los pilares."
               pillarBadge="SGX.SHOWCASE"
               pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png"
             />
@@ -1821,7 +1821,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
           {/* Line 1 */}
           <div className="text-slate-300 leading-relaxed max-w-5xl mx-auto">
-            © 2026 Spatialgineers LLC. Todos los derechos reservados. <span className="text-slate-600 mx-2">•</span> Día 3: Chroma Space Studios, San Juan <span className="text-slate-600 mx-2">•</span> <span className="text-[var(--sgx-neon)] font-bold">YouTube Live, con Los Mismos TV transmitiendo junto a nosotros</span> <span className="text-slate-600 mx-2">•</span> Roblox (si se usa) <span className="text-slate-600 mx-2">•</span> SGX Guild Program
+            © 2026 Spatialgineers LLC. Todos los derechos reservados. <span className="text-slate-600 mx-2">•</span> Día 3: Chroma Space Studios, San Juan <span className="text-slate-600 mx-2">•</span> <span className="text-[var(--sgx-neon)] font-bold">YouTube Live, con Los Mismos TV transmitiendo junto a nosotros</span> <span className="text-slate-600 mx-2">•</span> Gratis · En español <span className="text-slate-600 mx-2">•</span> <a href="mailto:info@spatialgineers.com" className="hover:text-[var(--sgx-neon)]">info@spatialgineers.com</a> · +1 (787) 445-5284 · @spatialgineers · #SpatialgineersSummit <span className="text-slate-600 mx-2">•</span> Prensa: acreditación antes del 1 de diciembre (6 cupos, un acceso por medio) en info@spatialgineers.com
           </div>
           {/* Line 2 */}
           <div className="text-[11px] text-slate-400 max-w-3xl mx-auto leading-relaxed">

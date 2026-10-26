@@ -85,8 +85,8 @@ export const OFFICIAL_BRAND_ASSETS = {
     },
     {
       id: 'photo_7',
-      title: 'The Highgineer & Bucolove Espacia\'os',
-      description: 'Danelson y Bucolov grabando cobertura especial sobre la evolución de 2D a 3D.',
+      title: 'The Highgineer en medios',
+      description: 'Danelson grabando cobertura especial sobre la evolución de 2D a 3D.',
       url: 'https://cdn.spatialgineers.com/Nosotros/IMG_2041.png',
       tag: 'Podcast & Medios'
     },
@@ -193,8 +193,8 @@ export const INITIAL_SUMMIT_SESSIONS: SummitSession[] = [
     venueLocation: 'YouTube Live + Espacio de Roblox (si se usa)',
     streamUrl: 'https://www.youtube.com',
     mapNodeId: 'node_roblox',
-    tags: ['Apertura', 'Keynote', 'Roblox Activo', 'Highgineer', '30 Min'],
-    status: 'LIVE',
+    tags: ['Apertura', 'Keynote', 'Roblox (si se usa)', 'Highgineer', '30 Min'],
+    status: 'UPCOMING',
   },
   {
     id: 'd1_02',
@@ -350,7 +350,7 @@ export const INITIAL_SUMMIT_SESSIONS: SummitSession[] = [
     format: 'ROBLOX_STREAM',
     venueLocation: 'YouTube Live + Espacio de Roblox (si se usa)',
     mapNodeId: 'node_roblox',
-    tags: ['Artista 5', 'Synths', 'Roblox Live', '15 Min'],
+    tags: ['Artista 5', 'Intermedio', '15 Min'],
     status: 'UPCOMING',
   },
   {
@@ -785,36 +785,31 @@ export const INITIAL_SUMMIT_SPEAKERS: SummitSpeaker[] = [
   {
     id: 'spk_danelson',
     name: 'Danelson Maldonado González',
-    handle: '@thehighgineer',
-    role: 'Founder, Host & CEO ("The Highgineer")',
+    handle: '@spatialgineers',
+    role: 'Presidente, CEO y Director Creativo ("The Highgineer")',
     organization: 'Spatialgineers LLC',
     avatarUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Stage%20Icon%20BY.png',
-    bio: 'Ingeniero mecánico, fundador de Spatialgineers y host del podcast Lo Espacia\'o ("The Highgineer"). Creador del Framework SGX de 6 pilares. Presenta en vivo como avatar digital 3D mediante captura facial en tiempo real en el Día 3.',
+    bio: 'Presidente, CEO y Director Creativo de Spatialgineers ("The Highgineer"). Creador del SGX Framework de 6 pilares. En el Día 3 presenta con su avatar y captura facial en tiempo real.',
     pillarId: 'SGX.STAGE',
     day: 1,
     isKeynote: true,
     socialLinks: {
-      twitter: 'https://twitter.com/thehighgineer',
-      linkedin: 'https://linkedin.com/in/danelson-maldonado',
-      instagram: 'https://instagram.com/thehighgineer',
       portfolio: 'https://summit.spatialgineers.com',
     },
   },
   {
     id: 'spk_ricardo',
     name: 'Ricardo A. Hernández Díaz',
-    handle: '@lightningfingers',
-    role: 'Co-Founder, Host & CPO ("Lightning Fingers")',
+    handle: '@spatialgineers',
+    role: 'Cofundador, Vicepresidente y CPO ("Lightning Fingers")',
     organization: 'Spatialgineers LLC',
     avatarUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Showcase%20Icon%20BY.png',
-    bio: 'Cofundador, vicepresidente y CPO de Spatialgineers ("Lightning Fingers"). Ingeniero mecánico especializado en ensamble de Unity, WebXR, optimización de activos 3D, backend de interactividad y orquestación de transmisiones OBS híbridas.',
+    bio: 'Cofundador, Vicepresidente y CPO de Spatialgineers ("Lightning Fingers"). Trabaja con Blender, Unity y Unreal, con la web primero en Three.js, y prepara la escena y la iluminación del Día 3.',
     pillarId: 'SGX.SYSTEM',
     day: 1,
     isKeynote: true,
     socialLinks: {
-      linkedin: 'https://linkedin.com/in/ricardo-hernandez-sgx',
-      twitter: 'https://twitter.com/lightningfingers',
-      github: 'https://github.com/spatialgineers',
+      portfolio: 'https://summit.spatialgineers.com',
     },
   },
 ];
@@ -867,14 +862,14 @@ export const INITIAL_MAP_360_NODES: Map360Node[] = [
     id: 'node_roblox',
     title: 'Espacio Spatialgineers en Roblox',
     areaName: 'Roblox Virtual World',
-    locationLabel: 'roblox.com/games/spatialgineers-summit',
+    locationLabel: 'Embed opcional (si se usa)',
     category: 'METAVERSE',
     mapCoords: { x: 22, y: 25 },
     panorama360Url: 'https://cdn.spatialgineers.com/Branding/Guild/Guild%20color.png',
     thumbnailUrl: 'https://cdn.spatialgineers.com/Branding/Guild/Guild%20color.png',
     description: 'Espacio virtual de Spatialgineers en Roblox (embed opcional, si se usa). Puede albergar las presentaciones de los artistas invitados durante los intermedios.',
     liveStatus: 'ONLINE_ACTIVE',
-    capacityInfo: 'Instancias de 100 usuarios en simultáneo con mesh global',
+    capacityInfo: 'Embed opcional (si se usa)',
     connectedNodeIds: ['node_chroma_studios', 'node_awaken_gallery', 'node_drone_bay'],
     embedUrl: 'https://www.roblox.com',
     hotspots: [
@@ -1012,108 +1007,25 @@ export const INITIAL_MAP_360_NODES: Map360Node[] = [
 ];
 
 // Initial Peer-to-Peer & Channel Messages
+// One pinned welcome only: no invented messages, quotes or reaction counts.
 export const INITIAL_CHAT_MESSAGES: ChatMessage[] = [
   {
     id: 'msg_01',
     channelId: '#general',
-    senderId: 'spk_danelson',
-    senderName: 'Danelson ("The Highgineer")',
+    senderId: 'sgx_system',
+    senderName: 'Spatialgineers Summit',
     senderAvatar: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Stage%20Icon%20BY.png',
     senderRole: 'ORGANIZER',
     senderPillar: 'SGX.STAGE',
-    text: '¡Bienvenidos al Spatialgineers Summit 2026! 🔥 La transmisión ya está configurada en YouTube Live. ¡Revisen su agenda personalizada y prepárense para votar!',
+    text: 'Bienvenides al foro del Spatialgineers Summit 2026. Aquí se conversa en vivo durante los 3 días; los mensajes son públicos y moderados.',
     timestamp: Date.now() - 3600000,
     isPinned: true,
-    reactions: { '🔥': 28, '🚀': 35, '💎': 19 }
+    reactions: {},
   },
-  {
-    id: 'msg_02',
-    channelId: '#general',
-    senderId: 'spk_ricardo',
-    senderName: 'Ricardo ("Lightning Fingers")',
-    senderAvatar: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Showcase%20Icon%20BY.png',
-    senderRole: 'ORGANIZER',
-    senderPillar: 'SGX.SYSTEM',
-    text: 'Recuerden que la app funciona 100% offline para consultar horarios. Pueden exportar los bloques a Google Calendar o Apple Calendar desde el botón de la sesión.',
-    timestamp: Date.now() - 1800000,
-    reactions: { '👍': 14, '⚡': 9 }
-  },
-  {
-    id: 'msg_03',
-    channelId: '#stage-live',
-    senderId: 'spk_artist_tba',
-    senderName: 'Artista invitado (por anunciar)',
-    senderAvatar: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Spark%20Icon%20BY.png',
-    senderRole: 'SPEAKER',
-    senderPillar: 'SGX.STAGE',
-    text: '¡Listos para el intermedio de artista! Los visualizadores reactivos de partículas están calibrados.',
-    timestamp: Date.now() - 900000,
-    reactions: { '🎵': 22, '🔥': 17 }
-  },
-  {
-    id: 'msg_04',
-    channelId: '#initiates-awaken',
-    senderId: 'spk_initiate_1',
-    senderName: 'Initiate #1 (SGX Guild)',
-    senderAvatar: 'https://cdn.spatialgineers.com/Branding/Guild/Guild%20color.png',
-    senderRole: 'INITIATE',
-    senderPillar: 'SGX.SHOWCASE',
-    text: 'Mi portafolio "Bio-Luminescent WebGL Pavilions" ya está cargado en la galería 3D. ¡Nos vemos en el bloque de las 2:30 PM!',
-    timestamp: Date.now() - 600000,
-    reactions: { '✨': 18, '👏': 25 }
-  }
 ];
 
-// Initial Attendee Profiles for Networking
-export const INITIAL_ATTENDEE_PROFILES: AttendeeProfile[] = [
-  {
-    id: 'att_01',
-    name: 'Carlos Benítez',
-    title: 'XR Creative Technologist',
-    company: 'Nexus Realities PR',
-    avatar: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Stage%20Icon%20BY.png',
-    bio: 'Perfil de muestra (datos simulados). Desarrollador Unity y WebXR apasionado por conciertos virtuales y audio espacial binaural.',
-    pillars: ['SGX.STAGE', 'SGX.SYNTHESIZE'],
-    isOnline: true,
-    ticketType: 'HYBRID_SAN_JUAN',
-    socialLinks: { linkedin: 'https://linkedin.com', twitter: 'https://twitter.com' }
-  },
-  {
-    id: 'att_02',
-    name: 'Mariana Santos',
-    title: '3D Environmental Artist',
-    company: 'Caribe Interactive',
-    avatar: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Showcase%20Icon%20BY.png',
-    bio: 'Perfil de muestra (datos simulados). Modelado procedural, fotogrametría y diseño de escenarios inmersivos para turismo y educación.',
-    pillars: ['SGX.SHOWCASE', 'SGX.STORY'],
-    isOnline: true,
-    ticketType: 'DIGITAL_ACCESS',
-    socialLinks: { portfolio: 'https://artstation.com', linkedin: 'https://linkedin.com' }
-  },
-  {
-    id: 'att_03',
-    name: 'Jorge Véliz',
-    title: 'Fullstack Game Systems Engineer',
-    company: 'Indie Spatial Studio',
-    avatar: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Showcase%20Icon%20BY.png',
-    bio: 'Perfil de muestra (datos simulados). Especialista en WebSockets, sincronización multiplayer y backends en tiempo real para mundos virtuales.',
-    pillars: ['SGX.SYSTEM', 'SGX.SPARK'],
-    isOnline: false,
-    ticketType: 'VIP_PASS',
-    socialLinks: { linkedin: 'https://linkedin.com' }
-  },
-  {
-    id: 'att_04',
-    name: 'Lucía Ortiz',
-    title: 'Transmedia Creative Director',
-    company: 'Studio Cero San Juan',
-    avatar: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Story%20Icon%20BY.png',
-    bio: 'Perfil de muestra (datos simulados). Narrativas ramificadas, producción de cine interactivo y arquitectura de universos ficcionales.',
-    pillars: ['SGX.STORY', 'SGX.STAGE'],
-    isOnline: true,
-    ticketType: 'HYBRID_SAN_JUAN'
-  }
-];
+// Real attendees appear as they join; no sample people shown as real.
+export const INITIAL_ATTENDEE_PROFILES: AttendeeProfile[] = [];
 
 // Interactive Embed Widgets (Mini-Games, Roblox, WebGL Sandboxes, WebXR)
 export const INITIAL_EMBED_WIDGETS: EmbedWidget[] = [
@@ -1146,7 +1058,7 @@ export const INITIAL_EMBED_WIDGETS: EmbedWidget[] = [
   },
   {
     id: 'embed_youtube_stream',
-    title: 'YouTube 4K Spatial Stage & Concert Broadcast',
+    title: 'YouTube Live: escenario y conciertos del Summit',
     category: 'STREAM_VIDEO',
     embedType: 'URL',
     embedUrl: 'https://www.youtube.com/embed/jfKfPfyJRdk',
@@ -1154,7 +1066,7 @@ export const INITIAL_EMBED_WIDGETS: EmbedWidget[] = [
     description: 'Transmisión en vivo oficial del Summit por YouTube Live con visualizadores de escenario. Sintoniza los portafolios de los 8 Initiates y los intermedios de artistas invitados.',
     thumbnailUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png',
     author: 'Spatialgineers Broadcast & Los Mismos TV',
-    tags: ['YouTube', 'Live Stream', 'Concert', '4K Broadcast'],
+    tags: ['YouTube', 'Live Stream', 'Concert'],
     rating: 4.9,
     featured: true,
   },
@@ -1249,7 +1161,7 @@ export const INITIAL_EMBED_WIDGETS: EmbedWidget[] = [
     category: 'METAVERSE_ROBLOX',
     embedType: 'URL',
     embedUrl: 'https://www.roblox.com',
-    externalUrl: 'https://www.roblox.com/games/spatialgineers-summit',
+    externalUrl: '',
     description: 'Espacio multijugador en Roblox (embed opcional, si se usa) para los intermedios de artistas invitados durante el Summit 2026. Entra con tu avatar o mira la transmisión en vivo.',
     thumbnailUrl: 'https://cdn.spatialgineers.com/Branding/Guild/Guild%20color.png',
     author: 'Spatialgineers Roblox Guild',
@@ -1473,7 +1385,7 @@ export const INITIAL_ANALYTICS: SummitAnalyticsMetrics = {
 export const SUMMIT_I18N: Record<LanguageCode, Record<string, string>> = {
   es: {
     hero_title: 'SPATIALGINEERS SUMMIT 2026',
-    hero_dates: 'DICIEMBRE 11 – 13, 2026 • SAN JUAN, PUERTO RICO',
+    hero_dates: 'DICIEMBRE 11 – 13, 2026 • YOUTUBE LIVE + SAN JUAN, PR',
     hero_tagline: 'El regreso del evento de spatial computing de Spatialgineers: arquitectura espacial, WebXR, visualizadores en vivo y gamificación.',
     hero_format: '3 DÍAS: DÍAS 1–2 DIGITALES (YOUTUBE LIVE) • DÍA 3 SGX SHOWCASE HÍBRIDO, POR INVITACIÓN, EN CHROMA SPACE STUDIOS',
     hero_badge: 'REGRESA EL SPATIALGINEERS SUMMIT • SEGUNDA EDICIÓN',
@@ -1507,12 +1419,12 @@ export const SUMMIT_I18N: Record<LanguageCode, Record<string, string>> = {
     tab_analytics: 'MÉTRICAS EN VIVO',
     quick_actions_title: 'ACCESO RÁPIDO A MÓDULOS DEL SUMMIT',
     quick_actions_desc: 'Navega directamente a los interactivos, transmisiones y herramientas en tiempo real',
-    stat_venue: 'Venue del Día 3 (sujeto a firma)',
+    stat_venue: 'Venue del Día 3',
     stat_venue_val: 'Chroma Space Studios',
     stat_trials: 'SGX Ranked Trials',
     stat_trials_val: '8 Initiates activos',
     stat_stream: 'Transmisión Global',
-    stat_stream_val: 'YouTube + Roblox Live',
+    stat_stream_val: 'YouTube Live · LinkedIn Live · Facebook Live',
     stat_pillars: 'Pilares Tecnológicos',
     stat_pillars_val: '6 Pilares Spatialgineers',
     day_1: 'DÍA 1 • VIRTUAL',
@@ -1609,7 +1521,7 @@ export const SUMMIT_I18N: Record<LanguageCode, Record<string, string>> = {
     stat_trials: 'SGX Ranked Trials',
     stat_trials_val: '8 active Initiates',
     stat_stream: 'Global Broadcast',
-    stat_stream_val: 'YouTube + Roblox Live',
+    stat_stream_val: 'YouTube Live · LinkedIn Live · Facebook Live',
     stat_pillars: 'Tech Pillars',
     stat_pillars_val: '6 Spatialgineers Pillars',
     day_1: 'DAY 1 • VIRTUAL',
@@ -1701,12 +1613,12 @@ export const SUMMIT_I18N: Record<LanguageCode, Record<string, string>> = {
     tab_analytics: 'リアルタイム分析',
     quick_actions_title: 'サミット各機能へのクイックアクセス',
     quick_actions_desc: 'インタラクティブ体験、ライブ配信、リアルタイム機能へ直接アクセス',
-    stat_venue: '3日目の会場（契約締結が前提）',
+    stat_venue: '3日目の会場',
     stat_venue_val: 'Chroma Space Studios',
     stat_trials: 'SGX Ranked Trials',
     stat_trials_val: 'アクティブなイニシエイト 8名',
     stat_stream: 'グローバル配信',
-    stat_stream_val: 'YouTube + Roblox Live',
+    stat_stream_val: 'YouTube Live · LinkedIn Live · Facebook Live',
     stat_pillars: 'テクノロジーの柱',
     stat_pillars_val: 'Spatialgineers 6つの柱',
     day_1: '1日目 • バーチャル',
@@ -1720,7 +1632,7 @@ export const SUMMIT_I18N: Record<LanguageCode, Record<string, string>> = {
     day_3: '3日目 • ハイブリッド',
     day_3_date: '12月13日',
     day_3_title: 'SGX SHOWCASE',
-    day_3_desc: '10:00〜16:00。Chroma Space Studios（契約締結が前提）とYouTube Liveでの招待制ハイブリッド開催（40〜60名）。ライブデモ、上位6名のイニシエイトによるSGX Guild Ranked Trials Pitch Session（各5分）、ゲーミフィケーション投票と賞品。',
+    day_3_desc: '10:00〜16:00。Chroma Space StudiosとYouTube Liveでの招待制ハイブリッド開催（40〜60名）。ライブデモ、上位6名のイニシエイトによるSGX Guild Ranked Trials Pitch Session（各5分）、ゲーミフィケーション投票と賞品。',
     pillars_title: 'SPATIALGINEERS 6つの方法論の柱',
     pillars_subtitle: '空間工学、世界観設計、トランスメディア制作を統合するフレームワーク。',
     filter_all: 'すべてのセッション',
@@ -1792,8 +1704,10 @@ export function generateICSForSession(session: SummitSession): string {
   const endHour = Math.floor(endMinutes / 60).toString().padStart(2, '0');
   const endMin = (endMinutes % 60).toString().padStart(2, '0');
 
-  const dtStart = `${dayDate}T${startHour}${startMin}00`;
-  const dtEnd = `${dayDate}T${endHour}${endMin}00`;
+  // Puerto Rico runs on AST (UTC-4, no daylight saving): export in UTC so
+  // every calendar shows the right local hour anywhere in the world.
+  const dtStart = toUtcStamp(dayDate, session.startMinutes);
+  const dtEnd = toUtcStamp(dayDate, endMinutes);
 
   return [
     'BEGIN:VCALENDAR',
@@ -1813,6 +1727,12 @@ export function generateICSForSession(session: SummitSession): string {
     'END:VEVENT',
     'END:VCALENDAR'
   ].join('\r\n');
+}
+
+function toUtcStamp(dayDate: string, minutesAst: number): string {
+  const d = new Date(Date.UTC(+dayDate.slice(0, 4), +dayDate.slice(4, 6) - 1, +dayDate.slice(6, 8), 0, minutesAst + 240));
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getUTCFullYear()}${p(d.getUTCMonth() + 1)}${p(d.getUTCDate())}T${p(d.getUTCHours())}${p(d.getUTCMinutes())}00Z`;
 }
 
 export function downloadICS(session: SummitSession) {
@@ -1840,8 +1760,10 @@ export function getGoogleCalendarUrl(session: SummitSession): string {
   const endHour = Math.floor(endMinutes / 60).toString().padStart(2, '0');
   const endMin = (endMinutes % 60).toString().padStart(2, '0');
 
-  const dtStart = `${dayDate}T${startHour}${startMin}00`;
-  const dtEnd = `${dayDate}T${endHour}${endMin}00`;
+  // Puerto Rico runs on AST (UTC-4, no daylight saving): export in UTC so
+  // every calendar shows the right local hour anywhere in the world.
+  const dtStart = toUtcStamp(dayDate, session.startMinutes);
+  const dtEnd = toUtcStamp(dayDate, endMinutes);
 
   const title = encodeURIComponent(session.title);
   const details = encodeURIComponent(`${session.description}\n\nVenue: ${session.venueLocation}\nSpatialgineers Summit 2026`);
@@ -2096,15 +2018,15 @@ export const INITIAL_APPROVED_SPONSORS: ApprovedSponsor[] = [
     tagline: 'Venue del Día 3 (SGX Showcase) • San Juan, Puerto Rico',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
-    websiteUrl: 'https://chromaspace.pr',
-    contactName: 'Equipo de Producción Chroma',
-    contactEmail: 'contact@chromaspace.pr',
+    websiteUrl: '',
+    contactName: '',
+    contactEmail: '',
     phone: '',
     description: 'Chroma Space Studios es el venue del Día 3 (SGX Showcase) del Spatialgineers Summit 2026. Es un estudio de producción en San Juan con luces, proyectores y cámaras integrados.',
     highlights: [
       'Estudio de producción en San Juan, PR',
       'Luces, proyectores y cámaras integrados',
-      'Venue del Día 3 (SGX Showcase), por invitación y cupo limitado (40 a 60 personas)'
+      'Venue del Día 3 (SGX Showcase), por invitación y cupo limitado'
     ],
     specialOfferText: 'El SGX Showcase del Día 3 es presencial por invitación y cupo limitado, y se transmite por YouTube Live.',
     ctaButtonText: 'CONOCER CHROMA SPACE STUDIOS',
@@ -2119,12 +2041,13 @@ export const INITIAL_APPROVED_SPONSORS: ApprovedSponsor[] = [
     id: 'sp_approved_los_mismos_tv',
     companyName: 'Los Mismos TV',
     brandSlug: 'los-mismos-tv',
-    tierId: 'tier_4',
+    // Media partner without a written agreement: not a sponsorship tier, no sponsor challenge.
+    tierId: 'media_partner',
     tierName: 'Transmite junto a nosotros',
     tagline: 'Transmite el Spatialgineers Summit 2026 desde su canal, junto al de Spatialgineers',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
-    websiteUrl: 'https://youtube.com',
+    websiteUrl: '',
     contactName: 'Los Mismos TV',
     contactEmail: '',
     description: 'Los Mismos TV transmite el Spatialgineers Summit 2026 junto a nosotros, desde su canal y junto al canal de Spatialgineers.',
@@ -2150,7 +2073,12 @@ export function loadAllApprovedSponsors(): ApprovedSponsor[] {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
         // Sanitize out purged dummy entities from previous local storage
-        const sanitized = parsed.filter(s => s.id !== 'sp_approved_nextgen' && s.id !== 'sp_approved_roblox_guild');
+        const sanitized = parsed
+          .filter(s => s.id !== 'sp_approved_nextgen' && s.id !== 'sp_approved_roblox_guild')
+          // Content fixes for copies cached before v2026.10.1: Los Mismos TV is a media
+          // partner (no tier), and Chroma's contact data is not published yet.
+          .map(s => s.id === 'sp_approved_los_mismos_tv' ? { ...s, tierId: 'media_partner', websiteUrl: '' }
+            : s.id === 'sp_approved_chroma' ? { ...s, websiteUrl: '', contactName: '', contactEmail: '' } : s);
         if (sanitized.length > 0) return sanitized;
       }
     }
@@ -2211,7 +2139,7 @@ export function approveSponsorInquiryAndCreateShowcase(inquiry: SponsorInquiry):
     highlights: [
       `Presencia interactiva oficial en el Summit 2026`,
       `Alianza en ${inquiry.selectedTierName}`,
-      `Activación de marca en transmisión 4K y minijuegos 3D`
+      `Activación de marca en la transmisión y minijuegos 3D`
     ],
     specialOfferText: `Beneficio exclusivo para asistentes del Summit 2026 cortesía de ${inquiry.companyName}.`,
     specialOfferCode: `SGX-${slug.slice(0, 6).toUpperCase()}-26`,

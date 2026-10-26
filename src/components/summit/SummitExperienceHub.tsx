@@ -361,10 +361,10 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
     {
       id: 'STAGE',
       name: 'SGX.STAGE',
-      title: 'Transmisión 4K, Escenario & Sintetizador en Vivo',
-      subtitle: 'Stage opt.glb • Agenda Run of Show • Salas Broadcast 4K • Speakers 3D',
+      title: 'Transmisión, escenario & sintetizador en vivo',
+      subtitle: 'Stage opt.glb • Agenda Run of Show • Salas de transmisión • Speakers',
       description:
-        'La energía del espectáculo en tiempo real. Consulta el Run of Show oficial de los 3 días, entra a los salones de transmisión 4K con Los Mismos TV y dispara frecuencias armónicas en vivo.',
+        'La energía del espectáculo en tiempo real. Consulta el Run of Show oficial de los 3 días, entra a las salas de transmisión (YouTube Live, con Los Mismos TV transmitiendo junto a nosotros) y dispara frecuencias armónicas en vivo.',
       icon: Tv,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png',
       themeColor: '#FFFFFF',
@@ -383,12 +383,12 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_broadcast',
-          title: 'Salones Broadcast 4K & Streaming',
+          title: 'Salas de transmisión',
           subtitle: 'YouTube Live • LinkedIn Live • Facebook Live • Los Mismos TV',
           description:
             'Sintoniza los canales de transmisión en vivo, cámaras multicámara del escenario y cobertura oficial.',
-          xpReward: 'SEÑAL 4K',
-          actionLabel: 'Entrar a Salas 4K',
+          xpReward: 'EN VIVO',
+          actionLabel: 'Entrar a las salas',
           icon: Radio,
           onLaunch: () => onSelectSection('BROADCAST_ROOMS'),
         },
@@ -455,20 +455,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           actionLabel: 'Ver Los 8 Initiates',
           icon: Award,
           onLaunch: () => onSelectSection('GUILD'),
-        },
-        {
-          id: 'mod_telemetry_play',
-          title: 'Terminal de Votación & Telemetría (/play)',
-          subtitle: 'Sincronización Baja Latencia Firestore (+25 XP)',
-          description:
-            'Participa en las rondas de evaluación en vivo de la audiencia y observa el impacto estadístico instantáneo.',
-          xpReward: '+25 XP',
-          actionLabel: 'Conectar Terminal',
-          icon: Activity,
-          onLaunch: () => {
-            if (onNavigateToPlayVote) onNavigateToPlayVote();
-            else onSelectSection('GUILD');
-          },
         },
         {
           id: 'mod_speaker_portal',

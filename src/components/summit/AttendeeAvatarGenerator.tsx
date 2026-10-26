@@ -31,12 +31,12 @@ export interface AvatarConfig {
 }
 
 export const PILLAR_COLORS = {
-  'SGX.STORY': { primary: '#3B82F6', secondary: '#1D4ED8', bg: '#0c1d3b', name: 'SGX.STORY', desc: 'Narrativa & Worldbuilding' },
-  'SGX.SHOWCASE': { primary: '#00DDFF', secondary: '#0088FF', bg: '#042338', name: 'SGX.SHOWCASE', desc: 'Marcas & Experiencias' },
-  'SGX.SPARK': { primary: '#F59E0B', secondary: '#B87000', bg: '#2e1b00', name: 'SGX.SPARK', desc: 'Hardware & WebXR Devices' },
-  'SGX.STAGE': { primary: '#FDCC0D', secondary: '#D97706', bg: '#332600', name: 'SGX.STAGE', desc: 'Live Broadcast & CYOA' },
-  'SGX.SYSTEM': { primary: '#38BDF8', secondary: '#0284C7', bg: '#032536', name: 'SGX.SYSTEM', desc: 'Infraestructura & Edge' },
-  'SGX.SYNTHESIZE': { primary: '#00DDFF', secondary: '#0088FF', bg: '#002233', name: 'SGX.SYNTHESIZE', desc: 'IA Generativa & Shaders' },
+  'SGX.STORY': { primary: '#3B82F6', secondary: '#1D4ED8', bg: '#0c1d3b', name: 'SGX.STORY', desc: 'Lore e historias' },
+  'SGX.SHOWCASE': { primary: '#00DDFF', secondary: '#0088FF', bg: '#042338', name: 'SGX.SHOWCASE', desc: 'Presentación 3D/XR e inmersión' },
+  'SGX.SPARK': { primary: '#F59E0B', secondary: '#B87000', bg: '#2e1b00', name: 'SGX.SPARK', desc: 'Interactividad y juegos' },
+  'SGX.STAGE': { primary: '#FDCC0D', secondary: '#D97706', bg: '#332600', name: 'SGX.STAGE', desc: 'Eventos y shows en vivo' },
+  'SGX.SYSTEM': { primary: '#38BDF8', secondary: '#0284C7', bg: '#032536', name: 'SGX.SYSTEM', desc: 'Herramientas, IA y backend' },
+  'SGX.SYNTHESIZE': { primary: '#00DDFF', secondary: '#0088FF', bg: '#002233', name: 'SGX.SYNTHESIZE', desc: 'Todo converge: proyectos multi-pilar' },
 };
 
 const DEFAULT_AVATAR: AvatarConfig = {

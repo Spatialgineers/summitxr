@@ -56,7 +56,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
   const [avatarUrl, setAvatarUrl] = useState<string>(
     initialSpeaker?.avatarUrl || authUser?.photoURL || PRESET_AVATARS[0].url
   );
-  const [isKeynote, setIsKeynote] = useState<boolean>(initialSpeaker?.isKeynote || false);
+  const [isKeynote] = useState<boolean>(initialSpeaker?.isKeynote || false); // set only by the organizers
   const [isAwakenInitiate, setIsAwakenInitiate] = useState<boolean>(initialSpeaker?.isAwakenInitiate || true);
   const [awakenRank, setAwakenRank] = useState<'INITIATE' | 'AWAKEN_STATUS' | 'HONORARY_MENTION'>(
     initialSpeaker?.awakenRank || 'AWAKEN_STATUS'
@@ -120,10 +120,10 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
         role: role.trim(),
         organization: organization.trim(),
         avatarUrl: avatarUrl || PRESET_AVATARS[0].url,
-        bio: bio.trim() || `${name} es speaker y creador en el Spatialgineers Summit 2026.`,
+        bio: bio.trim() || 'Postulación pendiente de confirmación.',
         pillarId,
         day,
-        isKeynote,
+        isKeynote: false, // keynotes are confirmed by the organizers, never self-declared
         isAwakenInitiate,
         awakenRank,
         socialLinks: {
@@ -404,9 +404,9 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
                           onChange={(e) => setDay(Number(e.target.value))}
                           className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-2.5 text-white focus:outline-none focus:border-[var(--sgx-neon)]"
                         >
-                          <option value={1}>Día 1: Dic 11 (Virtual Roblox / Lore)</option>
-                          <option value={2}>Día 2: Dic 12 (Virtual SGX Guild Showcase)</option>
-                          <option value={3}>Día 3: Dic 13 (Híbrido Chroma Space Studios)</option>
+                          <option value={1}>Día 1: Vie 11 Dic (Digital · Pilares e Initiates)</option>
+                          <option value={2}>Día 2: Sáb 12 Dic (Digital · Día de la Industria)</option>
+                          <option value={3}>Día 3: Dom 13 Dic (SGX Showcase · Chroma Space Studios, por invitación)</option>
                         </select>
                       </div>
 
@@ -433,21 +433,11 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
                       <label className="flex items-center space-x-2 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={isKeynote}
-                          onChange={(e) => setIsKeynote(e.target.checked)}
-                          className="accent-[var(--sgx-neon)]"
-                        />
-                        <span className="text-[11px] text-slate-200">Keynote Speaker / Presentador Principal</span>
-                      </label>
-
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="checkbox"
                           checked={isAwakenInitiate}
                           onChange={(e) => setIsAwakenInitiate(e.target.checked)}
                           className="accent-[var(--sgx-accent)]"
                         />
-                        <span className="text-[11px] text-slate-200">Miembro del SGX Guild System (Candidato SGX Ranked Trials)</span>
+                        <span className="text-[11px] text-slate-200">Recluta o Initiate del SGX Guild (candidato a la Ranked Trials Pitch Session)</span>
                       </label>
                     </div>
 

@@ -22,7 +22,7 @@ const TIER_3_PLUS_FALLBACKS: ApprovedSponsor[] = [
     tagline: 'Venue del Día 3 (SGX Showcase) • San Juan, Puerto Rico',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
-    websiteUrl: 'https://chromaspace.pr',
+    websiteUrl: '',
     description: 'Estudio de producción en San Juan, venue del Día 3.',
     highlights: ['Venue del Día 3', 'Estudio de producción en San Juan'],
     ctaButtonText: 'CONOCE MÁS',
@@ -36,12 +36,12 @@ const TIER_3_PLUS_FALLBACKS: ApprovedSponsor[] = [
     id: 'sp_splash_los_mismos',
     companyName: 'Los Mismos TV',
     brandSlug: 'los-mismos-tv',
-    tierId: 'tier_4',
+    tierId: 'media_partner',
     tierName: 'Transmite junto a nosotros',
     tagline: 'Transmite el Summit desde su canal, junto al de Spatialgineers',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
-    websiteUrl: 'https://youtube.com',
+    websiteUrl: '',
     description: 'Los Mismos TV transmite junto a nosotros desde su canal.',
     highlights: ['Transmite junto a nosotros', 'YouTube Live'],
     ctaButtonText: 'CONOCE MÁS',
@@ -105,6 +105,8 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
   // Helper to determine tier level
   const getTierLevel = (sp: ApprovedSponsor): number => {
     if (sp.tierId === 'tier_5') return 5;
+    // Media partner (streams with us, no written agreement): shown with the partners, not a paid tier.
+    if (sp.tierId === 'media_partner') return 3;
     if (sp.tierId === 'tier_4') return 4;
     if (sp.tierId === 'tier_3') return 3;
     const tier = SPONSORSHIP_TIERS.find(t => t.id === sp.tierId);
@@ -301,7 +303,7 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
 
           <div className="flex items-center justify-between text-[9px] font-mono text-slate-500">
             <span>DICIEMBRE 11–13, 2026</span>
-            <span>SAN JUAN • HYBRID WEBXR & LIVE</span>
+            <span>DÍAS 1–2 DIGITAL · DÍA 3 SAN JUAN</span>
           </div>
         </div>
       </div>

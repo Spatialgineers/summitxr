@@ -155,7 +155,11 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     try {
       const saved = localStorage.getItem('sgx_summit_chat_messages');
-      return saved ? JSON.parse(saved) : INITIAL_CHAT_MESSAGES;
+      if (!saved) return INITIAL_CHAT_MESSAGES;
+      // Drop the sample messages older versions seeded (msg_02…); keep real ones.
+      const parsed: ChatMessage[] = JSON.parse(saved);
+      const real = parsed.filter((m) => !/^msg_0\d$/.test(m.id));
+      return [...INITIAL_CHAT_MESSAGES, ...real];
     } catch {
       return INITIAL_CHAT_MESSAGES;
     }

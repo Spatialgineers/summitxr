@@ -141,7 +141,7 @@ export const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({ onClose 
         {/* Footer */}
         <div className="pt-3 border-t border-[var(--sgx-secondary)]/80 flex items-center justify-between shrink-0 font-mono text-xs">
           <span className="text-slate-400 text-[11px]">
-            Última actualización: Diciembre 2026 • San Juan, PR
+            Última actualización: octubre 2026 • San Juan, PR
           </span>
           <button
             onClick={onClose}

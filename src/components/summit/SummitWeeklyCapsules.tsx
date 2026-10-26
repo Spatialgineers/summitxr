@@ -91,7 +91,6 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     summary: 'Planos esquemáticos del espacio en Roblox (embed opcional, si se usa): zona de artistas, circuito aéreo de drones y hubs de teletransporte.',
     fullTransmission: `PLANO ARQUITECTÓNICO // MUNDO VIRTUAL SGX ROBLOX:
 • Coordenadas del Núcleo Central: (0, 100, 0)
-• Zona de Vuelo Dron: Campo antigravedad con 12 aros de turbo recargable.
 • Zona de Artistas: espacio para los intermedios de artistas invitados del Día 1 (por anunciar).
 • Estado: embed opcional; YouTube Live es el canal principal del Summit.`,
     relatedSectionKey: 'EMBEDS_GAMES',
@@ -131,7 +130,7 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
 • Día 1: un artista invitado de 15 minutos antes de cada uno de los seis pilares (por anunciar).
 • Día 2: una persona invitada por pilar en conversaciones de 45 minutos (por anunciar).
 • Día 3: Danelson con su avatar y captura facial en tiempo real, y dos artistas invitados (por confirmar).
-• Dinámica CYOA: El público en línea y presencial vota con sus dispositivos qué visuales de shader se proyectarán durante el clímax musical.`,
+• La dinámica de interacción libre del Día 3 se define el 1 de noviembre.`,
     relatedSectionKey: 'SPEAKERS',
     relatedActionLabel: 'Ver Speakers y Artistas 3D'
   },
@@ -149,7 +148,7 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     fullTransmission: `REGISTRO DE ÓRBITA // ALIADOS DEL SUMMIT:
 • En vez de un muro estático de logotipos, cada patrocinador cuenta con una baliza orbital 3D o satélite en el Núcleo.
 • Los asistentes escanean las balizas con su HUD para ganar XP y descubrir los beneficios de cada marca.
-• Tiers oficiales: Tier 1 Digital Presence ($50–$100), Tier 2 Gamified ($250–$500), Tier 3 Experience ($750–$1,000), Tier 4 Signature Experience ($1,500–$2,500, licencia de 365 días desde noviembre) y Tier 5 Alianza de servicios esenciales (a convenir, sin precio público).`,
+• Tiers oficiales: Tier 1 Digital Presence ($50–$100), Tier 2 Gamified ($250–$500), Tier 3 Experience ($750–$1,000), Tier 4 Signature Experience ($1,500–$2,500, licencia de 365 días desde noviembre) y Tier 5 a convenir, sin precio público (a convenir, sin precio público).`,
     relatedSectionKey: 'SPONSORS_HUB',
     relatedActionLabel: 'Explorar Patrocinios y Tiers'
   },
@@ -166,6 +165,7 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     summary: 'Desbloqueo final antes del Día 1: insignia del SGX Pass y la escalera de premios del Summit.',
     fullTransmission: `SECUENCIA FINAL // LANZAMIENTO GLOBAL:
 • 11 de diciembre de 2026 · 10:00 AM AST: apertura por YouTube Live.
+• 12 de diciembre: Día de la Industria por YouTube Live.
 • 13 de diciembre: SGX Showcase en Chroma Space Studios (por invitación).
 • Premios: cupón de descuento de un auspiciador, suscripción de 3 meses a nuestras plataformas, sesión "Grit" con artistas (por confirmar) y el premio mayor "Spatialgineers activa tu evento".
 • Los pilotos que desbloquearon las 6 cápsulas reciben la Insignia Legendaria "Pionero Cuántico" en su SGX Pass.`,
@@ -267,7 +267,7 @@ export const SummitWeeklyCapsules: React.FC<SummitWeeklyCapsulesProps> = ({
             PROGRESO: {totalUnlocked} / {SUMMIT_WEEKLY_CAPSULES.length} REVELADAS
           </span>
           <span className="text-slate-400">
-            DESBLOQUEO SEGÚN FECHA HASTA EL 11 DIC
+            DESBLOQUEO SEMANAL · 25 OCT – 29 NOV
           </span>
         </div>
       </div>
@@ -375,7 +375,7 @@ export const SummitWeeklyCapsules: React.FC<SummitWeeklyCapsulesProps> = ({
                   ) : (
                     <span className="px-2 py-0.2 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-bold flex items-center gap-1">
                       <Lock className="w-2.5 h-2.5" />
-                      <span>DESBLOQUEO EN DIC 2026</span>
+                      <span>DESBLOQUEO · {selectedCapsule.dateRange.split('·')[1]?.trim() || selectedCapsule.dateRange}</span>
                     </span>
                   )}
                 </div>

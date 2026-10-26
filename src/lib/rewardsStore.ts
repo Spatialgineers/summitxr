@@ -10,16 +10,15 @@ export const INITIAL_REWARDS: GamificationReward[] = [
     description: 'Cupón digital de descuento cortesía de un auspiciador del Spatialgineers Summit 2026 (depende de que haya auspiciadores), redimible desde el bloque de Networking del Día 3.',
     xpCost: 250,
     originalValueUsd: 'Beneficio Digital de Auspiciador',
-    inventoryCount: -1, // Ilimitado para participantes activos
+    inventoryCount: 0, // Depends on a closed sponsor: not redeemable until one is confirmed
     claimedCount: 0,
     badgeIcon: '🎟️',
     themeColor: '#00DDFF',
-    active: true,
+    active: false,
     accessUrl: 'https://summit.spatialgineers.com/sponsors',
     accessCodePrefix: 'SGX-SPONSOR-26-',
     features: [
-      'Gana XP votando tipo Kahoot (+25 XP), escaneando QR (+50 XP) o creando tu avatar (+200 XP)',
-      'Descuento exclusivo en servicios y productos de marcas aliadas del Summit',
+      'Depende de que haya auspiciadores: se activa cuando se cierre uno',
       'Código digital verificable al instante en tu SGX Pass',
       'Válido para asistentes presenciales en San Juan y audiencia digital global'
     ],
@@ -42,9 +41,7 @@ export const INITIAL_REWARDS: GamificationReward[] = [
     accessUrl: 'https://spatialgineers.com',
     accessCodePrefix: 'SGX-PLAT-3M-',
     features: [
-      'Acceso por 3 meses a las plataformas interactivas de Spatialgineers',
-      'Creación de experiencias 3D, visualizadores de escenario y salas de votación',
-      'Soporte técnico de la comunidad SGX Guild',
+      'Suscripción de 3 meses a nuestras plataformas',
       'Activación inmediata mediante código digital'
     ],
     sponsorName: 'Spatialgineers LLC',
@@ -55,7 +52,7 @@ export const INITIAL_REWARDS: GamificationReward[] = [
     id: 'reward_grit_session_chroma',
     title: 'Sesión "Grit" con Artistas (por confirmar)',
     category: 'SERVICE_CONSULTING',
-    description: 'Experiencia "Grit" con artistas. Por confirmar: todavía no hay acuerdo escrito, por lo que no se puede canjear hasta que se confirme.',
+    description: 'Experiencia "Grit" con artistas. Por confirmar. Se anuncia cuando esté confirmada; hasta entonces no se puede canjear.',
     xpCost: 1200,
     originalValueUsd: 'Experiencia (por confirmar)',
     inventoryCount: 0, // POR CONFIRMAR: not redeemable until confirmed in writing
@@ -89,8 +86,7 @@ export const INITIAL_REWARDS: GamificationReward[] = [
     accessCodePrefix: 'SGX-ACTIVATE-',
     features: [
       'Un servicio de Spatialgineers para activar tu evento',
-      'Anunciado oficialmente en el bloque de Cierre del Día 3 (3:30–4:00 p.m.)',
-      'Sesión de planificación estratégica con Danelson ("The Highgineer") y Ricardo ("Lightning Fingers")'
+      'Anunciado oficialmente en el bloque de Cierre del Día 3 (3:30–4:00 p.m.)'
     ],
     sponsorName: 'Spatialgineers LLC',
     createdAt: Date.now() - 86400000 * 1,

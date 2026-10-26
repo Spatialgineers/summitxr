@@ -14,7 +14,7 @@ import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
 
 const DAYS = {
   1: { es: 'Día 1 · Viernes 11 dic · Digital', en: 'Day 1 · Fri Dec 11 · Digital' },
-  2: { es: 'Día 2 · Sábado 12 dic · Industry Day', en: 'Day 2 · Sat Dec 12 · Industry Day' },
+  2: { es: 'Día 2 · Sábado 12 dic · Día de la Industria', en: 'Day 2 · Sat Dec 12 · Industry Day' },
   3: { es: 'Día 3 · Domingo 13 dic · SGX Showcase', en: 'Day 3 · Sun Dec 13 · SGX Showcase' },
 } as const;
 
@@ -165,8 +165,8 @@ export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pil
           </ol>
           <p className="sgx-station__note">
             {es
-              ? 'Hora de Puerto Rico (AST). Speakers y artistas se anuncian solo cuando están confirmados por escrito.'
-              : 'Puerto Rico time (AST). Speakers and artists are announced only once confirmed in writing.'}
+              ? 'Hora de Puerto Rico (AST). El Día 3 no se divide por pilar: aquí ves el bloque más afín. Speakers y artistas se anuncian solo cuando están confirmados por escrito.'
+              : 'Puerto Rico time (AST). Day 3 is not split by pillar: this is the closest block. Speakers and artists are announced only once confirmed in writing.'}
           </p>
         </section>
       </div>

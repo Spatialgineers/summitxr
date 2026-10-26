@@ -69,7 +69,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   const exportVcards = () => {
     const vcf = identity.contacts.map((c) => [
       'BEGIN:VCARD', 'VERSION:3.0', `FN:${c.name}`, c.organization ? `ORG:${c.organization}` : '', c.role ? `TITLE:${c.role}` : '',
-      `NOTE:SGX Summit 2026 · ${c.callsign || c.code}${c.pillar ? ` · ${PILLAR_BY_KEY[c.pillar].name}` : ''}`, 'END:VCARD',
+      `NOTE:Spatialgineers Summit 2026 · ${c.callsign || c.code}${c.pillar ? ` · ${PILLAR_BY_KEY[c.pillar].name}` : ''}`, 'END:VCARD',
     ].filter(Boolean).join('\n')).join('\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([vcf], { type: 'text/vcard' }));

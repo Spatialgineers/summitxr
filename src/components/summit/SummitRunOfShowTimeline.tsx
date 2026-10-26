@@ -64,7 +64,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
   const dayMeta = {
     1: {
       title: 'Día 1 — Viernes 11 de Diciembre',
-      badge: '100% DIGITAL • YOUTUBE LIVE + ESPACIO DE ROBLOX (SI SE USA)',
+      badge: '100% DIGITAL • YOUTUBE LIVE (PRINCIPAL) + LINKEDIN + FACEBOOK LIVE',
       hours: '10:00 AM – 4:30 PM AST (6h 30m)',
       focus: 'Apertura (30 min), un artista invitado de 15 min antes de cada pilar, 6 bloques de pilares de 25 min (SGX.Story → SGX.Showcase → SGX.Spark → SGX.Stage → SGX.System → SGX.Synthesize) y los portafolios de los 8 Initiates activos (2:30–4:00 p.m., 8 min c/u).',
       highlight: 'Al cierre (4:00–4:30 p.m.) se anuncian los 6 Initiates que presentan en el Día 3.',
@@ -73,7 +73,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
     },
     2: {
       title: 'Día 2 — Sábado 12 de Diciembre (Día de la Industria)',
-      badge: '100% DIGITAL • YOUTUBE LIVE + VOTACIÓN GAMIFICADA',
+      badge: '100% DIGITAL • YOUTUBE LIVE (PRINCIPAL) + LINKEDIN + FACEBOOK LIVE',
       hours: '10:00 AM – 4:00 PM AST (6h exactas)',
       focus: 'Introducción (30 min) con resumen del Día 1 y recordatorio de los 6 Initiates, 6 conversaciones de industria de 45 min (una por pilar, persona invitada por anunciar) con pausas de 10 min y cierre de 3:50 a 4:00 p.m.',
       highlight: 'Orden oficial de conversaciones: SGX.Story, SGX.Showcase, SGX.Spark, SGX.Stage, SGX.System y SGX.Synthesize.',
@@ -210,7 +210,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                   </span>
                 </div>
                 <div className="text-sm font-bold text-white mt-1">
-                  {dayNum === 1 ? 'Pilares & Initiates' : dayNum === 2 ? 'Industry Day' : 'SGX Showcase'}
+                  {dayNum === 1 ? 'Pilares & Initiates' : dayNum === 2 ? 'Día de la Industria' : 'SGX Showcase'}
                 </div>
                 <div className="text-[11px] text-slate-400 mt-1 line-clamp-1 font-mono">
                   {meta.badge}

@@ -112,7 +112,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
             </p>
             <ul className="sgx-forge__bullets">
               <li>{es ? 'Días 1 y 2: lo usas por YouTube Live desde cualquier lugar.' : 'Days 1 and 2: use it on YouTube Live from anywhere.'}</li>
-              <li>{es ? 'Día 3: el mismo QR es tu entrada en Chroma Space Studios.' : 'Day 3: the same QR is your entrance at Chroma Space Studios.'}</li>
+              <li>{es ? 'Día 3: si recibes invitación por correo, este mismo QR es tu entrada en Chroma Space Studios.' : 'Day 3: if you receive an email invitation, this same QR is your entrance at Chroma Space Studios.'}</li>
               <li>{es ? 'Cada pilar completado deja un sello en tu pase.' : 'Every pillar you complete leaves a stamp on your pass.'}</li>
             </ul>
             <div className="sgx-forge__actions">
@@ -149,12 +149,12 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
               <label className={tier === 'DIGITAL' ? 'is-on' : ''}>
                 <input type="radio" name="tier" checked={tier === 'DIGITAL'} onChange={() => setTier('DIGITAL')} />
                 <strong>{es ? 'Digital global' : 'Global digital'}</strong>
-                <span>{es ? 'Los 3 días por YouTube Live. Confirmado al instante.' : 'All 3 days on YouTube Live. Confirmed instantly.'}</span>
+                <span>{es ? 'Los 3 días por YouTube Live, en español. Gratis y confirmado al instante.' : 'All 3 days on YouTube Live, in Spanish. Free and confirmed instantly.'}</span>
               </label>
               <label className={tier === 'SHOWCASE' ? 'is-on' : ''}>
                 <input type="radio" name="tier" checked={tier === 'SHOWCASE'} onChange={() => setTier('SHOWCASE')} />
                 <strong>{es ? 'Día 3 presencial' : 'Day 3 in person'}</strong>
-                <span>{es ? 'Chroma Space Studios, San Juan. Por invitación y cupo limitado: queda en revisión.' : 'Chroma Space Studios, San Juan. By invitation, limited capacity: goes to review.'}</span>
+                <span>{es ? 'Chroma Space Studios, San Juan. Por invitación y cupo limitado: recibes la invitación por correo. Último llamado: 1 de diciembre.' : 'Chroma Space Studios, San Juan. By invitation, limited capacity: invitations arrive by email. Last call: December 1.'}</span>
               </label>
             </fieldset>
             {error && <p className="sgx-forge__error" role="alert">{error}</p>}

@@ -33,6 +33,7 @@ import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useSummitFeatures } from '../../context/SummitFeatureContext';
 import { SGX_PILLARS, pillarOfSection, sectionModule } from '../../lib/sgxPillars';
 import { SgxPassStrip } from '../../identity/SgxPassStrip';
+import { useLanguage } from '../../context/LanguageContext';
 
 export type SummitSectionKey = 
   | 'OVERVIEW'
@@ -97,6 +98,8 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
   className = '',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { language } = useLanguage();
+  const lang: 'es' | 'en' = language === 'en' ? 'en' : 'es';
   const { tenant } = useTenantTheme();
   const { playerProfile } = useAuth();
   const { isSectionVisible, getSectionStatus, isFeatureVisible } = useSummitFeatures();
@@ -161,7 +164,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     },
     {
       key: 'BROADCAST_ROOMS',
-      title: 'Salones & Canales Broadcast 4K',
+      title: 'Salas de transmisión',
       shortLabel: 'Salas Broadcast',
       description: 'Transmisiones simultáneas con canales de audio espacial.',
       icon: Radio,
@@ -213,7 +216,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
       key: 'ENTREPRENEUR_MATCH',
       title: 'SGX.MATCH — Entrepreneur Matchmaking',
       shortLabel: 'Entrepreneur Match',
-      description: 'Dating app para conectar co-fundadores, ángeles y clientes.',
+      description: 'Conecta con creadores y marcas de todos los pilares.',
       icon: Zap,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
       badge: 'SGX.SHOWCASE',
@@ -224,7 +227,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
       key: 'SPONSORS_HUB',
       title: 'Dossier de Auspicios & Brand Showcases',
       shortLabel: 'Dossier de Auspicios',
-      description: 'Matriz comparativa de 5 tiers y presencia WebApp por 365 días.',
+      description: 'Matriz de los 5 tiers (licencia de 365 días solo en Tiers 4 y 5).',
       icon: Building2,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
       badge: 'SGX.SHOWCASE',
@@ -516,14 +519,14 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                                 <div>
                                   <div className="flex items-center space-x-1.5 flex-wrap">
                                     <span className="font-bold text-white text-xs font-['Orbitron',sans-serif] group-hover:text-[var(--sgx-neon)] transition-colors">
-                                      {sectionModule(item.key)?.label.es || item.title}
+                                      {sectionModule(item.key)?.label[lang] || item.title}
                                     </span>
                                     <span className={`px-1 py-0.1 text-[7px] font-bold border rounded ${item.badgeColor}`}>
                                       {item.badge}
                                     </span>
                                   </div>
                                   <p className="text-[9px] text-slate-400 leading-tight mt-1 line-clamp-2">
-                                    {sectionModule(item.key)?.desc.es || item.description}
+                                    {sectionModule(item.key)?.desc[lang] || item.description}
                                   </p>
                                 </div>
                               </div>

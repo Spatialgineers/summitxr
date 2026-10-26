@@ -55,7 +55,7 @@ A. "QUESTION_START"
       "answerType": "OPINION_CYOA",
       "durationSeconds": 30,
       "options": [
-        { "id": "opt_a", "code": 1, "label": "A: Synthwave Grid", "presetId": "preset_neon_grid", "color": "#00f0ff" },
+        { "id": "opt_a", "code": 1, "label": "A: Synthwave Grid", "presetId": "preset_neon_grid", "color": "#00ddff" },
         { "id": "opt_b", "code": 2, "label": "B: Inferno Volcano", "presetId": "preset_volcano_fire", "color": "#ff3b30" }
       ]
     },

@@ -31,11 +31,11 @@ export interface AvatarConfig {
 }
 
 export const PILLAR_COLORS = {
-  'SGX.SYNTHESIZE': { primary: '#00FFFF', secondary: '#0088FF', bg: '#002233', name: 'SGX.SYNTHESIZE', desc: 'IA Generativa & Shaders' },
+  'SGX.SYNTHESIZE': { primary: '#00DDFF', secondary: '#0088FF', bg: '#002233', name: 'SGX.SYNTHESIZE', desc: 'IA Generativa & Shaders' },
   'SGX.SYSTEM': { primary: '#38BDF8', secondary: '#0284C7', bg: '#032536', name: 'SGX.SYSTEM', desc: 'Infraestructura & Edge' },
   'SGX.STAGE': { primary: '#FDCC0D', secondary: '#D97706', bg: '#332600', name: 'SGX.STAGE', desc: 'Live Broadcast & CYOA' },
-  'SGX.SHOWCASE': { primary: '#00E5FF', secondary: '#0088FF', bg: '#042338', name: 'SGX.SHOWCASE', desc: 'Marcas & Experiencias' },
-  'SGX.SPARK': { primary: '#F59E0B', secondary: '#B87333', bg: '#2e1b00', name: 'SGX.SPARK', desc: 'Hardware & WebXR Devices' },
+  'SGX.SHOWCASE': { primary: '#00DDFF', secondary: '#0088FF', bg: '#042338', name: 'SGX.SHOWCASE', desc: 'Marcas & Experiencias' },
+  'SGX.SPARK': { primary: '#F59E0B', secondary: '#B87000', bg: '#2e1b00', name: 'SGX.SPARK', desc: 'Hardware & WebXR Devices' },
   'SGX.STORY': { primary: '#3B82F6', secondary: '#1D4ED8', bg: '#0c1d3b', name: 'SGX.STORY', desc: 'Narrativa & Worldbuilding' },
 };
 
@@ -199,7 +199,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
     if (config.backdrop === 'starfield') {
       return (
         <>
-          <rect width="200" height="200" fill="#05070f" />
+          <rect width="200" height="200" fill="#090909" />
           <circle cx="30" cy="40" r="1.5" fill="#ffffff" opacity="0.8" />
           <circle cx="160" cy="30" r="2" fill={colors.primary} opacity="0.9" />
           <circle cx="170" cy="140" r="1" fill="#ffffff" opacity="0.6" />
@@ -212,7 +212,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
     if (config.backdrop === 'hex') {
       return (
         <>
-          <rect width="200" height="200" fill="#0a0c16" />
+          <rect width="200" height="200" fill="#0f0f0f" />
           <polygon points="100,15 170,55 170,145 100,185 30,145 30,55" fill="none" stroke={colors.primary} strokeWidth="2" opacity="0.4" />
           <polygon points="100,35 150,65 150,135 100,165 50,135 50,65" fill="none" stroke={colors.secondary} strokeWidth="1.5" opacity="0.3" strokeDasharray="4 2" />
         </>
@@ -221,7 +221,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
     // Default cyber grid
     return (
       <>
-        <rect width="200" height="200" fill="#080a10" />
+        <rect width="200" height="200" fill="#0b0b0b" />
         <line x1="0" y1="50" x2="200" y2="50" stroke={colors.primary} strokeWidth="0.5" opacity="0.2" />
         <line x1="0" y1="100" x2="200" y2="100" stroke={colors.primary} strokeWidth="0.5" opacity="0.2" />
         <line x1="0" y1="150" x2="200" y2="150" stroke={colors.primary} strokeWidth="0.5" opacity="0.2" />
@@ -238,7 +238,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
       return (
         <g>
           {/* Heavy Exo Armor Body */}
-          <path d="M 40 155 L 70 140 L 130 140 L 160 155 L 170 200 L 30 200 Z" fill="#1b1e2e" stroke={colors.secondary} strokeWidth="2" />
+          <path d="M 40 155 L 70 140 L 130 140 L 160 155 L 170 200 L 30 200 Z" fill="#222222" stroke={colors.secondary} strokeWidth="2" />
           {/* Shoulder Plates */}
           <polygon points="30,150 60,140 50,175 25,170" fill={colors.primary} opacity="0.8" />
           <polygon points="170,150 140,140 150,175 175,170" fill={colors.primary} opacity="0.8" />
@@ -251,7 +251,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
     if (config.suit === 'cyber_jacket') {
       return (
         <g>
-          <path d="M 45 155 L 75 142 L 125 142 L 155 155 L 165 200 L 35 200 Z" fill="#141724" />
+          <path d="M 45 155 L 75 142 L 125 142 L 155 155 L 165 200 L 35 200 Z" fill="#1A1A1A" />
           {/* Cyber Collar */}
           <polygon points="65,142 85,175 100,175 75,142" fill={colors.secondary} />
           <polygon points="135,142 115,175 100,175 125,142" fill={colors.secondary} />
@@ -275,11 +275,11 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
     // Default EVA Flight suit
     return (
       <g>
-        <path d="M 40 155 L 70 145 L 130 145 L 160 155 L 170 200 L 30 200 Z" fill="#232738" stroke="#334155" strokeWidth="1.5" />
+        <path d="M 40 155 L 70 145 L 130 145 L 160 155 L 170 200 L 30 200 Z" fill="#2B2B2B" stroke="#434343" strokeWidth="1.5" />
         {/* Harness Straps */}
         <line x1="68" y1="145" x2="68" y2="200" stroke={colors.primary} strokeWidth="4" />
         <line x1="132" y1="145" x2="132" y2="200" stroke={colors.primary} strokeWidth="4" />
-        <rect x="85" y="165" width="30" height="20" fill="#0f172a" stroke={colors.secondary} strokeWidth="1.5" />
+        <rect x="85" y="165" width="30" height="20" fill="#1b1b1b" stroke={colors.secondary} strokeWidth="1.5" />
         <circle cx="94" cy="175" r="2.5" fill="#10B981" />
         <circle cx="106" cy="175" r="2.5" fill={colors.primary} />
       </g>
@@ -293,13 +293,13 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
       return (
         <g>
           {/* Faceted Low-Poly Helmet */}
-          <polygon points="100,30 145,50 160,95 140,140 100,150 60,140 40,95 55,50" fill="#161a29" stroke={colors.primary} strokeWidth="2" />
+          <polygon points="100,30 145,50 160,95 140,140 100,150 60,140 40,95 55,50" fill="#1e1e1e" stroke={colors.primary} strokeWidth="2" />
           {/* Facet lines */}
           <line x1="100" y1="30" x2="100" y2="65" stroke={colors.secondary} strokeWidth="1.5" />
           <line x1="55" y1="50" x2="100" y2="65" stroke={colors.secondary} strokeWidth="1.5" />
           <line x1="145" y1="50" x2="100" y2="65" stroke={colors.secondary} strokeWidth="1.5" />
           {/* Center Visor Hexagon */}
-          <polygon points="100,65 140,75 140,115 100,125 60,115 60,75" fill="#05070d" stroke={colors.primary} strokeWidth="2.5" />
+          <polygon points="100,65 140,75 140,115 100,125 60,115 60,75" fill="#080808" stroke={colors.primary} strokeWidth="2.5" />
         </g>
       );
     }
@@ -308,9 +308,9 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
       return (
         <g>
           {/* Cyber Slim Helmet */}
-          <ellipse cx="100" cy="95" rx="55" ry="50" fill="#111420" stroke="#334155" strokeWidth="2" />
+          <ellipse cx="100" cy="95" rx="55" ry="50" fill="#171717" stroke="#434343" strokeWidth="2" />
           {/* Long Horizontal Cyber Visor */}
-          <rect x="42" y="78" width="116" height="34" rx="6" fill="#030712" stroke={colors.primary} strokeWidth="2.5" />
+          <rect x="42" y="78" width="116" height="34" rx="6" fill="#090909" stroke={colors.primary} strokeWidth="2.5" />
           <line x1="42" y1="95" x2="158" y2="95" stroke={colors.secondary} strokeWidth="1" strokeDasharray="3 2" />
         </g>
       );
@@ -323,9 +323,9 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
           <polygon points="50,60 30,20 60,45" fill={colors.secondary} stroke={colors.primary} strokeWidth="1.5" />
           <polygon points="150,60 170,20 140,45" fill={colors.secondary} stroke={colors.primary} strokeWidth="1.5" />
           {/* Base */}
-          <polygon points="100,35 150,60 155,110 135,145 65,145 45,110 50,60" fill="#1a1e2f" stroke={colors.primary} strokeWidth="2" />
+          <polygon points="100,35 150,60 155,110 135,145 65,145 45,110 50,60" fill="#222222" stroke={colors.primary} strokeWidth="2" />
           {/* Visor Area */}
-          <path d="M 60 80 Q 100 65 140 80 L 135 115 Q 100 130 65 115 Z" fill="#080c18" stroke={colors.primary} strokeWidth="2" />
+          <path d="M 60 80 Q 100 65 140 80 L 135 115 Q 100 130 65 115 Z" fill="#0f0f0f" stroke={colors.primary} strokeWidth="2" />
         </g>
       );
     }
@@ -337,7 +337,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
           <circle cx="100" cy="95" r="54" fill="none" stroke={colors.primary} strokeWidth="2.5" />
           <circle cx="100" cy="95" r="50" fill={colors.bg} opacity="0.5" />
           {/* Inner skull contour */}
-          <ellipse cx="100" cy="95" rx="36" ry="40" fill="#1e2438" opacity="0.8" />
+          <ellipse cx="100" cy="95" rx="36" ry="40" fill="#292929" opacity="0.8" />
           {/* Glowing Eyes */}
           <circle cx="85" cy="92" r="4" fill={colors.primary} />
           <circle cx="115" cy="92" r="4" fill={colors.primary} />
@@ -348,9 +348,9 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
     if (config.helmet === 'orbital_pilot') {
       return (
         <g>
-          <path d="M 48 95 C 48 55, 152 55, 152 95 C 152 135, 125 150, 100 150 C 75 150, 48 135, 48 95 Z" fill="#1e293b" stroke="#475569" strokeWidth="2" />
+          <path d="M 48 95 C 48 55, 152 55, 152 95 C 152 135, 125 150, 100 150 C 75 150, 48 135, 48 95 Z" fill="#2b2b2b" stroke="#575757" strokeWidth="2" />
           {/* Gold Polarized Pilot Shield */}
-          <path d="M 58 92 C 58 70, 142 70, 142 92 C 142 120, 120 128, 100 128 C 80 128, 58 120, 58 92 Z" fill="#020617" stroke="#FDCC0D" strokeWidth="2.5" />
+          <path d="M 58 92 C 58 70, 142 70, 142 92 C 142 120, 120 128, 100 128 C 80 128, 58 120, 58 92 Z" fill="#0A0A0A" stroke="#FDCC0D" strokeWidth="2.5" />
         </g>
       );
     }
@@ -358,8 +358,8 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
     // Default Astro Bubble
     return (
       <g>
-        <circle cx="100" cy="95" r="52" fill="#1a1e2f" stroke="#475569" strokeWidth="2" />
-        <ellipse cx="100" cy="95" rx="42" ry="34" fill="#05070e" stroke={colors.primary} strokeWidth="2.5" />
+        <circle cx="100" cy="95" r="52" fill="#222222" stroke="#575757" strokeWidth="2" />
+        <ellipse cx="100" cy="95" rx="42" ry="34" fill="#090909" stroke={colors.primary} strokeWidth="2.5" />
       </g>
     );
   };
@@ -428,7 +428,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
     if (config.accessory === 'dj_cans') {
       return (
         <g>
-          <path d="M 42 95 C 42 40, 158 40, 158 95" fill="none" stroke="#64748b" strokeWidth="4" />
+          <path d="M 42 95 C 42 40, 158 40, 158 95" fill="none" stroke="#767676" strokeWidth="4" />
           <rect x="34" y="80" width="12" height="32" rx="3" fill={colors.primary} />
           <rect x="154" y="80" width="12" height="32" rx="3" fill={colors.primary} />
         </g>
@@ -448,14 +448,14 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md font-mono">
       <div 
-        className="w-full max-w-4xl max-h-[92vh] bg-[#0c0e16] border-2 border-[var(--sgx-secondary)] shadow-2xl flex flex-col overflow-hidden text-xs"
+        className="w-full max-w-4xl max-h-[92vh] bg-[#101010] border-2 border-[var(--sgx-secondary)] shadow-2xl flex flex-col overflow-hidden text-xs"
         style={{ 
           clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)',
           borderColor: colors.primary
         }}
       >
         {/* Header */}
-        <div className="p-3 bg-gradient-to-r from-slate-950 via-[#151824] to-black border-b border-[var(--sgx-secondary)] flex items-center justify-between">
+        <div className="p-3 bg-gradient-to-r from-slate-950 via-[#1B1B1B] to-black border-b border-[var(--sgx-secondary)] flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Sparkles className="w-4 h-4 text-amber-400" />
             <div>
@@ -477,7 +477,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
           <div className="flex items-center space-x-1.5">
             <button
               onClick={handleRandomize}
-              className="px-2.5 py-1.5 bg-[#1b2030] hover:bg-[#252c42] border border-slate-700 hover:border-amber-400 text-amber-300 font-bold flex items-center space-x-1 transition-colors"
+              className="px-2.5 py-1.5 bg-[#242424] hover:bg-[#313131] border border-slate-700 hover:border-amber-400 text-amber-300 font-bold flex items-center space-x-1 transition-colors"
               title="Generar combinación aleatoria"
             >
               <Dices className="w-3.5 h-3.5" />
@@ -498,7 +498,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
         {/* Content Body: 2 Columns */}
         <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-y-auto">
           {/* Left Column: Avatar & Badge Preview (5 cols) */}
-          <div className="md:col-span-5 p-4 bg-gradient-to-b from-black/80 to-[#0d0f18] border-b md:border-b-0 md:border-r border-[var(--sgx-secondary)] flex flex-col items-center justify-between space-y-4">
+          <div className="md:col-span-5 p-4 bg-gradient-to-b from-black/80 to-[#111111] border-b md:border-b-0 md:border-r border-[var(--sgx-secondary)] flex flex-col items-center justify-between space-y-4">
             {/* SVG Visualizer Canvas */}
             <div className="flex flex-col items-center">
               <div 
@@ -538,7 +538,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
             </div>
 
             {/* Summit Badge Preview Simulation */}
-            <div className="w-full bg-[#141824] border border-slate-700 p-3 relative overflow-hidden">
+            <div className="w-full bg-[#1B1B1B] border border-slate-700 p-3 relative overflow-hidden">
               <div 
                 className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r"
                 style={{ backgroundImage: `linear-gradient(to right, ${colors.primary}, ${colors.secondary})` }}
@@ -577,7 +577,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
             <div className="w-full grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
               <button
                 onClick={handleDownloadPng}
-                className="p-2 bg-[#1b2030] hover:bg-[#252c42] border border-slate-700 hover:border-cyan-400 text-cyan-300 font-bold flex items-center justify-center space-x-1.5 transition-colors"
+                className="p-2 bg-[#242424] hover:bg-[#313131] border border-slate-700 hover:border-cyan-400 text-cyan-300 font-bold flex items-center justify-center space-x-1.5 transition-colors"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>BAJAR PNG</span>
@@ -585,7 +585,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
 
               <button
                 onClick={handleCopySvg}
-                className="p-2 bg-[#1b2030] hover:bg-[#252c42] border border-slate-700 hover:border-amber-400 text-amber-300 font-bold flex items-center justify-center space-x-1.5 transition-colors"
+                className="p-2 bg-[#242424] hover:bg-[#313131] border border-slate-700 hover:border-amber-400 text-amber-300 font-bold flex items-center justify-center space-x-1.5 transition-colors"
               >
                 <Copy className="w-3.5 h-3.5" />
                 <span>{copiedSvg ? '¡COPIADO!' : 'COPIAR SVG'}</span>
@@ -648,8 +648,8 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                           }}
                           className={`p-2 text-left border transition-all flex items-start space-x-2 ${
                             isSelected
-                              ? 'border-white bg-[#1b2238] shadow-md'
-                              : 'border-slate-800 bg-[#121520] hover:border-slate-600'
+                              ? 'border-white bg-[#272727] shadow-md'
+                              : 'border-slate-800 bg-[#181818] hover:border-slate-600'
                           }`}
                         >
                           <div 
@@ -722,7 +722,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                         className={`p-2.5 text-left border transition-all ${
                           config.helmet === h.id
                             ? 'border-[var(--sgx-neon)] bg-cyan-950/40 text-white'
-                            : 'border-slate-800 bg-[#121520] text-slate-300 hover:border-slate-600'
+                            : 'border-slate-800 bg-[#181818] text-slate-300 hover:border-slate-600'
                         }`}
                       >
                         <div className="font-bold text-[11px]">{h.name}</div>
@@ -755,7 +755,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                         className={`p-2.5 text-left border transition-all ${
                           config.suit === s.id
                             ? 'border-amber-400 bg-amber-950/40 text-white'
-                            : 'border-slate-800 bg-[#121520] text-slate-300 hover:border-slate-600'
+                            : 'border-slate-800 bg-[#181818] text-slate-300 hover:border-slate-600'
                         }`}
                       >
                         <div className="font-bold text-[11px]">{s.name}</div>
@@ -789,7 +789,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                         className={`p-2.5 text-left border transition-all ${
                           config.visorFx === v.id
                             ? 'border-cyan-400 bg-cyan-950/40 text-white'
-                            : 'border-slate-800 bg-[#121520] text-slate-300 hover:border-slate-600'
+                            : 'border-slate-800 bg-[#181818] text-slate-300 hover:border-slate-600'
                         }`}
                       >
                         <div className="font-bold text-[11px]">{v.name}</div>
@@ -823,7 +823,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                         className={`p-2.5 text-left border transition-all ${
                           config.accessory === a.id
                             ? 'border-amber-400 bg-amber-950/40 text-white'
-                            : 'border-slate-800 bg-[#121520] text-slate-300 hover:border-slate-600'
+                            : 'border-slate-800 bg-[#181818] text-slate-300 hover:border-slate-600'
                         }`}
                       >
                         <div className="font-bold text-[11px]">{a.name}</div>
@@ -851,7 +851,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                         className={`p-2 border text-center font-bold text-[10px] ${
                           config.rankTag === rank
                             ? 'border-amber-400 text-amber-300 bg-amber-950/40'
-                            : 'border-slate-800 bg-[#121520] text-slate-400 hover:text-white'
+                            : 'border-slate-800 bg-[#181818] text-slate-400 hover:text-white'
                         }`}
                       >
                         {rank}

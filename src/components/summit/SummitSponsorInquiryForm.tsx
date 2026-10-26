@@ -180,7 +180,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
   return (
     <div className={`w-full ${isModal ? 'max-w-4xl mx-auto' : ''}`}>
       <div 
-        className="bg-[#0f172a]/95 border-2 border-[var(--sgx-accent)] p-6 md:p-8 text-white relative shadow-2xl shadow-[var(--sgx-accent)]/10 space-y-6"
+        className="bg-[#1b1b1b]/95 border-2 border-[var(--sgx-accent)] p-6 md:p-8 text-white relative shadow-2xl shadow-[var(--sgx-accent)]/10 space-y-6"
         style={{ clipPath: 'polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)' }}
       >
         {/* Header with Close option if Modal */}
@@ -206,7 +206,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1.5 bg-[#1e293b] border border-[var(--sgx-secondary)] text-slate-300 hover:text-white hover:border-red-400 transition-all"
+              className="p-1.5 bg-[#2b2b2b] border border-[var(--sgx-secondary)] text-slate-300 hover:text-white hover:border-red-400 transition-all"
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
             >
               <X className="w-5 h-5" />
@@ -241,7 +241,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
 
               {/* Reference ID Card */}
               <div 
-                className="max-w-md mx-auto p-3.5 bg-[#090e18] border border-[var(--sgx-accent)] flex items-center justify-between"
+                className="max-w-md mx-auto p-3.5 bg-[#101010] border border-[var(--sgx-accent)] flex items-center justify-between"
                 style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
               >
                 <div className="text-left">
@@ -263,7 +263,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
 
             {/* Application Summary Box */}
             <div 
-              className="p-4 bg-[#1e293b]/60 border border-[var(--sgx-secondary)] space-y-3 text-xs"
+              className="p-4 bg-[#2b2b2b]/60 border border-[var(--sgx-secondary)] space-y-3 text-xs"
               style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
             >
               <div className="flex items-center justify-between border-b border-[var(--sgx-secondary)]/60 pb-2">
@@ -299,7 +299,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                       return (
                         <span 
                           key={g} 
-                          className="px-2 py-0.5 bg-[#0f172a] border border-[var(--sgx-neon)]/40 text-[var(--sgx-neon)] text-[10px]"
+                          className="px-2 py-0.5 bg-[#1b1b1b] border border-[var(--sgx-neon)]/40 text-[var(--sgx-neon)] text-[10px]"
                           style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
                         >
                           ✓ {item?.label || g}
@@ -315,7 +315,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
             <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
               <button
                 onClick={handleDownloadSummary}
-                className="px-4 py-2.5 bg-[#1e293b] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black text-xs font-bold font-mono uppercase flex items-center space-x-2 transition-all"
+                className="px-4 py-2.5 bg-[#2b2b2b] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black text-xs font-bold font-mono uppercase flex items-center space-x-2 transition-all"
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
                 <Download className="w-4 h-4" />
@@ -369,7 +369,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                       className={`p-3.5 text-left border transition-all relative flex flex-col justify-between ${
                         isSelected 
                           ? 'border-[var(--sgx-accent)] bg-[var(--sgx-accent)]/15 shadow-md shadow-[var(--sgx-accent)]/20' 
-                          : 'border-[var(--sgx-secondary)]/70 bg-[#1e293b]/50 hover:border-[var(--sgx-neon)]'
+                          : 'border-[var(--sgx-secondary)]/70 bg-[#2b2b2b]/50 hover:border-[var(--sgx-neon)]'
                       }`}
                       style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
                     >
@@ -382,7 +382,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                       <div>
                         <div className="flex items-center justify-between mb-1">
                           <span 
-                            className="text-[9px] px-1.5 py-0.5 bg-[#0f172a] text-[var(--sgx-neon)] font-bold border border-[var(--sgx-secondary)]"
+                            className="text-[9px] px-1.5 py-0.5 bg-[#1b1b1b] text-[var(--sgx-neon)] font-bold border border-[var(--sgx-secondary)]"
                             style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
                           >
                             TIER {tier.tierNumber}
@@ -427,7 +427,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                     value={companyName}
                     onChange={e => setCompanyName(e.target.value)}
                     placeholder="Ej. CyberCraft Studios, MetaTech PR"
-                    className={`w-full p-2.5 bg-[#0f172a] border text-xs text-white placeholder-slate-500 focus:outline-none ${
+                    className={`w-full p-2.5 bg-[#1b1b1b] border text-xs text-white placeholder-slate-500 focus:outline-none ${
                       errors.companyName ? 'border-red-500 bg-red-950/20' : 'border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)]'
                     }`}
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
@@ -442,7 +442,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                     value={contactName}
                     onChange={e => setContactName(e.target.value)}
                     placeholder="Nombre y Apellidos"
-                    className={`w-full p-2.5 bg-[#0f172a] border text-xs text-white placeholder-slate-500 focus:outline-none ${
+                    className={`w-full p-2.5 bg-[#1b1b1b] border text-xs text-white placeholder-slate-500 focus:outline-none ${
                       errors.contactName ? 'border-red-500 bg-red-950/20' : 'border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)]'
                     }`}
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
@@ -457,7 +457,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                     value={roleTitle}
                     onChange={e => setRoleTitle(e.target.value)}
                     placeholder="Ej. Director de Marketing, Founder, CMO"
-                    className="w-full p-2.5 bg-[#0f172a] border border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)] text-xs text-white placeholder-slate-500 focus:outline-none"
+                    className="w-full p-2.5 bg-[#1b1b1b] border border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)] text-xs text-white placeholder-slate-500 focus:outline-none"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   />
                 </div>
@@ -470,7 +470,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       placeholder="sponsor@empresa.com"
-                      className={`w-full p-2.5 bg-[#0f172a] border text-xs text-white placeholder-slate-500 focus:outline-none ${
+                      className={`w-full p-2.5 bg-[#1b1b1b] border text-xs text-white placeholder-slate-500 focus:outline-none ${
                         errors.email ? 'border-red-500 bg-red-950/20' : 'border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)]'
                       }`}
                       style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
@@ -488,7 +488,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                       value={phone}
                       onChange={e => setPhone(e.target.value)}
                       placeholder="+1 (787) 555-0100"
-                      className={`w-full p-2.5 bg-[#0f172a] border text-xs text-white placeholder-slate-500 focus:outline-none ${
+                      className={`w-full p-2.5 bg-[#1b1b1b] border text-xs text-white placeholder-slate-500 focus:outline-none ${
                         errors.phone ? 'border-red-500 bg-red-950/20' : 'border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)]'
                       }`}
                       style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
@@ -506,7 +506,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                       value={websiteUrl}
                       onChange={e => setWebsiteUrl(e.target.value)}
                       placeholder="https://empresa.com"
-                      className="w-full p-2.5 bg-[#0f172a] border border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)] text-xs text-white placeholder-slate-500 focus:outline-none"
+                      className="w-full p-2.5 bg-[#1b1b1b] border border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)] text-xs text-white placeholder-slate-500 focus:outline-none"
                       style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                     />
                     <Globe className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
@@ -534,7 +534,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                       className={`p-2.5 border text-left flex items-center space-x-2.5 transition-all text-xs ${
                         isChecked 
                           ? 'border-[var(--sgx-neon)] bg-[var(--sgx-neon)]/10 text-white' 
-                          : 'border-[var(--sgx-secondary)]/60 bg-[#0f172a] text-slate-400 hover:border-slate-500'
+                          : 'border-[var(--sgx-secondary)]/60 bg-[#1b1b1b] text-slate-400 hover:border-slate-500'
                       }`}
                       style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                     >
@@ -562,7 +562,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                   <select
                     value={estimatedBudget}
                     onChange={e => setEstimatedBudget(e.target.value)}
-                    className="w-full p-2.5 bg-[#0f172a] border border-[var(--sgx-secondary)] text-xs text-white focus:outline-none focus:border-[var(--sgx-neon)]"
+                    className="w-full p-2.5 bg-[#1b1b1b] border border-[var(--sgx-secondary)] text-xs text-white focus:outline-none focus:border-[var(--sgx-neon)]"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   >
                     <option value="$100 - $200">$100 - $200 (Tier 1: Digital Presence)</option>
@@ -580,7 +580,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                     value={customMessage}
                     onChange={e => setCustomMessage(e.target.value)}
                     placeholder="Cuéntanos sobre tu producto, ideas creativas de activación en el escenario de Chroma Space Studios o integración de minijuegos..."
-                    className="w-full p-2 bg-[#0f172a] border border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)] text-xs text-white placeholder-slate-500 focus:outline-none"
+                    className="w-full p-2 bg-[#1b1b1b] border border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)] text-xs text-white placeholder-slate-500 focus:outline-none"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   />
                 </div>

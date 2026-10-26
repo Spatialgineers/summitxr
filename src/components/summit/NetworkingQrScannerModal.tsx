@@ -164,8 +164,8 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
           width: 320,
           margin: 2,
           color: {
-            dark: '#00FFFF',
-            light: '#070913'
+            dark: '#00DDFF',
+            light: '#0C0C0C'
           }
         });
         setMyQrDataUrl(url);
@@ -453,11 +453,11 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md font-mono">
       <div 
-        className="w-full max-w-4xl max-h-[92vh] bg-[#0b0d14] border-2 border-[var(--sgx-secondary)] shadow-2xl flex flex-col overflow-hidden text-xs"
+        className="w-full max-w-4xl max-h-[92vh] bg-[#0f0f0f] border-2 border-[var(--sgx-secondary)] shadow-2xl flex flex-col overflow-hidden text-xs"
         style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
       >
         {/* Header */}
-        <div className="p-3 bg-gradient-to-r from-slate-950 via-[#141724] to-black border-b border-[var(--sgx-secondary)] flex items-center justify-between">
+        <div className="p-3 bg-gradient-to-r from-slate-950 via-[#1A1A1A] to-black border-b border-[var(--sgx-secondary)] flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <ScanLine className="w-4 h-4 text-cyan-400 animate-pulse" />
             <div>
@@ -483,14 +483,14 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
 
         {/* Global Toast for XP */}
         {justEarnedXp && (
-          <div className="bg-gradient-to-r from-amber-950 via-[#16223B] to-amber-950 border-b border-[#FDCC0D] p-2 text-center text-[#FDCC0D] font-bold flex items-center justify-center space-x-2 animate-pulse">
+          <div className="bg-gradient-to-r from-amber-950 via-[#262626] to-amber-950 border-b border-[#FDCC0D] p-2 text-center text-[#FDCC0D] font-bold flex items-center justify-center space-x-2 animate-pulse">
             <Sparkles className="w-4 h-4 text-amber-300" />
             <span>{justEarnedXp}</span>
           </div>
         )}
 
         {/* Navigation Tabs */}
-        <div className="grid grid-cols-3 bg-[#11131c] border-b border-[var(--sgx-secondary)] text-center text-xs">
+        <div className="grid grid-cols-3 bg-[#151515] border-b border-[var(--sgx-secondary)] text-center text-xs">
           <button
             onClick={() => {
               setActiveTab('SCANNER');
@@ -566,7 +566,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                         <div className="w-4 h-4 border border-amber-400/60 rounded-full animate-ping" />
                         <div className="w-1.5 h-1.5 bg-cyan-300 rounded-full" />
                         {/* Scanning Laser */}
-                        <div className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_10px_#00FFFF] animate-bounce" />
+                        <div className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_10px_#00DDFF] animate-bounce" />
                       </div>
 
                       {/* Bottom corners */}
@@ -632,7 +632,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                         <button
                           key={demo.id}
                           onClick={() => handleProcessQrData(JSON.stringify(demo))}
-                          className="p-2 bg-[#141724] border border-slate-700 hover:border-cyan-400 text-left hover:bg-[#1a1f30] transition-colors"
+                          className="p-2 bg-[#1A1A1A] border border-slate-700 hover:border-cyan-400 text-left hover:bg-[#232323] transition-colors"
                         >
                           <div className="font-bold text-[11px] text-cyan-300 break-words line-clamp-2">{demo.name}</div>
                           <div className="text-[9px] text-slate-400 break-words line-clamp-2">{demo.role}</div>
@@ -644,7 +644,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                 </div>
               ) : (
                 /* Detected Contact Result Card */
-                <div className="max-w-lg mx-auto bg-[#131622] border-2 border-[#FDCC0D] p-5 shadow-2xl space-y-4">
+                <div className="max-w-lg mx-auto bg-[#191919] border-2 border-[#FDCC0D] p-5 shadow-2xl space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                     <div className="flex items-center space-x-2">
                       <div className="w-3 h-3 bg-[#FDCC0D] rounded-full animate-ping" />
@@ -712,7 +712,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                         setScannedResult(null);
                         startCamera();
                       }}
-                      className="p-2.5 bg-[#1a2030] border border-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center space-x-1"
+                      className="p-2.5 bg-[#232323] border border-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center space-x-1"
                     >
                       <span>ESCANEAR OTRO</span>
                     </button>
@@ -726,7 +726,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
           {activeTab === 'MY_BADGE' && (
             <div className="max-w-md mx-auto space-y-4">
               {/* Virtual Badge Card */}
-              <div className="bg-[#121522] border-2 border-[var(--sgx-neon)] p-5 relative overflow-hidden shadow-2xl space-y-4">
+              <div className="bg-[#181818] border-2 border-[var(--sgx-neon)] p-5 relative overflow-hidden shadow-2xl space-y-4">
                 {/* Lanyard Ring Decoration */}
                 <div className="w-12 h-2.5 bg-slate-700 mx-auto rounded-full border border-slate-500 mb-2" />
 
@@ -776,7 +776,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                     playUiChirp(840);
                     setTimeout(() => setCopiedLink(false), 2000);
                   }}
-                  className="flex-1 p-2.5 bg-[#181c2c] border border-cyan-400 text-cyan-300 font-bold flex items-center justify-center space-x-1.5 hover:bg-cyan-950/40 transition-colors"
+                  className="flex-1 p-2.5 bg-[#202020] border border-cyan-400 text-cyan-300 font-bold flex items-center justify-center space-x-1.5 hover:bg-cyan-950/40 transition-colors"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>{copiedLink ? '¡ENLACE COPIADO!' : 'COPIAR LINK DE ASISTENTE'}</span>
@@ -789,7 +789,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                     a.href = myQrDataUrl;
                     a.click();
                   }}
-                  className="p-2.5 bg-[#181c2c] border border-amber-400 text-amber-300 font-bold flex items-center space-x-1"
+                  className="p-2.5 bg-[#202020] border border-amber-400 text-amber-300 font-bold flex items-center space-x-1"
                   title="Descargar imagen QR"
                 >
                   <Download className="w-3.5 h-3.5" />
@@ -803,7 +803,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
           {activeTab === 'ROLODEX' && (
             <div className="space-y-4">
               {/* Search & Export Toolbar */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-2 bg-[#121520] p-2.5 border border-slate-800">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2 bg-[#181818] p-2.5 border border-slate-800">
                 <div className="relative w-full sm:w-64">
                   <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
                   <input
@@ -830,7 +830,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
 
                   <button
                     onClick={handleExportCsv}
-                    className="px-3 py-1.5 bg-[#1a2030] hover:bg-[#252c42] border border-slate-700 hover:border-cyan-400 text-cyan-300 font-bold flex items-center space-x-1"
+                    className="px-3 py-1.5 bg-[#232323] hover:bg-[#313131] border border-slate-700 hover:border-cyan-400 text-cyan-300 font-bold flex items-center space-x-1"
                     title="Exportar todos los contactos a Excel / CSV"
                   >
                     <FileText className="w-3.5 h-3.5" />
@@ -856,7 +856,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                   {filteredContacts.map(contact => (
                     <div
                       key={contact.id}
-                      className="p-3 bg-[#131624] border border-slate-800 hover:border-cyan-500/70 transition-all space-y-2 relative group"
+                      className="p-3 bg-[#1A1A1A] border border-slate-800 hover:border-cyan-500/70 transition-all space-y-2 relative group"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-2.5">
@@ -928,7 +928,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                         <div className="flex items-center space-x-1.5">
                           <button
                             onClick={() => handleExportVCard(contact)}
-                            className="px-2.5 py-1 bg-[#1a2030] hover:bg-amber-950/60 border border-slate-700 hover:border-[#FDCC0D] text-[#FDCC0D] font-bold text-[10px] flex items-center space-x-1 transition-colors"
+                            className="px-2.5 py-1 bg-[#232323] hover:bg-amber-950/60 border border-slate-700 hover:border-[#FDCC0D] text-[#FDCC0D] font-bold text-[10px] flex items-center space-x-1 transition-colors"
                             title="Guardar directo en tus contactos del celular"
                           >
                             <Phone className="w-3 h-3" />

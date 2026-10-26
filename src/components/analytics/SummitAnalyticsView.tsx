@@ -178,7 +178,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
       <div className="sgx-crystal-card p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <BarChart3 className="w-5 h-5 text-[#00FFFF]" />
+            <BarChart3 className="w-5 h-5 text-[#00DDFF]" />
             <h2 className="text-base sm:text-lg font-extrabold text-white uppercase tracking-wider font-['Orbitron',sans-serif]">
               DASHBOARD DE TELEMETRÍA & ENGAGEMENT DEL SUMMIT
             </h2>
@@ -199,7 +199,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
               recordEvent('pillar_explore', 'manual_telemetry_sync', { source: 'SummitAnalyticsView' });
               fetchLiveFirestoreCounts();
             }}
-            className="px-3 py-1.5 bg-[#0A1424] hover:bg-[#32527B] border border-[#00FFFF]/50 text-[#00FFFF] text-xs font-mono font-bold flex items-center space-x-1.5 cursor-pointer transition-colors"
+            className="px-3 py-1.5 bg-[#161616] hover:bg-[#32527B] border border-[#00DDFF]/50 text-[#00DDFF] text-xs font-mono font-bold flex items-center space-x-1.5 cursor-pointer transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span>SINCRONIZAR PULSO</span>
@@ -229,7 +229,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
       </div>
 
       {/* Interactive Day Range Filter Tabs */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-[#070C18]/90 border border-[#32527B] p-2.5 font-mono text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-[#0E0E0E]/90 border border-[#32527B] p-2.5 font-mono text-xs">
         <div className="flex flex-wrap items-center gap-1.5">
           {[
             { id: '3_DAYS', label: '3 DÍAS (GLOBAL ACUMULADO)' },
@@ -267,7 +267,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
             playUiChirp(740);
             exportEventsCSV();
           }}
-          className="text-[11px] text-[#00FFFF] hover:underline flex items-center gap-1 cursor-pointer px-2 py-1"
+          className="text-[11px] text-[#00DDFF] hover:underline flex items-center gap-1 cursor-pointer px-2 py-1"
         >
           <Activity className="w-3.5 h-3.5" />
           <span>Descargar Log Crudo de Sesión ({sessionTelemetry.totalEvents} eventos)</span>
@@ -278,7 +278,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Total Registered */}
         <div className="p-3.5 sgx-crystal-card flex items-center space-x-3">
-          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#00FFFF] flex items-center justify-center text-[#00FFFF] shrink-0">
+          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#00DDFF] flex items-center justify-center text-[#00DDFF] shrink-0">
             <Users className="w-5 h-5" />
           </div>
           <div>
@@ -286,7 +286,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
             <span className="text-xl font-extrabold text-white font-mono tabular-nums">
               {computedMetrics.totalRegistered.toLocaleString()}
             </span>
-            <span className="text-[9px] text-[#00FFFF] block">
+            <span className="text-[9px] text-[#00DDFF] block">
               {computedMetrics.physicalAttendees.toLocaleString()} Presenciales / {computedMetrics.digitalAttendees.toLocaleString()} Digital
             </span>
           </div>
@@ -324,7 +324,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
 
         {/* 360 Map Node Views */}
         <div className="p-3.5 sgx-crystal-card flex items-center space-x-3">
-          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#00FFFF] flex items-center justify-center text-[#00FFFF] shrink-0">
+          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#00DDFF] flex items-center justify-center text-[#00DDFF] shrink-0">
             <Eye className="w-5 h-5" />
           </div>
           <div>
@@ -332,7 +332,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
             <span className="text-xl font-extrabold text-white font-mono tabular-nums">
               {computedMetrics.xr360NodeViews.toLocaleString()}
             </span>
-            <span className="text-[9px] text-[#00FFFF] block">7 Núcleos 3D + Sedes XR</span>
+            <span className="text-[9px] text-[#00DDFF] block">7 Núcleos 3D + Sedes XR</span>
           </div>
         </div>
 
@@ -352,7 +352,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
 
         {/* Drone MiniGames Played */}
         <div className="p-3.5 sgx-crystal-card flex items-center space-x-3">
-          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#FF6B00] flex items-center justify-center text-[#FF6B00] shrink-0">
+          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#FFBB00] flex items-center justify-center text-[#FFBB00] shrink-0">
             <Gamepad2 className="w-5 h-5" />
           </div>
           <div>
@@ -360,7 +360,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
             <span className="text-xl font-extrabold text-white font-mono tabular-nums">
               {computedMetrics.droneGamesPlayed.toLocaleString()}
             </span>
-            <span className="text-[9px] text-[#FF6B00] block">
+            <span className="text-[9px] text-[#FFBB00] block">
               Récord Local: {profile.droneStats?.highScore || 0} PTS
             </span>
           </div>
@@ -382,13 +382,13 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
 
         {/* System Efficiency */}
         <div className="p-3.5 sgx-crystal-card flex items-center space-x-3">
-          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#00FFFF] flex items-center justify-center text-[#00FFFF] shrink-0">
+          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#00DDFF] flex items-center justify-center text-[#00DDFF] shrink-0">
             <TrendingUp className="w-5 h-5" />
           </div>
           <div>
             <span className="text-[10px] text-slate-400 uppercase font-mono block">Sincronización Firestore</span>
             <span className="text-xl font-extrabold text-white font-mono tabular-nums">60 FPS</span>
-            <span className="text-[9px] text-[#00FFFF] block">
+            <span className="text-[9px] text-[#00DDFF] block">
               {leaderboard.length} Pilotos en Ranking
             </span>
           </div>
@@ -401,7 +401,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
         <div className="lg:col-span-7 sgx-crystal-card p-4 sm:p-5 space-y-4">
           <div className="flex items-center justify-between border-b border-[var(--sgx-secondary)]/60 pb-2.5">
             <div className="flex items-center space-x-2">
-              <Layers className="w-4 h-4 text-[#00FFFF]" />
+              <Layers className="w-4 h-4 text-[#00DDFF]" />
               <span className="text-xs font-bold text-white uppercase font-['Orbitron',sans-serif]">
                 INTERÉS & PARTICIPACIÓN POR PILAR SGX (.GLB CORES)
               </span>
@@ -420,13 +420,13 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
                 pillar === 'SGX.STAGE'
                   ? '#FFFFFF'
                   : pillar === 'SGX.SHOWCASE'
-                  ? '#00FFFF'
+                  ? '#00DDFF'
                   : pillar === 'SGX.SPARK'
-                  ? '#FF6B00'
+                  ? '#FFBB00'
                   : pillar === 'SGX.STORY'
                   ? '#FDCC0D'
                   : pillar === 'SGX.SYSTEM'
-                  ? '#00FFFF'
+                  ? '#00DDFF'
                   : '#FDCC0D';
 
               return (
@@ -464,13 +464,13 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
             </div>
             <div className="p-2.5 bg-black/50 border border-white/10">
               <span className="text-[10px] text-slate-400 block">TIEMPO ACTIVO</span>
-              <strong className="text-[#00FFFF] text-sm tabular-nums">
+              <strong className="text-[#00DDFF] text-sm tabular-nums">
                 {sessionTelemetry.durationMinutes} min
               </strong>
             </div>
             <div className="p-2.5 bg-black/50 border border-white/10">
               <span className="text-[10px] text-slate-400 block">TRUCOS DRON 3D</span>
-              <strong className="text-[#FF6B00] text-sm tabular-nums">
+              <strong className="text-[#FFBB00] text-sm tabular-nums">
                 {profile.droneStats?.totalTricks || 0} Maniobras
               </strong>
             </div>
@@ -505,7 +505,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
                   <span className="text-base">{item.flag}</span>
                   <span className="text-white font-bold">{item.country}</span>
                 </div>
-                <span className="text-[#00FFFF] font-bold tabular-nums">
+                <span className="text-[#00DDFF] font-bold tabular-nums">
                   {item.count.toLocaleString()} Asistentes
                 </span>
               </div>
@@ -525,7 +525,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
                   playUiChirp(640);
                   setIsProfileModalOpen(true);
                 }}
-                className="text-[#00FFFF] hover:underline cursor-pointer"
+                className="text-[#00DDFF] hover:underline cursor-pointer"
               >
                 Ver Ranking Completo →
               </button>
@@ -541,7 +541,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
                     <span className="text-white font-bold truncate">{entry.nickname}</span>
                     <span className="text-[10px] text-slate-400">Nv.{entry.level}</span>
                   </div>
-                  <span className="text-[#00FFFF] font-extrabold tabular-nums">
+                  <span className="text-[#00DDFF] font-extrabold tabular-nums">
                     {entry.totalXp.toLocaleString()} XP
                   </span>
                 </div>

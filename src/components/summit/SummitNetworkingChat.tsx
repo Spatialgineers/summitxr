@@ -341,7 +341,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
     <div className="bg-[var(--sgx-card-bg)] border-2 border-[var(--sgx-secondary)] rounded-2xl flex flex-col md:flex-row min-h-[620px] h-[82vh] md:h-[720px] overflow-hidden shadow-2xl">
       
       {/* 1. Mobile Top Channel Bar (Only visible on < md screens) */}
-      <div className="md:hidden bg-[#0a0f1d] border-b border-[var(--sgx-secondary)] shrink-0 flex flex-col">
+      <div className="md:hidden bg-[#121212] border-b border-[var(--sgx-secondary)] shrink-0 flex flex-col">
         
         {/* Mobile Header Bar */}
         <div className="p-3 flex items-center justify-between border-b border-[var(--sgx-secondary)]/40 bg-[var(--sgx-card-bg)]">
@@ -380,7 +380,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
 
         {/* Mobile Horizontal Scrollable Channel Chips */}
         {activeTab === 'FORUMS' && (
-          <div className="flex items-center space-x-2 px-3 py-2.5 overflow-x-auto no-scrollbar bg-[#0d1322]">
+          <div className="flex items-center space-x-2 px-3 py-2.5 overflow-x-auto no-scrollbar bg-[#161616]">
             {PUBLIC_FORUM_CHANNELS.map((ch) => {
               const isActive = activeChannelId === ch.id;
               const Icon = ch.icon;
@@ -408,7 +408,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
       </div>
 
       {/* 2. Desktop Left Sidebar: Public Thematic Channels & Community Directory */}
-      <div className="hidden md:flex w-80 bg-[#0d131f] border-r border-[var(--sgx-secondary)] flex-col justify-between shrink-0">
+      <div className="hidden md:flex w-80 bg-[#151515] border-r border-[var(--sgx-secondary)] flex-col justify-between shrink-0">
         
         {/* Top Header & Tabs */}
         <div>
@@ -472,7 +472,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                   className={`w-full text-left p-2.5 border transition-all flex items-start space-x-2.5 text-xs group ${
                     isActive
                       ? 'border-[var(--sgx-neon)] bg-[var(--sgx-neon)]/15 text-white font-bold shadow-md shadow-[var(--sgx-neon)]/10'
-                      : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-[#121A2C] hover:border-[var(--sgx-secondary)]/50'
+                      : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-[#1D1D1D] hover:border-[var(--sgx-secondary)]/50'
                   }`}
                   style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
                 >
@@ -511,7 +511,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                       className="w-8 h-8 object-cover border border-[var(--sgx-secondary)]" 
                       style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                     />
-                    {att.isOnline && <div className="w-2 h-2 bg-[#FDCC0D] absolute bottom-0 right-0 border border-[#0d131f]" />}
+                    {att.isOnline && <div className="w-2 h-2 bg-[#FDCC0D] absolute bottom-0 right-0 border border-[#151515]" />}
                   </div>
                   <div className="truncate flex-1">
                     <div className="font-bold truncate text-white group-hover:text-[var(--sgx-neon)]">{att.name}</div>
@@ -543,7 +543,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
       </div>
 
       {/* 3. Main Forum Feed & Discussion Area */}
-      <div className="flex-1 flex flex-col justify-between overflow-hidden bg-[#070b14]">
+      <div className="flex-1 flex flex-col justify-between overflow-hidden bg-[#0d0d0d]">
         
         {activeTab === 'COMMUNITY_ROSTER' ? (
           /* Public Community Directory (No DMs, only public bios & pillars) */
@@ -758,8 +758,8 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                             isMe 
                               ? 'bg-[var(--sgx-neon)]/20 border border-[var(--sgx-neon)]/80 text-white' 
                               : isOfficial
-                              ? 'bg-[#151D2F] border-2 border-amber-400/60 text-slate-100 shadow-amber-500/10'
-                              : 'bg-[#101726] border border-[var(--sgx-secondary)] text-slate-200'
+                              ? 'bg-[#202020] border-2 border-amber-400/60 text-slate-100 shadow-amber-500/10'
+                              : 'bg-[#1A1A1A] border border-[var(--sgx-secondary)] text-slate-200'
                           }`}
                           style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
                         >
@@ -852,7 +852,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
         >
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#0d131f] border-2 border-[var(--sgx-neon)] p-5 space-y-4 shadow-2xl font-mono text-xs"
+            className="w-full max-w-md bg-[#151515] border-2 border-[var(--sgx-neon)] p-5 space-y-4 shadow-2xl font-mono text-xs"
             style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
           >
             <div className="flex items-start justify-between">

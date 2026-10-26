@@ -25,7 +25,7 @@ const DEFAULT_ACHIEVEMENTS: PilotAchievement[] = [
     progress: 0,
     maxProgress: 1,
     xpReward: 150,
-    badgeColor: '#00FFFF',
+    badgeColor: '#00DDFF',
   },
   {
     id: 'ach_trick_master',
@@ -49,7 +49,7 @@ const DEFAULT_ACHIEVEMENTS: PilotAchievement[] = [
     progress: 0,
     maxProgress: 3,
     xpReward: 250,
-    badgeColor: '#FF6B00',
+    badgeColor: '#FFBB00',
   },
   {
     id: 'ach_stage_cyoa',
@@ -61,7 +61,7 @@ const DEFAULT_ACHIEVEMENTS: PilotAchievement[] = [
     progress: 0,
     maxProgress: 3,
     xpReward: 350,
-    badgeColor: '#00FFFF',
+    badgeColor: '#00DDFF',
   },
   {
     id: 'ach_tour_explorer',
@@ -176,7 +176,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
       nickname: 'Cadete ' + Math.floor(100 + Math.random() * 900),
       callsign: 'SGX-01',
       avatarSeed: 'pilot-avatar-' + Math.floor(Math.random() * 100),
-      avatarColor: '#00FFFF',
+      avatarColor: '#00DDFF',
       level: 1,
       totalXp: 150,
       rankTitle: 'Cadete Espacial',
@@ -200,7 +200,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
           xpEarned: 150,
           day: getCurrentWeekendDay(),
           timestamp: Date.now(),
-          highlightColor: '#00FFFF',
+          highlightColor: '#00DDFF',
         }
       ],
       droneStats: {
@@ -346,7 +346,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
     title: string, 
     details: string, 
     xpEarned: number,
-    highlightColor: string = '#00FFFF'
+    highlightColor: string = '#00DDFF'
   ) => {
     setProfile(prev => {
       const newXp = prev.totalXp + xpEarned;
@@ -436,13 +436,13 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const recordDroneTrick = useCallback((trick: DroneTrickType): number => {
     let xpAward = 35;
     let trickName = 'Acrobacia';
-    let trickColor = '#00FFFF';
+    let trickColor = '#00DDFF';
 
     switch (trick) {
       case 'barrel_roll':
         xpAward = 40;
         trickName = 'Barrel Roll 360°';
-        trickColor = '#00FFFF';
+        trickColor = '#00DDFF';
         break;
       case 'flip_360':
         xpAward = 50;
@@ -462,7 +462,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
       case 'emp_pulse':
         xpAward = 60;
         trickName = 'Pulso EMP Cuántico';
-        trickColor = '#FF6B00';
+        trickColor = '#FFBB00';
         break;
     }
 
@@ -696,7 +696,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
         xpEarned: xpReward,
         day: getCurrentWeekendDay(),
         timestamp: Date.now(),
-        highlightColor: role === 'CREATOR' ? '#00FFFF' : role === 'SPONSOR' ? '#FDCC0D' : role === 'STUDENT' ? '#FF6B00' : '#32527B',
+        highlightColor: role === 'CREATOR' ? '#00DDFF' : role === 'SPONSOR' ? '#FDCC0D' : role === 'STUDENT' ? '#FFBB00' : '#32527B',
       };
 
       const nextProf: PilotProfile = {
@@ -734,7 +734,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
         xpEarned: xpReward,
         day: getCurrentWeekendDay(),
         timestamp: Date.now(),
-        highlightColor: '#00FFFF',
+        highlightColor: '#00DDFF',
       };
 
       const nextProf: PilotProfile = {

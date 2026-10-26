@@ -1,0 +1,194 @@
+/* =========================================================================
+   SGX PLATFORM CHROME
+   Section HUD bar, cinematic section hero, holodeck floor and scroll reveal.
+   Uses the SGX design-system tokens; animates transform/opacity only.
+   ========================================================================= */
+
+/* ---------- Section HUD bar (sub-pages) ---------- */
+.sgx-sechud {
+  position: sticky; top: 48px; z-index: 30;
+  background: rgba(13, 13, 13, 0.88);
+  backdrop-filter: blur(var(--blur-panel)); -webkit-backdrop-filter: blur(var(--blur-panel));
+  border-bottom: 1px solid var(--panel-line);
+}
+.sgx-sechud__inner {
+  max-width: 1750px; margin: 0 auto; padding: 8px clamp(10px, 2vw, 24px);
+  display: flex; align-items: center; gap: var(--space-md); min-height: 52px;
+}
+.sgx-sechud__back {
+  --sgx-edge: var(--action-line); --sgx-fill: var(--action-tint); --sgx-cut: 8px;
+  display: inline-flex; align-items: center; gap: 4px; flex: none;
+  padding: 6px 12px 6px 8px; color: var(--SGX_Yellow); cursor: pointer;
+  font-family: var(--font-hud); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  border: 1px solid var(--sgx-edge); background: var(--sgx-fill);
+  clip-path: polygon(var(--sgx-cut) 0, 100% 0, 100% calc(100% - var(--sgx-cut)), calc(100% - var(--sgx-cut)) 100%, 0 100%, 0 var(--sgx-cut));
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.sgx-sechud__back:hover, .sgx-sechud__back:focus-visible { background: var(--SGX_Yellow); color: var(--on-action); }
+.sgx-sechud__crumb {
+  display: flex; align-items: baseline; gap: 8px; flex: none; min-width: 0;
+  font-family: var(--font-hud); text-transform: uppercase; white-space: nowrap;
+}
+.sgx-sechud__crumb img { width: 18px; height: 18px; object-fit: contain; align-self: center; }
+.sgx-sechud__pillar { font-size: 0.75rem; letter-spacing: 0.14em; color: var(--SGX_Yellow); }
+.sgx-sechud__sep { font-family: var(--font-mono); font-size: 0.75rem; color: var(--SGX_Blue); }
+.sgx-sechud__index { font-family: var(--font-display); font-weight: 900; font-size: 1.1rem; color: var(--ink); }
+.sgx-sechud__name { font-size: 0.9rem; letter-spacing: 0.06em; color: var(--ink); max-width: 22ch; overflow: hidden; text-overflow: ellipsis; }
+.sgx-sechud__strip {
+  position: relative; flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px;
+  overflow-x: auto; scroll-behavior: smooth; padding: 2px 0;
+  mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 24px), transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 24px), transparent 100%);
+}
+.sgx-sechud__group {
+  flex: none; margin: 0 2px 0 10px; padding-left: 10px; border-left: 1px solid var(--SGX_Blue);
+  font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.18em; color: var(--SGX_Grey);
+}
+.sgx-sechud__strip > .sgx-sechud__group:first-of-type { margin-left: 6px; }
+.sgx-sechud__tab {
+  position: relative; flex: none; display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px; border: 1px solid transparent; background: transparent; cursor: pointer;
+  font-family: var(--font-hud); font-size: 0.78rem; letter-spacing: 0.04em; color: var(--SGX_Grey); white-space: nowrap;
+  transition: color 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
+}
+.sgx-sechud__tab::after {
+  content: ""; position: absolute; left: 10px; right: 10px; bottom: 0; height: 2px; background: var(--SGX_Yellow);
+  transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease;
+}
+.sgx-sechud__tab:hover { color: var(--ink); }
+.sgx-sechud__tab:hover::after { transform: scaleX(1); }
+.sgx-sechud__tab.is-active {
+  color: var(--on-action); background: var(--SGX_Yellow); border-color: var(--SGX_Yellow);
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+.sgx-sechud__tab.is-active::after { display: none; }
+.sgx-sechud__tab:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+.sgx-sechud__dot { width: 5px; height: 5px; border-radius: 50%; background: var(--SGX_Cyan); box-shadow: 0 0 6px var(--SGX_Cyan); }
+.sgx-sechud__tab.is-active .sgx-sechud__dot { background: var(--on-action); box-shadow: none; }
+.sgx-sechud__tools { display: flex; align-items: center; gap: 6px; flex: none; }
+.sgx-sechud__scan {
+  height: 1px; overflow: hidden; position: relative;
+  background: linear-gradient(90deg, transparent, rgba(50, 82, 123, 0.8), transparent);
+}
+.sgx-sechud__scan::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 18%;
+  background: linear-gradient(90deg, transparent, var(--SGX_Yellow), transparent);
+  animation: sgx-scan-x 4.5s ease-in-out infinite;
+}
+@keyframes sgx-scan-x { from { transform: translateX(-100%); } to { transform: translateX(650%); } }
+@media (max-width: 1023px) {
+  .sgx-sechud__crumb .sgx-sechud__name, .sgx-sechud__meter { display: none; }
+}
+@media (max-width: 640px) {
+  .sgx-sechud__inner { flex-wrap: wrap; gap: 8px; padding: 6px 10px; }
+  .sgx-sechud__crumb { flex: 1; }
+  .sgx-sechud__strip { order: 3; flex-basis: 100%; }
+}
+
+/* ---------- Cinematic section hero ---------- */
+.sgx-hero {
+  --hero-accent: var(--SGX_Yellow);
+  position: relative; overflow: hidden; isolation: isolate; margin-bottom: clamp(16px, 2.5vw, 28px);
+  padding: clamp(18px, 3vw, 36px) clamp(16px, 3vw, 40px);
+  border: 1px solid var(--panel-line);
+  background: linear-gradient(115deg, rgba(26, 26, 26, 0.96) 0%, rgba(13, 13, 13, 0.92) 55%, rgba(5, 5, 5, 0.9) 100%);
+  clip-path: polygon(var(--cut-lg) 0, 100% 0, 100% calc(100% - var(--cut-lg)), calc(100% - var(--cut-lg)) 100%, 0 100%, 0 var(--cut-lg));
+}
+.sgx-hero__bg {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(60% 120% at 92% 0%, rgba(253, 204, 13, 0.14), transparent 60%),
+    repeating-linear-gradient(135deg, rgba(253, 204, 13, 0.045) 0 2px, transparent 2px 22px),
+    linear-gradient(rgba(50, 82, 123, 0.22) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(90deg, rgba(50, 82, 123, 0.22) 1px, transparent 1px) 0 0 / 40px 40px;
+  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.35), #000 60%);
+  -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.35), #000 60%);
+}
+.sgx-hero__index {
+  position: absolute; right: clamp(8px, 2vw, 28px); bottom: -0.18em; z-index: -1; pointer-events: none;
+  font-family: var(--font-display); font-weight: 900; font-size: clamp(6rem, 16vw, 13rem); line-height: 1;
+  color: transparent; -webkit-text-stroke: 1px rgba(253, 204, 13, 0.28);
+  animation: sgx-hero-index 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes sgx-hero-index { from { transform: translateY(30%); opacity: 0; } to { transform: none; opacity: 1; } }
+.sgx-hero__corner { position: absolute; width: 22px; height: 22px; border: 0 solid var(--SGX_Yellow); pointer-events: none; }
+.sgx-hero__corner--tl { top: 10px; left: 22px; border-top-width: 2px; border-left-width: 2px; }
+.sgx-hero__corner--br { bottom: 10px; right: 22px; border-bottom-width: 2px; border-right-width: 2px; }
+.sgx-hero__layout { display: grid; grid-template-columns: auto 1fr auto; gap: clamp(14px, 2.5vw, 32px); align-items: center; }
+.sgx-hero__emblem { position: relative; width: clamp(56px, 7vw, 88px); aspect-ratio: 1; display: grid; place-items: center; }
+.sgx-hero__emblem img { width: 62%; height: 62%; object-fit: contain; filter: drop-shadow(0 0 14px rgba(253, 204, 13, 0.4)); }
+.sgx-hero__ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 1px dashed rgba(253, 204, 13, 0.55);
+  box-shadow: inset 0 0 18px rgba(50, 82, 123, 0.6);
+  animation: sgx-spin 18s linear infinite;
+}
+.sgx-hero__ring::after {
+  content: ""; position: absolute; inset: 8px; border-radius: 50%; border: 1px solid rgba(50, 82, 123, 0.9);
+  border-top-color: var(--SGX_Cyan);
+  animation: sgx-spin 3.2s linear infinite reverse;
+}
+@keyframes sgx-spin { to { transform: rotate(360deg); } }
+.sgx-hero__copy { min-width: 0; display: grid; gap: 8px; }
+.sgx-hero__telemetry { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sgx-hero__badge {
+  padding: 2px 8px; background: var(--SGX_Yellow); color: var(--on-action);
+  font-family: var(--font-hud); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+}
+.sgx-hero__path { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; color: var(--telemetry); }
+.sgx-hero__title {
+  margin: 0; font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+  font-size: clamp(1.35rem, 2.7vw, 2.4rem); line-height: 1.08; max-width: 26ch; letter-spacing: 0.02em; color: var(--ink);
+  text-shadow: 0 0 28px rgba(253, 204, 13, 0.18); overflow-wrap: anywhere;
+}
+.sgx-hero__subtitle { margin: 0; max-width: 70ch; font-family: var(--font-body); font-size: clamp(0.9rem, 1.2vw, 1.05rem); line-height: 1.5; color: #bdbdbd; }
+.sgx-hero__actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; align-self: start; }
+.sgx-hero__scan { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; overflow: hidden; }
+.sgx-hero__scan::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 100%;
+  background: linear-gradient(90deg, var(--SGX_Yellow), var(--SGX_Cyan) 60%, transparent);
+  transform-origin: left; animation: sgx-hero-load 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes sgx-hero-load { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (max-width: 767px) {
+  .sgx-hero__layout { grid-template-columns: auto 1fr; }
+  .sgx-hero__actions { grid-column: 1 / -1; justify-content: flex-start; }
+}
+
+/* ---------- Holodeck floor behind every page ---------- */
+.sgx-holodeck { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.sgx-holodeck__horizon {
+  position: absolute; left: 0; right: 0; top: 58%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(253, 204, 13, 0.55), transparent);
+  box-shadow: 0 0 40px 8px rgba(253, 204, 13, 0.12);
+}
+.sgx-holodeck__floor {
+  position: absolute; left: -50%; right: -50%; top: 58%; bottom: -40%;
+  transform: perspective(420px) rotateX(72deg); transform-origin: top center; overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 45%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 45%);
+}
+.sgx-holodeck__grid {
+  position: absolute; left: 0; right: 0; top: -64px; bottom: 0;
+  background-image:
+    linear-gradient(rgba(50, 82, 123, 0.7) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(50, 82, 123, 0.7) 1px, transparent 1px);
+  background-size: 64px 64px;
+  animation: sgx-holodeck 2.6s linear infinite;
+}
+@keyframes sgx-holodeck { from { transform: translateY(0); } to { transform: translateY(64px); } }
+.sgx-holodeck[data-motion="off"] .sgx-holodeck__grid { animation: none; }
+
+/* ---------- Scroll reveal (tagged by the immersion layer) ---------- */
+[data-sgx-reveal="pending"] { opacity: 0; transform: translateY(18px); }
+[data-sgx-reveal="in"] {
+  animation: sgx-reveal-in 0.62s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  animation-delay: calc(var(--sgx-i, 0) * 55ms);
+}
+@keyframes sgx-reveal-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sgx-sechud__scan::after, .sgx-hero__ring, .sgx-hero__ring::after, .sgx-hero__index,
+  .sgx-hero__scan::after, .sgx-holodeck__grid { animation: none !important; }
+  [data-sgx-reveal] { opacity: 1 !important; transform: none !important; animation: none !important; }
+}

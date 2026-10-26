@@ -11,7 +11,7 @@ import { HudToasts } from './HudToasts';
 import { MissionRail } from './MissionRail';
 import { CommandTerminal } from './CommandTerminal';
 import { EnergyCell, boltBurst } from './EnergyCell';
-import { Atmosphere, CursorReticle, OverdriveFrame, PulseWaves, WarpTransition, XpTicker } from './ImmersionFX';
+import { Atmosphere, CursorReticle, Holodeck, OverdriveFrame, PulseWaves, WarpTransition, XpTicker, useScrollReveal } from './ImmersionFX';
 
 /** Pages that get the full game layer. The broadcast stage and multiview stay clean for projection. */
 const GAME_PAGES: PageRoute[] = ['summit', 'play'];
@@ -169,6 +169,9 @@ export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPa
   }, [isQuiet, isGamePage, terminalOpen, panelOpen, stageMode, setTerminalOpen, setPanelOpen, toggleStageMode,
     firePulse, completeQuest, pushToast, language]);
 
+  const reduceMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  useScrollReveal(fx && !reduceMotion && !embed && currentPage === 'summit' && section !== 'OVERVIEW', sectionKey);
+
   if (embed) return null;
 
   if (isQuiet) {
@@ -177,6 +180,7 @@ export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPa
 
   return (
     <div className="sgx-immersion" data-fx={fx ? 'on' : 'off'}>
+      {isGamePage && !(currentPage === 'summit' && section === 'OVERVIEW') && <Holodeck motion={fx && !reduceMotion} />}
       {fx && <Atmosphere />}
       {fx && <CursorReticle />}
       {fx && <WarpTransition sectionKey={sectionKey} />}

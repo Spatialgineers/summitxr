@@ -40,7 +40,7 @@ import {
 
 function createProcedural3DModel(type: string, themeColorHex?: string, accentColorHex?: string): THREE.Group {
   const modelGroup = new THREE.Group();
-  const themeColor = new THREE.Color(themeColorHex || '#00ffff');
+  const themeColor = new THREE.Color(themeColorHex || '#00ddff');
   const accentColor = new THREE.Color(accentColorHex || '#ff0055');
 
   if (type === 'model_crystal') {
@@ -288,7 +288,7 @@ export const StageVisualizer: React.FC<StageVisualizerProps> = ({
       const customPreset: VisualizerPreset = {
         ...basePreset,
         themeColor: tenant.branding.primaryColor,
-        secondaryColor: tenant.branding.secondaryColor || '#64748B',
+        secondaryColor: tenant.branding.secondaryColor || '#767676',
         accentColor: tenant.branding.accentColor,
         neonHighlightColor: tenant.branding.neonHighlightColor,
         glitchIntensity: Math.min(1.0, (tenant.erraticRating || 1) * 0.15),
@@ -660,7 +660,7 @@ export const StageVisualizer: React.FC<StageVisualizerProps> = ({
               if ((child as THREE.Mesh).isMesh) {
                 const mesh = child as THREE.Mesh;
                 mesh.material = new THREE.MeshStandardMaterial({
-                  color: new THREE.Color(currentPreset.themeColor || '#00ffff'),
+                  color: new THREE.Color(currentPreset.themeColor || '#00ddff'),
                   emissive: new THREE.Color(currentPreset.accentColor || '#0088ff').multiplyScalar(0.4),
                   metalness: 0.8,
                   roughness: 0.2,
@@ -807,7 +807,7 @@ export const StageVisualizer: React.FC<StageVisualizerProps> = ({
     electricArcsRef.current = null;
 
     const pCount = Math.min(preset.particleDensity || 5000, 10000);
-    const themeColor = new THREE.Color(preset.themeColor || '#00ffff');
+    const themeColor = new THREE.Color(preset.themeColor || '#00ddff');
     const accentColor = new THREE.Color(preset.accentColor || '#fdcc0d');
     const isWire = preset.wireframe !== false;
 
@@ -1045,7 +1045,7 @@ export const StageVisualizer: React.FC<StageVisualizerProps> = ({
 
       {/* Slide-out Interactive Visual Controls Overlay Drawer */}
       {showVisualControls && (
-        <div className="absolute top-16 right-4 z-50 w-96 max-h-[calc(100vh-5rem)] overflow-y-auto bg-[#0A0C10]/95 border-2 border-[var(--sgx-neon)] p-4 text-white font-mono shadow-2xl backdrop-blur-xl animate-in slide-in-from-right duration-200">
+        <div className="absolute top-16 right-4 z-50 w-96 max-h-[calc(100vh-5rem)] overflow-y-auto bg-[#0D0D0D]/95 border-2 border-[var(--sgx-neon)] p-4 text-white font-mono shadow-2xl backdrop-blur-xl animate-in slide-in-from-right duration-200">
           <div className="flex items-center justify-between border-b border-[var(--sgx-secondary)] pb-2 mb-3">
             <div className="flex items-center space-x-2">
               <Zap className="w-4 h-4 text-[var(--sgx-neon)]" />
@@ -1395,13 +1395,13 @@ export const StageVisualizer: React.FC<StageVisualizerProps> = ({
                   <div className="flex items-center space-x-1">
                     <input
                       type="color"
-                      value={livePreset.themeColor || '#00ffff'}
+                      value={livePreset.themeColor || '#00ddff'}
                       onChange={(e) => updateLiveField('themeColor', e.target.value)}
                       className="w-7 h-7 bg-transparent cursor-pointer border-[var(--sgx-neon)]"
                     />
                     <input
                       type="text"
-                      value={livePreset.themeColor || '#00ffff'}
+                      value={livePreset.themeColor || '#00ddff'}
                       onChange={(e) => updateLiveField('themeColor', e.target.value)}
                       className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-1 text-[10px] text-white font-mono"
                     />

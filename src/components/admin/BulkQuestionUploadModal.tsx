@@ -27,7 +27,7 @@ interface BulkQuestionUploadModalProps {
 }
 
 const SAMPLE_CSV_TEMPLATE = `prompt,category,durationSeconds,basePoints,optionA,presetA,optionB,presetB,optionC,presetC,optionD,presetD,narrative
-"¿Qué frecuencia lumínica debe amplificar el escenario espacial?","STAGE_VISUALS",30,100,"Cyan Cuántico (#00FFFF)","quantum_vortex","Oro Solar (#FDCC0D)","plasma_bloom","Verde Bio-Matrix","matrix_rain","Violeta Neón","neon_aurora","La audiencia sintonizó la frecuencia lumínica hacia una sobrecarga cuántica."
+"¿Qué frecuencia lumínica debe amplificar el escenario espacial?","STAGE_VISUALS",30,100,"Cyan Cuántico (#00DDFF)","quantum_vortex","Oro Solar (#FDCC0D)","plasma_bloom","Verde Bio-Matrix","matrix_rain","Violeta Neón","neon_aurora","La audiencia sintonizó la frecuencia lumínica hacia una sobrecarga cuántica."
 "¿Cuál debe ser el tempo de la próxima pista de audio binaural?","AUDIO_EXPERIENCE",25,120,"128 BPM Synthwave","synth_grid","140 BPM Cyberpunk","matrix_rain","110 BPM Ambient Choral","quantum_vortex","160 BPM Drum & Space","plasma_bloom","El ritmo espacial se aceleró conectando a todos los asistentes en vivo."
 "¿Hacia qué cuadrante debe rotar la cámara 360 del escenario?","CAMERA_DIRECTOR",20,80,"Pabellón 1: Dron Bay","quantum_vortex","Pabellón 2: Awaken Gallery","neon_aurora","Escenario Principal LED","synth_grid","Lounge VIP Chroma","plasma_bloom","Los directores de audiencia cambiaron la perspectiva hacia el cuadrante elegido."`;
 
@@ -38,10 +38,10 @@ const SAMPLE_JSON_TEMPLATE = JSON.stringify([
     durationSeconds: 30,
     basePoints: 100,
     options: [
-      { label: "Cyan Cuántico (#00FFFF)", presetId: "quantum_vortex", color: "#00FFFF" },
+      { label: "Cyan Cuántico (#00DDFF)", presetId: "quantum_vortex", color: "#00DDFF" },
       { label: "Oro Solar (#FDCC0D)", presetId: "plasma_bloom", color: "#FDCC0D" },
       { label: "Verde Bio-Matrix", presetId: "matrix_rain", color: "#10B981" },
-      { label: "Violeta Neón", presetId: "neon_aurora", color: "#A855F7" }
+      { label: "Violeta Neón", presetId: "neon_aurora", color: "#5F86B4" }
     ],
     storyPathOutcome: {
       narrative: "La audiencia sintonizó la frecuencia lumínica hacia una sobrecarga cuántica.",
@@ -54,7 +54,7 @@ const SAMPLE_JSON_TEMPLATE = JSON.stringify([
     durationSeconds: 25,
     basePoints: 120,
     options: [
-      { label: "128 BPM Synthwave", presetId: "synth_grid", color: "#00FFFF" },
+      { label: "128 BPM Synthwave", presetId: "synth_grid", color: "#00DDFF" },
       { label: "140 BPM Cyberpunk", presetId: "matrix_rain", color: "#FDCC0D" }
     ],
     storyPathOutcome: {
@@ -139,7 +139,7 @@ export const BulkQuestionUploadModal: React.FC<BulkQuestionUploadModalProps> = (
             }
 
             const rawOptions = item.options || [];
-            const defaultColors = ['#00FFFF', '#FDCC0D', '#10B981', '#A855F7', '#EC4899'];
+            const defaultColors = ['#00DDFF', '#FDCC0D', '#10B981', '#5F86B4', '#EC4899'];
             
             const options: QuestionOption[] = (rawOptions.length > 0 ? rawOptions : [
               { label: item.optionA || 'Opción A', presetId: item.presetA || 'quantum_vortex' },
@@ -233,7 +233,7 @@ export const BulkQuestionUploadModal: React.FC<BulkQuestionUploadModalProps> = (
                 code: 1,
                 label: optA,
                 presetId: presetA,
-                color: '#00FFFF',
+                color: '#00DDFF',
               },
               {
                 id: `opt_${Date.now()}_${i}_b`,

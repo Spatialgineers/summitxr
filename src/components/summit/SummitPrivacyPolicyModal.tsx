@@ -30,7 +30,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
     >
       <div 
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-4xl bg-[#090E17] border-2 border-[var(--sgx-neon)] p-5 sm:p-7 space-y-5 shadow-2xl relative overflow-hidden font-sans text-slate-100 max-h-[92vh] flex flex-col my-auto"
+        className="w-full max-w-4xl bg-[#0F0F0F] border-2 border-[var(--sgx-neon)] p-5 sm:p-7 space-y-5 shadow-2xl relative overflow-hidden font-sans text-slate-100 max-h-[92vh] flex flex-col my-auto"
         style={{ clipPath: 'polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)' }}
       >
         {/* Decorative corner grid & cyber accents */}
@@ -63,7 +63,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
               playUiChirp(600);
               onClose();
             }}
-            className="p-1.5 bg-[#141C2B] hover:bg-[var(--sgx-neon)] hover:text-black border border-slate-700 hover:border-[var(--sgx-neon)] text-slate-400 transition-colors"
+            className="p-1.5 bg-[#1E1E1E] hover:bg-[var(--sgx-neon)] hover:text-black border border-slate-700 hover:border-[var(--sgx-neon)] text-slate-400 transition-colors"
             style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
             title="Cerrar modal"
           >
@@ -93,7 +93,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
                 className={`px-2.5 py-1 flex items-center gap-1.5 transition-all text-[11px] whitespace-nowrap ${
                   isSelected
                     ? 'bg-[var(--sgx-neon)] text-black font-extrabold shadow-sm'
-                    : 'bg-[#0f172a] border border-slate-700 text-slate-300 hover:border-slate-500 hover:text-white'
+                    : 'bg-[#1b1b1b] border border-slate-700 text-slate-300 hover:border-slate-500 hover:text-white'
                 }`}
                 style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
               >
@@ -109,7 +109,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
           
           {/* Highlight Banner */}
           <div 
-            className="p-4 bg-gradient-to-r from-[#0F1626] via-[#101B33] to-[#0A111E] border-l-4 border-[var(--sgx-neon)] space-y-1.5"
+            className="p-4 bg-gradient-to-r from-[#191919] via-[#1F1F1F] to-[#131313] border-l-4 border-[var(--sgx-neon)] space-y-1.5"
             style={{ clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%)' }}
           >
             <div className="flex items-center gap-2 text-[var(--sgx-neon)] font-bold text-xs font-mono uppercase">
@@ -123,7 +123,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
 
           {/* Section 1: Anonymous Login */}
           {(activeTab === 'all' || activeTab === 'anonymous') && (
-            <div className="p-4 bg-[#0d1524] border border-slate-800 space-y-2 rounded-sm">
+            <div className="p-4 bg-[#171717] border border-slate-800 space-y-2 rounded-sm">
               <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm font-['Orbitron',sans-serif]">
                 <Lock className="w-4 h-4" />
                 <span>1. Autenticación Anónima (Guest Mode) y Cero Datos Personales</span>
@@ -139,7 +139,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
 
           {/* Section 2: Telemetry & Activity Decisions */}
           {(activeTab === 'all' || activeTab === 'telemetry') && (
-            <div className="p-4 bg-[#0d1524] border border-slate-800 space-y-2 rounded-sm">
+            <div className="p-4 bg-[#171717] border border-slate-800 space-y-2 rounded-sm">
               <div className="flex items-center gap-2 text-[#FDCC0D] font-bold text-sm font-['Orbitron',sans-serif]">
                 <Cpu className="w-4 h-4" />
                 <span>2. Telemetría de Decisiones, Interacciones y Validación de Casos de Uso</span>
@@ -161,7 +161,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
 
           {/* Section 3: Absolute Zero Third-Party Sale */}
           {(activeTab === 'all' || activeTab === 'no_sale') && (
-            <div className="p-4 bg-[#0d1524] border border-[#FDCC0D]/40 space-y-2 rounded-sm">
+            <div className="p-4 bg-[#171717] border border-[#FDCC0D]/40 space-y-2 rounded-sm">
               <div className="flex items-center gap-2 text-[#FDCC0D] font-bold text-sm font-['Orbitron',sans-serif]">
                 <ShieldCheck className="w-4 h-4" />
                 <span>3. Garantía Estricta de NO Venta ni Transferencia a Terceros</span>
@@ -177,7 +177,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
 
           {/* Section 4: Email Usage for News & Future Events */}
           {(activeTab === 'all' || activeTab === 'email') && (
-            <div className="p-4 bg-[#0d1524] border border-slate-800 space-y-2 rounded-sm">
+            <div className="p-4 bg-[#171717] border border-slate-800 space-y-2 rounded-sm">
               <div className="flex items-center gap-2 text-amber-400 font-bold text-sm font-['Orbitron',sans-serif]">
                 <Mail className="w-4 h-4" />
                 <span>4. Uso de Correos Electrónicos Recopilados Voluntariamente</span>
@@ -206,7 +206,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
 
           {/* Section 5: Puerto Rico Legal Compliance & Free Experiences */}
           {(activeTab === 'all' || activeTab === 'pr_law') && (
-            <div className="p-4 bg-[#0d1524] border border-slate-800 space-y-3 rounded-sm">
+            <div className="p-4 bg-[#171717] border border-slate-800 space-y-3 rounded-sm">
               <div className="flex items-center gap-2 text-blue-400 font-bold text-sm font-['Orbitron',sans-serif]">
                 <Scale className="w-4 h-4" />
                 <span>5. Marco Jurídico del Estado Libre Asociado de Puerto Rico & Modelo Gratuito</span>
@@ -215,13 +215,13 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
                 Esta política se rige en estricto cumplimiento con el ordenamiento jurídico del <strong>Estado Libre Asociado de Puerto Rico</strong>, en concordancia con el derecho a la intimidad y las disposiciones relativas a la protección de datos y comunicaciones digitales aplicables en la jurisdicción:
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-[11px]">
-                <div className="p-3 bg-[#111928] border border-slate-700/60 space-y-1">
+                <div className="p-3 bg-[#1B1B1B] border border-slate-700/60 space-y-1">
                   <div className="text-white font-bold font-mono">NATURALEZA GRATUITA</div>
                   <div className="text-slate-400">
                     Nuestras aplicaciones, minijuegos y simuladores son provistos de forma libre y sin tarifa de acceso. La contraprestación legítima es la autorización expresa del usuario para procesar la telemetría generada con fines de optimización interna.
                   </div>
                 </div>
-                <div className="p-3 bg-[#111928] border border-slate-700/60 space-y-1">
+                <div className="p-3 bg-[#1B1B1B] border border-slate-700/60 space-y-1">
                   <div className="text-white font-bold font-mono">JURISDICCIÓN & TRIBUNALES</div>
                   <div className="text-slate-400">
                     Cualquier controversia relacionada con el uso de la plataforma o esta política se someterá de forma exclusiva a la jurisdicción de los tribunales de San Juan, Puerto Rico.

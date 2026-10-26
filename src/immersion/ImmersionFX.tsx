@@ -182,3 +182,64 @@ export const XpTicker: React.FC = () => {
     </div>
   );
 };
+
+/* -------------------------------------------------------------------------
+   Holodeck: a receding grid floor with a yellow horizon behind every page.
+   ------------------------------------------------------------------------- */
+export const Holodeck: React.FC<{ motion: boolean }> = ({ motion }) => (
+  <div className="sgx-holodeck" data-motion={motion ? 'on' : 'off'} aria-hidden="true">
+    <div className="sgx-holodeck__horizon" />
+    <div className="sgx-holodeck__floor"><div className="sgx-holodeck__grid" /></div>
+  </div>
+);
+
+/* -------------------------------------------------------------------------
+   Scroll reveal: blocks of the active section rise in as they enter view.
+   Only tags elements from JS, so without it everything stays visible.
+   ------------------------------------------------------------------------- */
+const REVEAL_SELECTOR = [
+  '#summit-main-tab-content > div > *',
+  '#summit-main-tab-content > div > div > .grid > *',
+  '#summit-main-tab-content > div > div > div > .grid > *',
+].join(',');
+
+export function useScrollReveal(enabled: boolean, routeKey: string) {
+  useEffect(() => {
+    if (!enabled || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          (e.target as HTMLElement).dataset.sgxReveal = 'in';
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.06, rootMargin: '0px 0px -4% 0px' });
+
+    const scan = () => {
+      const nodes = document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR);
+      const perParent = new Map<Element, number>();
+      nodes.forEach((el) => {
+        if (el.dataset.sgxReveal || el.closest('[data-sgx-reveal="pending"]')) return;
+        if (getComputedStyle(el).position === 'fixed') return;
+        const parent = el.parentElement as Element;
+        const i = perParent.get(parent) || 0;
+        perParent.set(parent, i + 1);
+        el.style.setProperty('--sgx-i', String(Math.min(i, 8)));
+        el.dataset.sgxReveal = 'pending';
+        io.observe(el);
+      });
+    };
+
+    const t = window.setTimeout(scan, 60);
+    const main = document.getElementById('summit-main-tab-content');
+    const mo = main ? new MutationObserver(() => scan()) : null;
+    if (main && mo) mo.observe(main, { childList: true, subtree: true });
+    return () => {
+      window.clearTimeout(t);
+      mo?.disconnect();
+      io.disconnect();
+      // Never leave content hidden if the effect stops mid-way.
+      document.querySelectorAll<HTMLElement>('[data-sgx-reveal="pending"]').forEach((el) => { el.dataset.sgxReveal = 'in'; });
+    };
+  }, [enabled, routeKey]);
+}

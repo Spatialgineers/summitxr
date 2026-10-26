@@ -180,14 +180,14 @@ export const AdminCsvHubModal: React.FC<AdminCsvHubModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fadeIn">
       <div 
-        className="w-full max-w-4xl bg-[#080E1A] border-2 border-[#32527B] text-white shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"
+        className="w-full max-w-4xl bg-[#101010] border-2 border-[#32527B] text-white shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"
         style={{
           clipPath: 'polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px)',
           boxShadow: '0 0 35px rgba(50, 82, 123, 0.45)'
         }}
       >
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-800 bg-[#0C1527] flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-slate-800 bg-[#181818] flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div 
               className="p-2 border border-cyan-400 bg-cyan-950/40 text-cyan-300"
@@ -263,7 +263,7 @@ export const AdminCsvHubModal: React.FC<AdminCsvHubModalProps> = ({
                     }}
                     className={`p-2.5 text-left border transition-all cursor-pointer ${
                       isSelected 
-                        ? 'bg-[#12233C] border-cyan-400 text-white shadow-lg shadow-cyan-900/30 font-bold' 
+                        ? 'bg-[#262626] border-cyan-400 text-white shadow-lg shadow-cyan-900/30 font-bold' 
                         : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
                     }`}
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
@@ -320,7 +320,7 @@ export const AdminCsvHubModal: React.FC<AdminCsvHubModalProps> = ({
             
             {/* Step 2A: Download */}
             <div 
-              className="p-4 sm:p-5 bg-[#0A1424] border border-[#32527B] flex flex-col justify-between space-y-4"
+              className="p-4 sm:p-5 bg-[#161616] border border-[#32527B] flex flex-col justify-between space-y-4"
               style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
             >
               <div className="space-y-2">
@@ -346,7 +346,7 @@ export const AdminCsvHubModal: React.FC<AdminCsvHubModalProps> = ({
 
             {/* Step 2B: Upload */}
             <div 
-              className="p-4 sm:p-5 bg-[#0A1424] border border-[#32527B] flex flex-col justify-between space-y-4"
+              className="p-4 sm:p-5 bg-[#161616] border border-[#32527B] flex flex-col justify-between space-y-4"
               style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
             >
               <div className="space-y-2">
@@ -481,7 +481,7 @@ export const AdminCsvHubModal: React.FC<AdminCsvHubModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-3 bg-[#0A1220] border-t border-slate-800 flex items-center justify-between text-[11px] font-mono text-slate-400">
+        <div className="p-3 bg-[#141414] border-t border-slate-800 flex items-center justify-between text-[11px] font-mono text-slate-400">
           <div className="flex items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span>Motor CSV RFC-4180 con compatibilidad universal de acentos UTF-8</span>

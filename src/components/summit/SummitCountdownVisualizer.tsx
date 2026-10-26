@@ -170,7 +170,7 @@ export const SummitCountdownVisualizer: React.FC<SummitCountdownVisualizerProps>
                 cx="50"
                 cy="50"
                 r="38"
-                className="stroke-[#1E293B]"
+                className="stroke-[#2B2B2B]"
                 strokeWidth="6"
                 fill="transparent"
               />
@@ -210,7 +210,7 @@ export const SummitCountdownVisualizer: React.FC<SummitCountdownVisualizerProps>
                 cx="50"
                 cy="50"
                 r="38"
-                className="stroke-[#1E293B]"
+                className="stroke-[#2B2B2B]"
                 strokeWidth="6"
                 fill="transparent"
               />
@@ -249,7 +249,7 @@ export const SummitCountdownVisualizer: React.FC<SummitCountdownVisualizerProps>
                 cx="50"
                 cy="50"
                 r="38"
-                className="stroke-[#1E293B]"
+                className="stroke-[#2B2B2B]"
                 strokeWidth="6"
                 fill="transparent"
               />
@@ -288,7 +288,7 @@ export const SummitCountdownVisualizer: React.FC<SummitCountdownVisualizerProps>
                 cx="50"
                 cy="50"
                 r="38"
-                className="stroke-[#1E293B]"
+                className="stroke-[#2B2B2B]"
                 strokeWidth="6"
                 fill="transparent"
               />
@@ -356,7 +356,7 @@ export const SummitCountdownVisualizer: React.FC<SummitCountdownVisualizerProps>
 
       {/* Venue Strategic Partner Clarification Banner */}
       <div 
-        className="relative z-10 p-3 bg-[#090E18] border border-[var(--sgx-secondary)]/70 space-y-1.5 text-xs font-mono"
+        className="relative z-10 p-3 bg-[#101010] border border-[var(--sgx-secondary)]/70 space-y-1.5 text-xs font-mono"
         style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
       >
         <div className="flex items-center justify-between text-slate-300">
@@ -393,7 +393,7 @@ export const SummitCountdownVisualizer: React.FC<SummitCountdownVisualizerProps>
           {onOpenMap && (
             <button
               onClick={onOpenMap}
-              className="px-3 py-1.5 bg-[#1F2430] border border-[var(--sgx-secondary)] text-slate-300 hover:text-white text-xs font-mono font-bold transition-all flex items-center space-x-1.5"
+              className="px-3 py-1.5 bg-[#262626] border border-[var(--sgx-secondary)] text-slate-300 hover:text-white text-xs font-mono font-bold transition-all flex items-center space-x-1.5"
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
             >
               <Compass className="w-3.5 h-3.5 text-[var(--sgx-neon)]" />

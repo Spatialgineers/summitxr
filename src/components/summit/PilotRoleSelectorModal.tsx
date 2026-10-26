@@ -45,7 +45,7 @@ export const PILOT_ROLES_DATA: RoleConfig[] = [
     id: 'CREATOR',
     title: 'Creador & Desarrollador XR',
     tagline: 'Construye mundos, shaders y experiencias espaciales',
-    colorHex: '#00FFFF',
+    colorHex: '#00DDFF',
     badge: 'ROBLOX · SHADERS · DRON 3D',
     icon: Code2,
     avatarImg: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Spark%20Icon%20BY.png',
@@ -87,7 +87,7 @@ export const PILOT_ROLES_DATA: RoleConfig[] = [
     id: 'STUDENT',
     title: 'Estudiante & Aprendiz',
     tagline: 'Aprende computación espacial desde cero y acumula XP',
-    colorHex: '#FF6B00',
+    colorHex: '#FFBB00',
     badge: 'BECAS · PASAPORTE XP · TALLERES',
     icon: GraduationCap,
     avatarImg: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Story%20Icon%20BY.png',
@@ -150,9 +150,9 @@ export const PilotRoleSelectorModal: React.FC<PilotRoleSelectorModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="max-w-4xl w-full bg-[#070D18] border-t-2 sm:border-2 border-cyan-400/80 p-4 sm:p-6 shadow-2xl relative space-y-5 sm:my-auto max-h-[93vh] overflow-y-auto text-slate-100 font-mono"
+        className="max-w-4xl w-full bg-[#0F0F0F] border-t-2 sm:border-2 border-cyan-400/80 p-4 sm:p-6 shadow-2xl relative space-y-5 sm:my-auto max-h-[93vh] overflow-y-auto text-slate-100 font-mono"
         style={{
-          boxShadow: '0 0 45px rgba(0, 255, 255, 0.25)',
+          boxShadow: '0 0 45px rgba(0, 221, 255, 0.25)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -205,8 +205,8 @@ export const PilotRoleSelectorModal: React.FC<PilotRoleSelectorModalProps> = ({
               <div
                 className={`relative h-full p-4 sm:p-5 border transition-all flex flex-col justify-between ${
                   isSelected
-                    ? 'bg-gradient-to-br from-[#0F1E36] via-[#0B1629] to-[#070E1C] shadow-lg'
-                    : 'bg-[#08101E]/90 hover:bg-[#0C172B] border-slate-800 hover:border-slate-600'
+                    ? 'bg-gradient-to-br from-[#212121] via-[#191919] to-[#101010] shadow-lg'
+                    : 'bg-[#121212]/90 hover:bg-[#1A1A1A] border-slate-800 hover:border-slate-600'
                 }`}
                 style={{
                   clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
@@ -220,7 +220,7 @@ export const PilotRoleSelectorModal: React.FC<PilotRoleSelectorModalProps> = ({
                     className="absolute top-3 right-3 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider flex items-center space-x-1"
                     style={{
                       backgroundColor: role.colorHex,
-                      color: role.colorHex === '#FFFFFF' || role.colorHex === '#FDCC0D' || role.colorHex === '#00FFFF' ? '#000000' : '#FFFFFF',
+                      color: role.colorHex === '#FFFFFF' || role.colorHex === '#FDCC0D' || role.colorHex === '#00DDFF' ? '#000000' : '#FFFFFF',
                     }}
                   >
                     <CheckCircle2 className="w-3 h-3" />
@@ -302,9 +302,9 @@ export const PilotRoleSelectorModal: React.FC<PilotRoleSelectorModalProps> = ({
                     }}
                     className="px-3 py-1.5 text-xs font-bold font-mono transition-all flex items-center space-x-1 shrink-0"
                     style={{
-                      backgroundColor: isSelected ? role.colorHex : '#162238',
+                      backgroundColor: isSelected ? role.colorHex : '#252525',
                       color: isSelected
-                        ? (role.colorHex === '#FFFFFF' || role.colorHex === '#FDCC0D' || role.colorHex === '#00FFFF' ? '#000000' : '#FFFFFF')
+                        ? (role.colorHex === '#FFFFFF' || role.colorHex === '#FDCC0D' || role.colorHex === '#00DDFF' ? '#000000' : '#FFFFFF')
                         : '#FFFFFF',
                     }}
                   >

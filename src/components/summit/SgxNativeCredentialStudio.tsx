@@ -54,14 +54,14 @@ const SGX_PILLARS: PillarItem[] = [
     id: 'showcase',
     name: 'SGX.SHOWCASE',
     tag: 'Expo & Demos XR',
-    color: '#00FFFF',
+    color: '#00DDFF',
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png'
   },
   {
     id: 'spark',
     name: 'SGX.SPARK',
     tag: 'Juegos & Retos',
-    color: '#FF6B00',
+    color: '#FFBB00',
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png'
   },
   {
@@ -75,7 +75,7 @@ const SGX_PILLARS: PillarItem[] = [
     id: 'systems',
     name: 'SGX.SYSTEM',
     tag: 'Ingeniería & IA',
-    color: '#A855F7',
+    color: '#5F86B4',
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png'
   },
   {
@@ -102,7 +102,7 @@ const ROLE_META: Record<
     label: 'Visitante Summit',
     badgeHeader: 'VISITANTE CON PASAPORTE SUMMIT',
     subHeader: 'ACREDITACIÓN OFICIAL · ACCESO MULTIVERSO & CHROMA',
-    accent: '#00FFFF',
+    accent: '#00DDFF',
     secondary: '#FDCC0D',
     clearance: 'CLR-VISITOR-2026'
   },
@@ -111,7 +111,7 @@ const ROLE_META: Record<
     badgeHeader: 'SPEAKER OFICIAL · SGX STAGE',
     subHeader: 'PONENTE & CREADOR DESTACADO · SAN JUAN, PR',
     accent: '#FDCC0D',
-    secondary: '#00FFFF',
+    secondary: '#00DDFF',
     clearance: 'CLR-STAGE-VIP'
   },
   initiate: {
@@ -126,7 +126,7 @@ const ROLE_META: Record<
     label: 'Sponsor / Partner',
     badgeHeader: 'PARTNER ESTRATÉGICO · SGX 365',
     subHeader: 'ALIANZA DE INDUSTRIA & SHOWCASE CORPORATIVO',
-    accent: '#FF6B00',
+    accent: '#FFBB00',
     secondary: '#FDCC0D',
     clearance: 'CLR-PARTNER-EXEC'
   }
@@ -139,7 +139,7 @@ const PASS_TYPE_META: Record<
   digital: {
     label: 'Pase Digital / Metaverso',
     tag: 'ROBLOX + BROADCAST 4K',
-    color: '#00FFFF',
+    color: '#00DDFF',
     days: 'DIC 11–13 · STREAMING & ROBLOX'
   },
   showcase: {
@@ -151,7 +151,7 @@ const PASS_TYPE_META: Record<
   vip: {
     label: 'Pase VIP Executive',
     tag: 'BACKSTAGE + SGX.MATCH VIP',
-    color: '#FF6B00',
+    color: '#FFBB00',
     days: 'DIC 11–13 · FULL VIP CLEARANCE'
   }
 };
@@ -459,9 +459,9 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
 
         // Deep Space Chassis Background
         const bgGrad = ctx.createLinearGradient(0, 0, CARD_W, CARD_H);
-        bgGrad.addColorStop(0, '#060A14');
-        bgGrad.addColorStop(0.55, '#0B1325');
-        bgGrad.addColorStop(1, '#050811');
+        bgGrad.addColorStop(0, '#0C0C0C');
+        bgGrad.addColorStop(0.55, '#161616');
+        bgGrad.addColorStop(1, '#0A0A0A');
         ctx.fillStyle = bgGrad;
         drawRoundedRect(ctx, 0, 0, CARD_W, CARD_H, 28);
         ctx.fill();
@@ -494,7 +494,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         ctx.fillRect(0, 0, CARD_W, CARD_H);
 
         // Tactical Grid Lines
-        ctx.strokeStyle = 'rgba(0, 255, 255, 0.06)';
+        ctx.strokeStyle = 'rgba(0, 221, 255, 0.06)';
         ctx.lineWidth = 1;
         for (let x = 0; x < CARD_W; x += 42) {
           ctx.beginPath();
@@ -510,13 +510,13 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         }
 
         // Top Header Banner
-        ctx.fillStyle = '#091122';
+        ctx.fillStyle = '#141414';
         ctx.fillRect(0, 0, CARD_W, 92);
         ctx.fillStyle = primaryAccent;
         ctx.fillRect(0, 89, CARD_W, 4);
 
         // Lanyard Slot Cutout at top center
-        ctx.fillStyle = '#020409';
+        ctx.fillStyle = '#050505';
         drawRoundedRect(ctx, CARD_W / 2 - 58, 16, 116, 22, 11);
         ctx.fill();
         ctx.strokeStyle = `${primaryAccent}88`;
@@ -561,7 +561,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
 
         ctx.save();
         drawChamferRect(ctx, photoX, photoY, photoW, photoH, 22);
-        ctx.fillStyle = '#0D172A';
+        ctx.fillStyle = '#1A1A1A';
         ctx.fill();
         ctx.clip();
 
@@ -590,8 +590,8 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
             photoX + photoW,
             photoY + photoH
           );
-          phGrad.addColorStop(0, '#0F1D36');
-          phGrad.addColorStop(1, '#070E1B');
+          phGrad.addColorStop(0, '#212121');
+          phGrad.addColorStop(1, '#101010');
           ctx.fillStyle = phGrad;
           ctx.fillRect(photoX, photoY, photoW, photoH);
 
@@ -643,7 +643,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         ctx.restore();
 
         // Status Pill below Portrait
-        ctx.fillStyle = '#091326';
+        ctx.fillStyle = '#161616';
         drawChamferRect(ctx, photoX, photoY + photoH + 14, photoW, 44, 10);
         ctx.fill();
         ctx.strokeStyle = `${primaryAccent}88`;
@@ -672,7 +672,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         drawChamferRect(ctx, rightX, 124, rightW, 50, 12);
         ctx.fill();
 
-        ctx.fillStyle = '#040811';
+        ctx.fillStyle = '#0A0A0A';
         ctx.font = '900 20px Orbitron, sans-serif';
         ctx.fillText(roleCfg.badgeHeader, rightX + 20, 156);
 
@@ -706,7 +706,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         );
 
         // Organization / Studio Box
-        ctx.fillStyle = '#0B1528';
+        ctx.fillStyle = '#181818';
         drawChamferRect(ctx, rightX, 310, rightW, 64, 10);
         ctx.fill();
         ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
@@ -727,7 +727,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         );
 
         // Topic / Mission / Golden Master Box
-        ctx.fillStyle = '#0B1528';
+        ctx.fillStyle = '#181818';
         drawChamferRect(ctx, rightX, 388, rightW, 64, 10);
         ctx.fill();
         ctx.strokeStyle = `${primaryAccent}55`;
@@ -765,7 +765,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
           const pw = 298;
           const ph = 78;
 
-          ctx.fillStyle = '#091224';
+          ctx.fillStyle = '#151515';
           drawChamferRect(ctx, px, py, pw, ph, 10);
           ctx.fill();
           ctx.strokeStyle = pillar.color;
@@ -786,9 +786,9 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         });
 
         // Bottom Telemetry Footer Bar
-        ctx.fillStyle = '#040812';
+        ctx.fillStyle = '#0A0A0A';
         ctx.fillRect(0, CARD_H - 64, CARD_W, 64);
-        ctx.fillStyle = 'rgba(0, 255, 255, 0.25)';
+        ctx.fillStyle = 'rgba(0, 221, 255, 0.25)';
         ctx.fillRect(0, CARD_H - 64, CARD_W, 1.5);
 
         ctx.fillStyle = '#FDCC0D';
@@ -825,15 +825,15 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         bctx.clearRect(0, 0, CARD_W, CARD_H);
 
         const bgGrad = bctx.createLinearGradient(0, 0, CARD_W, CARD_H);
-        bgGrad.addColorStop(0, '#050913');
-        bgGrad.addColorStop(0.5, '#0A1428');
-        bgGrad.addColorStop(1, '#04070F');
+        bgGrad.addColorStop(0, '#0B0B0B');
+        bgGrad.addColorStop(0.5, '#171717');
+        bgGrad.addColorStop(1, '#090909');
         bctx.fillStyle = bgGrad;
         drawRoundedRect(bctx, 0, 0, CARD_W, CARD_H, 28);
         bctx.fill();
 
         // Top Bar
-        bctx.fillStyle = '#091122';
+        bctx.fillStyle = '#141414';
         bctx.fillRect(0, 0, CARD_W, 88);
         bctx.fillStyle = '#FDCC0D';
         bctx.fillRect(0, 86, CARD_W, 3);
@@ -862,7 +862,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
           const bh = 128;
           const isSelected = selectedPillars.includes(pillar.id);
 
-          bctx.fillStyle = isSelected ? '#0F1E38' : '#080F1E';
+          bctx.fillStyle = isSelected ? '#222222' : '#121212';
           drawChamferRect(bctx, bx, by, bw, bh, 12);
           bctx.fill();
           bctx.strokeStyle = isSelected
@@ -884,7 +884,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
           bctx.font = '700 12px monospace';
           bctx.fillText(pillar.tag.toUpperCase(), bx + 98, by + 74);
 
-          bctx.fillStyle = isSelected ? '#10B981' : '#64748B';
+          bctx.fillStyle = isSelected ? '#10B981' : '#767676';
           bctx.font = '700 11px monospace';
           bctx.fillText(
             isSelected ? '★ AFINIDAD ACTIVA' : '○ ESTACIÓN DISPONIBLE',
@@ -899,7 +899,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         const qw = 328;
         const qh = 420;
 
-        bctx.fillStyle = '#091326';
+        bctx.fillStyle = '#161616';
         drawChamferRect(bctx, qx, qy, qw, qh, 16);
         bctx.fill();
         bctx.strokeStyle = primaryAccent;
@@ -917,7 +917,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         const cells = 11;
         const cellS = (qrBoxSize - 28) / cells;
         const seedStr = `${fullName}-${ticketCode}-${role}`;
-        bctx.fillStyle = '#050914';
+        bctx.fillStyle = '#0B0B0B';
         for (let r = 0; r < cells; r++) {
           for (let c = 0; c < cells; c++) {
             const isCorner =
@@ -956,7 +956,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         bctx.textAlign = 'left';
 
         // Footer
-        bctx.fillStyle = '#040812';
+        bctx.fillStyle = '#0A0A0A';
         bctx.fillRect(0, CARD_H - 64, CARD_W, 64);
         bctx.fillStyle = '#FDCC0D';
         bctx.font = '700 14px monospace';
@@ -988,9 +988,9 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
 
         // Deep Space Vertical Poster Background
         const sbg = sctx.createLinearGradient(0, 0, 0, sh);
-        sbg.addColorStop(0, '#040710');
-        sbg.addColorStop(0.5, '#0B1528');
-        sbg.addColorStop(1, '#04060C');
+        sbg.addColorStop(0, '#090909');
+        sbg.addColorStop(0.5, '#181818');
+        sbg.addColorStop(1, '#070707');
         sctx.fillStyle = sbg;
         sctx.fillRect(0, 0, sw, sh);
 
@@ -1036,7 +1036,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         sctx.fill();
 
         // Metallic Clip
-        sctx.fillStyle = '#334155';
+        sctx.fillStyle = '#434343';
         drawRoundedRect(sctx, sw / 2 - 46, cy - 12, 92, 34, 8);
         sctx.fill();
         sctx.restore();
@@ -1265,7 +1265,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
   };
 
   return (
-    <div className="w-full bg-[#050914] text-slate-100 font-mono select-none">
+    <div className="w-full bg-[#0B0B0B] text-slate-100 font-mono select-none">
       {/* Hidden File Input for Client-Side Photo Upload */}
       <input
         ref={fileInputRef}
@@ -1290,7 +1290,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
            ===================================================================== */}
         <div className="lg:col-span-7 flex flex-col gap-3">
           {/* Stage Top Control Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-2 bg-[#091122]/90 border border-cyan-500/35 px-3 py-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 bg-[#141414]/90 border border-cyan-500/35 px-3 py-2">
             {/* Format Switcher: 3D Badge vs Post 3:4 vs Story 9:16 */}
             <div className="flex items-center gap-1">
               {[
@@ -1307,7 +1307,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                   }}
                   className={`px-2.5 py-1 text-[10px] sm:text-[11px] font-bold uppercase transition-all cursor-pointer border ${
                     previewMode === fmt.id
-                      ? 'bg-[#00FFFF] text-black border-[#00FFFF] shadow-[0_0_12px_rgba(0,255,255,0.4)]'
+                      ? 'bg-[#00DDFF] text-black border-[#00DDFF] shadow-[0_0_12px_rgba(0, 221, 255,0.4)]'
                       : 'bg-slate-900/90 text-slate-300 border-slate-700 hover:border-cyan-400'
                   }`}
                 >
@@ -1354,10 +1354,10 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUpOrLeave}
             onPointerLeave={handlePointerUpOrLeave}
-            className="relative w-full min-h-[270px] sm:min-h-[380px] lg:min-h-[470px] bg-gradient-to-b from-[#060C1A] via-[#0A1428] to-[#040812] border border-cyan-500/40 flex flex-col items-center justify-center p-3 sm:p-6 overflow-hidden cursor-grab active:cursor-grabbing touch-none"
+            className="relative w-full min-h-[270px] sm:min-h-[380px] lg:min-h-[470px] bg-gradient-to-b from-[#0F0F0F] via-[#171717] to-[#0A0A0A] border border-cyan-500/40 flex flex-col items-center justify-center p-3 sm:p-6 overflow-hidden cursor-grab active:cursor-grabbing touch-none"
             style={{
               perspective: '1300px',
-              boxShadow: 'inset 0 0 60px rgba(0, 255, 255, 0.08)'
+              boxShadow: 'inset 0 0 60px rgba(0, 221, 255, 0.08)'
             }}
           >
             {/* Background Ambient Cyber Grid */}
@@ -1365,7 +1365,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
               className="absolute inset-0 pointer-events-none opacity-25"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 50% 50%, rgba(0,255,255,0.22) 0%, transparent 65%), linear-gradient(rgba(0,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,255,0.06) 1px, transparent 1px)',
+                  'radial-gradient(circle at 50% 50%, rgba(0, 221, 255,0.22) 0%, transparent 65%), linear-gradient(rgba(0, 221, 255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 221, 255,0.06) 1px, transparent 1px)',
                 backgroundSize: '100% 100%, 28px 28px, 28px 28px'
               }}
             />
@@ -1400,7 +1400,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                   className="absolute inset-0 pointer-events-none mix-blend-screen transition-opacity duration-150"
                   style={{
                     opacity: foilIntensity * 0.55,
-                    background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255,255,255,0.55) 0%, rgba(0,255,255,0.28) 22%, rgba(253,204,13,0.22) 45%, rgba(168,85,247,0.18) 68%, transparent 85%)`
+                    background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255,255,255,0.55) 0%, rgba(0, 221, 255,0.28) 22%, rgba(253,204,13,0.22) 45%, rgba(168,85,247,0.18) 68%, transparent 85%)`
                   }}
                 />
               </div>
@@ -1425,7 +1425,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                     opacity: foilIntensity * 0.5,
                     background: `radial-gradient(circle at ${
                       100 - glarePos.x
-                    }% ${glarePos.y}%, rgba(253,204,13,0.5) 0%, rgba(0,255,255,0.25) 35%, transparent 80%)`
+                    }% ${glarePos.y}%, rgba(253,204,13,0.5) 0%, rgba(0, 221, 255,0.25) 35%, transparent 80%)`
                   }}
                 />
               </div>
@@ -1467,7 +1467,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="py-2.5 px-3 bg-[#0E1A32] hover:bg-cyan-500 text-cyan-300 hover:text-black border border-cyan-400 font-bold text-xs uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              className="py-2.5 px-3 bg-[#1E1E1E] hover:bg-cyan-500 text-cyan-300 hover:text-black border border-cyan-400 font-bold text-xs uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer"
             >
               <Camera className="w-4 h-4" />
               <span>{userPhotoImg ? 'Cambiar Mi Foto' : 'Subir Mi Foto'}</span>
@@ -1496,9 +1496,9 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         {/* =====================================================================
             COLUMN 2 (5 Cols Desktop): ERGONOMIC MOBILE-FRIENDLY CONTROL STUDIO
            ===================================================================== */}
-        <div className="lg:col-span-5 flex flex-col bg-[#080F1E] border border-slate-800">
+        <div className="lg:col-span-5 flex flex-col bg-[#121212] border border-slate-800">
           {/* Thumb-Friendly Tab Bar */}
-          <div className="grid grid-cols-4 border-b border-slate-800 bg-[#050914]">
+          <div className="grid grid-cols-4 border-b border-slate-800 bg-[#0B0B0B]">
             {[
               { id: 'identity', label: '1. Datos', icon: User },
               { id: 'photo', label: '2. Foto', icon: Camera },
@@ -1517,7 +1517,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                   }}
                   className={`py-2.5 px-2 text-[11px] font-bold uppercase flex items-center justify-center gap-1.5 border-b-2 transition-all cursor-pointer ${
                     active
-                      ? 'border-[#00FFFF] text-[#00FFFF] bg-[#0C172E]'
+                      ? 'border-[#00DDFF] text-[#00DDFF] bg-[#1B1B1B]'
                       : 'border-transparent text-slate-400 hover:text-white'
                   }`}
                 >
@@ -1549,13 +1549,13 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                           onClick={() => applyQuickPreset(rKey)}
                           className={`p-2 text-left border text-xs font-bold transition-all cursor-pointer flex items-center justify-between ${
                             active
-                              ? 'bg-cyan-500/20 border-[#00FFFF] text-white shadow-[0_0_12px_rgba(0,255,255,0.2)]'
+                              ? 'bg-cyan-500/20 border-[#00DDFF] text-white shadow-[0_0_12px_rgba(0, 221, 255,0.2)]'
                               : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-600'
                           }`}
                         >
                           <span>{ROLE_META[rKey].label}</span>
                           {active && (
-                            <span className="w-2 h-2 rounded-full bg-[#00FFFF]" />
+                            <span className="w-2 h-2 rounded-full bg-[#00DDFF]" />
                           )}
                         </button>
                       );
@@ -1607,7 +1607,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Ej. Alex Rivera"
-                      className="w-full px-3 py-2 bg-slate-950 border border-slate-700 focus:border-[#00FFFF] text-white text-xs font-bold outline-none"
+                      className="w-full px-3 py-2 bg-slate-950 border border-slate-700 focus:border-[#00DDFF] text-white text-xs font-bold outline-none"
                     />
                   </div>
 
@@ -1620,7 +1620,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                       value={jobTitle}
                       onChange={(e) => setJobTitle(e.target.value)}
                       placeholder="VISITANTE CON PASAPORTE SUMMIT"
-                      className="w-full px-3 py-2 bg-slate-950 border border-slate-700 focus:border-[#00FFFF] text-white text-xs outline-none"
+                      className="w-full px-3 py-2 bg-slate-950 border border-slate-700 focus:border-[#00DDFF] text-white text-xs outline-none"
                     />
                   </div>
 
@@ -1634,7 +1634,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                         value={organization}
                         onChange={(e) => setOrganization(e.target.value)}
                         placeholder="Spatialgineers"
-                        className="w-full px-3 py-2 bg-slate-950 border border-slate-700 focus:border-[#00FFFF] text-white text-xs outline-none"
+                        className="w-full px-3 py-2 bg-slate-950 border border-slate-700 focus:border-[#00DDFF] text-white text-xs outline-none"
                       />
                     </div>
                     <div>
@@ -1646,7 +1646,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                         value={socialHandle}
                         onChange={(e) => setSocialHandle(e.target.value)}
                         placeholder="@tu_usuario"
-                        className="w-full px-3 py-2 bg-slate-950 border border-slate-700 focus:border-[#00FFFF] text-white text-xs outline-none"
+                        className="w-full px-3 py-2 bg-slate-950 border border-slate-700 focus:border-[#00DDFF] text-white text-xs outline-none"
                       />
                     </div>
                   </div>
@@ -1663,7 +1663,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                       type="text"
                       value={topicOrMission}
                       onChange={(e) => setTopicOrMission(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-950 border border-slate-700 focus:border-[#00FFFF] text-white text-xs outline-none"
+                      className="w-full px-3 py-2 bg-slate-950 border border-slate-700 focus:border-[#00DDFF] text-white text-xs outline-none"
                     />
                   </div>
                 </div>
@@ -1696,7 +1696,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
             {mobileTab === 'photo' && (
               <div className="space-y-4 animate-fadeIn">
                 <div className="p-4 bg-slate-950 border border-dashed border-cyan-500/60 text-center space-y-2.5">
-                  <Camera className="w-8 h-8 text-[#00FFFF] mx-auto" />
+                  <Camera className="w-8 h-8 text-[#00DDFF] mx-auto" />
                   <div className="text-xs font-bold text-white uppercase">
                     Fotografía de Retrato (100% Local y Privada)
                   </div>
@@ -1706,7 +1706,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2 bg-[#00FFFF] hover:bg-[#FDCC0D] text-black font-extrabold text-xs uppercase transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                    className="px-4 py-2 bg-[#00DDFF] hover:bg-[#FDCC0D] text-black font-extrabold text-xs uppercase transition-colors cursor-pointer inline-flex items-center gap-1.5"
                   >
                     <Upload className="w-3.5 h-3.5" />
                     <span>Seleccionar Foto desde mi Dispositivo</span>
@@ -1731,7 +1731,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                       step="0.02"
                       value={photoScale}
                       onChange={(e) => setPhotoScale( parseFloat(e.target.value))}
-                      className="w-full accent-[#00FFFF] cursor-pointer"
+                      className="w-full accent-[#00DDFF] cursor-pointer"
                     />
                   </div>
 
@@ -1751,7 +1751,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                       onChange={(e) =>
                         setPhotoOffsetX(parseInt(e.target.value, 10))
                       }
-                      className="w-full accent-[#00FFFF] cursor-pointer"
+                      className="w-full accent-[#00DDFF] cursor-pointer"
                     />
                   </div>
 
@@ -1771,7 +1771,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                       onChange={(e) =>
                         setPhotoOffsetY(parseInt(e.target.value, 10))
                       }
-                      className="w-full accent-[#00FFFF] cursor-pointer"
+                      className="w-full accent-[#00DDFF] cursor-pointer"
                     />
                   </div>
 
@@ -1812,7 +1812,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                           onClick={() => togglePillar(pillar.id)}
                           className={`p-2.5 border text-left transition-all cursor-pointer flex items-center gap-2.5 ${
                             isSel
-                              ? 'bg-[#0E1B34] border-[#00FFFF] shadow-[0_0_12px_rgba(0,255,255,0.2)]'
+                              ? 'bg-[#1F1F1F] border-[#00DDFF] shadow-[0_0_12px_rgba(0, 221, 255,0.2)]'
                               : 'bg-slate-950 border-slate-800 opacity-70 hover:opacity-100'
                           }`}
                         >
@@ -1894,7 +1894,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                       )}
                     </button>
                   </div>
-                  <p className="text-[11px] text-slate-300 whitespace-pre-line leading-relaxed bg-[#050914] p-2.5 border border-slate-800/80">
+                  <p className="text-[11px] text-slate-300 whitespace-pre-line leading-relaxed bg-[#0B0B0B] p-2.5 border border-slate-800/80">
                     {socialCaptionText}
                   </p>
                 </div>

@@ -217,18 +217,18 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
 
   return (
     <div 
-      className={`fixed inset-0 z-[9999] flex flex-col justify-between bg-[#040711] text-white select-none transition-opacity duration-300 ${
+      className={`fixed inset-0 z-[9999] flex flex-col justify-between bg-[#090909] text-white select-none transition-opacity duration-300 ${
         isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
       style={{
-        backgroundImage: 'radial-gradient(ellipse at 50% 30%, #0C1E38 0%, #040711 75%)',
+        backgroundImage: 'radial-gradient(ellipse at 50% 30%, #212121 0%, #090909 75%)',
       }}
     >
       {/* High-tech ambient scanlines & grid */}
       <div 
         className="absolute inset-0 pointer-events-none opacity-20"
         style={{
-          backgroundImage: 'linear-gradient(to right, rgba(0,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,255,255,0.05) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(to right, rgba(0, 221, 255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 221, 255,0.05) 1px, transparent 1px)',
           backgroundSize: '40px 40px'
         }}
       />
@@ -260,7 +260,7 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
           <img 
             src="https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG" 
             alt="Spatialgineers Logo" 
-            className="h-10 sm:h-14 w-auto object-contain filter drop-shadow-[0_0_15px_rgba(0,255,255,0.6)]"
+            className="h-10 sm:h-14 w-auto object-contain filter drop-shadow-[0_0_15px_rgba(0, 221, 255,0.6)]"
           />
           <img 
             src="https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png" 
@@ -270,7 +270,7 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
         </div>
 
         {/* 1. Spatialgineers LLC presenta: */}
-        <p className="text-xs sm:text-sm md:text-base font-mono font-bold tracking-[0.25em] sm:tracking-[0.35em] text-cyan-300 uppercase drop-shadow-[0_0_8px_rgba(0,255,255,0.4)]">
+        <p className="text-xs sm:text-sm md:text-base font-mono font-bold tracking-[0.25em] sm:tracking-[0.35em] text-cyan-300 uppercase drop-shadow-[0_0_8px_rgba(0, 221, 255,0.4)]">
           Spatialgineers LLC presenta:
         </p>
 
@@ -291,7 +291,7 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
             <span className="text-yellow-400 font-bold">{progress}%</span>
           </div>
 
-          <div className="w-full h-2.5 bg-slate-950 border border-cyan-500/50 rounded-full overflow-hidden p-0.5 shadow-[0_0_15px_rgba(0,255,255,0.3)]">
+          <div className="w-full h-2.5 bg-slate-950 border border-cyan-500/50 rounded-full overflow-hidden p-0.5 shadow-[0_0_15px_rgba(0, 221, 255,0.3)]">
             <div 
               className="h-full bg-gradient-to-r from-cyan-500 via-[#FDCC0D] to-amber-500 rounded-full transition-all duration-75 shadow-md"
               style={{ width: `${progress}%` }}
@@ -326,7 +326,7 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
             {selectedFourSponsors.map((sp, idx) => (
               <div
                 key={`${sp.id}_${idx}`}
-                className="group relative p-2.5 sm:p-3 bg-[#080E1C]/90 hover:bg-[#0E172E] border border-cyan-500/30 hover:border-[#FDCC0D] rounded-xl transition-all shadow-md backdrop-blur-md flex flex-col justify-between"
+                className="group relative p-2.5 sm:p-3 bg-[#111111]/90 hover:bg-[#1C1C1C] border border-cyan-500/30 hover:border-[#FDCC0D] rounded-xl transition-all shadow-md backdrop-blur-md flex flex-col justify-between"
               >
                 {/* Sponsor Logo and Tier info */}
                 <div className="flex items-center space-x-2 sm:space-x-2.5 mb-2">

@@ -120,7 +120,7 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
       isCYOA ? 'Decisión CYOA 3D Emitida' : 'Voto de Trivia Emitido',
       `Votaste en "${currentQuestion?.prompt || 'Votación en vivo'}".`,
       isCYOA ? 120 : 100,
-      isCYOA ? '#8B5CF6' : '#00FFFF'
+      isCYOA ? '#8B5CF6' : '#00DDFF'
     );
 
     onCastVote(optionId, optionCode);
@@ -216,8 +216,8 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
                 <span>LIVE</span>
               </span>
             ) : (
-              <span className="flex items-center space-x-1 text-[10px] font-mono text-[#FFAA00] bg-[#FFAA00]/10 px-2 py-1 border border-[#FFAA00]/30">
-                <WifiOff className="w-3 h-3 text-[#FFAA00]" />
+              <span className="flex items-center space-x-1 text-[10px] font-mono text-[#FFBB00] bg-[#FFBB00]/10 px-2 py-1 border border-[#FFBB00]/30">
+                <WifiOff className="w-3 h-3 text-[#FFBB00]" />
                 <span>OFFLINE</span>
               </span>
             )}
@@ -300,7 +300,7 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
                   <span className="text-[var(--sgx-neon)] font-bold uppercase tracking-wider">
                     {currentQuestion.category}
                   </span>
-                  <span className={`font-bold ${(session.timeRemaining || 0) <= 5 ? 'text-[#FFAA00] animate-pulse' : 'text-white'}`}>
+                  <span className={`font-bold ${(session.timeRemaining || 0) <= 5 ? 'text-[#FFBB00] animate-pulse' : 'text-white'}`}>
                     ⏱ {session.timeRemaining}s RESTANTES
                   </span>
                 </div>

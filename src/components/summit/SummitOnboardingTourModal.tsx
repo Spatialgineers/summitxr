@@ -91,7 +91,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
 
   const b = tenant.branding;
   const primaryRgb = hexToRgbStr(b.primaryColor);
-  const secondaryRgb = hexToRgbStr(b.secondaryColor || '#64748B');
+  const secondaryRgb = hexToRgbStr(b.secondaryColor || '#767676');
   const btnTextColor = getContrastTextColor(b.primaryColor);
 
   // Mark completion in localStorage and grant passport XP & Pilot Profile XP
@@ -438,7 +438,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
         id="sgx-onboarding-tour-dialog"
         className="w-full max-w-3xl border-2 rounded-xl shadow-2xl overflow-hidden flex flex-col transition-all duration-300 relative text-slate-100 max-h-[92vh]"
         style={{
-          backgroundColor: b.cardBgColor || '#0B111D',
+          backgroundColor: b.cardBgColor || '#131313',
           borderColor: b.primaryColor,
           boxShadow: `0 0 35px ${b.glowShadow || `rgba(${primaryRgb}, 0.35)`}`,
           clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)'
@@ -448,7 +448,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
         <div 
           className="border-b px-4 sm:px-6 py-3 flex items-center justify-between gap-3 shrink-0"
           style={{
-            backgroundColor: b.backgroundColor || '#070C15',
+            backgroundColor: b.backgroundColor || '#0D0D0D',
             borderBottomColor: `rgba(${primaryRgb}, 0.25)`
           }}
         >
@@ -604,7 +604,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
                 onClick={currentStep.primaryAction}
                 className="px-4 py-2 font-extrabold text-xs rounded transition-all shadow-md flex items-center gap-1.5 shrink-0 hover:scale-105 cursor-pointer"
                 style={{
-                  background: b.gradientCss || `linear-gradient(135deg, ${b.primaryColor} 0%, ${b.secondaryColor || '#64748B'} 100%)`,
+                  background: b.gradientCss || `linear-gradient(135deg, ${b.primaryColor} 0%, ${b.secondaryColor || '#767676'} 100%)`,
                   color: btnTextColor,
                   boxShadow: `0 0 15px ${b.glowShadow || `rgba(${primaryRgb}, 0.35)`}`
                 }}
@@ -648,7 +648,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
         <div 
           className="border-t p-4 sm:px-6 flex items-center justify-between gap-3 font-mono text-xs shrink-0"
           style={{
-            backgroundColor: b.backgroundColor || '#070C15',
+            backgroundColor: b.backgroundColor || '#0D0D0D',
             borderTopColor: `rgba(${primaryRgb}, 0.25)`
           }}
         >
@@ -688,7 +688,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
                 onClick={handleNext}
                 className="px-4 sm:px-5 py-2 font-extrabold rounded flex items-center gap-1.5 transition-all shadow-md hover:scale-105 cursor-pointer"
                 style={{
-                  background: b.gradientCss || `linear-gradient(135deg, ${b.primaryColor} 0%, ${b.secondaryColor || '#64748B'} 100%)`,
+                  background: b.gradientCss || `linear-gradient(135deg, ${b.primaryColor} 0%, ${b.secondaryColor || '#767676'} 100%)`,
                   color: btnTextColor,
                   boxShadow: `0 0 14px ${b.glowShadow || `rgba(${primaryRgb}, 0.35)`}`
                 }}
@@ -701,7 +701,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
                 onClick={currentStep.primaryAction || handleNext}
                 className="px-4 sm:px-6 py-2 font-extrabold rounded flex items-center gap-1.5 transition-all shadow-lg hover:scale-105 cursor-pointer"
                 style={{
-                  background: b.gradientCss || `linear-gradient(135deg, ${b.primaryColor} 0%, ${b.secondaryColor || '#64748B'} 100%)`,
+                  background: b.gradientCss || `linear-gradient(135deg, ${b.primaryColor} 0%, ${b.secondaryColor || '#767676'} 100%)`,
                   color: btnTextColor,
                   boxShadow: `0 0 20px ${b.glowShadow || `rgba(${primaryRgb}, 0.5)`}`
                 }}

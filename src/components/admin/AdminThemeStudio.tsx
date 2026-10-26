@@ -44,15 +44,15 @@ const CURATED_PALETTES: CuratedThemePreset[] = [
     description: 'Neón cian clásico de alta energía sobre fondo abisal y contrastes ámbar.',
     icon: Zap,
     branding: {
-      primaryColor: '#00FFFF',
+      primaryColor: '#00DDFF',
       secondaryColor: '#0284C7',
       accentColor: '#FDCC0D',
-      backgroundColor: '#070C14',
-      cardBgColor: '#0F172A',
-      borderColor: '#00FFFF',
-      neonHighlightColor: '#00FFFF',
-      glowShadow: 'rgba(0, 255, 255, 0.45)',
-      gradientCss: 'linear-gradient(135deg, #00FFFF 0%, #0284C7 100%)'
+      backgroundColor: '#0D0D0D',
+      cardBgColor: '#1B1B1B',
+      borderColor: '#00DDFF',
+      neonHighlightColor: '#00DDFF',
+      glowShadow: 'rgba(0, 221, 255, 0.45)',
+      gradientCss: 'linear-gradient(135deg, #00DDFF 0%, #0284C7 100%)'
     }
   },
   {
@@ -63,14 +63,14 @@ const CURATED_PALETTES: CuratedThemePreset[] = [
     icon: Sun,
     branding: {
       primaryColor: '#FDCC0D',
-      secondaryColor: '#FF6B00',
-      accentColor: '#00FFFF',
-      backgroundColor: '#0B0D12',
-      cardBgColor: '#151A24',
+      secondaryColor: '#FFBB00',
+      accentColor: '#00DDFF',
+      backgroundColor: '#0E0E0E',
+      cardBgColor: '#1C1C1C',
       borderColor: '#FDCC0D',
       neonHighlightColor: '#FFDD00',
       glowShadow: 'rgba(253, 204, 13, 0.5)',
-      gradientCss: 'linear-gradient(135deg, #FDCC0D 0%, #FF6B00 100%)'
+      gradientCss: 'linear-gradient(135deg, #FDCC0D 0%, #FFBB00 100%)'
     }
   },
   {
@@ -116,15 +116,15 @@ const CURATED_PALETTES: CuratedThemePreset[] = [
     description: 'Púrpura holográfico y azul ultravioleta espacial de máxima profundidad.',
     icon: Sparkles,
     branding: {
-      primaryColor: '#A855F7',
+      primaryColor: '#5F86B4',
       secondaryColor: '#3B82F6',
       accentColor: '#F43F5E',
       backgroundColor: '#090714',
       cardBgColor: '#140E29',
-      borderColor: '#A855F7',
+      borderColor: '#5F86B4',
       neonHighlightColor: '#C084FC',
       glowShadow: 'rgba(168, 85, 247, 0.45)',
-      gradientCss: 'linear-gradient(135deg, #A855F7 0%, #3B82F6 100%)'
+      gradientCss: 'linear-gradient(135deg, #5F86B4 0%, #3B82F6 100%)'
     }
   },
   {
@@ -135,14 +135,14 @@ const CURATED_PALETTES: CuratedThemePreset[] = [
     icon: Flame,
     branding: {
       primaryColor: '#FF3344',
-      secondaryColor: '#FF6B00',
+      secondaryColor: '#FFBB00',
       accentColor: '#FDCC0D',
       backgroundColor: '#0F0607',
       cardBgColor: '#1E0C0E',
       borderColor: '#FF3344',
       neonHighlightColor: '#FF4455',
       glowShadow: 'rgba(255, 51, 68, 0.45)',
-      gradientCss: 'linear-gradient(135deg, #FF3344 0%, #FF6B00 100%)'
+      gradientCss: 'linear-gradient(135deg, #FF3344 0%, #FFBB00 100%)'
     }
   },
   {
@@ -155,8 +155,8 @@ const CURATED_PALETTES: CuratedThemePreset[] = [
       primaryColor: '#06B6D4',
       secondaryColor: '#F43F5E',
       accentColor: '#FBBF24',
-      backgroundColor: '#061019',
-      cardBgColor: '#0C1D2D',
+      backgroundColor: '#101010',
+      cardBgColor: '#1D1D1D',
       borderColor: '#06B6D4',
       neonHighlightColor: '#22D3EE',
       glowShadow: 'rgba(6, 182, 212, 0.45)',
@@ -171,14 +171,14 @@ const CURATED_PALETTES: CuratedThemePreset[] = [
     icon: Moon,
     branding: {
       primaryColor: '#E2E8F0',
-      secondaryColor: '#64748B',
+      secondaryColor: '#767676',
       accentColor: '#38BDF8',
-      backgroundColor: '#0B0F17',
-      cardBgColor: '#151E2E',
+      backgroundColor: '#101010',
+      cardBgColor: '#202020',
       borderColor: '#94A3B8',
       neonHighlightColor: '#F8FAFC',
       glowShadow: 'rgba(226, 232, 240, 0.35)',
-      gradientCss: 'linear-gradient(135deg, #E2E8F0 0%, #64748B 100%)'
+      gradientCss: 'linear-gradient(135deg, #E2E8F0 0%, #767676 100%)'
     }
   }
 ];
@@ -669,7 +669,7 @@ export const AdminThemeStudio: React.FC = () => {
                 type="text"
                 value={b.glowShadow}
                 onChange={(e) => updateColorField('glowShadow', e.target.value)}
-                placeholder="rgba(0, 255, 255, 0.45)"
+                placeholder="rgba(0, 221, 255, 0.45)"
                 className="w-full bg-[var(--sgx-card-bg)] border border-[var(--sgx-border)] p-1.5 text-white font-mono text-xs focus:border-[var(--sgx-primary)] focus:outline-none"
               />
             </div>

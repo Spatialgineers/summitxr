@@ -1171,13 +1171,13 @@ export const INITIAL_EMBED_WIDGETS: EmbedWidget[] = [
   <meta charset="utf-8">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #050811; color: #00FFFF; font-family: monospace; overflow: hidden; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    body { background: #0A0A0A; color: #00DDFF; font-family: monospace; overflow: hidden; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-    .hud { position: relative; z-index: 10; background: rgba(10, 15, 29, 0.85); border: 1px solid #00FFFF; padding: 18px 24px; border-radius: 8px; text-align: center; backdrop-filter: blur(8px); box-shadow: 0 0 25px rgba(0,255,255,0.25); max-width: 480px; }
-    h1 { font-size: 18px; margin-bottom: 8px; text-shadow: 0 0 10px #00FFFF; letter-spacing: 2px; }
+    .hud { position: relative; z-index: 10; background: rgba(10, 15, 29, 0.85); border: 1px solid #00DDFF; padding: 18px 24px; border-radius: 8px; text-align: center; backdrop-filter: blur(8px); box-shadow: 0 0 25px rgba(0, 221, 255,0.25); max-width: 480px; }
+    h1 { font-size: 18px; margin-bottom: 8px; text-shadow: 0 0 10px #00DDFF; letter-spacing: 2px; }
     p { font-size: 11px; color: #94A3B8; margin-bottom: 14px; }
     .controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-    button { background: #00FFFF; color: #000; border: none; padding: 8px 14px; font-weight: bold; font-family: monospace; font-size: 11px; cursor: pointer; border-radius: 4px; transition: all 0.2s; }
+    button { background: #00DDFF; color: #000; border: none; padding: 8px 14px; font-weight: bold; font-family: monospace; font-size: 11px; cursor: pointer; border-radius: 4px; transition: all 0.2s; }
     button:hover { background: #FDCC0D; transform: scale(1.05); }
     .status { font-size: 10px; color: #10B981; margin-top: 10px; }
   </style>
@@ -1188,7 +1188,7 @@ export const INITIAL_EMBED_WIDGETS: EmbedWidget[] = [
     <h1>SGX MATRIX SHADER ENGINE</h1>
     <p>Renderizado procedural en tiempo real • GLSL Canvas Shader</p>
     <div class="controls">
-      <button onclick="toggleColor('#00FFFF')">NEON CYAN</button>
+      <button onclick="toggleColor('#00DDFF')">NEON CYAN</button>
       <button onclick="toggleColor('#FDCC0D')">SGX GOLD</button>
       <button onclick="toggleColor('#FF0055')">CYBER MAGENTA</button>
       <button onclick="toggleSpeed()">SPEED BOOST</button>
@@ -1201,7 +1201,7 @@ export const INITIAL_EMBED_WIDGETS: EmbedWidget[] = [
     const ctx = canvas.getContext('2d');
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
-    let primaryColor = '#00FFFF';
+    let primaryColor = '#00DDFF';
     let speedMult = 1;
 
     window.addEventListener('resize', () => {
@@ -1283,12 +1283,12 @@ export const INITIAL_EMBED_WIDGETS: EmbedWidget[] = [
   <meta charset="utf-8">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #0A0F1D; color: #FFF; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; }
-    .synth-panel { background: #121927; border: 2px solid #00FFFF; border-radius: 12px; padding: 24px; width: 100%; max-width: 520px; box-shadow: 0 0 30px rgba(0,255,255,0.2); }
-    h2 { font-size: 16px; color: #00FFFF; text-align: center; margin-bottom: 12px; letter-spacing: 2px; }
-    canvas { width: 100%; height: 120px; background: #050811; border: 1px solid #32527B; border-radius: 6px; margin-bottom: 16px; }
+    body { background: #121212; color: #FFF; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; }
+    .synth-panel { background: #1B1B1B; border: 2px solid #00DDFF; border-radius: 12px; padding: 24px; width: 100%; max-width: 520px; box-shadow: 0 0 30px rgba(0, 221, 255,0.2); }
+    h2 { font-size: 16px; color: #00DDFF; text-align: center; margin-bottom: 12px; letter-spacing: 2px; }
+    canvas { width: 100%; height: 120px; background: #0A0A0A; border: 1px solid #32527B; border-radius: 6px; margin-bottom: 16px; }
     .keys { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 12px; }
-    .key-btn { background: #1E293B; border: 1px solid #00FFFF; color: #00FFFF; padding: 14px 4px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; text-align: center; transition: all 0.1s; user-select: none; }
+    .key-btn { background: #2B2B2B; border: 1px solid #00DDFF; color: #00DDFF; padding: 14px 4px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; text-align: center; transition: all 0.1s; user-select: none; }
     .key-btn:active { background: #FDCC0D; color: #000; transform: translateY(2px); }
     .controls { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 11px; color: #94A3B8; }
   </style>
@@ -1335,9 +1335,9 @@ export const INITIAL_EMBED_WIDGETS: EmbedWidget[] = [
     }
 
     function drawWave(freq) {
-      ctx.fillStyle = '#050811';
+      ctx.fillStyle = '#0A0A0A';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = '#00FFFF';
+      ctx.strokeStyle = '#00DDFF';
       ctx.lineWidth = 2;
       ctx.beginPath();
       for (let x = 0; x < canvas.width; x++) {

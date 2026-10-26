@@ -56,7 +56,7 @@ const EXOTIC_SECTORS: Record<ExoticSector, SectorConfig> = {
     skyColor: 0x05070e,
     ambientColor: 0x243552,
     laneColor: 0x00ffff,
-    accentColor: '#00FFFF',
+    accentColor: '#00DDFF',
     description:
       'Vuelo urbano de alta precisión entre las torres y puentes aéreos de Chroma Space Studios con colisiones físicas reales.',
   },
@@ -290,7 +290,7 @@ export const SummitDroneMiniGame: React.FC = () => {
 
   const animFrameIdRef = useRef<number | null>(null);
 
-  const addXpToast = useCallback((text: string, color: string = '#00FFFF') => {
+  const addXpToast = useCallback((text: string, color: string = '#00DDFF') => {
     const id = `${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
     setFloatingToasts(prev => [...prev.slice(-3), { id, text, color, time: Date.now() }]);
     setTimeout(() => {
@@ -880,7 +880,7 @@ export const SummitDroneMiniGame: React.FC = () => {
     s.reboundVel.x += s.barrelRollDir * -26;
     playCyberSfx('roll');
     recordDroneTrick('barrel_roll');
-    addXpToast('+40 XP • BARREL ROLL EVASIVO 360°!', '#00FFFF');
+    addXpToast('+40 XP • BARREL ROLL EVASIVO 360°!', '#00DDFF');
   }, [addXpToast, playCyberSfx, recordDroneTrick]);
 
   const triggerTurbo = useCallback(() => {
@@ -905,7 +905,7 @@ export const SummitDroneMiniGame: React.FC = () => {
     }
     playCyberSfx('shield');
     recordActivity('drone_flight', 'Escudo de Plasma Activado', 'Defensa cuántica contra impactos 3D', 35);
-    addXpToast('+35 XP • ESCUDO DE PLASMA!', '#00FFFF');
+    addXpToast('+35 XP • ESCUDO DE PLASMA!', '#00DDFF');
   }, [addXpToast, playCyberSfx, recordActivity]);
 
   const triggerEmp = useCallback(() => {
@@ -943,7 +943,7 @@ export const SummitDroneMiniGame: React.FC = () => {
     const xpBonus = 60 + destroyedCount * 15;
     simRef.current.scoreVal += 200 + destroyedCount * 150;
     setScore(simRef.current.scoreVal);
-    addXpToast(`+${xpBonus} XP • PULSO EMP (${destroyedCount} VAPORIZADOS)`, '#00FFFF');
+    addXpToast(`+${xpBonus} XP • PULSO EMP (${destroyedCount} VAPORIZADOS)`, '#00DDFF');
   }, [addXpToast, playCyberSfx, recordDroneTrick, spawnImpactSparks]);
 
   const triggerSlowmo = useCallback(() => {
@@ -1215,7 +1215,7 @@ export const SummitDroneMiniGame: React.FC = () => {
 
             if (isShield || s.isBarrelRolling) {
               playCyberSfx('shield');
-              addXpToast(`ESCUDO / ROLL DEFLECTÓ ${col.label.toUpperCase()}!`, '#00FFFF');
+              addXpToast(`ESCUDO / ROLL DEFLECTÓ ${col.label.toUpperCase()}!`, '#00DDFF');
             } else {
               s.collisionsVal += 1;
               setCollisionsCount(s.collisionsVal);
@@ -1289,7 +1289,7 @@ export const SummitDroneMiniGame: React.FC = () => {
               setRingsPassed(s.ringsVal);
               setScore(s.scoreVal);
               playCyberSfx('ring');
-              addXpToast('+25 XP • ANILLO DE VELOCIDAD LIMPIO!', '#00FFFF');
+              addXpToast('+25 XP • ANILLO DE VELOCIDAD LIMPIO!', '#00DDFF');
               (ring.mesh.children[0] as THREE.Mesh).scale.set(1.35, 1.35, 1.35);
             } else if (radialDist >= 4.7 && radialDist <= 6.6 && time - ring.rimHitTime > 500) {
               // Clipped the metallic Torus Rim of the ring!
@@ -1345,7 +1345,7 @@ export const SummitDroneMiniGame: React.FC = () => {
 
                 if (isShield || s.isBarrelRolling) {
                   playCyberSfx('shield');
-                  addXpToast('ESCUDO / ROLL DEFLECTÓ MINA!', '#00FFFF');
+                  addXpToast('ESCUDO / ROLL DEFLECTÓ MINA!', '#00DDFF');
                 } else {
                   s.collisionsVal += 1;
                   setCollisionsCount(s.collisionsVal);
@@ -1645,7 +1645,7 @@ export const SummitDroneMiniGame: React.FC = () => {
           {floatingToasts.map(toast => (
             <div
               key={toast.id}
-              className="px-3 py-1 bg-black/85 border border-[#00FFFF] text-xs font-mono font-bold shadow-lg"
+              className="px-3 py-1 bg-black/85 border border-[#00DDFF] text-xs font-mono font-bold shadow-lg"
               style={{ color: toast.color }}
             >
               {toast.text}
@@ -1661,7 +1661,7 @@ export const SummitDroneMiniGame: React.FC = () => {
               <div className="bg-black/75 backdrop-blur-md border border-[#32527B] p-2.5 space-y-1.5 min-w-[175px]">
                 <div className="flex items-center justify-between">
                   <span className="text-slate-400 text-[10px]">VELOCIDAD:</span>
-                  <span className="text-[#00FFFF] font-bold tabular-nums">{speedKmh} KM/H</span>
+                  <span className="text-[#00DDFF] font-bold tabular-nums">{speedKmh} KM/H</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-slate-400 text-[10px]">ALTITUD:</span>
@@ -1670,13 +1670,13 @@ export const SummitDroneMiniGame: React.FC = () => {
                 <div className="space-y-0.5">
                   <div className="flex items-center justify-between text-[10px]">
                     <span className="text-slate-400">INTEGRIDAD / BATERÍA:</span>
-                    <span className={energy > 30 ? 'text-[#00FFFF] font-bold' : 'text-rose-400 font-bold animate-pulse'}>
+                    <span className={energy > 30 ? 'text-[#00DDFF] font-bold' : 'text-rose-400 font-bold animate-pulse'}>
                       {energy}%
                     </span>
                   </div>
                   <div className="w-full h-1.5 bg-slate-800 overflow-hidden">
                     <div
-                      className={`h-full transition-all ${energy > 30 ? 'bg-[#00FFFF]' : 'bg-rose-500'}`}
+                      className={`h-full transition-all ${energy > 30 ? 'bg-[#00DDFF]' : 'bg-rose-500'}`}
                       style={{ width: `${energy}%` }}
                     />
                   </div>
@@ -1691,7 +1691,7 @@ export const SummitDroneMiniGame: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-slate-400 text-[10px]">ANILLOS LIMPIOS:</span>
-                  <span className="text-[#00FFFF] font-bold tabular-nums">{ringsPassed} / 16</span>
+                  <span className="text-[#00DDFF] font-bold tabular-nums">{ringsPassed} / 16</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-slate-400 text-[10px]">IMPACTOS 3D:</span>
@@ -1710,7 +1710,7 @@ export const SummitDroneMiniGame: React.FC = () => {
                 className={`relative px-2.5 py-2 border flex flex-col items-center gap-1 font-mono text-[10px] transition-all cursor-pointer ${
                   cooldowns.roll > 0
                     ? 'bg-slate-900/60 border-slate-800 text-slate-500 cursor-not-allowed'
-                    : 'bg-slate-900 border-[#00FFFF]/70 text-[#00FFFF] hover:bg-[#00FFFF] hover:text-black'
+                    : 'bg-slate-900 border-[#00DDFF]/70 text-[#00DDFF] hover:bg-[#00DDFF] hover:text-black'
                 }`}
               >
                 <RefreshCw className="w-4 h-4" />
@@ -1751,10 +1751,10 @@ export const SummitDroneMiniGame: React.FC = () => {
                 disabled={cooldowns.shield > 0}
                 className={`relative px-2.5 py-2 border flex flex-col items-center gap-1 font-mono text-[10px] transition-all cursor-pointer ${
                   shieldActive
-                    ? 'bg-[#00FFFF] text-black border-[#00FFFF] font-extrabold'
+                    ? 'bg-[#00DDFF] text-black border-[#00DDFF] font-extrabold'
                     : cooldowns.shield > 0
                     ? 'bg-slate-900/60 border-slate-800 text-slate-500 cursor-not-allowed'
-                    : 'bg-slate-900 border-[#00FFFF]/60 text-[#00FFFF] hover:bg-[#00FFFF] hover:text-black'
+                    : 'bg-slate-900 border-[#00DDFF]/60 text-[#00DDFF] hover:bg-[#00DDFF] hover:text-black'
                 }`}
               >
                 <Shield className="w-4 h-4" />
@@ -1774,7 +1774,7 @@ export const SummitDroneMiniGame: React.FC = () => {
                 className={`relative px-2.5 py-2 border flex flex-col items-center gap-1 font-mono text-[10px] transition-all cursor-pointer ${
                   cooldowns.emp > 0
                     ? 'bg-slate-900/60 border-slate-800 text-slate-500 cursor-not-allowed'
-                    : 'bg-slate-900 border-[#32527B] text-[#00FFFF] hover:bg-[#32527B] hover:text-white'
+                    : 'bg-slate-900 border-[#32527B] text-[#00DDFF] hover:bg-[#32527B] hover:text-white'
                 }`}
               >
                 <Wind className="w-4 h-4" />
@@ -1793,10 +1793,10 @@ export const SummitDroneMiniGame: React.FC = () => {
                 disabled={cooldowns.slowmo > 0}
                 className={`relative px-2.5 py-2 border flex flex-col items-center gap-1 font-mono text-[10px] transition-all cursor-pointer ${
                   slowmoActive
-                    ? 'bg-[#FF6B00] text-black border-[#FF6B00] font-extrabold'
+                    ? 'bg-[#FFBB00] text-black border-[#FFBB00] font-extrabold'
                     : cooldowns.slowmo > 0
                     ? 'bg-slate-900/60 border-slate-800 text-slate-500 cursor-not-allowed'
-                    : 'bg-slate-900 border-[#FF6B00]/60 text-[#FF6B00] hover:bg-[#FF6B00] hover:text-black'
+                    : 'bg-slate-900 border-[#FFBB00]/60 text-[#FFBB00] hover:bg-[#FFBB00] hover:text-black'
                 }`}
               >
                 <Clock className="w-4 h-4" />
@@ -1825,7 +1825,7 @@ export const SummitDroneMiniGame: React.FC = () => {
         {/* Start Game Modal Overlay (Calibrated to fit 100% without scroll) */}
         {!isPlaying && !gameOver && (
           <div className="absolute inset-0 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-5 text-center z-30 overflow-hidden">
-            <div className="w-12 h-12 bg-[#32527B]/40 border border-[#00FFFF] flex items-center justify-center text-[#00FFFF] shadow-xl mb-2.5">
+            <div className="w-12 h-12 bg-[#32527B]/40 border border-[#00DDFF] flex items-center justify-center text-[#00DDFF] shadow-xl mb-2.5">
               <Boxes className="w-6 h-6" />
             </div>
 
@@ -1852,7 +1852,7 @@ export const SummitDroneMiniGame: React.FC = () => {
                     className={`p-2.5 border text-left transition-all cursor-pointer ${
                       isSel
                         ? 'bg-[#32527B]/60 border-[#FDCC0D] shadow-md'
-                        : 'bg-slate-900/60 border-[#32527B]/50 hover:border-[#00FFFF] text-slate-300'
+                        : 'bg-slate-900/60 border-[#32527B]/50 hover:border-[#00DDFF] text-slate-300'
                     }`}
                   >
                     <div className="text-[10px] font-mono font-bold text-[#FDCC0D]">{cfg.code}</div>
@@ -1879,7 +1879,7 @@ export const SummitDroneMiniGame: React.FC = () => {
                 onClick={() => setIsGuideOpen(true)}
                 className="px-4 py-3 bg-slate-900 hover:bg-[#32527B] border border-[#32527B] text-slate-200 text-xs font-mono font-bold flex items-center space-x-2 transition-all cursor-pointer"
               >
-                <HelpCircle className="w-4 h-4 text-[#00FFFF]" />
+                <HelpCircle className="w-4 h-4 text-[#00DDFF]" />
                 <span>CONTROLES & FÍSICA</span>
               </button>
             </div>

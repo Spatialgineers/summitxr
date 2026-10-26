@@ -10,7 +10,7 @@ interface MatchBurstFXProps {
   onComplete?: () => void;
 }
 
-export const triggerMatchConfetti = (primaryColor: string = '#00F0FF', secondaryColor: string = '#FDCC0D') => {
+export const triggerMatchConfetti = (primaryColor: string = '#00DDFF', secondaryColor: string = '#FDCC0D') => {
   // Fire sound
   playMatchBurstSound();
 
@@ -55,7 +55,7 @@ export const triggerMatchConfetti = (primaryColor: string = '#00F0FF', secondary
 };
 
 export const MatchBurstFX: React.FC<MatchBurstFXProps> = ({
-  primaryColor = '#00F0FF',
+  primaryColor = '#00DDFF',
   secondaryColor = '#FDCC0D',
   onComplete
 }) => {

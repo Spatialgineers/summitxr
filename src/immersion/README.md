@@ -37,7 +37,17 @@ They stand down while typing and while the drone game is flying (`body[data-sgx-
 2. Call `completeQuest('your_id')` from any component via `useImmersion()`, or derive its
    progress in `derivedProgress()` inside `ImmersionContext.tsx`.
 
+## Platform chrome
+
+- `SgxBootSequence.tsx`: cinematic boot (particles assemble the SGX Bolt, emission, wordmark decode), then the sponsor splash.
+- `src/components/summit/SgxSectionHudBar.tsx`: single-row section HUD with station number, pillar groups and visited/cell markers.
+- `src/components/summit/SummitSectionBanner.tsx`: cinematic section hero (decoding title, giant station index, holo grid).
+- `ImmersionFX.tsx` `Holodeck` + `useScrollReveal`: grid floor behind sub-pages and rise-in reveal for section blocks.
+- Styles for all of it: `src/styles/sgx-platform.css`.
+
 ## Design system
+
+A platform skin in the same file re-points Tailwind's palette (slate, cyan, amber, orange, blue and friends) and radius scale at the SGX values, so every existing component renders in the brand.
 
 All visuals use the tokens and `sgx-*` components in `src/styles/sgx-design-system.css`,
 ported from the "Spatialgineers SGX" design system: Orbitron (display), Chakra Petch (HUD),

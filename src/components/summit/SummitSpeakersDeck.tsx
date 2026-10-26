@@ -102,11 +102,11 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
   const getPillarColor = (pillarId?: SummitPillarId) => {
     switch (pillarId) {
       case 'SGX.STORY': return '#FDCC0D';
-      case 'SGX.SHOWCASE': return '#00FFFF';
-      case 'SGX.SPARK': return '#FF6B00';
+      case 'SGX.SHOWCASE': return '#00DDFF';
+      case 'SGX.SPARK': return '#FFBB00';
       case 'SGX.STAGE': return '#FFFFFF';
       case 'SGX.SYSTEM': return '#32527B';
-      case 'SGX.SYNTHESIZE': return '#00FFFF';
+      case 'SGX.SYNTHESIZE': return '#00DDFF';
       default: return '#FDCC0D';
     }
   };
@@ -119,14 +119,14 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-[#0A0F1D]/90 p-5 md:p-6 backdrop-blur-md shadow-2xl">
+      <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-[#121212]/90 p-5 md:p-6 backdrop-blur-md shadow-2xl">
         <div className="absolute top-0 right-0 w-80 h-80 bg-[#FDCC0D]/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#00FFFF]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#00DDFF]/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-widest uppercase bg-[#00FFFF]/10 text-[#00FFFF] border border-[#00FFFF]/30">
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-widest uppercase bg-[#00DDFF]/10 text-[#00DDFF] border border-[#00DDFF]/30">
                 3D INTERACTIVE CARD DECK
               </span>
               <span className="px-2.5 py-0.5 rounded text-[10px] font-mono text-slate-400 bg-slate-800/60 border border-slate-700">
@@ -294,7 +294,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                       FOUNDER & KEYNOTE
                     </span>
                   ) : (
-                    <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-[#00FFFF]/20 text-[#00FFFF] border border-[#00FFFF]/50 flex items-center gap-1">
+                    <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-[#00DDFF]/20 text-[#00DDFF] border border-[#00DDFF]/50 flex items-center gap-1">
                       <Sparkles className="w-2.5 h-2.5" />
                       PILOTO REGISTRADO
                     </span>
@@ -342,7 +342,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                   <span className="truncate max-w-[150px]">
                     {speaker.organization || 'Spatialgineers Ecosystem'}
                   </span>
-                  <span className="text-[#00FFFF] flex items-center gap-1">
+                  <span className="text-[#00DDFF] flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
                     {speakerSessions.length} {speakerSessions.length === 1 ? 'bloque' : 'bloques'}
                   </span>
@@ -360,10 +360,10 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
           }}
           className="cursor-pointer group h-full"
         >
-          <div className="relative rounded-xl border-2 border-dashed border-[#00FFFF]/50 hover:border-[#FDCC0D] p-5 bg-gradient-to-b from-[#0A1020]/90 to-[#060A14]/90 transition-all duration-300 ease-out group-hover:-translate-y-1.5 group-hover:shadow-[0_16px_36px_rgba(0,255,255,0.25)] flex flex-col justify-between h-full min-h-[240px]">
+          <div className="relative rounded-xl border-2 border-dashed border-[#00DDFF]/50 hover:border-[#FDCC0D] p-5 bg-gradient-to-b from-[#131313]/90 to-[#0C0C0C]/90 transition-all duration-300 ease-out group-hover:-translate-y-1.5 group-hover:shadow-[0_16px_36px_rgba(0, 221, 255,0.25)] flex flex-col justify-between h-full min-h-[240px]">
             <div>
               <div className="flex items-center justify-between gap-1 mb-3">
-                <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold tracking-wider uppercase border border-[#00FFFF]/40 bg-[#00FFFF]/10 text-[#00FFFF]">
+                <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold tracking-wider uppercase border border-[#00DDFF]/40 bg-[#00DDFF]/10 text-[#00DDFF]">
                   CONVOCATORIA
                 </span>
                 <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-[#FDCC0D]/20 text-[#FDCC0D] border border-[#FDCC0D]/40 animate-pulse">
@@ -373,7 +373,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
 
               <div className="flex items-start gap-3">
                 <div className="w-12 h-12 rounded-xl bg-cyan-950/80 border border-cyan-400/50 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                  <Sparkles className="w-6 h-6 text-[#00FFFF]" />
+                  <Sparkles className="w-6 h-6 text-[#00DDFF]" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white group-hover:text-[#FDCC0D] transition-colors font-['Orbitron',sans-serif]">
@@ -405,7 +405,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
           onClick={() => setInspectedSpeaker(null)}
         >
           <div 
-            className="relative w-full max-w-lg rounded-2xl border border-slate-800 bg-[#0A0F1D] p-6 shadow-2xl overflow-hidden"
+            className="relative w-full max-w-lg rounded-2xl border border-slate-800 bg-[#121212] p-6 shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
             style={{
               borderColor: `${getPillarColor(inspectedSpeaker.pillarId)}80`
@@ -476,12 +476,12 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
             {inspectedSpeaker.socialLinks && (
               <div className="mt-3 flex items-center gap-2">
                 {inspectedSpeaker.socialLinks.twitter && (
-                  <a href={inspectedSpeaker.socialLinks.twitter} target="_blank" rel="noreferrer" className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-[#00FFFF]">
+                  <a href={inspectedSpeaker.socialLinks.twitter} target="_blank" rel="noreferrer" className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-[#00DDFF]">
                     <Twitter className="w-4 h-4" />
                   </a>
                 )}
                 {inspectedSpeaker.socialLinks.linkedin && (
-                  <a href={inspectedSpeaker.socialLinks.linkedin} target="_blank" rel="noreferrer" className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-[#00FFFF]">
+                  <a href={inspectedSpeaker.socialLinks.linkedin} target="_blank" rel="noreferrer" className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-[#00DDFF]">
                     <Linkedin className="w-4 h-4" />
                   </a>
                 )}

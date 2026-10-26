@@ -113,9 +113,9 @@ export const SgxHoloCardGeneratorModal: React.FC<
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[99999] w-screen h-screen bg-[#040812]/95 backdrop-blur-xl flex flex-col p-0 m-0 overflow-hidden animate-fadeIn">
+    <div className="fixed inset-0 z-[99999] w-screen h-screen bg-[#0A0A0A]/95 backdrop-blur-xl flex flex-col p-0 m-0 overflow-hidden animate-fadeIn">
       {/* Top Holographic Studio Header Bar */}
-      <div className="w-full flex flex-wrap items-center justify-between gap-2 px-3 sm:px-5 py-2.5 bg-[#080F1E] border-b border-cyan-500/40 shrink-0 z-20">
+      <div className="w-full flex flex-wrap items-center justify-between gap-2 px-3 sm:px-5 py-2.5 bg-[#121212] border-b border-cyan-500/40 shrink-0 z-20">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-300">
             <Sparkles className="w-4 h-4" />

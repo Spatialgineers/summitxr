@@ -139,7 +139,7 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
-        <div className="w-12 h-12 rounded-full border-2 border-[#00F0FF] border-t-transparent animate-spin mb-4" />
+        <div className="w-12 h-12 rounded-full border-2 border-[#00DDFF] border-t-transparent animate-spin mb-4" />
         <p className="text-sm font-mono text-slate-400">
           Sincronizando fundadores en Chroma Space...
         </p>
@@ -150,8 +150,8 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
   // Empty deck state
   if (!currentCandidate) {
     return (
-      <div className="w-full max-w-md mx-auto bg-[#0a0e14] border border-slate-800 rounded-3xl p-8 text-center shadow-xl">
-        <div className="w-16 h-16 rounded-2xl bg-cyan-950/40 border border-[#00F0FF]/30 mx-auto flex items-center justify-center mb-4 text-[#00F0FF]">
+      <div className="w-full max-w-md mx-auto bg-[#0f0f0f] border border-slate-800 rounded-3xl p-8 text-center shadow-xl">
+        <div className="w-16 h-16 rounded-2xl bg-cyan-950/40 border border-[#00DDFF]/30 mx-auto flex items-center justify-center mb-4 text-[#00DDFF]">
           <UserCheck className="w-8 h-8" />
         </div>
         <h3 className="text-lg font-bold text-white mb-2 font-sans">
@@ -164,7 +164,7 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <button
             onClick={onEditProfile}
-            className="w-full sm:w-auto py-2.5 px-5 rounded-xl bg-[#00F0FF] hover:bg-[#00d0e0] text-black font-mono font-bold text-xs shadow-md transition-all cursor-pointer"
+            className="w-full sm:w-auto py-2.5 px-5 rounded-xl bg-[#00DDFF] hover:bg-[#00d0e0] text-black font-mono font-bold text-xs shadow-md transition-all cursor-pointer"
           >
             {strings.deckEmptyCta}
           </button>
@@ -185,7 +185,7 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
       {/* Deck Remaining Count & Keyboard hints */}
       <div className="flex items-center justify-between w-full max-w-[420px] mb-3 px-1 text-[11px] font-mono text-slate-400">
         <span className="flex items-center gap-1.5">
-          <Layers className="w-3.5 h-3.5 text-[#00F0FF]" />
+          <Layers className="w-3.5 h-3.5 text-[#00DDFF]" />
           <span>{deck.length} perfiles restantes</span>
         </span>
         <span className="hidden sm:inline text-slate-500">
@@ -208,7 +208,7 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
       {/* Moderation / Report Dialog Modal */}
       {reportingCandidate && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-sm bg-[#0e141e] border border-slate-700 rounded-2xl p-5 shadow-2xl text-white">
+          <div className="w-full max-w-sm bg-[#151515] border border-slate-700 rounded-2xl p-5 shadow-2xl text-white">
             <div className="flex items-center gap-2 mb-3 text-rose-400">
               <ShieldAlert className="w-5 h-5" />
               <h4 className="font-bold text-sm">Reportar perfil</h4>
@@ -238,7 +238,7 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
                         name="report_reason"
                         checked={reportReason === opt.id}
                         onChange={() => setReportReason(opt.id)}
-                        className="accent-[#00F0FF]"
+                        className="accent-[#00DDFF]"
                       />
                       <span>{opt.label}</span>
                     </label>

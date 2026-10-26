@@ -492,14 +492,14 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
 
       {/* 3. Feed Display Grid */}
       {loading ? (
-        <div className="py-20 text-center space-y-3 bg-[#080d17] border border-slate-800">
+        <div className="py-20 text-center space-y-3 bg-[#0f0f0f] border border-slate-800">
           <RefreshCw className="w-8 h-8 text-[#FDCC0D] animate-spin mx-auto" />
           <p className="text-xs font-mono text-slate-400 uppercase tracking-widest">
             Sincronizando stream en tiempo real con Firestore...
           </p>
         </div>
       ) : posts.length === 0 ? (
-        <div className="py-16 text-center space-y-4 bg-[#080d17] border border-slate-800 p-6">
+        <div className="py-16 text-center space-y-4 bg-[#0f0f0f] border border-slate-800 p-6">
           <Instagram className="w-12 h-12 text-slate-600 mx-auto" />
           <div className="space-y-1">
             <h3 className="text-sm font-bold text-slate-200 font-mono uppercase">

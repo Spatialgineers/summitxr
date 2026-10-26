@@ -39,7 +39,7 @@ export const QuickHudSwitcher: React.FC<QuickHudSwitcherProps> = ({
   return (
     <div className="fixed top-2.5 sm:top-4 inset-x-0 z-[80] flex justify-center px-2 pointer-events-none">
       <div 
-        className="pointer-events-auto flex items-center justify-between gap-1.5 sm:gap-3 p-1.5 sm:p-2 bg-[#080C14]/90 backdrop-blur-md border rounded-2xl sm:rounded-full shadow-2xl max-w-full overflow-x-auto transition-all"
+        className="pointer-events-auto flex items-center justify-between gap-1.5 sm:gap-3 p-1.5 sm:p-2 bg-[#0D0D0D]/90 backdrop-blur-md border rounded-2xl sm:rounded-full shadow-2xl max-w-full overflow-x-auto transition-all"
         style={{
           borderColor: `rgba(${primaryRgb}, 0.35)`,
           boxShadow: `0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(${primaryRgb}, 0.15)`

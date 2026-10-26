@@ -156,7 +156,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
   return (
     <>
       <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-        <div className="bg-[var(--sgx-card-bg)] border border-[var(--sgx-neon)] max-w-4xl w-full my-auto rounded-none shadow-[0_0_50px_rgba(0,255,255,0.15)] flex flex-col max-h-[92vh] overflow-hidden">
+        <div className="bg-[var(--sgx-card-bg)] border border-[var(--sgx-neon)] max-w-4xl w-full my-auto rounded-none shadow-[0_0_50px_rgba(0, 221, 255,0.15)] flex flex-col max-h-[92vh] overflow-hidden">
           
           {/* Header */}
           <div className="bg-[var(--sgx-bg)] border-b border-[var(--sgx-secondary)] px-5 py-3.5 flex items-center justify-between">
@@ -526,7 +526,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
                       <button
                         type="button"
                         onClick={() => setIsCharacterEditorOpen(true)}
-                        className="w-full bg-gradient-to-r from-cyan-950/80 via-[#0d1829] to-amber-950/80 border-2 border-[var(--sgx-neon)] hover:border-amber-400 p-4 text-center cursor-pointer transition-all hover:scale-[1.01] shadow-[0_0_20px_rgba(0,255,255,0.2)] flex flex-col items-center justify-center space-y-2 group"
+                        className="w-full bg-gradient-to-r from-cyan-950/80 via-[#1a1a1a] to-amber-950/80 border-2 border-[var(--sgx-neon)] hover:border-amber-400 p-4 text-center cursor-pointer transition-all hover:scale-[1.01] shadow-[0_0_20px_rgba(0, 221, 255,0.2)] flex flex-col items-center justify-center space-y-2 group"
                       >
                         <div className="w-10 h-10 rounded-full bg-[var(--sgx-neon)]/15 border border-[var(--sgx-neon)] group-hover:border-amber-400 flex items-center justify-center text-[var(--sgx-neon)] group-hover:text-amber-400 transition-colors">
                           <Sparkles className="w-5 h-5 animate-pulse" />

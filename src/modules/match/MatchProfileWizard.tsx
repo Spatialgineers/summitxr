@@ -257,12 +257,12 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto bg-[#0a0e14] border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-2xl relative text-white">
+    <div className="w-full max-w-xl mx-auto bg-[#0f0f0f] border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-2xl relative text-white">
       {/* Top Header */}
       <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-[#00DDFF] animate-pulse" />
             <h2 className="text-base sm:text-lg font-bold font-sans tracking-wide">
               {strings.wizardTitle}
             </h2>
@@ -274,7 +274,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
 
         {/* Step Indicator */}
         <div className="flex items-center gap-1.5 font-mono text-xs text-slate-400">
-          <span className="text-[#00F0FF] font-bold">{step}</span>
+          <span className="text-[#00DDFF] font-bold">{step}</span>
           <span>/</span>
           <span>6</span>
         </div>
@@ -305,7 +305,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
               }}
               placeholder={strings.stepPitchPlaceholder}
               rows={3}
-              className="w-full bg-slate-900/90 border border-slate-700 rounded-xl p-3 text-white text-sm focus:border-[#00F0FF] focus:outline-none placeholder:text-slate-500 font-sans resize-none"
+              className="w-full bg-slate-900/90 border border-slate-700 rounded-xl p-3 text-white text-sm focus:border-[#00DDFF] focus:outline-none placeholder:text-slate-500 font-sans resize-none"
             />
             <div className="flex justify-between items-center text-[11px] font-mono mt-1.5 text-slate-400">
               <span>Sé directo y conciso. Máximo 1–2 líneas.</span>
@@ -339,12 +339,12 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
                   onClick={() => toggleBring(chip)}
                   className={`p-2.5 rounded-xl border text-xs font-mono text-left transition-all flex items-center justify-between cursor-pointer ${
                     active
-                      ? 'bg-slate-800 border-[#00F0FF] text-[#00F0FF] shadow-sm'
+                      ? 'bg-slate-800 border-[#00DDFF] text-[#00DDFF] shadow-sm'
                       : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:border-slate-700'
                   }`}
                 >
                   <span className="truncate">{getBringLabel(chip)}</span>
-                  {active && <Check className="w-3.5 h-3.5 text-[#00F0FF] flex-shrink-0 ml-1" />}
+                  {active && <Check className="w-3.5 h-3.5 text-[#00DDFF] flex-shrink-0 ml-1" />}
                 </button>
               );
             })}
@@ -361,7 +361,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
               maxLength={60}
               onChange={e => setCustomBrings(e.target.value)}
               placeholder="Ej: Shader programming, Unreal Engine 5..."
-              className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-[#00F0FF] focus:outline-none"
+              className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-[#00DDFF] focus:outline-none"
             />
           </div>
         </div>
@@ -389,12 +389,12 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
                   onClick={() => toggleSeeking(chip)}
                   className={`p-3 rounded-xl border text-xs font-mono font-semibold text-left transition-all flex items-center justify-between cursor-pointer ${
                     active
-                      ? 'bg-[#00F0FF]/15 border-[#00F0FF] text-[#00F0FF] shadow-md shadow-cyan-950/40'
+                      ? 'bg-[#00DDFF]/15 border-[#00DDFF] text-[#00DDFF] shadow-md shadow-cyan-950/40'
                       : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:border-slate-700'
                   }`}
                 >
                   <span className="truncate">{getSeekingLabel(chip)}</span>
-                  {active && <Check className="w-4 h-4 text-[#00F0FF] flex-shrink-0 ml-1" />}
+                  {active && <Check className="w-4 h-4 text-[#00DDFF] flex-shrink-0 ml-1" />}
                 </button>
               );
             })}
@@ -492,7 +492,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
           </div>
 
           <div className="mt-4 p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400 flex items-center gap-2">
-            <Info className="w-4 h-4 text-[#00F0FF] flex-shrink-0" />
+            <Info className="w-4 h-4 text-[#00DDFF] flex-shrink-0" />
             <span>Al publicar, recibirás +150 XP de bonificación para tu Summit Passport.</span>
           </div>
         </div>
@@ -548,7 +548,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
           <button
             type="button"
             onClick={handleNext}
-            className="py-2.5 px-5 rounded-xl bg-[#00F0FF] hover:bg-[#00d0e0] text-black text-xs font-mono font-bold flex items-center gap-1.5 shadow-md shadow-cyan-900/40 transition-all cursor-pointer"
+            className="py-2.5 px-5 rounded-xl bg-[#00DDFF] hover:bg-[#00d0e0] text-black text-xs font-mono font-bold flex items-center gap-1.5 shadow-md shadow-cyan-900/40 transition-all cursor-pointer"
           >
             <span>Siguiente</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -558,7 +558,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
             type="button"
             disabled={isSubmitting}
             onClick={handlePublish}
-            className="py-2.5 px-6 rounded-xl bg-gradient-to-r from-[#00F0FF] via-[#FDCC0D] to-[#10b981] hover:opacity-95 text-black text-xs font-mono font-extrabold flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+            className="py-2.5 px-6 rounded-xl bg-gradient-to-r from-[#00DDFF] via-[#FDCC0D] to-[#10b981] hover:opacity-95 text-black text-xs font-mono font-extrabold flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
           >
             <Sparkles className="w-4 h-4 fill-black text-black" />
             <span>{isSubmitting ? 'Publicando...' : strings.reviewPublish}</span>

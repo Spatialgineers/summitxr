@@ -232,14 +232,14 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
         style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
       >
         {/* Compact Top Bar for Active Game / Experience */}
-        <div className="bg-[#080D18] border-b border-[var(--sgx-secondary)]/60 px-4 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2.5">
+        <div className="bg-[#0F0F0F] border-b border-[var(--sgx-secondary)]/60 px-4 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2.5">
           <div className="flex items-center space-x-2.5 max-w-full">
             <Gamepad2 className="w-4 h-4 text-[#FDCC0D] shrink-0" />
             <span className="text-xs sm:text-sm font-extrabold text-white font-['Orbitron',sans-serif] uppercase tracking-wider break-words">
               {activeEmbed?.title}
             </span>
             <span
-              className="text-[9px] px-2 py-0.5 bg-[#32527B]/40 border border-[#00FFFF]/60 text-[#00FFFF] font-mono shrink-0 font-bold"
+              className="text-[9px] px-2 py-0.5 bg-[#32527B]/40 border border-[#00DDFF]/60 text-[#00DDFF] font-mono shrink-0 font-bold"
               style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
             >
               {activeEmbed?.category}
@@ -266,7 +266,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
               >
                 <button
                   onClick={() => setHeightMode('CINEMATIC')}
-                  className={`px-2 py-0.5 transition-colors cursor-pointer ${heightMode === 'CINEMATIC' ? 'bg-[#00FFFF] text-black font-bold' : 'text-slate-400 hover:text-white'}`}
+                  className={`px-2 py-0.5 transition-colors cursor-pointer ${heightMode === 'CINEMATIC' ? 'bg-[#00DDFF] text-black font-bold' : 'text-slate-400 hover:text-white'}`}
                   style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
                   title="Modo Cine 16:9"
                 >
@@ -274,7 +274,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 </button>
                 <button
                   onClick={() => setHeightMode('STANDARD')}
-                  className={`px-2 py-0.5 transition-colors cursor-pointer ${heightMode === 'STANDARD' ? 'bg-[#00FFFF] text-black font-bold' : 'text-slate-400 hover:text-white'}`}
+                  className={`px-2 py-0.5 transition-colors cursor-pointer ${heightMode === 'STANDARD' ? 'bg-[#00DDFF] text-black font-bold' : 'text-slate-400 hover:text-white'}`}
                   style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
                   title="Modo Estándar"
                 >
@@ -282,7 +282,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 </button>
                 <button
                   onClick={() => setHeightMode('EXPANDED')}
-                  className={`px-2 py-0.5 transition-colors cursor-pointer ${heightMode === 'EXPANDED' ? 'bg-[#00FFFF] text-black font-bold' : 'text-slate-400 hover:text-white'}`}
+                  className={`px-2 py-0.5 transition-colors cursor-pointer ${heightMode === 'EXPANDED' ? 'bg-[#00DDFF] text-black font-bold' : 'text-slate-400 hover:text-white'}`}
                   style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
                   title="Modo Extendido"
                 >
@@ -319,7 +319,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
 
             <button
               onClick={() => setIsFullscreen(true)}
-              className="px-2.5 py-1 bg-[#32527B]/60 hover:bg-[#00FFFF] hover:text-black text-[#00FFFF] border border-[#00FFFF]/60 text-[10px] font-mono font-bold flex items-center gap-1 transition-colors cursor-pointer"
+              className="px-2.5 py-1 bg-[#32527B]/60 hover:bg-[#00DDFF] hover:text-black text-[#00DDFF] border border-[#00DDFF]/60 text-[10px] font-mono font-bold flex items-center gap-1 transition-colors cursor-pointer"
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
               title="Pantalla Completa Inmersiva"
             >
@@ -353,7 +353,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 key={`custom_code_${activeEmbed?.id}_${iframeKey}`}
                 srcDoc={activeEmbed?.customCode}
                 title={activeEmbed?.title || 'SGX Custom Code Sandbox'}
-                className="w-full h-full border-0 bg-[#050811]"
+                className="w-full h-full border-0 bg-[#0A0A0A]"
                 sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-downloads allow-modals"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; xr-spatial-tracking; fullscreen; camera; microphone"
                 allowFullScreen
@@ -398,7 +398,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
         )}
 
         {/* Compact Description & Author Footer Bar */}
-        <div className="px-4 py-2.5 bg-[#080D18] border-t border-[var(--sgx-secondary)]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="px-4 py-2.5 bg-[#0F0F0F] border-t border-[var(--sgx-secondary)]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300 font-mono">
             <span className="line-clamp-1">{activeEmbed?.description}</span>
             <span className="text-slate-500">•</span>
@@ -457,7 +457,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 onClick={() => setSelectedCategory('MINI_GAME')}
                 className={`px-3 py-1.5 text-xs font-mono font-bold transition-all cursor-pointer ${
                   selectedCategory === 'MINI_GAME'
-                    ? 'bg-[#FF6B00] text-black font-extrabold shadow-md'
+                    ? 'bg-[#FFBB00] text-black font-extrabold shadow-md'
                     : 'bg-[var(--sgx-bg)] text-slate-300 border border-[var(--sgx-secondary)] hover:text-white'
                 }`}
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
@@ -468,7 +468,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 onClick={() => setSelectedCategory('WEBGL_XR')}
                 className={`px-3 py-1.5 text-xs font-mono font-bold transition-all cursor-pointer ${
                   selectedCategory === 'WEBGL_XR'
-                    ? 'bg-[#00FFFF] text-black font-extrabold shadow-md'
+                    ? 'bg-[#00DDFF] text-black font-extrabold shadow-md'
                     : 'bg-[var(--sgx-bg)] text-slate-300 border border-[var(--sgx-secondary)] hover:text-white'
                 }`}
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
@@ -479,7 +479,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 onClick={() => setSelectedCategory('STREAM_VIDEO')}
                 className={`px-3 py-1.5 text-xs font-mono font-bold transition-all cursor-pointer ${
                   selectedCategory === 'STREAM_VIDEO'
-                    ? 'bg-[#32527B] text-white border border-[#00FFFF] font-extrabold shadow-md'
+                    ? 'bg-[#32527B] text-white border border-[#00DDFF] font-extrabold shadow-md'
                     : 'bg-[var(--sgx-bg)] text-slate-300 border border-[var(--sgx-secondary)] hover:text-white'
                 }`}
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
@@ -520,7 +520,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 className={`w-full text-left p-3.5 border transition-all flex flex-col justify-between gap-3 cursor-pointer group relative sgx-spatial-card ${
                   isSelected
                     ? 'border-[#FDCC0D] bg-[#FDCC0D]/10 shadow-lg ring-1 ring-[#FDCC0D]'
-                    : 'border-[#32527B]/70 bg-[var(--sgx-bg)] hover:border-[#00FFFF]'
+                    : 'border-[#32527B]/70 bg-[var(--sgx-bg)] hover:border-[#00DDFF]'
                 }`}
                 style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
               >
@@ -528,7 +528,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                   <img
                     src={emb.thumbnailUrl}
                     alt={emb.title}
-                    className="w-14 h-14 object-cover border border-[#32527B] shrink-0 group-hover:border-[#00FFFF] transition-colors"
+                    className="w-14 h-14 object-cover border border-[#32527B] shrink-0 group-hover:border-[#00DDFF] transition-colors"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   />
 
@@ -548,7 +548,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                     </div>
 
                     <div className="flex items-center space-x-1.5 mt-0.5">
-                      <span className="text-[9px] text-[#00FFFF] font-mono uppercase font-bold">
+                      <span className="text-[9px] text-[#00DDFF] font-mono uppercase font-bold">
                         {emb.category}
                       </span>
                       {emb.isCustomUserApp && (
@@ -564,7 +564,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
 
                 <div className="flex items-center justify-between pt-2 border-t border-white/10 text-[10px] font-mono">
                   <span className="text-slate-400 truncate">{emb.author}</span>
-                  <span className={`font-bold ${isSelected ? 'text-[#FDCC0D]' : 'text-[#00FFFF]'}`}>
+                  <span className={`font-bold ${isSelected ? 'text-[#FDCC0D]' : 'text-[#00DDFF]'}`}>
                     {isSelected ? 'EN PANTALLA ARRIBA ▲' : 'CARGAR EN VISOR ▲'}
                   </span>
                 </div>
@@ -588,7 +588,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
       {isFullscreen && (
         <div className="fixed inset-0 z-50 bg-black flex flex-col">
           {/* Floating Header */}
-          <div className="bg-[#0b101d]/95 backdrop-blur-md border-b border-[var(--sgx-secondary)] px-6 py-3 flex items-center justify-between z-10">
+          <div className="bg-[#131313]/95 backdrop-blur-md border-b border-[var(--sgx-secondary)] px-6 py-3 flex items-center justify-between z-10">
             <div className="flex items-center space-x-3">
               <Box className="w-5 h-5 text-[var(--sgx-neon)]" />
               <span className="text-sm font-bold text-white font-mono uppercase tracking-wider">
@@ -662,7 +662,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
             className="bg-[var(--sgx-card-bg)] border-2 border-[var(--sgx-neon)] max-w-2xl w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto"
             style={{ 
               clipPath: 'polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)',
-              boxShadow: '0 0 35px rgba(0, 255, 255, 0.18)' 
+              boxShadow: '0 0 35px rgba(0, 221, 255, 0.18)' 
             }}
           >
             

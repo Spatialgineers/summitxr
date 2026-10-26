@@ -88,11 +88,11 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
   const getTierBadge = (tier: SponsorshipTier) => {
     switch (tier.tierNumber) {
       case 1:
-        return { label: 'TIER 1 • DIGITAL', color: '#00FFFF', border: 'border-[#00FFFF]' };
+        return { label: 'TIER 1 • DIGITAL', color: '#00DDFF', border: 'border-[#00DDFF]' };
       case 2:
         return { label: 'TIER 2 • GAMIFIED', color: '#FDCC0D', border: 'border-[#FDCC0D]' };
       case 3:
-        return { label: 'TIER 3 • EXPERIENCE', color: '#FF6B00', border: 'border-[#FF6B00]' };
+        return { label: 'TIER 3 • EXPERIENCE', color: '#FFBB00', border: 'border-[#FFBB00]' };
       case 4:
         return { label: 'TIER 4 • SIGNATURE 365D', color: '#FDCC0D', border: 'border-[#FDCC0D]' };
       case 5:
@@ -105,9 +105,9 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
   return (
     <div className="space-y-6">
       {/* Dossier Header Banner */}
-      <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-[#0A0F1D]/90 p-5 md:p-6 backdrop-blur-md shadow-2xl">
+      <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-[#121212]/90 p-5 md:p-6 backdrop-blur-md shadow-2xl">
         <div className="absolute top-0 right-0 w-80 h-80 bg-[#FDCC0D]/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#00FFFF]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#00DDFF]/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           <div>
@@ -187,8 +187,8 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
                 onClick={() => setSelectedTierId(tier.id)}
                 className={`relative rounded-xl border p-5 transition-all cursor-pointer flex flex-col justify-between ${
                   isSelected
-                    ? 'border-[#FDCC0D] bg-[#0F172A] shadow-[0_0_25px_rgba(253,204,13,0.15)] ring-1 ring-[#FDCC0D]'
-                    : 'border-slate-800 bg-[#0A0F1D]/80 hover:border-slate-700 hover:bg-[#0D1424]'
+                    ? 'border-[#FDCC0D] bg-[#1B1B1B] shadow-[0_0_25px_rgba(253,204,13,0.15)] ring-1 ring-[#FDCC0D]'
+                    : 'border-slate-800 bg-[#121212]/80 hover:border-slate-700 hover:bg-[#171717]'
                 }`}
               >
                 {/* 365 Days Flag for Tier 4 and 5 */}
@@ -224,7 +224,7 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
                   <div className="mt-4 pt-3 border-t border-slate-800/80 space-y-2">
                     {tier.features.map((feat, i) => (
                       <div key={i} className="flex items-start gap-2 text-[11px] text-slate-400">
-                        <Check className="w-3.5 h-3.5 text-[#00FFFF] shrink-0 mt-0.5" />
+                        <Check className="w-3.5 h-3.5 text-[#00DDFF] shrink-0 mt-0.5" />
                         <span className="leading-tight">{feat}</span>
                       </div>
                     ))}
@@ -253,15 +253,15 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
         </div>
       ) : (
         /* View Mode: Matrix Comparison Table */
-        <div className="rounded-xl border border-slate-800 bg-[#0A0F1D] overflow-hidden shadow-2xl">
+        <div className="rounded-xl border border-slate-800 bg-[#121212] overflow-hidden shadow-2xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-900/90 text-slate-400 font-mono uppercase text-[10px] tracking-wider border-b border-slate-800">
                 <tr>
                   <th className="p-3.5 w-1/3">Beneficio / Feature</th>
-                  <th className="p-3.5 text-center text-[#00FFFF]">Tier 1 ($50–$100)</th>
+                  <th className="p-3.5 text-center text-[#00DDFF]">Tier 1 ($50–$100)</th>
                   <th className="p-3.5 text-center text-[#FDCC0D]">Tier 2 ($250–$500)</th>
-                  <th className="p-3.5 text-center text-[#FF6B00]">Tier 3 ($750–$1K)</th>
+                  <th className="p-3.5 text-center text-[#FFBB00]">Tier 3 ($750–$1K)</th>
                   <th className="p-3.5 text-center text-[#FDCC0D] bg-[#FDCC0D]/5">Tier 4 ($1.5K–$2.5K)</th>
                   <th className="p-3.5 text-center text-white bg-slate-800/50">Tier 5 (Co-Prod)</th>
                 </tr>
@@ -285,13 +285,13 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
                       </div>
                     </td>
                     <td className="p-3.5 text-center">
-                      {item.t1 ? <Check className="w-4 h-4 text-[#00FFFF] mx-auto" /> : <span className="text-slate-600">—</span>}
+                      {item.t1 ? <Check className="w-4 h-4 text-[#00DDFF] mx-auto" /> : <span className="text-slate-600">—</span>}
                     </td>
                     <td className="p-3.5 text-center">
                       {item.t2 ? <Check className="w-4 h-4 text-[#FDCC0D] mx-auto" /> : <span className="text-slate-600">—</span>}
                     </td>
                     <td className="p-3.5 text-center">
-                      {item.t3 ? <Check className="w-4 h-4 text-[#FF6B00] mx-auto" /> : <span className="text-slate-600">—</span>}
+                      {item.t3 ? <Check className="w-4 h-4 text-[#FFBB00] mx-auto" /> : <span className="text-slate-600">—</span>}
                     </td>
                     <td className="p-3.5 text-center bg-[#FDCC0D]/5">
                       {item.t4 ? <Check className="w-4 h-4 text-[#FDCC0D] mx-auto" /> : <span className="text-slate-600">—</span>}
@@ -310,7 +310,7 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
       {/* Official Media Kit & Dossier Download Bar */}
       <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-400">
         <div className="flex items-center gap-2">
-          <Info className="w-4 h-4 text-[#00FFFF]" />
+          <Info className="w-4 h-4 text-[#00DDFF]" />
           <span>¿Necesitas una propuesta formal personalizada o el Media Kit completo en PDF?</span>
         </div>
         <button

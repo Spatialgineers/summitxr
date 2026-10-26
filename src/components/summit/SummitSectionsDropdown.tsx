@@ -318,7 +318,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
         id="sgx-summit-sections-trigger-btn"
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-[var(--sgx-card-bg)]/90 hover:bg-[#182236] border text-[10px] sm:text-xs font-mono transition-all shadow-md group shrink-0 cursor-pointer"
+        className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-[var(--sgx-card-bg)]/90 hover:bg-[#252525] border text-[10px] sm:text-xs font-mono transition-all shadow-md group shrink-0 cursor-pointer"
         style={{
           clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)',
           borderColor: tenant.branding.primaryColor,
@@ -376,7 +376,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
               ref={modalRef}
               id="sgx-summit-sections-modal"
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-2xl bg-[#0B101D] border-2 shadow-2xl overflow-hidden font-mono text-xs animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]"
+              className="relative w-full max-w-2xl bg-[#131313] border-2 shadow-2xl overflow-hidden font-mono text-xs animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]"
               style={{
                 clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 100%)',
                 borderColor: tenant.branding.primaryColor,
@@ -421,10 +421,10 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
               </div>
 
               {/* User Profile, Passport & Tool Hub */}
-              <div className="p-3 sm:p-4 bg-[#070b14] border-b border-[var(--sgx-secondary)]/40 shrink-0 space-y-3">
+              <div className="p-3 sm:p-4 bg-[#0d0d0d] border-b border-[var(--sgx-secondary)]/40 shrink-0 space-y-3">
                 {/* User Avatar Badge Header */}
                 <div 
-                  className="flex items-center justify-between p-2.5 bg-[#0c1322] border rounded-sm"
+                  className="flex items-center justify-between p-2.5 bg-[#161616] border rounded-sm"
                   style={{ borderColor: `${tenant.branding.primaryColor}40` }}
                 >
                   <div className="flex items-center space-x-3">
@@ -489,7 +489,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                         playUiChirp(800);
                         onOpenAvatar();
                       }}
-                      className="p-2 bg-[#0c1322] hover:bg-[#16223b] border text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group cursor-pointer"
+                      className="p-2 bg-[#161616] hover:bg-[#262626] border text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group cursor-pointer"
                       style={{
                         borderColor: `${tenant.branding.primaryColor}50`,
                         color: tenant.branding.primaryColor
@@ -513,7 +513,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                         playUiChirp(750);
                         onOpenPassport();
                       }}
-                      className="p-2 bg-[#0c1322] hover:bg-[#16223b] border text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group cursor-pointer"
+                      className="p-2 bg-[#161616] hover:bg-[#262626] border text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group cursor-pointer"
                       style={{
                         borderColor: `${tenant.branding.primaryColor}50`,
                         color: tenant.branding.primaryColor
@@ -537,7 +537,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                         playUiChirp(840);
                         onOpenQrScanner();
                       }}
-                      className="p-2 bg-[#0c1322] hover:bg-[#16223b] border border-[var(--sgx-secondary)]/50 hover:border-white text-slate-200 text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group cursor-pointer"
+                      className="p-2 bg-[#161616] hover:bg-[#262626] border border-[var(--sgx-secondary)]/50 hover:border-white text-slate-200 text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group cursor-pointer"
                       title="Escanear credencial QR de participantes"
                     >
                       <ScanLine className="w-4 h-4 text-slate-300 group-hover:scale-110 transition-transform" />
@@ -554,7 +554,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                         playUiChirp(820);
                         onOpenRewards();
                       }}
-                      className="p-2 bg-[#0c1322] hover:bg-[#16223b] border border-[var(--sgx-secondary)]/50 hover:border-white text-slate-200 text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group cursor-pointer"
+                      className="p-2 bg-[#161616] hover:bg-[#262626] border border-[var(--sgx-secondary)]/50 hover:border-white text-slate-200 text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group cursor-pointer"
                       title="Canjear puntos por suscripciones y premios"
                     >
                       <Award className="w-4 h-4 text-slate-300 group-hover:scale-110 transition-transform" />
@@ -606,8 +606,8 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                       }}
                       className={`p-2 border text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group ${
                         isAmbiancePlaying
-                          ? 'bg-cyan-950/70 border-[var(--sgx-neon)] text-[var(--sgx-neon)] shadow-[0_0_10px_rgba(0,240,255,0.2)]'
-                          : 'bg-[#0c1322] hover:bg-[#16223b] border-slate-700 text-slate-400 hover:text-white'
+                          ? 'bg-cyan-950/70 border-[var(--sgx-neon)] text-[var(--sgx-neon)] shadow-[0_0_10px_rgba(0, 221, 255,0.2)]'
+                          : 'bg-[#161616] hover:bg-[#262626] border-slate-700 text-slate-400 hover:text-white'
                       }`}
                       title={isAmbiancePlaying ? "Silenciar audio ambiente cyber" : "Activar banda sonora espacial inmersiva"}
                     >
@@ -670,7 +670,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                               className={`p-3 border transition-all cursor-pointer group flex flex-col justify-between ${
                                 isActive
                                   ? 'bg-[var(--sgx-card-bg)] border-[var(--sgx-neon)] shadow-lg'
-                                  : 'bg-black/40 border-[var(--sgx-secondary)]/40 hover:border-[var(--sgx-secondary)] hover:bg-[#131A2B]'
+                                  : 'bg-black/40 border-[var(--sgx-secondary)]/40 hover:border-[var(--sgx-secondary)] hover:bg-[#1D1D1D]'
                               }`}
                               style={{
                                 clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',

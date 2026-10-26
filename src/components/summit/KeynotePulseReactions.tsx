@@ -41,8 +41,8 @@ const DEFAULT_POLLS: KeynotePoll[] = [
     speaker: 'Dr. Aris Thorne & Alex Rivera',
     question: '¿Qué tecnología acelerará más la adopción masiva de Computación Espacial en 2026-2027?',
     options: [
-      { id: 'opt_1', label: 'WebGPU & Shaders en Navegador', votes: 0, color: '#00FFFF' },
-      { id: 'opt_2', label: 'Agentes IA Multimodales en Tiempo Real', votes: 0, color: '#A855F7' },
+      { id: 'opt_1', label: 'WebGPU & Shaders en Navegador', votes: 0, color: '#00DDFF' },
+      { id: 'opt_2', label: 'Agentes IA Multimodales en Tiempo Real', votes: 0, color: '#5F86B4' },
       { id: 'opt_3', label: 'Visores Ligeros Micro-OLED Passthrough', votes: 0, color: '#10B981' },
       { id: 'opt_4', label: 'Motores CYOA & Broadcast Interactivos', votes: 0, color: '#FDCC0D' }
     ]
@@ -65,10 +65,10 @@ const DEFAULT_POLLS: KeynotePoll[] = [
     speaker: 'Consejo de Fundadores Spatialgineers',
     question: '¿En qué pilar planeas enfocar tu proyecto o empresa este fin de semana?',
     options: [
-      { id: 'opt_1', label: 'SGX.SYNTHESIZE (IA Generativa & Shaders)', votes: 0, color: '#00FFFF' },
+      { id: 'opt_1', label: 'SGX.SYNTHESIZE (IA Generativa & Shaders)', votes: 0, color: '#00DDFF' },
       { id: 'opt_2', label: 'SGX.STAGE (Live Broadcast & CYOA Engine)', votes: 0, color: '#FDCC0D' },
       { id: 'opt_3', label: 'SGX.SYSTEM (Infraestructura Distribuida)', votes: 0, color: '#10B981' },
-      { id: 'opt_4', label: 'SGX.SHOWCASE (Experiencias Comerciales & Marcas)', votes: 0, color: '#A855F7' }
+      { id: 'opt_4', label: 'SGX.SHOWCASE (Experiencias Comerciales & Marcas)', votes: 0, color: '#5F86B4' }
     ]
   }
 ];
@@ -163,7 +163,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
       playUiChirp(960);
     }
 
-    addFloatingReaction(emoji, '#00FFFF', label);
+    addFloatingReaction(emoji, '#00DDFF', label);
 
     // Canvas confetti particle burst
     if (type === 'FIREWORKS') {
@@ -171,7 +171,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
         particleCount: 50,
         spread: 80,
         origin: { x: 0.85, y: 0.8 },
-        colors: ['#00FFFF', '#10B981', '#FDCC0D', '#A855F7', '#F43F5E', '#3B82F6'],
+        colors: ['#00DDFF', '#10B981', '#FDCC0D', '#5F86B4', '#F43F5E', '#3B82F6'],
         shapes: ['circle', 'square'],
         scalar: 1.1,
         disableForReducedMotion: true
@@ -198,7 +198,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
         particleCount: 35,
         spread: 60,
         origin: { x: 0.85, y: 0.8 },
-        colors: ['#EC4899', '#F43F5E', '#A855F7'],
+        colors: ['#EC4899', '#F43F5E', '#5F86B4'],
         scalar: 1.0
       });
     } else if (type === 'QUANTUM') {
@@ -206,7 +206,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
         particleCount: 45,
         spread: 120,
         origin: { x: 0.85, y: 0.8 },
-        colors: ['#00FFFF', '#38BDF8', '#818CF8', '#C084FC'],
+        colors: ['#00DDFF', '#38BDF8', '#818CF8', '#C084FC'],
         startVelocity: 25,
         scalar: 0.8
       });
@@ -215,7 +215,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
         particleCount: 40,
         spread: 70,
         origin: { x: 0.85, y: 0.8 },
-        colors: ['#A855F7', '#F43F5E', '#FDCC0D'],
+        colors: ['#5F86B4', '#F43F5E', '#FDCC0D'],
         scalar: 1.0
       });
     }
@@ -250,7 +250,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
       particleCount: 55,
       spread: 75,
       origin: { x: 0.85, y: 0.75 },
-      colors: ['#10B981', '#00FFFF', '#FDCC0D']
+      colors: ['#10B981', '#00DDFF', '#FDCC0D']
     });
 
     // Award +25 XP
@@ -323,11 +323,11 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
         ) : (
           /* Expanded Floating Cyber Console */
           <div 
-            className="w-96 max-w-[calc(100vw-2rem)] bg-[#0c0d12]/95 border-2 border-[var(--sgx-neon)] backdrop-blur-xl shadow-2xl flex flex-col font-mono text-xs overflow-hidden"
+            className="w-96 max-w-[calc(100vw-2rem)] bg-[#0e0e0e]/95 border-2 border-[var(--sgx-neon)] backdrop-blur-xl shadow-2xl flex flex-col font-mono text-xs overflow-hidden"
             style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
           >
             {/* Header */}
-            <div className="p-3 bg-gradient-to-r from-cyan-950/60 via-[#161822] to-black border-b border-[var(--sgx-secondary)] flex items-center justify-between">
+            <div className="p-3 bg-gradient-to-r from-cyan-950/60 via-[#1B1B1B] to-black border-b border-[var(--sgx-secondary)] flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Radio className="w-4 h-4 text-[var(--sgx-neon)] animate-spin" style={{ animationDuration: '6s' }} />
                 <div>
@@ -377,7 +377,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
             </div>
 
             {/* Tabs Selector */}
-            <div className="grid grid-cols-2 bg-[#12141c] border-b border-[var(--sgx-secondary)] text-[11px]">
+            <div className="grid grid-cols-2 bg-[#161616] border-b border-[var(--sgx-secondary)] text-[11px]">
               <button
                 onClick={() => {
                   setActiveTab('REACTIONS');
@@ -418,7 +418,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => handleTriggerReaction('FIREWORKS', 'Fuegos Artificiales', '🎆')}
-                    className="p-2.5 bg-[#171924] border border-cyan-500/40 hover:border-cyan-400 text-left hover:bg-cyan-950/30 transition-all flex items-center space-x-2 active:scale-95 group"
+                    className="p-2.5 bg-[#1C1C1C] border border-cyan-500/40 hover:border-cyan-400 text-left hover:bg-cyan-950/30 transition-all flex items-center space-x-2 active:scale-95 group"
                   >
                     <span className="text-xl">🎆</span>
                     <div>
@@ -429,7 +429,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
 
                   <button
                     onClick={() => handleTriggerReaction('FLAME', 'Cyber Flame', '🔥')}
-                    className="p-2.5 bg-[#171924] border border-orange-500/40 hover:border-orange-400 text-left hover:bg-orange-950/30 transition-all flex items-center space-x-2 active:scale-95 group"
+                    className="p-2.5 bg-[#1C1C1C] border border-orange-500/40 hover:border-orange-400 text-left hover:bg-orange-950/30 transition-all flex items-center space-x-2 active:scale-95 group"
                   >
                     <span className="text-xl">🔥</span>
                     <div>
@@ -440,7 +440,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
 
                   <button
                     onClick={() => handleTriggerReaction('KUDOS', 'Spatial Kudos', '🏆')}
-                    className="p-2.5 bg-[#171924] border border-amber-500/40 hover:border-amber-400 text-left hover:bg-amber-950/30 transition-all flex items-center space-x-2 active:scale-95 group"
+                    className="p-2.5 bg-[#1C1C1C] border border-amber-500/40 hover:border-amber-400 text-left hover:bg-amber-950/30 transition-all flex items-center space-x-2 active:scale-95 group"
                   >
                     <span className="text-xl">🏆</span>
                     <div>
@@ -451,7 +451,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
 
                   <button
                     onClick={() => handleTriggerReaction('QUANTUM', 'Pulso Cuántico', '⚡')}
-                    className="p-2.5 bg-[#171924] border border-[#32527B] hover:border-[#FDCC0D] text-left hover:bg-[#32527B]/30 transition-all flex items-center space-x-2 active:scale-95 group"
+                    className="p-2.5 bg-[#1C1C1C] border border-[#32527B] hover:border-[#FDCC0D] text-left hover:bg-[#32527B]/30 transition-all flex items-center space-x-2 active:scale-95 group"
                   >
                     <span className="text-xl">⚡</span>
                     <div>
@@ -462,7 +462,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
 
                   <button
                     onClick={() => handleTriggerReaction('HEART', 'Hologram Love', '💛')}
-                    className="p-2.5 bg-[#171924] border border-[#FDCC0D]/40 hover:border-[#FDCC0D] text-left hover:bg-[#FDCC0D]/10 transition-all flex items-center space-x-2 active:scale-95 group"
+                    className="p-2.5 bg-[#1C1C1C] border border-[#FDCC0D]/40 hover:border-[#FDCC0D] text-left hover:bg-[#FDCC0D]/10 transition-all flex items-center space-x-2 active:scale-95 group"
                   >
                     <span className="text-xl">💛</span>
                     <div>
@@ -473,7 +473,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
 
                   <button
                     onClick={() => handleTriggerReaction('MIND_BLOWN', 'Mind Blown', '🤯')}
-                    className="p-2.5 bg-[#171924] border border-[#32527B] hover:border-[#FDCC0D] text-left hover:bg-[#32527B]/30 transition-all flex items-center space-x-2 active:scale-95 group"
+                    className="p-2.5 bg-[#1C1C1C] border border-[#32527B] hover:border-[#FDCC0D] text-left hover:bg-[#32527B]/30 transition-all flex items-center space-x-2 active:scale-95 group"
                   >
                     <span className="text-xl">🤯</span>
                     <div>
@@ -550,7 +550,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                             ? 'border-[#FDCC0D] bg-amber-950/40 text-white'
                             : hasVoted
                             ? 'border-slate-800 bg-slate-950/50 text-slate-300'
-                            : 'border-slate-700 hover:border-amber-400 bg-[#151722] hover:bg-[#1a1d2c] text-white active:scale-[0.99]'
+                            : 'border-slate-700 hover:border-amber-400 bg-[#1A1A1A] hover:bg-[#212121] text-white active:scale-[0.99]'
                         }`}
                       >
                         {/* Progress bar background when voted */}
@@ -586,7 +586,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                 </div>
 
                 {/* Voting Status / Reward Note */}
-                <div className="p-2 bg-[#12141d] border border-[var(--sgx-secondary)] text-[10px] flex items-center justify-between">
+                <div className="p-2 bg-[#161616] border border-[var(--sgx-secondary)] text-[10px] flex items-center justify-between">
                   <div className="text-slate-400">
                     {userVoteForCurrent ? (
                       <span className="text-[#FDCC0D] font-bold flex items-center space-x-1">

@@ -59,7 +59,7 @@ export const PRIZE_TIERS: PrizeTier[] = [
     badgeIcon: '👑',
     perkReward: 'Recompensa VIP máxima por anunciar',
     couponCode: 'SGX-VIP-ALLACCESS',
-    color: '#a855f7',
+    color: '#5f86b4',
   },
 ];
 

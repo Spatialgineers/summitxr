@@ -299,7 +299,7 @@ export const SummitGuidedSpotlightTour: React.FC<SummitGuidedSpotlightTourProps>
     return (
       <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
         <div 
-          className="max-w-md w-full bg-[#080E1A] border-2 border-[#32527B] p-6 space-y-4 text-white shadow-2xl"
+          className="max-w-md w-full bg-[#101010] border-2 border-[#32527B] p-6 space-y-4 text-white shadow-2xl"
           style={{
             clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
             boxShadow: '0 0 30px rgba(50, 82, 123, 0.5)'
@@ -411,7 +411,7 @@ export const SummitGuidedSpotlightTour: React.FC<SummitGuidedSpotlightTourProps>
       {/* 2. Neon Cyan Tactical Glowing Frame around Target Element */}
       {targetRect && (
         <div 
-          className="fixed pointer-events-none z-45 rounded-lg border-2 border-cyan-400 shadow-[0_0_28px_rgba(0,255,255,0.45)]"
+          className="fixed pointer-events-none z-45 rounded-lg border-2 border-cyan-400 shadow-[0_0_28px_rgba(0, 221, 255,0.45)]"
           style={{
             top: `${cutoutY}px`,
             left: `${cutoutX}px`,
@@ -434,7 +434,7 @@ export const SummitGuidedSpotlightTour: React.FC<SummitGuidedSpotlightTourProps>
 
       {/* 3. Floating Tactical Cyber Tooltip Card */}
       <div 
-        className={`fixed z-50 bg-[#080E1A]/98 border-2 border-cyan-400 text-white shadow-2xl p-4.5 space-y-3.5 ${
+        className={`fixed z-50 bg-[#101010]/98 border-2 border-cyan-400 text-white shadow-2xl p-4.5 space-y-3.5 ${
           isDockedBottom 
             ? 'bottom-6 left-1/2 -translate-x-1/2 w-[92vw] max-w-[420px]' 
             : 'w-[340px]'
@@ -443,10 +443,10 @@ export const SummitGuidedSpotlightTour: React.FC<SummitGuidedSpotlightTourProps>
           top: `${popupTop}px`,
           left: `${popupLeft}px`,
           clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
-          boxShadow: '0 0 35px rgba(0, 255, 255, 0.4)'
+          boxShadow: '0 0 35px rgba(0, 221, 255, 0.4)'
         } : {
           clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
-          boxShadow: '0 0 40px rgba(0, 255, 255, 0.5)'
+          boxShadow: '0 0 40px rgba(0, 221, 255, 0.5)'
         }}
       >
         {/* Step Header */}

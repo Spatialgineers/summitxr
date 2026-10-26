@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./styles/sgx-design-system.css";
+@import "./styles/sgx-platform.css";
 @import "./immersion/immersion.css";
 
 @layer base {

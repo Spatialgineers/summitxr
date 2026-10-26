@@ -132,8 +132,8 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       shortDesc: 'Este pilar impulsa la interacción y la exploración creativa. Spark abarca videojuegos, dinámicas inmersivas, simulaciones, activaciones participativas y herramientas de juego educativo que fomentan la conexión entre personas y tecnología.',
       icon: Gamepad2,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SPARK'],
-      accentColor: '#FF6B00',
-      bgGradients: 'from-[#FF6B00]/25 via-[#2A1002] to-transparent',
+      accentColor: '#FFBB00',
+      bgGradients: 'from-[#FFBB00]/25 via-[#2A1002] to-transparent',
       tagline: 'Videojuegos, Simulaciones & Juegos Educativos',
       industryScope: 'Estudios de videojuegos, educadores, ligas deportivas, comunidades competitivas, herramientas de capacitación y simulaciones interactivas.',
       features: [
@@ -189,7 +189,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       icon: Radio,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.STAGE'],
       accentColor: '#FFFFFF',
-      bgGradients: 'from-[#32527B]/30 via-[#101b2f] to-transparent',
+      bgGradients: 'from-[#32527B]/30 via-[#1e1e1e] to-transparent',
       tagline: 'Conciertos, Visualizers, Podcasts & Shows Inmersivos',
       industryScope: 'Productores de eventos, DJs, artistas musicales, productoras audiovisuales, podcasters, influencers, conferencias y organizadores de ferias.',
       features: [
@@ -244,8 +244,8 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       shortDesc: 'Este pilar da forma a cómo las ideas se presentan al mundo. Showcase desarrolla renders, animaciones 3D, vídeos, galerías y entornos XR que transforman productos, marcas y conceptos en experiencias visuales memorables.',
       icon: Eye,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SHOWCASE'],
-      accentColor: '#00FFFF',
-      bgGradients: 'from-[#00FFFF]/25 via-[#002B36] to-transparent',
+      accentColor: '#00DDFF',
+      bgGradients: 'from-[#00DDFF]/25 via-[#002B36] to-transparent',
       tagline: 'Renders, Animaciones 3D, Galerías & Entornos XR',
       industryScope: 'Marcas físicas y digitales, tiendas, diseñadores de moda, diseñadores de producto, arquitectos, brokers inmobiliarios y galerías de arte.',
       features: [
@@ -357,7 +357,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       icon: Cpu,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SYSTEM'],
       accentColor: '#32527B',
-      bgGradients: 'from-[#32527B]/30 via-[#0C1E36] to-transparent',
+      bgGradients: 'from-[#32527B]/30 via-[#202020] to-transparent',
       tagline: 'WebApps Interactivas, AI, Robótica & Manufactura',
       industryScope: 'Departamentos técnicos, instituciones tecnológicas, empresas de manufactura, logística, startups y makers.',
       features: [
@@ -541,8 +541,8 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
                   onClick={() => handleSelectPillarTab(p.id)}
                   className={`p-3 text-left transition-all flex flex-col justify-between space-y-2 border cursor-pointer ${
                     isSelected
-                      ? 'bg-gradient-to-b from-[#15233c] to-[#0A101D] shadow-lg scale-[1.02]'
-                      : 'bg-[#0b121e] border-slate-800 hover:border-slate-600'
+                      ? 'bg-gradient-to-b from-[#272727] to-[#121212] shadow-lg scale-[1.02]'
+                      : 'bg-[#141414] border-slate-800 hover:border-slate-600'
                   }`}
                   style={{ 
                     clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
@@ -556,7 +556,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
                     ) : (
                       <IconComp className="w-5 h-5" style={{ color: isSelected ? p.accentColor : '#94A3B8' }} />
                     )}
-                    <span className="text-[9px] font-mono font-bold uppercase" style={{ color: isSelected ? p.accentColor : '#64748B' }}>
+                    <span className="text-[9px] font-mono font-bold uppercase" style={{ color: isSelected ? p.accentColor : '#767676' }}>
                       PILAR 0{idx + 1}
                     </span>
                   </div>
@@ -574,7 +574,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
 
       {/* 2. DEDICATED ACTIVE PILLAR HUB & INTERACTIVE FEATURES SUITE */}
       <div 
-        className="p-6 sm:p-8 bg-[#070D18] border-2 relative overflow-hidden space-y-8 shadow-2xl"
+        className="p-6 sm:p-8 bg-[#0F0F0F] border-2 relative overflow-hidden space-y-8 shadow-2xl"
         style={{ 
           clipPath: 'polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)',
           borderColor: currentPillar.accentColor,
@@ -600,7 +600,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             </p>
           </div>
 
-          <div className="bg-[#101b2f] p-4 border border-slate-700 text-xs font-mono space-y-1.5 lg:w-80 shrink-0">
+          <div className="bg-[#1e1e1e] p-4 border border-slate-700 text-xs font-mono space-y-1.5 lg:w-80 shrink-0">
             <div className="text-[10px] uppercase font-bold" style={{ color: currentPillar.accentColor }}>
               NICHOS & ALCANCE OPERATIVO:
             </div>
@@ -629,7 +629,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
                 <div 
                   key={fIdx}
                   onClick={feat.onClick}
-                  className={`p-4 bg-[#0e1626] border border-slate-700 hover:border-white transition-all flex flex-col justify-between space-y-3 group shadow-lg ${
+                  className={`p-4 bg-[#191919] border border-slate-700 hover:border-white transition-all flex flex-col justify-between space-y-3 group shadow-lg ${
                     feat.onClick ? 'cursor-pointer hover:scale-[1.02]' : ''
                   }`}
                   style={{ 
@@ -700,7 +700,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             {currentPillar.realDeployments.map((dep, idx) => (
               <div 
                 key={idx} 
-                className="p-3.5 bg-[#0D1524] border border-slate-800 space-y-1.5"
+                className="p-3.5 bg-[#171717] border border-slate-800 space-y-1.5"
                 style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
               >
                 <div className="font-bold text-white text-xs font-['Orbitron',sans-serif]">{dep.name}</div>
@@ -715,7 +715,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
 
         {/* 2.3 SUMMIT LIVE ACTIVATION */}
         <div 
-          className="p-4 bg-gradient-to-r from-[#101c30] to-[#0d1624] border border-[#32527B] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono"
+          className="p-4 bg-gradient-to-r from-[#1f1f1f] to-[#181818] border border-[#32527B] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono"
           style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
         >
           <div className="space-y-0.5">
@@ -741,7 +741,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
 
       {/* 3. UN EVENTO PARA... (NICHOS DEL SGX FRAMEWORK) */}
       <div 
-        className="bg-[#080D18] border-2 border-[#32527B] p-6 sm:p-8 space-y-4 shadow-2xl"
+        className="bg-[#0F0F0F] border-2 border-[#32527B] p-6 sm:p-8 space-y-4 shadow-2xl"
         style={{
           clipPath: 'polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px)',
           boxShadow: '0 0 25px rgba(50, 82, 123, 0.3)'
@@ -764,7 +764,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           {targetNiches.map((niche, i) => (
             <span 
               key={i} 
-              className="px-3 py-1.5 bg-[#0e1728] border border-slate-700 hover:border-[#FDCC0D] text-slate-200 text-xs font-mono flex items-center gap-1.5 transition-colors"
+              className="px-3 py-1.5 bg-[#1a1a1a] border border-slate-700 hover:border-[#FDCC0D] text-slate-200 text-xs font-mono flex items-center gap-1.5 transition-colors"
               style={{
                 clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)',
               }}
@@ -780,7 +780,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Day 1 */}
         <div 
-          className="p-5 bg-[#0A101D] border border-slate-800 space-y-4"
+          className="p-5 bg-[#121212] border border-slate-800 space-y-4"
           style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
         >
           <div className="flex items-center justify-between">
@@ -816,7 +816,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
 
         {/* Day 2 */}
         <div 
-          className="p-5 bg-[#0A101D] border border-slate-800 space-y-4"
+          className="p-5 bg-[#121212] border border-slate-800 space-y-4"
           style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
         >
           <div className="flex items-center justify-between">
@@ -848,7 +848,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
 
         {/* Day 3 */}
         <div 
-          className="p-5 bg-[#0A101D] border border-slate-800 space-y-4"
+          className="p-5 bg-[#121212] border border-slate-800 space-y-4"
           style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
         >
           <div className="flex items-center justify-between">
@@ -881,7 +881,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
 
       {/* 5. TRAVESÍA RÁPIDA & HUB DE MÓDULOS DEL SUMMIT */}
       <div 
-        className="p-6 sm:p-8 bg-gradient-to-r from-[#070D18] via-[#0E1626] to-[#070D18] border-2 border-[var(--sgx-primary)] space-y-6 shadow-2xl"
+        className="p-6 sm:p-8 bg-gradient-to-r from-[#0F0F0F] via-[#191919] to-[#0F0F0F] border-2 border-[var(--sgx-primary)] space-y-6 shadow-2xl"
         style={{ clipPath: 'polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px)' }}
       >
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-4">
@@ -921,7 +921,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
               title: 'SGX.Match',
               desc: 'Matchmaking para fundadores y VCs',
               icon: Flame,
-              color: '#00FFFF',
+              color: '#00DDFF',
               badge: 'SGX.SHOWCASE',
               action: onOpenMatchModule,
             },
@@ -929,7 +929,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
               title: 'Tour 360° Venue',
               desc: 'Exploración virtual de Chroma Space Studios',
               icon: Compass,
-              color: '#FF6B00',
+              color: '#FFBB00',
               badge: 'SGX.SHOWCASE',
               action: onOpen360Tour,
             },
@@ -953,7 +953,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
               title: 'Simulador Dron',
               desc: 'Vuelo acrobático 3D y retos con XP',
               icon: Rocket,
-              color: '#00FFFF',
+              color: '#00DDFF',
               badge: 'SGX.SPARK',
               action: onOpenDroneSimulator,
             },
@@ -961,7 +961,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
               title: 'Patrocinadores',
               desc: 'Stands interactivos y ofertas VIP',
               icon: Briefcase,
-              color: '#FF6B00',
+              color: '#FFBB00',
               badge: 'SGX.SHOWCASE',
               action: onExploreSponsors,
             },
@@ -969,7 +969,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
               title: 'Foros de Networking',
               desc: 'Comunidad y salas de chat temáticas',
               icon: MessageSquare,
-              color: '#00FFFF',
+              color: '#00DDFF',
               badge: 'SGX.SYNTHESIZE',
               action: onOpenNetworkingChat,
             },
@@ -985,7 +985,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
               title: 'Pases & Boletos',
               desc: 'Acreditación oficial para los 3 días',
               icon: Ticket,
-              color: '#00FFFF',
+              color: '#00DDFF',
               badge: 'SGX.SYNTHESIZE',
               action: onOpenTickets,
             },

@@ -300,3 +300,31 @@ body.sgx-overdrive .tenant-btn-primary { filter: drop-shadow(0 0 6px rgba(253, 2
   .sgx-warp { animation-duration: 0.3s; }
   .sgx-pulse > span { animation-duration: 0.4s; }
 }
+
+/* ---------- Boot sequence ---------- */
+.sgx-boot {
+  position: fixed; inset: 0; z-index: 100010; background: #050505; overflow: hidden; cursor: pointer;
+  transition: opacity 0.38s ease;
+}
+.sgx-boot.is-out { opacity: 0; pointer-events: none; }
+.sgx-boot__canvas { position: absolute; inset: 0; }
+.sgx-boot__tl { position: absolute; top: 20px; left: 20px; }
+.sgx-boot__tr { position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 8px; }
+.sgx-boot__log {
+  position: absolute; left: 20px; bottom: 56px; margin: 0;
+  font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.6; color: var(--telemetry); opacity: 0.85;
+}
+.sgx-boot__title {
+  position: absolute; left: 0; right: 0; top: 66%; display: grid; justify-items: center; gap: 10px;
+  padding: 0 16px; text-align: center; animation: sgx-boot-title 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.sgx-boot__title h1 {
+  margin: 0; font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+  font-size: clamp(1.3rem, 4.2vw, 3.2rem); letter-spacing: 0.06em; color: #fff;
+  text-shadow: 0 0 30px rgba(253, 204, 13, 0.45);
+}
+.sgx-boot__meta { margin: 0; font-family: var(--font-hud); font-size: clamp(0.7rem, 1.3vw, 0.95rem); letter-spacing: 0.24em; color: var(--SGX_Yellow); }
+.sgx-boot__tagline { margin: 0; font-family: var(--font-body); font-size: clamp(0.85rem, 1.4vw, 1.05rem); color: #bdbdbd; }
+.sgx-boot__skip { position: absolute; left: 0; right: 0; bottom: 20px; text-align: center; color: var(--SGX_Grey); }
+@keyframes sgx-boot-title { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (max-width: 640px) { .sgx-boot__title { top: 70%; } .sgx-boot__log { bottom: 52px; font-size: 0.68rem; } }

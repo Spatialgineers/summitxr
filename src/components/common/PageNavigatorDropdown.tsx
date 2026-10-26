@@ -140,7 +140,7 @@ export const PageNavigatorDropdown: React.FC<PageNavigatorDropdownProps> = ({
       tagline: 'Matriz de control multi-cámara para monitoreo simultáneo de transmisiones, chats y señales de audio.',
       icon: LayoutGrid,
       badge: 'MULTI-CÁMARA',
-      badgeColor: 'border-[#FDCC0D]/60 text-[#FDCC0D] bg-[#0F1626]',
+      badgeColor: 'border-[#FDCC0D]/60 text-[#FDCC0D] bg-[#191919]',
       category: 'director',
       adminOnly: true,
     },
@@ -198,7 +198,7 @@ export const PageNavigatorDropdown: React.FC<PageNavigatorDropdownProps> = ({
         id="sgx-page-navigator-trigger-btn"
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-[var(--sgx-card-bg)]/90 hover:bg-[#182236] border text-[10px] sm:text-xs font-mono transition-all shadow-md group shrink-0 cursor-pointer"
+        className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-[var(--sgx-card-bg)]/90 hover:bg-[#252525] border text-[10px] sm:text-xs font-mono transition-all shadow-md group shrink-0 cursor-pointer"
         style={{
           clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)',
           borderColor: tenant.branding.primaryColor,
@@ -247,7 +247,7 @@ export const PageNavigatorDropdown: React.FC<PageNavigatorDropdownProps> = ({
               ref={modalRef}
               id="sgx-page-navigator-modal"
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-2xl bg-[#0B101D] border-2 shadow-2xl overflow-hidden font-mono text-xs animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]"
+              className="relative w-full max-w-2xl bg-[#131313] border-2 shadow-2xl overflow-hidden font-mono text-xs animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]"
               style={{
                 clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
                 borderColor: tenant.branding.primaryColor,
@@ -312,7 +312,7 @@ export const PageNavigatorDropdown: React.FC<PageNavigatorDropdownProps> = ({
                           className={`p-3 border transition-all cursor-pointer group flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                             isActive
                               ? 'bg-[var(--sgx-card-bg)] border-[var(--sgx-neon)] shadow-lg'
-                              : 'bg-black/40 border-[var(--sgx-secondary)]/40 hover:border-[var(--sgx-secondary)] hover:bg-[#131A2B]'
+                              : 'bg-black/40 border-[var(--sgx-secondary)]/40 hover:border-[var(--sgx-secondary)] hover:bg-[#1D1D1D]'
                           }`}
                           style={{
                             clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
@@ -392,7 +392,7 @@ export const PageNavigatorDropdown: React.FC<PageNavigatorDropdownProps> = ({
                             className={`p-3 border transition-all cursor-pointer group flex flex-col justify-between ${
                               isActive
                                 ? 'bg-[var(--sgx-card-bg)] border-[#FDCC0D] shadow-lg'
-                                : 'bg-black/40 border-[var(--sgx-secondary)]/40 hover:border-[#FDCC0D]/60 hover:bg-[#131A2B]'
+                                : 'bg-black/40 border-[var(--sgx-secondary)]/40 hover:border-[#FDCC0D]/60 hover:bg-[#1D1D1D]'
                             }`}
                             style={{
                               clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',

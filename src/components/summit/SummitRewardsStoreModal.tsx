@@ -161,7 +161,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
         particleCount: 120,
         spread: 80,
         origin: { y: 0.5 },
-        colors: ['#00F0FF', '#FDCC0D', '#10B981', '#EC4899']
+        colors: ['#00DDFF', '#FDCC0D', '#10B981', '#EC4899']
       });
       playUiChirp(1200);
     } else {
@@ -193,14 +193,14 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
     >
       <div 
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-5xl bg-[#0B0F19] border-2 border-[var(--sgx-neon)] shadow-[0_0_50px_rgba(0,240,255,0.2)] flex flex-col max-h-[94vh] relative overflow-hidden"
+        className="w-full max-w-5xl bg-[#111111] border-2 border-[var(--sgx-neon)] shadow-[0_0_50px_rgba(0, 221, 255,0.2)] flex flex-col max-h-[94vh] relative overflow-hidden"
         style={{ clipPath: 'polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px)' }}
       >
         {/* Top Cyber Accent Strip */}
         <div className="h-1.5 bg-gradient-to-r from-[var(--sgx-neon)] via-[#FDCC0D] to-[#32527B] shrink-0" />
 
         {/* Modal Header */}
-        <div className="p-4 sm:p-6 border-b border-[var(--sgx-secondary)] bg-[#070B14] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shrink-0">
+        <div className="p-4 sm:p-6 border-b border-[var(--sgx-secondary)] bg-[#0D0D0D] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shrink-0">
           
           <div className="flex items-center space-x-3.5">
             <div 
@@ -245,7 +245,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
                   onClose();
                   onOpenAdminRewards();
                 }}
-                className="hidden sm:flex items-center space-x-1.5 px-3 py-2 bg-[#0F1626] border border-[#FDCC0D] text-[#FDCC0D] hover:bg-[#FDCC0D] hover:text-black font-mono text-xs font-bold transition-colors"
+                className="hidden sm:flex items-center space-x-1.5 px-3 py-2 bg-[#191919] border border-[#FDCC0D] text-[#FDCC0D] hover:bg-[#FDCC0D] hover:text-black font-mono text-xs font-bold transition-colors"
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
                 <Edit3 className="w-3.5 h-3.5" />
@@ -264,7 +264,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
         </div>
 
         {/* Navigation Tabs Bar */}
-        <div className="bg-[#0B101D] border-b border-[var(--sgx-secondary)] px-4 sm:px-6 py-2 flex items-center justify-between overflow-x-auto gap-2 shrink-0">
+        <div className="bg-[#131313] border-b border-[var(--sgx-secondary)] px-4 sm:px-6 py-2 flex items-center justify-between overflow-x-auto gap-2 shrink-0">
           <div className="flex items-center space-x-2 font-mono text-xs">
             
             <button
@@ -324,14 +324,14 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
         </div>
 
         {/* Modal Body Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar bg-[#090D16]">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar bg-[#0F0F0F]">
           
           {/* TAB 1: REWARDS STORE CATALOG */}
           {activeTab === 'STORE' && (
             <div className="space-y-6">
               
               {/* Filter Bar & Search */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#070B14] p-3 border border-[var(--sgx-secondary)]">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#0D0D0D] p-3 border border-[var(--sgx-secondary)]">
                 
                 {/* Category Chips */}
                 <div className="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-1">
@@ -388,7 +388,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
                   return (
                     <div
                       key={reward.id}
-                      className="bg-[#0F1626] border border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)]/60 transition-all p-5 flex flex-col justify-between relative group shadow-lg"
+                      className="bg-[#191919] border border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)]/60 transition-all p-5 flex flex-col justify-between relative group shadow-lg"
                       style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
                     >
                       {/* Top Badges */}
@@ -489,7 +489,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
           {activeTab === 'LEADERBOARD' && (
             <div className="space-y-6">
               {leaderboard.length === 0 ? (
-                <div className="p-8 text-center bg-[#070B14] border border-[var(--sgx-secondary)] space-y-3">
+                <div className="p-8 text-center bg-[#0D0D0D] border border-[var(--sgx-secondary)] space-y-3">
                   <Trophy className="w-10 h-10 text-[var(--sgx-neon)] mx-auto opacity-60" />
                   <h3 className="text-sm font-bold text-white uppercase font-mono">Tabla de Clasificación Vacía</h3>
                   <p className="text-xs text-slate-400 font-mono max-w-md mx-auto">
@@ -504,7 +504,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
                 {/* 2nd Place */}
                 {leaderboard[1] && (
                   <div 
-                    className="bg-[#0D1424] border-2 border-slate-400/70 p-5 flex flex-col items-center text-center relative order-2 md:order-1"
+                    className="bg-[#171717] border-2 border-slate-400/70 p-5 flex flex-col items-center text-center relative order-2 md:order-1"
                     style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
                   >
                     <div className="w-10 h-10 rounded-full bg-slate-400 text-black font-black font-mono text-lg flex items-center justify-center -mt-8 shadow-lg border-2 border-white">
@@ -530,7 +530,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
                 {/* 1st Place (Champion) */}
                 {leaderboard[0] && (
                   <div 
-                    className="bg-gradient-to-b from-amber-950/40 to-[#0D1424] border-2 border-[#FDCC0D] p-6 flex flex-col items-center text-center relative order-1 md:order-2 shadow-[0_0_30px_rgba(253,204,13,0.3)]"
+                    className="bg-gradient-to-b from-amber-950/40 to-[#171717] border-2 border-[#FDCC0D] p-6 flex flex-col items-center text-center relative order-1 md:order-2 shadow-[0_0_30px_rgba(253,204,13,0.3)]"
                     style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
                   >
                     <div className="w-12 h-12 rounded-full bg-[#FDCC0D] text-black font-black font-mono text-xl flex items-center justify-center -mt-10 shadow-xl border-2 border-white animate-bounce">
@@ -557,7 +557,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
                 {/* 3rd Place */}
                 {leaderboard[2] && (
                   <div 
-                    className="bg-[#0D1424] border-2 border-amber-700/70 p-5 flex flex-col items-center text-center relative order-3"
+                    className="bg-[#171717] border-2 border-amber-700/70 p-5 flex flex-col items-center text-center relative order-3"
                     style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
                   >
                     <div className="w-10 h-10 rounded-full bg-amber-700 text-white font-black font-mono text-lg flex items-center justify-center -mt-8 shadow-lg border-2 border-white">
@@ -583,7 +583,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
               </div>
 
               {/* Full Ranking Table */}
-              <div className="bg-[#070B14] border border-[var(--sgx-secondary)] overflow-hidden">
+              <div className="bg-[#0D0D0D] border border-[var(--sgx-secondary)] overflow-hidden">
                 <div className="p-3 bg-black border-b border-[var(--sgx-secondary)] font-mono text-xs font-bold text-slate-300 flex items-center justify-between">
                   <span>TABLA COMPLETA DE PARTICIPACIÓN DEL FIN DE SEMANA</span>
                   <span className="text-cyan-400">Puntaje en Tiempo Real</span>
@@ -666,7 +666,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
             <div className="space-y-4">
               
               {redeemedPrizes.length === 0 ? (
-                <div className="p-10 text-center border border-dashed border-[var(--sgx-secondary)] bg-[#070B14] space-y-3">
+                <div className="p-10 text-center border border-dashed border-[var(--sgx-secondary)] bg-[#0D0D0D] space-y-3">
                   <Gift className="w-10 h-10 text-slate-600 mx-auto" />
                   <h4 className="text-sm font-bold text-slate-300 font-mono">Aún no has canjeado premios</h4>
                   <p className="text-xs text-slate-500 max-w-md mx-auto">
@@ -684,12 +684,12 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
                   {redeemedPrizes.map((prize) => (
                     <div
                       key={prize.id}
-                      className="bg-[#0F1626] border border-[#FDCC0D]/60 p-5 space-y-4 relative shadow-lg"
+                      className="bg-[#191919] border border-[#FDCC0D]/60 p-5 space-y-4 relative shadow-lg"
                       style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
                     >
                       <div className="flex items-start justify-between gap-2 border-b border-slate-800 pb-3">
                         <div>
-                          <span className="text-[10px] font-mono px-2 py-0.5 bg-[#0F1626] border border-[#FDCC0D] text-[#FDCC0D] font-bold uppercase">
+                          <span className="text-[10px] font-mono px-2 py-0.5 bg-[#191919] border border-[#FDCC0D] text-[#FDCC0D] font-bold uppercase">
                             CANJEADO EXITOSAMENTE
                           </span>
                           <h4 className="text-sm font-bold text-white font-['Orbitron',sans-serif] mt-1.5">
@@ -747,7 +747,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
         {redeemingReward && (
           <div className="fixed inset-0 z-[100000] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div 
-              className="w-full max-w-md bg-[#0D131F] border-2 border-[var(--sgx-neon)] p-6 space-y-5 text-slate-100 relative shadow-2xl"
+              className="w-full max-w-md bg-[#151515] border-2 border-[var(--sgx-neon)] p-6 space-y-5 text-slate-100 relative shadow-2xl"
               style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
             >
               <div className="flex items-start justify-between border-b border-[var(--sgx-secondary)] pb-3">
@@ -806,7 +806,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
         )}
 
         {/* Modal Footer */}
-        <div className="p-3 sm:p-4 bg-[#070B14] border-t border-[var(--sgx-secondary)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono shrink-0">
+        <div className="p-3 sm:p-4 bg-[#0D0D0D] border-t border-[var(--sgx-secondary)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono shrink-0">
           <span className="text-slate-400 text-[11px]">
             Spatialgineers Gamification Engine • Puntuaciones y licencias sincronizadas en la nube
           </span>

@@ -85,7 +85,7 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     unlockDate: '2026-11-01T00:00:00-04:00',
     title: 'Cápsula Beta: Blueprint del Mundo Virtual en Roblox',
     category: 'BLUEPRINT',
-    badgeColor: '#00FFFF',
+    badgeColor: '#00DDFF',
     isUnlockedDefault: false,
     xpReward: 30,
     summary: 'Planos esquemáticos de la arena de conciertos, circuito aéreo de drones y hubs de teletransporte.',
@@ -123,7 +123,7 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     unlockDate: '2026-11-15T00:00:00-04:00',
     title: 'Cápsula Delta: Drop de Artistas & Conciertos Híbridos',
     category: 'SPEAKERS',
-    badgeColor: '#FF6B00',
+    badgeColor: '#FFBB00',
     isUnlockedDefault: false,
     xpReward: 30,
     summary: 'Primeros teasers de las presentaciones musicales inmersivas y las charlas magistrales.',
@@ -284,8 +284,8 @@ export const SummitWeeklyCapsules: React.FC<SummitWeeklyCapsulesProps> = ({
               className={`p-3 border transition-all cursor-pointer flex flex-col justify-between ${
                 unlocked
                   ? isActivelyViewed
-                    ? 'bg-[#121E36] border-cyan-400 shadow-md'
-                    : 'bg-slate-950/70 hover:bg-[#0E1729] border-slate-800 hover:border-slate-600'
+                    ? 'bg-[#222222] border-cyan-400 shadow-md'
+                    : 'bg-slate-950/70 hover:bg-[#1A1A1A] border-slate-800 hover:border-slate-600'
                   : 'bg-black/50 border-slate-900/80 hover:border-slate-700 hover:bg-slate-950/60'
               }`}
               style={{
@@ -347,7 +347,7 @@ export const SummitWeeklyCapsules: React.FC<SummitWeeklyCapsulesProps> = ({
 
         return (
           <div
-            className={`mt-3.5 p-4 sm:p-5 bg-[#080E1C] border-2 ${
+            className={`mt-3.5 p-4 sm:p-5 bg-[#111111] border-2 ${
               unlocked ? 'border-[#FDCC0D]' : 'border-amber-400/80'
             } relative space-y-3 font-mono text-slate-100 animate-fadeIn shadow-2xl`}
             style={{

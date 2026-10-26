@@ -89,7 +89,7 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
           particleCount: 80,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ['#00f0ff', '#ff007f', '#a855f7', '#ffd700'],
+          colors: ['#00ddff', '#ff007f', '#5f86b4', '#ffd700'],
         });
       }
     }
@@ -110,7 +110,7 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
       particleCount: 25,
       spread: 45,
       origin: { y: 0.8 },
-      colors: [opt.color || '#00f0ff'],
+      colors: [opt.color || '#00ddff'],
     });
   };
 
@@ -211,7 +211,7 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
                         <div className="flex items-start space-x-3.5">
                           <div
                             className="w-8 h-8 flex items-center justify-center font-mono font-bold text-xs flex-shrink-0 text-slate-950 shadow-inner"
-                            style={{ backgroundColor: opt.color || presetObj?.themeColor || '#00f0ff' }}
+                            style={{ backgroundColor: opt.color || presetObj?.themeColor || '#00ddff' }}
                           >
                             {opt.label.split(':')[0]}
                           </div>
@@ -354,9 +354,9 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
               <div className="flex items-center justify-around">
                 {[
                   { emoji: '🔥', color: '#ff3b30' },
-                  { emoji: '🚀', color: '#00f0ff' },
+                  { emoji: '🚀', color: '#00ddff' },
                   { emoji: '⚡', color: '#ffd700' },
-                  { emoji: '🎉', color: '#a855f7' },
+                  { emoji: '🎉', color: '#5f86b4' },
                   { emoji: '❤️', color: '#ff007f' },
                   { emoji: '💎', color: '#38bdf8' },
                 ].map((item) => (

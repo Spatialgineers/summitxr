@@ -182,16 +182,16 @@ export const SummitSectionTabBar: React.FC<SummitSectionTabBarProps> = ({
   };
 
   return (
-    <div className={`relative bg-[#090E17]/95 border-b border-[var(--sgx-secondary)] backdrop-blur-md ${className}`}>
+    <div className={`relative bg-[#0F0F0F]/95 border-b border-[var(--sgx-secondary)] backdrop-blur-md ${className}`}>
       
       {/* Scroll indicator left */}
       {canScrollLeft && (
         <button
           onClick={() => handleScroll('left')}
-          className="absolute left-0 top-0 bottom-0 z-20 px-1 bg-gradient-to-r from-[#090E17] via-[#090E17]/90 to-transparent flex items-center justify-center text-slate-300 hover:text-white transition-opacity"
+          className="absolute left-0 top-0 bottom-0 z-20 px-1 bg-gradient-to-r from-[#0F0F0F] via-[#0F0F0F]/90 to-transparent flex items-center justify-center text-slate-300 hover:text-white transition-opacity"
           aria-label="Scroll Izquierda"
         >
-          <div className="p-1 bg-[#10192A] border border-[var(--sgx-secondary)] text-xs shadow-md">
+          <div className="p-1 bg-[#1C1C1C] border border-[var(--sgx-secondary)] text-xs shadow-md">
             <ChevronLeft className="w-4 h-4 text-[var(--sgx-neon)]" />
           </div>
         </button>
@@ -224,7 +224,7 @@ export const SummitSectionTabBar: React.FC<SummitSectionTabBarProps> = ({
                 className={`flex items-center space-x-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-mono font-bold transition-all relative cursor-pointer ${
                   isActive
                     ? 'bg-[var(--sgx-card-bg)] text-white border-b-2 shadow-lg'
-                    : 'bg-[#0E1524]/70 hover:bg-[#141E33] text-slate-400 hover:text-slate-200 border-b-2 border-transparent'
+                    : 'bg-[#181818]/70 hover:bg-[#222222] text-slate-400 hover:text-slate-200 border-b-2 border-transparent'
                 }`}
                 style={{
                   clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
@@ -238,7 +238,7 @@ export const SummitSectionTabBar: React.FC<SummitSectionTabBarProps> = ({
                   <img
                     src={tab.iconUrl}
                     alt={tab.pillarBadge}
-                    className="w-4 h-4 object-contain shrink-0 filter drop-shadow-[0_0_4px_rgba(0,255,255,0.4)]"
+                    className="w-4 h-4 object-contain shrink-0 filter drop-shadow-[0_0_4px_rgba(0, 221, 255,0.4)]"
                   />
                 ) : (
                   <IconComp
@@ -309,10 +309,10 @@ export const SummitSectionTabBar: React.FC<SummitSectionTabBarProps> = ({
       {canScrollRight && (
         <button
           onClick={() => handleScroll('right')}
-          className="absolute right-0 top-0 bottom-0 z-20 px-1 bg-gradient-to-l from-[#090E17] via-[#090E17]/90 to-transparent flex items-center justify-center text-slate-300 hover:text-white transition-opacity"
+          className="absolute right-0 top-0 bottom-0 z-20 px-1 bg-gradient-to-l from-[#0F0F0F] via-[#0F0F0F]/90 to-transparent flex items-center justify-center text-slate-300 hover:text-white transition-opacity"
           aria-label="Scroll Derecha"
         >
-          <div className="p-1 bg-[#10192A] border border-[var(--sgx-secondary)] text-xs shadow-md">
+          <div className="p-1 bg-[#1C1C1C] border border-[var(--sgx-secondary)] text-xs shadow-md">
             <ChevronRight className="w-4 h-4 text-[var(--sgx-neon)]" />
           </div>
         </button>

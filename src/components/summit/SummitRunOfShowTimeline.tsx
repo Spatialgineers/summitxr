@@ -119,7 +119,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
     switch (format) {
       case 'DIGITAL':
         return (
-          <span className="px-2 py-0.5 text-[10px] font-mono uppercase bg-cyan-950/60 border border-[#00FFFF]/40 text-[#00FFFF] rounded">
+          <span className="px-2 py-0.5 text-[10px] font-mono uppercase bg-cyan-950/60 border border-[#00DDFF]/40 text-[#00DDFF] rounded">
             Digital Stream
           </span>
         );
@@ -149,9 +149,9 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
   return (
     <div className="space-y-6">
       {/* Top Header Card */}
-      <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-[#0A0F1D]/90 p-5 md:p-6 backdrop-blur-md shadow-2xl">
+      <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-[#121212]/90 p-5 md:p-6 backdrop-blur-md shadow-2xl">
         <div className="absolute top-0 right-0 w-80 h-80 bg-[#FDCC0D]/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#00FFFF]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#00DDFF]/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           <div>
@@ -180,7 +180,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
             </div>
             <div className="p-2.5 rounded-lg border border-slate-800 bg-slate-900/80 text-left">
               <div className="text-[10px] font-mono text-slate-400 uppercase">Speakers & Initiates</div>
-              <div className="text-lg font-bold text-[#00FFFF] font-mono">{speakers.length} Creadores</div>
+              <div className="text-lg font-bold text-[#00DDFF] font-mono">{speakers.length} Creadores</div>
             </div>
           </div>
         </div>
@@ -239,7 +239,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                 {currentMeta.title}
               </span>
               <span 
-                className="text-[10px] font-mono text-[#00FFFF] px-2 py-0.5 bg-cyan-950/60 border border-[#00FFFF]/30 font-bold"
+                className="text-[10px] font-mono text-[#00DDFF] px-2 py-0.5 bg-cyan-950/60 border border-[#00DDFF]/30 font-bold"
                 style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
               >
                 {currentMeta.hours}
@@ -284,7 +284,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
       </div>
 
       {/* Timeline Stream with SGX 45deg session cards */}
-      <div className="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-gradient-to-b before:from-[#FDCC0D] before:via-[#00FFFF] before:to-[#32527B]">
+      <div className="relative pl-6 sm:pl-8 space-y-4 before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-gradient-to-b before:from-[#FDCC0D] before:via-[#00DDFF] before:to-[#32527B]">
         {daySessions.length === 0 ? (
           <div 
             className="p-8 text-center border border-dashed border-slate-800 bg-slate-950/50"
@@ -310,15 +310,15 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                     ? 'border-[#FDCC0D] bg-[#FDCC0D] shadow-[0_0_10px_#FDCC0D]'
                     : session.format === 'HYBRID'
                     ? 'border-white bg-white shadow-[0_0_10px_#FFFFFF]'
-                    : 'border-[#00FFFF] bg-[#0A0F1D] shadow-[0_0_8px_#00FFFF]'
+                    : 'border-[#00DDFF] bg-[#121212] shadow-[0_0_8px_#00DDFF]'
                 }`} />
 
                 {/* Card Container with SGX 45deg cut */}
                 <div 
                   className={`border transition-all p-4 sm:p-5 ${
                     isExpanded 
-                      ? 'border-[#FDCC0D] bg-[#0E1528] shadow-[0_0_25px_rgba(253,204,13,0.15)]' 
-                      : 'border-slate-800/90 bg-[#0A0F1D]/90 hover:border-slate-700 hover:bg-[#0D1424]'
+                      ? 'border-[#FDCC0D] bg-[#191919] shadow-[0_0_25px_rgba(253,204,13,0.15)]' 
+                      : 'border-slate-800/90 bg-[#121212]/90 hover:border-slate-700 hover:bg-[#171717]'
                   }`}
                   style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
                 >
@@ -350,7 +350,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                       <button
                         onClick={() => downloadICS(session)}
                         title="Descargar archivo .ics"
-                        className="p-1.5 border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-[#00FFFF] hover:border-[#00FFFF]/40 transition-colors cursor-pointer"
+                        className="p-1.5 border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-[#00DDFF] hover:border-[#00DDFF]/40 transition-colors cursor-pointer"
                         style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                       >
                         <Download className="w-3.5 h-3.5" />
@@ -414,12 +414,12 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                   {/* Location & Tags Footer */}
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/60">
                     <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                      <MapPin className="w-3.5 h-3.5 text-[#00FFFF]" />
+                      <MapPin className="w-3.5 h-3.5 text-[#00DDFF]" />
                       <span className="font-mono text-[11px] text-slate-300">{session.venueLocation}</span>
                       {session.mapNodeId && onNavigateToNode && (
                         <button
                           onClick={() => onNavigateToNode(session.mapNodeId!)}
-                          className="ml-1 text-[10px] text-[#00FFFF] underline hover:text-[#FDCC0D]"
+                          className="ml-1 text-[10px] text-[#00DDFF] underline hover:text-[#FDCC0D]"
                         >
                           Ver en Mapa 360°
                         </button>

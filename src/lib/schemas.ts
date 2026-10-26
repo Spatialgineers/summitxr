@@ -14,8 +14,8 @@ export const INITIAL_TENANTS: Tenant[] = [
       primaryColor: '#FDCC0D',
       secondaryColor: '#32527B',
       accentColor: '#FFE566',
-      backgroundColor: '#0B0F17',
-      cardBgColor: '#121927',
+      backgroundColor: '#101010',
+      cardBgColor: '#1B1B1B',
       borderColor: '#FDCC0D',
       neonHighlightColor: '#FFE566',
       glowShadow: 'rgba(253, 204, 13, 0.45)',
@@ -32,15 +32,15 @@ export const INITIAL_TENANTS: Tenant[] = [
     erraticRating: 3,
     presetId: 'preset_plasma_bloom',
     branding: {
-      primaryColor: '#FF6B00',
+      primaryColor: '#FFBB00',
       secondaryColor: '#FDCC0D',
       accentColor: '#FF8800',
       backgroundColor: '#140904',
       cardBgColor: '#1F1008',
-      borderColor: '#FF6B00',
+      borderColor: '#FFBB00',
       neonHighlightColor: '#FFAA33',
-      glowShadow: 'rgba(255, 107, 0, 0.55)',
-      gradientCss: 'linear-gradient(135deg, #FF6B00 0%, #FDCC0D 100%)',
+      glowShadow: 'rgba(255, 187, 0, 0.55)',
+      gradientCss: 'linear-gradient(135deg, #FFBB00 0%, #FDCC0D 100%)',
     },
   },
   {
@@ -53,15 +53,15 @@ export const INITIAL_TENANTS: Tenant[] = [
     erraticRating: 2,
     presetId: 'preset_aurora_crystal',
     branding: {
-      primaryColor: '#00FFFF',
+      primaryColor: '#00DDFF',
       secondaryColor: '#32527B',
       accentColor: '#33FFFF',
-      backgroundColor: '#041219',
-      cardBgColor: '#09222E',
-      borderColor: '#00FFFF',
-      neonHighlightColor: '#00FFFF',
-      glowShadow: 'rgba(0, 255, 255, 0.55)',
-      gradientCss: 'linear-gradient(135deg, #00FFFF 0%, #32527B 100%)',
+      backgroundColor: '#101010',
+      cardBgColor: '#1E1E1E',
+      borderColor: '#00DDFF',
+      neonHighlightColor: '#00DDFF',
+      glowShadow: 'rgba(0, 221, 255, 0.55)',
+      gradientCss: 'linear-gradient(135deg, #00DDFF 0%, #32527B 100%)',
     },
   },
   {
@@ -77,8 +77,8 @@ export const INITIAL_TENANTS: Tenant[] = [
       primaryColor: '#FFFFFF',
       secondaryColor: '#32527B',
       accentColor: '#F8FAFC',
-      backgroundColor: '#0F172A',
-      cardBgColor: '#1E293B',
+      backgroundColor: '#1B1B1B',
+      cardBgColor: '#2B2B2B',
       borderColor: '#FFFFFF',
       neonHighlightColor: '#F8FAFC',
       glowShadow: 'rgba(255, 255, 255, 0.65)',
@@ -90,20 +90,20 @@ export const INITIAL_TENANTS: Tenant[] = [
     name: 'SGX.SYSTEM — Core Matrix Infrastructure',
     slug: 'system',
     pillarId: 'SGX.SYSTEM',
-    vibe: 'Azul Oficial SGX & Cian (#32527B & #00FFFF)',
+    vibe: 'Azul Oficial SGX & Cian (#32527B & #00DDFF)',
     description: 'Preset técnico de bajo nivel con arquitectura en Azul Oficial SGX (#32527B) e infraestructura cloud.',
     erraticRating: 5,
     presetId: 'preset_glitch_cyber',
     branding: {
       primaryColor: '#32527B',
-      secondaryColor: '#00FFFF',
+      secondaryColor: '#00DDFF',
       accentColor: '#FDCC0D',
-      backgroundColor: '#070D18',
-      cardBgColor: '#0E1626',
+      backgroundColor: '#0F0F0F',
+      cardBgColor: '#191919',
       borderColor: '#32527B',
-      neonHighlightColor: '#00FFFF',
+      neonHighlightColor: '#00DDFF',
       glowShadow: 'rgba(50, 82, 123, 0.75)',
-      gradientCss: 'linear-gradient(135deg, #32527B 0%, #00FFFF 100%)',
+      gradientCss: 'linear-gradient(135deg, #32527B 0%, #00DDFF 100%)',
     },
   },
   {
@@ -118,9 +118,9 @@ export const INITIAL_TENANTS: Tenant[] = [
     branding: {
       primaryColor: '#FDCC0D',
       secondaryColor: '#32527B',
-      accentColor: '#00FFFF',
-      backgroundColor: '#080D18',
-      cardBgColor: '#101B2E',
+      accentColor: '#00DDFF',
+      backgroundColor: '#0F0F0F',
+      cardBgColor: '#1E1E1E',
       borderColor: '#FDCC0D',
       neonHighlightColor: '#FFE566',
       glowShadow: 'rgba(253, 204, 13, 0.65)',
@@ -151,7 +151,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
         label: 'A: Synthwave Neon Grid',
         description: 'Retro 80s perspective wireframe mountains and glowing cyber sun',
         presetId: 'preset_neon_grid',
-        color: '#00f0ff',
+        color: '#00ddff',
         effectType: 'cyber_grid_pulse',
         effectName: 'Onda Neón Rejilla Synthwave',
         effectMultiplier: 1.5,
@@ -177,7 +177,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
         label: 'C: Quantum Particle Storm',
         description: 'Cosmic 8,000-particle gravitational attractor vortex',
         presetId: 'preset_particle_storm',
-        color: '#a855f7',
+        color: '#5f86b4',
         effectType: 'quantum_vortex',
         effectName: 'Vórtice Cuántico Orbital',
         effectMultiplier: 1.4,
@@ -252,7 +252,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
         description: 'Remote cloud streaming buffer',
         presetId: 'preset_neon_grid',
         isCorrect: false,
-        color: '#00f0ff',
+        color: '#00ddff',
         effectType: 'cyber_grid_pulse',
         effectName: 'Malla Neón Distorsionada',
         effectMultiplier: 1.0,
@@ -384,7 +384,7 @@ model Tenant {
   name        String
   slug        String    @unique
   logoUrl     String?
-  brandColor  String    @default("#00f0ff")
+  brandColor  String    @default("#00ddff")
   accentColor String    @default("#ff007f")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -461,7 +461,7 @@ model Option {
   description String?
   presetId    String        // Bound WebGL visualizer preset
   isCorrect   Boolean       @default(false)
-  color       String        @default("#00f0ff")
+  color       String        @default("#00ddff")
 
   interactions Interaction[]
 
@@ -567,7 +567,7 @@ CREATE TABLE tenants (
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(128) UNIQUE NOT NULL,
     logo_url TEXT,
-    brand_color VARCHAR(16) DEFAULT '#00f0ff',
+    brand_color VARCHAR(16) DEFAULT '#00ddff',
     accent_color VARCHAR(16) DEFAULT '#ff007f',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -609,7 +609,7 @@ CREATE TABLE options (
     description TEXT,
     preset_id VARCHAR(64) NOT NULL,
     is_correct BOOLEAN DEFAULT FALSE,
-    color VARCHAR(16) DEFAULT '#00f0ff',
+    color VARCHAR(16) DEFAULT '#00ddff',
     CONSTRAINT unique_question_option UNIQUE (question_id, option_index)
 );
 
@@ -657,7 +657,7 @@ const QuestionOptionSchema = new Schema({
   description: { type: String },
   presetId: { type: String, required: true },
   isCorrect: { type: Boolean, default: false },
-  color: { type: String, default: '#00f0ff' }
+  color: { type: String, default: '#00ddff' }
 });
 
 const QuestionSchema = new Schema({

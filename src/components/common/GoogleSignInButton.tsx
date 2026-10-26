@@ -48,7 +48,7 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
         disabled={isBusy}
         className={`w-full py-3 px-4 transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer font-extrabold uppercase shadow-lg group select-none active:scale-[0.98] ${
           variant === 'tactical'
-            ? 'bg-[#15223A] hover:bg-[#1E3A8A] text-white border-2 border-[var(--sgx-primary)] shadow-[var(--sgx-primary)]/20'
+            ? 'bg-[#262626] hover:bg-[#1E3A8A] text-white border-2 border-[var(--sgx-primary)] shadow-[var(--sgx-primary)]/20'
             : variant === 'compact'
             ? 'bg-[var(--sgx-primary)] hover:opacity-90 text-black py-2 px-3 text-xs'
             : 'bg-[var(--sgx-primary)] hover:opacity-95 text-black'

@@ -622,7 +622,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
                 <div className="flex items-center justify-between pt-2 border-t border-[var(--sgx-secondary)]/40">
                   <button
                     onClick={() => setPreviewShowcaseModal(sp)}
-                    className="px-2.5 py-1 bg-[#1F2430] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black font-bold text-[10px] flex items-center space-x-1 transition-all rounded"
+                    className="px-2.5 py-1 bg-[#262626] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black font-bold text-[10px] flex items-center space-x-1 transition-all rounded"
                   >
                     <Eye className="w-3 h-3" />
                     <span>VER LANDING SHOWCASE</span>
@@ -753,7 +753,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
 
             <button
               onClick={handleExportInquiriesCSV}
-              className="px-3 py-1.5 bg-[#1e293b] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black text-xs font-bold flex items-center space-x-1.5 transition-all self-start sm:self-auto"
+              className="px-3 py-1.5 bg-[#2b2b2b] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black text-xs font-bold flex items-center space-x-1.5 transition-all self-start sm:self-auto"
             >
               <Download className="w-3.5 h-3.5" />
               <span>EXPORTAR CSV</span>
@@ -777,7 +777,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
                       <span className="text-sm font-bold text-white uppercase font-['Orbitron',sans-serif]">
                         {inq.companyName}
                       </span>
-                      <span className="text-[10px] px-2 py-0.5 bg-[#0f172a] border border-[var(--sgx-accent)] text-[var(--sgx-accent)] font-bold">
+                      <span className="text-[10px] px-2 py-0.5 bg-[#1b1b1b] border border-[var(--sgx-accent)] text-[var(--sgx-accent)] font-bold">
                         {inq.referenceCode}
                       </span>
                     </div>
@@ -859,7 +859,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
                   {inq.goals.length > 0 && (
                     <div className="flex flex-wrap gap-1 pt-1">
                       {inq.goals.map((g, gIdx) => (
-                        <span key={gIdx} className="px-1.5 py-0.5 bg-[#0f172a] border border-[var(--sgx-secondary)] text-[9px] text-[var(--sgx-neon)] rounded">
+                        <span key={gIdx} className="px-1.5 py-0.5 bg-[#1b1b1b] border border-[var(--sgx-secondary)] text-[9px] text-[var(--sgx-neon)] rounded">
                           • {g}
                         </span>
                       ))}
@@ -867,7 +867,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
                   )}
 
                   {inq.customMessage && (
-                    <div className="p-2.5 bg-[#090e18] border border-[var(--sgx-secondary)]/60 text-[11px] text-slate-300 italic rounded">
+                    <div className="p-2.5 bg-[#101010] border border-[var(--sgx-secondary)]/60 text-[11px] text-slate-300 italic rounded">
                       "{inq.customMessage}"
                     </div>
                   )}

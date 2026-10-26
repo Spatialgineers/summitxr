@@ -120,15 +120,15 @@ export const TenantRoomManager: React.FC = () => {
       erraticRating: 3,
       presetId: 'preset_matrix_flow',
       branding: {
-        primaryColor: '#00FFFF',
+        primaryColor: '#00DDFF',
         secondaryColor: '#FF007F',
         accentColor: '#33FFFF',
-        backgroundColor: '#070C14',
-        cardBgColor: '#101726',
-        borderColor: '#00FFFF',
-        neonHighlightColor: '#00FFFF',
-        glowShadow: 'rgba(0, 255, 255, 0.4)',
-        gradientCss: 'linear-gradient(135deg, #00FFFF 0%, #FF007F 100%)'
+        backgroundColor: '#0D0D0D',
+        cardBgColor: '#1A1A1A',
+        borderColor: '#00DDFF',
+        neonHighlightColor: '#00DDFF',
+        glowShadow: 'rgba(0, 221, 255, 0.4)',
+        gradientCss: 'linear-gradient(135deg, #00DDFF 0%, #FF007F 100%)'
       },
       presetConfig: {
         coreGeometry: 'crystal',
@@ -222,7 +222,7 @@ export const TenantRoomManager: React.FC = () => {
       {/* Header Notification Banner */}
       {saveStatus && (
         <div 
-          className="p-3 bg-[#0A1A2F] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] font-mono text-xs flex items-center justify-between shadow-lg animate-in fade-in duration-200"
+          className="p-3 bg-[#1C1C1C] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] font-mono text-xs flex items-center justify-between shadow-lg animate-in fade-in duration-200"
           style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
         >
           <div className="flex items-center space-x-2">
@@ -283,8 +283,8 @@ export const TenantRoomManager: React.FC = () => {
                 onClick={() => handleSelectTenantToEdit(t)}
                 className={`p-2.5 border text-left transition-all flex flex-col justify-between relative group ${
                   isSelected
-                    ? 'bg-[#182438] border-[var(--sgx-neon)] text-white shadow-lg'
-                    : 'bg-[#0E1524]/80 border-[var(--sgx-secondary)]/60 text-slate-300 hover:border-slate-400 hover:bg-[#131d2e]'
+                    ? 'bg-[#272727] border-[var(--sgx-neon)] text-white shadow-lg'
+                    : 'bg-[#181818]/80 border-[var(--sgx-secondary)]/60 text-slate-300 hover:border-slate-400 hover:bg-[#1f1f1f]'
                 }`}
                 style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
               >
@@ -317,7 +317,7 @@ export const TenantRoomManager: React.FC = () => {
       {/* Active Tenant Editor Drawer / Workspace */}
       {editingTenant && (
         <div 
-          className="p-5 bg-[#101726]/95 border-2 border-[var(--sgx-secondary)] space-y-5"
+          className="p-5 bg-[#1A1A1A]/95 border-2 border-[var(--sgx-secondary)] space-y-5"
           style={{ 
             borderColor: editingTenant.branding.primaryColor,
             clipPath: 'polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)' 
@@ -334,7 +334,7 @@ export const TenantRoomManager: React.FC = () => {
                 <h4 className="text-base font-bold text-white font-['Orbitron',sans-serif]">
                   EDITANDO: {editingTenant.name}
                 </h4>
-                <span className="text-xs px-2 py-0.5 bg-[#162238] border border-cyan-400/50 text-cyan-300 font-mono">
+                <span className="text-xs px-2 py-0.5 bg-[#252525] border border-cyan-400/50 text-cyan-300 font-mono">
                   ID: {editingTenant.id}
                 </span>
               </div>
@@ -392,8 +392,8 @@ export const TenantRoomManager: React.FC = () => {
                   onClick={() => setActiveSubTab(tab.id as any)}
                   className={`px-3 py-2 border font-bold transition-all flex items-center space-x-1.5 whitespace-nowrap ${
                     isActive
-                      ? 'bg-[#18253A] border-[var(--sgx-neon)] text-[var(--sgx-neon)]'
-                      : 'bg-[#0E1524] border-slate-800 text-slate-400 hover:text-white hover:bg-[#141F33]'
+                      ? 'bg-[#282828] border-[var(--sgx-neon)] text-[var(--sgx-neon)]'
+                      : 'bg-[#181818] border-slate-800 text-slate-400 hover:text-white hover:bg-[#222222]'
                   }`}
                   style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
                 >
@@ -413,7 +413,7 @@ export const TenantRoomManager: React.FC = () => {
                   type="text"
                   value={editingTenant.name}
                   onChange={(e) => setEditingTenant({ ...editingTenant, name: e.target.value })}
-                  className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
+                  className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
                   style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                 />
               </div>
@@ -423,7 +423,7 @@ export const TenantRoomManager: React.FC = () => {
                 <select
                   value={editingTenant.pillarId || 'SGX.STORY'}
                   onChange={(e) => setEditingTenant({ ...editingTenant, pillarId: e.target.value as any })}
-                  className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
+                  className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
                   style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                 >
                   <option value="SGX.STORY">SGX.STORY (Narrativa & Lore)</option>
@@ -441,7 +441,7 @@ export const TenantRoomManager: React.FC = () => {
                   type="text"
                   value={editingTenant.slug}
                   onChange={(e) => setEditingTenant({ ...editingTenant, slug: e.target.value })}
-                  className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
+                  className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
                   style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                 />
               </div>
@@ -452,7 +452,7 @@ export const TenantRoomManager: React.FC = () => {
                   type="text"
                   value={editingTenant.vibe}
                   onChange={(e) => setEditingTenant({ ...editingTenant, vibe: e.target.value })}
-                  className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
+                  className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
                   style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                 />
               </div>
@@ -463,7 +463,7 @@ export const TenantRoomManager: React.FC = () => {
                   rows={2}
                   value={editingTenant.description || ''}
                   onChange={(e) => setEditingTenant({ ...editingTenant, description: e.target.value })}
-                  className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
+                  className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
                   style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                 />
               </div>
@@ -500,7 +500,7 @@ export const TenantRoomManager: React.FC = () => {
                   <select
                     value={editingTenant.presetConfig?.coreGeometry || 'icosahedron'}
                     onChange={(e) => updatePresetField('coreGeometry', e.target.value)}
-                    className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
+                    className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   >
                     {GEOMETRY_OPTIONS.map(g => (
@@ -515,7 +515,7 @@ export const TenantRoomManager: React.FC = () => {
                   <select
                     value={editingTenant.presetConfig?.shaderKey || 'glitch'}
                     onChange={(e) => updatePresetField('shaderKey', e.target.value)}
-                    className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
+                    className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   >
                     {SHADER_OPTIONS.map(s => (
@@ -530,7 +530,7 @@ export const TenantRoomManager: React.FC = () => {
                   <select
                     value={editingTenant.presetConfig?.particleBehavior || 'ambient_float'}
                     onChange={(e) => updatePresetField('particleBehavior', e.target.value)}
-                    className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
+                    className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   >
                     {PARTICLE_BEHAVIORS.map(pb => (
@@ -542,7 +542,7 @@ export const TenantRoomManager: React.FC = () => {
               </div>
 
               {/* Sliders for Density, Speed, Glitch, Bloom, Camera Shake */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-[#0A101D] border border-[var(--sgx-secondary)]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-[#121212] border border-[var(--sgx-secondary)]">
                 
                 <div className="space-y-1">
                   <div className="flex justify-between">
@@ -618,7 +618,7 @@ export const TenantRoomManager: React.FC = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 
                 {/* Primary Color */}
-                <div className="p-3 bg-[#0A101D] border border-[var(--sgx-secondary)] space-y-2">
+                <div className="p-3 bg-[#121212] border border-[var(--sgx-secondary)] space-y-2">
                   <span className="text-slate-300 font-bold block">COLOR PRIMARIO:</span>
                   <div className="flex items-center space-x-2">
                     <input
@@ -637,7 +637,7 @@ export const TenantRoomManager: React.FC = () => {
                 </div>
 
                 {/* Secondary Color */}
-                <div className="p-3 bg-[#0A101D] border border-[var(--sgx-secondary)] space-y-2">
+                <div className="p-3 bg-[#121212] border border-[var(--sgx-secondary)] space-y-2">
                   <span className="text-slate-300 font-bold block">COLOR SECUNDARIO:</span>
                   <div className="flex items-center space-x-2">
                     <input
@@ -656,7 +656,7 @@ export const TenantRoomManager: React.FC = () => {
                 </div>
 
                 {/* Accent Color */}
-                <div className="p-3 bg-[#0A101D] border border-[var(--sgx-secondary)] space-y-2">
+                <div className="p-3 bg-[#121212] border border-[var(--sgx-secondary)] space-y-2">
                   <span className="text-slate-300 font-bold block">COLOR ACENTO:</span>
                   <div className="flex items-center space-x-2">
                     <input
@@ -675,7 +675,7 @@ export const TenantRoomManager: React.FC = () => {
                 </div>
 
                 {/* Border Color */}
-                <div className="p-3 bg-[#0A101D] border border-[var(--sgx-secondary)] space-y-2">
+                <div className="p-3 bg-[#121212] border border-[var(--sgx-secondary)] space-y-2">
                   <span className="text-slate-300 font-bold block">COLOR DE BORDE NEÓN:</span>
                   <div className="flex items-center space-x-2">
                     <input
@@ -696,7 +696,7 @@ export const TenantRoomManager: React.FC = () => {
               </div>
 
               {/* Gradient Preview */}
-              <div className="p-3 bg-[#0A101D] border border-[var(--sgx-secondary)] space-y-1.5">
+              <div className="p-3 bg-[#121212] border border-[var(--sgx-secondary)] space-y-1.5">
                 <span className="text-slate-300 font-bold block">CSS GRADIENTE DE BRANDING:</span>
                 <input
                   type="text"
@@ -723,7 +723,7 @@ export const TenantRoomManager: React.FC = () => {
                   placeholder="https://... o /public/logo.png"
                   value={editingTenant.logoUrl || ''}
                   onChange={(e) => setEditingTenant({ ...editingTenant, logoUrl: e.target.value })}
-                  className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
+                  className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
                   style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                 />
               </div>
@@ -735,7 +735,7 @@ export const TenantRoomManager: React.FC = () => {
                   placeholder="https://images.unsplash.com/..."
                   value={editingTenant.branding.bannerUrl || ''}
                   onChange={(e) => updateBrandingField('bannerUrl', e.target.value)}
-                  className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
+                  className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
                   style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                 />
               </div>
@@ -747,7 +747,7 @@ export const TenantRoomManager: React.FC = () => {
                   placeholder="model_drone / model_trophy / model_stage / https://..."
                   value={editingTenant.presetConfig?.model3dUrl || ''}
                   onChange={(e) => updatePresetField('model3dUrl', e.target.value)}
-                  className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
+                  className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
                   style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                 />
               </div>
@@ -759,7 +759,7 @@ export const TenantRoomManager: React.FC = () => {
                   placeholder="https://..."
                   value={editingTenant.presetConfig?.backgroundUrl || ''}
                   onChange={(e) => updatePresetField('backgroundUrl', e.target.value)}
-                  className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
+                  className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2.5 text-white focus:border-[var(--sgx-neon)] focus:outline-none"
                   style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                 />
               </div>
@@ -798,7 +798,7 @@ export const TenantRoomManager: React.FC = () => {
                 {(editingTenant.rooms || DEFAULT_ROOMS_TEMPLATES).map(room => (
                   <div
                     key={room.id}
-                    className="p-3 bg-[#0A101D] border border-[var(--sgx-secondary)] space-y-2 relative group hover:border-[var(--sgx-neon)] transition-all"
+                    className="p-3 bg-[#121212] border border-[var(--sgx-secondary)] space-y-2 relative group hover:border-[var(--sgx-neon)] transition-all"
                     style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
                   >
                     <div className="flex items-center justify-between">
@@ -822,7 +822,7 @@ export const TenantRoomManager: React.FC = () => {
                     <div className="flex items-center space-x-2 pt-1">
                       <button
                         onClick={() => setEditingRoom(room)}
-                        className="px-2 py-1 bg-[var(--sgx-card-bg)] hover:bg-[#1A253A] border border-cyan-400 text-cyan-300 text-[10px] font-bold"
+                        className="px-2 py-1 bg-[var(--sgx-card-bg)] hover:bg-[#282828] border border-cyan-400 text-cyan-300 text-[10px] font-bold"
                         style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                       >
                         EDITAR SALÓN
@@ -841,7 +841,7 @@ export const TenantRoomManager: React.FC = () => {
 
               {/* Room Edit Modal */}
               {editingRoom && (
-                <div className="p-4 bg-[#121B2D] border-2 border-cyan-400 space-y-3 font-mono text-xs">
+                <div className="p-4 bg-[#1E1E1E] border-2 border-cyan-400 space-y-3 font-mono text-xs">
                   <div className="flex items-center justify-between border-b border-slate-700 pb-2">
                     <span className="font-bold text-white">CONFIGURAR SALÓN / INSTANCIA DE TRANSMISIÓN</span>
                     <button onClick={() => setEditingRoom(null)} className="text-slate-400 hover:text-white">✕</button>
@@ -854,7 +854,7 @@ export const TenantRoomManager: React.FC = () => {
                         type="text"
                         value={editingRoom.name}
                         onChange={(e) => setEditingRoom({ ...editingRoom, name: e.target.value })}
-                        className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2 text-white"
+                        className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2 text-white"
                       />
                     </div>
 
@@ -863,7 +863,7 @@ export const TenantRoomManager: React.FC = () => {
                       <select
                         value={editingRoom.status}
                         onChange={(e) => setEditingRoom({ ...editingRoom, status: e.target.value as any })}
-                        className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2 text-white"
+                        className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2 text-white"
                       >
                         <option value="LIVE">LIVE (En Vivo Ahora)</option>
                         <option value="UPCOMING">UPCOMING (Próxima Sesión)</option>
@@ -878,7 +878,7 @@ export const TenantRoomManager: React.FC = () => {
                         placeholder="https://www.youtube.com/embed/..."
                         value={editingRoom.streamUrl || ''}
                         onChange={(e) => setEditingRoom({ ...editingRoom, streamUrl: e.target.value })}
-                        className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2 text-white font-mono text-xs"
+                        className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2 text-white font-mono text-xs"
                       />
                     </div>
 
@@ -904,7 +904,7 @@ export const TenantRoomManager: React.FC = () => {
                         type="text"
                         value={editingRoom.description || ''}
                         onChange={(e) => setEditingRoom({ ...editingRoom, description: e.target.value })}
-                        className="w-full bg-[#0A101D] border border-[var(--sgx-secondary)] p-2 text-white"
+                        className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2 text-white"
                       />
                     </div>
                   </div>

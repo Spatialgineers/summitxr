@@ -101,6 +101,7 @@ import { AttendeeAvatarGenerator } from './AttendeeAvatarGenerator';
 import { NetworkingQrScannerModal } from './NetworkingQrScannerModal';
 import { SgxHoloCardGeneratorModal, HoloCardProfile, resolveStoredUserHoloProfile } from './SgxHoloCardGeneratorModal';
 import { SummitGuidedSpotlightTour } from './SummitGuidedSpotlightTour';
+import { SgxSectionHudBar, HudSectionChip } from './SgxSectionHudBar';
 import { SummitPrivacyPolicyModal } from './SummitPrivacyPolicyModal';
 import { LiveSocialStream } from './LiveSocialStream';
 import { SgxPillarsManifestoSection } from './SgxPillarsManifestoSection';
@@ -120,18 +121,33 @@ import { SummitContentAuditModal } from './SummitContentAuditModal';
 import { PilotRoleSelectorModal } from './PilotRoleSelectorModal';
 import { SummitWeeklyCapsules } from './SummitWeeklyCapsules';
 
+const HUD_SECTION_CHIPS: HudSectionChip[] = [
+  { key: 'PILLARS_MANIFESTO', label: 'Manifiesto 6 Pilares', pillar: 'SGX.STORY', icon: Boxes },
+  { key: 'AGENDA', label: 'Agenda 3 Días', pillar: 'SGX.STAGE', icon: Calendar },
+  { key: 'BROADCAST_ROOMS', label: 'Salas 4K', pillar: 'SGX.STAGE', icon: Radio },
+  { key: 'SPEAKERS', label: 'Speakers 3D', pillar: 'SGX.STAGE', icon: Users },
+  { key: 'EMBEDS_GAMES', label: 'Dron 3D & XP', pillar: 'SGX.SPARK', icon: Gamepad2 },
+  { key: 'GUILD', label: 'Guild Initiates', pillar: 'SGX.SYSTEM', icon: Award },
+  { key: 'MAP_360', label: 'Tour 360° Venue', pillar: 'SGX.SHOWCASE', icon: Globe },
+  { key: 'ENTREPRENEUR_MATCH', label: 'SGX.Match', pillar: 'SGX.SHOWCASE', icon: Zap },
+  { key: 'SPONSORS_HUB', label: 'Partners', pillar: 'SGX.SHOWCASE', icon: Building2 },
+  { key: 'CREDENTIAL_GENERATOR', label: 'Credencial', pillar: 'SGX.SHOWCASE', icon: Award },
+  { key: 'SOCIAL_STREAM', label: 'Social Radar', pillar: 'SGX.SHOWCASE', icon: Instagram },
+  { key: 'NETWORKING', label: 'Foros Chat', pillar: 'SGX.SYNTHESIZE', icon: MessageSquare },
+];
+
 const SECTION_TO_PILLAR_MAP: Record<string, { pillarId: string; color: string; iconUrl: string }> = {
   PILLARS_MANIFESTO: { pillarId: 'SGX.STORY', color: '#FDCC0D', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Story1.png' },
   AGENDA: { pillarId: 'SGX.STAGE', color: '#FFFFFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png' },
   BROADCAST_ROOMS: { pillarId: 'SGX.STAGE', color: '#FFFFFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png' },
   SPEAKERS: { pillarId: 'SGX.STAGE', color: '#FFFFFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png' },
-  EMBEDS_GAMES: { pillarId: 'SGX.SPARK', color: '#FF6B00', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png' },
+  EMBEDS_GAMES: { pillarId: 'SGX.SPARK', color: '#FFBB00', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png' },
   GUILD: { pillarId: 'SGX.SYSTEM', color: '#32527B', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png' },
-  MAP_360: { pillarId: 'SGX.SHOWCASE', color: '#00FFFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
-  ENTREPRENEUR_MATCH: { pillarId: 'SGX.SHOWCASE', color: '#00FFFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
-  SPONSORS_HUB: { pillarId: 'SGX.SHOWCASE', color: '#00FFFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
-  CREDENTIAL_GENERATOR: { pillarId: 'SGX.SHOWCASE', color: '#00FFFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
-  SOCIAL_STREAM: { pillarId: 'SGX.SHOWCASE', color: '#00FFFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
+  MAP_360: { pillarId: 'SGX.SHOWCASE', color: '#00DDFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
+  ENTREPRENEUR_MATCH: { pillarId: 'SGX.SHOWCASE', color: '#00DDFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
+  SPONSORS_HUB: { pillarId: 'SGX.SHOWCASE', color: '#00DDFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
+  CREDENTIAL_GENERATOR: { pillarId: 'SGX.SHOWCASE', color: '#00DDFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
+  SOCIAL_STREAM: { pillarId: 'SGX.SHOWCASE', color: '#00DDFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
   NETWORKING: { pillarId: 'SGX.SYNTHESIZE', color: '#FDCC0D', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Synthesize1.png' },
 };
 
@@ -547,7 +563,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
   };
 
   return (
-    <div className={`w-full bg-[var(--sgx-bg)] text-slate-100 flex flex-col font-sans selection:bg-[var(--sgx-neon)] selection:text-black ${activeSection === 'OVERVIEW' ? 'h-full min-h-0 overflow-hidden' : 'min-h-screen'}`}>
+    <div className={`w-full ${activeSection === 'OVERVIEW' ? 'bg-[var(--sgx-bg)]' : 'bg-transparent'} text-slate-100 flex flex-col font-sans selection:bg-[var(--sgx-neon)] selection:text-black ${activeSection === 'OVERVIEW' ? 'h-full min-h-0 overflow-hidden' : 'min-h-screen'}`}>
       
       {/* 1. Global Interactive Sponsor Banner Ticker (Hidden on OVERVIEW so 3D core fits 100% on screen) */}
       {isFeatureVisible('exp_sponsor_ticker') && activeSection !== 'OVERVIEW' && (
@@ -557,134 +573,40 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
         />
       )}
 
-      {/* 2. Dedicated Page Mode Navigation Bar (Only shown when navigating away from the 3D Cockpit OVERVIEW) */}
+      {/* 2. Tactical section HUD (only away from the 3D Cockpit OVERVIEW) */}
       {activeSection !== 'OVERVIEW' && (
-        <div className="bg-[#070B14]/95 border-b border-[var(--sgx-secondary)] sticky top-12 z-30 shadow-xl backdrop-blur-md">
-          <div className="max-w-[1750px] mx-auto px-3 sm:px-6 py-2.5 space-y-2">
-            
-            {/* Top Row: Return to 3D Core + Active Pillar Badge + Utility actions */}
-            <div className="flex items-center justify-between gap-3 text-xs font-mono">
-              <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-                <button
-                  onClick={() => handleSelectSection('OVERVIEW')}
-                  className="px-3 py-1 bg-[#0E1729] hover:bg-cyan-500 hover:text-black border border-cyan-500/60 text-cyan-300 flex items-center space-x-1.5 transition-all cursor-pointer shadow-sm text-xs shrink-0"
-                  style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                >
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                  <span className="font-bold">Núcleo 3D SGX</span>
-                </button>
-                <div className="h-4 w-px bg-slate-800 shrink-0" />
-                {SECTION_TO_PILLAR_MAP[activeSection] && (
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <img
-                      src={SECTION_TO_PILLAR_MAP[activeSection].iconUrl}
-                      alt={SECTION_TO_PILLAR_MAP[activeSection].pillarId}
-                      referrerPolicy="no-referrer"
-                      className="w-4 h-4 object-contain"
-                    />
-                    <span
-                      className="font-bold text-[11px]"
-                      style={{ color: SECTION_TO_PILLAR_MAP[activeSection].color }}
-                    >
-                      {SECTION_TO_PILLAR_MAP[activeSection].pillarId}
-                    </span>
-                    <span className="text-slate-600">·</span>
-                  </div>
-                )}
-                <span className="text-slate-300 text-[11px] truncate font-bold uppercase">
-                  {activeSection.replace('_', ' ')}
-                </span>
-              </div>
-
-              <div className="flex items-center space-x-2 shrink-0">
-                <button
-                  onClick={() => {
-                    setOnboardingTourOpen(true);
-                    playUiChirp(850);
-                  }}
-                  className="px-2 py-1 bg-[#0C1424] hover:bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 text-[11px] font-bold flex items-center space-x-1 transition-all cursor-pointer"
-                  style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-                >
-                  <HelpCircle className="w-3 h-3 text-[var(--sgx-neon)]" />
-                  <span className="hidden sm:inline">Tour Guía</span>
-                </button>
-                <button
-                  onClick={() => {
-                    syncAppUrl({ page: 'summit', section: activeSection });
-                    if (navigator.clipboard?.writeText) {
-                      navigator.clipboard.writeText(window.location.href);
-                    }
-                    playUiChirp(880);
-                  }}
-                  className="px-2 py-1 bg-slate-900/90 hover:bg-slate-800 border border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)] text-[11px] text-slate-300 hover:text-white flex items-center space-x-1 transition-all cursor-pointer"
-                  title="Copiar enlace directo"
-                >
-                  <Share2 className="w-3 h-3 text-[var(--sgx-neon)]" />
-                  <span className="hidden sm:inline">Compartir</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Bottom Row: Sleek Single-Line Horizontal Scrollable Section Bar */}
-            <div data-tour="interactive-modules-bar" className="flex items-center gap-1.5 font-mono text-[11px] pt-1 overflow-x-auto no-scrollbar scroll-smooth">
-              <SummitSectionsDropdown
-                activeSection={activeSection}
-                onSelectSection={(sec) => handleSelectSection(sec)}
-                onOpenTickets={() => setTicketModalOpen(true)}
-                onOpenSponsors={(tier) => handleOpenSponsorModal(tier || 'tier_2')}
-                onOpenTour={() => setOnboardingTourOpen(true)}
-                className="shrink-0"
-              />
-              {[
-                { key: 'PILLARS_MANIFESTO', label: 'Manifiesto 6 Pilares', pillar: 'SGX.STORY', icon: Boxes },
-                { key: 'AGENDA', label: 'Agenda 3 Días', pillar: 'SGX.STAGE', icon: Calendar },
-                { key: 'BROADCAST_ROOMS', label: 'Salas 4K', pillar: 'SGX.STAGE', icon: Radio },
-                { key: 'SPEAKERS', label: 'Speakers 3D', pillar: 'SGX.STAGE', icon: Users },
-                { key: 'EMBEDS_GAMES', label: 'Dron 3D & XP', pillar: 'SGX.SPARK', icon: Gamepad2 },
-                { key: 'GUILD', label: '8 Guild Initiates', pillar: 'SGX.SYSTEM', icon: Award },
-                { key: 'MAP_360', label: 'Tour 360° Venue', pillar: 'SGX.SHOWCASE', icon: Globe },
-                { key: 'ENTREPRENEUR_MATCH', label: 'SGX.Match', pillar: 'SGX.SHOWCASE', icon: Zap },
-                { key: 'SPONSORS_HUB', label: 'Partners & Tiers', pillar: 'SGX.SHOWCASE', icon: Building2 },
-                { key: 'CREDENTIAL_GENERATOR', label: 'Credential Generator', pillar: 'SGX.SHOWCASE', icon: Award },
-                { key: 'SOCIAL_STREAM', label: 'Social Radar', pillar: 'SGX.SHOWCASE', icon: Instagram },
-                { key: 'NETWORKING', label: 'Foros Chat', pillar: 'SGX.SYNTHESIZE', icon: MessageSquare },
-              ]
-                .filter((chip) => isSectionVisible(chip.key))
-                .sort((a, b) => {
-                  const currentPillar = SECTION_TO_PILLAR_MAP[activeSection]?.pillarId;
-                  const aSame = a.pillar === currentPillar ? 0 : 1;
-                  const bSame = b.pillar === currentPillar ? 0 : 1;
-                  return aSame - bSame;
-                })
-                .map((chip) => {
-                  const IconComp = chip.icon;
-                  const isActive = activeSection === chip.key;
-                  const currentPillar = SECTION_TO_PILLAR_MAP[activeSection]?.pillarId;
-                  const isSiblingOfPillar = chip.pillar === currentPillar;
-                  return (
-                    <button
-                      key={chip.key}
-                      onClick={() => {
-                        playUiChirp(650);
-                        handleSelectSection(chip.key as SummitSectionKey);
-                      }}
-                      className={`px-2.5 py-1 shrink-0 whitespace-nowrap rounded-xs flex items-center space-x-1.5 transition-all cursor-pointer border ${
-                        isActive
-                          ? 'bg-[var(--sgx-primary)] text-black font-extrabold border-[var(--sgx-primary)] shadow-sm'
-                          : isSiblingOfPillar
-                          ? 'bg-slate-900/95 text-white border-[var(--sgx-primary)]/60 hover:border-[var(--sgx-primary)]'
-                          : 'bg-black/50 text-slate-400 hover:text-white border-slate-800 hover:border-slate-600 hover:bg-slate-900'
-                      }`}
-                    >
-                      <IconComp className={`w-3 h-3 ${isActive ? 'text-black' : 'text-[var(--sgx-neon)]'}`} />
-                      <span>{chip.label}</span>
-                    </button>
-                  );
-                })}
-            </div>
-
-          </div>
-        </div>
+        <SgxSectionHudBar
+          activeSection={activeSection}
+          chips={HUD_SECTION_CHIPS.filter((chip) => isSectionVisible(chip.key))}
+          pillarLabel={SECTION_TO_PILLAR_MAP[activeSection]?.pillarId}
+          pillarIconUrl={SECTION_TO_PILLAR_MAP[activeSection]?.iconUrl}
+          onSelect={(sec) => {
+            playUiChirp(650);
+            handleSelectSection(sec);
+          }}
+          onBack={() => handleSelectSection('OVERVIEW')}
+          onTour={() => {
+            setOnboardingTourOpen(true);
+            playUiChirp(850);
+          }}
+          onShare={() => {
+            syncAppUrl({ page: 'summit', section: activeSection });
+            if (navigator.clipboard?.writeText) {
+              navigator.clipboard.writeText(window.location.href);
+            }
+            playUiChirp(880);
+          }}
+          dropdown={
+            <SummitSectionsDropdown
+              activeSection={activeSection}
+              onSelectSection={(sec) => handleSelectSection(sec)}
+              onOpenTickets={() => setTicketModalOpen(true)}
+              onOpenSponsors={(tier) => handleOpenSponsorModal(tier || 'tier_2')}
+              onOpenTour={() => setOnboardingTourOpen(true)}
+              className="shrink-0"
+            />
+          }
+        />
       )}
 
       {/* 5. Main Dynamic Body Views */}
@@ -711,14 +633,14 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               <button
                 type="button"
                 onClick={() => handleSelectSection('OVERVIEW')}
-                className="px-5 py-2.5 bg-[#00FFFF] hover:bg-[#FDCC0D] text-black font-mono text-xs font-extrabold uppercase transition-colors cursor-pointer"
+                className="px-5 py-2.5 bg-[#00DDFF] hover:bg-[#FDCC0D] text-black font-mono text-xs font-extrabold uppercase transition-colors cursor-pointer"
               >
                 ← Volver al Núcleo 3D Principal
               </button>
               <button
                 type="button"
                 onClick={() => setAuditModalOpen(true)}
-                className="px-4 py-2.5 bg-[#0A101D] hover:bg-[#32527B] border border-[#00FFFF]/60 text-[#00FFFF] hover:text-white font-mono text-xs font-bold uppercase transition-colors cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2.5 bg-[#121212] hover:bg-[#32527B] border border-[#00DDFF]/60 text-[#00DDFF] hover:text-white font-mono text-xs font-bold uppercase transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <Sliders className="w-3.5 h-3.5" />
                 <span>Gestionar Visibilidad de Módulos</span>
@@ -754,20 +676,20 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               >
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="relative w-full max-w-5xl bg-[#070B14] border-2 border-[#00FFFF] p-4 sm:p-6 shadow-[0_0_50px_rgba(0,255,255,0.25)] space-y-4 my-auto max-h-[90vh] overflow-y-auto"
+                  className="relative w-full max-w-5xl bg-[#0D0D0D] border-2 border-[#00DDFF] p-4 sm:p-6 shadow-[0_0_50px_rgba(0, 221, 255,0.25)] space-y-4 my-auto max-h-[90vh] overflow-y-auto"
                   style={{
                     clipPath: 'polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)',
                   }}
                 >
                   <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-800 font-mono">
                     <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-white uppercase font-['Orbitron',sans-serif]">
-                      <Clock className="w-4 h-4 text-[#00FFFF]" />
+                      <Clock className="w-4 h-4 text-[#00DDFF]" />
                       <span>CÁPSULAS DE LORE & RETOS JUGABLES RUMBO AL SUMMIT</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => setTimeCapsulesModalOpen(false)}
-                      className="px-3 py-1 bg-slate-900 hover:bg-[#00FFFF] hover:text-black border border-white/20 text-xs font-mono font-bold text-slate-200 cursor-pointer"
+                      className="px-3 py-1 bg-slate-900 hover:bg-[#00DDFF] hover:text-black border border-white/20 text-xs font-mono font-bold text-slate-200 cursor-pointer"
                     >
                       Cerrar ✕
                     </button>
@@ -785,7 +707,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             {/* DOCK VIEW 2: 3-DAY RUN OF SHOW WITH PROGRESSIVE DISCLOSURE (Official v2026.10 Run of Show) */}
             {overviewDockTab === 'AGENDA_3DAYS' && (
               <div className="space-y-6">
-                <div className="p-4 sm:p-5 bg-gradient-to-r from-[#0C1525] via-[#101D33] to-[#0C1525] border border-[var(--sgx-secondary)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="p-4 sm:p-5 bg-gradient-to-r from-[#171717] via-[#202020] to-[#171717] border border-[var(--sgx-secondary)] flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#00DDFF]/10 border border-[#00DDFF]/40 text-[#00DDFF] text-[10px] font-mono font-bold uppercase">
                       <Calendar className="w-3 h-3" />
@@ -930,7 +852,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
                   {/* Day 3 */}
                   <SpatialTiltCard showCornerBrackets className="h-full">
-                    <div className="p-5 h-full sgx-spatial-card sgx-cyber-bevel flex flex-col justify-between space-y-4 border-2 border-[#00DDFF] bg-gradient-to-b from-[#151d2a] to-[#0d1c2d]">
+                    <div className="p-5 h-full sgx-spatial-card sgx-cyber-bevel flex flex-col justify-between space-y-4 border-2 border-[#00DDFF] bg-gradient-to-b from-[#1f1f1f] to-[#1d1d1d]">
                       <div className="space-y-3">
                         <div className="flex items-center justify-between text-[#00DDFF] font-bold">
                           <span className="px-2 py-0.5 bg-[#00DDFF]/20 border border-[#00DDFF] text-[10px]">DÍA 3 • HÍBRIDO (SAN JUAN)</span>
@@ -995,7 +917,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             {/* DOCK VIEW 3: SPONSORS & TIERS MATRIX */}
             {overviewDockTab === 'SPONSORS' && (
               <div className="space-y-6">
-                <div className="p-4 sm:p-5 bg-gradient-to-r from-[#0C1525] via-[#101D33] to-[#0C1525] border border-[var(--sgx-secondary)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="p-4 sm:p-5 bg-gradient-to-r from-[#171717] via-[#202020] to-[#171717] border border-[var(--sgx-secondary)] flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#FDCC0D]/10 border border-[#FDCC0D]/40 text-[#FDCC0D] text-[10px] font-mono font-bold uppercase">
                       <Building2 className="w-3 h-3" />
@@ -1098,7 +1020,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             {overviewDockTab === 'VENUE_360' && (
               <div className="space-y-6">
                 <div 
-                  className="p-6 sm:p-8 bg-gradient-to-r from-[var(--sgx-card-bg)] via-[#0E1626] to-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] flex flex-col md:flex-row items-center justify-between gap-6"
+                  className="p-6 sm:p-8 bg-gradient-to-r from-[var(--sgx-card-bg)] via-[#191919] to-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] flex flex-col md:flex-row items-center justify-between gap-6"
                   style={{ clipPath: 'polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)' }}
                 >
                   <div className="space-y-3 max-w-2xl font-mono">
@@ -1119,7 +1041,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">LED Volume Wall</span>
                       <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">Optical Tracking Stype</span>
                       <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">Unreal Engine 5.4 Live</span>
-                      <span className="px-2 py-0.5 bg-[#00FFFF]/10 border border-[#00FFFF]/40 text-[#00FFFF] text-[10px]">Audio Espacial 7.1.4</span>
+                      <span className="px-2 py-0.5 bg-[#00DDFF]/10 border border-[#00DDFF]/40 text-[#00DDFF] text-[10px]">Audio Espacial 7.1.4</span>
                     </div>
                   </div>
 
@@ -1130,7 +1052,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                         setSelectedMapNodeId('node_chroma_studios');
                         handleSelectSection('MAP_360');
                       }}
-                      className="sgx-btn-cyan px-5 py-3 text-xs font-bold flex items-center justify-center space-x-2 w-full sm:w-auto shadow-lg shadow-[#00FFFF]/20"
+                      className="sgx-btn-cyan px-5 py-3 text-xs font-bold flex items-center justify-center space-x-2 w-full sm:w-auto shadow-lg shadow-[#00DDFF]/20"
                     >
                       <Compass className="w-4 h-4" />
                       <span>ABRIR TOUR 360° COMPLETO</span>
@@ -1151,7 +1073,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             {overviewDockTab === 'SOCIAL_RADAR' && (
               <div className="space-y-6">
                 <div 
-                  className="p-5 sm:p-6 bg-gradient-to-r from-[#0d1424] via-[#101b33] to-[#150e26] border-2 border-[var(--sgx-neon)] space-y-4 shadow-xl relative overflow-hidden"
+                  className="p-5 sm:p-6 bg-gradient-to-r from-[#171717] via-[#1f1f1f] to-[#150e26] border-2 border-[var(--sgx-neon)] space-y-4 shadow-xl relative overflow-hidden"
                   style={{ clipPath: 'polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)' }}
                 >
                   <div 
@@ -1217,7 +1139,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                           className="px-2 py-0.5 bg-slate-900 hover:bg-[#32527B] border border-slate-700 text-slate-200 hover:text-white transition-colors cursor-pointer flex items-center gap-1"
                         >
                           <span>{tag}</span>
-                          {copiedHashtag === tag ? <Check className="w-3 h-3 text-[#00FFFF]" /> : <Copy className="w-2.5 h-2.5 text-slate-400" />}
+                          {copiedHashtag === tag ? <Check className="w-3 h-3 text-[#00DDFF]" /> : <Copy className="w-2.5 h-2.5 text-slate-400" />}
                         </button>
                       ))}
                     </div>
@@ -1338,7 +1260,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
             {/* Live Social Radar Broadcast Banner */}
             <div 
-              className="p-4 bg-[#121927] border border-[var(--sgx-primary)] flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs"
+              className="p-4 bg-[#1B1B1B] border border-[var(--sgx-primary)] flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs"
               style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
             >
               <div className="flex items-center gap-3">
@@ -1486,7 +1408,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             />
 
             {/* Speaker / Artist Registration CTA */}
-            <div className="p-4 rounded-xl border border-slate-800 bg-[#0A0F1D]/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-4 rounded-xl border border-slate-800 bg-[#121212]/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h4 className="text-sm font-bold text-white uppercase font-['Orbitron',sans-serif]">
                   ¿ERES SPEAKER, ARTISTA O CREADOR SPATIALGINEER?
@@ -1655,8 +1577,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               />
 
               <div
-                className="relative w-full bg-[#050914] border border-cyan-400/60 overflow-hidden shadow-2xl"
-                style={{ boxShadow: '0 0 28px rgba(0, 240, 255, 0.18)' }}
+                className="relative w-full bg-[#0B0B0B] border border-cyan-400/60 overflow-hidden shadow-2xl"
+                style={{ boxShadow: '0 0 28px rgba(0, 221, 255, 0.18)' }}
               >
                 <SgxNativeCredentialStudio
                   initialProfile={resolvedHolo}
@@ -1899,8 +1821,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       {/* Live Summit Analytics & Telemetry Full-Width Modal */}
       {analyticsModalOpen && (
         <div className="fixed inset-0 z-[120] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-          <div className="w-full max-w-6xl bg-[#070B14] border-2 border-[#00FFFF] shadow-[0_0_50px_rgba(0,255,255,0.22)] p-4 sm:p-6 space-y-4 my-auto max-h-[92vh] overflow-y-auto">
-            <div className="flex items-center justify-between gap-4 pb-3 border-b border-white/15 sticky top-0 bg-[#070B14]/95 backdrop-blur-md z-10">
+          <div className="w-full max-w-6xl bg-[#0D0D0D] border-2 border-[#00DDFF] shadow-[0_0_50px_rgba(0, 221, 255,0.22)] p-4 sm:p-6 space-y-4 my-auto max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between gap-4 pb-3 border-b border-white/15 sticky top-0 bg-[#0D0D0D]/95 backdrop-blur-md z-10">
               <div className="flex items-center gap-2.5">
                 <BarChart3 className="w-5 h-5 text-[#FDCC0D]" />
                 <span className="text-sm sm:text-base font-black text-white font-['Orbitron',sans-serif] uppercase tracking-wider">
@@ -1910,7 +1832,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               <button
                 type="button"
                 onClick={() => setAnalyticsModalOpen(false)}
-                className="px-3 py-1.5 bg-[#0F172A] hover:bg-[#FF6B00] hover:text-black border border-white/20 text-xs font-mono font-bold text-white transition-colors cursor-pointer"
+                className="px-3 py-1.5 bg-[#1B1B1B] hover:bg-[#FFBB00] hover:text-black border border-white/20 text-xs font-mono font-bold text-white transition-colors cursor-pointer"
               >
                 Cerrar Analíticas ✕
               </button>
@@ -1922,7 +1844,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
       {/* 14. Global Footer (Only rendered on scrollable content sub-sections, completely hidden on the 100dvh 3D core OVERVIEW) */}
       {activeSection !== 'OVERVIEW' && (
-        <footer className="bg-[#090E18] border-t border-[var(--sgx-secondary)] py-8 px-4 text-center font-mono text-xs text-slate-400 space-y-4">
+        <footer className="bg-[#101010] border-t border-[var(--sgx-secondary)] py-8 px-4 text-center font-mono text-xs text-slate-400 space-y-4">
           {/* Transient Sponsor Strip in Footer with 10s rotation and '(tu marca podría estar aquí)' */}
           <div className="max-w-4xl mx-auto pb-2">
             <TransientSponsorSlot 
@@ -1962,7 +1884,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                   playUiChirp(840);
                   window.dispatchEvent(new CustomEvent('sgx:replay_splash'));
                 }}
-                className="px-2.5 py-1.5 bg-[#0A1220] hover:bg-cyan-500 hover:text-black border border-cyan-500/50 text-cyan-300 font-bold text-[10px] tracking-wider uppercase transition-all whitespace-nowrap cursor-pointer"
+                className="px-2.5 py-1.5 bg-[#141414] hover:bg-cyan-500 hover:text-black border border-cyan-500/50 text-cyan-300 font-bold text-[10px] tracking-wider uppercase transition-all whitespace-nowrap cursor-pointer"
                 style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                 title="Volver a reproducir la pantalla de carga cibernética de 5 segundos"
               >
@@ -1973,7 +1895,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                   playUiChirp(820);
                   setPrivacyModalOpen(true);
                 }}
-                className="px-3 py-1.5 bg-[#0f172a] hover:bg-[var(--sgx-neon)] hover:text-black border border-slate-700 hover:border-[var(--sgx-neon)] text-[var(--sgx-neon)] font-bold text-[10px] tracking-wider uppercase transition-all whitespace-nowrap cursor-pointer"
+                className="px-3 py-1.5 bg-[#1b1b1b] hover:bg-[var(--sgx-neon)] hover:text-black border border-slate-700 hover:border-[var(--sgx-neon)] text-[var(--sgx-neon)] font-bold text-[10px] tracking-wider uppercase transition-all whitespace-nowrap cursor-pointer"
                 style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
               >
                 🛡️ POLÍTICA DE PRIVACIDAD

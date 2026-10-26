@@ -64,7 +64,7 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 bg-[#1F2430] hover:bg-[#FF0055]/30 text-slate-300 hover:text-white border border-[var(--sgx-secondary)]/50 transition-colors"
+            className="p-1.5 bg-[#262626] hover:bg-[#FF0055]/30 text-slate-300 hover:text-white border border-[var(--sgx-secondary)]/50 transition-colors"
             style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
             title="Cerrar Showcase"
           >
@@ -104,7 +104,7 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
         <div className="px-6 -mt-14 relative z-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="flex items-end space-x-4">
             <div 
-              className="w-24 h-24 sm:w-28 sm:h-28 bg-[var(--sgx-bg)] border-2 border-[var(--sgx-neon)] p-2 shadow-2xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#121212] to-[#1F2430]"
+              className="w-24 h-24 sm:w-28 sm:h-28 bg-[var(--sgx-bg)] border-2 border-[var(--sgx-neon)] p-2 shadow-2xl flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#121212] to-[#262626]"
               style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
             >
               <img 
@@ -235,7 +235,7 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
           {/* Special Attendee Offer & Coupon Banner */}
           {(sponsor.specialOfferText || sponsor.specialOfferCode) && (
             <div 
-              className="p-5 bg-gradient-to-r from-[var(--sgx-bg)] via-[#1F2430] to-[var(--sgx-bg)] border-2 border-[var(--sgx-accent)] relative overflow-hidden shadow-xl shadow-[var(--sgx-accent)]/5"
+              className="p-5 bg-gradient-to-r from-[var(--sgx-bg)] via-[#262626] to-[var(--sgx-bg)] border-2 border-[var(--sgx-accent)] relative overflow-hidden shadow-xl shadow-[var(--sgx-accent)]/5"
               style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
             >
               <div 
@@ -286,7 +286,7 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
             <div className="flex items-center space-x-3 w-full sm:w-auto">
               <button
                 onClick={handleCopyLink}
-                className="flex-1 sm:flex-none px-3.5 py-2 bg-[#1F2430] border border-[var(--sgx-secondary)] text-xs font-mono text-slate-300 hover:text-white flex items-center justify-center space-x-1.5 transition-colors"
+                className="flex-1 sm:flex-none px-3.5 py-2 bg-[#262626] border border-[var(--sgx-secondary)] text-xs font-mono text-slate-300 hover:text-white flex items-center justify-center space-x-1.5 transition-colors"
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
                 {copiedLink ? <Check className="w-4 h-4 text-[#FDCC0D]" /> : <Share2 className="w-4 h-4" />}

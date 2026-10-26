@@ -53,7 +53,7 @@ export const MatchProfileTab: React.FC<MatchProfileTabProps> = ({
   return (
     <div className="w-full max-w-md mx-auto space-y-4 text-white">
       {/* Controls Header */}
-      <div className="bg-[#0a0e14] border border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-lg">
+      <div className="bg-[#0f0f0f] border border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-lg">
         {/* Visibility Toggle */}
         <div className="flex items-center gap-2.5">
           <button
@@ -82,7 +82,7 @@ export const MatchProfileTab: React.FC<MatchProfileTabProps> = ({
           onClick={onEditProfile}
           className="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-mono text-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer flex-shrink-0"
         >
-          <Edit3 className="w-3.5 h-3.5 text-[#00F0FF]" />
+          <Edit3 className="w-3.5 h-3.5 text-[#00DDFF]" />
           <span>{strings.profileEdit}</span>
         </button>
       </div>
@@ -99,7 +99,7 @@ export const MatchProfileTab: React.FC<MatchProfileTabProps> = ({
 
       {/* Helper text */}
       <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-3 text-xs text-slate-400 flex items-center gap-2">
-        <Info className="w-4 h-4 text-[#00F0FF] flex-shrink-0" />
+        <Info className="w-4 h-4 text-[#00DDFF] flex-shrink-0" />
         <span>Las opciones [Pasar] y [Conectar] en esta vista previa están deshabilitadas ya que es tu propia tarjeta.</span>
       </div>
     </div>

@@ -125,8 +125,8 @@ export function applyRootTenantCSSVariables(tenant: Tenant) {
 
   const accentRgb = hexToRgbStr(b.accentColor || "#FDCC0D");
   const neonRgb = hexToRgbStr(b.neonHighlightColor || b.primaryColor);
-  const bgRgb = hexToRgbStr(b.backgroundColor || "#0B0F17");
-  const cardBgRgb = hexToRgbStr(b.cardBgColor || "#151D2A");
+  const bgRgb = hexToRgbStr(b.backgroundColor || "#101010");
+  const cardBgRgb = hexToRgbStr(b.cardBgColor || "#1F1F1F");
 
   root.style.setProperty("--sgx-accent-rgb", accentRgb);
   root.style.setProperty("--sgx-neon-rgb", neonRgb);
@@ -137,8 +137,8 @@ export function applyRootTenantCSSVariables(tenant: Tenant) {
   root.style.setProperty('--sgx-secondary', b.secondaryColor || '#32527B');
   root.style.setProperty('--sgx-secondary-rgb', secondaryRgb);
   root.style.setProperty('--sgx-accent', b.accentColor);
-  root.style.setProperty('--sgx-bg', b.backgroundColor || '#0B0F17');
-  root.style.setProperty('--sgx-card-bg', b.cardBgColor || '#151D2A');
+  root.style.setProperty('--sgx-bg', b.backgroundColor || '#101010');
+  root.style.setProperty('--sgx-card-bg', b.cardBgColor || '#1F1F1F');
   root.style.setProperty('--sgx-border', b.borderColor || b.primaryColor);
   root.style.setProperty('--sgx-neon', b.neonHighlightColor || b.primaryColor);
   root.style.setProperty('--sgx-glow', b.glowShadow || `rgba(${primaryRgb}, 0.5)`);
@@ -277,7 +277,7 @@ export const TenantThemeProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     return {
       cardStyle: {
-        backgroundColor: b.cardBgColor || '#121927',
+        backgroundColor: b.cardBgColor || '#1B1B1B',
         borderColor: b.borderColor || b.primaryColor,
         boxShadow: `0 0 16px ${b.glowShadow || `rgba(${pRgb}, 0.3)`}`,
         clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
@@ -291,20 +291,20 @@ export const TenantThemeProvider: React.FC<{ children: React.ReactNode }> = ({ c
       },
       primaryBtnStyle: {
         backgroundColor: `rgba(${pRgb}, 0.15)`,
-        color: b.primaryColor === '#000000' ? '#00FFFF' : b.primaryColor,
-        borderColor: b.primaryColor === '#000000' ? '#00FFFF' : b.primaryColor,
+        color: b.primaryColor === '#000000' ? '#00DDFF' : b.primaryColor,
+        borderColor: b.primaryColor === '#000000' ? '#00DDFF' : b.primaryColor,
         boxShadow: `0 0 14px ${b.glowShadow}`,
         clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
       },
       secondaryBtnStyle: {
         backgroundColor: `rgba(${sRgb}, 0.12)`,
         color: b.secondaryColor || '#FFFFFF',
-        borderColor: b.secondaryColor || '#64748B',
+        borderColor: b.secondaryColor || '#767676',
         clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
       },
       neonBadgeStyle: {
         backgroundColor: `rgba(${pRgb}, 0.2)`,
-        color: b.primaryColor === '#000000' ? '#00FFFF' : b.primaryColor,
+        color: b.primaryColor === '#000000' ? '#00DDFF' : b.primaryColor,
         borderColor: b.borderColor || b.primaryColor,
         boxShadow: `0 0 10px ${b.glowShadow}`,
         clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)',
@@ -326,7 +326,7 @@ export const TenantThemeProvider: React.FC<{ children: React.ReactNode }> = ({ c
         WebkitTextFillColor: 'transparent',
       },
       ambientBgStyle: {
-        background: `radial-gradient(circle at 50% 20%, rgba(${pRgb}, 0.18) 0%, ${b.backgroundColor || '#0B0F17'} 80%)`,
+        background: `radial-gradient(circle at 50% 20%, rgba(${pRgb}, 0.18) 0%, ${b.backgroundColor || '#101010'} 80%)`,
       },
     };
   }, [tenant]);

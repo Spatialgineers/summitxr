@@ -65,7 +65,7 @@ export const QuickGuideModal: React.FC<QuickGuideModalProps> = ({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
       <div 
-        className="w-full max-w-xl bg-[#090D14] border rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] transition-all"
+        className="w-full max-w-xl bg-[#0E0E0E] border rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] transition-all"
         style={{
           borderColor: `rgba(${primaryRgb}, 0.35)`,
           boxShadow: `0 20px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(${primaryRgb}, 0.15)`

@@ -503,12 +503,12 @@ export const CustomVisualUploader: React.FC<CustomVisualUploaderProps> = ({
           style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
         >
           <div>
-            <div className="flex items-center justify-between text-xs font-bold text-[#A855F7] mb-1">
+            <div className="flex items-center justify-between text-xs font-bold text-[#5F86B4] mb-1">
               <span className="flex items-center space-x-1.5">
                 <Sparkles className="w-4 h-4" />
                 <span>SPRITE DE PARTÍCULAS</span>
               </span>
-              <span className="text-[9px] px-1.5 py-0.5 bg-[#A855F7]/20 text-[#A855F7]">PARTÍCULAS</span>
+              <span className="text-[9px] px-1.5 py-0.5 bg-[#5F86B4]/20 text-[#5F86B4]">PARTÍCULAS</span>
             </div>
             <p className="text-[10px] text-slate-400 font-sans leading-tight mb-2">
               Sprite personalizado para el flujo masivo de miles de partículas.
@@ -517,7 +517,7 @@ export const CustomVisualUploader: React.FC<CustomVisualUploaderProps> = ({
             {/* URL Input */}
             <div className="space-y-1.5 mb-2">
               <label className="text-[9px] text-[#888888] flex items-center space-x-1">
-                <LinkIcon className="w-3 h-3 text-[#A855F7]" />
+                <LinkIcon className="w-3 h-3 text-[#5F86B4]" />
                 <span>ENLACE / URL DE SPRITE PNG</span>
               </label>
               <div className="flex space-x-1">
@@ -526,11 +526,11 @@ export const CustomVisualUploader: React.FC<CustomVisualUploaderProps> = ({
                   placeholder="https://.../spark.png"
                   value={urlInputs.customParticleTextureUrl}
                   onChange={(e) => setUrlInputs({ ...urlInputs, customParticleTextureUrl: e.target.value })}
-                  className="w-full bg-[#121212] border border-[var(--sgx-secondary)] text-slate-100 text-[10px] p-1.5 font-mono focus:border-[#A855F7] outline-none"
+                  className="w-full bg-[#121212] border border-[var(--sgx-secondary)] text-slate-100 text-[10px] p-1.5 font-mono focus:border-[#5F86B4] outline-none"
                 />
                 <button
                   onClick={() => handleApplyUrl('customParticleTextureUrl')}
-                  className="px-2 bg-[#A855F7] text-white font-bold text-[9px] hover:bg-white hover:text-black transition-colors"
+                  className="px-2 bg-[#5F86B4] text-white font-bold text-[9px] hover:bg-white hover:text-black transition-colors"
                 >
                   OK
                 </button>
@@ -553,7 +553,7 @@ export const CustomVisualUploader: React.FC<CustomVisualUploaderProps> = ({
 
           <div className="space-y-1.5 pt-2 border-t border-[var(--sgx-secondary)]/40">
             <label className="block">
-              <span className="sgx-btn w-full text-[10px] font-bold py-1.5 px-3 flex items-center justify-center space-x-1.5 cursor-pointer text-center text-[#A855F7] border-[#A855F7]">
+              <span className="sgx-btn w-full text-[10px] font-bold py-1.5 px-3 flex items-center justify-center space-x-1.5 cursor-pointer text-center text-[#5F86B4] border-[#5F86B4]">
                 <Upload className="w-3.5 h-3.5" />
                 <span>SUBIR SPRITE PNG</span>
               </span>

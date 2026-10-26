@@ -139,7 +139,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         {/* Top Header Banner */}
         <div className="sgx-crystal-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xl">
           <div>
-            <div className="flex items-center space-x-2 text-[10px] font-mono text-[#00FFFF] uppercase">
+            <div className="flex items-center space-x-2 text-[10px] font-mono text-[#00DDFF] uppercase">
               <span>REAL-TIME SUMMIT ANALYTICS & TELEMETRY</span>
               <span>•</span>
               <span>TENANT: {tenantId}</span>
@@ -178,7 +178,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="sgx-crystal-card p-4">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono text-slate-400 uppercase">PILOTOS EN RANKING</span>
-              <Users className="w-4 h-4 text-[#00FFFF]" />
+              <Users className="w-4 h-4 text-[#00DDFF]" />
             </div>
             <div className="text-xl md:text-2xl font-bold font-mono text-white mt-1.5 tabular-nums">
               {mergedUsers.length}
@@ -204,12 +204,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="sgx-crystal-card p-4">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono text-slate-400 uppercase">PROMEDIO DE XP</span>
-              <Trophy className="w-4 h-4 text-[#00FFFF]" />
+              <Trophy className="w-4 h-4 text-[#00DDFF]" />
             </div>
             <div className="text-xl md:text-2xl font-bold font-mono text-white mt-1.5 tabular-nums">
               {avgScore.toLocaleString()} <span className="text-xs text-slate-400">XP</span>
             </div>
-            <span className="text-[10px] text-[#00FFFF] font-mono mt-1 block">
+            <span className="text-[10px] text-[#00DDFF] font-mono mt-1 block">
               Tu XP actual: {profile.totalXp.toLocaleString()} XP
             </span>
           </div>
@@ -217,9 +217,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="sgx-crystal-card p-4">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono text-slate-400 uppercase">RÉCORD DRON 3D</span>
-              <Gamepad2 className="w-4 h-4 text-[#FF6B00]" />
+              <Gamepad2 className="w-4 h-4 text-[#FFBB00]" />
             </div>
-            <div className="text-xl md:text-2xl font-bold font-mono text-[#FF6B00] mt-1.5 tabular-nums">
+            <div className="text-xl md:text-2xl font-bold font-mono text-[#FFBB00] mt-1.5 tabular-nums">
               {Math.max(profile.droneStats.highScore, ...(leaderboard.map((l) => l.droneHighScore || 0))).toLocaleString()} PTS
             </div>
             <span className="text-[10px] text-[#FDCC0D] font-mono mt-1 block">
@@ -277,7 +277,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               <h3 className="text-xs font-bold text-white uppercase tracking-wider">
                 Clasificación Global de Pilotos & Participantes en Vivo
               </h3>
-              <span className="text-[10px] font-mono text-[#00FFFF]">
+              <span className="text-[10px] font-mono text-[#00DDFF]">
                 {mergedUsers.length} PILOTOS CLASIFICADOS
               </span>
             </div>
@@ -303,9 +303,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                             idx === 0
                               ? 'text-[#FDCC0D]'
                               : idx === 1
-                              ? 'text-[#00FFFF]'
+                              ? 'text-[#00DDFF]'
                               : idx === 2
-                              ? 'text-[#FF6B00]'
+                              ? 'text-[#FFBB00]'
                               : 'text-slate-400'
                           }`}
                         >
@@ -317,7 +317,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                         <span>{user.nickname}</span>
                       </td>
                       <td className="py-3 px-3">
-                        <span className="bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-2 py-0.5 text-[9px] text-[#00FFFF] uppercase">
+                        <span className="bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-2 py-0.5 text-[9px] text-[#00DDFF] uppercase">
                           {user.prizeTier}
                         </span>
                       </td>
@@ -341,7 +341,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               <h3 className="text-xs font-bold text-white uppercase tracking-wider">
                 Event Narrative Tree & Audience Choice Distribution
               </h3>
-              <span className="text-[10px] font-mono text-[#00FFFF]">
+              <span className="text-[10px] font-mono text-[#00DDFF]">
                 {questions.length} SCENARIO NODES
               </span>
             </div>
@@ -369,9 +369,9 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                       return (
                         <div
                           key={opt.id}
-                          className="p-2.5 bg-[#0A101D] border border-[var(--sgx-secondary)]/60 text-xs font-mono space-y-1.5"
+                          className="p-2.5 bg-[#121212] border border-[var(--sgx-secondary)]/60 text-xs font-mono space-y-1.5"
                         >
-                          <div className="flex items-center justify-between text-[#00FFFF] font-bold text-[11px]">
+                          <div className="flex items-center justify-between text-[#00DDFF] font-bold text-[11px]">
                             <span>{opt.label.split(':')[0]}</span>
                             <span className="text-[9px] text-[#FDCC0D]">{opt.presetId}</span>
                           </div>
@@ -412,7 +412,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               <button
                 type="button"
                 onClick={exportEventsCSV}
-                className="px-3 py-1 bg-[#00FFFF] text-black font-mono text-[10px] font-extrabold cursor-pointer"
+                className="px-3 py-1 bg-[#00DDFF] text-black font-mono text-[10px] font-extrabold cursor-pointer"
               >
                 EXPORTAR EVENTOS CSV ({sessionTelemetry.totalEvents})
               </button>
@@ -428,7 +428,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               </div>
               <div className="p-3 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)]">
                 <span className="text-slate-400 text-[10px] uppercase block">Eventos Capturados</span>
-                <span className="text-base font-bold text-[#00FFFF] mt-1 block tabular-nums">
+                <span className="text-base font-bold text-[#00DDFF] mt-1 block tabular-nums">
                   {sessionTelemetry.totalEvents} Pulsos
                 </span>
                 <span className="text-[10px] text-slate-400 mt-0.5 block">Sincronizados en vivo</span>
@@ -442,7 +442,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               </div>
               <div className="p-3 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)]">
                 <span className="text-slate-400 text-[10px] uppercase block">Motor Three.js & GLB</span>
-                <span className="text-base font-bold text-[#00FFFF] mt-1 block">60.0 FPS Stable</span>
+                <span className="text-base font-bold text-[#00DDFF] mt-1 block">60.0 FPS Stable</span>
                 <span className="text-[10px] text-slate-400 mt-0.5 block">7 modelos .GLB en caché</span>
               </div>
             </div>

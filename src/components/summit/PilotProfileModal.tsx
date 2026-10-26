@@ -88,7 +88,7 @@ export const PilotProfileModal: React.FC<PilotProfileModalProps> = ({
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
       <div 
-        className="w-full max-w-4xl bg-[#090D14] border rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] transition-all"
+        className="w-full max-w-4xl bg-[#0E0E0E] border rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] transition-all"
         style={{
           borderColor: `rgba(${primaryRgb}, 0.35)`,
           boxShadow: `0 25px 70px rgba(0, 0, 0, 0.9), 0 0 35px rgba(${primaryRgb}, 0.15)`
@@ -383,9 +383,9 @@ export const PilotProfileModal: React.FC<PilotProfileModalProps> = ({
                         <div 
                           className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm shrink-0 mt-0.5 border"
                           style={{
-                            backgroundColor: `${act.highlightColor || '#00FFFF'}15`,
-                            borderColor: `${act.highlightColor || '#00FFFF'}40`,
-                            color: act.highlightColor || '#00FFFF',
+                            backgroundColor: `${act.highlightColor || '#00DDFF'}15`,
+                            borderColor: `${act.highlightColor || '#00DDFF'}40`,
+                            color: act.highlightColor || '#00DDFF',
                           }}
                         >
                           {act.category.includes('drone') ? '🚁' : act.category.includes('match') ? '🤝' : act.category.includes('stage') ? '🎭' : '✨'}
@@ -409,9 +409,9 @@ export const PilotProfileModal: React.FC<PilotProfileModalProps> = ({
                       <div 
                         className="px-2.5 py-1 rounded-lg font-mono text-xs font-bold border shrink-0 text-right"
                         style={{
-                          backgroundColor: `${act.highlightColor || '#00FFFF'}15`,
-                          borderColor: `${act.highlightColor || '#00FFFF'}40`,
-                          color: act.highlightColor || '#00FFFF',
+                          backgroundColor: `${act.highlightColor || '#00DDFF'}15`,
+                          borderColor: `${act.highlightColor || '#00DDFF'}40`,
+                          color: act.highlightColor || '#00DDFF',
                         }}
                       >
                         +{act.xpEarned} XP
@@ -470,11 +470,11 @@ export const PilotProfileModal: React.FC<PilotProfileModalProps> = ({
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {[
-                    { label: 'Barrel Roll 360°', count: profile.droneStats.tricksBreakdown.barrelRoll, key: 'Q / Tecla', xp: '+40 XP', color: '#00FFFF' },
+                    { label: 'Barrel Roll 360°', count: profile.droneStats.tricksBreakdown.barrelRoll, key: 'Q / Tecla', xp: '+40 XP', color: '#00DDFF' },
                     { label: 'Salto Vertical 360°', count: profile.droneStats.tricksBreakdown.flip360, key: 'E / Tecla', xp: '+50 XP', color: '#FFFFFF' },
                     { label: 'Hyper Dash Turbo', count: profile.droneStats.tricksBreakdown.speedDash, key: 'Space / Shift', xp: '+30 XP', color: '#FDCC0D' },
                     { label: 'Hover de Precisión', count: profile.droneStats.tricksBreakdown.precisionHover, key: 'Z / Tecla', xp: '+45 XP', color: '#38BDF8' },
-                    { label: 'Pulso EMP Cuántico', count: profile.droneStats.tricksBreakdown.empPulse, key: 'X / Tecla', xp: '+60 XP', color: '#FF6B00' },
+                    { label: 'Pulso EMP Cuántico', count: profile.droneStats.tricksBreakdown.empPulse, key: 'X / Tecla', xp: '+60 XP', color: '#FFBB00' },
                   ].map((trick, i) => (
                     <div 
                       key={i}

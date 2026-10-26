@@ -497,7 +497,7 @@ export const UserProfilePassportDrawer: React.FC<UserProfilePassportDrawerProps>
                 {profile?.weekendActivity && profile.weekendActivity.length > 0 ? (
                   <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
                     {profile.weekendActivity.map((act) => (
-                      <div key={act.id} className="p-1.5 bg-[#0C1424] border border-slate-800 flex justify-between items-center text-[11px]">
+                      <div key={act.id} className="p-1.5 bg-[#171717] border border-slate-800 flex justify-between items-center text-[11px]">
                         <div>
                           <span className="text-white font-bold block">{act.title}</span>
                           <span className="text-[9px] text-slate-400 uppercase">{act.day?.replace('_', ' ') || 'DÍA 1'} • {act.category}</span>

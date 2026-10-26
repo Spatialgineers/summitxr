@@ -24,7 +24,7 @@ export const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({ onClose 
     >
       <div 
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-3xl bg-[#0B101D] border-2 border-[var(--sgx-neon)] p-5 sm:p-7 space-y-5 shadow-2xl relative overflow-hidden font-sans text-slate-100 max-h-[92vh] flex flex-col"
+        className="w-full max-w-3xl bg-[#131313] border-2 border-[var(--sgx-neon)] p-5 sm:p-7 space-y-5 shadow-2xl relative overflow-hidden font-sans text-slate-100 max-h-[92vh] flex flex-col"
         style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
       >
         {/* Top Accent Line */}
@@ -66,7 +66,7 @@ export const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({ onClose 
         <div className="flex-1 overflow-y-auto space-y-4 pr-1.5 custom-scrollbar text-xs leading-relaxed text-slate-300 font-sans">
           
           {/* Summary Box */}
-          <div className="p-4 bg-[#070C16] border border-[#FDCC0D]/40 space-y-2 rounded">
+          <div className="p-4 bg-[#0E0E0E] border border-[#FDCC0D]/40 space-y-2 rounded">
             <div className="text-xs font-mono font-black text-[#FDCC0D] uppercase tracking-wider flex items-center space-x-1.5">
               <Sparkles className="w-4 h-4 text-[#FDCC0D]" />
               <span>COMPROMISO FUNDAMENTAL DE SPATIALGINEERS</span>

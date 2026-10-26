@@ -107,11 +107,11 @@ export const AdminMatchPanel: React.FC<AdminMatchPanelProps> = ({ lang = 'es' })
         <div className="bg-[#121212] border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
           <div>
             <p className="text-xs font-mono text-slate-400">PERFILES ACTIVOS</p>
-            <h3 className="text-2xl font-bold font-mono text-[#00F0FF]">
+            <h3 className="text-2xl font-bold font-mono text-[#00DDFF]">
               {profiles.length}
             </h3>
           </div>
-          <Users className="w-8 h-8 text-[#00F0FF]/40" />
+          <Users className="w-8 h-8 text-[#00DDFF]/40" />
         </div>
 
         {/* Metric 2 */}
@@ -166,7 +166,7 @@ export const AdminMatchPanel: React.FC<AdminMatchPanelProps> = ({ lang = 'es' })
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre, pitch, pilar u organización..."
-            className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:border-[#00F0FF] focus:outline-none"
+            className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:border-[#00DDFF] focus:outline-none"
           />
         </div>
 
@@ -227,7 +227,7 @@ export const AdminMatchPanel: React.FC<AdminMatchPanelProps> = ({ lang = 'es' })
                       <div className="text-[10px] text-slate-400 truncate">
                         T: {c.profile.brings.join(', ')}
                       </div>
-                      <div className="text-[10px] text-[#00F0FF] truncate">
+                      <div className="text-[10px] text-[#00DDFF] truncate">
                         B: {c.profile.seeking.join(', ')}
                       </div>
                     </td>
@@ -267,7 +267,7 @@ export const AdminMatchPanel: React.FC<AdminMatchPanelProps> = ({ lang = 'es' })
       {/* Delete Confirmation Modal */}
       {deletingUid && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="w-full max-w-sm bg-[#0e141e] border border-rose-500/50 rounded-2xl p-5 shadow-2xl text-white">
+          <div className="w-full max-w-sm bg-[#151515] border border-rose-500/50 rounded-2xl p-5 shadow-2xl text-white">
             <h4 className="font-bold text-sm mb-2 text-rose-400 flex items-center gap-2">
               <AlertTriangle className="w-4 h-4" />
               ¿Confirmar eliminación?

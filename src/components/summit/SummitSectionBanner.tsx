@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useTenantTheme } from '../../context/TenantThemeContext';
+import { ScrambleText } from '../../immersion/ScrambleText';
+import { SECTION_META } from '../../immersion/sections';
 
 interface SummitSectionBannerProps {
   sectionKey: SummitSectionKey;
@@ -45,12 +47,12 @@ export const SummitSectionBanner: React.FC<SummitSectionBannerProps> = ({
   const getPillarColor = (badge: string) => {
     const b = badge.toUpperCase();
     if (b.includes('STORY')) return { border: '#FDCC0D', bg: '#FDCC0D25', text: '#FDCC0D', glow: 'rgba(253, 204, 13, 0.45)' };
-    if (b.includes('SPARK')) return { border: '#FF6B00', bg: '#FF6B0025', text: '#FF6B00', glow: 'rgba(255, 107, 0, 0.45)' };
-    if (b.includes('SHOWCASE')) return { border: '#00FFFF', bg: '#00FFFF25', text: '#00FFFF', glow: 'rgba(0, 255, 255, 0.45)' };
+    if (b.includes('SPARK')) return { border: '#FFBB00', bg: '#FFBB0025', text: '#FFBB00', glow: 'rgba(255, 187, 0, 0.45)' };
+    if (b.includes('SHOWCASE')) return { border: '#00DDFF', bg: '#00DDFF25', text: '#00DDFF', glow: 'rgba(0, 221, 255, 0.45)' };
     if (b.includes('STAGE')) return { border: '#FFFFFF', bg: '#FFFFFF20', text: '#FFFFFF', glow: 'rgba(255, 255, 255, 0.45)' };
-    if (b.includes('SYSTEM')) return { border: '#32527B', bg: '#32527B35', text: '#60A5FA', glow: 'rgba(50, 82, 123, 0.55)' };
+    if (b.includes('SYSTEM')) return { border: '#32527B', bg: '#32527B35', text: '#87A6CB', glow: 'rgba(50, 82, 123, 0.55)' };
     if (b.includes('SYNTHESIZE')) return { border: '#FDCC0D', bg: '#FDCC0D25', text: '#FDCC0D', glow: 'rgba(253, 204, 13, 0.45)' };
-    return { border: 'var(--sgx-primary)', bg: 'var(--sgx-primary)/15', text: 'var(--sgx-neon)', glow: 'rgba(0, 255, 255, 0.3)' };
+    return { border: 'var(--sgx-primary)', bg: 'var(--sgx-primary)/15', text: 'var(--sgx-neon)', glow: 'rgba(0, 221, 255, 0.3)' };
   };
 
   const pCol = getPillarColor(pillarBadge);
@@ -81,108 +83,57 @@ export const SummitSectionBanner: React.FC<SummitSectionBannerProps> = ({
     handleCopy();
   };
 
+  const sectionIndex = Math.max(0, SECTION_META.findIndex((m) => m.key === sectionKey)) + 1;
+
   return (
-    <div 
-      className="p-4 sm:p-5 bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] shadow-xl relative overflow-hidden mb-6"
-      style={{
-        clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
-        borderLeft: `4px solid ${pCol.border}`,
-        boxShadow: `0 8px 24px rgba(0,0,0,0.5), 0 0 15px ${pCol.glow}`,
-      }}
-    >
-      {/* Background Subtle Gradient */}
-      <div 
-        className="absolute top-0 right-0 w-80 h-32 opacity-15 pointer-events-none"
-        style={{
-          background: `radial-gradient(circle at top right, ${pCol.border}, transparent 70%)`
-        }}
-      />
+    <section className="sgx-hero" style={{ ['--hero-accent' as any]: pCol.border }} aria-label={title}>
+      <div className="sgx-hero__bg" aria-hidden="true" />
+      <span className="sgx-hero__index" aria-hidden="true">{String(sectionIndex).padStart(2, '0')}</span>
+      <span className="sgx-hero__corner sgx-hero__corner--tl" aria-hidden="true" />
+      <span className="sgx-hero__corner sgx-hero__corner--br" aria-hidden="true" />
 
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative z-10">
-        
-        {/* Left Side: Pillar Emblem, Title & Subtitle */}
-        <div className="flex items-start space-x-3.5 min-w-0">
+      <div className="sgx-hero__layout">
+        <div className="sgx-hero__emblem" aria-hidden="true">
+          <span className="sgx-hero__ring" />
           {pillarIconUrl ? (
-            <img 
-              src={pillarIconUrl} 
-              alt={pillarBadge} 
-              className="w-8 h-8 sm:w-10 sm:h-10 object-contain shrink-0 mt-0.5" 
-            />
+            <img src={pillarIconUrl} alt="" referrerPolicy="no-referrer" />
           ) : (
-            <div className="w-9 h-9 bg-[#101827] border flex items-center justify-center shrink-0" style={{ borderColor: pCol.border }}>
-              <Sparkles className="w-4 h-4" style={{ color: pCol.text }} />
-            </div>
+            <Sparkles className="w-6 h-6 text-[var(--SGX_Yellow)]" />
           )}
+        </div>
 
-          <div className="min-w-0 space-y-0.5">
-            <div className="flex items-center space-x-2 flex-wrap">
-              <span 
-                className="text-[10px] font-mono font-bold px-2 py-0.5 border uppercase tracking-wider rounded-xs"
-                style={{
-                  backgroundColor: pCol.bg,
-                  borderColor: pCol.border,
-                  color: pCol.text,
-                }}
-              >
-                {pillarBadge}
-              </span>
-              <span className="text-[10px] font-mono text-slate-400">
-                #/{slug}
-              </span>
-            </div>
-
-            <h1 className="text-lg sm:text-xl md:text-2xl font-black text-white uppercase font-['Orbitron',sans-serif] tracking-wide break-words">
-              {title}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 font-mono line-clamp-2">
-              {subtitle}
-            </p>
+        <div className="sgx-hero__copy">
+          <div className="sgx-hero__telemetry">
+            <span className="sgx-led sgx-led--action" aria-hidden="true" />
+            <span className="sgx-hero__badge">{pillarBadge}</span>
+            <span className="sgx-hero__path">ESTACIÓN {String(sectionIndex).padStart(2, '0')} // #/{slug} // SYNC OK</span>
           </div>
+          <h1 className="sgx-hero__title">
+            <ScrambleText text={title} />
+          </h1>
+          <p className="sgx-hero__subtitle">{subtitle}</p>
         </div>
 
-        {/* Right Side: Quick Action Deep Link Buttons & Custom Slot */}
-        <div className="flex items-center flex-wrap gap-2 shrink-0 self-start md:self-center">
+        <div className="sgx-hero__actions">
           {children}
-
-          {/* Direct Link Share Button */}
-          <button
-            type="button"
-            onClick={handleShare}
-            className="px-2.5 sm:px-3 py-1.5 bg-[#0C1524] hover:bg-[#15223A] border border-[var(--sgx-secondary)] hover:border-[var(--sgx-primary)] text-slate-200 text-xs font-mono font-bold transition-all flex items-center space-x-1.5 cursor-pointer shadow-md"
-            style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-            title="Compartir enlace directo a esta sección"
-          >
-            <Share2 className="w-3.5 h-3.5 text-[var(--sgx-neon)]" />
-            <span className="hidden sm:inline">COMPARTIR</span>
+          <button type="button" onClick={handleShare} className="sgx-btn sgx-btn--sm" title="Compartir enlace directo a esta sección">
+            <Share2 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Compartir</span>
           </button>
-
-          {/* Copy URL Link Button with Animation */}
-          <button
-            type="button"
-            onClick={handleCopy}
-            className={`px-3 py-1.5 text-xs font-mono font-bold transition-all flex items-center space-x-1.5 cursor-pointer shadow-md ${
-              copied
-                ? 'bg-emerald-500 text-black border border-emerald-400'
-                : 'bg-[var(--sgx-primary)]/15 hover:bg-[var(--sgx-primary)] hover:text-black border border-[var(--sgx-primary)] text-[var(--sgx-primary)]'
-            }`}
-            style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-            title={`Copiar enlace directo: ${shareUrl}`}
-          >
-            {copied ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-black" />
-                <span>¡ENLACE COPIADO!</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5" />
-                <span>COPIAR ENLACE</span>
-              </>
-            )}
-          </button>
+          <span className="sgx-glow">
+            <button
+              type="button"
+              onClick={handleCopy}
+              className={`sgx-btn sgx-btn--sm ${copied ? 'is-active' : ''}`}
+              title={`Copiar enlace directo: ${shareUrl}`}
+            >
+              {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copied ? 'Enlace copiado' : 'Copiar enlace'}</span>
+            </button>
+          </span>
         </div>
-
       </div>
-    </div>
+      <div className="sgx-hero__scan" aria-hidden="true" />
+    </section>
   );
 };

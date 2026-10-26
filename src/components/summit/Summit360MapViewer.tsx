@@ -171,9 +171,9 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
     const ctx = canvas.getContext('2d');
     if (ctx) {
       const grad = ctx.createLinearGradient(0, 0, 1024, 512);
-      grad.addColorStop(0, '#070b14');
-      grad.addColorStop(0.5, '#0e172a');
-      grad.addColorStop(1, '#050810');
+      grad.addColorStop(0, '#0d0d0d');
+      grad.addColorStop(0.5, '#1a1a1a');
+      grad.addColorStop(1, '#0A0A0A');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 1024, 512);
     }
@@ -357,7 +357,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
     <div 
       ref={containerRef} 
       id="summit-section-map"
-      className={`relative bg-[#070b14] border border-[var(--sgx-secondary)] overflow-hidden flex flex-col shadow-2xl transition-all ${
+      className={`relative bg-[#0d0d0d] border border-[var(--sgx-secondary)] overflow-hidden flex flex-col shadow-2xl transition-all ${
         isFullscreen ? 'fixed inset-0 z-[100] h-screen w-screen' : 'w-full h-[520px] md:h-[620px]'
       }`}
       style={{
@@ -388,7 +388,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
         {/* View Controls & Action Toggles */}
         <div className="flex items-center space-x-1.5 flex-wrap">
           {/* Mode Switcher */}
-          <div className="flex items-center bg-[#050810] p-0.5 border border-slate-700/80 rounded">
+          <div className="flex items-center bg-[#0A0A0A] p-0.5 border border-slate-700/80 rounded">
             <button
               onClick={() => setViewMode('360_PANORAMA')}
               className={`px-2 py-1 text-[10px] font-mono uppercase font-bold transition-all cursor-pointer ${
@@ -467,7 +467,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
           />
         ) : (
           /* Tactical 2D Floorplan Matrix */
-          <div className="w-full h-full p-4 md:p-6 bg-[#090d16] flex flex-col justify-between overflow-y-auto">
+          <div className="w-full h-full p-4 md:p-6 bg-[#0f0f0f] flex flex-col justify-between overflow-y-auto">
             <div className="space-y-3">
               <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                 <span className="text-xs font-mono text-[var(--sgx-neon)] font-bold uppercase tracking-wider">
@@ -485,7 +485,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
                     className={`p-3 border transition-all cursor-pointer flex flex-col justify-between ${
                       node.id === activeNodeId
                         ? 'bg-[var(--sgx-card-bg)] border-[var(--sgx-neon)] shadow-lg'
-                        : 'bg-[#0e1422] border-slate-800 hover:border-slate-600'
+                        : 'bg-[#171717] border-slate-800 hover:border-slate-600'
                     }`}
                   >
                     <div>
@@ -539,7 +539,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
         {/* Floating Spatial Node Selector HUD (Bottom Bar) */}
         <div className="absolute bottom-3 left-3 right-3 z-20 pointer-events-none flex items-end justify-between gap-3">
           {/* Node Selector Pills */}
-          <div className="pointer-events-auto bg-[#070b14]/90 backdrop-blur-md border border-[var(--sgx-secondary)] p-1.5 flex items-center gap-1.5 overflow-x-auto max-w-full">
+          <div className="pointer-events-auto bg-[#0d0d0d]/90 backdrop-blur-md border border-[var(--sgx-secondary)] p-1.5 flex items-center gap-1.5 overflow-x-auto max-w-full">
             {nodes.map(node => {
               const isSel = node.id === activeNodeId;
               return (

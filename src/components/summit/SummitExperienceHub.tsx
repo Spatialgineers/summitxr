@@ -616,9 +616,9 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
 
       {/* Compact On-Demand Expansion Bar (Only shown when expanded, keeping default 3D core full-screen) */}
       {viewMode !== 'CLOSED_3D_ONLY' && (
-        <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 bg-[#060B16]/90 border border-white/10 backdrop-blur-md font-mono text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 bg-[#0D0D0D]/90 border border-white/10 backdrop-blur-md font-mono text-xs">
         <div className="flex items-center gap-2 text-slate-300">
-          <Boxes className="w-3.5 h-3.5 text-[#00FFFF] shrink-0" />
+          <Boxes className="w-3.5 h-3.5 text-[#00DDFF] shrink-0" />
           <span className="text-[11px]">
             Toca cualquier escultura <strong className="text-[#FDCC0D]">.GLB</strong> en el visor 3D o despliega el catálogo completo bajo demanda:
           </span>
@@ -650,7 +650,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
             }}
             className={`px-3 py-1.5 font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0 text-[11px] border ${
               viewMode === 'ALL_PILLARS_MATRIX'
-                ? 'bg-[#00FFFF] text-black border-[#00FFFF]'
+                ? 'bg-[#00DDFF] text-black border-[#00DDFF]'
                 : 'bg-slate-900/90 text-slate-300 hover:text-white border-white/15'
             }`}
           >
@@ -720,7 +720,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
             <div className="space-y-5">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs p-3.5 bg-black/50 border border-cyan-500/30">
                 <div className="space-y-1 text-slate-300">
-                  <div>Estado de los 7 Nodos .GLB: <strong className="text-[#00FFFF]">SINCRONIZADOS (60 FPS)</strong></div>
+                  <div>Estado de los 7 Nodos .GLB: <strong className="text-[#00DDFF]">SINCRONIZADOS (60 FPS)</strong></div>
                   <div>Pulsos de Calibración Emitidos: <strong className="text-[#FDCC0D] tabular-nums">{telemetryPulseCount}</strong></div>
                 </div>
                 <button
@@ -762,7 +762,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-white/10">
             <div className="flex items-start gap-4">
               <div
-                className="w-14 h-14 sm:w-16 sm:h-16 border-2 flex items-center justify-center p-2 shrink-0 bg-[#080E1C]"
+                className="w-14 h-14 sm:w-16 sm:h-16 border-2 flex items-center justify-center p-2 shrink-0 bg-[#111111]"
                 style={{
                   borderColor: activeStation.themeColor,
                   boxShadow: `0 0 22px rgba(${activeColorRgb}, 0.35)`,

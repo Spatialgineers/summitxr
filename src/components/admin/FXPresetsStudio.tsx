@@ -158,7 +158,7 @@ export const FXPresetsStudio: React.FC<FXPresetsStudioProps> = ({
       name: 'Nuevo UberShader FX',
       category: 'UberShaders',
       description: 'Preset visual personalizado con partículas y efectos en tiempo real',
-      themeColor: '#00ffff',
+      themeColor: '#00ddff',
       accentColor: '#ff007f',
       shaderKey: 'glitch',
       glitchIntensity: 0.6,
@@ -410,7 +410,7 @@ export const FXPresetsStudio: React.FC<FXPresetsStudioProps> = ({
                       <div className="flex items-center space-x-1.5">
                         <div 
                           className="w-2.5 h-2.5 rounded-full" 
-                          style={{ backgroundColor: preset.themeColor || '#00ffff' }} 
+                          style={{ backgroundColor: preset.themeColor || '#00ddff' }} 
                         />
                         <span className="font-bold text-white text-xs">{preset.name}</span>
                       </div>

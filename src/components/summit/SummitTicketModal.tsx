@@ -212,9 +212,9 @@ INFORMACIÓN:
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto animate-fadeIn">
       <div 
-        className="bg-[#081020] border-t-2 sm:border-2 border-[var(--sgx-neon)] max-w-xl w-full p-4 sm:p-6 space-y-4 shadow-2xl relative sm:my-auto max-h-[94vh] overflow-y-auto"
+        className="bg-[#131313] border-t-2 sm:border-2 border-[var(--sgx-neon)] max-w-xl w-full p-4 sm:p-6 space-y-4 shadow-2xl relative sm:my-auto max-h-[94vh] overflow-y-auto"
         style={{ 
-          boxShadow: '0 0 45px rgba(0, 255, 255, 0.22)',
+          boxShadow: '0 0 45px rgba(0, 221, 255, 0.22)',
         }}
       >
         {/* Header */}
@@ -237,7 +237,7 @@ INFORMACIÓN:
           
           <button 
             onClick={onClose} 
-            className="p-1.5 bg-[#1e293b] border border-[var(--sgx-secondary)] text-slate-400 hover:text-white transition-colors"
+            className="p-1.5 bg-[#2b2b2b] border border-[var(--sgx-secondary)] text-slate-400 hover:text-white transition-colors"
             style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
           >
             <X className="w-4 h-4" />
@@ -277,12 +277,12 @@ INFORMACIÓN:
             {/* High-Fidelity 3D Interactive Holographic Pass Card Preview */}
             <SpatialTiltCard showCornerBrackets maxTilt={11}>
             <div 
-              className="relative p-5 border overflow-hidden transition-all bg-gradient-to-br from-[#0c1424] via-[#09101f] to-[#050811] shadow-2xl"
+              className="relative p-5 border overflow-hidden transition-all bg-gradient-to-br from-[#171717] via-[#131313] to-[#0A0A0A] shadow-2xl"
               style={{
                 clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
-                borderColor: activePass.ticketType === 'DIGITAL' ? 'rgba(0, 240, 255, 0.6)' : 'rgba(255, 184, 0, 0.6)',
+                borderColor: activePass.ticketType === 'DIGITAL' ? 'rgba(0, 221, 255, 0.6)' : 'rgba(255, 184, 0, 0.6)',
                 boxShadow: activePass.ticketType === 'DIGITAL' 
-                  ? '0 0 25px rgba(0, 240, 255, 0.15), inset 0 0 20px rgba(0, 240, 255, 0.05)' 
+                  ? '0 0 25px rgba(0, 221, 255, 0.15), inset 0 0 20px rgba(0, 221, 255, 0.05)' 
                   : '0 0 25px rgba(255, 184, 0, 0.15), inset 0 0 20px rgba(255, 184, 0, 0.05)'
               }}
             >
@@ -417,7 +417,7 @@ INFORMACIÓN:
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={handleCopyCode}
-                    className="px-3 py-2 bg-[#162238] border border-[var(--sgx-neon)] text-[11px] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black font-bold flex items-center space-x-1.5 transition-all"
+                    className="px-3 py-2 bg-[#252525] border border-[var(--sgx-neon)] text-[11px] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black font-bold flex items-center space-x-1.5 transition-all"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   >
                     {copiedCode ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -425,7 +425,7 @@ INFORMACIÓN:
                   </button>
                   <button
                     onClick={handleDownloadReceipt}
-                    className="px-3 py-2 bg-[#1e293b] border border-slate-700 text-slate-300 hover:text-white text-[11px] font-bold flex items-center space-x-1 transition-all"
+                    className="px-3 py-2 bg-[#2b2b2b] border border-slate-700 text-slate-300 hover:text-white text-[11px] font-bold flex items-center space-x-1 transition-all"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                     title="Descargar comprobante en texto"
                   >
@@ -458,9 +458,9 @@ INFORMACIÓN:
             {/* Live Interactive 3D Ticket Preview as you type */}
             <SpatialTiltCard showCornerBrackets maxTilt={9}>
               <div
-                className="p-3.5 bg-gradient-to-r from-[#091224] via-[#0D1A34] to-[#081020] border relative overflow-hidden"
+                className="p-3.5 bg-gradient-to-r from-[#151515] via-[#1E1E1E] to-[#131313] border relative overflow-hidden"
                 style={{
-                  borderColor: selectedType === 'DIGITAL' ? '#00FFFF' : '#FDCC0D',
+                  borderColor: selectedType === 'DIGITAL' ? '#00DDFF' : '#FDCC0D',
                 }}
               >
                 <div className="flex items-center justify-between text-[10px] pb-2 border-b border-white/10">
@@ -471,7 +471,7 @@ INFORMACIÓN:
                   <span
                     className={`px-2 py-0.5 font-extrabold text-[9px] uppercase ${
                       selectedType === 'DIGITAL'
-                        ? 'bg-[#00FFFF]/20 text-[#00FFFF] border border-[#00FFFF]/50'
+                        ? 'bg-[#00DDFF]/20 text-[#00DDFF] border border-[#00DDFF]/50'
                         : 'bg-[#FDCC0D]/20 text-[#FDCC0D] border border-[#FDCC0D]/50'
                     }`}
                   >
@@ -510,7 +510,7 @@ INFORMACIÓN:
                 className={`p-3 text-left border transition-all relative ${
                   selectedType === 'DIGITAL'
                     ? 'border-cyan-400 bg-cyan-950/30 shadow-md shadow-cyan-500/10'
-                    : 'border-slate-800 bg-[#070c17] opacity-70 hover:opacity-100'
+                    : 'border-slate-800 bg-[#0e0e0e] opacity-70 hover:opacity-100'
                 }`}
                 style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
               >
@@ -531,7 +531,7 @@ INFORMACIÓN:
                 className={`p-3 text-left border transition-all relative ${
                   selectedType === 'SHOWCASE_PHYSICAL'
                     ? 'border-amber-400 bg-amber-950/30 shadow-md shadow-amber-500/10'
-                    : 'border-slate-800 bg-[#070c17] opacity-70 hover:opacity-100'
+                    : 'border-slate-800 bg-[#0e0e0e] opacity-70 hover:opacity-100'
                 }`}
                 style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
               >
@@ -587,7 +587,7 @@ INFORMACIÓN:
                     value={fullName}
                     onChange={e => setFullName(e.target.value)}
                     placeholder="Tu nombre y apellido"
-                    className="w-full p-2.5 bg-[#070c17] border border-[var(--sgx-secondary)] text-white text-xs placeholder-slate-500 focus:outline-none focus:border-[var(--sgx-neon)] pr-8"
+                    className="w-full p-2.5 bg-[#0e0e0e] border border-[var(--sgx-secondary)] text-white text-xs placeholder-slate-500 focus:outline-none focus:border-[var(--sgx-neon)] pr-8"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                     required
                   />
@@ -603,7 +603,7 @@ INFORMACIÓN:
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="correo@ejemplo.com"
-                    className="w-full p-2.5 bg-[#070c17] border border-[var(--sgx-secondary)] text-white text-xs placeholder-slate-500 focus:outline-none focus:border-[var(--sgx-neon)] pr-8"
+                    className="w-full p-2.5 bg-[#0e0e0e] border border-[var(--sgx-secondary)] text-white text-xs placeholder-slate-500 focus:outline-none focus:border-[var(--sgx-neon)] pr-8"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                     required
                   />
@@ -619,7 +619,7 @@ INFORMACIÓN:
                     <select
                       value={roleTitle}
                       onChange={e => setRoleTitle(e.target.value)}
-                      className="w-full p-2.5 bg-[#070c17] border border-amber-500/50 text-white text-xs focus:outline-none focus:border-amber-400"
+                      className="w-full p-2.5 bg-[#0e0e0e] border border-amber-500/50 text-white text-xs focus:outline-none focus:border-amber-400"
                       style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                     >
                       <option value="Marca / Patrocinador">Marca / Patrocinador</option>
@@ -638,7 +638,7 @@ INFORMACIÓN:
                         value={organization}
                         onChange={e => setOrganization(e.target.value)}
                         placeholder="Ej. Estudio XR, Agencia, Canal"
-                        className="w-full p-2.5 bg-[#070c17] border border-amber-500/50 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-amber-400 pr-8"
+                        className="w-full p-2.5 bg-[#0e0e0e] border border-amber-500/50 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-amber-400 pr-8"
                         style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                       />
                       <Building className="w-4 h-4 text-slate-500 absolute right-2.5 top-2.5 pointer-events-none" />
@@ -659,7 +659,7 @@ INFORMACIÓN:
 
             {/* Puerto Rico Compliant Privacy & Data Notice */}
             <div 
-              className="p-3 bg-[#080d19] border border-cyan-900/60 text-slate-300 text-[11px] space-y-1.5"
+              className="p-3 bg-[#0f0f0f] border border-cyan-900/60 text-slate-300 text-[11px] space-y-1.5"
               style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
             >
               <div className="flex items-center justify-between">
@@ -685,7 +685,7 @@ INFORMACIÓN:
               <button
                 type="button"
                 onClick={onClose}
-                className="px-3 py-2 bg-[#1e293b] border border-slate-700 text-slate-300 hover:text-white text-xs"
+                className="px-3 py-2 bg-[#2b2b2b] border border-slate-700 text-slate-300 hover:text-white text-xs"
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
                 Cancelar

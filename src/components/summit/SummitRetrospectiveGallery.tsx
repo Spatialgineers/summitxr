@@ -44,7 +44,7 @@ export const SummitRetrospectiveGallery: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#080D18] border-2 border-[var(--sgx-secondary)] p-6 sm:p-8 space-y-6">
+    <div className="bg-[#0F0F0F] border-2 border-[var(--sgx-secondary)] p-6 sm:p-8 space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div className="space-y-1">
@@ -72,7 +72,7 @@ export const SummitRetrospectiveGallery: React.FC = () => {
               className={`px-3 py-1 text-xs font-mono font-bold uppercase transition-all ${
                 selectedTag === tag
                   ? 'bg-[#FDCC0D] text-black shadow-md shadow-[#FDCC0D]/20'
-                  : 'bg-[#0E1626] text-slate-400 hover:text-white border border-slate-800'
+                  : 'bg-[#191919] text-slate-400 hover:text-white border border-slate-800'
               }`}
             >
               {tag === 'ALL' ? 'Todas las Fotos' : tag}
@@ -92,7 +92,7 @@ export const SummitRetrospectiveGallery: React.FC = () => {
                 playUiChirp(800);
                 setSelectedPhotoIndex(globalIndex);
               }}
-              className="group relative bg-[#0D1524] border border-slate-800 hover:border-[#FDCC0D] overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg flex flex-col"
+              className="group relative bg-[#171717] border border-slate-800 hover:border-[#FDCC0D] overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg flex flex-col"
               style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
             >
               <div className="aspect-[4/3] w-full overflow-hidden bg-black/60 relative">
@@ -102,7 +102,7 @@ export const SummitRetrospectiveGallery: React.FC = () => {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#080D18] via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity" />
                 
                 {/* Tag pill */}
                 <div className="absolute top-2 left-2">
@@ -119,7 +119,7 @@ export const SummitRetrospectiveGallery: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-3.5 space-y-1.5 flex-1 flex flex-col justify-between bg-[#0B1220]">
+              <div className="p-3.5 space-y-1.5 flex-1 flex flex-col justify-between bg-[#141414]">
                 <div>
                   <h4 className="text-xs font-bold text-white font-['Orbitron',sans-serif] group-hover:text-[#FDCC0D] transition-colors">
                     {photo.title}
@@ -130,7 +130,7 @@ export const SummitRetrospectiveGallery: React.FC = () => {
                 </div>
                 <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] font-mono text-slate-400">
                   <span>SGX HISTORICAL ARCHIVE</span>
-                  <span className="text-[#00FFFF] font-bold flex items-center gap-1">
+                  <span className="text-[#00DDFF] font-bold flex items-center gap-1">
                     <span>AMPLIAR</span>
                     <ZoomIn className="w-3 h-3" />
                   </span>
@@ -144,10 +144,10 @@ export const SummitRetrospectiveGallery: React.FC = () => {
       {/* Fullscreen Lightbox Modal */}
       {selectedPhotoIndex !== null && activePhoto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl animate-fadeIn">
-          <div className="relative w-full max-w-5xl max-h-[95vh] flex flex-col bg-[#080D18] border-2 border-[#FDCC0D] shadow-2xl overflow-hidden">
+          <div className="relative w-full max-w-5xl max-h-[95vh] flex flex-col bg-[#0F0F0F] border-2 border-[#FDCC0D] shadow-2xl overflow-hidden">
             
             {/* Modal Top Bar */}
-            <div className="p-4 bg-[#0D1626] border-b border-slate-800 flex items-center justify-between">
+            <div className="p-4 bg-[#181818] border-b border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 bg-[#FDCC0D] text-black font-mono font-bold text-[10px] uppercase">
                   FOTO {selectedPhotoIndex + 1} DE {photos.length}
@@ -162,7 +162,7 @@ export const SummitRetrospectiveGallery: React.FC = () => {
                   href={activePhoto.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1 bg-[#1E293B] hover:bg-[#334155] text-slate-200 text-xs font-mono font-bold flex items-center gap-1.5 transition-colors border border-slate-700"
+                  className="px-3 py-1 bg-[#2B2B2B] hover:bg-[#434343] text-slate-200 text-xs font-mono font-bold flex items-center gap-1.5 transition-colors border border-slate-700"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>Ver Original</span>
@@ -172,7 +172,7 @@ export const SummitRetrospectiveGallery: React.FC = () => {
                     playUiChirp(400);
                     setSelectedPhotoIndex(null);
                   }}
-                  className="p-1.5 text-slate-400 hover:text-white bg-[#1E293B] hover:bg-red-950/80 border border-slate-700 hover:border-red-500 transition-colors"
+                  className="p-1.5 text-slate-400 hover:text-white bg-[#2B2B2B] hover:bg-red-950/80 border border-slate-700 hover:border-red-500 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -211,12 +211,12 @@ export const SummitRetrospectiveGallery: React.FC = () => {
             </div>
 
             {/* Modal Bottom Caption */}
-            <div className="p-4 sm:p-5 bg-[#0D1626] border-t border-slate-800 space-y-1.5">
+            <div className="p-4 sm:p-5 bg-[#181818] border-t border-slate-800 space-y-1.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h3 className="text-base sm:text-lg font-bold text-white font-['Orbitron',sans-serif]">
                   {activePhoto.title}
                 </h3>
-                <span className="text-xs font-mono text-[#00FFFF] border border-[#00FFFF]/40 px-2 py-0.5 bg-[#00FFFF]/10">
+                <span className="text-xs font-mono text-[#00DDFF] border border-[#00DDFF]/40 px-2 py-0.5 bg-[#00DDFF]/10">
                   CDN OFICIAL SPATIALGINEERS
                 </span>
               </div>

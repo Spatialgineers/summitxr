@@ -94,7 +94,7 @@ export const SgxGuildShowcaseSection: React.FC = () => {
         
         {/* Header Title with Official Guild Logo */}
         <div className="text-center space-y-4 max-w-3xl mx-auto flex flex-col items-center">
-          <div className="p-3 bg-[#0A101D] border-2 border-[#32527B] shadow-2xl inline-block"
+          <div className="p-3 bg-[#121212] border-2 border-[#32527B] shadow-2xl inline-block"
                style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}>
             <img 
               src="https://cdn.spatialgineers.com/Branding/Guild/Guild%20color.png" 
@@ -225,7 +225,7 @@ export const SgxGuildShowcaseSection: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
             <div 
-              className="p-3 bg-[#152033]/80 border border-slate-700 space-y-1 transition-all hover:border-cyan-400"
+              className="p-3 bg-[#232323]/80 border border-slate-700 space-y-1 transition-all hover:border-cyan-400"
               style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
             >
               <span className="font-bold block" style={{ color: tenant.branding.primaryColor }}>1. Comunicación & Autonomía</span>
@@ -234,7 +234,7 @@ export const SgxGuildShowcaseSection: React.FC = () => {
               </p>
             </div>
             <div 
-              className="p-3 bg-[#152033]/80 border border-slate-700 space-y-1 transition-all hover:border-amber-400"
+              className="p-3 bg-[#232323]/80 border border-slate-700 space-y-1 transition-all hover:border-amber-400"
               style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
             >
               <span className="font-bold block" style={{ color: tenant.branding.secondaryColor }}>2. Rigor de Ingeniería</span>
@@ -243,7 +243,7 @@ export const SgxGuildShowcaseSection: React.FC = () => {
               </p>
             </div>
             <div 
-              className="p-3 bg-[#152033]/80 border border-slate-700 space-y-1 transition-all hover:border-cyan-400"
+              className="p-3 bg-[#232323]/80 border border-slate-700 space-y-1 transition-all hover:border-cyan-400"
               style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
             >
               <span className="font-bold block" style={{ color: tenant.branding.accentColor }}>3. Visión & Consistencia</span>
@@ -276,7 +276,7 @@ export const SgxGuildShowcaseSection: React.FC = () => {
                 }`}
                 style={{ 
                   clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)',
-                  backgroundColor: activeQuoteIdx === i ? tenant.branding.primaryColor : '#475569' 
+                  backgroundColor: activeQuoteIdx === i ? tenant.branding.primaryColor : '#575757' 
                 }}
               />
             ))}

@@ -72,18 +72,18 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
         <img 
           src={cdnMap[pillarId]} 
           alt={pillarId} 
-          className={`${sizeClass} object-contain filter drop-shadow-[0_0_6px_rgba(0,255,255,0.4)]`} 
+          className={`${sizeClass} object-contain filter drop-shadow-[0_0_6px_rgba(0, 221, 255,0.4)]`} 
         />
       );
     }
 
     switch (pillarId) {
       case 'SGX.STORY': return <Shield className={`${sizeClass} text-[#FDCC0D]`} />;
-      case 'SGX.SHOWCASE': return <Sparkles className={`${sizeClass} text-[#00FFFF]`} />;
-      case 'SGX.SPARK': return <Zap className={`${sizeClass} text-[#FF6B00]`} />;
+      case 'SGX.SHOWCASE': return <Sparkles className={`${sizeClass} text-[#00DDFF]`} />;
+      case 'SGX.SPARK': return <Zap className={`${sizeClass} text-[#FFBB00]`} />;
       case 'SGX.STAGE': return <Flame className={`${sizeClass} text-white`} />;
       case 'SGX.SYSTEM': return <Layers className={`${sizeClass} text-[#32527B]`} />;
-      case 'SGX.SYNTHESIZE': return <Radio className={`${sizeClass} text-[#00FFFF] animate-pulse`} />;
+      case 'SGX.SYNTHESIZE': return <Radio className={`${sizeClass} text-[#00DDFF] animate-pulse`} />;
       default: return <Sliders className={`${sizeClass} text-cyan-400`} />;
     }
   };
@@ -95,7 +95,7 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
         id="sgx-tenant-theme-trigger-btn"
         type="button"
         onClick={() => setIsOpen(prev => !prev)}
-        className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-[var(--sgx-card-bg)]/90 hover:bg-[#182236] border text-[10px] sm:text-xs font-mono transition-all shadow-md group shrink-0 cursor-pointer"
+        className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-[var(--sgx-card-bg)]/90 hover:bg-[#252525] border text-[10px] sm:text-xs font-mono transition-all shadow-md group shrink-0 cursor-pointer"
         style={{
           clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)',
           borderColor: activeTenant.branding.primaryColor,
@@ -122,7 +122,7 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
           <span 
             className="w-2 h-2 rounded-full inline-block border border-black/60 shrink-0 hidden sm:inline-block" 
             style={{ 
-              backgroundColor: activeTenant.branding.secondaryColor || '#64748B'
+              backgroundColor: activeTenant.branding.secondaryColor || '#767676'
             }}
           />
         </div>
@@ -145,7 +145,7 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
             ref={modalRef}
             id="sgx-tenant-theme-modal"
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-lg bg-[#0B101D] border-2 shadow-2xl overflow-hidden font-mono text-xs animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]"
+            className="relative w-full max-w-lg bg-[#131313] border-2 shadow-2xl overflow-hidden font-mono text-xs animate-in zoom-in-95 duration-150 flex flex-col max-h-[90vh]"
             style={{ 
               clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
               borderColor: activeTenant.branding.primaryColor,
@@ -207,8 +207,8 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
                     onClick={() => handleSelect(t)}
                     className={`w-full text-left p-3 border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 group cursor-pointer ${
                       isActive
-                        ? 'bg-[#162238] border-cyan-400 text-white shadow-md'
-                        : 'bg-[#0E1524]/80 border-[var(--sgx-secondary)]/40 text-slate-300 hover:bg-[#141F33] hover:border-slate-500 hover:text-white'
+                        ? 'bg-[#252525] border-cyan-400 text-white shadow-md'
+                        : 'bg-[#181818]/80 border-[var(--sgx-secondary)]/40 text-slate-300 hover:bg-[#222222] hover:border-slate-500 hover:text-white'
                     }`}
                     style={{ 
                       clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
@@ -257,7 +257,7 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
                         />
                         <span 
                           className="w-3.5 h-3.5 rounded-sm border border-black/40" 
-                          style={{ backgroundColor: b.secondaryColor || '#64748B' }}
+                          style={{ backgroundColor: b.secondaryColor || '#767676' }}
                           title={`Secondary: ${b.secondaryColor}`}
                         />
                         <span 
@@ -267,7 +267,7 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
                         />
                         <span 
                           className="w-3.5 h-3.5 rounded-sm border border-black/40" 
-                          style={{ backgroundColor: b.backgroundColor || '#0B0F17' }}
+                          style={{ backgroundColor: b.backgroundColor || '#101010' }}
                           title={`Background: ${b.backgroundColor}`}
                         />
                       </div>
@@ -299,7 +299,7 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="p-2.5 sm:p-3 bg-[#070B14] border-t border-[var(--sgx-secondary)]/40 text-[10px] text-slate-400 flex items-center justify-between shrink-0">
+            <div className="p-2.5 sm:p-3 bg-[#0D0D0D] border-t border-[var(--sgx-secondary)]/40 text-[10px] text-slate-400 flex items-center justify-between shrink-0">
               <span className="font-mono text-[10px] text-slate-400">
                 El tema seleccionado se aplica a toda la interfaz y simulaciones 3D.
               </span>

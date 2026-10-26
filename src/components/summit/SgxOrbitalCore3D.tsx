@@ -262,8 +262,8 @@ function createSponsorBillboardTexture(
   if (ctx) {
     // Obsidian glass gradient
     const bgGrad = ctx.createLinearGradient(0, 0, 512, 256);
-    bgGrad.addColorStop(0, '#0c1018');
-    bgGrad.addColorStop(1, '#05070b');
+    bgGrad.addColorStop(0, '#111111');
+    bgGrad.addColorStop(1, '#080808');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 512, 256);
 
@@ -1710,7 +1710,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
             className={`p-1.5 sm:px-2 sm:py-1.5 border flex items-center gap-1 transition-colors cursor-pointer text-xs font-bold ${
               optionsMenuOpen
                 ? 'bg-[#00DDFF] text-black border-[#00DDFF]'
-                : 'bg-[#1A1A1A] hover:bg-[#2A3448] text-slate-300 border-[#32527B]'
+                : 'bg-[#1A1A1A] hover:bg-[#373737] text-slate-300 border-[#32527B]'
             }`}
             style={{ clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}
             title="Opciones avanzadas del Núcleo 3D"
@@ -1722,7 +1722,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           {/* Clean Options Dropdown Popover */}
           {optionsMenuOpen && (
             <div
-              className="absolute top-full right-0 mt-2 z-50 w-64 p-2 bg-[#0D1017] border-2 border-[#32527B] shadow-[0_15px_40px_rgba(0,0,0,0.9)] space-y-1.5 font-mono text-xs"
+              className="absolute top-full right-0 mt-2 z-50 w-64 p-2 bg-[#111111] border-2 border-[#32527B] shadow-[0_15px_40px_rgba(0,0,0,0.9)] space-y-1.5 font-mono text-xs"
               style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
             >
               <div className="px-2 py-1 text-[10px] font-bold text-slate-400 border-b border-[#32527B]/60 uppercase tracking-wider">
@@ -1798,7 +1798,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 className={`w-full px-2.5 py-1.5 border flex items-center gap-2 text-left transition-colors cursor-pointer text-xs ${
                   zenImmersionMode
                     ? 'bg-[#00DDFF] text-black border-[#00DDFF]'
-                    : 'bg-[#1A1A1A] hover:bg-[#2A3448] text-white border-[#32527B]'
+                    : 'bg-[#1A1A1A] hover:bg-[#373737] text-white border-[#32527B]'
                 }`}
               >
                 <Maximize2 className="w-3.5 h-3.5" />
@@ -1816,7 +1816,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 className={`w-full px-2.5 py-1.5 border flex items-center gap-2 text-left transition-colors cursor-pointer text-xs ${
                   liteMode
                     ? 'bg-[#FFBB00] text-black border-[#FFBB00]'
-                    : 'bg-[#1A1A1A] hover:bg-[#2A3448] text-[#FFBB00] border-[#B87000]'
+                    : 'bg-[#1A1A1A] hover:bg-[#373737] text-[#FFBB00] border-[#B87000]'
                 }`}
               >
                 <Zap className="w-3.5 h-3.5" />
@@ -2137,7 +2137,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
             <aside
               data-holographic-drawer="true"
               onClick={e => e.stopPropagation()}
-              className="relative w-full h-[90vh] max-h-[90vh] md:h-auto md:max-h-none md:absolute md:top-4 md:bottom-14 md:left-auto md:right-4 md:w-[490px] lg:w-[520px] bg-[#0c1018] border-t-4 md:border-2 border-[#FDCC0D] flex flex-col overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.98)] pointer-events-auto transition-all duration-300"
+              className="relative w-full h-[90vh] max-h-[90vh] md:h-auto md:max-h-none md:absolute md:top-4 md:bottom-14 md:left-auto md:right-4 md:w-[490px] lg:w-[520px] bg-[#111111] border-t-4 md:border-2 border-[#FDCC0D] flex flex-col overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.98)] pointer-events-auto transition-all duration-300"
               style={{
                 borderColor: readableAccent,
                 clipPath: typeof window !== 'undefined' && window.innerWidth >= 768
@@ -2262,7 +2262,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               </div>
 
               {/* Scrollable Content Body with Plenty of Reading Space (Space Grotesk Prose & High Contrast) */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 custom-scrollbar bg-[#0D1017]">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 custom-scrollbar bg-[#111111]">
                 {/* TAB 1: MODULES & EXPERIENCES */}
                 {activeDrawerTab === 'MODULES' &&
                   activePillarModules.map((mod, idx) => {
@@ -2274,7 +2274,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                           playUiChirp(780);
                           mod.onLaunch();
                         }}
-                        className="w-full p-4 sm:p-4.5 bg-[#161B26] hover:bg-[#202738] border border-[#32527B]/80 hover:border-[#FDCC0D] text-left transition-all cursor-pointer group flex flex-col gap-3 shadow-lg"
+                        className="w-full p-4 sm:p-4.5 bg-[#1D1D1D] hover:bg-[#2A2A2A] border border-[#32527B]/80 hover:border-[#FDCC0D] text-left transition-all cursor-pointer group flex flex-col gap-3 shadow-lg"
                         style={{
                           clipPath:
                             'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
@@ -2332,7 +2332,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 {activeDrawerTab === 'SPONSORS' && (
                   <div className="space-y-4">
                     <div
-                      className="p-4 bg-[#161B26] border border-[#FDCC0D] space-y-2 shadow-lg"
+                      className="p-4 bg-[#1D1D1D] border border-[#FDCC0D] space-y-2 shadow-lg"
                       style={{
                         clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
                       }}
@@ -2360,7 +2360,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                         return (
                           <div
                             key={station.id}
-                            className={`p-4 bg-[#161B26] border transition-all space-y-2.5 ${
+                            className={`p-4 bg-[#1D1D1D] border transition-all space-y-2.5 ${
                               isFocused ? 'border-[#FDCC0D] shadow-[0_0_20px_rgba(253,204,13,0.3)]' : 'border-[#32527B] hover:border-slate-400'
                             }`}
                             style={{
@@ -2447,7 +2447,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                         return (
                           <div
                             key={tier.id}
-                            className="p-4 bg-[#161B26] border border-[#32527B] hover:border-[#FDCC0D] space-y-2.5"
+                            className="p-4 bg-[#1D1D1D] border border-[#32527B] hover:border-[#FDCC0D] space-y-2.5"
                             style={{
                               clipPath:
                                 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
@@ -2508,7 +2508,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 {activeDrawerTab === 'INTERACTIVE_LAB' && (
                   <div className="space-y-4">
                     <div
-                      className="p-4 bg-[#161B26] border border-[#32527B] space-y-2"
+                      className="p-4 bg-[#1D1D1D] border border-[#32527B] space-y-2"
                       style={{
                         clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
                       }}
@@ -2529,7 +2529,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
 
                     {/* Live 432Hz Harmonic Synthesizer Pad */}
                     <div
-                      className="p-4 bg-[#161B26] border border-[#32527B] space-y-3"
+                      className="p-4 bg-[#1D1D1D] border border-[#32527B] space-y-3"
                       style={{
                         clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
                       }}
@@ -2562,7 +2562,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
 
                     {/* Orbital Velocity Overdrive Slider */}
                     <div
-                      className="p-4 bg-[#161B26] border border-[#32527B] space-y-2.5"
+                      className="p-4 bg-[#1D1D1D] border border-[#32527B] space-y-2.5"
                       style={{
                         clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
                       }}

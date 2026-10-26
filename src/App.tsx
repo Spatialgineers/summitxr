@@ -31,6 +31,7 @@ import { getAppRouteAndSectionFromUrl, syncAppUrl } from './lib/summitUrlSync';
 import { SummitIntroSplash } from './components/summit/SummitIntroSplash';
 import { PilotProfileModal } from './components/summit/PilotProfileModal';
 import { ImmersionLayer } from './immersion/ImmersionLayer';
+import { SgxBootSequence } from './immersion/SgxBootSequence';
 
 export default function App() {
   const { isAdmin } = useAuth();
@@ -41,6 +42,9 @@ export default function App() {
       return true;
     }
   });
+  // Cinematic SGX boot plays first, then hands off to the sponsor splash.
+  const [bootDone, setBootDone] = useState<boolean>(() => new URLSearchParams(window.location.search).get('embed') === 'true');
+  const [bootFading, setBootFading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<PageRoute>(() => {
     try {
       const parsed = getAppRouteAndSectionFromUrl();
@@ -54,7 +58,7 @@ export default function App() {
   const [isConnected, setIsConnected] = useState<boolean>(false);
 
   useEffect(() => {
-    const handleReplaySplash = () => setShowSplash(true);
+    const handleReplaySplash = () => { setBootDone(false); setBootFading(false); setShowSplash(true); };
     window.addEventListener('sgx:replay_splash', handleReplaySplash);
     return () => window.removeEventListener('sgx:replay_splash', handleReplaySplash);
   }, []);
@@ -635,7 +639,7 @@ export default function App() {
       emoji,
       userId: userProfile.id,
       timestamp: Date.now(),
-      color: type === 'fire' ? '#ff4500' : type === 'lightning' ? '#fdcc0d' : type === 'rocket' ? '#00ffff' : '#ff2d55',
+      color: type === 'fire' ? '#ff4500' : type === 'lightning' ? '#fdcc0d' : type === 'rocket' ? '#00ddff' : '#ff2d55',
     };
     setReactions(prev => [...prev.slice(-20), optimisticRx]);
 
@@ -978,9 +982,12 @@ export default function App() {
   return (
     <div className={`relative bg-[var(--sgx-bg)] text-slate-100 selection:bg-[var(--sgx-primary)] selection:text-black ${currentPage === 'summit' && activeSummitSection === 'OVERVIEW' ? 'h-[100dvh] overflow-hidden' : 'min-h-screen'}`}>
       {/* 5-Second Cybernetic Intro Splash with Official Sponsors & Partners */}
-      {showSplash && (
+      {showSplash && !bootDone && (
+        <SgxBootSequence onFadeStart={() => setBootFading(true)} onComplete={() => setBootDone(true)} />
+      )}
+      {showSplash && (bootDone || bootFading) && (
         <SummitIntroSplash
-          durationMs={5000}
+          durationMs={4000}
           onComplete={() => setShowSplash(false)}
         />
       )}

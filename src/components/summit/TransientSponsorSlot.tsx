@@ -223,7 +223,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
   if (variant === 'compact') {
     return (
       <div 
-        className={`inline-flex items-center gap-2 px-2.5 py-1 bg-[#090E17]/90 border border-slate-800 hover:border-cyan-400/80 transition-all group backdrop-blur-md relative ${className}`}
+        className={`inline-flex items-center gap-2 px-2.5 py-1 bg-[#0F0F0F]/90 border border-slate-800 hover:border-cyan-400/80 transition-all group backdrop-blur-md relative ${className}`}
         style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
       >
         {/* Rotation indicator dot */}
@@ -267,7 +267,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
   if (variant === 'badge' || variant === 'hud') {
     return (
       <div 
-        className={`p-2 bg-gradient-to-r from-[#070b14]/95 to-[#0e1626]/95 border border-cyan-500/40 rounded-lg shadow-lg relative overflow-hidden backdrop-blur-md ${className}`}
+        className={`p-2 bg-gradient-to-r from-[#0d0d0d]/95 to-[#191919]/95 border border-cyan-500/40 rounded-lg shadow-lg relative overflow-hidden backdrop-blur-md ${className}`}
       >
         <div className="flex items-center justify-between gap-2">
           {/* Main Sponsor Badge */}
@@ -275,7 +275,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
             onClick={handleSponsorClick}
             className={`flex items-center gap-2 cursor-pointer transition-all duration-300 flex-1 min-w-0 ${isTransitioning ? 'opacity-0 -translate-y-1' : 'opacity-100 translate-y-0'}`}
           >
-            <div className="w-7 h-7 rounded bg-black border border-cyan-400/60 p-0.5 flex items-center justify-center overflow-hidden shrink-0 shadow-[0_0_8px_rgba(0,255,255,0.25)]">
+            <div className="w-7 h-7 rounded bg-black border border-cyan-400/60 p-0.5 flex items-center justify-center overflow-hidden shrink-0 shadow-[0_0_8px_rgba(0, 221, 255,0.25)]">
               <img 
                 src={activeSponsor.logoUrl} 
                 alt={activeSponsor.companyName} 
@@ -317,7 +317,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
   if (variant === 'banner') {
     return (
       <div 
-        className={`w-full p-3 bg-gradient-to-r from-[#070D18] via-[#0E1B2D] to-[#070D18] border border-[var(--sgx-secondary)] shadow-xl relative overflow-hidden ${className}`}
+        className={`w-full p-3 bg-gradient-to-r from-[#0F0F0F] via-[#1D1D1D] to-[#0F0F0F] border border-[var(--sgx-secondary)] shadow-xl relative overflow-hidden ${className}`}
         style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
       >
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -326,7 +326,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
             onClick={handleSponsorClick}
             className={`flex items-center gap-3 cursor-pointer transition-all duration-400 flex-1 ${isTransitioning ? 'opacity-0 scale-98' : 'opacity-100 scale-100'}`}
           >
-            <div className="w-10 h-10 rounded-lg bg-black/80 border border-cyan-400 p-1 flex items-center justify-center overflow-hidden shrink-0 shadow-[0_0_12px_rgba(0,255,255,0.2)]">
+            <div className="w-10 h-10 rounded-lg bg-black/80 border border-cyan-400 p-1 flex items-center justify-center overflow-hidden shrink-0 shadow-[0_0_12px_rgba(0, 221, 255,0.2)]">
               <img 
                 src={activeSponsor.logoUrl} 
                 alt={activeSponsor.companyName} 

@@ -26,12 +26,12 @@ interface MatchCardProps {
 }
 
 export const PILLAR_META: Record<MatchPillar, { label: string; primary: string; secondary: string; bg: string }> = {
-  story: { label: 'SGX.STORY', primary: '#FDCC0D', secondary: '#64748B', bg: '#242013' },
-  showcase: { label: 'SGX.SHOWCASE', primary: '#FF6B00', secondary: '#FFFFFF', bg: '#1F1008' },
-  spark: { label: 'SGX.SPARK', primary: '#00FFFF', secondary: '#FDCC0D', bg: '#09222E' },
+  story: { label: 'SGX.STORY', primary: '#FDCC0D', secondary: '#767676', bg: '#242013' },
+  showcase: { label: 'SGX.SHOWCASE', primary: '#FFBB00', secondary: '#FFFFFF', bg: '#1F1008' },
+  spark: { label: 'SGX.SPARK', primary: '#00DDFF', secondary: '#FDCC0D', bg: '#1E1E1E' },
   stage: { label: 'SGX.STAGE', primary: '#FFFFFF', secondary: '#FDCC0D', bg: '#201A10' },
-  systems: { label: 'SGX.SYSTEMS', primary: '#32527B', secondary: '#888888', bg: '#121927' },
-  synthesize: { label: 'SGX.SYNTHESIZE', primary: '#00FFFF', secondary: '#FDCC0D', bg: '#121927' }
+  systems: { label: 'SGX.SYSTEMS', primary: '#32527B', secondary: '#888888', bg: '#1B1B1B' },
+  synthesize: { label: 'SGX.SYNTHESIZE', primary: '#00DDFF', secondary: '#FDCC0D', bg: '#1B1B1B' }
 };
 
 export const MatchCard: React.FC<MatchCardProps> = ({
@@ -105,7 +105,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                 )}
               </div>
               <span 
-                className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[#0c1017] flex items-center justify-center text-[8px] font-bold text-black"
+                className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[#111111] flex items-center justify-center text-[8px] font-bold text-black"
                 style={{ backgroundColor: meta.primary }}
               >
                 ✓
@@ -243,7 +243,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
               className="text-xs sm:text-sm font-mono font-extrabold px-2 py-0.5 rounded-lg border"
               style={{
                 backgroundColor: score >= 75 ? `${meta.primary}25` : 'rgba(148, 163, 184, 0.15)',
-                borderColor: score >= 75 ? meta.primary : '#64748b',
+                borderColor: score >= 75 ? meta.primary : '#767676',
                 color: score >= 75 ? meta.primary : '#cbd5e1'
               }}
             >

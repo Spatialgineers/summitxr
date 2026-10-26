@@ -49,7 +49,7 @@ export function processAudienceReaction(
     emoji: reaction.emoji || '🔥',
     userId: reaction.userId || 'anon',
     timestamp: Date.now(),
-    color: reaction.color || '#00ffff',
+    color: reaction.color || '#00ddff',
   };
 
   room.recentReactions.push(burst);

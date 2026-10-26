@@ -355,7 +355,7 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
           </button>
 
           {/* Tab Controls */}
-          <div className="flex items-center gap-1 bg-[#0b0f17] border border-[var(--sgx-secondary)]/60 p-1 rounded-2xl">
+          <div className="flex items-center gap-1 bg-[#101010] border border-[var(--sgx-secondary)]/60 p-1 rounded-2xl">
             {/* Deck Tab */}
             <button
               onClick={() => handleSelectTab('deck')}

@@ -357,12 +357,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     return (
       <div className="min-h-screen bg-[var(--sgx-bg)] flex items-center justify-center p-4">
         <div className="max-w-md w-full p-6 bg-[#121212] border-2 border-[var(--sgx-secondary)] text-center space-y-4">
-          <div className="w-16 h-16 mx-auto rounded-xl bg-[var(--sgx-bg)] border-2 border-[#FFAA00] flex items-center justify-center text-[#FFAA00] shadow-lg shadow-[#FFAA00]/15">
+          <div className="w-16 h-16 mx-auto rounded-xl bg-[var(--sgx-bg)] border-2 border-[#FFBB00] flex items-center justify-center text-[#FFBB00] shadow-lg shadow-[#FFBB00]/15">
             <Lock className="w-8 h-8 animate-pulse" />
           </div>
 
           <div className="space-y-2">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] text-[#FFAA00] text-[10px] font-mono font-bold uppercase">
+            <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] text-[#FFBB00] text-[10px] font-mono font-bold uppercase">
               <ShieldAlert className="w-3.5 h-3.5" />
               <span>Gated Administrative Control Plane</span>
             </div>
@@ -392,7 +392,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[#888888]">ACCESS LEVEL:</span>
-                  <span className="text-[#FFAA00] font-bold">UNAUTHORIZED (GUEST)</span>
+                  <span className="text-[#FFBB00] font-bold">UNAUTHORIZED (GUEST)</span>
                 </div>
               </>
             )}
@@ -425,7 +425,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           label: optA,
           description: 'Audience choice path A',
           presetId: presetA,
-          color: '#00FFFF',
+          color: '#00DDFF',
         },
         {
           id: `opt_${Date.now()}_b`,
@@ -631,7 +631,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 className="h-full transition-all duration-300"
                                 style={{
                                   width: `${pct}%`,
-                                  backgroundColor: opt.color || (idx === 0 ? '#00FFFF' : '#FDCC0D')
+                                  backgroundColor: opt.color || (idx === 0 ? '#00DDFF' : '#FDCC0D')
                                 }}
                               />
                             </div>
@@ -907,7 +907,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                   <button
                     onClick={handleExportCSV}
-                    className="px-3 py-1.5 bg-[#1F2430] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black font-bold text-xs flex items-center space-x-1.5 rounded transition-all self-start sm:self-auto"
+                    className="px-3 py-1.5 bg-[#262626] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black font-bold text-xs flex items-center space-x-1.5 rounded transition-all self-start sm:self-auto"
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>EXPORTAR CSV</span>
@@ -928,7 +928,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <span className="text-sm font-bold text-white uppercase font-['Orbitron',sans-serif]">
                               {inq.companyName}
                             </span>
-                            <span className="text-[10px] px-2 py-0.5 bg-[#0F172A] border border-[var(--sgx-accent)] text-[var(--sgx-accent)] font-bold rounded">
+                            <span className="text-[10px] px-2 py-0.5 bg-[#1B1B1B] border border-[var(--sgx-accent)] text-[var(--sgx-accent)] font-bold rounded">
                               {inq.referenceCode}
                             </span>
                           </div>
@@ -985,7 +985,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
 
                         {inq.customMessage && (
-                          <p className="p-2.5 bg-[#090E18] border border-[var(--sgx-secondary)]/60 text-slate-300 italic text-[11px] rounded">
+                          <p className="p-2.5 bg-[#101010] border border-[var(--sgx-secondary)]/60 text-slate-300 italic text-[11px] rounded">
                             "{inq.customMessage}"
                           </p>
                         )}
@@ -1053,7 +1053,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[var(--sgx-secondary)]/40">
                         <button
                           onClick={() => setPreviewShowcaseModal(sp)}
-                          className="px-3 py-1 bg-[#1F2430] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black font-bold text-[10px] flex items-center space-x-1.5 rounded transition-all"
+                          className="px-3 py-1 bg-[#262626] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black font-bold text-[10px] flex items-center space-x-1.5 rounded transition-all"
                         >
                           <Eye className="w-3 h-3" />
                           <span>VER LANDING DE MARCA</span>

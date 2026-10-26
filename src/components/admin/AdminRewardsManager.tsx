@@ -64,7 +64,7 @@ export const AdminRewardsManager: React.FC = () => {
       inventoryCount: 50,
       claimedCount: 0,
       badgeIcon: '⚡',
-      themeColor: '#00F0FF',
+      themeColor: '#00DDFF',
       active: true,
       accessUrl: 'https://spatialgineers.com',
       accessCodePrefix: 'SGX-PERK-',
@@ -188,7 +188,7 @@ export const AdminRewardsManager: React.FC = () => {
 
       {/* Editor Drawer / Modal if active */}
       {editingReward && (
-        <div className="p-5 bg-[#0D1424] border-2 border-[var(--sgx-neon)] space-y-4 shadow-2xl">
+        <div className="p-5 bg-[#171717] border-2 border-[var(--sgx-neon)] space-y-4 shadow-2xl">
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h4 className="text-sm font-bold font-['Orbitron',sans-serif] text-[var(--sgx-neon)] flex items-center space-x-2">
               <span>{isCreatingNew ? '✨ CREANDO NUEVO PREMIO' : '✏️ EDITANDO PREMIO'}</span>
@@ -385,7 +385,7 @@ export const AdminRewardsManager: React.FC = () => {
             key={reward.id}
             className={`p-4 border transition-all flex flex-col justify-between ${
               reward.active 
-                ? 'bg-[#0E1524] border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)]/60' 
+                ? 'bg-[#181818] border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)]/60' 
                 : 'bg-black/60 border-slate-800 opacity-60'
             }`}
             style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}

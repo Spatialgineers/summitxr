@@ -265,7 +265,7 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
                     style={{
                       backgroundColor: 
                         session.pillarId === 'SGX.STORY' ? '#3B82F6' :
-                        session.pillarId === 'SGX.SHOWCASE' ? '#00FFFF' :
+                        session.pillarId === 'SGX.SHOWCASE' ? '#00DDFF' :
                         session.pillarId === 'SGX.SPARK' ? '#FDCC0D' :
                         session.pillarId === 'SGX.STAGE' ? '#FDCC0D' :
                         session.pillarId === 'SGX.SYSTEM' ? '#38BDF8' : '#00B0FF'

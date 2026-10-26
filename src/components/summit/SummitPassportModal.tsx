@@ -205,10 +205,10 @@ export const SummitPassportModal: React.FC<SummitPassportModalProps> = ({
     rankColor = 'text-[#FDCC0D] border-[#FDCC0D] bg-amber-950/40';
   } else if (completedCount >= 3) {
     rankTitle = 'Ingeniero Táctico';
-    rankColor = 'text-[var(--sgx-neon)] border-[var(--sgx-neon)] bg-[#101726]';
+    rankColor = 'text-[var(--sgx-neon)] border-[var(--sgx-neon)] bg-[#1A1A1A]';
   } else if (completedCount >= 1) {
     rankTitle = 'Iniciado del Summit';
-    rankColor = 'text-[#FDCC0D] border-[#FDCC0D]/60 bg-[#101726]';
+    rankColor = 'text-[#FDCC0D] border-[#FDCC0D]/60 bg-[#1A1A1A]';
   }
 
   const handleQuestAction = (quest: QuestItem) => {
@@ -241,8 +241,8 @@ export const SummitPassportModal: React.FC<SummitPassportModalProps> = ({
     >
       <div 
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-2xl bg-[#0A1120] border-t-2 sm:border-2 border-[var(--sgx-neon)] p-4 sm:p-6 space-y-4 shadow-2xl relative overflow-hidden font-sans text-slate-100 max-h-[93vh] flex flex-col"
-        style={{ boxShadow: '0 0 45px rgba(0, 255, 255, 0.22)' }}
+        className="w-full max-w-2xl bg-[#141414] border-t-2 sm:border-2 border-[var(--sgx-neon)] p-4 sm:p-6 space-y-4 shadow-2xl relative overflow-hidden font-sans text-slate-100 max-h-[93vh] flex flex-col"
+        style={{ boxShadow: '0 0 45px rgba(0, 221, 255, 0.22)' }}
       >
         {/* Top Accent Lines */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#32527B] via-[var(--sgx-neon)] to-[#FDCC0D]" />
@@ -266,7 +266,7 @@ export const SummitPassportModal: React.FC<SummitPassportModalProps> = ({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-[#070B14] text-[#FDCC0D]">
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-[#0D0D0D] text-[#FDCC0D]">
                     <Shield className="w-7 h-7 text-[var(--sgx-neon)]" />
                   </div>
                 )}
@@ -289,8 +289,8 @@ export const SummitPassportModal: React.FC<SummitPassportModalProps> = ({
                 <div 
                   className="absolute -bottom-1 -right-1 px-1 py-0.2 text-[7px] font-mono font-black uppercase border bg-black"
                   style={{ 
-                    color: PILLAR_COLORS[avatarConfig.pillar]?.primary || '#00FFFF',
-                    borderColor: PILLAR_COLORS[avatarConfig.pillar]?.primary || '#00FFFF'
+                    color: PILLAR_COLORS[avatarConfig.pillar]?.primary || '#00DDFF',
+                    borderColor: PILLAR_COLORS[avatarConfig.pillar]?.primary || '#00DDFF'
                   }}
                 >
                   {avatarConfig.pillar.split('.')[1] || 'SGX'}
@@ -324,7 +324,7 @@ export const SummitPassportModal: React.FC<SummitPassportModalProps> = ({
               <button
                 type="button"
                 onClick={onOpenAvatarGenerator}
-                className="px-2.5 py-1 bg-[#0F1626] border border-[#FDCC0D] hover:bg-[#FDCC0D] hover:text-black text-[#FDCC0D] text-[10px] font-mono font-bold flex items-center space-x-1 transition-colors"
+                className="px-2.5 py-1 bg-[#191919] border border-[#FDCC0D] hover:bg-[#FDCC0D] hover:text-black text-[#FDCC0D] text-[10px] font-mono font-bold flex items-center space-x-1 transition-colors"
                 title="Personalizar avatar espacial con colores SGX"
               >
                 <Palette className="w-3 h-3 text-[#FDCC0D]" />
@@ -343,7 +343,7 @@ export const SummitPassportModal: React.FC<SummitPassportModalProps> = ({
 
         {/* 3D Interactive Passport Telemetry & 6-Pillar Holographic Stamp Matrix */}
         <SpatialTiltCard showCornerBrackets maxTilt={8} className="shrink-0">
-          <div className="p-3.5 bg-gradient-to-r from-[#070D19] via-[#0C172C] to-[#070D19] border border-[var(--sgx-secondary)] space-y-3">
+          <div className="p-3.5 bg-gradient-to-r from-[#0F0F0F] via-[#1A1A1A] to-[#0F0F0F] border border-[var(--sgx-secondary)] space-y-3">
             <div className="flex items-center justify-between text-xs font-mono">
               <span className="text-slate-200 font-bold flex items-center space-x-1.5">
                 <Zap className="w-4 h-4 text-[#FDCC0D]" />
@@ -356,10 +356,10 @@ export const SummitPassportModal: React.FC<SummitPassportModalProps> = ({
             <div className="grid grid-cols-6 gap-1.5">
               {[
                 { name: 'STORY', icon: 'https://cdn.spatialgineers.com/Branding/Pilares/Story1.png', color: '#FDCC0D', unlocked: completedCount >= 1 },
-                { name: 'SHOWCASE', icon: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png', color: '#00FFFF', unlocked: completedCount >= 2 },
-                { name: 'SPARK', icon: 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png', color: '#FF6B00', unlocked: completedCount >= 3 },
+                { name: 'SHOWCASE', icon: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png', color: '#00DDFF', unlocked: completedCount >= 2 },
+                { name: 'SPARK', icon: 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png', color: '#FFBB00', unlocked: completedCount >= 3 },
                 { name: 'STAGE', icon: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png', color: '#38BDF8', unlocked: completedCount >= 4 },
-                { name: 'SYSTEM', icon: 'https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png', color: '#A855F7', unlocked: completedCount >= 5 },
+                { name: 'SYSTEM', icon: 'https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png', color: '#5F86B4', unlocked: completedCount >= 5 },
                 { name: 'SYNTH', icon: 'https://cdn.spatialgineers.com/Branding/Pilares/Synthesize1.png', color: '#10B981', unlocked: completedCount >= 6 },
               ].map((stamp) => (
                 <div
@@ -367,12 +367,12 @@ export const SummitPassportModal: React.FC<SummitPassportModalProps> = ({
                   onClick={() => playHoloFocusSound()}
                   className={`p-1.5 border flex flex-col items-center justify-center text-center transition-all cursor-pointer ${
                     stamp.unlocked
-                      ? 'bg-[#0E1B33] border-cyan-400/70 shadow-[0_0_12px_rgba(0,255,255,0.2)]'
+                      ? 'bg-[#1F1F1F] border-cyan-400/70 shadow-[0_0_12px_rgba(0, 221, 255,0.2)]'
                       : 'bg-black/50 border-slate-800 opacity-50'
                   }`}
                 >
                   <img src={stamp.icon} alt={stamp.name} className="w-5 h-5 object-contain mb-0.5" />
-                  <span className="text-[8px] font-mono font-bold truncate w-full" style={{ color: stamp.unlocked ? stamp.color : '#64748B' }}>
+                  <span className="text-[8px] font-mono font-bold truncate w-full" style={{ color: stamp.unlocked ? stamp.color : '#767676' }}>
                     {stamp.name}
                   </span>
                 </div>
@@ -382,7 +382,7 @@ export const SummitPassportModal: React.FC<SummitPassportModalProps> = ({
             {/* Bar */}
             <div className="w-full h-2.5 bg-black border border-[var(--sgx-secondary)] overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-[#00FFFF] via-[#32527B] to-[#FDCC0D] transition-all duration-500"
+                className="h-full bg-gradient-to-r from-[#00DDFF] via-[#32527B] to-[#FDCC0D] transition-all duration-500"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -396,7 +396,7 @@ export const SummitPassportModal: React.FC<SummitPassportModalProps> = ({
                   onClose();
                   onNavigateToSection('CREDENTIAL_GENERATOR');
                 }}
-                className="px-2.5 py-0.5 bg-[#00FFFF]/20 hover:bg-[#00FFFF] text-[#00FFFF] hover:text-black border border-[#00FFFF]/60 font-bold uppercase cursor-pointer transition-colors"
+                className="px-2.5 py-0.5 bg-[#00DDFF]/20 hover:bg-[#00DDFF] text-[#00DDFF] hover:text-black border border-[#00DDFF]/60 font-bold uppercase cursor-pointer transition-colors"
               >
                 🪪 Abrir Mi Credencial 3D (+150 XP) →
               </button>
@@ -413,8 +413,8 @@ export const SummitPassportModal: React.FC<SummitPassportModalProps> = ({
                 key={quest.id}
                 className={`p-3.5 border transition-all flex items-center justify-between gap-3 ${
                   quest.completed 
-                    ? 'bg-[#0F1626] border-[#32527B] text-slate-200' 
-                    : 'bg-[#101726] border-[var(--sgx-secondary)]/80 hover:border-[var(--sgx-neon)]/60 text-slate-300'
+                    ? 'bg-[#191919] border-[#32527B] text-slate-200' 
+                    : 'bg-[#1A1A1A] border-[var(--sgx-secondary)]/80 hover:border-[var(--sgx-neon)]/60 text-slate-300'
                 }`}
                 style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
               >
@@ -441,7 +441,7 @@ export const SummitPassportModal: React.FC<SummitPassportModalProps> = ({
 
                 <div className="shrink-0 flex items-center space-x-2">
                   {quest.completed ? (
-                    <span className="px-3 py-1 bg-[#0F1626] border border-[#FDCC0D] text-[#FDCC0D] text-[11px] font-mono font-bold flex items-center space-x-1">
+                    <span className="px-3 py-1 bg-[#191919] border border-[#FDCC0D] text-[#FDCC0D] text-[11px] font-mono font-bold flex items-center space-x-1">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>COMPLETADO</span>
                     </span>

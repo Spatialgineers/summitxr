@@ -97,7 +97,7 @@ const PILLARS_CONFIG = [
     slug: 'spark',
     name: 'SGX.SPARK',
     title: 'Gamificación, Drones & Dinámicas',
-    accentColor: '#FF6B00',
+    accentColor: '#FFBB00',
     badgeText: 'NARANJA SPARK',
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Spark%20Icon%20BY.png',
   },
@@ -115,7 +115,7 @@ const PILLARS_CONFIG = [
     slug: 'showcase',
     name: 'SGX.SHOWCASE',
     title: 'Exhibición 3D, XR & Marcas',
-    accentColor: '#00FFFF',
+    accentColor: '#00DDFF',
     badgeText: 'CYAN SHOWCASE',
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Showcase%20Icon%20BY.png',
   },
@@ -437,7 +437,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                 playUiChirp(840);
                 setIsRoleModalOpen(true);
               }}
-              className="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 bg-slate-900/90 hover:bg-[#162540] border border-cyan-400/70 hover:border-cyan-300 text-cyan-200 hover:text-white transition-all cursor-pointer text-xs font-mono font-bold"
+              className="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 bg-slate-900/90 hover:bg-[#292929] border border-cyan-400/70 hover:border-cyan-300 text-cyan-200 hover:text-white transition-all cursor-pointer text-xs font-mono font-bold"
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
               title="Abre el selector de ruta del Astronauta Guía"
             >
@@ -489,8 +489,8 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                 playUiChirp(880);
                 window.dispatchEvent(new CustomEvent('sgx:open_tickets'));
               }}
-              className="hidden md:flex items-center space-x-1 px-2.5 py-1 bg-cyan-400 hover:bg-[#FDCC0D] text-black font-extrabold text-[11px] shadow-md transition-all cursor-pointer"
-              style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
+              className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-[#FDCC0D] hover:bg-white text-black font-hud font-bold uppercase tracking-wider text-[12px] transition-colors cursor-pointer drop-shadow-[0_0_10px_rgba(253,204,13,0.55)]"
+              style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
               title="Obtener Taquilla Oficial en PDF"
             >
               <Ticket className="w-3.5 h-3.5" />
@@ -507,7 +507,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                 className={`px-2 py-1 border transition-all cursor-pointer flex items-center space-x-1 text-xs font-mono font-bold ${
                   isSystemMenuOpen 
                     ? 'bg-cyan-500 text-black border-cyan-400' 
-                    : 'bg-[#080E1C] border-[#00FFFF]/50 text-[#00FFFF] hover:bg-[#00FFFF] hover:text-black'
+                    : 'bg-[#111111] border-[#00DDFF]/50 text-[#00DDFF] hover:bg-[#00DDFF] hover:text-black'
                 }`}
                 style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                 title="Herramientas del Sistema, Módulos y Admin"
@@ -518,10 +518,10 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
               {isSystemMenuOpen && (
                 <div 
-                  className="absolute right-0 mt-2 w-56 bg-[#080E1A]/98 border-2 border-cyan-400 text-white shadow-2xl p-2 space-y-1 z-50 animate-fadeIn"
+                  className="absolute right-0 mt-2 w-56 bg-[#101010]/98 border-2 border-cyan-400 text-white shadow-2xl p-2 space-y-1 z-50 animate-fadeIn"
                   style={{
                     clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)',
-                    boxShadow: '0 0 25px rgba(0, 255, 255, 0.4)'
+                    boxShadow: '0 0 25px rgba(0, 221, 255, 0.4)'
                   }}
                 >
                   <div className="px-2 py-1 text-[9px] font-mono text-cyan-300 uppercase tracking-wider border-b border-white/10 font-bold">
@@ -711,7 +711,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           onClick={() => setIsMobileMenuOpen(false)}
         >
           <div 
-            className="max-w-4xl w-full bg-[#080E1C] border-2 border-cyan-500/60 p-4 sm:p-6 shadow-2xl relative space-y-6 my-auto text-slate-100 font-mono"
+            className="max-w-4xl w-full bg-[#111111] border-2 border-cyan-500/60 p-4 sm:p-6 shadow-2xl relative space-y-6 my-auto text-slate-100 font-mono"
             style={{ clipPath: 'polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)' }}
             onClick={(e) => e.stopPropagation()}
           >

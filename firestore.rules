@@ -410,6 +410,22 @@ service cloud.firestore {
       allow delete: if isSuperAdmin() || (isSignedIn() && resource.data.toUid == request.auth.uid);
     }
 
+    // Collection: /summit_constellations/{uid}  Public networking board:
+    // only counts (stars, pillars linked), never who the contacts are.
+    match /summit_constellations/{uid} {
+      allow get, list: if true;
+      allow create, update: if isSignedIn() && uid == request.auth.uid &&
+        incoming().keys().hasOnly(['callsign', 'name', 'affinity', 'stars', 'pillars', 'updatedAt']) &&
+        isShortString(incoming().callsign, 20) &&
+        isShortString(incoming().name, 40) &&
+        incoming().affinity in ['', 'STORY', 'SHOWCASE', 'SPARK', 'STAGE', 'SYSTEM', 'SYNTHESIZE'] &&
+        incoming().stars is int && incoming().stars >= 0 && incoming().stars <= 500 &&
+        incoming().pillars is list && incoming().pillars.size() <= 6 &&
+        incoming().pillars.hasOnly(['STORY', 'SHOWCASE', 'SPARK', 'STAGE', 'SYSTEM', 'SYNTHESIZE']) &&
+        incoming().updatedAt == request.time;
+      allow delete: if isSuperAdmin() || (isSignedIn() && uid == request.auth.uid);
+    }
+
     // Collection: /summit_checkins/{uid}  Day 3 entrance at Chroma Space
     // Studios. Public (coarse region only) so the radar can light municipios;
     // one per device, only during Day 3 (Dec 13 2026, Puerto Rico time).

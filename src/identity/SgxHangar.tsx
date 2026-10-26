@@ -10,12 +10,13 @@ import { useSgxIdentity } from './SgxIdentityContext';
 import { isDay3Open, missionsOfPillar, type ReactorMission } from './reactor';
 import { SgxPassCard, usePassQr } from './SgxPassCard';
 import { exportPassPdf } from './passPdf';
+import { SgxConstellation } from './SgxConstellation';
 
 /* HANGAR DEL PILOTO: the one screen for "me". It replaces the profile modal,
    the passport drawer and the passport modal. Pass in front, everything you
    did behind it: Reactor missions per pillar, Rolodex, Day 3 and telemetry. */
 
-export type HangarTab = 'pass' | 'reactor' | 'rolodex' | 'day3' | 'log';
+export type HangarTab = 'pass' | 'reactor' | 'stars' | 'rolodex' | 'day3' | 'log';
 
 interface Props {
   onClose: () => void;
@@ -89,6 +90,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   const tabs: { id: HangarTab; label: string }[] = [
     { id: 'pass', label: es ? 'Pase' : 'Pass' },
     { id: 'reactor', label: `Reactor ${done}/${missions.length}` },
+    { id: 'stars', label: `${es ? 'Constelación' : 'Constellation'} ${identity.contacts.length}★` },
     { id: 'rolodex', label: `Rolodex ${identity.contacts.length}` },
     { id: 'day3', label: es ? 'Día 3' : 'Day 3' },
     { id: 'log', label: es ? 'Telemetría' : 'Telemetry' },
@@ -192,7 +194,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                             <li key={m.id} className={ok ? 'is-done' : ''}>
                               <span className="sgx-hangar__check" aria-hidden="true">{ok ? '◆' : '◇'}</span>
                               <div>
-                                <strong>{copy.title}{m.day3 ? (es ? ' · Día 3' : ' · Day 3') : ''}</strong>
+                                <strong>{m.secret && !ok ? '???' : copy.title}{m.day3 ? (es ? ' · Día 3' : ' · Day 3') : ''}</strong>
                                 <small>{copy.hint}</small>
                               </div>
                               <span className="sgx-hangar__mxp">+{m.xp}</span>
@@ -215,6 +217,10 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                 })}
               </div>
             </div>
+          )}
+
+          {isForged && tab === 'stars' && (
+            <SgxConstellation onScan={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_qr_scanner')), 80); }} />
           )}
 
           {isForged && tab === 'rolodex' && (

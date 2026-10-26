@@ -3,6 +3,10 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { VisitCounterChip } from './SummitVisitRadar';
 import { navigateToSection } from '../../immersion/navigation';
+import { createPilotOrbit, type PilotCardInfo, type PilotOrbit } from '../../identity/pilotOrbit3D';
+import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
+import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
+import { useChromaCheckins } from './visitRadarStore';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import {
   Pause,
@@ -449,6 +453,27 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   }, []);
 
   const activePillarRef = useRef<SgxCorePillarId>(activePillarId);
+
+  // Piloto en órbita: your Holo Card / SGX Pass flies around the core, and
+  // Day 3 check-ins at Chroma join the orbit.
+  const sgxId = useOptionalSgxIdentity();
+  const checkins = useChromaCheckins();
+  const pilotOrbitRef = useRef<PilotOrbit | null>(null);
+  const pilotInfo: PilotCardInfo = {
+    forged: !!sgxId?.isForged,
+    image: sgxId?.identity.holo?.image || null,
+    name: sgxId?.identity.pass?.fullName,
+    callsign: sgxId?.identity.callsign,
+    serial: sgxId?.identity.pass?.serial,
+    accent: sgxId?.identity.affinity ? PILLAR_ACCENT[sgxId.identity.affinity] : '#FDCC0D',
+  };
+  const pilotInfoRef = useRef(pilotInfo);
+  pilotInfoRef.current = pilotInfo;
+  const crowdRef = useRef(0);
+  crowdRef.current = checkins?.length || 0;
+  const pilotKey = `${pilotInfo.forged}|${pilotInfo.image?.length || 0}|${pilotInfo.name}|${pilotInfo.callsign}|${pilotInfo.accent}`;
+  useEffect(() => { pilotOrbitRef.current?.setCard(pilotInfoRef.current); }, [pilotKey]);
+  useEffect(() => { pilotOrbitRef.current?.setCrowd(crowdRef.current); }, [checkins?.length]);
   const autoRotateRef = useRef<boolean>(autoRotate);
   const cameraFocusedRef = useRef<boolean>(cameraFocusedOnPillar);
   const focusedSponsorRef = useRef<string | null>(focusedSponsorId);
@@ -1132,6 +1157,11 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     triggerShockwaveRef.current = spawnShockwave;
 
     // 3D Raycaster for direct GLB, Sponsor & XP Orb interaction
+    const pilotOrbit = createPilotOrbit(scene);
+    pilotOrbitRef.current = pilotOrbit;
+    pilotOrbit.setCard(pilotInfoRef.current);
+    pilotOrbit.setCrowd(crowdRef.current);
+
     const raycaster = new THREE.Raycaster();
     const pointerNdc = new THREE.Vector2();
 
@@ -1164,6 +1194,15 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           recordActivity('easter_egg', 'Orbe Cuántico 3D Recolectado', 'Núcleo Orbital SGX', 25);
           return;
         }
+      }
+
+      // 1b. Your own card in orbit opens the Hangar (or the Forge).
+      if (pilotOrbit.hit(raycaster)) {
+        const wp = pilotOrbit.worldPosition(new THREE.Vector3());
+        spawnShockwave(wp, 0xFDCC0D);
+        playScanSuccessSound();
+        window.dispatchEvent(new CustomEvent(pilotInfoRef.current.forged ? 'sgx:open_hangar' : 'sgx:open_forge', { detail: { tab: 'pass' } }));
+        return;
       }
 
       // 2. Check 3D Sponsor Stations
@@ -1369,6 +1408,8 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         }
       });
 
+      pilotOrbit.update(elapsed, camera, cameraFocusedRef.current ? activeWorldPos : null);
+
       // Camera Flight Interpolation with 3D mouse parallax
       const px = pointerParallaxRef.current.x;
       const py = pointerParallaxRef.current.y;
@@ -1445,6 +1486,8 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
 
     return () => {
       if (reqId) cancelAnimationFrame(reqId);
+      pilotOrbit.dispose();
+      pilotOrbitRef.current = null;
       container.removeEventListener('pointerup', onDomPointerUp);
       window.removeEventListener('resize', handleResize);
       resizeObserver.disconnect();

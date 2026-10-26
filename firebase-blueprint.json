@@ -652,6 +652,20 @@
       },
       "required": ["toUid", "fromUid", "card", "at"]
     },
+    "Constellation": {
+      "title": "Constellation",
+      "description": "Public networking board entry per device: how many passes were swapped and which pillars they cover. No contact names.",
+      "type": "object",
+      "properties": {
+        "callsign": { "type": "string" },
+        "name": { "type": "string" },
+        "affinity": { "type": "string" },
+        "stars": { "type": "integer" },
+        "pillars": { "type": "array", "items": { "type": "string" } },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["callsign", "stars", "pillars", "updatedAt"]
+    },
     "ChromaCheckin": {
       "title": "ChromaCheckin",
       "description": "Day 3 entrance check-in at Chroma Space Studios, one per device, coarse region only.",
@@ -814,6 +828,12 @@
         "$ref": "#/entities/PassExchange"
       },
       "description": "SGX Pass contact exchanges (pairId = toUid_fromUid)."
+    },
+    "/summit_constellations/{uid}": {
+      "schema": {
+        "$ref": "#/entities/Constellation"
+      },
+      "description": "Networking constellations leaderboard (SGX Pass)."
     },
     "/summit_checkins/{uid}": {
       "schema": {

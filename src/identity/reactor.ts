@@ -9,7 +9,7 @@ import type { ApprovedSponsor } from '../types/summit';
    branded missions inside SGX.Showcase.
    ========================================================================= */
 
-export type IdentityFlag = 'forged' | 'avatar' | 'contact' | 'checkin' | 'redeem' | 'holo';
+export type IdentityFlag = 'forged' | 'avatar' | 'contact' | 'checkin' | 'redeem' | 'holo' | 'constellation';
 
 export type MissionTrigger =
   | { visit: string[] }
@@ -27,9 +27,11 @@ export interface ReactorMission {
   es: Copy;
   en: Copy;
   /** Where the "Ir" button takes you. */
-  go?: { section?: string; page?: string; event?: string };
+  go?: { section?: string; page?: string; event?: string; detail?: Record<string, unknown> };
   /** Missions that only open on Day 3 at Chroma Space Studios. */
   day3?: boolean;
+  /** Secret: shown as ??? until done, never required for the pillar stamp. */
+  secret?: boolean;
 }
 
 export const REACTOR_MISSIONS: ReactorMission[] = [
@@ -113,6 +115,10 @@ export const REACTOR_MISSIONS: ReactorMission[] = [
   { id: 'm_syn_chroma', pillar: 'SYNTHESIZE', xp: 250, trigger: { flag: 'checkin' }, day3: true,
     es: { title: 'Presente en Chroma', hint: 'Día 3: escanea el QR de entrada en Chroma Space Studios.' },
     en: { title: 'Present at Chroma', hint: 'Day 3: scan the entrance QR at Chroma Space Studios.' } },
+  { id: 'm_syn_constellation', pillar: 'SYNTHESIZE', xp: 300, trigger: { flag: 'constellation' }, secret: true,
+    es: { title: 'Constelación completa', hint: 'Tu Rolodex conecta pilotos de los 6 pilares.' },
+    en: { title: 'Full constellation', hint: 'Your Rolodex links pilots from all 6 pillars.' },
+    go: { event: 'sgx:open_hangar', detail: { tab: 'stars' } } },
 ];
 
 /** Tier 3+ partners get a branded challenge inside SGX.Showcase. */
@@ -135,7 +141,7 @@ export function missionsOfPillar(all: ReactorMission[], pillar: PillarKey): Reac
 
 /** A pillar is stamped when every core (non-sponsor, non-Day-3) mission is done. */
 export function isPillarComplete(all: ReactorMission[], pillar: PillarKey, done: Record<string, number>): boolean {
-  const core = all.filter((m) => m.pillar === pillar && !m.day3 && !('sponsor' in m.trigger));
+  const core = all.filter((m) => m.pillar === pillar && !m.day3 && !m.secret && !('sponsor' in m.trigger));
   return core.length > 0 && core.every((m) => done[m.id]);
 }
 

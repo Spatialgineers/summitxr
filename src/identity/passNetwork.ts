@@ -1,5 +1,5 @@
 import {
-  addDoc, collection, doc, limit, onSnapshot, query, serverTimestamp, setDoc, Timestamp, where,
+  addDoc, collection, doc, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, where,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { PassQrPayload, SgxPass } from './sgxIdentity';
@@ -105,4 +105,48 @@ export function subscribeCheckins(cb: (list: ChromaCheckin[] | null) => void): (
 
 export function payloadToCard(p: PassQrPayload): ExchangeCard {
   return { c: p.c, n: p.n, s: p.s, p: p.p, r: p.r, o: p.o };
+}
+
+/* ---------- Constellations: the public face of the Rolodex ----------
+   Only counts travel (how many stars, which pillars), never who they are. */
+
+export interface ConstellationEntry {
+  uid: string;
+  callsign: string;
+  name: string;
+  affinity: PillarKey | null;
+  stars: number;
+  pillars: PillarKey[];
+  updatedAt: number;
+}
+
+const PILLAR_KEYS: PillarKey[] = ['STORY', 'SHOWCASE', 'SPARK', 'STAGE', 'SYSTEM', 'SYNTHESIZE'];
+
+export async function publishConstellation(uid: string, e: Omit<ConstellationEntry, 'uid' | 'updatedAt'>): Promise<void> {
+  try {
+    await setDoc(doc(db, 'summit_constellations', uid), {
+      callsign: e.callsign.slice(0, 20),
+      name: e.name.slice(0, 40),
+      affinity: e.affinity || '',
+      stars: Math.max(0, Math.min(500, Math.floor(e.stars))),
+      pillars: e.pillars.filter((p) => PILLAR_KEYS.includes(p)).slice(0, 6),
+      updatedAt: serverTimestamp(),
+    });
+  } catch (err) {
+    console.warn('[SGX Pass] constellation kept local:', err instanceof Error ? err.message : err);
+  }
+}
+
+export function subscribeConstellationBoard(cb: (list: ConstellationEntry[] | null) => void): () => void {
+  const q = query(collection(db, 'summit_constellations'), orderBy('stars', 'desc'), limit(10));
+  return onSnapshot(q, (snap) => {
+    cb(snap.docs.map((d) => {
+      const v = d.data();
+      return {
+        uid: d.id, callsign: v.callsign || '', name: v.name || '', affinity: (v.affinity || null) as PillarKey | null,
+        stars: v.stars || 0, pillars: Array.isArray(v.pillars) ? v.pillars : [],
+        updatedAt: v.updatedAt instanceof Timestamp ? v.updatedAt.toMillis() : 0,
+      };
+    }));
+  }, () => cb(null));
 }

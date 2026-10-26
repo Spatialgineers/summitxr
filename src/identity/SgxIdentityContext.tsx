@@ -14,7 +14,8 @@ import {
 import {
   REACTOR_MISSIONS, sponsorMissions, isPillarComplete, isDay3Open, type IdentityFlag, type ReactorMission,
 } from './reactor';
-import { payloadToCard, recordCheckin, registerPass, sendExchange, subscribeExchanges } from './passNetwork';
+import { payloadToCard, publishConstellation, recordCheckin, registerPass, sendExchange, subscribeExchanges } from './passNetwork';
+import { constellationPillars } from './constellation';
 
 export interface ForgeInput {
   fullName: string;
@@ -200,6 +201,29 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Constellation: the Rolodex as stars. All 6 pillars linked = secret stamp;
+  // the public board only gets counts (stars, pillars), never names of contacts.
+  const contactsKey = identity.contacts.map((c) => c.code).join('|');
+  useEffect(() => {
+    const mine = idRef.current;
+    const pillars = constellationPillars(mine);
+    if (pillars.length === 6 && !mine.stamps['constellation:six']) {
+      commit((d) => { d.stamps['constellation:six'] = Date.now(); });
+      const es = langRef.current === 'es';
+      pushToast({ tag: es ? 'SECRETO' : 'SECRET', title: es ? 'Constelación completa' : 'Full constellation', detail: es ? 'Tu Rolodex conecta los 6 pilares.' : 'Your Rolodex links all 6 pillars.', tone: 'alert' });
+      flag('constellation');
+    }
+    if (!myUid || !mine.pass || !mine.contacts.length) return;
+    const t = window.setTimeout(() => {
+      publishConstellation(myUid, {
+        callsign: mine.callsign, name: mine.pass!.fullName.split(/\s+/)[0] || mine.callsign,
+        affinity: mine.affinity, stars: mine.contacts.length, pillars,
+      });
+    }, 2500);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contactsKey, myUid, identity.pass?.code]);
 
   // Mutual exchange: whoever scanned my pass lands in my Rolodex too.
   useEffect(() => {

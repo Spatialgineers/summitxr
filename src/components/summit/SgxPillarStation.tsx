@@ -191,7 +191,7 @@ export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pil
                 return (
                   <li key={m.id} className={ok ? 'is-done' : ''}>
                     <span className="sgx-hangar__check" aria-hidden="true">{ok ? '◆' : '◇'}</span>
-                    <div><strong>{copy.title}{m.day3 ? (es ? ' · Día 3' : ' · Day 3') : ''}</strong><small>{copy.hint}</small></div>
+                    <div><strong>{m.secret && !ok ? '???' : copy.title}{m.day3 ? (es ? ' · Día 3' : ' · Day 3') : ''}</strong><small>{copy.hint}</small></div>
                     <span className="sgx-hangar__mxp">+{m.xp}</span>
                     {!ok && m.go && <button type="button" className="sgx-hangar__go" onClick={() => { playUiChirp(760); goToMission(m); }}>{es ? 'Ir' : 'Go'} →</button>}
                   </li>

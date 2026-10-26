@@ -452,3 +452,37 @@
 }
 .sgx-visit-chip:hover, .sgx-visit-chip:focus-visible { border-color: var(--SGX_Yellow); }
 @media (prefers-reduced-motion: reduce) { .sgx-map-pulse span { animation: none; } }
+
+/* ---------- Radar global (globe.gl) ---------- */
+.sgx-radar__map.is-hidden { display: none; }
+.sgx-globe {
+  position: relative; height: clamp(380px, 46vw, 620px); overflow: hidden;
+  background: radial-gradient(60% 60% at 50% 50%, rgba(50, 82, 123, 0.28), rgba(5, 5, 5, 0) 70%), #050505;
+}
+.sgx-globe--loading { display: grid; place-items: center; }
+.sgx-globe__canvas { position: absolute; inset: 0; }
+.sgx-globe__canvas canvas { outline: none; }
+.sgx-globe__boot { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; text-align: center; padding: 16px; }
+.sgx-globe__hud {
+  position: absolute; top: 12px; left: 12px; z-index: 2; width: min(300px, calc(100% - 24px));
+  display: grid; gap: 8px; --sgx-fill: rgba(13, 13, 13, 0.72);
+}
+.sgx-globe__hud .sgx-panel__title { margin: 0; color: var(--SGX_Yellow); letter-spacing: 0.14em; }
+.sgx-globe__sub { margin: 0; font-family: var(--font-body); font-size: 0.78rem; line-height: 1.4; color: var(--ink-muted); }
+.sgx-globe__buttons { display: flex; flex-wrap: wrap; gap: 4px; }
+.sgx-globe__converge { --sgx-edge: var(--SGX_Cyan); color: var(--SGX_Cyan); }
+.sgx-globe__converge:hover, .sgx-globe__converge:focus-visible { --sgx-edge: var(--SGX_Cyan); --sgx-fill: var(--SGX_Cyan); color: var(--on-action); }
+.sgx-globe__log {
+  min-height: 44px; padding-top: 8px; border-top: 1px solid rgba(253, 204, 13, 0.25);
+  font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.5; color: var(--telemetry);
+}
+.sgx-globe-tip {
+  padding: 6px 8px; background: rgba(13, 13, 13, 0.95); border: 1px solid var(--SGX_Yellow);
+  font-family: var(--font-body); font-size: 0.8rem; color: #fff;
+}
+.sgx-globe-tip strong { font-family: var(--font-hud); text-transform: uppercase; letter-spacing: 0.05em; color: var(--SGX_Yellow); }
+@media (max-width: 640px) {
+  .sgx-globe { height: 420px; }
+  .sgx-globe__hud { top: auto; bottom: 8px; left: 8px; right: 8px; width: auto; }
+  .sgx-globe__sub { display: none; }
+}

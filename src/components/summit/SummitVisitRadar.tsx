@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Globe2, MapPin } from 'lucide-react';
@@ -6,6 +6,9 @@ import { useLanguage } from '../../context/LanguageContext';
 import { PR_GEOJSON_URL, PR_MUNICIPIOS } from '../../lib/prMunicipios';
 import { getMyRegion, VisitRegion } from '../../lib/visitTracker';
 import { formatCount, useVisitRegions, useVisitStats } from './visitRadarStore';
+
+// globe.gl ships in its own chunk, loaded only when the 3D view opens.
+const SgxVisitGlobe = lazy(() => import('./SgxVisitGlobe'));
 
 /*
  * SGX.System · Radar de visitas: a live map of where the Summit web app is
@@ -54,7 +57,7 @@ export const SummitVisitRadar: React.FC = () => {
   const stats = sample ? sample.stats : liveStats;
   const regions = sample ? sample.regions : liveRegions;
   const mine = getMyRegion();
-  const [view, setView] = useState<'pr' | 'world'>('pr');
+  const [view, setView] = useState<'globe' | 'pr'>('globe');
 
   const mapEl = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -149,8 +152,12 @@ export const SummitVisitRadar: React.FC = () => {
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    if (view === 'pr') map.flyToBounds(PR_BOUNDS, { padding: [4, 4], duration: 1.2 });
-    else map.flyTo([24, -45], 2, { duration: 1.4 });
+    if (view !== 'pr') return;
+    // The Leaflet map stays mounted while hidden; re-measure when it comes back.
+    window.setTimeout(() => {
+      map.invalidateSize();
+      map.flyToBounds(PR_BOUNDS, { padding: [4, 4], duration: 1.2 });
+    }, 60);
   }, [view]);
 
   const offline = stats === null || regions === null;
@@ -201,14 +208,19 @@ export const SummitVisitRadar: React.FC = () => {
               <span className="sgx-readout">{es ? 'EN VIVO' : 'LIVE'}</span>
             </span>
             <fieldset className="sgx-seg" aria-label={es ? 'Vista del mapa' : 'Map view'}>
+              <label><input type="radio" name="radar-view" checked={view === 'globe'} onChange={() => setView('globe')} /><span className="sgx-btn sgx-btn--sm"><Globe2 className="w-3.5 h-3.5" />{es ? 'Mundo 3D' : '3D World'}</span></label>
               <label><input type="radio" name="radar-view" checked={view === 'pr'} onChange={() => setView('pr')} /><span className="sgx-btn sgx-btn--sm"><MapPin className="w-3.5 h-3.5" />Puerto Rico</span></label>
-              <label><input type="radio" name="radar-view" checked={view === 'world'} onChange={() => setView('world')} /><span className="sgx-btn sgx-btn--sm"><Globe2 className="w-3.5 h-3.5" />{es ? 'Mundo' : 'World'}</span></label>
             </fieldset>
           </div>
-          <div ref={mapEl} className="sgx-radar__map" />
+          {view === 'globe' && (
+            <Suspense fallback={<div className="sgx-globe sgx-globe--loading sgx-readout">…</div>}>
+              <SgxVisitGlobe regions={regions || []} mineId={mine?.id} />
+            </Suspense>
+          )}
+          <div ref={mapEl} className={`sgx-radar__map ${view === 'pr' ? '' : 'is-hidden'}`} />
           <div className="sgx-radar__legend">
-            <span><i className="is-muni" />{es ? 'Municipio: más amarillo, más visitas' : 'Municipio: brighter yellow, more visits'}</span>
-            <span><i className="is-world" />{es ? 'Fuera de PR' : 'Outside PR'}</span>
+            <span><i className="is-muni" />{view === 'pr' ? (es ? 'Municipio: más amarillo, más visitas' : 'Municipio: brighter yellow, more visits') : (es ? 'Puerto Rico' : 'Puerto Rico')}</span>
+            <span><i className="is-world" />{view === 'pr' ? (es ? 'Fuera de PR' : 'Outside PR') : (es ? 'País que nos visita · arco hacia San Juan' : 'Visiting country · arc to San Juan')}</span>
             <span><i className="is-pulse" />{es ? 'Visita en los últimos 15 min' : 'Visit in the last 15 min'}</span>
           </div>
         </section>
@@ -285,6 +297,12 @@ function buildPreviewData(): { stats: { totalVisits: number; uniqueVisitors: num
     { id: 'cc_es', name: 'España', kind: 'country', country: 'ES', lat: 40.4, lon: -3.7, totalVisits: 22, uniqueVisitors: 15 },
     { id: 'cc_mx', name: 'México', kind: 'country', country: 'MX', lat: 19.4, lon: -99.1, totalVisits: 12, uniqueVisitors: 9 },
     { id: 'cc_do', name: 'República Dominicana', kind: 'country', country: 'DO', lat: 18.5, lon: -69.9, totalVisits: 9, uniqueVisitors: 7 },
+    { id: 'us_texas', name: 'Texas, EE. UU.', kind: 'state', country: 'US', lat: 30.3, lon: -97.7, totalVisits: 18, uniqueVisitors: 12 },
+    { id: 'us_california', name: 'California, EE. UU.', kind: 'state', country: 'US', lat: 34.1, lon: -118.2, totalVisits: 15, uniqueVisitors: 10 },
+    { id: 'cc_co', name: 'Colombia', kind: 'country', country: 'CO', lat: 4.7, lon: -74.1, totalVisits: 8, uniqueVisitors: 6 },
+    { id: 'cc_ar', name: 'Argentina', kind: 'country', country: 'AR', lat: -34.6, lon: -58.4, totalVisits: 5, uniqueVisitors: 4 },
+    { id: 'cc_gb', name: 'Reino Unido', kind: 'country', country: 'GB', lat: 51.5, lon: -0.1, totalVisits: 6, uniqueVisitors: 5 },
+    { id: 'cc_jp', name: 'Japón', kind: 'country', country: 'JP', lat: 35.7, lon: 139.7, totalVisits: 4, uniqueVisitors: 3, lastVisitAt: now - 300000 },
   ];
   const regions = [...muni, ...world].sort((a, b) => b.totalVisits - a.totalVisits);
   const totalVisits = regions.reduce((n, r) => n + r.totalVisits, 0);

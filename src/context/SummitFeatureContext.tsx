@@ -108,7 +108,7 @@ export const DEFAULT_FEATURE_CONFIG: Record<string, FeatureToggleItem> = {
     description: 'Deck de tarjetas 3D holográficas con filtros por pilar, industria y cohorte.',
     status: 'ACTIVE',
     requiresContent: false,
-    contentAuditNotes: '8 SGX Guild Initiates oficiales confirmados y fundadores / co-productores activos.',
+    contentAuditNotes: '8 SGX Guild Initiates oficiales confirmados y fundadores Danelson y Ricardo como hosts.',
   },
   section_embeds_games: {
     id: 'section_embeds_games',
@@ -135,7 +135,7 @@ export const DEFAULT_FEATURE_CONFIG: Record<string, FeatureToggleItem> = {
     name: 'Tour Virtual 360° Chroma Space Studios',
     category: 'SECTIONS',
     pillar: 'SGX.SHOWCASE',
-    description: 'Navegación espacial virtual interactiva de los 6 nodos de Chroma Space Studios en San Juan.',
+    description: 'Navegación espacial virtual interactiva de la sede del Día 3 en San Juan (sujeto a la firma del acuerdo).',
     status: 'ACTIVE',
     requiresContent: false,
     contentAuditNotes: '6 nodos principales configurados con descripciones de actividades.',
@@ -158,7 +158,7 @@ export const DEFAULT_FEATURE_CONFIG: Record<string, FeatureToggleItem> = {
     description: 'Matriz comparativa de 5 niveles de patrocinio, Brand Showcases y formulario de alianzas.',
     status: 'ACTIVE',
     requiresContent: false,
-    contentAuditNotes: 'Estructura de 5 tiers y socios estratégicos oficiales.',
+    contentAuditNotes: 'Estructura de 5 Tiers según el Dossier de Auspicio v2026.10.1.',
   },
   section_social_stream: {
     id: 'section_social_stream',
@@ -259,7 +259,7 @@ export const DEFAULT_FEATURE_CONFIG: Record<string, FeatureToggleItem> = {
     name: 'Escáner QR WebXR de Credenciales (Rolodex)',
     category: 'HUB_MODULES',
     pillar: 'SGX.SHOWCASE',
-    description: 'Escáner de códigos QR para conectar con otros asistentes en Chroma Space Studios.',
+    description: 'Escáner de códigos QR para conectar con otros asistentes durante el SGX Showcase.',
     status: 'ACTIVE',
     requiresContent: false,
     contentAuditNotes: 'Rolodex digital de contactos presenciales.',
@@ -303,7 +303,7 @@ export const DEFAULT_FEATURE_CONFIG: Record<string, FeatureToggleItem> = {
     name: 'Tienda de Recompensas & Canje XP',
     category: 'MODALS',
     pillar: 'SGX.SPARK',
-    description: 'Catálogo de beneficios, merchandising y pases VIP canjeables con puntos XP.',
+    description: 'Premios mayormente digitales canjeables con XP: cupones, suscripción de 3 meses y premio mayor.',
     status: 'ACTIVE',
     requiresContent: false,
     contentAuditNotes: 'Conectado al saldo XP en tiempo real del piloto.',
@@ -333,10 +333,10 @@ export const DEFAULT_FEATURE_CONFIG: Record<string, FeatureToggleItem> = {
     name: 'Landing Modal de Marcas Patrocinadoras',
     category: 'MODALS',
     pillar: 'SGX.SHOWCASE',
-    description: 'Vista detallada de socios estratégicos con ofertas y códigos promocionales.',
+    description: 'Vista detallada de marcas auspiciadoras con ofertas y códigos promocionales.',
     status: 'ACTIVE',
     requiresContent: false,
-    contentAuditNotes: 'Showcases activos para Chroma Space Studios y Los Mismos TV.',
+    contentAuditNotes: 'Brand Showcases solo para marcas confirmadas por escrito.',
   },
 
   // ========================
@@ -370,7 +370,7 @@ export const DEFAULT_FEATURE_CONFIG: Record<string, FeatureToggleItem> = {
     description: 'Carrusel superior de marcas aliadas y banners rotativos de patrocinio.',
     status: 'ACTIVE',
     requiresContent: false,
-    contentAuditNotes: 'Rotación automática de socios aprobados.',
+    contentAuditNotes: 'Rotación automática de marcas aprobadas.',
   },
 };
 

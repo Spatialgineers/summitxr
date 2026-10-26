@@ -715,7 +715,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       Run of Show Ejecutivo: Mundos 3D, Día de la Industria & Evento Híbrido
                     </h3>
                     <p className="text-xs text-slate-300 font-mono">
-                      Diciembre 11, 12 & 13, 2026 • YouTube Live, Espacio de Roblox Activo & Chroma Space Studios (San Juan, PR)
+                      Diciembre 11, 12 & 13, 2026 • YouTube Live, Roblox (si se usa) & Chroma Space Studios, San Juan, PR (sujeto a la firma del acuerdo)
                     </p>
                   </div>
                   <button
@@ -822,7 +822,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                               • <strong>1:15–3:50 PM:</strong> Conversaciones SGX.Stage (1:15), SGX.System (2:10) y SGX.Synthesize (3:05).
                             </p>
                             <p className="leading-relaxed">
-                              • <strong>3:50–4:00 PM:</strong> Cierre del Día 2 y adelanto del Día 3 en Chroma Space Studios.
+                              • <strong>3:50–4:00 PM:</strong> Cierre del Día 2 y adelanto del Día 3, el SGX Showcase.
                             </p>
                           </div>
                         )}
@@ -865,7 +865,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                           <span className="px-1.5 py-0.5 bg-[#FDCC0D]/20 border border-[#FDCC0D]/50 text-[#FDCC0D] text-[10px]">Premio Mayor Tier 1</span>
                         </div>
                         <p className="text-slate-300 leading-relaxed text-xs">
-                          En vivo desde Chroma Space Studios (San Juan, solo por invitación) + YouTube/LinkedIn/Facebook Live: avatar facial en tiempo real, Artistas 1 y 2, los 6 Initiates, networking y premios mayores.
+                          En vivo desde Chroma Space Studios (San Juan, por invitación, sujeto a la firma del acuerdo) + YouTube/LinkedIn/Facebook Live: avatar facial en tiempo real, artistas invitados (por confirmar), los 6 Initiates, networking y premios mayores.
                         </p>
 
                         {expandedDayId === 'day_3' && (
@@ -883,7 +883,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                               • <strong>1:00–3:30 PM:</strong> Networking con votación gamificada y canje de premios (1:00–2:00 PM) + Interacción libre con Initiates, demos y Roblox (2:00–3:30 PM).
                             </p>
                             <p className="leading-relaxed">
-                              • <strong>3:30–4:00 PM:</strong> Cierre, anuncios finales, Sesión "Grit" y Premio Mayor: "Spatialgineers activa tu evento" (Tier 1: $1,000–$2,500).
+                              • <strong>3:30–4:00 PM:</strong> Cierre, anuncios finales, sesión "Grit" con artistas (por confirmar) y premio mayor: "Spatialgineers activa tu evento".
                             </p>
                           </div>
                         )}
@@ -1198,7 +1198,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <SummitSectionBanner
               sectionKey="MAP_360"
               title="Tour 360° Venue — Chroma Studios & Stages"
-              subtitle="Explora en 360° el estudio de producción virtual, auditorio principal, lounges y zonas VIP."
+              subtitle="Explora en 360° el estudio de producción virtual, las zonas de demos y networking del Día 3 (sujeto a la firma del acuerdo)."
               pillarBadge="SGX.SHOWCASE"
               pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png"
             />

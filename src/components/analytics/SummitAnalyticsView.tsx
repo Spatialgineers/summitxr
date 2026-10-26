@@ -112,10 +112,10 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
 
     const pillarBase = metrics.pillarEngagement;
     const dynamicPillarEngagement: Record<string, number> = {
-      'SGX.STAGE': scaleVal((pillarBase['SGX.STAGE'] || 920) + (cat.stage_cyoa || 0) * 12 + liveVotesDelta * 4),
+      'SGX.STORY': scaleVal((pillarBase['SGX.STORY'] || 640) + (cat.navigation || 0) * 5 + 25),
       'SGX.SHOWCASE': scaleVal((pillarBase['SGX.SHOWCASE'] || 850) + live360Delta * 9 + (cat.sponsor_click || 0) * 6),
       'SGX.SPARK': scaleVal((pillarBase['SGX.SPARK'] || 790) + liveDroneDelta * 15 + (profile.droneStats?.totalTricks || 0) * 3),
-      'SGX.STORY': scaleVal((pillarBase['SGX.STORY'] || 640) + (cat.navigation || 0) * 5 + 25),
+      'SGX.STAGE': scaleVal((pillarBase['SGX.STAGE'] || 920) + (cat.stage_cyoa || 0) * 12 + liveVotesDelta * 4),
       'SGX.SYSTEM': scaleVal((pillarBase['SGX.SYSTEM'] || 710) + sessionEvents * 3 + leaderboard.length * 8),
       'SGX.SYNTHESIZE': scaleVal((pillarBase['SGX.SYNTHESIZE'] || 880) + liveChatDelta * 7 + (profile.weekendStats?.connectionsMade || 0) * 14),
     };
@@ -152,10 +152,10 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
       ['Drone MiniGames Played', activeRange, computedMetrics.droneGamesPlayed],
       ['Prizes Claimed', activeRange, computedMetrics.prizesClaimed],
       ['Active Pilot XP', activeRange, profile.totalXp],
-      ['Stage Engagement', activeRange, computedMetrics.pillarEngagement['SGX.STAGE']],
+      ['Story Engagement', activeRange, computedMetrics.pillarEngagement['SGX.STORY']],
       ['Showcase Engagement', activeRange, computedMetrics.pillarEngagement['SGX.SHOWCASE']],
       ['Spark Engagement', activeRange, computedMetrics.pillarEngagement['SGX.SPARK']],
-      ['Story Engagement', activeRange, computedMetrics.pillarEngagement['SGX.STORY']],
+      ['Stage Engagement', activeRange, computedMetrics.pillarEngagement['SGX.STAGE']],
       ['System Engagement', activeRange, computedMetrics.pillarEngagement['SGX.SYSTEM']],
       ['Synthesize Engagement', activeRange, computedMetrics.pillarEngagement['SGX.SYNTHESIZE']],
     ];

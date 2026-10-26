@@ -1458,10 +1458,10 @@ export const INITIAL_ANALYTICS: SummitAnalyticsMetrics = {
   droneGamesPlayed: 0,
   prizesClaimed: 0,
   pillarEngagement: {
-    'SGX.STAGE': 0,
+    'SGX.STORY': 0,
     'SGX.SHOWCASE': 0,
     'SGX.SPARK': 0,
-    'SGX.STORY': 0,
+    'SGX.STAGE': 0,
     'SGX.SYSTEM': 0,
     'SGX.SYNTHESIZE': 0,
   },
@@ -1765,6 +1765,16 @@ export const SUMMIT_I18N: Record<LanguageCode, Record<string, string>> = {
 };
 
 // Calendar & Offline Persistence Helpers
+// End time from the Run of Show endTime ("4:30 PM"); falls back to +45 min if it cannot be parsed.
+function getSessionEndMinutes(session: SummitSession): number {
+  const m = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec((session.endTime || '').trim());
+  if (!m) return session.startMinutes + 45;
+  let h = parseInt(m[1], 10) % 12;
+  if (m[3].toUpperCase() === 'PM') h += 12;
+  const end = h * 60 + parseInt(m[2], 10);
+  return end > session.startMinutes ? end : session.startMinutes + 45;
+}
+
 export function generateICSForSession(session: SummitSession): string {
   const sanitize = (text: string) => text.replace(/\n/g, '\\n').replace(/,/g, '\\,');
   
@@ -1778,7 +1788,7 @@ export function generateICSForSession(session: SummitSession): string {
   const dayDate = dateMap[session.day] || '20261211';
   const startHour = Math.floor(session.startMinutes / 60).toString().padStart(2, '0');
   const startMin = (session.startMinutes % 60).toString().padStart(2, '0');
-  const endMinutes = session.startMinutes + 45;
+  const endMinutes = getSessionEndMinutes(session);
   const endHour = Math.floor(endMinutes / 60).toString().padStart(2, '0');
   const endMin = (endMinutes % 60).toString().padStart(2, '0');
 
@@ -1826,7 +1836,7 @@ export function getGoogleCalendarUrl(session: SummitSession): string {
   const dayDate = dateMap[session.day] || '20261211';
   const startHour = Math.floor(session.startMinutes / 60).toString().padStart(2, '0');
   const startMin = (session.startMinutes % 60).toString().padStart(2, '0');
-  const endMinutes = session.startMinutes + 45;
+  const endMinutes = getSessionEndMinutes(session);
   const endHour = Math.floor(endMinutes / 60).toString().padStart(2, '0');
   const endMin = (endMinutes % 60).toString().padStart(2, '0');
 
@@ -2074,7 +2084,7 @@ export function saveSingleSponsorInquiry(inquiry: SponsorInquiry): SponsorInquir
   return updated;
 }
 
-export const STORAGE_KEY_APPROVED_SPONSORS = 'sgx_summit_approved_sponsors';
+export const STORAGE_KEY_APPROVED_SPONSORS = 'sgx_summit_approved_sponsors_v2026_10_1';
 
 export const INITIAL_APPROVED_SPONSORS: ApprovedSponsor[] = [
   {

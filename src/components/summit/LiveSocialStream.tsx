@@ -228,7 +228,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
         instagramPostUrl: cleanUrl,
         authorName: user?.displayName || 'Asistente Spatialgineers',
         authorHandle: user?.email ? `@${user.email.split('@')[0]}` : '@asistente_sgx',
-        location: 'Chroma Space Studios • San Juan, PR'
+        location: 'Spatialgineers Summit 2026'
       });
 
       setPosts((prev) => [newPost, ...prev]);

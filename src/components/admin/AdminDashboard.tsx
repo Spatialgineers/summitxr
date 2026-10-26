@@ -885,7 +885,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 <div className="p-4 bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] rounded-xl flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] font-mono text-slate-400 uppercase block">Sede Partner Presencial</span>
+                    <span className="text-[10px] font-mono text-slate-400 uppercase block">Venue Día 3 (sujeto a firma)</span>
                     <strong className="text-xs font-bold text-white">Chroma Space Studios</strong>
                   </div>
                   <Tag className="w-6 h-6 text-[#FDCC0D]" />

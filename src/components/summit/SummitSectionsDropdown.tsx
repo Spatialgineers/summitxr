@@ -185,7 +185,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
       key: 'EMBEDS_GAMES',
       title: 'Simulador de Drones & Trucos XP',
       shortLabel: 'Simulador de Drones',
-      description: 'Acrobacias aéreas (Q, E, Z, X) con XP en vivo y entregas Chroma.',
+      description: 'Acrobacias aéreas (Q, E, Z, X) con XP en vivo y entregas de marca.',
       icon: Gamepad2,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png',
       badge: 'SGX.SPARK',
@@ -242,7 +242,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     },
     {
       key: 'MAP_360',
-      title: 'Tour 360° Chroma Space Studios',
+      title: 'Tour 360° de la sede del Día 3',
       shortLabel: 'Mapa 360° Venue',
       description: 'Exploración virtual interactiva del venue oficial en San Juan.',
       icon: Navigation,

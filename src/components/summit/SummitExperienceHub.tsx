@@ -230,7 +230,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
       title: 'Exposición 360°, SGX.Match & Alianzas Oficiales',
       subtitle: 'Showcase opt.glb • Tour 360° Chroma Studios • Speed Pitching • QR (+50 XP)',
       description:
-        'Donde los proyectos, marcas aliadas y fundadores se conectan con el mundo. Recorre Chroma Space Studios en 360°, haz matchmaking estratégico y escanea códigos QR (+50 XP).',
+        'Donde los proyectos, marcas aliadas y fundadores se conectan con el mundo. Recorre en 360° la sede del Día 3 (sujeto a la firma del acuerdo), haz matchmaking estratégico y escanea códigos QR (+50 XP).',
       icon: Building2,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
       themeColor: '#00DDFF',
@@ -261,9 +261,9 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         {
           id: 'mod_sponsors_hub',
           title: `Partners Oficiales & Matriz de Patrocinio (${sponsorCount})`,
-          subtitle: 'Chroma Space Studios • Los Mismos TV • Tiers 1–5',
+          subtitle: 'Tiers 1–5 • Las marcas viven dentro de la experiencia',
           description:
-            'Conoce a nuestros Strategic Partners confirmados y explora los 5 niveles de patrocinio con presencia los 365 días.',
+            'Explora los 5 Tiers de auspicio. Solo se publican marcas confirmadas por escrito.',
           xpReward: 'PARTNERS',
           actionLabel: 'Ver Partners & Tiers',
           icon: Building2,
@@ -274,7 +274,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           title: 'Escáner QR WebXR de Credenciales',
           subtitle: 'Rolodex Digital de Contactos (+50 XP por escaneo)',
           description:
-            'Escanea los códigos QR del evento y de otros asistentes en Chroma Space Studios para sumar +50 XP y guardar su perfil.',
+            'Escanea los códigos QR del evento y de otros asistentes en el SGX Showcase (Día 3) para sumar +50 XP y guardar su perfil.',
           xpReward: '+50 XP',
           actionLabel: 'Escanear QR (+50 XP)',
           icon: ScanLine,
@@ -391,7 +391,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           title: 'Agenda Oficial Run of Show (3 Días)',
           subtitle: 'Cronograma Minuto a Minuto v2026.10 & Mi Agenda',
           description:
-            'Explora los bloques de los 6 pilares y 8 Initiates (Día 1), Día de la Industria (Día 2) y el evento híbrido en Chroma Space Studios con los 6 Initiates seleccionados (Día 3).',
+            'Explora los bloques de los 6 pilares y 8 Initiates (Día 1), Día de la Industria (Día 2) y el SGX Showcase híbrido (Chroma Space Studios (sujeto a la firma del acuerdo)) con los 6 Initiates seleccionados (Día 3).',
           xpReward: '+50 XP',
           actionLabel: 'Explorar Agenda',
           icon: Calendar,
@@ -466,7 +466,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           title: 'SGX Guild Initiates & Ranked Trials',
           subtitle: '8 Initiates Activos en Día 1 → 6 Seleccionados para el Día 3',
           description:
-            'Inspecciona los perfiles técnicos, portafolios de 8 minutos del Día 1 y el ranking de los 6 Initiates elegidos para presentar el domingo en Chroma Space Studios.',
+            'Inspecciona los perfiles técnicos, portafolios de 8 minutos del Día 1 y el ranking de los 6 Initiates elegidos para presentar el domingo en el SGX Showcase.',
           xpReward: '+100 XP',
           actionLabel: 'Ver Los 8 Initiates',
           icon: Award,
@@ -569,7 +569,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           title: 'Postular Marca como Patrocinador',
           subtitle: 'Convocatoria Abierta Tiers 1 al 5',
           description:
-            'Integra tu empresa junto a Chroma Space Studios y Los Mismos TV en el ecosistema interactivo del Summit.',
+            'Integra tu marca dentro del ecosistema interactivo del Summit con uno de los 5 Tiers.',
           xpReward: 'ALIANZA B2B',
           actionLabel: 'Solicitar Dossier / Tier',
           icon: Building2,

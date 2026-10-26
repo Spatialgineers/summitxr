@@ -149,7 +149,7 @@
 .sgx-meter > span { position: absolute; inset: 0; background: var(--SGX_Yellow); transform-origin: left; transition: transform 0.4s ease; }
 .sgx-meter.is-overdrive > span { background: var(--SGX_Neon_Orange); animation: sgx-blink 0.5s steps(2) infinite; }
 .sgx-mission__cells { display: grid; gap: var(--space-sm); }
-.sgx-mission__cell-grid { display: grid; grid-template-columns: repeat(13, 1fr); gap: 3px; }
+.sgx-mission__cell-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
 .sgx-mission__cell {
   aspect-ratio: 1; display: grid; place-items: center; border: 1px solid var(--line);
   background: rgba(5, 5, 5, 0.6);

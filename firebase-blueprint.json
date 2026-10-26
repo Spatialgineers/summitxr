@@ -560,6 +560,75 @@
         "timestamp": { "type": "number" }
       },
       "required": ["sessionId", "category", "action", "timestamp"]
+    },
+    "VisitStats": {
+      "title": "VisitStats",
+      "description": "Public web app visit counters for the Summit Visit Radar (SGX.System). One document: global.",
+      "type": "object",
+      "properties": {
+        "totalVisits": {
+          "type": "integer",
+          "description": "Visits, counted once per browser session."
+        },
+        "uniqueVisitors": {
+          "type": "integer",
+          "description": "Distinct devices (random local id)."
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Server timestamp of the last visit."
+        }
+      },
+      "required": ["totalVisits", "uniqueVisitors"]
+    },
+    "VisitRegion": {
+      "title": "VisitRegion",
+      "description": "Aggregated visits per coarse region: a Puerto Rico municipio, a US state or a country. No IPs or exact locations are stored.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["municipio", "state", "country", "unknown"]
+        },
+        "country": {
+          "type": "string",
+          "description": "ISO country code (PR for municipios)."
+        },
+        "lat": {
+          "type": ["number", "null"],
+          "description": "Region marker latitude (municipio centroid or rounded to 0.1°)."
+        },
+        "lon": {
+          "type": ["number", "null"]
+        },
+        "totalVisits": {
+          "type": "integer"
+        },
+        "uniqueVisitors": {
+          "type": "integer"
+        },
+        "lastVisitAt": {
+          "type": "string"
+        }
+      },
+      "required": ["name", "kind", "totalVisits", "uniqueVisitors"]
+    },
+    "Visitor": {
+      "title": "Visitor",
+      "description": "One document per device so unique visitors are counted once. Create-only.",
+      "type": "object",
+      "properties": {
+        "regionId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": ["regionId", "createdAt"]
     }
   },
   "firestore": {
@@ -688,6 +757,24 @@
         "$ref": "#/entities/SummitSessionItem"
       },
       "description": "Stores summit agenda sessions, schedule, and assigned speakers."
+    },
+    "/summit_visit_stats/{statId}": {
+      "schema": {
+        "$ref": "#/entities/VisitStats"
+      },
+      "description": "Public visit counters (only 'global'). Writes may only add one visit."
+    },
+    "/summit_visit_regions/{regionId}": {
+      "schema": {
+        "$ref": "#/entities/VisitRegion"
+      },
+      "description": "Visit Radar leaderboard per municipio, US state or country."
+    },
+    "/summit_visitors/{visitorId}": {
+      "schema": {
+        "$ref": "#/entities/Visitor"
+      },
+      "description": "Create-only device registry that keeps unique visitors unique."
     }
   }
 }

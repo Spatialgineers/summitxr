@@ -230,7 +230,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
       title: 'Exposición 360°, SGX.Match & Alianzas Oficiales',
       subtitle: 'Showcase opt.glb • Tour 360° Chroma Studios • Speed Pitching • QR (+50 XP)',
       description:
-        'Donde los proyectos, marcas aliadas y fundadores se conectan con el mundo. Recorre en 360° la sede del Día 3 (sujeto a la firma del acuerdo), haz matchmaking estratégico y escanea códigos QR (+50 XP).',
+        'Donde los proyectos, marcas aliadas y fundadores se conectan con el mundo. Recorre en 360° Chroma Space Studios, la sede del Día 3, haz matchmaking estratégico y escanea códigos QR (+50 XP).',
       icon: Building2,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
       themeColor: '#00DDFF',
@@ -241,7 +241,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           title: 'Tour Virtual 360° Chroma Space Studios',
           subtitle: 'Recorrido Espacial por la Sede Híbrida en San Juan',
           description:
-            'Explora en 360° los sets de producción virtual, escenario principal y zonas de networking de la sede del Día 3 (sujeta a la firma del acuerdo).',
+            'Explora en 360° los sets de producción virtual, escenario principal y zonas de networking de Chroma Space Studios, la sede del Día 3.',
           xpReward: '+90 XP',
           actionLabel: 'Entrar al Tour 360°',
           icon: Globe,
@@ -391,7 +391,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           title: 'Agenda Oficial Run of Show (3 Días)',
           subtitle: 'Cronograma Minuto a Minuto v2026.10 & Mi Agenda',
           description:
-            'Explora los bloques de los 6 pilares y 8 Initiates (Día 1), Día de la Industria (Día 2) y el SGX Showcase híbrido (Chroma Space Studios (sujeto a la firma del acuerdo)) con los 6 Initiates seleccionados (Día 3).',
+            'Explora los bloques de los 6 pilares y 8 Initiates (Día 1), Día de la Industria (Día 2) y el SGX Showcase híbrido (Chroma Space Studios) con los 6 Initiates seleccionados (Día 3).',
           xpReward: '+50 XP',
           actionLabel: 'Explorar Agenda',
           icon: Calendar,

@@ -26,6 +26,7 @@ const ALIASES: Record<string, string[]> = {
   ENTREPRENEUR_MATCH: ['match', 'pitch', 'conexiones'],
   NETWORKING: ['foros', 'chat', 'networking', 'forums'],
   GUILD: ['guild', 'initiates', 'iniciados'],
+  VISITS: ['visitas', 'visits', 'radar', 'mapa de visitas', 'leaderboard'],
 };
 
 /**

@@ -107,9 +107,9 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     badgeColor: '#32527B',
     isUnlockedDefault: false,
     xpReward: 30,
-    summary: 'Chroma Space Studios en San Juan: venue del Día 3, sujeto a la firma del acuerdo.',
+    summary: 'Chroma Space Studios en San Juan: venue del Día 3.',
     fullTransmission: `DOCUMENTO TÉCNICO // SGX SHOWCASE (DÍA 3):
-• Venue: Chroma Space Studios, San Juan, PR (sujeto a la firma del acuerdo).
+• Venue: Chroma Space Studios, San Juan, PR.
 • Equipo integrado del estudio: luces, proyectores y cámaras.
 • Aforo: por invitación y cupo limitado, 40 a 60 personas como máximo.
 • Horario: 10:00 a.m. a 4:00 p.m., con transmisión por YouTube Live. Apertura de puertas: por anunciar.`,
@@ -166,7 +166,7 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     summary: 'Desbloqueo final antes del Día 1: insignia del Pasaporte y la escalera de premios del Summit.',
     fullTransmission: `SECUENCIA FINAL // LANZAMIENTO GLOBAL:
 • 11 de diciembre de 2026 · 10:00 AM AST: apertura por YouTube Live.
-• 13 de diciembre: SGX Showcase en Chroma Space Studios (por invitación; sujeto a la firma del acuerdo).
+• 13 de diciembre: SGX Showcase en Chroma Space Studios (por invitación).
 • Premios: cupón de descuento de un auspiciador, suscripción de 3 meses a nuestras plataformas, sesión "Grit" con artistas (por confirmar) y el premio mayor "Spatialgineers activa tu evento".
 • Los pilotos que desbloquearon las 6 cápsulas reciben la Insignia Legendaria "Pionero Cuántico" en su Pasaporte de Piloto.`,
     relatedSectionKey: 'OVERVIEW',

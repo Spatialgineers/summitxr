@@ -47,7 +47,8 @@ export type SummitSectionKey =
   | 'EMBEDS_GAMES'
   | 'SPONSORS_HUB'
   | 'CREDENTIAL_GENERATOR'
-  | 'PILLAR';
+  | 'PILLAR'
+  | 'VISITS';
 
 interface SummitSectionsDropdownProps {
   activeSection: SummitSectionKey;
@@ -241,8 +242,19 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
       group: 'showcase',
     },
     {
+      key: 'VISITS',
+      title: 'Radar de visitas del Summit',
+      shortLabel: 'Radar de visitas',
+      description: 'Mapa en vivo de Puerto Rico y el mundo: desde dónde nos visitan, contadores y leaderboards.',
+      icon: Navigation,
+      iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png',
+      badge: 'SGX.SYSTEM',
+      badgeColor: 'border-amber-400/60 text-[#FDCC0D] bg-amber-950/40',
+      group: 'system',
+    },
+    {
       key: 'MAP_360',
-      title: 'Tour 360° de la sede del Día 3',
+      title: 'Tour 360° Chroma Space Studios',
       shortLabel: 'Mapa 360° Venue',
       description: 'Exploración virtual interactiva del venue oficial en San Juan.',
       icon: Navigation,

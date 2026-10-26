@@ -135,7 +135,7 @@ export const DEFAULT_FEATURE_CONFIG: Record<string, FeatureToggleItem> = {
     name: 'Tour Virtual 360° Chroma Space Studios',
     category: 'SECTIONS',
     pillar: 'SGX.SHOWCASE',
-    description: 'Navegación espacial virtual interactiva de la sede del Día 3 en San Juan (sujeto a la firma del acuerdo).',
+    description: 'Navegación espacial virtual interactiva de Chroma Space Studios, la sede del Día 3 en San Juan.',
     status: 'ACTIVE',
     requiresContent: false,
     contentAuditNotes: '6 nodos principales configurados con descripciones de actividades.',

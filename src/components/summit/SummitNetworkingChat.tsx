@@ -115,7 +115,7 @@ const PUBLIC_FORUM_CHANNELS: ForumChannel[] = [
   { 
     id: '#venue-san-juan', 
     name: 'SGX Showcase · Día 3 (San Juan, PR)', 
-    topic: 'Logística del Día 3 en Chroma Space Studios (por invitación; sujeto a la firma del acuerdo)', 
+    topic: 'Logística del Día 3 en Chroma Space Studios (por invitación)', 
     desc: 'Foro para las personas invitadas al SGX Showcase del Día 3 en San Juan: puntos de encuentro, transporte y agenda presencial.',
     icon: MapPin, 
     color: 'text-[#FDCC0D]',

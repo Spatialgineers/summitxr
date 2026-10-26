@@ -5,6 +5,7 @@ import { useImmersion } from '../../immersion/ImmersionContext';
 import { SgxBolt } from '../../immersion/SgxSymbols';
 import { SGX_PILLARS, findPillar, moduleCode } from '../../lib/sgxPillars';
 import { navigateToPillar } from '../../immersion/navigation';
+import { VisitCounterChip } from './SummitVisitRadar';
 
 export interface HudSectionChip {
   key: SummitSectionKey;
@@ -126,6 +127,7 @@ export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
         </div>
 
         <div className="sgx-sechud__tools">
+          <VisitCounterChip className="hidden xl:inline-flex" onOpen={() => onSelect('VISITS')} />
           <span className="sgx-readout sgx-sechud__meter" title="Estaciones visitadas">
             <span className="sgx-readout__k">SYNC</span>
             {ordered.filter((c) => state.visited.includes(c.key)).length}/{ordered.length}

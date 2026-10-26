@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { VisitCounterChip } from './SummitVisitRadar';
+import { navigateToSection } from '../../immersion/navigation';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import {
   Pause,
@@ -175,7 +177,7 @@ export const SGX_3D_SPONSOR_STATIONS: SgxSponsorStationData[] = [
     name: 'Chroma Space Studios',
     tierLabel: 'TIER 5 · SEDE DEL DÍA 3',
     tierNumber: 5,
-    roleSubtitle: 'San Juan · Sujeto a la firma del acuerdo',
+    roleSubtitle: 'San Juan · SGX Showcase',
     colorHex: '#FDCC0D',
     threeColor: 0xFDCC0D,
     angle: Math.PI * 0.22,
@@ -1615,6 +1617,8 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         </div>
 
         <div className="relative flex items-center gap-1 sm:gap-1.5 shrink-0 font-mono text-xs">
+          {/* Public visit counter (SGX.System · Radar de visitas) */}
+          <VisitCounterChip className="hidden md:inline-flex" onOpen={() => navigateToSection('VISITS')} />
           {/* Quick 1-Click Boleto Trigger */}
           {onOpenTickets && (
             <button

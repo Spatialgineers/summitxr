@@ -181,7 +181,7 @@ export const SummitTicketModal: React.FC<SummitTicketModalProps> = ({ onClose, i
 SPATIALGINEERS SUMMIT 2026 • REGISTRO
 Fecha: Diciembre 11 - 13, 2026
 Días 1 y 2: digitales por YouTube Live
-Día 3 (SGX Showcase): Chroma Space Studios, San Juan, PR · por invitación y cupo limitado (sujeto a la firma del acuerdo)
+Día 3 (SGX Showcase): Chroma Space Studios, San Juan, PR · por invitación y cupo limitado
 =====================================================
 
 CÓDIGO DE REGISTRO: ${activePass.referenceCode}
@@ -344,7 +344,7 @@ INFORMACIÓN:
                   )}
                   <div className="pt-2 text-[10px] text-slate-400 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono">
                     <span className="whitespace-normal">📅 Dic 11–13, 2026</span>
-                    <span className="whitespace-normal">📍 Días 1–2 por YouTube Live • Día 3: Chroma Space Studios (San Juan, sujeto a la firma del acuerdo)</span>
+                    <span className="whitespace-normal">📍 Días 1–2 por YouTube Live • Día 3: Chroma Space Studios (San Juan)</span>
                   </div>
                 </div>
 

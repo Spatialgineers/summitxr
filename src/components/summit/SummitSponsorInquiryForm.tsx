@@ -135,7 +135,7 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
     if (!submittedInquiry) return;
     const summaryText = `=====================================================
 SPATIALGINEERS SUMMIT 2026 • SOLICITUD DE PATROCINIO
-Día 3 (SGX Showcase): Chroma Space Studios, San Juan, Puerto Rico (sujeto a la firma del acuerdo)
+Día 3 (SGX Showcase): Chroma Space Studios, San Juan, Puerto Rico
 Fecha del Evento: Diciembre 11 - 13, 2026
 Pago total: a más tardar el 14 de noviembre de 2026 · Materiales: hasta el 30 de noviembre de 2026
 =====================================================

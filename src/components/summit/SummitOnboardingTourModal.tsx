@@ -151,7 +151,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
       badge: 'PASO 1 / 8 • ARQUITECTURA MAESTRA',
       title: 'Las 3 Grandes Áreas del Mega WebApp',
       subtitle: 'Ecosistema Unificado de Computación Espacial & Telemetría',
-      description: 'El Spatialgineers Summit 2026 está estructurado en 3 grandes áreas principales diseñadas para ofrecer una experiencia digital los 3 días por YouTube Live y el SGX Showcase del Día 3, híbrido y por invitación, en Chroma Space Studios (San Juan, PR; sujeto a la firma del acuerdo):',
+      description: 'El Spatialgineers Summit 2026 está estructurado en 3 grandes áreas principales diseñadas para ofrecer una experiencia digital los 3 días por YouTube Live y el SGX Showcase del Día 3, híbrido y por invitación, en Chroma Space Studios (San Juan, PR):',
       icon: Layers,
       highlights: [
         {
@@ -293,7 +293,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
       highlights: [
         {
           label: '10. Tour Virtual 360° en Three.js',
-          desc: 'Recorrido interactivo por el venue del Día 3, Chroma Space Studios en San Juan (sujeto a la firma del acuerdo).',
+          desc: 'Recorrido interactivo por el venue del Día 3, Chroma Space Studios en San Juan.',
           icon: Navigation,
           sectionKey: 'MAP_360'
         },

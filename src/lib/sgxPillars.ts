@@ -1,6 +1,6 @@
 import {
   Boxes, Instagram, UserCircle2, Globe, Building2, Gamepad2, Vote, Map as MapIcon, Gift,
-  Calendar, Radio, Users, BadgeCheck, ScanLine, Terminal, Zap, MessageSquare, Award,
+  Calendar, Radio, Users, BadgeCheck, ScanLine, Terminal, Zap, MessageSquare, Award, Radar,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
 
@@ -81,7 +81,7 @@ export const SGX_PILLARS: SgxPillar[] = [
       { day: 2, time: '11:25 AM–12:10 PM', label: { es: 'Conversación de industria SGX.Showcase', en: 'SGX.Showcase industry conversation' } },
     ],
     modules: [
-      { kind: 'section', key: 'MAP_360', icon: Globe, label: { es: 'Tour 360° del venue', en: '360° venue tour' }, desc: { es: 'Recorre la sede del Día 3 (sujeta a la firma del acuerdo).', en: 'Walk the Day 3 venue (subject to signing of the agreement).' } },
+      { kind: 'section', key: 'MAP_360', icon: Globe, label: { es: 'Tour 360° Chroma Space Studios', en: '360° Chroma Space Studios tour' }, desc: { es: 'Recorre Chroma Space Studios, la sede del Día 3 en San Juan.', en: 'Walk Chroma Space Studios, the Day 3 venue in San Juan.' } },
       { kind: 'section', key: 'SPONSORS_HUB', icon: Building2, label: { es: 'Partners & Brand Showcases', en: 'Partners & Brand Showcases' }, desc: { es: 'Las marcas viven dentro de la experiencia. Tiers 1 a 5.', en: 'Brands live inside the experience. Tiers 1 to 5.' } },
     ],
   },
@@ -137,6 +137,7 @@ export const SGX_PILLARS: SgxPillar[] = [
       { day: 2, time: '2:10–2:55 PM', label: { es: 'Conversación de industria SGX.System', en: 'SGX.System industry conversation' } },
     ],
     modules: [
+      { kind: 'section', key: 'VISITS', icon: Radar, label: { es: 'Radar de visitas', en: 'Visit radar' }, desc: { es: 'Desde dónde nos visitan, en vivo: mapa de PR, contadores y leaderboards.', en: 'Where our visitors come from, live: PR map, counters and leaderboards.' } },
       { kind: 'section', key: 'CREDENTIAL_GENERATOR', icon: BadgeCheck, label: { es: 'Credencial & Holo Card', en: 'Credential & Holo Card' }, desc: { es: 'Genera tu credencial del Summit con QR propio.', en: 'Generate your Summit credential with your own QR.' } },
       { kind: 'action', event: 'sgx:open_qr_scanner', icon: ScanLine, label: { es: 'Escáner QR & Rolodex', en: 'QR scanner & Rolodex' }, desc: { es: 'Escanea credenciales (+50 XP) y exporta contactos a vCard.', en: 'Scan credentials (+50 XP) and export contacts to vCard.' } },
       { kind: 'action', event: 'sgx:open_terminal', icon: Terminal, label: { es: 'Terminal de mando', en: 'Command terminal' }, desc: { es: 'Navega toda la plataforma escribiendo. Ctrl+K.', en: 'Navigate the whole platform by typing. Ctrl+K.' } },

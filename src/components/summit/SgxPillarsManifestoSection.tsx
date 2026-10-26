@@ -195,7 +195,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       features: [
         {
           title: 'Tour 360° Chroma Space Studios',
-          desc: 'Exploración 360° del venue del Día 3 (sujeto a la firma del acuerdo) con hotspots tácticos.',
+          desc: 'Exploración 360° de Chroma Space Studios, el venue del Día 3, con hotspots tácticos.',
           actionLabel: 'Abrir Tour Virtual 360°',
           icon: Compass,
           onClick: onOpen360Tour,
@@ -235,7 +235,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           desc: 'Activación espacial que extendió la vida del festival más allá de las fechas físicas mediante salas de proyección interactivas.',
         }
       ],
-      summitActivation: 'Tour virtual 360° por el venue del Día 3 (Chroma Space Studios, San Juan, sujeto a la firma del acuerdo), showrooms de patrocinadores y vitrinas holográficas interactivas.'
+      summitActivation: 'Tour virtual 360° por el venue del Día 3 (Chroma Space Studios, San Juan), showrooms de patrocinadores y vitrinas holográficas interactivas.'
     },
     {
       id: 'SPARK' as PillarId,
@@ -873,7 +873,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span>10:00 a.m. a 4:00 p.m. en Chroma Space Studios, San Juan (sujeto a la firma del acuerdo), por invitación y cupo limitado (40 a 60 personas), y por YouTube Live.</span>
+              <span>10:00 a.m. a 4:00 p.m. en Chroma Space Studios, San Juan, por invitación y cupo limitado (40 a 60 personas), y por YouTube Live.</span>
             </li>
           </ul>
         </div>
@@ -927,7 +927,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             },
             {
               title: 'Tour 360° Venue',
-              desc: 'Exploración virtual del venue del Día 3',
+              desc: 'Exploración virtual de Chroma Space Studios',
               icon: Compass,
               color: '#FFBB00',
               badge: 'SGX.SHOWCASE',

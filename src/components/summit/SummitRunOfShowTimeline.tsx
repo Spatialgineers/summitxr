@@ -82,12 +82,12 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
     },
     3: {
       title: 'Día 3 — Domingo 13 de Diciembre (SGX Showcase)',
-      badge: 'HÍBRIDO • CHROMA SPACE STUDIOS (SAN JUAN, SUJETO A LA FIRMA DEL ACUERDO) • POR INVITACIÓN, 40–60 PERSONAS + YOUTUBE LIVE',
+      badge: 'HÍBRIDO • CHROMA SPACE STUDIOS (SAN JUAN) • POR INVITACIÓN, 40–60 PERSONAS + YOUTUBE LIVE',
       hours: '10:00 AM – 4:00 PM AST (6h)',
       focus: 'Ricardo marca el ambiente; Danelson con su avatar y captura facial en tiempo real; dos artistas invitados (por confirmar), uno con los visualizadores de SGX; y la SGX Guild Ranked Trials Pitch Session con los top 6 Initiates (5 min c/u).',
       highlight: 'Networking con votación gamificada y canje de premios, interacción libre y cierre con el Premio Mayor "Spatialgineers activa tu evento". Sesión "Grit" con artistas: por confirmar.',
       themeColor: '#FFFFFF',
-      streamNotice: 'Presencial en Chroma Space Studios (San Juan, por invitación y cupo limitado; sujeto a la firma del acuerdo) y en vivo por YouTube, LinkedIn y Facebook Live.',
+      streamNotice: 'Presencial en Chroma Space Studios (San Juan, por invitación y cupo limitado) y en vivo por YouTube, LinkedIn y Facebook Live.',
     },
   };
 

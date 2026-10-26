@@ -32,6 +32,7 @@ import { SummitIntroSplash } from './components/summit/SummitIntroSplash';
 import { PilotProfileModal } from './components/summit/PilotProfileModal';
 import { ImmersionLayer } from './immersion/ImmersionLayer';
 import { SgxBootSequence } from './immersion/SgxBootSequence';
+import { recordVisit } from './lib/visitTracker';
 
 export default function App() {
   const { isAdmin } = useAuth();
@@ -56,6 +57,11 @@ export default function App() {
   const [selectedTenantId, setSelectedTenantId] = useState<string>('tenant_spatialgineers');
   const [selectedEventId, setSelectedEventId] = useState<string>('event_live_main');
   const [isConnected, setIsConnected] = useState<boolean>(false);
+
+  // SGX.System · Radar de visitas: count this session once (coarse region only).
+  useEffect(() => {
+    recordVisit();
+  }, []);
 
   useEffect(() => {
     const handleReplaySplash = () => { setBootDone(false); setBootFading(false); setShowSplash(true); };

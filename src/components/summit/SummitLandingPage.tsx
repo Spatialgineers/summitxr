@@ -103,6 +103,7 @@ import { SgxHoloCardGeneratorModal, HoloCardProfile, resolveStoredUserHoloProfil
 import { SummitGuidedSpotlightTour } from './SummitGuidedSpotlightTour';
 import { SgxSectionHudBar, HudSectionChip } from './SgxSectionHudBar';
 import { SgxPillarStation } from './SgxPillarStation';
+import { SummitVisitRadar } from './SummitVisitRadar';
 import { SGX_PILLARS, pillarOfSection, findPillar } from '../../lib/sgxPillars';
 import { SummitPrivacyPolicyModal } from './SummitPrivacyPolicyModal';
 import { LiveSocialStream } from './LiveSocialStream';
@@ -715,7 +716,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       Run of Show Ejecutivo: Mundos 3D, Día de la Industria & Evento Híbrido
                     </h3>
                     <p className="text-xs text-slate-300 font-mono">
-                      Diciembre 11, 12 & 13, 2026 • YouTube Live, Roblox (si se usa) & Chroma Space Studios, San Juan, PR (sujeto a la firma del acuerdo)
+                      Diciembre 11, 12 & 13, 2026 • YouTube Live, Roblox (si se usa) & Chroma Space Studios, San Juan, PR
                     </p>
                   </div>
                   <button
@@ -865,7 +866,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                           <span className="px-1.5 py-0.5 bg-[#FDCC0D]/20 border border-[#FDCC0D]/50 text-[#FDCC0D] text-[10px]">Premio Mayor Tier 1</span>
                         </div>
                         <p className="text-slate-300 leading-relaxed text-xs">
-                          En vivo desde Chroma Space Studios (San Juan, por invitación, sujeto a la firma del acuerdo) + YouTube/LinkedIn/Facebook Live: avatar facial en tiempo real, artistas invitados (por confirmar), los 6 Initiates, networking y premios mayores.
+                          En vivo desde Chroma Space Studios (San Juan, por invitación) + YouTube/LinkedIn/Facebook Live: avatar facial en tiempo real, artistas invitados (por confirmar), los 6 Initiates, networking y premios mayores.
                         </p>
 
                         {expandedDayId === 'day_3' && (
@@ -1027,7 +1028,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                     >
                       <MapPin className="w-3 h-3" />
-                      <span>SEDE DEL DÍA 3 • SAN JUAN, PUERTO RICO • SUJETO A LA FIRMA DEL ACUERDO</span>
+                      <span>SEDE DEL DÍA 3 • SAN JUAN, PUERTO RICO</span>
                     </div>
                     <h3 className="text-2xl font-bold text-white font-['Orbitron',sans-serif]">
                       Chroma Space Studios
@@ -1157,6 +1158,19 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
         )}
 
         {/* TAB: EL MANIFIESTO & LOS 6 PILARES SGX */}
+        {/* SGX.SYSTEM · Radar de visitas */}
+        {activeSection === 'VISITS' && getSectionStatus('VISITS') === 'ACTIVE' && (
+          <div id="summit-section-visitas" className="w-full">
+            <SummitSectionBanner
+              sectionKey="VISITS"
+              title="Radar de visitas del Summit"
+              subtitle="Desde dónde nos visitan, en vivo. Cada visita enciende su municipio en el mapa de Puerto Rico."
+              pillarBadge="SGX.SYSTEM"
+            />
+            <SummitVisitRadar />
+          </div>
+        )}
+
         {/* PILLAR STATIONS: the event divided into the six SGX pillars */}
         {activeSection === 'PILLAR' && (
           <div id="summit-section-pillar" className="w-full">
@@ -1198,7 +1212,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <SummitSectionBanner
               sectionKey="MAP_360"
               title="Tour 360° Venue — Chroma Studios & Stages"
-              subtitle="Explora en 360° el estudio de producción virtual, las zonas de demos y networking del Día 3 (sujeto a la firma del acuerdo)."
+              subtitle="Explora en 360° el estudio de producción virtual, las zonas de demos y networking del Día 3."
               pillarBadge="SGX.SHOWCASE"
               pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png"
             />
@@ -1862,7 +1876,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
           {/* Line 1 */}
           <div className="text-slate-300 leading-relaxed max-w-5xl mx-auto">
-            © 2026 Spatialgineers LLC. Todos los derechos reservados. <span className="text-slate-600 mx-2">•</span> Día 3: Chroma Space Studios, San Juan (sujeto a la firma del acuerdo) <span className="text-slate-600 mx-2">•</span> <span className="text-[var(--sgx-neon)] font-bold">YouTube Live, con Los Mismos TV transmitiendo junto a nosotros</span> <span className="text-slate-600 mx-2">•</span> Roblox (si se usa) <span className="text-slate-600 mx-2">•</span> SGX Guild Program
+            © 2026 Spatialgineers LLC. Todos los derechos reservados. <span className="text-slate-600 mx-2">•</span> Día 3: Chroma Space Studios, San Juan <span className="text-slate-600 mx-2">•</span> <span className="text-[var(--sgx-neon)] font-bold">YouTube Live, con Los Mismos TV transmitiendo junto a nosotros</span> <span className="text-slate-600 mx-2">•</span> Roblox (si se usa) <span className="text-slate-600 mx-2">•</span> SGX Guild Program
           </div>
           {/* Line 2 */}
           <div className="text-[11px] text-slate-400 max-w-3xl mx-auto leading-relaxed">

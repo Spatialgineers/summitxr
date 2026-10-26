@@ -320,5 +320,64 @@ service cloud.firestore {
       allow create, update: if isValidId(configId);
       allow delete: if isSuperAdmin();
     }
+
+    // ---------------------------------------------------------------------
+    // SGX Visit Radar: public counters. Anyone can read them; a write can only
+    // add exactly one visit (and at most one unique visitor). No IPs or exact
+    // locations are stored, only the coarse region.
+    // ---------------------------------------------------------------------
+    function isCountStep(field) {
+      return incoming()[field] is int &&
+             (resource == null
+               ? (incoming()[field] == 0 || incoming()[field] == 1)
+               : (incoming()[field] == existing()[field] || incoming()[field] == existing()[field] + 1));
+    }
+
+    function isVisitStep() {
+      return incoming().totalVisits is int &&
+             (resource == null ? incoming().totalVisits == 1 : incoming().totalVisits == existing().totalVisits + 1) &&
+             isCountStep('uniqueVisitors');
+    }
+
+    // Collection: /summit_visit_stats/{statId}
+    match /summit_visit_stats/{statId} {
+      allow get, list: if true;
+      allow create, update: if statId == 'global' &&
+        incoming().keys().hasOnly(['totalVisits', 'uniqueVisitors', 'updatedAt']) &&
+        incoming().updatedAt == request.time &&
+        isVisitStep();
+      allow delete: if isSuperAdmin();
+    }
+
+    // Collection: /summit_visit_regions/{regionId}
+    match /summit_visit_regions/{regionId} {
+      allow get, list: if true;
+      allow create: if isValidId(regionId) && regionId.size() <= 64 &&
+        incoming().keys().hasOnly(['name', 'kind', 'country', 'lat', 'lon', 'totalVisits', 'uniqueVisitors', 'lastVisitAt']) &&
+        incoming().name is string && incoming().name.size() <= 80 &&
+        incoming().kind in ['municipio', 'state', 'country', 'unknown'] &&
+        incoming().country is string && incoming().country.size() <= 4 &&
+        (incoming().lat == null || incoming().lat is number) &&
+        (incoming().lon == null || incoming().lon is number) &&
+        incoming().lastVisitAt == request.time &&
+        isVisitStep();
+      allow update: if isValidId(regionId) &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['totalVisits', 'uniqueVisitors', 'lastVisitAt']) &&
+        incoming().lastVisitAt == request.time &&
+        isVisitStep();
+      allow delete: if isSuperAdmin();
+    }
+
+    // Collection: /summit_visitors/{visitorId} (one doc per device, makes "unique" unique)
+    match /summit_visitors/{visitorId} {
+      allow get: if isValidId(visitorId);
+      allow list: if isSuperAdmin();
+      allow create: if isValidId(visitorId) &&
+        incoming().keys().hasOnly(['regionId', 'createdAt']) &&
+        incoming().regionId is string && incoming().regionId.size() <= 64 &&
+        incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isSuperAdmin();
+    }
   }
 }

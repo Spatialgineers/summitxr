@@ -369,11 +369,11 @@ export const SummitCountdownVisualizer: React.FC<SummitCountdownVisualizerProps>
             className="text-[10px] px-1.5 py-0.5 bg-[var(--sgx-accent)]/10 border border-[var(--sgx-accent)]/40 text-[var(--sgx-accent)]"
             style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
           >
-            SUJETO A LA FIRMA DEL ACUERDO
+            SAN JUAN · DÍA 3
           </span>
         </div>
         <p className="text-[11px] text-slate-400 leading-snug">
-          Chroma Space Studios, en San Juan, Puerto Rico, es el venue del SGX Showcase (Día 3, híbrido, por invitación y cupo limitado de 40 a 60 personas), sujeto a la firma del acuerdo.
+          Chroma Space Studios, en San Juan, Puerto Rico, es el venue del SGX Showcase (Día 3, híbrido, por invitación y cupo limitado de 40 a 60 personas).
         </p>
       </div>
 

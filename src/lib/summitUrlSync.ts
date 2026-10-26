@@ -21,6 +21,7 @@ export const SECTION_TO_SLUG: Record<SummitSectionKey, string> = {
   SPONSORS_HUB: 'sponsors',
   CREDENTIAL_GENERATOR: 'credential-generator',
   PILLAR: 'pillar',
+  VISITS: 'visitas',
 };
 
 export const SLUG_TO_SECTION: Record<string, SummitSectionKey> = {
@@ -122,6 +123,12 @@ export const SLUG_TO_SECTION: Record<string, SummitSectionKey> = {
   sponsors_hub: 'SPONSORS_HUB',
   alianzas: 'SPONSORS_HUB',
   brands: 'SPONSORS_HUB',
+
+  // Visit radar
+  visitas: 'VISITS',
+  visits: 'VISITS',
+  radar: 'VISITS',
+  visitantes: 'VISITS',
 
   // Pillar stations (?tab=pillar&subtab=story)
   pillar: 'PILLAR',

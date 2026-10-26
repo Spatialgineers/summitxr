@@ -31,12 +31,16 @@ export interface HoloCardProfile {
   num?: string;
   passType?: string;
   ticketCode?: string;
+  /** Pillar slugs (story, showcase…) to preselect, max 2. */
+  pillars?: string[];
 }
 
 interface SgxHoloCardGeneratorModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialProfile?: HoloCardProfile | null;
+  /** SGX Pass QR, printed on the back when the card carries the pass code. */
+  passQr?: { code: string; url: string } | null;
 }
 
 export function resolveStoredUserHoloProfile(
@@ -89,7 +93,7 @@ export function resolveStoredUserHoloProfile(
 
 export const SgxHoloCardGeneratorModal: React.FC<
   SgxHoloCardGeneratorModalProps
-> = ({ isOpen, onClose, initialProfile }) => {
+> = ({ isOpen, onClose, initialProfile, passQr = null }) => {
   const { profile: pilotProfile } = usePilotProfile();
   const { playerProfile, user } = useAuth();
   const [activeProfile, setActiveProfile] = useState<HoloCardProfile | null>(
@@ -151,7 +155,7 @@ export const SgxHoloCardGeneratorModal: React.FC<
             className="px-2.5 py-1 bg-[#FDCC0D]/15 hover:bg-[#FDCC0D] text-[#FDCC0D] hover:text-black border border-[#FDCC0D]/60 font-bold transition-colors cursor-pointer flex items-center gap-1 whitespace-nowrap shrink-0"
           >
             <Ticket className="w-3 h-3" />
-            <span>Mi Pase Visitante</span>
+            <span>Mi SGX Pass</span>
           </button>
 
           <button
@@ -185,6 +189,22 @@ export const SgxHoloCardGeneratorModal: React.FC<
           >
             Modo Guild
           </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              playUiChirp(820);
+              setActiveProfile({
+                ...resolvedProfile,
+                role: 'sponsor',
+                jobtitle: 'PARTNER OFICIAL · SGX SHOWCASE',
+                topic: 'BRAND SHOWCASE · SPATIALGINEERS SUMMIT 2026'
+              });
+            }}
+            className="px-2.5 py-1 bg-slate-900 hover:bg-cyan-500 text-slate-300 hover:text-black border border-white/15 font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0"
+          >
+            Modo Sponsor
+          </button>
         </div>
 
         <button
@@ -205,6 +225,7 @@ export const SgxHoloCardGeneratorModal: React.FC<
         <SgxNativeCredentialStudio
           initialProfile={resolvedProfile}
           isModal={true}
+          passQr={passQr}
         />
       </div>
     </div>

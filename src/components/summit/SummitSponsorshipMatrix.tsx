@@ -145,6 +145,7 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
               onClick={() => {
                 window.dispatchEvent(new CustomEvent('sgx:open_holo_card', {
                   detail: {
+                    self: true,
                     role: 'SPONSOR',
                     name: 'Tu Marca / Empresa',
                     title: 'Patrocinador Oficial',

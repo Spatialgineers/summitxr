@@ -1,4 +1,4 @@
-import { SgxPassSection } from '../../identity/SgxPassSection';
+import { SgxPassSection, SgxHoloStudioPanel } from '../../identity/SgxPassSection';
 import React, { useState, useEffect, useRef } from 'react';
 import { SpatialTiltCard } from '../common/SpatialTiltCard';
 import { SummitAnalyticsView } from '../analytics/SummitAnalyticsView';
@@ -439,15 +439,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     window.addEventListener('sgx:open_sponsorships', handleOpenSponsorshipsEvent);
     window.addEventListener('sgx:open_brand_showcase', handleOpenBrandShowcaseEvent);
 
-    // Speaker / sponsor / guild holo cards still open here. "My card" (no
-    // profile attached) is the SGX Pass, handled by SgxPassHost.
-    const handleOpenHoloCardEvent = (e: any) => {
-      if (!e.detail) return;
-      setHoloCardProfile(e.detail);
-      setIsHoloCardModalOpen(true);
-    };
-
-    window.addEventListener('sgx:open_holo_card', handleOpenHoloCardEvent);
+    // Every Holo Card (pass, speaker, initiate, sponsor) opens in SgxPassHost's single Studio.
 
     const handleSwitchSummitSection = (e: any) => {
       if (e.detail?.section) {
@@ -487,7 +479,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       window.removeEventListener('sgx:open_qr_scanner', handleOpenQrScanner);
       window.removeEventListener('sgx:open_sponsorships', handleOpenSponsorshipsEvent);
       window.removeEventListener('sgx:open_brand_showcase', handleOpenBrandShowcaseEvent);
-      window.removeEventListener('sgx:open_holo_card', handleOpenHoloCardEvent);
       window.removeEventListener('sgx:switch_summit_section', handleSwitchSummitSection);
       window.removeEventListener('message', handleCredentialMessage);
     };
@@ -1556,19 +1547,20 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           </div>
         )}
 
-        {/* TAB: SGX PASS (ticket + Holo Card + credential are one pass now) */}
+        {/* TAB: SGX PASS + HOLO CARD STUDIO (visitante · speaker · initiate · sponsor) */}
         {activeSection === 'CREDENTIAL_GENERATOR' && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <SummitSectionBanner
               sectionKey="CREDENTIAL_GENERATOR"
-              title="SGX Pass"
+              title="SGX Pass & Holo Card Studio"
               subtitle={language === 'es'
-                ? 'Tu registro, tu Holo Card, tu credencial y tu QR de networking en un solo pase que evoluciona con cada misión.'
-                : 'Your registration, Holo Card, credential and networking QR in one pass that evolves with every mission.'}
+                ? 'Tu SGX Pass es tu registro, QR y entrada. El Holo Card Studio crea la credencial 3D para visitantes, speakers, initiates y sponsors, con el mismo código y QR del pase.'
+                : 'Your SGX Pass is your registration, QR and entrance. The Holo Card Studio makes the 3D credential for visitors, speakers, initiates and sponsors, with the same pass code and QR.'}
               pillarBadge="SGX.SYSTEM"
               pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/System1.png"
             />
             <SgxPassSection />
+            <SgxHoloStudioPanel />
           </div>
         )}
 
@@ -1870,12 +1862,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
         onClose={() => setAuditModalOpen(false)}
       />
 
-      {/* SGX Holo Card / Credential Generator Modal */}
-      <SgxHoloCardGeneratorModal
-        isOpen={isHoloCardModalOpen}
-        onClose={() => setIsHoloCardModalOpen(false)}
-        initialProfile={holoCardProfile}
-      />
+
 
     </div>
   );

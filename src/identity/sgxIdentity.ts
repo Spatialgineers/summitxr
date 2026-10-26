@@ -69,6 +69,27 @@ export interface SgxIdentity {
   contacts: PassContact[];
   xpSpent: number;
   redemptions: Redemption[];
+  /** Last Holo Card exported from the Holo Card Studio (front, JPEG). */
+  holo?: { image?: string; role: string; at: number };
+}
+
+/** Prefill for the Holo Card Studio from the SGX Pass: same name, code and portrait. */
+export function passHoloProfile(id: SgxIdentity, pillarName?: string) {
+  const pass = id.pass;
+  if (!pass) return null;
+  return {
+    role: 'visitante' as const,
+    name: pass.fullName,
+    jobtitle: (pass.roleTitle || 'VISITANTE CON SGX PASS').toUpperCase(),
+    org: (pass.organization || 'SPATIALGINEERS SUMMIT 2026').toUpperCase(),
+    topic: pillarName ? `AFINIDAD ${pillarName.toUpperCase()}` : undefined,
+    handle: id.callsign,
+    passType: pass.tier === 'SHOWCASE' ? 'showcase' : 'digital',
+    ticketCode: pass.code,
+    photoUrl: id.avatar.png,
+    // The pass affinity leads the card's pillars.
+    pillars: id.affinity ? [id.affinity.toLowerCase()] : undefined,
+  };
 }
 
 const AFFINITY_BY_LEGACY: Record<string, PillarKey> = {
@@ -194,7 +215,6 @@ export function saveIdentity(id: SgxIdentity) {
       status: id.pass.status,
     }));
     write('sgx_summit_pass_registered', 'true');
-    write('sgx_holo_card_generated', 'true');
     // Whoever forged a pass already had the welcome; the old tours never auto-open again.
     write('sgx_onboarding_completed', 'true');
   }

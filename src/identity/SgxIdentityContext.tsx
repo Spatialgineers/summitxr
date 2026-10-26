@@ -163,6 +163,19 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     window.addEventListener('sgx:quest_complete', onQuest);
     window.addEventListener('sgx:open_brand_showcase', onSponsor);
     window.addEventListener('sgx:avatar_saved', onAvatar);
+    // Holo Card Studio export: the card lives in the Hangar next to the pass.
+    const onHolo = (e: Event) => {
+      const d = (e as CustomEvent<{ role?: string; image?: string }>).detail || {};
+      commit((draft) => {
+        draft.holo = {
+          role: d.role || 'visitante',
+          image: d.image && d.image.length < 700_000 ? d.image : draft.holo?.image,
+          at: Date.now(),
+        };
+      });
+      flag('holo');
+    };
+    window.addEventListener('sgx:holo_card_exported', onHolo);
     return () => {
       window.removeEventListener('sgx:route_changed', onRoute);
       window.removeEventListener('popstate', onRoute);
@@ -171,6 +184,7 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
       window.removeEventListener('sgx:quest_complete', onQuest);
       window.removeEventListener('sgx:open_brand_showcase', onSponsor);
       window.removeEventListener('sgx:avatar_saved', onAvatar);
+      window.removeEventListener('sgx:holo_card_exported', onHolo);
     };
   }, [commit, completeWhere, flag]);
 
@@ -181,6 +195,7 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (idRef.current.pass) flag('forged');
       if (idRef.current.avatar.png) flag('avatar');
       if (idRef.current.contacts.length) flag('contact');
+      if (idRef.current.holo) flag('holo');
     }, 3500);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps

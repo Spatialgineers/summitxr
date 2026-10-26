@@ -274,6 +274,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
                     onClick={() => {
                       window.dispatchEvent(new CustomEvent('sgx:open_holo_card', {
                         detail: {
+                          self: true,
                           role: 'SPEAKER',
                           name: createdSpeaker?.name || name || 'Speaker / Creador',
                           title: createdSpeaker?.role || role || 'Ponente / Creador',

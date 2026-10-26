@@ -350,3 +350,20 @@
 /* Reactor block inside each pillar station page */
 .sgx-station__reactor { margin-top: 18px; }
 .sgx-station__reactor header svg { color: var(--pillar-accent); flex: none; }
+
+/* Holo Card Studio panel (SGX.System → SGX Pass & Holo Card) */
+.sgx-holo-panel { display: flex; flex-direction: column; gap: 14px; }
+.sgx-holo-panel__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px; }
+.sgx-holo-panel__head h3 { margin: 4px 0 6px; font-family: var(--font-display); font-weight: 700; font-size: clamp(1.1rem, 2.6vw, 1.6rem); text-transform: uppercase; color: var(--SGX_White); }
+.sgx-holo-panel__head p:not(.sgx-forge__kicker) { margin: 0; max-width: 70ch; font-family: var(--font-body); color: rgba(255, 255, 255, 0.7); }
+.sgx-holo-panel__studio {
+  position: relative; overflow: hidden;
+  background: #0b0b0b;
+  box-shadow: inset 0 0 0 1px rgba(0, 221, 255, 0.55), 0 0 28px rgba(0, 221, 255, 0.16);
+  clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+}
+.sgx-hangar__holo { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 16px; width: 100%; padding-top: 6px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.sgx-hangar__holo img { width: min(100%, 320px); height: auto; box-shadow: 0 0 22px rgba(0, 221, 255, 0.25); clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); }
+.sgx-hangar__holo div { display: flex; flex-direction: column; gap: 8px; max-width: 320px; }
+.sgx-hangar__holo h4 { margin: 0; font-family: var(--font-display); font-size: 0.95rem; text-transform: uppercase; color: var(--SGX_Cyan); }
+.sgx-hangar__holo p { margin: 0; font-family: var(--font-body); font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); }

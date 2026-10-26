@@ -9,7 +9,7 @@ import type { ApprovedSponsor } from '../types/summit';
    branded missions inside SGX.Showcase.
    ========================================================================= */
 
-export type IdentityFlag = 'forged' | 'avatar' | 'contact' | 'checkin' | 'redeem';
+export type IdentityFlag = 'forged' | 'avatar' | 'contact' | 'checkin' | 'redeem' | 'holo';
 
 export type MissionTrigger =
   | { visit: string[] }
@@ -96,6 +96,10 @@ export const REACTOR_MISSIONS: ReactorMission[] = [
     es: { title: 'Lee el radar', hint: 'Mira desde dónde nos visitan, en vivo.' },
     en: { title: 'Read the radar', hint: 'See where visitors come from, live.' },
     go: { section: 'VISITS' } },
+  { id: 'm_system_holo', pillar: 'SYSTEM', xp: 60, trigger: { flag: 'holo' },
+    es: { title: 'Holo Card', hint: 'Exporta tu Holo Card en el Studio: visitante, speaker, initiate o sponsor.' },
+    en: { title: 'Holo Card', hint: 'Export your Holo Card in the Studio: visitor, speaker, initiate or sponsor.' },
+    go: { event: 'sgx:open_credential_generator' } },
 
   // SGX.Synthesize
   { id: 'm_syn_match', pillar: 'SYNTHESIZE', xp: 60, trigger: { visit: ['ENTREPRENEUR_MATCH'] },

@@ -136,12 +136,27 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                 <button type="button" className="sgx-btn" onClick={downloadPdf}>{es ? 'Descargar PDF' : 'Download PDF'}</button>
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={copyCode}>{copied ? (es ? 'Copiado' : 'Copied') : (es ? 'Copiar código' : 'Copy code')}</button>
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_avatar')), 80); }}>Avatar Studio</button>
+                <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_credential_generator')), 80); }}>Holo Card Studio</button>
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={onForge}>{es ? 'Editar datos' : 'Edit details'}</button>
+              </div>
+              <div className="sgx-hangar__holo">
+                {identity.holo?.image && <img src={identity.holo.image} alt={es ? 'Tu Holo Card' : 'Your Holo Card'} />}
+                <div>
+                  <h4>{identity.holo ? `Holo Card · ${identity.holo.role}` : 'Holo Card 3D'}</h4>
+                  <p>
+                    {identity.holo
+                      ? (es ? 'Tu última Holo Card exportada. Lleva tu código de pase y, como visitante, el mismo QR en el reverso.' : 'Your last exported Holo Card. It carries your pass code and, as a visitor, the same QR on the back.')
+                      : (es ? 'Crea tu credencial 3D como visitante, speaker, initiate o sponsor. Sale con tu nombre, foto y código del pase.' : 'Make your 3D credential as visitor, speaker, initiate or sponsor. It comes with your name, photo and pass code.')}
+                  </p>
+                  {identity.holo?.image && (
+                    <a className="sgx-btn sgx-btn--sm sgx-btn--ground" href={identity.holo.image} download={`sgx-holo-card-${identity.pass!.serial}.jpg`}>{es ? 'Descargar Holo Card' : 'Download Holo Card'}</a>
+                  )}
+                </div>
               </div>
               <p className="sgx-hangar__note">
                 {es
-                  ? 'Este pase reemplaza la taquilla, la Holo Card y la credencial. El PDF es una copia del mismo pase, con el mismo QR.'
-                  : 'This pass replaces the ticket desk, the Holo Card and the credential. The PDF is a copy of the same pass, with the same QR.'}
+                  ? 'El pase es tu registro, tu QR y tu entrada. El PDF es una copia del mismo pase, con el mismo QR. La Holo Card es su versión para compartir.'
+                  : 'The pass is your registration, your QR and your entrance. The PDF is a copy of the same pass, with the same QR. The Holo Card is its shareable version.'}
               </p>
             </div>
           )}

@@ -160,6 +160,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
               onClick={() => {
                 window.dispatchEvent(new CustomEvent('sgx:open_holo_card', {
                   detail: {
+                    self: true,
                     role: 'SPEAKER',
                     name: 'Speaker SGX',
                     title: 'Ponente Oficial',

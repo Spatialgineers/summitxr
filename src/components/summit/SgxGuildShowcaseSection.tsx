@@ -130,9 +130,21 @@ export const SgxGuildShowcaseSection: React.FC = () => {
               <UserCheck className="w-5 h-5" style={{ color: tenant.branding.primaryColor }} />
               Initiates Oficiales del SGX Guild
             </h3>
-            <span className="text-xs font-mono font-bold" style={{ color: tenant.branding.neonHighlightColor }}>
-              8 Initiates activos
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-mono font-bold" style={{ color: tenant.branding.neonHighlightColor }}>
+                8 Initiates activos
+              </span>
+              {/* Initiates make their own card from their SGX Pass (same name, photo and code). */}
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('sgx:open_holo_card', {
+                  detail: { self: true, role: 'INITIATE', title: 'INICIADO OFICIAL · SGX GUILD', org: 'SGX Guild Program 2026', tier: 'INITIATE' }
+                }))}
+                className="sgx-btn sgx-btn--sm"
+              >
+                🪪 Soy Initiate · mi Holo Card
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

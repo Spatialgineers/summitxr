@@ -161,6 +161,8 @@ interface SgxNativeCredentialStudioProps {
   onOpenTicketModal?: () => void;
   hasRegisteredTicket?: boolean;
   isModal?: boolean;
+  /** The SGX Pass QR: drawn on the back when the card carries the pass code. */
+  passQr?: { code: string; url: string } | null;
 }
 
 const CARD_W = 1050;
@@ -206,7 +208,8 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
   initialProfile,
   onOpenTicketModal,
   hasRegisteredTicket = false,
-  isModal = false
+  isModal = false,
+  passQr = null
 }) => {
   const { profile: pilotProfile, recordActivity } = usePilotProfile();
   const { playerProfile, user } = useAuth();
@@ -256,10 +259,9 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
   );
 
   // Selected Pillars (max 2)
-  const [selectedPillars, setSelectedPillars] = useState<string[]>([
-    'showcase',
-    'spark'
-  ]);
+  const [selectedPillars, setSelectedPillars] = useState<string[]>(() =>
+    resolvedDefault.pillars?.length ? resolvedDefault.pillars.slice(0, 2) : ['showcase', 'spark']
+  );
 
   // Photo & Framing State (100% Client-Side)
   const [userPhotoImg, setUserPhotoImg] = useState<HTMLImageElement | null>(
@@ -308,6 +310,19 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
     pillars: Record<string, HTMLImageElement>;
   }>({ pillars: {} });
   const [assetsTick, setAssetsTick] = useState<number>(0);
+  const passQrImgRef = useRef<HTMLImageElement | null>(null);
+
+  // Real SGX Pass QR for the back of the card (same QR as the pass and the PDF).
+  useEffect(() => {
+    passQrImgRef.current = null;
+    if (!passQr?.url) return;
+    const img = new Image();
+    img.onload = () => {
+      passQrImgRef.current = img;
+      setAssetsTick((t) => t + 1);
+    };
+    img.src = passQr.url;
+  }, [passQr?.url]);
 
   // Sync external initialProfile changes
   useEffect(() => {
@@ -337,6 +352,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
     }
     if (initialProfile.handle) setSocialHandle(initialProfile.handle);
     if (initialProfile.ticketCode) setTicketCode(initialProfile.ticketCode);
+    if (initialProfile.pillars?.length) setSelectedPillars(initialProfile.pillars.slice(0, 2));
     if (initialProfile.passType) {
       const pt = initialProfile.passType.toLowerCase();
       if (pt === 'digital' || pt === 'showcase' || pt === 'vip') {
@@ -914,9 +930,14 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         drawRoundedRect(bctx, qrX, qrY, qrBoxSize, qrBoxSize, 12);
         bctx.fill();
 
-        const cells = 11;
-        const cellS = (qrBoxSize - 28) / cells;
+        const realQr =
+          passQr && passQrImgRef.current && ticketCode.trim().toUpperCase() === passQr.code.toUpperCase()
+            ? passQrImgRef.current
+            : null;
+        const cells = realQr ? 0 : 11;
+        const cellS = (qrBoxSize - 28) / 11;
         const seedStr = `${fullName}-${ticketCode}-${role}`;
+        if (realQr) bctx.drawImage(realQr, qrX + 8, qrY + 8, qrBoxSize - 16, qrBoxSize - 16);
         bctx.fillStyle = '#0B0B0B';
         for (let r = 0; r < cells; r++) {
           for (let c = 0; c < cells; c++) {
@@ -939,7 +960,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         bctx.fillStyle = '#FFFFFF';
         bctx.font = '900 16px Orbitron, sans-serif';
         bctx.textAlign = 'center';
-        bctx.fillText('ESCANEO WEBXR ACTIVO', qx + qw / 2, qrY + qrBoxSize + 36);
+        bctx.fillText(realQr ? 'SGX PASS VERIFICADO' : 'ESCANEO WEBXR ACTIVO', qx + qw / 2, qrY + qrBoxSize + 36);
 
         bctx.fillStyle = primaryAccent;
         bctx.font = '700 13px monospace';
@@ -1175,11 +1196,17 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
       150
     );
     setExportBanner(
-      '¡Credencial 3D descargada! +150 XP acreditados en tu Pasaporte Summit'
+      '¡Credencial 3D descargada! +150 XP acreditados en tu SGX Pass'
     );
+    let image: string | undefined;
+    try {
+      image = frontCanvasRef.current?.toDataURL('image/jpeg', 0.82);
+    } catch {
+      image = undefined; // tainted canvas (remote image without CORS)
+    }
     window.dispatchEvent(
       new CustomEvent('sgx:holo_card_exported', {
-        detail: { role, name: fullName, passType }
+        detail: { role, name: fullName, passType, ticketCode, image }
       })
     );
   };
@@ -1672,8 +1699,8 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                   <div className="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
                     <span className="text-[10px] text-slate-400">
                       {hasRegisteredTicket
-                        ? '✓ Boleto sincronizado con tu pase'
-                        : '¿Aún no tienes código de boleto?'}
+                        ? '✓ Código sincronizado con tu SGX Pass'
+                        : '¿Aún no tienes tu SGX Pass?'}
                     </span>
                     <button
                       type="button"
@@ -1683,8 +1710,8 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                       <Ticket className="w-3 h-3" />
                       <span>
                         {hasRegisteredTicket
-                          ? 'Ver Boleto'
-                          : 'Registrar Boleto (+100 XP)'}
+                          ? 'Ver mi SGX Pass'
+                          : 'Forjar SGX Pass (+120 XP)'}
                       </span>
                     </button>
                   </div>

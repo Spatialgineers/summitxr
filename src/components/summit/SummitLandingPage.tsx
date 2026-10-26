@@ -1,3 +1,4 @@
+import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { SgxStandby } from '../../immersion/SgxStandby';
 import { SgxPassSection, SgxHoloStudioPanel } from '../../identity/SgxPassSection';
 import React, { useState, useEffect, useRef } from 'react';
@@ -1249,7 +1250,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       ? 'Los 3 días se transmiten por YouTube Live (canal principal), con LinkedIn y Facebook Live; Los Mismos TV transmite junto a nosotros. Las salas se encienden aquí cuando empiece la señal.'
                       : 'All 3 days stream on YouTube Live (main channel), plus LinkedIn and Facebook Live; Los Mismos TV streams alongside us. Rooms light up here when the signal starts.'}
                     actions={[
-                      { label: language === 'es' ? 'Ver la agenda' : 'See the agenda', primary: true, onClick: () => handleSelectSection('AGENDA') },
+                      { label: language === 'es' ? 'Canal de YouTube' : 'YouTube channel', primary: true, onClick: () => window.open(SGX_YOUTUBE, '_blank', 'noopener') },
+                      { label: language === 'es' ? 'Ver la agenda' : 'See the agenda', onClick: () => handleSelectSection('AGENDA') },
                       { label: language === 'es' ? 'Mi SGX Pass' : 'My SGX Pass', onClick: () => window.dispatchEvent(new CustomEvent('sgx:open_tickets')) },
                     ]}
                   />
@@ -1821,7 +1823,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
           {/* Line 1 */}
           <div className="text-slate-300 leading-relaxed max-w-5xl mx-auto">
-            © 2026 Spatialgineers LLC. Todos los derechos reservados. <span className="text-slate-600 mx-2">•</span> Día 3: Chroma Space Studios, San Juan <span className="text-slate-600 mx-2">•</span> <span className="text-[var(--sgx-neon)] font-bold">YouTube Live, con Los Mismos TV transmitiendo junto a nosotros</span> <span className="text-slate-600 mx-2">•</span> Gratis · En español <span className="text-slate-600 mx-2">•</span> <a href="mailto:info@spatialgineers.com" className="hover:text-[var(--sgx-neon)]">info@spatialgineers.com</a> · +1 (787) 445-5284 · @spatialgineers · #SpatialgineersSummit <span className="text-slate-600 mx-2">•</span> Prensa: acreditación antes del 1 de diciembre (6 cupos, un acceso por medio) en info@spatialgineers.com
+            © 2026 Spatialgineers LLC. Todos los derechos reservados. <span className="text-slate-600 mx-2">•</span> Día 3: Chroma Space Studios, San Juan <span className="text-slate-600 mx-2">•</span> <span className="text-[var(--sgx-neon)] font-bold">YouTube Live, con Los Mismos TV transmitiendo junto a nosotros</span> <span className="text-slate-600 mx-2">•</span> Gratis · En español <span className="text-slate-600 mx-2">•</span> <a href="mailto:info@spatialgineers.com" className="hover:text-[var(--sgx-neon)]">info@spatialgineers.com</a> · +1 (787) 445-5284 · <a href={SGX_YOUTUBE} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--sgx-neon)]">YouTube @spatialgineers</a> · #SpatialgineersSummit <span className="text-slate-600 mx-2">•</span> Prensa: acreditación antes del 1 de diciembre (6 cupos, un acceso por medio) en info@spatialgineers.com
           </div>
           {/* Line 2 */}
           <div className="text-[11px] text-slate-400 max-w-3xl mx-auto leading-relaxed">

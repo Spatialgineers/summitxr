@@ -1,3 +1,5 @@
+import { pillarInk } from '../../lib/sgxPillars';
+import { portfolioOf } from '../../lib/sgxPortfolio';
 import { navigateToPage, navigateToSection } from '../../immersion/navigation';
 import React, { useState, useEffect } from 'react';
 import { 
@@ -133,8 +135,8 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       shortDesc: 'Este pilar transforma narrativas en experiencias. Story reúne cine digital, arte, música, escritura, NFTs y efectos visuales para crear contenido que inspira, educa y proyecta cultura a través de la tecnología.',
       icon: BookOpen,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.STORY'],
-      accentColor: '#FDCC0D',
-      bgGradients: 'from-[#FDCC0D]/30 via-[#2A1700] to-transparent',
+      accentColor: pillarInk('STORY'),
+      bgGradients: 'from-[#32527B]/30 via-[#1a1a1a] to-transparent',
       tagline: 'Cine Digital, Arte, Música, NFTs & Efectos Visuales',
       industryScope: 'Cineastas, estudios de cine, creadores independientes, instituciones culturales, museos, historiadores, coleccionistas y casas de moda.',
       features: [
@@ -163,23 +165,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           badge: 'PANEL CULTURAL'
         }
       ],
-      realDeployments: [
-        {
-          name: 'Metaverse Fashion Week 2025',
-          metric: 'Panel "Infinite Identities"',
-          desc: 'The Highgineer en el panel "Infinite Identities" sobre cultura e identidad digital.',
-        },
-        {
-          name: 'Unidos Jam 2024 (Latinx in Gaming)',
-          metric: 'Plataformero educativo Taíno',
-          desc: 'Videojuego interactivo donde los jugadores superan obstáculos y responden preguntas históricas para rescatar archivos culturales de Borikén.',
-        },
-        {
-          name: 'Espacio Inmersivo de Terapia de la Risa',
-          metric: 'Bienestar y salud mental',
-          desc: 'Entorno diseñado con psicología de color y arquitectura sensorial para sesiones terapéuticas en línea.',
-        }
-      ],
+      realDeployments: portfolioOf('STORY'),
       summitActivation: 'Presentación de colecciones culturales en 3D, paneles dedicados a la identidad boricua en la computación espacial y archivo digital permanente.'
     },
     {
@@ -189,8 +175,8 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       shortDesc: 'Este pilar da forma a cómo las ideas se presentan al mundo. Showcase desarrolla renders, animaciones 3D, vídeos, galerías y entornos XR que transforman productos, marcas y conceptos en experiencias visuales memorables.',
       icon: Eye,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SHOWCASE'],
-      accentColor: '#00DDFF',
-      bgGradients: 'from-[#00DDFF]/25 via-[#002B36] to-transparent',
+      accentColor: pillarInk('SHOWCASE'),
+      bgGradients: 'from-[#00DDFF]/30 via-[#1a1a1a] to-transparent',
       tagline: 'Renders, Animaciones 3D, Galerías & Entornos XR',
       industryScope: 'Marcas físicas y digitales, tiendas, diseñadores de moda, diseñadores de producto, arquitectos, brokers inmobiliarios y galerías de arte.',
       features: [
@@ -219,23 +205,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           badge: 'DOSSIER B2B'
         }
       ],
-      realDeployments: [
-        {
-          name: 'Dreamscape para Centro Comercial',
-          metric: 'Activación surreal para retail',
-          desc: 'En lugar de un gemelo estéril, se sintetizó la marca en un dreamscape interactivo con avatares personalizados para maximizar retención y lealtad del cliente.',
-        },
-        {
-          name: 'Infinite Galleries (Digital Museum Platform)',
-          metric: 'Galería WebGL 360° para visores XR y móvil',
-          desc: 'Plataforma multi-sala para exhibir obras de arte 3D inmersivas sin necesidad de instalar apps, navegable en cualquier explorador.',
-        },
-        {
-          name: 'Experiencia XR para Festival de Cine',
-          metric: 'Cine & archivo cultural inmersivo',
-          desc: 'Activación espacial que extendió la vida del festival más allá de las fechas físicas mediante salas de proyección interactivas.',
-        }
-      ],
+      realDeployments: portfolioOf('SHOWCASE'),
       summitActivation: 'Tour virtual 360° por el venue del Día 3 (Chroma Space Studios, San Juan), showrooms de patrocinadores y vitrinas holográficas interactivas.'
     },
     {
@@ -245,8 +215,8 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       shortDesc: 'Este pilar impulsa la interacción y la exploración creativa. Spark abarca videojuegos, dinámicas inmersivas, simulaciones, activaciones participativas y herramientas de juego educativo que fomentan la conexión entre personas y tecnología.',
       icon: Gamepad2,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SPARK'],
-      accentColor: '#FFBB00',
-      bgGradients: 'from-[#FFBB00]/25 via-[#2A1002] to-transparent',
+      accentColor: pillarInk('SPARK'),
+      bgGradients: 'from-[#B87000]/30 via-[#1a1a1a] to-transparent',
       tagline: 'Videojuegos, Simulaciones & Juegos Educativos',
       industryScope: 'Estudios de videojuegos, educadores, ligas deportivas, comunidades competitivas, herramientas de capacitación y simulaciones interactivas.',
       features: [
@@ -275,23 +245,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           badge: 'GAMIFICACIÓN'
         }
       ],
-      realDeployments: [
-        {
-          name: 'Laberinto Educativo de Geometría Molecular',
-          metric: 'Gamificación educativa',
-          desc: 'Gamificación educativa que permite a los usuarios navegar estructuras químicas y terpenos con físicas de gravedad cero, reforzado con banda sonora original.',
-        },
-        {
-          name: 'Juego de Navegación Espacial con Economía Web3',
-          metric: 'NFTs & navegación espacial',
-          desc: 'Los jugadores pilotean tablas espaciales esquivando asteroides para recolectar tokens con físicas dinámicas de colisión en tiempo real.',
-        },
-        {
-          name: 'Laberinto Multijugador Procedural',
-          metric: 'Multijugador en Unity Engine',
-          desc: 'Laberinto concéntrico procedural donde los jugadores compiten por objetivos estratégicos en tiempo real con economías in-game.',
-        }
-      ],
+      realDeployments: portfolioOf('SPARK'),
       summitActivation: 'Simulador de dron táctico en la plataforma, votación tipo Kahoot con recompensas de XP y bloque SGX.Spark del Día 1.'
     },
     {
@@ -301,8 +255,8 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       shortDesc: 'Este pilar celebra la expresión en vivo y la energía del presente. Stage incluye conciertos, podcasts, visualizers, performances, transmisiones híbridas y shows inmersivos que convierten la creatividad en espectáculo.',
       icon: Radio,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.STAGE'],
-      accentColor: '#FFFFFF',
-      bgGradients: 'from-[#32527B]/30 via-[#1e1e1e] to-transparent',
+      accentColor: pillarInk('STAGE'),
+      bgGradients: 'from-[#FDCC0D]/30 via-[#1a1a1a] to-transparent',
       tagline: 'Conciertos, Visualizers, Podcasts & Shows Inmersivos',
       industryScope: 'Productores de eventos, DJs, artistas musicales, productoras audiovisuales, podcasters, influencers, conferencias y organizadores de ferias.',
       features: [
@@ -331,23 +285,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           badge: 'SPEAKERS'
         }
       ],
-      realDeployments: [
-        {
-          name: 'Laboratorio de Escenario Virtual',
-          metric: 'Rascacielos virtual interactivo con DJ booth',
-          desc: 'Espacio arquitectónico inmersivo con cabina de DJ funcional, mecánicas de baile en tiempo real y exhibición de arte phygital.',
-        },
-        {
-          name: 'Visualizadores de Escenario SGX',
-          metric: 'Visuales reactivos a la música',
-          desc: 'Visualizadores que reaccionan al audio en tiempo real para transmisiones, performances y eventos híbridos.',
-        },
-        {
-          name: 'Espacios Sonoros Inmersivos para Artistas',
-          metric: 'Ambientes acústicos virtuales',
-          desc: 'Ambientes acústicos en el desierto con fogatas interactivas para conciertos acústicos íntimos transmitidos globalmente.',
-        }
-      ],
+      realDeployments: portfolioOf('STAGE'),
       summitActivation: 'Transmisión de los 3 días por YouTube Live, intermedios de artistas invitados el Día 1 y showcase con avatar y captura facial en tiempo real el Día 3.'
     },
     {
@@ -357,8 +295,8 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       shortDesc: 'Este pilar se enfoca en crear herramientas digitales que hacen la innovación accesible. System desarrolla webapps interactivas, integraciones con AI, manufactura y robótica para apoyar proyectos creativos.',
       icon: Cpu,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SYSTEM'],
-      accentColor: '#32527B',
-      bgGradients: 'from-[#32527B]/30 via-[#202020] to-transparent',
+      accentColor: pillarInk('SYSTEM'),
+      bgGradients: 'from-[#888888]/30 via-[#1a1a1a] to-transparent',
       tagline: 'WebApps Interactivas, AI, Robótica & Manufactura',
       industryScope: 'Departamentos técnicos, instituciones tecnológicas, empresas de manufactura, logística, startups y makers.',
       features: [
@@ -387,23 +325,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           badge: 'NETWORKING'
         }
       ],
-      realDeployments: [
-        {
-          name: 'Graffiti AR (MediaPipe Hand-Tracking + WebGL)',
-          metric: 'Visión computacional sin hardware externo',
-          desc: 'Convierte la cámara web o móvil en un sensor espacial permitiendo pintar grafitis 3D en el aire mediante reconocimiento de gestos de manos.',
-        },
-        {
-          name: 'Grimoire HR & Recruitment App',
-          metric: 'Web App gamificada de reclutamiento',
-          desc: 'Web App gamificada para una feria universitaria de tecnología, que capta y clasifica solicitudes en tiempo real.',
-        },
-        {
-          name: 'Infraestructura de Alta Concurrencia',
-          metric: 'Pruebas de estrés de servidores SGX',
-          desc: 'Sistema interactivo de alto estrés para validar la gestión y la estabilidad técnica de los servidores SGX.',
-        }
-      ],
+      realDeployments: portfolioOf('SYSTEM'),
       summitActivation: 'Demostración en vivo en el escenario el Día 3 del rig de captura facial de avatares en tiempo real operado por Danelson y rediseño de UI reactiva.'
     },
     {
@@ -413,8 +335,8 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       shortDesc: 'Este pilar materializa proyectos que integran múltiples áreas del ecosistema SGX. Synthesize une creatividad, ingeniería, arte y estrategia para desarrollar soluciones a la medida y experiencias de alto impacto.',
       icon: Boxes,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SYNTHESIZE'],
-      accentColor: '#FDCC0D',
-      bgGradients: 'from-[#FDCC0D]/25 via-[#32527B]/30 to-transparent',
+      accentColor: pillarInk('SYNTHESIZE'),
+      bgGradients: 'from-[#FFFFFF]/30 via-[#1a1a1a] to-transparent',
       tagline: 'Creatividad, Ingeniería, Arte & Estrategia Integrada',
       industryScope: 'Empresas privadas, municipios, instituciones educativas, desarrolladores de proyectos y mega-ecosistemas B2B.',
       features: [
@@ -443,23 +365,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           badge: 'SGX GUILD'
         }
       ],
-      realDeployments: [
-        {
-          name: 'FITUR — Gemelo Digital Inmersivo en VR',
-          metric: '700+ personas (estimado de Spatialgineers; 570 waivers registrados)',
-          desc: 'Gemelo digital inmersivo en VR presentado en FITUR, la feria internacional de turismo de Madrid.',
-        },
-        {
-          name: 'Justas LAI (Ecosistema WebXR)',
-          metric: 'Ecosistema móvil WebXR para evento deportivo universitario',
-          desc: 'Ecosistema móvil WebXR desplegado durante un evento deportivo universitario en Puerto Rico.',
-        },
-        {
-          name: 'Spatialgineers Summit Platform (Este Ecosistema Vivo)',
-          metric: 'Arquitectura 100% propia y autónoma',
-          desc: 'Plataforma web nativa que integra base de datos en tiempo real (Firestore), simulador de vuelo, streaming multicanal y gamificación con votación en vivo.',
-        }
-      ],
+      realDeployments: portfolioOf('SYNTHESIZE'),
       summitActivation: 'El Summit 2026 en su totalidad representa la síntesis máxima: un evento de 3 días que une a líderes empresariales, reclutas e Initiates del SGX Guild y creadores.'
     }
   ];
@@ -704,10 +610,16 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
                 className="p-3.5 bg-[#171717] border border-slate-800 space-y-1.5"
                 style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
               >
-                <div className="font-bold text-white text-xs font-['Orbitron',sans-serif]">{dep.name}</div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="font-bold text-white text-xs font-['Orbitron',sans-serif]">{dep.name}</div>
+                  {dep.useCase && (
+                    <span className="shrink-0 px-1.5 py-0.5 text-[8px] font-mono font-bold text-black" style={{ background: currentPillar.accentColor }}>CASO DE USO</span>
+                  )}
+                </div>
                 <div className="text-[10px] font-mono font-semibold" style={{ color: currentPillar.accentColor }}>
                   {dep.metric}
                 </div>
+                {dep.partners && <div className="text-[10px] font-mono text-slate-400">{dep.partners}</div>}
                 <p className="text-[11px] text-slate-300 leading-relaxed">{dep.desc}</p>
               </div>
             ))}

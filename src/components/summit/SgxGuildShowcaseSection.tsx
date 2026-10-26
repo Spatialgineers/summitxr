@@ -8,7 +8,6 @@ export const OFFICIAL_INITIATES = [
     name: 'Fabián Nieves',
     handle: '@fabian_nieves',
     role: 'Spatial Architect',
-    team: 'SGX.Sparkers',
     pillar: 'SGX.SPARK',
     specialty: 'WebGL Pavilions & Arquitectura Espacial 3D',
   },
@@ -17,7 +16,6 @@ export const OFFICIAL_INITIATES = [
     name: 'Sebasthian Andre Rosado',
     handle: '@sebasthian_rosado',
     role: 'Transmedia Lead',
-    team: 'SGX.Stagers',
     pillar: 'SGX.STAGE',
     specialty: 'Dirección Transmedia & Entornos Virtuales',
   },
@@ -26,7 +24,6 @@ export const OFFICIAL_INITIATES = [
     name: 'Gabriela Cintrón',
     handle: '@gabriela_cintron',
     role: 'Shader Artisan',
-    team: 'SGX.Storytellers',
     pillar: 'SGX.STORY',
     specialty: 'GLSL Shader Art & Iluminación Procedural',
   },
@@ -35,7 +32,6 @@ export const OFFICIAL_INITIATES = [
     name: 'Elvin G. Andrades',
     handle: '@elvin_andrades',
     role: 'Stage MoCap Engineer',
-    team: 'SGX.Sparkers',
     pillar: 'SGX.STAGE',
     specialty: 'Captura de Movimiento & Rigging Reactivo',
   },
@@ -44,7 +40,6 @@ export const OFFICIAL_INITIATES = [
     name: 'Christian Jimenez Machuca',
     handle: '@christian_jimenez',
     role: 'Systems Logic Engineer',
-    team: 'SGX.Sparkers',
     pillar: 'SGX.SYSTEM',
     specialty: 'Gamificación, WebSockets & Real-Time Sync',
   },
@@ -53,7 +48,6 @@ export const OFFICIAL_INITIATES = [
     name: 'Mellangie González',
     handle: '@mellangie_gonzalez',
     role: 'Worldbuilder & Environment Artist',
-    team: 'SGX.Stagers',
     pillar: 'SGX.SHOWCASE',
     specialty: 'Modelado Espacial & Narrativa Ambiental',
   },
@@ -62,7 +56,6 @@ export const OFFICIAL_INITIATES = [
     name: 'Luis E. A. Fontánez Casanova',
     handle: '@luis_fontanez',
     role: 'Mechanics & Gamification Dev',
-    team: 'SGX.Stagers',
     pillar: 'SGX.SPARK',
     specialty: 'Mecánicas de Interacción & Recompensas',
   },
@@ -71,7 +64,6 @@ export const OFFICIAL_INITIATES = [
     name: 'Luis A. Oneill',
     handle: '@luis_oneill',
     role: 'Full-Stack AI & WebXR Pipeline',
-    team: 'SGX.Storytellers',
     pillar: 'SGX.SYNTHESIZE',
     specialty: 'Pipelines WebXR Autónomos con IA',
   },
@@ -190,7 +182,8 @@ export const SgxGuildShowcaseSection: React.FC = () => {
                   <p className="text-[11px] text-slate-300">{init.specialty}</p>
                 </div>
                 <div className="pt-2 border-t border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">
-                  <span>Equipo: <strong className="text-white">{init.team}</strong></span>
+                  {/* Initiates run individually in this phase (no teams). */}
+                  <span>Pilar: <strong className="text-white">{init.pillar}</strong></span>
                   <button
                     type="button"
                     onClick={() => {
@@ -202,7 +195,6 @@ export const SgxGuildShowcaseSection: React.FC = () => {
                           title: init.role,
                           org: 'SGX Guild Program 2026',
                           bio: init.specialty,
-                          studio: init.team,
                           tier: 'INITIATE'
                         }
                       }));

@@ -32,6 +32,8 @@ export interface ProgramSlot {
 
 export interface SgxPillar {
   key: PillarKey;
+  /** Official brand color of the pillar (main color of its theme). */
+  color: string;
   id: PillarId;
   /** Brand spelling: SGX.Story, SGX.System… */
   name: string;
@@ -51,7 +53,7 @@ const ICON_BASE = 'https://cdn.spatialgineers.com/Branding/Pilares/';
 
 export const SGX_PILLARS: SgxPillar[] = [
   {
-    key: 'STORY', id: 'SGX.STORY', name: 'SGX.Story', slug: 'story', index: 1,
+    key: 'STORY', color: '#32527B', id: 'SGX.STORY', name: 'SGX.Story', slug: 'story', index: 1,
     title: { es: 'Historias que mueven ideas', en: 'Stories that move ideas' },
     line: { es: 'Toda innovación necesita una historia.', en: 'Every innovation needs a story.' },
     scope: { es: 'Lore, cine 360, arte, música, preservación cultural y efectos visuales.', en: 'Lore, 360 film, art, music, cultural preservation and visual effects.' },
@@ -70,7 +72,7 @@ export const SGX_PILLARS: SgxPillar[] = [
     ],
   },
   {
-    key: 'SHOWCASE', id: 'SGX.SHOWCASE', name: 'SGX.Showcase', slug: 'showcase', index: 2,
+    key: 'SHOWCASE', color: '#00DDFF', id: 'SGX.SHOWCASE', name: 'SGX.Showcase', slug: 'showcase', index: 2,
     title: { es: 'Visuales que comunican innovación', en: 'Visuals that communicate innovation' },
     line: { es: 'No mostramos cosas. Mostramos mundos.', en: "We don't show things. We show worlds." },
     scope: { es: 'Renders, animación 3D, galerías, gemelos digitales y entornos XR.', en: 'Renders, 3D animation, galleries, digital twins and XR environments.' },
@@ -88,7 +90,7 @@ export const SGX_PILLARS: SgxPillar[] = [
     ],
   },
   {
-    key: 'SPARK', id: 'SGX.SPARK', name: 'SGX.Spark', slug: 'spark', index: 3,
+    key: 'SPARK', color: '#B87000', id: 'SGX.SPARK', name: 'SGX.Spark', slug: 'spark', index: 3,
     title: { es: 'Experiencias que activan la conexión', en: 'Experiences that spark connection' },
     line: { es: 'Jugamos para entender. Creamos para conectar.', en: 'We play to understand. We create to connect.' },
     scope: { es: 'Videojuegos, gamificación, simulaciones, activaciones y juego educativo.', en: 'Games, gamification, simulations, activations and educational play.' },
@@ -108,7 +110,7 @@ export const SGX_PILLARS: SgxPillar[] = [
     ],
   },
   {
-    key: 'STAGE', id: 'SGX.STAGE', name: 'SGX.Stage', slug: 'stage', index: 4,
+    key: 'STAGE', color: '#FDCC0D', id: 'SGX.STAGE', name: 'SGX.Stage', slug: 'stage', index: 4,
     title: { es: 'Creatividad en tiempo real', en: 'Creativity in real time' },
     line: { es: 'Porque el show no solo se ve, se vive.', en: "Because the show isn't just watched, it's lived." },
     scope: { es: 'Conciertos, podcasts, visualizers, performances y transmisiones híbridas.', en: 'Concerts, podcasts, visualizers, performances and hybrid broadcasts.' },
@@ -127,7 +129,7 @@ export const SGX_PILLARS: SgxPillar[] = [
     ],
   },
   {
-    key: 'SYSTEM', id: 'SGX.SYSTEM', name: 'SGX.System', slug: 'system', index: 5,
+    key: 'SYSTEM', color: '#888888', id: 'SGX.SYSTEM', name: 'SGX.System', slug: 'system', index: 5,
     title: { es: 'Tecnología que soluciona', en: 'Technology that solves' },
     line: { es: 'Diseñamos tecnología que resuelve, conecta y amplifica ideas.', en: 'We design technology that solves, connects and amplifies ideas.' },
     scope: { es: 'Webapps, IA, dashboards, backends, AR, Web3, manufactura y robótica.', en: 'Web apps, AI, dashboards, backends, AR, Web3, manufacturing and robotics.' },
@@ -147,7 +149,7 @@ export const SGX_PILLARS: SgxPillar[] = [
     ],
   },
   {
-    key: 'SYNTHESIZE', id: 'SGX.SYNTHESIZE', name: 'SGX.Synthesize', slug: 'synthesize', index: 6,
+    key: 'SYNTHESIZE', color: '#FFFFFF', id: 'SGX.SYNTHESIZE', name: 'SGX.Synthesize', slug: 'synthesize', index: 6,
     title: { es: 'Innovación que une disciplinas', en: 'Innovation that unites disciplines' },
     line: { es: 'Imaginación y tecnología, trabajando como una sola.', en: 'Imagination and technology, working as one.' },
     scope: { es: 'Donde todo converge: proyectos multi-pilar, comunidad y el SGX Guild.', en: 'Where everything converges: multi-pillar projects, community and the SGX Guild.' },
@@ -213,4 +215,48 @@ export function sectionModule(sectionKey: string): { label: Bi; desc: Bi } | und
     if (m) return { label: m.label, desc: m.desc };
   }
   return undefined;
+}
+
+/* ---------- Pillar colors & themes ----------
+   One brand color per pillar, in official order: azul, cyan, naranja,
+   amarillo, gris y blanco. `ink` is the same color lifted for text on the
+   dark background (only the deep blue and the copper need it). */
+
+function mixHex(a: string, b: string, t: number): string {
+  const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+  const ch = (sh: number) => Math.round(((pa >> sh) & 255) * (1 - t) + ((pb >> sh) & 255) * t);
+  return `#${[16, 8, 0].map((sh) => ch(sh).toString(16).padStart(2, '0')).join('')}`.toUpperCase();
+}
+
+const INK_LIFT: Partial<Record<PillarKey, number>> = { STORY: 0.42, SPARK: 0.25 };
+
+export function pillarColor(key: PillarKey): string {
+  return PILLAR_BY_KEY[key].color;
+}
+
+/** Text-safe variant of the pillar color on #050505 / #1A1A1A. */
+export function pillarInk(key: PillarKey): string {
+  const lift = INK_LIFT[key];
+  return lift ? mixHex(PILLAR_BY_KEY[key].color, '#FFFFFF', lift) : PILLAR_BY_KEY[key].color;
+}
+
+const SECONDARY: Record<PillarKey, PillarKey> = {
+  STORY: 'SHOWCASE', SHOWCASE: 'STORY', SPARK: 'STAGE', STAGE: 'SPARK', SYSTEM: 'SHOWCASE', SYNTHESIZE: 'STAGE',
+};
+
+/** The pillar theme: its color is the main color (buttons, borders, glow). */
+export function pillarTheme(key: PillarKey) {
+  const primary = pillarColor(key);
+  const ink = pillarInk(key);
+  const secondary = pillarColor(SECONDARY[key]);
+  const n = parseInt(primary.slice(1), 16);
+  return {
+    primaryColor: primary,
+    secondaryColor: secondary,
+    accentColor: ink,
+    borderColor: primary,
+    neonHighlightColor: ink,
+    glowShadow: `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, 0.45)`,
+    gradientCss: `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`,
+  };
 }

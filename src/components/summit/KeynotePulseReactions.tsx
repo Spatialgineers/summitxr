@@ -1,3 +1,4 @@
+import { PILLAR_BY_KEY } from '../../lib/sgxPillars';
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { 
@@ -36,12 +37,12 @@ export interface KeynotePoll {
 
 // Polls tied to the real Run of Show. Speakers are named only when confirmed in writing.
 const PILLAR_OPTIONS = [
-  { id: 'opt_story', label: 'SGX.Story (lore)', votes: 0, color: '#FFBB00' },
-  { id: 'opt_showcase', label: 'SGX.Showcase (inmersión)', votes: 0, color: '#00DDFF' },
-  { id: 'opt_spark', label: 'SGX.Spark (interactividad y juegos)', votes: 0, color: '#FDCC0D' },
-  { id: 'opt_stage', label: 'SGX.Stage (eventos)', votes: 0, color: '#B87000' },
-  { id: 'opt_system', label: 'SGX.System (herramientas, IA y backend)', votes: 0, color: '#32527B' },
-  { id: 'opt_synthesize', label: 'SGX.Synthesize (todo converge)', votes: 0, color: '#888888' },
+  { id: 'opt_story', label: 'SGX.Story (lore)', votes: 0, color: PILLAR_BY_KEY['STORY'].color },
+  { id: 'opt_showcase', label: 'SGX.Showcase (inmersión)', votes: 0, color: PILLAR_BY_KEY['SHOWCASE'].color },
+  { id: 'opt_spark', label: 'SGX.Spark (interactividad y juegos)', votes: 0, color: PILLAR_BY_KEY['SPARK'].color },
+  { id: 'opt_stage', label: 'SGX.Stage (eventos)', votes: 0, color: PILLAR_BY_KEY['STAGE'].color },
+  { id: 'opt_system', label: 'SGX.System (herramientas, IA y backend)', votes: 0, color: PILLAR_BY_KEY['SYSTEM'].color },
+  { id: 'opt_synthesize', label: 'SGX.Synthesize (todo converge)', votes: 0, color: PILLAR_BY_KEY['SYNTHESIZE'].color },
 ];
 
 const DEFAULT_POLLS: KeynotePoll[] = [

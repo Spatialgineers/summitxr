@@ -228,6 +228,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
                 </p>
                 <div className="sgx-forge__actions">
                   <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={onOpenHangar}>[ {es ? 'Abrir mi Hangar' : 'Open my Hangar'} ]</button></span>
+                  <a className="sgx-btn sgx-btn--ground" href="https://www.youtube.com/@spatialgineers" target="_blank" rel="noopener noreferrer">{es ? 'Canal de YouTube' : 'YouTube channel'}</a>
                   <button type="button" className="sgx-btn sgx-btn--ground" onClick={onClose}>{es ? 'Seguir explorando' : 'Keep exploring'}</button>
                 </div>
               </>

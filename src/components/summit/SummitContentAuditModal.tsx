@@ -309,14 +309,14 @@ export const SummitContentAuditModal: React.FC<{
                   </h3>
                   <div className="space-y-1.5 text-xs font-mono text-slate-300">
                     {[
-                      '1. Fabián Nieves (Spatial Architect • SGX.Sparkers)',
-                      '2. Sebasthian Andre Rosado (Transmedia Lead • SGX.Stagers)',
-                      '3. Gabriela Cintrón (Shader Artisan • SGX.Storytellers)',
-                      '4. Elvin G. Andrades (Stage MoCap Engineer • SGX.Sparkers)',
-                      '5. Christian Jimenez Machuca (Systems Logic • SGX.Sparkers)',
-                      '6. Mellangie González (Worldbuilder • SGX.Stagers)',
-                      '7. Luis E. A. Fontánez Casanova (Mechanics Dev • SGX.Stagers)',
-                      '8. Luis A. Oneill (AI & WebXR Pipeline • SGX.Storytellers)',
+                      '1. Fabián Nieves (Spatial Architect)',
+                      '2. Sebasthian Andre Rosado (Transmedia Lead)',
+                      '3. Gabriela Cintrón (Shader Artisan)',
+                      '4. Elvin G. Andrades (Stage MoCap Engineer)',
+                      '5. Christian Jimenez Machuca (Systems Logic)',
+                      '6. Mellangie González (Worldbuilder)',
+                      '7. Luis E. A. Fontánez Casanova (Mechanics Dev)',
+                      '8. Luis A. Oneill (AI & WebXR Pipeline)',
                     ].map((init, idx) => (
                       <div
                         key={idx}

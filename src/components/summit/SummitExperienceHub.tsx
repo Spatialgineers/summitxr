@@ -1,3 +1,4 @@
+import { pillarInk } from '../../lib/sgxPillars';
 import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
@@ -150,7 +151,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         'El origen conceptual de Spatialgineers ("Ingeniando Imaginación, Construyendo Realidades"). Inspecciona la escultura oficial Story opt.glb, construye tu avatar (+200 XP) y desbloquea sellos en tu SGX Pass.',
       icon: Boxes,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Story1.png',
-      themeColor: '#FDCC0D',
+      themeColor: pillarInk('STORY'),
       physicsDescription: 'Física: Brasas Doradas Ascendentes · Audio: Acorde Lydian 432Hz',
       modules: [
         {
@@ -231,7 +232,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         'Donde los proyectos, marcas aliadas y fundadores se conectan con el mundo. Recorre en 360° Chroma Space Studios, la sede del Día 3, haz matchmaking estratégico y escanea códigos QR (+50 XP).',
       icon: Building2,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
-      themeColor: '#00DDFF',
+      themeColor: pillarInk('SHOWCASE'),
       physicsDescription: 'Física: Galería Holográfica Panorámica · Audio: Resonancia Cristalina Cian',
       modules: [
         {
@@ -314,7 +315,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         'Exploración creativa y dinámicas participativas. Pilotea el dron táctico, participa en las rondas de votación estilo Kahoot (+25 XP) y canjea premios oficiales del Summit.',
       icon: Zap,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png',
-      themeColor: '#FFBB00',
+      themeColor: pillarInk('SPARK'),
       physicsDescription: 'Física: Vórtice Cinético Centrífugo · Audio: Sintetizador Arpegiado Ámbar',
       modules: [
         {
@@ -367,7 +368,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         'La energía del espectáculo en tiempo real. Consulta el Run of Show oficial de los 3 días, entra a las salas de transmisión (YouTube Live, con Los Mismos TV transmitiendo junto a nosotros) y dispara frecuencias armónicas en vivo.',
       icon: Tv,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png',
-      themeColor: '#FFFFFF',
+      themeColor: pillarInk('STAGE'),
       physicsDescription: 'Física: Ondas Acústicas Rítmicas · Audio: Armónicos de Escenario en Vivo',
       modules: [
         {
@@ -442,7 +443,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         'La columna vertebral de ingeniería y talento técnico. Audita los portafolios de los 8 Initiates activos del Día 1 (8 min c/u) y sigue la selección de los 6 Initiates que presentan en el Día 3 (5 min c/u).',
       icon: Activity,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png',
-      themeColor: '#32527B',
+      themeColor: pillarInk('SYSTEM'),
       physicsDescription: 'Física: Retícula Orbital de Precisión · Audio: Pulso Cuántico de Telemetría',
       modules: [
         {
@@ -509,7 +510,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         'La unión armónica de los 6 Pilares en un solo organismo vivo. Únete a los foros de conversación en tiempo real, descarga tu pase oficial en PDF y sincroniza tu participación.',
       icon: Layers,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Synthesize1.png',
-      themeColor: '#B87000',
+      themeColor: pillarInk('SYNTHESIZE'),
       physicsDescription: 'Física: Convergencia Dual Cobre/Oro · Audio: Sinfonía Maestra Unificada',
       modules: [
         {

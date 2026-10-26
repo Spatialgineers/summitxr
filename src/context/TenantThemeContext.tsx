@@ -1,6 +1,15 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { Tenant } from '../types/engine';
 import { INITIAL_TENANTS } from '../lib/schemas';
+import { findPillar, pillarTheme } from '../lib/sgxPillars';
+
+/** Pillar themes always wear their official pillar color as the main color,
+ *  whatever an older stored copy of the tenant says. */
+export function withPillarBrand(t: Tenant): Tenant {
+  const p = findPillar(t.pillarId || '');
+  if (!p || !t.pillarId) return t;
+  return { ...t, branding: { ...t.branding, ...pillarTheme(p.key) } };
+}
 import { db } from '../lib/firebase';
 import { collection, doc, setDoc, getDocs } from 'firebase/firestore';
 
@@ -119,7 +128,7 @@ export function getInitialTenant(allTenants?: Tenant[]): Tenant {
 export function applyRootTenantCSSVariables(tenant: Tenant) {
   if (typeof document === 'undefined') return;
   const root = document.documentElement;
-  const b = tenant.branding;
+  const b = withPillarBrand(tenant).branding;
   const primaryRgb = hexToRgbStr(b.primaryColor);
   const secondaryRgb = hexToRgbStr(b.secondaryColor || '#32527B');
 
@@ -159,7 +168,8 @@ export function applyRootTenantCSSVariables(tenant: Tenant) {
 
 export const TenantThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tenants, setTenants] = useState<Tenant[]>(loadPersistedTenantsList);
-  const [tenant, setTenantState] = useState<Tenant>(() => getInitialTenant(loadPersistedTenantsList()));
+  const [tenant, setTenantStateRaw] = useState<Tenant>(() => withPillarBrand(getInitialTenant(loadPersistedTenantsList())));
+  const setTenantState = (t: Tenant) => setTenantStateRaw(withPillarBrand(t));
 
   // Sync with Firestore on mount if available
   useEffect(() => {

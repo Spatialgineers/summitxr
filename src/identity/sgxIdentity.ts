@@ -1,4 +1,4 @@
-import type { PillarKey } from '../lib/sgxPillars';
+import { pillarInk, type PillarKey } from '../lib/sgxPillars';
 
 /* =========================================================================
    SGX IDENTITY: one store for everything that says "who you are" in the
@@ -98,9 +98,10 @@ const AFFINITY_BY_LEGACY: Record<string, PillarKey> = {
 };
 
 /** DS accent per pillar, alternating warm and cool so neighbours never match. */
+/** Text-safe pillar color (official brand color per pillar, lifted where needed). */
 export const PILLAR_ACCENT: Record<PillarKey, string> = {
-  STORY: '#FFBB00', SHOWCASE: '#00DDFF', SPARK: '#FDCC0D',
-  STAGE: '#FFBB00', SYSTEM: '#00DDFF', SYNTHESIZE: '#FDCC0D',
+  STORY: pillarInk('STORY'), SHOWCASE: pillarInk('SHOWCASE'), SPARK: pillarInk('SPARK'),
+  STAGE: pillarInk('STAGE'), SYSTEM: pillarInk('SYSTEM'), SYNTHESIZE: pillarInk('SYNTHESIZE'),
 };
 
 function readJson<T>(key: string): T | null {

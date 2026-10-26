@@ -1,3 +1,4 @@
+import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { PILLAR_BY_KEY, type PillarKey } from '../../lib/sgxPillars';
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
@@ -71,8 +72,8 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     code: 'SGX.STORY',
     title: 'Historias que mueven ideas',
     shortRole: pillarModulesLine('STORY'),
-    colorHex: '#FDCC0D',
-    threeColor: 0xFDCC0D,
+    colorHex: PILLAR_BY_KEY['STORY'].color,
+    threeColor: parseInt(PILLAR_BY_KEY['STORY'].color.slice(1), 16),
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Story1.png',
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Story%20opt.glb',
     moduleCount: PILLAR_BY_KEY['STORY'].modules.length,
@@ -83,8 +84,8 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     code: 'SGX.SHOWCASE',
     title: 'Visuales que comunican innovación',
     shortRole: pillarModulesLine('SHOWCASE'),
-    colorHex: '#00DDFF',
-    threeColor: 0x00DDFF,
+    colorHex: PILLAR_BY_KEY['SHOWCASE'].color,
+    threeColor: parseInt(PILLAR_BY_KEY['SHOWCASE'].color.slice(1), 16),
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Showcase%20opt.glb',
     moduleCount: PILLAR_BY_KEY['SHOWCASE'].modules.length,
@@ -95,8 +96,8 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     code: 'SGX.SPARK',
     title: 'Experiencias que activan la conexión',
     shortRole: pillarModulesLine('SPARK'),
-    colorHex: '#FFBB00',
-    threeColor: 0xFFBB00,
+    colorHex: PILLAR_BY_KEY['SPARK'].color,
+    threeColor: parseInt(PILLAR_BY_KEY['SPARK'].color.slice(1), 16),
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png',
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Spark%20Opt.glb',
     moduleCount: PILLAR_BY_KEY['SPARK'].modules.length,
@@ -107,8 +108,8 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     code: 'SGX.STAGE',
     title: 'Creatividad en tiempo real',
     shortRole: pillarModulesLine('STAGE'),
-    colorHex: '#B87000',
-    threeColor: 0xB87000,
+    colorHex: PILLAR_BY_KEY['STAGE'].color,
+    threeColor: parseInt(PILLAR_BY_KEY['STAGE'].color.slice(1), 16),
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png',
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Stage%20opt.glb',
     moduleCount: PILLAR_BY_KEY['STAGE'].modules.length,
@@ -119,8 +120,8 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     code: 'SGX.SYSTEM',
     title: 'Tecnología que soluciona',
     shortRole: pillarModulesLine('SYSTEM'),
-    colorHex: '#32527B',
-    threeColor: 0x32527B,
+    colorHex: PILLAR_BY_KEY['SYSTEM'].color,
+    threeColor: parseInt(PILLAR_BY_KEY['SYSTEM'].color.slice(1), 16),
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png',
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/System%20opt.glb',
     moduleCount: PILLAR_BY_KEY['SYSTEM'].modules.length,
@@ -131,8 +132,8 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     code: 'SGX.SYNTHESIZE',
     title: 'Innovación que une disciplinas',
     shortRole: pillarModulesLine('SYNTHESIZE'),
-    colorHex: '#FDCC0D',
-    threeColor: 0xFDCC0D,
+    colorHex: PILLAR_BY_KEY['SYNTHESIZE'].color,
+    threeColor: parseInt(PILLAR_BY_KEY['SYNTHESIZE'].color.slice(1), 16),
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Synthesize1.png',
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Synthesize%20opt.glb',
     moduleCount: PILLAR_BY_KEY['SYNTHESIZE'].modules.length,
@@ -1925,7 +1926,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                     RELOJES DEL SUMMIT
                   </div>
                   <div className="text-[9px] font-mono text-slate-300 leading-snug mt-0.5">
-                    Días 1–2 por YouTube Live · Día 3 en Chroma Space Studios (por invitación) · Gratis · En español
+                    Días 1–2 por <a href={SGX_YOUTUBE} target="_blank" rel="noopener noreferrer" className="text-[#00DDFF] underline">YouTube Live</a> · Día 3 en Chroma Space Studios (por invitación) · Gratis · En español
                   </div>
                 </div>
                 <button

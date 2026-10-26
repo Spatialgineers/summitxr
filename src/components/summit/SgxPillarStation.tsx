@@ -11,6 +11,7 @@ import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import { missionsOfPillar } from '../../identity/reactor';
 import { goToMission } from '../../identity/missionNav';
 import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
+import { portfolioOf } from '../../lib/sgxPortfolio';
 
 const DAYS = {
   1: { es: 'Día 1 · Viernes 11 dic · Digital', en: 'Day 1 · Fri Dec 11 · Digital' },
@@ -72,7 +73,7 @@ export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pil
     .filter((g) => g.slots.length > 0);
 
   return (
-    <div className="sgx-station" key={pillar.key}>
+    <div className="sgx-station" key={pillar.key} style={{ ['--SGX_Yellow' as string]: PILLAR_ACCENT[pillar.key] }}>
       <PillarRail active={pillar.slug} onPick={go} />
 
       <section className="sgx-station__hero">
@@ -90,7 +91,7 @@ export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pil
           <div className="sgx-hero__telemetry">
             <span className="sgx-led sgx-led--action" aria-hidden="true" />
             <span className="sgx-hero__badge">{es ? 'Estación' : 'Station'} 0{pillar.index} / 06</span>
-            <span className="sgx-hero__path">{pillar.id} // SGX GUILD · {pillar.guildTeam.toUpperCase()}</span>
+            <span className="sgx-hero__path">{pillar.id} // {bi(pillar.line, language).toUpperCase()}</span>
           </div>
           <h1 className="sgx-station__name"><ScrambleText text={pillar.name.toUpperCase()} /></h1>
           <p className="sgx-station__title">{bi(pillar.title, language)}</p>
@@ -201,6 +202,28 @@ export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pil
           </section>
         );
       })()}
+
+      {portfolioOf(pillar.key).length > 0 && (
+        <section className="sgx-station__portfolio" aria-labelledby="station-portfolio">
+          <h2 id="station-portfolio" className="sgx-station__h2">
+            <span>{es ? `Proyectos & casos de uso · ${pillar.name}` : `Projects & use cases · ${pillar.name}`}</span>
+            <span className="sgx-readout">{portfolioOf(pillar.key).length}</span>
+          </h2>
+          <ul className="sgx-portfolio">
+            {portfolioOf(pillar.key).map((proj) => (
+              <li key={proj.id} className={`sgx-portfolio__item ${proj.useCase ? 'is-case' : ''}`}>
+                <div className="sgx-portfolio__head">
+                  <strong>{proj.name}</strong>
+                  {proj.useCase && <span className="sgx-portfolio__tag">{es ? 'CASO DE USO' : 'USE CASE'}</span>}
+                </div>
+                <span className="sgx-portfolio__metric">{proj.metric}</span>
+                {proj.partners && <span className="sgx-portfolio__partners">{proj.partners}</span>}
+                <p>{proj.desc}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <nav className="sgx-station__pager" aria-label={es ? 'Estaciones' : 'Stations'}>
         <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => go(prev)}>

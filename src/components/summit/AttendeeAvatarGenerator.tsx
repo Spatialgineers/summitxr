@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { playUiChirp, playDiceRollSound, playCyberBurstSound } from '../../lib/cyberAudioEngine';
 import { useAuth } from '../../context/AuthContext';
+import { PILLAR_BY_KEY, pillarTheme } from '../../lib/sgxPillars';
 
 export interface AvatarConfig {
   pillar: 'SGX.SYNTHESIZE' | 'SGX.SYSTEM' | 'SGX.STAGE' | 'SGX.SHOWCASE' | 'SGX.SPARK' | 'SGX.STORY';
@@ -31,12 +32,12 @@ export interface AvatarConfig {
 }
 
 export const PILLAR_COLORS = {
-  'SGX.STORY': { primary: '#3B82F6', secondary: '#1D4ED8', bg: '#0c1d3b', name: 'SGX.STORY', desc: 'Lore e historias' },
-  'SGX.SHOWCASE': { primary: '#00DDFF', secondary: '#0088FF', bg: '#042338', name: 'SGX.SHOWCASE', desc: 'Presentación 3D/XR e inmersión' },
-  'SGX.SPARK': { primary: '#F59E0B', secondary: '#B87000', bg: '#2e1b00', name: 'SGX.SPARK', desc: 'Interactividad y juegos' },
-  'SGX.STAGE': { primary: '#FDCC0D', secondary: '#D97706', bg: '#332600', name: 'SGX.STAGE', desc: 'Eventos y shows en vivo' },
-  'SGX.SYSTEM': { primary: '#38BDF8', secondary: '#0284C7', bg: '#032536', name: 'SGX.SYSTEM', desc: 'Herramientas, IA y backend' },
-  'SGX.SYNTHESIZE': { primary: '#00DDFF', secondary: '#0088FF', bg: '#002233', name: 'SGX.SYNTHESIZE', desc: 'Todo converge: proyectos multi-pilar' },
+  'SGX.STORY': { primary: PILLAR_BY_KEY['STORY'].color, secondary: pillarTheme('STORY').secondaryColor, bg: '#0c1d3b', name: 'SGX.STORY', desc: 'Lore e historias' },
+  'SGX.SHOWCASE': { primary: PILLAR_BY_KEY['SHOWCASE'].color, secondary: pillarTheme('SHOWCASE').secondaryColor, bg: '#042338', name: 'SGX.SHOWCASE', desc: 'Presentación 3D/XR e inmersión' },
+  'SGX.SPARK': { primary: PILLAR_BY_KEY['SPARK'].color, secondary: pillarTheme('SPARK').secondaryColor, bg: '#2e1b00', name: 'SGX.SPARK', desc: 'Interactividad y juegos' },
+  'SGX.STAGE': { primary: PILLAR_BY_KEY['STAGE'].color, secondary: pillarTheme('STAGE').secondaryColor, bg: '#332600', name: 'SGX.STAGE', desc: 'Eventos y shows en vivo' },
+  'SGX.SYSTEM': { primary: PILLAR_BY_KEY['SYSTEM'].color, secondary: pillarTheme('SYSTEM').secondaryColor, bg: '#032536', name: 'SGX.SYSTEM', desc: 'Herramientas, IA y backend' },
+  'SGX.SYNTHESIZE': { primary: PILLAR_BY_KEY['SYNTHESIZE'].color, secondary: pillarTheme('SYNTHESIZE').secondaryColor, bg: '#002233', name: 'SGX.SYNTHESIZE', desc: 'Todo converge: proyectos multi-pilar' },
 };
 
 const DEFAULT_AVATAR: AvatarConfig = {

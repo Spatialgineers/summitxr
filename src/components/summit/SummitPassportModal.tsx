@@ -136,7 +136,7 @@ export const SummitPassportModal: React.FC<SummitPassportModalProps> = ({
     {
       id: 'quest_guild',
       title: 'Jurado del SGX Guild',
-      desc: 'Descubre los 8 proyectos finalistas de los Ranked Trials.',
+      desc: 'Descubre los portafolios de los 8 Initiates activos de los Ranked Trials.',
       xp: 200,
       icon: Trophy,
       completed: Boolean(completedQuests['quest_guild']),

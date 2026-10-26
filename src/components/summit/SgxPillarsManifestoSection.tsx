@@ -123,176 +123,8 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
     }
   };
 
-  // Exact descriptions directly from the official SGX Summit presentation slides & CDN Icons
+  // Exact descriptions directly from the official Spatialgineers Summit presentation slides & CDN Icons (official pillar order: Story, Showcase, Spark, Stage, System, Synthesize)
   const pillarsData = [
-    {
-      id: 'SPARK' as PillarId,
-      name: 'SGX.SPARK',
-      title: 'Interacción, Exploración Creativa & Dinámicas Inmersivas',
-      shortDesc: 'Este pilar impulsa la interacción y la exploración creativa. Spark abarca videojuegos, dinámicas inmersivas, simulaciones, activaciones participativas y herramientas de juego educativo que fomentan la conexión entre personas y tecnología.',
-      icon: Gamepad2,
-      iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SPARK'],
-      accentColor: '#FFBB00',
-      bgGradients: 'from-[#FFBB00]/25 via-[#2A1002] to-transparent',
-      tagline: 'Videojuegos, Simulaciones & Juegos Educativos',
-      industryScope: 'Estudios de videojuegos, educadores, ligas deportivas, comunidades competitivas, herramientas de capacitación y simulaciones interactivas.',
-      features: [
-        {
-          title: 'Simulador de Dron 3D',
-          desc: 'Entorno de vuelo táctico WebGL con físicas de gravedad cero y colisiones.',
-          actionLabel: 'Lanzar Simulador de Dron',
-          icon: Rocket,
-          onClick: onOpenDroneSimulator,
-          badge: 'SIMULADOR EN VIVO'
-        },
-        {
-          title: 'SGX Ranked Trials & Torneo',
-          desc: 'Torneo interactivo de habilidades técnicas y desafíos gamificados del Día 1.',
-          actionLabel: 'Ver Sesiones Gamificadas',
-          icon: TrophyIcon,
-          onClick: onExploreAgenda,
-          badge: 'AGENDA GAMIFICADA'
-        },
-        {
-          title: 'Votación Interactiva CYOA',
-          desc: 'Mecánica en vivo para que la audiencia tome decisiones narrativas en directo.',
-          actionLabel: 'Abrir Pasaporte & Misiones',
-          icon: Zap,
-          onClick: onOpenPassportModal,
-          badge: 'INTERACCIÓN EN VIVO'
-        }
-      ],
-      realDeployments: [
-        {
-          name: 'Highcoon Against STIGMA — Trippy Terpene Trails & Terpene Dreams',
-          metric: 'Laberinto interactivo de geometría molecular',
-          desc: 'Gamificación educativa que permite a los usuarios navegar estructuras químicas y terpenos con físicas de gravedad cero, reforzado con banda sonora original.',
-        },
-        {
-          name: '$TAR Blazer (Space Riders NFT Journey)',
-          metric: 'Economía Web3 & navegación espacial',
-          desc: 'Los jugadores pilotean tablas espaciales esquivando asteroides para recolectar tokens $TAR con físicas dinámicas de colisión en tiempo real.',
-        },
-        {
-          name: 'Mighty Maze (Zekio Entertainment)',
-          metric: 'Multijugador en Unity Engine',
-          desc: 'Laberinto concéntrico procedural donde los jugadores compiten por objetivos estratégicos en tiempo real con economías in-game.',
-        }
-      ],
-      summitActivation: 'Simulador de Drone Táctico en vivo en la plataforma, desafíos de votación tipo Kahoot con recompensas de XP y torneo interactivo durante los SGX Ranked Trials.'
-    },
-    {
-      id: 'STAGE' as PillarId,
-      name: 'SGX.STAGE',
-      title: 'Expresión en Vivo, Shows Inmersivos & Transmisiones Híbridas',
-      shortDesc: 'Este pilar celebra la expresión en vivo y la energía del presente. Stage incluye conciertos, podcasts, visualizers, performances, transmisiones híbridas y shows inmersivos que convierten la creatividad en espectáculo.',
-      icon: Radio,
-      iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.STAGE'],
-      accentColor: '#FFFFFF',
-      bgGradients: 'from-[#32527B]/30 via-[#1e1e1e] to-transparent',
-      tagline: 'Conciertos, Visualizers, Podcasts & Shows Inmersivos',
-      industryScope: 'Productores de eventos, DJs, artistas musicales, productoras audiovisuales, podcasters, influencers, conferencias y organizadores de ferias.',
-      features: [
-        {
-          title: 'Salas de Broadcast 4K & Canales',
-          desc: 'Transmisión multi-canal en vivo, señal satelital y enlaces YouTube Live.',
-          actionLabel: 'Abrir Salas Broadcast',
-          icon: Tv,
-          onClick: onOpenBroadcastRooms,
-          badge: 'STREAMING 4K'
-        },
-        {
-          title: 'Conciertos Híbridos & Shows Roblox',
-          desc: 'Showcases de cierre en directo dentro del metaverso y tarima física en Chroma.',
-          actionLabel: 'Ver Cronograma de Shows',
-          icon: Radio,
-          onClick: onExploreAgenda,
-          badge: 'LIVE STAGE'
-        },
-        {
-          title: 'Directorio de Artistas & Keynotes',
-          desc: 'Speakers internacionales, DJs y directores audiovisuales en vivo.',
-          actionLabel: 'Portal de Artistas',
-          icon: Users,
-          onClick: onOpenSpeakerPortal,
-          badge: 'SPEAKERS'
-        }
-      ],
-      realDeployments: [
-        {
-          name: 'Genesis XRM Virtual Stage Lab',
-          metric: 'Rascacielos virtual interactivo con DJ booth',
-          desc: 'Espacio arquitectónico inmersivo con cabina de DJ funcional, mecánicas de baile en tiempo real y exhibición de arte phygital.',
-        },
-        {
-          name: 'Bad Bunny Land (23rd Digital Pride CHOICE LGBTQIA+)',
-          metric: 'Espacio masivo con vehículos interactivos',
-          desc: 'Escenario central en forma de CD y galerías de coco con vehículos poco convencionales (moto acuática, cama de carreras y neverita de playa).',
-        },
-        {
-          name: 'Raw Majik (Palo Xanto) & CaraB City (Lx Musx)',
-          metric: 'Metaspacios sonoros inmersivos',
-          desc: 'Ambientes acústicos en el desierto con fogatas interactivas para conciertos acústicos íntimos transmitidos globalmente.',
-        }
-      ],
-      summitActivation: 'Transmisión simultánea de 3 días en YouTube Live, Salones Virtuales con audio espacial y Concierto de clausura en vivo dentro del espacio de Roblox.'
-    },
-    {
-      id: 'SHOWCASE' as PillarId,
-      name: 'SGX.SHOWCASE',
-      title: 'Presentación Visual, Renders 3D & Entornos XR',
-      shortDesc: 'Este pilar da forma a cómo las ideas se presentan al mundo. Showcase desarrolla renders, animaciones 3D, vídeos, galerías y entornos XR que transforman productos, marcas y conceptos en experiencias visuales memorables.',
-      icon: Eye,
-      iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SHOWCASE'],
-      accentColor: '#00DDFF',
-      bgGradients: 'from-[#00DDFF]/25 via-[#002B36] to-transparent',
-      tagline: 'Renders, Animaciones 3D, Galerías & Entornos XR',
-      industryScope: 'Marcas físicas y digitales, tiendas, diseñadores de moda, diseñadores de producto, arquitectos, brokers inmobiliarios y galerías de arte.',
-      features: [
-        {
-          title: 'Tour 360° Chroma Space Studios',
-          desc: 'Exploración fotogramétrica 360° del venue principal con hotspots tácticos.',
-          actionLabel: 'Abrir Tour Virtual 360°',
-          icon: Compass,
-          onClick: onOpen360Tour,
-          badge: 'VENUE 360°'
-        },
-        {
-          title: 'Directorio de Patrocinadores & Marcas',
-          desc: 'Stands interactivos, beneficios exclusivos y activaciones comerciales.',
-          actionLabel: 'Ver Marcas Aliadas',
-          icon: Briefcase,
-          onClick: onExploreSponsors,
-          badge: 'SPONSORS'
-        },
-        {
-          title: 'Matriz de Patrocinio & Dossier',
-          desc: '5 niveles de patrocinio con formulario de consulta para marcas.',
-          actionLabel: 'Formulario de Alianzas',
-          icon: FileText,
-          onClick: onOpenSponsorInquiry,
-          badge: 'DOSSIER B2B'
-        }
-      ],
-      realDeployments: [
-        {
-          name: 'DéCéntrico Dreamscape (Guayama Mall / Céntrico)',
-          metric: 'Surreal shopping mall meta-activation',
-          desc: 'En lugar de un gemelo estéril, se sintetizó la marca en un dreamscape interactivo con avatares personalizados para maximizar retención y lealtad del cliente.',
-        },
-        {
-          name: 'Infinite Galleries (Digital Museum Platform)',
-          metric: 'Galería WebGL 360° optimizada para Meta Quest & Mobile',
-          desc: 'Plataforma multi-sala para exhibir obras de arte 3D inmersivas sin necesidad de instalar apps, navegable en cualquier explorador.',
-        },
-        {
-          name: 'Puerto Rico Film Festival 15th Anniversary XR Experience',
-          metric: 'Cine & archivo cultural inmersivo',
-          desc: 'Activación espacial que extendió la vida del festival más allá de las fechas físicas mediante salas de proyección interactivas.',
-        }
-      ],
-      summitActivation: 'Tour virtual 360° fotogramétrico por Chroma Space Studios (San Juan), showrooms de patrocinadores y vitrinas holográficas interactivas.'
-    },
     {
       id: 'STORY' as PillarId,
       name: 'SGX.STORY',
@@ -323,7 +155,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         },
         {
           title: 'Sesiones de Narrativa & Cine XR',
-          desc: 'Charlas magistrales sobre preservación cultural y storytelling espacial.',
+          desc: 'Bloque SGX.Story del Día 1 y conversación de industria del Día 2.',
           actionLabel: 'Explorar Agenda de Cine XR',
           icon: Calendar,
           onClick: onExploreAgenda,
@@ -333,7 +165,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       realDeployments: [
         {
           name: 'Infinite Borikua — Metaverse Fashion Week 2025 (Decentraland)',
-          metric: '1er colectivo de Puerto Rico en MVFW',
+          metric: 'Metaverse Fashion Week 2025',
           desc: 'Digitalización de artefactos Taínos (cemí y wayuko) como coleccionables 3D en la blockchain de Polygon (token DCL-SC-INFNTBRK) con trivias históricas interactivas.',
         },
         {
@@ -342,12 +174,180 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           desc: 'Videojuego interactivo donde los jugadores superan obstáculos y responden preguntas históricas para rescatar archivos culturales de Borikén.',
         },
         {
-          name: 'Carcajadaland (Terapia de la Risa Inmersiva)',
-          metric: '1ra plataforma de salud mental espacial en PR',
-          desc: 'Entorno diseñado con psicología de color y arquitectura sensorial para democratizar sesiones terapéuticas globales con A Carcajadas.',
+          name: 'Espacio Inmersivo de Terapia de la Risa',
+          metric: 'Bienestar y salud mental',
+          desc: 'Entorno diseñado con psicología de color y arquitectura sensorial para sesiones terapéuticas en línea.',
         }
       ],
       summitActivation: 'Presentación de colecciones culturales en 3D, paneles dedicados a la identidad boricua en la computación espacial y archivo digital permanente.'
+    },
+    {
+      id: 'SHOWCASE' as PillarId,
+      name: 'SGX.SHOWCASE',
+      title: 'Presentación Visual, Renders 3D & Entornos XR',
+      shortDesc: 'Este pilar da forma a cómo las ideas se presentan al mundo. Showcase desarrolla renders, animaciones 3D, vídeos, galerías y entornos XR que transforman productos, marcas y conceptos en experiencias visuales memorables.',
+      icon: Eye,
+      iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SHOWCASE'],
+      accentColor: '#00DDFF',
+      bgGradients: 'from-[#00DDFF]/25 via-[#002B36] to-transparent',
+      tagline: 'Renders, Animaciones 3D, Galerías & Entornos XR',
+      industryScope: 'Marcas físicas y digitales, tiendas, diseñadores de moda, diseñadores de producto, arquitectos, brokers inmobiliarios y galerías de arte.',
+      features: [
+        {
+          title: 'Tour 360° Chroma Space Studios',
+          desc: 'Exploración 360° del venue del Día 3 (sujeto a la firma del acuerdo) con hotspots tácticos.',
+          actionLabel: 'Abrir Tour Virtual 360°',
+          icon: Compass,
+          onClick: onOpen360Tour,
+          badge: 'VENUE 360°'
+        },
+        {
+          title: 'Directorio de Patrocinadores & Marcas',
+          desc: 'Stands interactivos, beneficios exclusivos y activaciones comerciales.',
+          actionLabel: 'Ver Marcas Aliadas',
+          icon: Briefcase,
+          onClick: onExploreSponsors,
+          badge: 'SPONSORS'
+        },
+        {
+          title: 'Matriz de Patrocinio & Dossier',
+          desc: '5 Tiers de auspicio con formulario de consulta para marcas.',
+          actionLabel: 'Formulario de Alianzas',
+          icon: FileText,
+          onClick: onOpenSponsorInquiry,
+          badge: 'DOSSIER B2B'
+        }
+      ],
+      realDeployments: [
+        {
+          name: 'Dreamscape para Centro Comercial',
+          metric: 'Activación surreal para retail',
+          desc: 'En lugar de un gemelo estéril, se sintetizó la marca en un dreamscape interactivo con avatares personalizados para maximizar retención y lealtad del cliente.',
+        },
+        {
+          name: 'Infinite Galleries (Digital Museum Platform)',
+          metric: 'Galería WebGL 360° para visores XR y móvil',
+          desc: 'Plataforma multi-sala para exhibir obras de arte 3D inmersivas sin necesidad de instalar apps, navegable en cualquier explorador.',
+        },
+        {
+          name: 'Experiencia XR para Festival de Cine',
+          metric: 'Cine & archivo cultural inmersivo',
+          desc: 'Activación espacial que extendió la vida del festival más allá de las fechas físicas mediante salas de proyección interactivas.',
+        }
+      ],
+      summitActivation: 'Tour virtual 360° por el venue del Día 3 (Chroma Space Studios, San Juan, sujeto a la firma del acuerdo), showrooms de patrocinadores y vitrinas holográficas interactivas.'
+    },
+    {
+      id: 'SPARK' as PillarId,
+      name: 'SGX.SPARK',
+      title: 'Interacción, Exploración Creativa & Dinámicas Inmersivas',
+      shortDesc: 'Este pilar impulsa la interacción y la exploración creativa. Spark abarca videojuegos, dinámicas inmersivas, simulaciones, activaciones participativas y herramientas de juego educativo que fomentan la conexión entre personas y tecnología.',
+      icon: Gamepad2,
+      iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SPARK'],
+      accentColor: '#FFBB00',
+      bgGradients: 'from-[#FFBB00]/25 via-[#2A1002] to-transparent',
+      tagline: 'Videojuegos, Simulaciones & Juegos Educativos',
+      industryScope: 'Estudios de videojuegos, educadores, ligas deportivas, comunidades competitivas, herramientas de capacitación y simulaciones interactivas.',
+      features: [
+        {
+          title: 'Simulador de Dron 3D',
+          desc: 'Entorno de vuelo táctico WebGL con físicas de gravedad cero y colisiones.',
+          actionLabel: 'Lanzar Simulador de Dron',
+          icon: Rocket,
+          onClick: onOpenDroneSimulator,
+          badge: 'SIMULADOR EN VIVO'
+        },
+        {
+          title: 'SGX Ranked Trials & Portafolios',
+          desc: 'Los 8 Initiates activos presentan su portafolio el Día 1 (8 min c/u).',
+          actionLabel: 'Ver Sesiones Gamificadas',
+          icon: TrophyIcon,
+          onClick: onExploreAgenda,
+          badge: 'AGENDA GAMIFICADA'
+        },
+        {
+          title: 'Votación Interactiva CYOA',
+          desc: 'Mecánica en vivo para que la audiencia tome decisiones narrativas en directo.',
+          actionLabel: 'Abrir Pasaporte & Misiones',
+          icon: Zap,
+          onClick: onOpenPassportModal,
+          badge: 'INTERACCIÓN EN VIVO'
+        }
+      ],
+      realDeployments: [
+        {
+          name: 'Laberinto Educativo de Geometría Molecular',
+          metric: 'Gamificación educativa',
+          desc: 'Gamificación educativa que permite a los usuarios navegar estructuras químicas y terpenos con físicas de gravedad cero, reforzado con banda sonora original.',
+        },
+        {
+          name: 'Juego de Navegación Espacial con Economía Web3',
+          metric: 'NFTs & navegación espacial',
+          desc: 'Los jugadores pilotean tablas espaciales esquivando asteroides para recolectar tokens con físicas dinámicas de colisión en tiempo real.',
+        },
+        {
+          name: 'Laberinto Multijugador Procedural',
+          metric: 'Multijugador en Unity Engine',
+          desc: 'Laberinto concéntrico procedural donde los jugadores compiten por objetivos estratégicos en tiempo real con economías in-game.',
+        }
+      ],
+      summitActivation: 'Simulador de dron táctico en la plataforma, votación tipo Kahoot con recompensas de XP y bloque SGX.Spark del Día 1.'
+    },
+    {
+      id: 'STAGE' as PillarId,
+      name: 'SGX.STAGE',
+      title: 'Expresión en Vivo, Shows Inmersivos & Transmisiones Híbridas',
+      shortDesc: 'Este pilar celebra la expresión en vivo y la energía del presente. Stage incluye conciertos, podcasts, visualizers, performances, transmisiones híbridas y shows inmersivos que convierten la creatividad en espectáculo.',
+      icon: Radio,
+      iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.STAGE'],
+      accentColor: '#FFFFFF',
+      bgGradients: 'from-[#32527B]/30 via-[#1e1e1e] to-transparent',
+      tagline: 'Conciertos, Visualizers, Podcasts & Shows Inmersivos',
+      industryScope: 'Productores de eventos, DJs, artistas musicales, productoras audiovisuales, podcasters, influencers, conferencias y organizadores de ferias.',
+      features: [
+        {
+          title: 'Salas de Broadcast & Canales',
+          desc: 'YouTube Live como canal principal, con LinkedIn Live y Facebook Live.',
+          actionLabel: 'Abrir Salas Broadcast',
+          icon: Tv,
+          onClick: onOpenBroadcastRooms,
+          badge: 'STREAMING EN VIVO'
+        },
+        {
+          title: 'Artistas Invitados & Roblox',
+          desc: 'Intermedios de artistas invitados (por anunciar) en la transmisión y en Roblox, si se usa.',
+          actionLabel: 'Ver Cronograma de Shows',
+          icon: Radio,
+          onClick: onExploreAgenda,
+          badge: 'LIVE STAGE'
+        },
+        {
+          title: 'Directorio de Artistas & Keynotes',
+          desc: 'Artistas y speakers: solo se anuncian los confirmados por escrito.',
+          actionLabel: 'Portal de Artistas',
+          icon: Users,
+          onClick: onOpenSpeakerPortal,
+          badge: 'SPEAKERS'
+        }
+      ],
+      realDeployments: [
+        {
+          name: 'Laboratorio de Escenario Virtual',
+          metric: 'Rascacielos virtual interactivo con DJ booth',
+          desc: 'Espacio arquitectónico inmersivo con cabina de DJ funcional, mecánicas de baile en tiempo real y exhibición de arte phygital.',
+        },
+        {
+          name: 'Visualizadores de Escenario SGX',
+          metric: 'Visuales reactivos a la música',
+          desc: 'Visualizadores que reaccionan al audio en tiempo real para transmisiones, performances y eventos híbridos.',
+        },
+        {
+          name: 'Espacios Sonoros Inmersivos para Artistas',
+          metric: 'Ambientes acústicos virtuales',
+          desc: 'Ambientes acústicos en el desierto con fogatas interactivas para conciertos acústicos íntimos transmitidos globalmente.',
+        }
+      ],
+      summitActivation: 'Transmisión de los 3 días por YouTube Live, intermedios de artistas invitados el Día 1 y showcase con avatar y captura facial en tiempo real el Día 3.'
     },
     {
       id: 'SYSTEM' as PillarId,
@@ -362,16 +362,16 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       industryScope: 'Departamentos técnicos, instituciones tecnológicas, empresas de manufactura, logística, startups y makers.',
       features: [
         {
-          title: 'Generador de Avatares & Rig Facial AI',
-          desc: 'Captura facial biométrica y personalización de identidad 3D para asistentes.',
+          title: 'Generador de Avatares',
+          desc: 'Avatar en pixel art o low-poly para tu credencial del Summit (+200 XP).',
           actionLabel: 'Generar Avatar 3D',
           icon: UserCheck,
           onClick: onOpenAvatarGenerator,
-          badge: 'RIG FACIAL AI'
+          badge: 'AVATAR STUDIO'
         },
         {
           title: 'Directorio SGX Guild Initiates',
-          desc: 'Cohorte élite de 10 desarrolladores y creadores certificados por SGX.',
+          desc: 'Los 8 Initiates activos de los SGX Ranked Trials.',
           actionLabel: 'Ver SGX Guild Initiates',
           icon: GraduationCap,
           onClick: onExploreGuild,
@@ -394,13 +394,13 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         },
         {
           name: 'Grimoire HR & Recruitment App',
-          metric: 'Diseñado, programado y desplegado en solo 5 horas',
-          desc: 'Web App gamificada desplegada para feria universitaria de tecnología, capturando y clasificando 64 prospectos técnicos en tiempo real.',
+          metric: 'Web App gamificada de reclutamiento',
+          desc: 'Web App gamificada para una feria universitaria de tecnología, que capta y clasifica solicitudes en tiempo real.',
         },
         {
-          name: 'Infraestructura de Alta Concurrencia (Grupo Guayacán / Incubadora Creativa)',
-          metric: '400+ usuarios concurrentes con 0 caídas',
-          desc: 'Sistema interactivo de alto estrés que demostró la viabilidad de gestión y estabilidad técnica de los servidores SGX.',
+          name: 'Infraestructura de Alta Concurrencia',
+          metric: 'Pruebas de estrés de servidores SGX',
+          desc: 'Sistema interactivo de alto estrés para validar la gestión y la estabilidad técnica de los servidores SGX.',
         }
       ],
       summitActivation: 'Demostración en vivo en el escenario el Día 3 del rig de captura facial de avatares en tiempo real operado por Danelson y rediseño de UI reactiva.'
@@ -435,8 +435,8 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         },
         {
           title: 'Registro Oficial & Pases del Summit',
-          desc: 'Boletos físicos, acceso digital y beneficios VIP para los 3 días.',
-          actionLabel: 'Comprar Boletos',
+          desc: 'Registro gratuito para los días digitales e invitación para el Día 3 (cupo limitado).',
+          actionLabel: 'Registrarme Gratis',
           icon: Ticket,
           onClick: onOpenTickets,
           badge: 'PASES OFICIALES'
@@ -444,14 +444,14 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       ],
       realDeployments: [
         {
-          name: 'FITUR Madrid 2026 — "Un Viaje a Aguadilla" (Sombrero Media + SGX)',
-          metric: '700+ asistentes y 564 leads internacionales en España',
-          desc: 'Gemelo digital inmersivo en VR presentado por el Alcalde Julio Roldán Concepción en la feria turística más importante del mundo, descentralizando la economía turística.',
+          name: 'FITUR Madrid 2026 — Gemelo Digital Inmersivo en VR',
+          metric: '700+ personas (estimado; 570 registros de waiver)',
+          desc: 'Gemelo digital inmersivo en VR presentado en FITUR, la feria internacional de turismo de Madrid.',
         },
         {
           name: 'Justas LAI 2026 (Ecosistema WebXR de Alta Densidad)',
-          metric: '51% tasa de conversión de asistentes físicos a usuarios digitales',
-          desc: 'Ecosistema móvil WebXR que mantuvo 100% de estabilidad de servidores bajo el evento deportivo universitario más masivo de Puerto Rico.',
+          metric: 'Ecosistema móvil WebXR para evento deportivo universitario',
+          desc: 'Ecosistema móvil WebXR desplegado durante un evento deportivo universitario en Puerto Rico.',
         },
         {
           name: 'Spatialgineers Summit Platform (Este Ecosistema Vivo)',
@@ -459,7 +459,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           desc: 'Plataforma web nativa que integra base de datos en tiempo real (Firestore), simulador de vuelo, streaming multicanal y gamificación con votación en vivo.',
         }
       ],
-      summitActivation: 'El Summit 2026 en su totalidad representa la síntesis máxima: un evento de 3 días que une a los líderes empresariales, miembros del SGX Guild System y creadores globales.'
+      summitActivation: 'El Summit 2026 en su totalidad representa la síntesis máxima: un evento de 3 días que une a líderes empresariales, reclutas e Initiates del SGX Guild y creadores.'
     }
   ];
 
@@ -797,19 +797,19 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           <ul className="text-xs text-slate-300 space-y-2 font-sans">
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span>Desglose profundo de los 6 pilares SGX presentado por Danelson y Ricardo.</span>
+              <span>Seis bloques de 25 min en orden oficial: SGX.Story, SGX.Showcase, SGX.Spark, SGX.Stage, SGX.System y SGX.Synthesize, con un artista invitado (por anunciar) antes de cada uno.</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span><strong>SGX Ranked Trials:</strong> Evaluación en vivo de la cohorte del SGX Guild System defendiendo sus portafolios interactivos.</span>
+              <span><strong>Portafolios de los Initiates (2:30–4:00 p.m.):</strong> los 8 Initiates activos presentan su portafolio, 8 minutos cada uno.</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span>Clasificación en tiempo real y asignación de rangos dentro del directorio oficial de talento SGX Guild.</span>
+              <span><strong>Cierre (4:00–4:30 p.m.):</strong> se anuncian los 6 Initiates que presentan el Día 3.</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span><strong>Roblox Closing Showcase:</strong> Artistas en vivo actuando dentro del espacio virtual de Roblox.</span>
+              <span><strong>Horario:</strong> 10:00 a.m. a 4:30 p.m. por YouTube Live, con Roblox activo si se usa.</span>
             </li>
           </ul>
         </div>
@@ -821,27 +821,27 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         >
           <div className="flex items-center justify-between">
             <span className="px-2.5 py-1 bg-amber-950/60 border border-amber-500/50 text-amber-400 font-mono font-bold text-xs uppercase">
-              DÍA 2 • CHROMA SPACE STUDIOS (SAN JUAN)
+              DÍA 2 • DIGITAL (YOUTUBE LIVE)
             </span>
             <span className="text-xs font-mono text-slate-400">SÁB 12 DIC</span>
           </div>
 
           <h3 className="text-base font-bold text-white font-['Orbitron',sans-serif]">
-            PHYSICAL SHOWCASE & INDUSTRY KEYNOTES
+            INDUSTRY DAY
           </h3>
 
           <ul className="text-xs text-slate-300 space-y-2 font-sans">
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span>Conferencias magistrales de líderes de la industria sobre WebXR, IA Generativa y Spatial Audio.</span>
+              <span>Seis conversaciones de industria de 45 minutos, una por pilar, con una persona invitada (por anunciar).</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span><strong>Showroom de Marcas:</strong> Stands interactivos con demos de hardware, realidad mixta y captura volumétrica.</span>
+              <span><strong>Pausas de 10 minutos</strong> con votación gamificada entre conversaciones.</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span><strong>Speed Pitching & SGX.Match:</strong> Rondas de conexión entre fundadores tecnológicos y fondos de inversión.</span>
+              <span><strong>Horario:</strong> 10:00 a.m. a 4:00 p.m., 100% digital.</span>
             </li>
           </ul>
         </div>
@@ -853,27 +853,27 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         >
           <div className="flex items-center justify-between">
             <span className="px-2.5 py-1 bg-emerald-950/60 border border-emerald-500/50 text-emerald-400 font-mono font-bold text-xs uppercase">
-              DÍA 3 • CLAUSURA & CEREMONIA GUILD
+              DÍA 3 • SGX SHOWCASE (HÍBRIDO)
             </span>
             <span className="text-xs font-mono text-slate-400">DOM 13 DIC</span>
           </div>
 
           <h3 className="text-base font-bold text-white font-['Orbitron',sans-serif]">
-            AWARDS, ECOSYSTEM ALLIANCES & CONCERT
+            SGX SHOWCASE
           </h3>
 
           <ul className="text-xs text-slate-300 space-y-2 font-sans">
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span>Ceremonia oficial de graduación y asignación de rangos de la cohorte del SGX Guild.</span>
+              <span><strong>SGX Guild Ranked Trials Pitch Session:</strong> los top 6 Initiates presentan 5 minutos cada uno.</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span>Firma de acuerdos estratégicos con instituciones académicas y aceleradoras.</span>
+              <span>Demos en vivo, avatar con captura facial en tiempo real y networking con votación gamificada y canje de premios.</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span>Concierto de clausura y networking VIP con barra abierta y música espacial.</span>
+              <span>10:00 a.m. a 4:00 p.m. en Chroma Space Studios, San Juan (sujeto a la firma del acuerdo), por invitación y cupo limitado (40 a 60 personas), y por YouTube Live.</span>
             </li>
           </ul>
         </div>
@@ -927,14 +927,14 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             },
             {
               title: 'Tour 360° Venue',
-              desc: 'Exploración virtual de Chroma Space Studios',
+              desc: 'Exploración virtual del venue del Día 3',
               icon: Compass,
               color: '#FFBB00',
               badge: 'SGX.SHOWCASE',
               action: onOpen360Tour,
             },
             {
-              title: 'Salas Broadcast 4K',
+              title: 'Salas Broadcast',
               desc: 'Canales temáticos y streaming multicámara',
               icon: Radio,
               color: '#FFFFFF',
@@ -943,7 +943,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             },
             {
               title: 'SGX Guild Initiates',
-              desc: 'Cohorte élite de 10 desarrolladores',
+              desc: 'Los 8 Initiates activos',
               icon: Award,
               color: '#32527B',
               badge: 'SGX.SYSTEM',
@@ -959,7 +959,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             },
             {
               title: 'Patrocinadores',
-              desc: 'Stands interactivos y ofertas VIP',
+              desc: 'Stands interactivos y ofertas de sponsors',
               icon: Briefcase,
               color: '#FFBB00',
               badge: 'SGX.SHOWCASE',
@@ -975,7 +975,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             },
             {
               title: 'Avatar Studio 3D',
-              desc: 'Genera tu credencial biométrica',
+              desc: 'Genera tu avatar y credencial',
               icon: UserCheck,
               color: '#FDCC0D',
               badge: 'SGX.STORY',

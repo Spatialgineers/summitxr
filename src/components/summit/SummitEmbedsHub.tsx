@@ -757,7 +757,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                       <option value="MINI_GAME">Minijuego 2D/3D</option>
                       <option value="WEBGL_XR">WebGL / WebXR / Spline 3D</option>
                       <option value="STREAM_VIDEO">Stream / Video 4K (YouTube / Twitch)</option>
-                      <option value="METAVERSE_ROBLOX">Metaverso / Roblox Portal</option>
+                      <option value="METAVERSE_ROBLOX">Mundo Virtual / Roblox Portal</option>
                       <option value="CUSTOM_CODE">Sandbox de Código Personalizado</option>
                     </select>
                   </div>

@@ -102,6 +102,8 @@ import { NetworkingQrScannerModal } from './NetworkingQrScannerModal';
 import { SgxHoloCardGeneratorModal, HoloCardProfile, resolveStoredUserHoloProfile } from './SgxHoloCardGeneratorModal';
 import { SummitGuidedSpotlightTour } from './SummitGuidedSpotlightTour';
 import { SgxSectionHudBar, HudSectionChip } from './SgxSectionHudBar';
+import { SgxPillarStation } from './SgxPillarStation';
+import { SGX_PILLARS, pillarOfSection, findPillar } from '../../lib/sgxPillars';
 import { SummitPrivacyPolicyModal } from './SummitPrivacyPolicyModal';
 import { LiveSocialStream } from './LiveSocialStream';
 import { SgxPillarsManifestoSection } from './SgxPillarsManifestoSection';
@@ -121,35 +123,19 @@ import { SummitContentAuditModal } from './SummitContentAuditModal';
 import { PilotRoleSelectorModal } from './PilotRoleSelectorModal';
 import { SummitWeeklyCapsules } from './SummitWeeklyCapsules';
 
-const HUD_SECTION_CHIPS: HudSectionChip[] = [
-  { key: 'PILLARS_MANIFESTO', label: 'Manifiesto 6 Pilares', pillar: 'SGX.STORY', icon: Boxes },
-  { key: 'AGENDA', label: 'Agenda 3 Días', pillar: 'SGX.STAGE', icon: Calendar },
-  { key: 'BROADCAST_ROOMS', label: 'Salas 4K', pillar: 'SGX.STAGE', icon: Radio },
-  { key: 'SPEAKERS', label: 'Speakers 3D', pillar: 'SGX.STAGE', icon: Users },
-  { key: 'EMBEDS_GAMES', label: 'Dron 3D & XP', pillar: 'SGX.SPARK', icon: Gamepad2 },
-  { key: 'GUILD', label: 'Guild Initiates', pillar: 'SGX.SYSTEM', icon: Award },
-  { key: 'MAP_360', label: 'Tour 360° Venue', pillar: 'SGX.SHOWCASE', icon: Globe },
-  { key: 'ENTREPRENEUR_MATCH', label: 'SGX.Match', pillar: 'SGX.SHOWCASE', icon: Zap },
-  { key: 'SPONSORS_HUB', label: 'Partners', pillar: 'SGX.SHOWCASE', icon: Building2 },
-  { key: 'CREDENTIAL_GENERATOR', label: 'Credencial', pillar: 'SGX.SHOWCASE', icon: Award },
-  { key: 'SOCIAL_STREAM', label: 'Social Radar', pillar: 'SGX.SHOWCASE', icon: Instagram },
-  { key: 'NETWORKING', label: 'Foros Chat', pillar: 'SGX.SYNTHESIZE', icon: MessageSquare },
-];
+// Every section's home pillar, chips and icons come from the single six-pillar source (lib/sgxPillars).
+const HUD_SECTION_CHIPS: HudSectionChip[] = SGX_PILLARS.flatMap((p) =>
+  p.modules.flatMap((m) => (m.kind === 'section'
+    ? [{ key: m.key as SummitSectionKey, label: m.label.es, pillar: p.id, icon: m.icon }]
+    : [])),
+);
 
-const SECTION_TO_PILLAR_MAP: Record<string, { pillarId: string; color: string; iconUrl: string }> = {
-  PILLARS_MANIFESTO: { pillarId: 'SGX.STORY', color: '#FDCC0D', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Story1.png' },
-  AGENDA: { pillarId: 'SGX.STAGE', color: '#FFFFFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png' },
-  BROADCAST_ROOMS: { pillarId: 'SGX.STAGE', color: '#FFFFFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png' },
-  SPEAKERS: { pillarId: 'SGX.STAGE', color: '#FFFFFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png' },
-  EMBEDS_GAMES: { pillarId: 'SGX.SPARK', color: '#FFBB00', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png' },
-  GUILD: { pillarId: 'SGX.SYSTEM', color: '#32527B', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png' },
-  MAP_360: { pillarId: 'SGX.SHOWCASE', color: '#00DDFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
-  ENTREPRENEUR_MATCH: { pillarId: 'SGX.SHOWCASE', color: '#00DDFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
-  SPONSORS_HUB: { pillarId: 'SGX.SHOWCASE', color: '#00DDFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
-  CREDENTIAL_GENERATOR: { pillarId: 'SGX.SHOWCASE', color: '#00DDFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
-  SOCIAL_STREAM: { pillarId: 'SGX.SHOWCASE', color: '#00DDFF', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png' },
-  NETWORKING: { pillarId: 'SGX.SYNTHESIZE', color: '#FDCC0D', iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Synthesize1.png' },
-};
+const SECTION_TO_PILLAR_MAP: Record<string, { pillarId: string; color: string; iconUrl: string }> = Object.fromEntries(
+  HUD_SECTION_CHIPS.map((chip) => {
+    const p = pillarOfSection(chip.key)!;
+    return [chip.key, { pillarId: p.id, color: '#FDCC0D', iconUrl: p.iconUrl }];
+  }),
+);
 
 interface SummitLandingPageProps {
   onNavigateToVisualizer?: () => void;
@@ -263,6 +249,10 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     const fromUrl = getSectionFromUrl();
     return fromUrl || 'OVERVIEW';
   });
+  const [activePillarSlug, setActivePillarSlug] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'story';
+    return findPillar(new URLSearchParams(window.location.search).get('subtab'))?.slug || 'story';
+  });
   const [agendaViewMode, setAgendaViewMode] = useState<'TIMELINE' | 'BUILDER'>(() => {
     if (typeof window !== 'undefined') {
       const mode = new URLSearchParams(window.location.search).get('view');
@@ -279,7 +269,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       playPillarDockSound(mappedPillar.pillarId);
       window.dispatchEvent(new CustomEvent('sgx:pillar_docked', { detail: { pillarId: mappedPillar.pillarId } }));
     }
-    syncAppUrl({ page: 'summit', section: sec, replace: false });
+    if (sec !== 'PILLAR') syncAppUrl({ page: 'summit', section: sec, replace: false });
     if (scroll) {
       scrollToSectionContainer(sec);
     }
@@ -290,6 +280,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     const handleSwitchSectionEvent = (e: Event) => {
       const customEvent = e as CustomEvent<{ section: SummitSectionKey; pillar?: string }>;
       if (customEvent.detail?.section) {
+        const station = findPillar(customEvent.detail.pillar);
+        if (customEvent.detail.section === 'PILLAR' && station) setActivePillarSlug(station.slug);
         setActiveSection(customEvent.detail.section);
         const timer = setTimeout(() => {
           scrollToSectionContainer(customEvent.detail.section);
@@ -491,6 +483,11 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     const handleSwitchSummitSection = (e: any) => {
       if (e.detail?.section) {
         handleSelectSection(e.detail.section, true);
+        const station = e.detail.section === 'PILLAR' ? findPillar(e.detail.pillar) : undefined;
+        if (station) {
+          selectPillar(station.id);
+          playPillarDockSound(station.id);
+        }
       }
     };
     window.addEventListener('sgx:switch_summit_section', handleSwitchSummitSection);
@@ -578,8 +575,9 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
         <SgxSectionHudBar
           activeSection={activeSection}
           chips={HUD_SECTION_CHIPS.filter((chip) => isSectionVisible(chip.key))}
-          pillarLabel={SECTION_TO_PILLAR_MAP[activeSection]?.pillarId}
-          pillarIconUrl={SECTION_TO_PILLAR_MAP[activeSection]?.iconUrl}
+          pillarLabel={activeSection === 'PILLAR' ? findPillar(activePillarSlug)?.id : SECTION_TO_PILLAR_MAP[activeSection]?.pillarId}
+          pillarIconUrl={activeSection === 'PILLAR' ? findPillar(activePillarSlug)?.iconUrl : SECTION_TO_PILLAR_MAP[activeSection]?.iconUrl}
+          stationSlug={activeSection === 'PILLAR' ? activePillarSlug : undefined}
           onSelect={(sec) => {
             playUiChirp(650);
             handleSelectSection(sec);
@@ -1029,19 +1027,19 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                     >
                       <MapPin className="w-3 h-3" />
-                      <span>STRATEGIC VENUE PARTNER • SAN JUAN, PUERTO RICO</span>
+                      <span>SEDE DEL DÍA 3 • SAN JUAN, PUERTO RICO • SUJETO A LA FIRMA DEL ACUERDO</span>
                     </div>
                     <h3 className="text-2xl font-bold text-white font-['Orbitron',sans-serif]">
                       Chroma Space Studios
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                      Estudio de producción virtual de última generación y sede física aliada para las transmisiones en vivo, workshops presenciales de WebXR y el escenario de conciertos reactivos del Día 3.
+                      Sede propuesta del Día 3, el SGX Showcase: networking y demos en vivo mientras presentan los Initiates. Por invitación y cupo limitado (40 a 60 personas). El estudio cuenta con luces, proyectores y cámaras integrados.
                     </p>
                     <div className="flex flex-wrap gap-2 pt-2">
-                      <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">LED Volume Wall</span>
-                      <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">Optical Tracking Stype</span>
-                      <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">Unreal Engine 5.4 Live</span>
-                      <span className="px-2 py-0.5 bg-[#00DDFF]/10 border border-[#00DDFF]/40 text-[#00DDFF] text-[10px]">Audio Espacial 7.1.4</span>
+                      <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">Domingo 13 dic · 10:00 AM–4:00 PM</span>
+                      <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">Por invitación · 40 a 60 personas</span>
+                      <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">SGX Guild Ranked Trials Pitch Session</span>
+                      <span className="px-2 py-0.5 bg-[#00DDFF]/10 border border-[#00DDFF]/40 text-[#00DDFF] text-[10px]">YouTube Live</span>
                     </div>
                   </div>
 
@@ -1159,6 +1157,13 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
         )}
 
         {/* TAB: EL MANIFIESTO & LOS 6 PILARES SGX */}
+        {/* PILLAR STATIONS: the event divided into the six SGX pillars */}
+        {activeSection === 'PILLAR' && (
+          <div id="summit-section-pillar" className="w-full">
+            <SgxPillarStation pillarSlug={activePillarSlug} />
+          </div>
+        )}
+
         {activeSection === 'PILLARS_MANIFESTO' && getSectionStatus('PILLARS_MANIFESTO') === 'ACTIVE' && (
           <div className="space-y-6">
             <SummitSectionBanner
@@ -1857,7 +1862,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
           {/* Line 1 */}
           <div className="text-slate-300 leading-relaxed max-w-5xl mx-auto">
-            © 2026 Spatialgineers LLC. Todos los derechos reservados. <span className="text-slate-600 mx-2">•</span> Chroma Space Studios (Strategic Venue Partner • San Juan) <span className="text-slate-600 mx-2">•</span> <span className="text-[var(--sgx-neon)] font-bold">Los Mismos TV (Streaming & Media Partner)</span> <span className="text-slate-600 mx-2">•</span> Espacio de Roblox Activo <span className="text-slate-600 mx-2">•</span> SGX Guild Program
+            © 2026 Spatialgineers LLC. Todos los derechos reservados. <span className="text-slate-600 mx-2">•</span> Día 3: Chroma Space Studios, San Juan (sujeto a la firma del acuerdo) <span className="text-slate-600 mx-2">•</span> <span className="text-[var(--sgx-neon)] font-bold">YouTube Live, con Los Mismos TV transmitiendo junto a nosotros</span> <span className="text-slate-600 mx-2">•</span> Roblox (si se usa) <span className="text-slate-600 mx-2">•</span> SGX Guild Program
           </div>
           {/* Line 2 */}
           <div className="text-[11px] text-slate-400 max-w-3xl mx-auto leading-relaxed">

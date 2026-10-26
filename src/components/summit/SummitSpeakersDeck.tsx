@@ -96,7 +96,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
   const categoriesMeta: { id: CategoryFilter; label: string; count: number; icon: any }[] = [
     { id: 'ALL', label: 'Todos', count: classifiedSpeakers.length, icon: Users },
     { id: 'HOSTS', label: 'Hosts & Fundadores', count: classifiedSpeakers.filter(s => s.category === 'HOSTS').length, icon: Award },
-    { id: 'PILOTS', label: 'Pilotos Registrados', count: classifiedSpeakers.filter(s => s.category === 'PILOTS').length, icon: Sparkles },
+    { id: 'PILOTS', label: 'Postulaciones (sin confirmar)', count: classifiedSpeakers.filter(s => s.category === 'PILOTS').length, icon: Sparkles },
   ];
 
   const getPillarColor = (pillarId?: SummitPillarId) => {
@@ -137,8 +137,8 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
               Directorio de Ponentes, Artistas & SGX Guild
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl mt-1">
-              Conoce a los creadores detrás de cada pilar tecnológico: los fundadores de Spatialgineers, ponentes de industria, 
-              músicos en Roblox y los 10 Initiates seleccionados de los Ranked Trials con su Growth Factor.
+              Conoce a los creadores detrás de cada pilar: los hosts confirmados, Danelson Maldonado González y Ricardo A. Hernández Díaz. 
+              Las personas invitadas del Día 2 y los artistas invitados se anuncian solo cuando estén confirmados por escrito.
             </p>
           </div>
 
@@ -296,7 +296,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                   ) : (
                     <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-[#00DDFF]/20 text-[#00DDFF] border border-[#00DDFF]/50 flex items-center gap-1">
                       <Sparkles className="w-2.5 h-2.5" />
-                      PILOTO REGISTRADO
+                      POSTULACIÓN · SIN CONFIRMAR
                     </span>
                   )}
                 </div>

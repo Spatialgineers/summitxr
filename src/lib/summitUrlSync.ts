@@ -20,6 +20,7 @@ export const SECTION_TO_SLUG: Record<SummitSectionKey, string> = {
   EMBEDS_GAMES: 'games',
   SPONSORS_HUB: 'sponsors',
   CREDENTIAL_GENERATOR: 'credential-generator',
+  PILLAR: 'pillar',
 };
 
 export const SLUG_TO_SECTION: Record<string, SummitSectionKey> = {
@@ -121,6 +122,12 @@ export const SLUG_TO_SECTION: Record<string, SummitSectionKey> = {
   sponsors_hub: 'SPONSORS_HUB',
   alianzas: 'SPONSORS_HUB',
   brands: 'SPONSORS_HUB',
+
+  // Pillar stations (?tab=pillar&subtab=story)
+  pillar: 'PILLAR',
+  pilar: 'PILLAR',
+  estacion: 'PILLAR',
+  station: 'PILLAR',
 
   // Credential Generator
   'credential-generator': 'CREDENTIAL_GENERATOR',
@@ -319,6 +326,9 @@ export function getShareableUrl(options: {
   // Optional subtab / view / day
   if (options.subtab) {
     searchParams.set('subtab', options.subtab);
+  } else if (options.section && searchParams.get('section') !== new URLSearchParams(window.location.search).get('section')) {
+    // A subtab belongs to the section it was set on (e.g. a pillar station); drop it when leaving.
+    searchParams.delete('subtab');
   }
   if (options.day) {
     searchParams.set('day', String(options.day));

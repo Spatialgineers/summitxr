@@ -85,7 +85,7 @@ export function calculateRankAndLevel(xp: number): { level: number; rankTitle: s
   const nextLevelXp = level * XP_PER_LEVEL;
 
   let rankTitle = 'Cadete Espacial';
-  if (level >= 10) rankTitle = 'Soberano del Metaverso';
+  if (level >= 10) rankTitle = 'Soberano Espacial';
   else if (level >= 7) rankTitle = 'Comandante de Flota';
   else if (level >= 5) rankTitle = 'Piloto Veterano';
   else if (level >= 3) rankTitle = 'Oficial de Vuelo';

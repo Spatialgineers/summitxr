@@ -171,7 +171,7 @@ export const MATCH_I18N: Record<'es' | 'en', MatchI18nStrings> = {
     pillarShowcase: 'Showcase',
     pillarSpark: 'Spark',
     pillarStage: 'Stage',
-    pillarSystems: 'Systems',
+    pillarSystems: 'System',
     pillarSynthesize: 'Synthesize',
 
     cardBrings: 'TRAE',
@@ -274,7 +274,7 @@ export const MATCH_I18N: Record<'es' | 'en', MatchI18nStrings> = {
     pillarShowcase: 'Showcase',
     pillarSpark: 'Spark',
     pillarStage: 'Stage',
-    pillarSystems: 'Systems',
+    pillarSystems: 'System',
     pillarSynthesize: 'Synthesize',
 
     cardBrings: 'BRINGS',

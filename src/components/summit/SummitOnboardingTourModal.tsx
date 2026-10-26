@@ -151,12 +151,12 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
       badge: 'PASO 1 / 8 • ARQUITECTURA MAESTRA',
       title: 'Las 3 Grandes Áreas del Mega WebApp',
       subtitle: 'Ecosistema Unificado de Computación Espacial & Telemetría',
-      description: 'El Spatialgineers Summit 2026 está estructurado en 3 grandes áreas principales diseñadas para ofrecer una experiencia híbrida inmersiva tanto en Chroma Space Studios (San Juan, PR) como vía streaming global:',
+      description: 'El Spatialgineers Summit 2026 está estructurado en 3 grandes áreas principales diseñadas para ofrecer una experiencia digital los 3 días por YouTube Live y el SGX Showcase del Día 3, híbrido y por invitación, en Chroma Space Studios (San Juan, PR; sujeto a la firma del acuerdo):',
       icon: Layers,
       highlights: [
         {
           label: '1. Portal Summit & Hub Principal (/)',
-          desc: 'La sede web completa con 12 sub-secciones: agenda oficial, transmisiones 4K, foros, networking y minijuegos.',
+          desc: 'La sede web completa con 12 sub-secciones: agenda oficial, transmisiones en vivo, foros, networking y minijuegos.',
           icon: Compass
         },
         {
@@ -200,7 +200,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
         },
         {
           label: '3. Agenda Oficial de 3 Días',
-          desc: 'Horarios de keynotes, paneles y talleres por día con opción de exportar a Google Calendar o formato .ics.',
+          desc: 'Horarios oficiales de los 3 días (pilares, conversaciones de industria y SGX Showcase) con opción de exportar a Google Calendar o formato .ics.',
           icon: Calendar,
           sectionKey: 'AGENDA'
         }
@@ -223,19 +223,19 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
       highlights: [
         {
           label: '4. Salones de Transmisión (Broadcast)',
-          desc: 'Salas simultáneas de streaming 4K por YouTube y servidores interactivos de Roblox en vivo.',
+          desc: 'Transmisión por YouTube Live (canal principal), LinkedIn Live y Facebook Live, y el espacio de Roblox si se usa.',
           icon: Radio,
           sectionKey: 'BROADCAST_ROOMS'
         },
         {
           label: '5. Live Social Stream (Radar LED)',
-          desc: 'Muro social en vivo: comparte en Instagram, Threads y X con #SpatialgineersSummit para salir en la pantalla LED gigante.',
+          desc: 'Muro social en vivo: comparte en Instagram, Threads y X con #SpatialgineersSummit para salir en el muro social del Summit.',
           icon: Flame,
           sectionKey: 'SOCIAL_STREAM'
         },
         {
           label: '6. Directorio de Speakers & Mentores',
-          desc: 'Conoce a los pioneros en computación espacial, directores creativos y portal para registrarse como ponente.',
+          desc: 'Conoce a los hosts del Summit y postúlate como ponente. Las personas invitadas se anuncian cuando estén confirmadas por escrito.',
           icon: UserCheck,
           sectionKey: 'SPEAKERS'
         }
@@ -258,7 +258,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
       highlights: [
         {
           label: '7. SGX Guild Showcase',
-          desc: 'Los 8 talentos y proyectos estudiantiles seleccionados compitiendo por el prestigioso SGX Guild Trophy.',
+          desc: 'Los 8 Initiates activos del SGX Guild y sus portafolios de los SGX Ranked Trials.',
           icon: Award,
           sectionKey: 'GUILD'
         },
@@ -293,7 +293,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
       highlights: [
         {
           label: '10. Tour Virtual 360° en Three.js',
-          desc: 'Recorrido interactivo por Chroma Space Studios en San Juan: Main LED Stage, Audio Lab y VIP Lounge.',
+          desc: 'Recorrido interactivo por el venue del Día 3, Chroma Space Studios en San Juan (sujeto a la firma del acuerdo).',
           icon: Navigation,
           sectionKey: 'MAP_360'
         },
@@ -322,8 +322,8 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
       stepNumber: 6,
       badge: 'PASO 6 / 8 • IDENTIDAD DIGITAL',
       title: 'Avatar Studio 3D & Credencial Holográfica',
-      subtitle: 'Tu Astronauta Personalizado en la Pantalla LED',
-      description: 'Genera tu identidad espacial para el evento. Personaliza tu casco, visor táctico HUD, traje de presión y colores del pilar que representas. Tu avatar se proyectará en la pantalla gigante de Chroma Studios y en tus credenciales.',
+      subtitle: 'Tu Astronauta Personalizado para el Summit',
+      description: 'Genera tu identidad espacial para el evento. Personaliza tu casco, visor táctico HUD, traje de presión y colores del pilar que representas. Tu avatar aparece en tu perfil y en tus credenciales.',
       icon: UserCheck,
       highlights: [
         {
@@ -355,7 +355,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
       badge: 'PASO 7 / 8 • GAMIFICACIÓN & XP',
       title: 'Summit Passport, Escáner QR & Tienda de Premios',
       subtitle: 'Gana Puntos de Experiencia (XP) y Canjea Recompensas Reales',
-      description: 'Cada acción en la plataforma suma XP a tu pasaporte. Escanea códigos QR en San Juan, completa misiones de exploración y sube de rango para canjear recompensas exclusivas:',
+      description: 'Cada acción en la plataforma suma XP a tu pasaporte. Escanea códigos QR en networking, completa misiones de exploración y sube de rango para canjear recompensas exclusivas:',
       icon: Award,
       highlights: [
         {
@@ -370,7 +370,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
         },
         {
           label: 'Tienda de Premios & Canje',
-          desc: 'Canjea tus puntos por licencias de software de computación espacial, merch física y pases VIP.',
+          desc: 'Canjea tus puntos por premios mayormente digitales: cupón de un auspiciador, suscripción de 3 meses a nuestras plataformas y más.',
           icon: Flame
         }
       ],
@@ -401,7 +401,7 @@ export const SummitOnboardingTourModal: React.FC<SummitOnboardingTourModalProps>
         },
         {
           label: 'Registro de Admisión Oficial',
-          desc: 'Genera tu pase digital o taquilla en PDF con código QR para el acceso presencial y virtual.',
+          desc: 'Genera tu pase digital en PDF con código QR. El acceso presencial del Día 3 es por invitación y cupo limitado.',
           icon: Ticket
         },
         {

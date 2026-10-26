@@ -196,7 +196,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
               <ol className="list-decimal list-inside space-y-1 text-slate-300 pl-2">
                 <li>Envío de sus credenciales, códigos de confirmación y notificaciones operativas esenciales del evento.</li>
                 <li>Compartir noticias tecnológicas, resúmenes de conferencias y anuncios de nuevos proyectos espaciales.</li>
-                <li>Promociones de futuras ediciones del Spatialgineers Summit, hackathons, torneos del SGX Guild y lanzamientos de nuevas webapps de la comunidad.</li>
+                <li>Promociones de futuras ediciones del Spatialgineers Summit, actividades del SGX Guild (como los SGX Ranked Trials) y lanzamientos de nuevas webapps de la comunidad.</li>
               </ol>
               <p className="text-[11px] text-slate-400 pt-1">
                 <em>* Derecho de Desuscripción (Opt-Out): En cualquier momento puedes solicitar la cancelación de envíos informativos escribiendo a <strong>info@spatialgineers.com</strong> o haciendo clic en el enlace de desuscripción incluido en los comunicados.</em>

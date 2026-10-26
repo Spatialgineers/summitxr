@@ -85,7 +85,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
     const accessories: AvatarConfig['accessory'][] = ['none', 'comms_antenna', 'holo_halo', 'dj_cans', 'neural_horns'];
     const backdrops: AvatarConfig['backdrop'][] = ['grid', 'sunset', 'starfield', 'hex'];
     const styles: AvatarConfig['style'][] = ['pixel', 'lowpoly'];
-    const tags = ['SPATIALGINEER', 'ARCHITECT', 'CREATIVE CO-PRODUCER', 'AI FOUNDER', 'DEV GUILD', 'VIP GUEST'];
+    const tags = ['SPATIALGINEER', 'ARCHITECT', 'CREATIVE PRODUCER', 'AI FOUNDER', 'DEV GUILD', 'VIP GUEST'];
 
     const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 

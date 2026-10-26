@@ -17,7 +17,7 @@ import {
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { ScrambleText } from '../../immersion/ScrambleText';
-import { SECTION_META } from '../../immersion/sections';
+import { moduleCode, pillarOfSection } from '../../lib/sgxPillars';
 
 interface SummitSectionBannerProps {
   sectionKey: SummitSectionKey;
@@ -83,20 +83,21 @@ export const SummitSectionBanner: React.FC<SummitSectionBannerProps> = ({
     handleCopy();
   };
 
-  const sectionIndex = Math.max(0, SECTION_META.findIndex((m) => m.key === sectionKey)) + 1;
+  const homePillar = pillarOfSection(sectionKey);
+  const code = moduleCode(sectionKey) || '00.0';
 
   return (
     <section className="sgx-hero" style={{ ['--hero-accent' as any]: pCol.border }} aria-label={title}>
       <div className="sgx-hero__bg" aria-hidden="true" />
-      <span className="sgx-hero__index" aria-hidden="true">{String(sectionIndex).padStart(2, '0')}</span>
+      <span className="sgx-hero__index" aria-hidden="true">0{homePillar?.index ?? 0}</span>
       <span className="sgx-hero__corner sgx-hero__corner--tl" aria-hidden="true" />
       <span className="sgx-hero__corner sgx-hero__corner--br" aria-hidden="true" />
 
       <div className="sgx-hero__layout">
         <div className="sgx-hero__emblem" aria-hidden="true">
           <span className="sgx-hero__ring" />
-          {pillarIconUrl ? (
-            <img src={pillarIconUrl} alt="" referrerPolicy="no-referrer" />
+          {homePillar?.iconUrl || pillarIconUrl ? (
+            <img src={homePillar?.iconUrl || pillarIconUrl} alt="" referrerPolicy="no-referrer" />
           ) : (
             <Sparkles className="w-6 h-6 text-[var(--SGX_Yellow)]" />
           )}
@@ -105,8 +106,8 @@ export const SummitSectionBanner: React.FC<SummitSectionBannerProps> = ({
         <div className="sgx-hero__copy">
           <div className="sgx-hero__telemetry">
             <span className="sgx-led sgx-led--action" aria-hidden="true" />
-            <span className="sgx-hero__badge">{pillarBadge}</span>
-            <span className="sgx-hero__path">ESTACIÓN {String(sectionIndex).padStart(2, '0')} // #/{slug} // SYNC OK</span>
+            <span className="sgx-hero__badge">{homePillar?.name.toUpperCase() || pillarBadge}</span>
+            <span className="sgx-hero__path">MÓDULO {code} // #/{slug} // SYNC OK</span>
           </div>
           <h1 className="sgx-hero__title">
             <ScrambleText text={title} />

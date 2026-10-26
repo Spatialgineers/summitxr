@@ -1436,7 +1436,7 @@ export const StageVisualizer: React.FC<StageVisualizerProps> = ({
                     { name: 'SGX Guild Gallery 360°', url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=2000&auto=format&fit=crop&q=80' },
                     { name: 'Industry Stage 360°', url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=2000&auto=format&fit=crop&q=80' },
                     { name: 'Drone Bay 360°', url: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=2000&auto=format&fit=crop&q=80' },
-                    { name: 'Chroma VIP Lounge 360°', url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=2000&auto=format&fit=crop&q=80' },
+                    { name: 'Chroma Networking Lounge 360°', url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=2000&auto=format&fit=crop&q=80' },
                   ].map((pano, pIdx) => (
                     <button
                       key={pIdx}

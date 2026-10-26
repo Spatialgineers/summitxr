@@ -72,7 +72,7 @@ export const SUMMIT_WEEKLY_CAPSULES: WeeklyCapsule[] = [
     xpReward: 30,
     summary: 'La génesis de la computación espacial en el Caribe y el manifiesto de soberanía creativa.',
     fullTransmission: `TRANSMISIÓN INTERCEPTADA // FRECUENCIA SGX-432Hz:
-"En 2026, Puerto Rico no es un espectador de la revolución espacial; es su laboratorio. Desde Chroma Space Studios en San Juan, unimos la ingeniería de software con la producción virtual para crear un nuevo estándar de eventos híbridos donde la audiencia es co-directora.
+"En 2026, Puerto Rico no es un espectador de la revolución espacial; es su laboratorio. El Spatialgineers Summit regresa del 11 al 13 de diciembre: dos días digitales por YouTube Live y el SGX Showcase del Día 3, híbrido y por invitación. Unimos la ingeniería de software con la producción virtual para crear eventos donde la audiencia es co-directora.
 
 El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre los mundos físicos de fibra óptica y los archipiélagos virtuales de Roblox."`,
     relatedSectionKey: 'PILLARS_MANIFESTO',
@@ -88,12 +88,12 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     badgeColor: '#00DDFF',
     isUnlockedDefault: false,
     xpReward: 30,
-    summary: 'Planos esquemáticos de la arena de conciertos, circuito aéreo de drones y hubs de teletransporte.',
+    summary: 'Planos esquemáticos del espacio en Roblox (embed opcional, si se usa): zona de artistas, circuito aéreo de drones y hubs de teletransporte.',
     fullTransmission: `PLANO ARQUITECTÓNICO // MUNDO VIRTUAL SGX ROBLOX:
 • Coordenadas del Núcleo Central: (0, 100, 0)
 • Zona de Vuelo Dron: Campo antigravedad con 12 aros de turbo recargable.
-• Escenario Transversal: Conexión WebSocket bidireccional entre las pantallas LED de San Juan y los avatares en la arena virtual.
-• Capacidad de Concurrencia: Servidores sincronizados con latencia sub-50ms.`,
+• Zona de Artistas: espacio para los intermedios de artistas invitados del Día 1 (por anunciar).
+• Estado: embed opcional; YouTube Live es el canal principal del Summit.`,
     relatedSectionKey: 'EMBEDS_GAMES',
     relatedActionLabel: 'Probar Simulador de Dron 3D'
   },
@@ -102,17 +102,17 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     weekNumber: 3,
     dateRange: 'Semana 3 · 08 Nov - 14 Nov',
     unlockDate: '2026-11-08T00:00:00-04:00',
-    title: 'Cápsula Gamma: Ficha Técnica del Volumen LED en Chroma Studios',
+    title: 'Cápsula Gamma: El Venue del SGX Showcase',
     category: 'TECH',
     badgeColor: '#32527B',
     isUnlockedDefault: false,
     xpReward: 30,
-    summary: 'Especificaciones de cámaras OptiTrack, Unreal Engine 5 nDisplay y tracking de perspectiva en tiempo real.',
-    fullTransmission: `DOCUMENTO TÉCNICO // CHROMA SPACE STUDIOS:
-• Pitch de Píxel de Pantalla: 1.9mm Black Face LED.
-• Sistema de Render: Cluster nDisplay en Unreal Engine 5.4 con Nanite & Lumen.
-• Sistema de Tracking de Cámara: Mo-Sys StarTracker óptico con metadatos de lente en tiempo real.
-• Modo Híbrido: Transmisión 4K a 60fps con renderizado dinámico de avatares holográficos en escenario.`,
+    summary: 'Chroma Space Studios en San Juan: venue del Día 3, sujeto a la firma del acuerdo.',
+    fullTransmission: `DOCUMENTO TÉCNICO // SGX SHOWCASE (DÍA 3):
+• Venue: Chroma Space Studios, San Juan, PR (sujeto a la firma del acuerdo).
+• Equipo integrado del estudio: luces, proyectores y cámaras.
+• Aforo: por invitación y cupo limitado, 40 a 60 personas como máximo.
+• Horario: 10:00 a.m. a 4:00 p.m., con transmisión por YouTube Live. Apertura de puertas: por anunciar.`,
     relatedSectionKey: 'MAP_360',
     relatedActionLabel: 'Explorar Tour 360° Venue'
   },
@@ -121,15 +121,16 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     weekNumber: 4,
     dateRange: 'Semana 4 · 15 Nov - 21 Nov',
     unlockDate: '2026-11-15T00:00:00-04:00',
-    title: 'Cápsula Delta: Drop de Artistas & Conciertos Híbridos',
+    title: 'Cápsula Delta: Artistas & Speakers del Summit',
     category: 'SPEAKERS',
     badgeColor: '#FFBB00',
     isUnlockedDefault: false,
     xpReward: 30,
-    summary: 'Primeros teasers de las presentaciones musicales inmersivas y las charlas magistrales.',
-    fullTransmission: `LINEUP REVELADO // ARTISTAS & KEYNOTES:
-• Keynote Apertura: "Soberanía Tecnológica en el Caribe a través de Spatial Computing".
-• Concierto Inmersivo: Actuación en vivo dentro del volumen LED con captura de movimiento transmitida en directo al universo de Roblox.
+    summary: 'Cómo se integran los artistas y las personas invitadas en el programa. Solo se anuncian los confirmados por escrito.',
+    fullTransmission: `LINEUP // ARTISTAS & SPEAKERS:
+• Día 1: un artista invitado de 15 minutos antes de cada uno de los seis pilares (por anunciar).
+• Día 2: una persona invitada por pilar en conversaciones de 45 minutos (por anunciar).
+• Día 3: Danelson con su avatar y captura facial en tiempo real, y dos artistas invitados (por confirmar).
 • Dinámica CYOA: El público en línea y presencial vota con sus dispositivos qué visuales de shader se proyectarán durante el clímax musical.`,
     relatedSectionKey: 'SPEAKERS',
     relatedActionLabel: 'Ver Speakers y Artistas 3D'
@@ -144,11 +145,11 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     badgeColor: '#FDCC0D',
     isUnlockedDefault: false,
     xpReward: 40,
-    summary: 'Satélites orbitales 3D interactivos para marcas aliadas desde $50 hasta $2,500.',
+    summary: 'Satélites orbitales 3D interactivos para las marcas de los cinco Tiers de auspicio.',
     fullTransmission: `REGISTRO DE ÓRBITA // ALIADOS DEL SUMMIT:
 • En vez de un muro estático de logotipos, cada patrocinador cuenta con una baliza orbital 3D o satélite en el Núcleo.
-• Los asistentes escanean las balizas con su HUD para ganar XP y desbloquear ofertas exclusivas de software, cursos y hardware XR.
-• Paquetes oficiales: Tier 1 Digital Presence ($50–$100), Tier 2 Gamified Experience ($250–$500), Tier 3 Experience Sponsor ($750–$1,000), Tier 4 Signature Experience ($1,500–$2,500 con Licencia Anual 365D) y Tier 5 Co-Producción In-Kind.`,
+• Los asistentes escanean las balizas con su HUD para ganar XP y descubrir los beneficios de cada marca.
+• Tiers oficiales: Tier 1 Digital Presence ($50–$100), Tier 2 Gamified ($250–$500), Tier 3 Experience ($750–$1,000), Tier 4 Signature Experience ($1,500–$2,500, licencia de 365 días desde noviembre) y Tier 5 Alianza de servicios esenciales (a convenir, sin precio público).`,
     relatedSectionKey: 'SPONSORS_HUB',
     relatedActionLabel: 'Explorar Patrocinios y Tiers'
   },
@@ -157,15 +158,16 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     weekNumber: 6,
     dateRange: 'Semana 6 · 29 Nov - 11 Dic',
     unlockDate: '2026-11-29T00:00:00-04:00',
-    title: 'Cápsula Omega: El Golden Master del Summit & Recompensas VIP',
+    title: 'Cápsula Omega: Cuenta Final & Premios del Summit',
     category: 'VIP',
     badgeColor: '#FFFFFF',
     isUnlockedDefault: false,
     xpReward: 50,
-    summary: 'Desbloqueo final previo al día inaugural: Casco de Astronauta Dorado y Pase VIP.',
+    summary: 'Desbloqueo final antes del Día 1: insignia del Pasaporte y la escalera de premios del Summit.',
     fullTransmission: `SECUENCIA FINAL // LANZAMIENTO GLOBAL:
-• 11 de Diciembre de 2026 · 10:00 AM AST.
-• Se abren los portales físicos en Chroma Space Studios y la arena virtual en Roblox.
+• 11 de diciembre de 2026 · 10:00 AM AST: apertura por YouTube Live.
+• 13 de diciembre: SGX Showcase en Chroma Space Studios (por invitación; sujeto a la firma del acuerdo).
+• Premios: cupón de descuento de un auspiciador, suscripción de 3 meses a nuestras plataformas, sesión "Grit" con artistas (por confirmar) y el premio mayor "Spatialgineers activa tu evento".
 • Los pilotos que desbloquearon las 6 cápsulas reciben la Insignia Legendaria "Pionero Cuántico" en su Pasaporte de Piloto.`,
     relatedSectionKey: 'OVERVIEW',
     relatedActionLabel: 'Ver Pasaporte de Piloto'

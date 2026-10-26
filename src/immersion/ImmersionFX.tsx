@@ -3,6 +3,7 @@ import { useImmersion } from './ImmersionContext';
 import { usePilotProfile } from '../context/PilotProfileContext';
 import { useLanguage } from '../context/LanguageContext';
 import { SECTION_BY_KEY, pillarDisplay, sectionLabel } from './sections';
+import { findPillar } from '../lib/sgxPillars';
 
 /* -------------------------------------------------------------------------
    Atmosphere: holodeck vignette + scanlines. Pure CSS, pointer-events none.
@@ -27,12 +28,15 @@ export const WarpTransition: React.FC<{ sectionKey: string }> = ({ sectionKey })
 
   if (!jump) return null;
   const meta = SECTION_BY_KEY[jump.key];
+  const station = jump.key.startsWith('PILLAR:') ? findPillar(jump.key.slice(7)) : undefined;
+  const pillarText = station ? `${language === 'es' ? 'Estación' : 'Station'} 0${station.index}` : meta ? pillarDisplay(meta.pillar) : '';
+  const titleText = station ? station.name : sectionLabel(meta, language) || jump.key.replace(/^PAGE_/, '');
   return (
     <div className="sgx-warp" key={jump.n} aria-hidden="true">
       <div className="sgx-warp__streaks" />
       <div className="sgx-warp__label">
-        {meta && <span className="sgx-warp__pillar">{pillarDisplay(meta.pillar)}</span>}
-        <span className="sgx-warp__title">{sectionLabel(meta, language) || jump.key}</span>
+        {pillarText && <span className="sgx-warp__pillar">{pillarText}</span>}
+        <span className="sgx-warp__title">{titleText}</span>
         <span className="sgx-warp__telemetry">WARP · SYNC OK</span>
       </div>
     </div>

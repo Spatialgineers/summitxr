@@ -63,25 +63,35 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
       category: 'Broadcast'
     },
     {
-      feature: 'Branding presencial en Chroma Space Studios (San Juan)',
+      feature: 'Integración de marca en minijuegos, visualizador y sistema de votación',
       t1: false, t2: false, t3: false, t4: true, t5: true,
-      category: 'Presencial'
+      category: 'Integración'
     },
     {
-      feature: 'Exclusividad de categoría (Único en su sector comercial)',
+      feature: 'Exclusividad por categoría (una sola marca de su sector)',
       t1: false, t2: false, t3: false, t4: true, t5: true,
       category: 'Exclusividad'
     },
     {
-      feature: 'Licencia WebApp 365 DÍAS (Activa hasta Summit 2027)',
+      feature: 'Documental y minijuego a medida (el minijuego se cotiza aparte)',
+      t1: false, t2: false, t3: false, t4: true, t5: true,
+      category: 'Contenido'
+    },
+    {
+      feature: 'Reporte final a los 30 días (vistas, asistencia, clics y participación, sin datos personales)',
+      t1: false, t2: false, t3: false, t4: true, t5: true,
+      category: 'Reporte'
+    },
+    {
+      feature: 'Licencia de acceso a la webapp por 365 días desde noviembre (sin transferencia de código)',
       t1: false, t2: false, t3: false, t4: true, t5: true,
       category: 'Permanencia 365D',
       highlight: true
     },
     {
-      feature: 'Co-Producción física & técnica in-kind (Luces LED, cámaras, proyección)',
+      feature: 'Aporte de servicios esenciales (venue, internet, comida u otros), a convenir',
       t1: false, t2: false, t3: false, t4: false, t5: true,
-      category: 'Co-Producción'
+      category: 'Alianza'
     }
   ];
 
@@ -96,7 +106,7 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
       case 4:
         return { label: 'TIER 4 • SIGNATURE 365D', color: '#FDCC0D', border: 'border-[#FDCC0D]' };
       case 5:
-        return { label: 'TIER 5 • CO-PRODUCER', color: '#FFFFFF', border: 'border-white' };
+        return { label: 'TIER 5 • SERVICIOS ESENCIALES', color: '#FFFFFF', border: 'border-white' };
       default:
         return { label: 'SPONSOR', color: '#FDCC0D', border: 'border-[#FDCC0D]' };
     }
@@ -116,15 +126,15 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
                 DOSSIER DE AUSPICIO OFICIAL
               </span>
               <span className="px-2.5 py-0.5 rounded text-[10px] font-mono text-slate-400 bg-slate-800/60 border border-slate-700">
-                Tiers 1 al 5 & Co-Producción
+                Tiers 1 al 5 · Pago total antes del 14 de nov. · Materiales hasta el 30 de nov.
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider font-['Orbitron',sans-serif]">
               Matriz Comparativa de Patrocinios
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl mt-1">
-              Conecta tu marca con la comunidad de computación espacial más vibrante del Caribe. 
-              El patrocinio Signature y Co-Productor otorga <strong className="text-[#FDCC0D]">presencia continua durante 365 días</strong> en la WebApp oficial de Spatialgineers hasta la edición 2027.
+              Conecta tu marca con el Spatialgineers Summit 2026, el regreso de nuestro evento de spatial computing. 
+              Los Tiers 4 y 5 incluyen una <strong className="text-[#FDCC0D]">licencia de acceso de 365 días desde noviembre</strong> a la webapp y sus espacios de promoción. El precio exacto dentro de cada rango se acuerda según el presupuesto del sponsor.
             </p>
           </div>
 
@@ -169,7 +179,7 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
           <Zap className="w-5 h-5 text-[#FDCC0D] shrink-0 mt-0.5 sm:mt-0" />
           <div className="text-xs text-slate-200">
             <strong className="text-[#FDCC0D]">Valor Diferencial SGX:</strong> A diferencia de eventos tradicionales de un solo fin de semana, 
-            los patrocinadores de los Tiers 4 y 5 mantienen su presencia activa, analíticas en tiempo real y activaciones en la WebApp durante <span className="font-bold underline">todo un año calendario (365 días)</span>.
+            los patrocinadores de los Tiers 4 y 5 mantienen su acceso a la webapp y a sus espacios de promoción <span className="font-bold underline">por 365 días desde noviembre</span>, y reciben un reporte final a los 30 días. Spatialgineers no garantiza un número de vistas, asistentes ni clics.
           </div>
         </div>
       </div>
@@ -263,7 +273,7 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
                   <th className="p-3.5 text-center text-[#FDCC0D]">Tier 2 ($250–$500)</th>
                   <th className="p-3.5 text-center text-[#FFBB00]">Tier 3 ($750–$1K)</th>
                   <th className="p-3.5 text-center text-[#FDCC0D] bg-[#FDCC0D]/5">Tier 4 ($1.5K–$2.5K)</th>
-                  <th className="p-3.5 text-center text-white bg-slate-800/50">Tier 5 (Co-Prod)</th>
+                  <th className="p-3.5 text-center text-white bg-slate-800/50">Tier 5 (A convenir)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/80">

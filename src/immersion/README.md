@@ -17,7 +17,7 @@ exactly as before (same `npm run dev` / `npm run build`, no new dependencies, no
 | Stage mode | `ImmersionContext.tsx` | `F` (fullscreen, hides the HUD) |
 | Warp, reticle, atmosphere, XP ticker | `ImmersionFX.tsx` | Automatic; turn off with `FX OFF` |
 
-Shortcuts follow the SGX HUD spec: `1–8` sections · `P` pulse · `M` audio · `F` stage · `/` terminal · `Esc` exit.
+Shortcuts follow the SGX HUD spec: `1–6` pillar stations · `0` 3D core · `P` pulse · `M` audio · `F` stage · `/` terminal · `Esc` exit.
 They stand down while typing and while the drone game is flying (`body[data-sgx-game]`).
 `?embed=true` hides the whole layer; the `stage` and `multiview` pages only show toasts.
 

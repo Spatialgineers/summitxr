@@ -3,7 +3,8 @@ import { ChevronLeft, HelpCircle, Share2 } from 'lucide-react';
 import type { SummitSectionKey } from './SummitSectionsDropdown';
 import { useImmersion } from '../../immersion/ImmersionContext';
 import { SgxBolt } from '../../immersion/SgxSymbols';
-import { SECTION_META } from '../../immersion/sections';
+import { SGX_PILLARS, findPillar, moduleCode } from '../../lib/sgxPillars';
+import { navigateToPillar } from '../../immersion/navigation';
 
 export interface HudSectionChip {
   key: SummitSectionKey;
@@ -23,9 +24,12 @@ interface SgxSectionHudBarProps {
   onShare: () => void;
   /** The grouped pillar dropdown, rendered at the start of the strip. */
   dropdown?: React.ReactNode;
+  /** Set while a pillar station is open. */
+  stationSlug?: string;
 }
 
-const PILLAR_ORDER = ['SGX.SPARK', 'SGX.STAGE', 'SGX.SHOWCASE', 'SGX.STORY', 'SGX.SYSTEM', 'SGX.SYNTHESIZE'];
+// Official order: Story, Showcase, Spark, Stage, System, Synthesize.
+const PILLAR_ORDER: string[] = SGX_PILLARS.map((p) => p.id);
 
 function pillarShort(id: string) {
   return id.replace('SGX.', '');
@@ -37,7 +41,7 @@ function pillarShort(id: string) {
  * already visited (cyan LED) and where you collected the energy cell (bolt).
  */
 export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
-  activeSection, chips, pillarLabel, pillarIconUrl, onSelect, onBack, onTour, onShare, dropdown,
+  activeSection, chips, pillarLabel, pillarIconUrl, onSelect, onBack, onTour, onShare, dropdown, stationSlug,
 }) => {
   const { state } = useImmersion();
   const stripRef = useRef<HTMLDivElement>(null);
@@ -45,7 +49,8 @@ export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
   const ordered = [...chips].sort((a, b) => PILLAR_ORDER.indexOf(a.pillar) - PILLAR_ORDER.indexOf(b.pillar));
   const activeIndex = ordered.findIndex((c) => c.key === activeSection);
   const active = ordered[activeIndex];
-  const stationNumber = Math.max(0, SECTION_META.findIndex((m) => m.key === activeSection)) + 1;
+  const station = stationSlug ? findPillar(stationSlug) : undefined;
+  const code = moduleCode(activeSection) || '00';
 
   // Keep the active station in view on narrow screens.
   useEffect(() => {
@@ -69,12 +74,21 @@ export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
           {pillarIconUrl && <img src={pillarIconUrl} alt="" referrerPolicy="no-referrer" />}
           <span className="sgx-sechud__pillar">{pillarLabel || active?.pillar}</span>
           <span className="sgx-sechud__sep">//</span>
-          <span className="sgx-sechud__index">{String(stationNumber).padStart(2, '0')}</span>
-          <span className="sgx-sechud__name">{active?.label || activeSection.replace(/_/g, ' ')}</span>
+          {station ? (
+            <>
+              <span className="sgx-sechud__index">0{station.index}</span>
+              <span className="sgx-sechud__name">Estación</span>
+            </>
+          ) : (
+            <>
+              <span className="sgx-sechud__index">{code}</span>
+              <span className="sgx-sechud__name">{active?.label || activeSection.replace(/_/g, ' ')}</span>
+            </>
+          )}
         </div>
 
         <div className="sgx-sechud__strip no-scrollbar" ref={stripRef} data-tour="interactive-modules-bar">
-          {dropdown}
+          {!station && dropdown}
           {ordered.map((chip, i) => {
             const Icon = chip.icon;
             const isActive = chip.key === activeSection;
@@ -83,7 +97,17 @@ export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
             const newGroup = i === 0 || ordered[i - 1].pillar !== chip.pillar;
             return (
               <React.Fragment key={chip.key}>
-                {newGroup && <span className="sgx-sechud__group">{pillarShort(chip.pillar)}</span>}
+                {newGroup && (
+                  <button
+                    type="button"
+                    className={`sgx-sechud__group ${station?.id === chip.pillar ? 'is-active' : ''}`}
+                    onClick={() => { const p = findPillar(chip.pillar); if (p) navigateToPillar(p.slug); }}
+                    title="Abrir la estación del pilar"
+                    data-sgx-hover
+                  >
+                    {String(PILLAR_ORDER.indexOf(chip.pillar) + 1).padStart(2, '0')} {pillarShort(chip.pillar)}
+                  </button>
+                )}
                 <button
                   type="button"
                   className={`sgx-sechud__tab ${isActive ? 'is-active' : ''}`}

@@ -31,6 +31,7 @@ import { useTenantTheme } from '../../context/TenantThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useSummitFeatures } from '../../context/SummitFeatureContext';
+import { SGX_PILLARS, pillarOfSection } from '../../lib/sgxPillars';
 
 export type SummitSectionKey = 
   | 'OVERVIEW'
@@ -45,7 +46,8 @@ export type SummitSectionKey =
   | 'ENTREPRENEUR_MATCH'
   | 'EMBEDS_GAMES'
   | 'SPONSORS_HUB'
-  | 'CREDENTIAL_GENERATOR';
+  | 'CREDENTIAL_GENERATOR'
+  | 'PILLAR';
 
 interface SummitSectionsDropdownProps {
   activeSection: SummitSectionKey;
@@ -286,7 +288,14 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     },
   ];
 
-  const visibleSectionsList = sectionsList.filter((s) => isSectionVisible(s.key));
+  // Every item lives in its one home pillar (lib/sgxPillars); OVERVIEW is the core, not a pillar.
+  const homedSections = sectionsList.map((item) => {
+    const home = pillarOfSection(item.key);
+    return home
+      ? { ...item, group: home.slug as SectionItemMeta['group'], badge: home.id, iconUrl: home.iconUrl }
+      : item;
+  });
+  const visibleSectionsList = homedSections.filter((s) => isSectionVisible(s.key));
   const currentItem = visibleSectionsList.find((s) => s.key === activeSection) || visibleSectionsList[0] || sectionsList[0];
   const CurrentIcon = currentItem.icon;
 
@@ -302,14 +311,12 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     }, 100);
   };
 
-  const groupsMeta = [
-    { id: 'story', title: 'SGX.STORY • IDENTIDAD & NARRATIVA', color: 'text-[#FDCC0D]' },
-    { id: 'stage', title: 'SGX.STAGE • TRANSMISIÓN & ESCENARIO 3D', color: 'text-white' },
-    { id: 'spark', title: 'SGX.SPARK • GAMIFICACIÓN & DRONES', color: 'text-cyan-400' },
-    { id: 'system', title: 'SGX.SYSTEM • TELEMETRÍA, DATOS & VOTACIÓN', color: 'text-sky-400' },
-    { id: 'showcase', title: 'SGX.SHOWCASE • EMPRENDIMIENTO & ALIANZAS', color: 'text-orange-400' },
-    { id: 'synthesize', title: 'SGX.SYNTHESIZE • ECOSISTEMA MAESTRO', color: 'text-[#FDCC0D]' },
-  ];
+  // Official order: Story, Showcase, Spark, Stage, System, Synthesize.
+  const groupsMeta = SGX_PILLARS.map((p) => ({
+    id: p.slug,
+    title: `0${p.index} · ${p.id} • ${p.title.es.toUpperCase()}`,
+    color: 'text-[#FDCC0D]',
+  }));
 
   return (
     <div className={`relative inline-block text-left ${className}`} ref={containerRef}>
@@ -349,7 +356,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
             backgroundColor: `${tenant.branding.primaryColor}15`
           }}
         >
-          {visibleSectionsList.length} Áreas
+          6 Pilares
         </span>
 
         <ChevronDown

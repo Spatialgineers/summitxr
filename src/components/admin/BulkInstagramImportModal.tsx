@@ -24,9 +24,9 @@ interface BulkInstagramImportModalProps {
 }
 
 const SAMPLE_INSTAGRAM_CSV = `url,caption,authorHandle,hashtags
-https://www.instagram.com/p/DFhQ_1rOABC/,"Presentación del Escenario Holográfico en el Summit 2026",@spatialgineers,"#SpatialgineersSummit #Metaverso"
+https://www.instagram.com/p/DFhQ_1rOABC/,"Presentación del Escenario Holográfico en el Summit 2026",@spatialgineers,"#SpatialgineersSummit #SpatialComputing"
 https://www.instagram.com/reel/DFm9_1rOXYZ/,"Momentos destacados de los Ranked Trials de los 8 Initiates",@spatialgineers,"#SGXRanked #Spatialgineers"
-https://www.instagram.com/p/DG0Q_1rO123/,"Concierto y experiencia visual en Chroma Space Studios",@losmismos,"#ChromaStudios #LiveEvent"`;
+https://www.instagram.com/p/DG0Q_1rO123/,"Experiencia visual del SGX Showcase",@spatialgineers,"#ChromaStudios #LiveEvent"`;
 
 export const BulkInstagramImportModal: React.FC<BulkInstagramImportModalProps> = ({
   isOpen,

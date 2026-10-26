@@ -222,7 +222,7 @@ D. "PRESET_TRIGGER" (Pushed directly to Three.js Canvas Render Plane)
                   </div>
                   <div className="p-3 bg-slate-900 rounded-lg border border-slate-800">
                     <span className="text-slate-300 font-bold block">🥈 Silver (350+ pts)</span>
-                    <span className="text-slate-400 block mt-1">15% Merch Discount QR Voucher</span>
+                    <span className="text-slate-400 block mt-1">Perk to be announced (mostly digital prizes)</span>
                   </div>
                   <div className="p-3 bg-slate-900 rounded-lg border border-slate-800">
                     <span className="text-yellow-400 font-bold block">🥇 Gold (750+ pts)</span>
@@ -230,11 +230,11 @@ D. "PRESET_TRIGGER" (Pushed directly to Three.js Canvas Render Plane)
                   </div>
                   <div className="p-3 bg-slate-900 rounded-lg border border-slate-800">
                     <span className="text-cyan-400 font-bold block">💎 Platinum (1,200+ pts)</span>
-                    <span className="text-slate-400 block mt-1">Free Hologram Print Voucher</span>
+                    <span className="text-slate-400 block mt-1">Surprise perk to be announced</span>
                   </div>
                   <div className="p-3 bg-slate-900 rounded-lg border border-slate-800 md:col-span-2">
-                    <span className="text-[var(--sgx-accent)] font-bold block">👑 VIP Backstage (1,600+ pts)</span>
-                    <span className="text-slate-400 block mt-1">OBS Stage Jumbotron Live Shoutout + VIP Lounge Pass</span>
+                    <span className="text-[var(--sgx-accent)] font-bold block">👑 Backstage (1,600+ pts)</span>
+                    <span className="text-slate-400 block mt-1">Top perk to be announced</span>
                   </div>
                 </div>
               </div>

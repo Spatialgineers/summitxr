@@ -65,15 +65,15 @@ export const PILOT_ROLES_DATA: RoleConfig[] = [
   {
     id: 'SPONSOR',
     title: 'Empresa & Inversionista',
-    tagline: 'Posiciona tu marca en el volumen LED de Chroma Studios',
+    tagline: 'Posiciona tu marca en la transmisión, la webapp y los minijuegos del Summit',
     colorHex: '#FDCC0D',
     badge: 'TIERS $50 - $2,500 · 365 DÍAS',
     icon: Building2,
     avatarImg: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Showcase%20Icon%20BY.png',
-    description: 'Para empresas, agencias de tecnología, fundadores e inversionistas que quieren visibilidad física en Chroma Space Studios y presencia satelital en el metaverso.',
+    description: 'Para empresas, agencias de tecnología, fundadores e inversionistas que quieren que su marca viva dentro de la transmisión, la webapp, los minijuegos y el sistema de votación del Summit.',
     keyPerks: [
-      'Tiers oficiales desde Tier 1 ($50–$100 Digital) hasta Tier 4 Signature ($1,500–$2,500 con Licencia Anual)',
-      'Presencia en el volumen LED de producción virtual y broadcast 4K',
+      'Tiers oficiales desde Tier 1 Digital Presence ($50–$100) hasta Tier 4 Signature Experience ($1,500–$2,500, licencia de 365 días desde noviembre) y Tier 5 a convenir',
+      'Pago total a más tardar el 14 de noviembre; materiales hasta el 30 de noviembre',
       'Matchmaking exclusivo B2B con fundadores y creadores en SGX.Match'
     ],
     recommendedSections: [
@@ -88,14 +88,14 @@ export const PILOT_ROLES_DATA: RoleConfig[] = [
     title: 'Estudiante & Aprendiz',
     tagline: 'Aprende computación espacial desde cero y acumula XP',
     colorHex: '#FFBB00',
-    badge: 'BECAS · PASAPORTE XP · TALLERES',
+    badge: 'GRATIS · PASAPORTE XP · SGX GUILD',
     icon: GraduationCap,
     avatarImg: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Story%20Icon%20BY.png',
     description: 'Ideal para estudiantes universitarios, escolares y autodidactas de Puerto Rico y LATAM que quieren ingresar a la industria de la computación espacial e IA.',
     keyPerks: [
-      'Pases gratuitos virtuales y descuentos estudiantiles presenciales',
+      'Entrada gratuita a los días digitales; el Día 3 presencial es por invitación y cupo limitado',
       'Pasaporte digital con sellos y misiones para canjear en la Tienda XP',
-      'Mentorías en vivo con ingenieros y creadores internacionales'
+      'El SGX Guild es público y gratis para estudiantes universitarios (18 años o más)'
     ],
     recommendedSections: [
       { label: 'Pasaporte de Misiones', sectionKey: 'OVERVIEW' },
@@ -107,19 +107,19 @@ export const PILOT_ROLES_DATA: RoleConfig[] = [
   {
     id: 'VISIONARY',
     title: 'Curioso & Visionario',
-    tagline: 'Disfruta transmisiones 4K, conciertos y la comunidad',
+    tagline: 'Disfruta la transmisión en vivo, los artistas invitados y la comunidad',
     colorHex: '#FFFFFF',
-    badge: 'BROADCAST 4K · CONCIERTOS · LIVE',
+    badge: 'YOUTUBE LIVE · ARTISTAS · LIVE',
     icon: Eye,
     avatarImg: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Stage%20Icon%20BY.png',
-    description: 'Para entusiastas de la cultura digital, gamers y curiosos que desean presenciar el futuro del entretenimiento interactivo y los conciertos en vivo.',
+    description: 'Para entusiastas de la cultura digital, gamers y curiosos que desean presenciar el futuro del entretenimiento interactivo y las presentaciones en vivo.',
     keyPerks: [
-      'Transmisiones multicanal 4K desde Chroma Space Studios y Roblox',
+      'Transmisión por YouTube Live, LinkedIn Live y Facebook Live (y Roblox, si se usa)',
       'Votación interactiva CYOA en tiempo real durante las presentaciones',
       'Comunidad en vivo con reacciones hápticas y chat global'
     ],
     recommendedSections: [
-      { label: 'Salas de Broadcast 4K', sectionKey: 'BROADCAST_ROOMS' },
+      { label: 'Salas de Broadcast', sectionKey: 'BROADCAST_ROOMS' },
       { label: 'Comunidad & Social Stream', sectionKey: 'SOCIAL_STREAM' },
       { label: 'Manifiesto SGX', sectionKey: 'PILLARS_MANIFESTO' }
     ],

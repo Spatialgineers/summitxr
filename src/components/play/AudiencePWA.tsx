@@ -383,7 +383,7 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
                 <h3 className="text-base font-bold text-white font-['Orbitron',sans-serif]">Prize & Perk Locker</h3>
               </div>
               <p className="text-xs text-slate-400">
-                Unlock exclusive digital badges, merch discounts, and VIP shoutouts as your score grows!
+                Unlock digital badges and mostly digital prizes as your score grows!
               </p>
             </div>
 

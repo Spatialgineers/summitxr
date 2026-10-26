@@ -30,13 +30,13 @@ interface SummitSponsorInquiryFormProps {
 }
 
 const AVAILABLE_GOALS = [
-  { id: '4K_STREAM_OVERLAY', label: 'Presencia en Transmisión 4K & Overlays (Días 1-3)', icon: Sparkles },
-  { id: 'PHYSICAL_BOOTH_CHROMA', label: 'Presencia & Activación en Chroma Space Studios (San Juan)', icon: Building2 },
+  { id: '4K_STREAM_OVERLAY', label: 'Logo en la webapp y en los overlays de la transmisión (Días 1-3)', icon: Sparkles },
+  { id: 'PHYSICAL_BOOTH_CHROMA', label: 'Activación "Experience by [Marca]" (Tier 4 y 5)', icon: Building2 },
   { id: 'DRONE_MINIGAME_BRANDING', label: 'Branding en Minijuego de Drones & Zonas de Aterrizaje', icon: Flame },
-  { id: 'GAMIFIED_CHALLENGE_POINTS', label: 'Pregunta Gamificada con Puntos en Votaciones en Vivo', icon: Award },
+  { id: 'GAMIFIED_CHALLENGE_POINTS', label: 'Pregunta de trivia de marca en vivo (+25 XP)', icon: Award },
   { id: 'SEGMENT_NAMING', label: 'Naming de Segmento o Pilar ("Showcase Powered by...")', icon: Layers },
-  { id: 'VIP_CATERING', label: 'Acceso al Mezzanine VIP & Catering en San Juan', icon: ShieldCheck },
-  { id: 'YEAR_LONG_LICENSE', label: 'Licencia Anual en la Plataforma WebXR (hasta 2027)', icon: Globe },
+  { id: 'VIP_CATERING', label: 'Alianza de servicios esenciales: venue, internet, comida u otros (Tier 5)', icon: ShieldCheck },
+  { id: 'YEAR_LONG_LICENSE', label: 'Licencia de acceso a la webapp por 365 días desde noviembre (Tier 4 y 5)', icon: Globe },
   { id: 'TALENT_RECRUITMENT', label: 'Reclutamiento de Talento 3D / Desarrolladores Roblox', icon: Building2 }
 ];
 
@@ -53,7 +53,7 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [websiteUrl, setWebsiteUrl] = useState<string>('');
-  const [estimatedBudget, setEstimatedBudget] = useState<string>('$250 - $500');
+  const [estimatedBudget, setEstimatedBudget] = useState<string>('$250 – $500');
   const [selectedGoals, setSelectedGoals] = useState<string[]>([
     '4K_STREAM_OVERLAY',
     'DRONE_MINIGAME_BRANDING'
@@ -135,13 +135,14 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
     if (!submittedInquiry) return;
     const summaryText = `=====================================================
 SPATIALGINEERS SUMMIT 2026 • SOLICITUD DE PATROCINIO
-Sede Física: Chroma Space Studios, San Juan, Puerto Rico
+Día 3 (SGX Showcase): Chroma Space Studios, San Juan, Puerto Rico (sujeto a la firma del acuerdo)
 Fecha del Evento: Diciembre 11 - 13, 2026
+Pago total: a más tardar el 14 de noviembre de 2026 · Materiales: hasta el 30 de noviembre de 2026
 =====================================================
 
 CÓDIGO DE SEGUIMIENTO: ${submittedInquiry.referenceCode}
 FECHA DE SOLICITUD: ${new Date(submittedInquiry.submittedAt).toLocaleString()}
-ESTADO: En Revisión por el Comité Ejecutivo
+ESTADO: En revisión por Spatialgineers
 
 DATOS DE LA EMPRESA:
 - Empresa / Marca: ${submittedInquiry.companyName}
@@ -162,8 +163,8 @@ MENSAJE / PROPUESTA PERSONALIZADA:
 ${submittedInquiry.customMessage || 'Sin notas adicionales.'}
 
 CONTACTO DIRECTO DE PRODUCCIÓN:
-Correo: info@spatialgineers.com
-Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
+Correo: info@spatialgineers.com · Teléfono: +1 (787) 445-5284 · @spatialgineers
+Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio firmado por ambas partes.
 =====================================================`;
 
     const blob = new Blob([summaryText], { type: 'text/plain;charset=utf-8' });
@@ -235,7 +236,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                   Gracias por tu interés, {submittedInquiry.companyName}
                 </h3>
                 <p className="text-xs text-slate-300 max-w-xl mx-auto leading-relaxed">
-                  Nuestro equipo de producción ejecutiva en <span className="text-[var(--sgx-neon)] font-bold">Chroma Space Studios</span> revisará tu propuesta y se comunicará contigo vía correo o WhatsApp en menos de 24 horas hábiles.
+                  El equipo de <span className="text-[var(--sgx-neon)] font-bold">Spatialgineers</span> revisará tu propuesta y se comunicará contigo por correo. Recuerda: pago total a más tardar el 14 de noviembre y materiales hasta el 30 de noviembre.
                 </p>
               </div>
 
@@ -403,7 +404,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                           {isSelected ? '✓ SELECCIONADO' : 'Elegir este'}
                         </span>
                         {tier.yearLongLicense && (
-                          <span className="text-[#FDCC0D] font-bold">1 AÑO LICENCIA</span>
+                          <span className="text-[#FDCC0D] font-bold">LICENCIA 365 DÍAS</span>
                         )}
                       </div>
                     </button>
@@ -565,11 +566,11 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                     className="w-full p-2.5 bg-[#1b1b1b] border border-[var(--sgx-secondary)] text-xs text-white focus:outline-none focus:border-[var(--sgx-neon)]"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   >
-                    <option value="$100 - $200">$100 - $200 (Tier 1: Digital Presence)</option>
-                    <option value="$250 - $500">$250 - $500 (Tier 2: Gamified Experience)</option>
-                    <option value="$750 - $1,000">$750 - $1,000 (Tier 3: Experience Sponsor)</option>
-                    <option value="$1,500 - $2,500">$1,500 - $2,500 (Tier 4: Signature 1-Año)</option>
-                    <option value="$3,000+">$3,000+ (Alianza Co-Producción Personalizada)</option>
+                    <option value="$50 – $100">$50 – $100 (Tier 1: Digital Presence)</option>
+                    <option value="$250 – $500">$250 – $500 (Tier 2: Gamified)</option>
+                    <option value="$750 – $1,000">$750 – $1,000 (Tier 3: Experience)</option>
+                    <option value="$1,500 – $2,500">$1,500 – $2,500 (Tier 4: Signature Experience)</option>
+                    <option value="A convenir (sin precio público)">A convenir (Tier 5: Alianza de servicios esenciales)</option>
                   </select>
                 </div>
 
@@ -579,7 +580,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
                     rows={2}
                     value={customMessage}
                     onChange={e => setCustomMessage(e.target.value)}
-                    placeholder="Cuéntanos sobre tu producto, ideas creativas de activación en el escenario de Chroma Space Studios o integración de minijuegos..."
+                    placeholder="Cuéntanos sobre tu producto, ideas de activación en la transmisión, la webapp o los minijuegos..."
                     className="w-full p-2 bg-[#1b1b1b] border border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)] text-xs text-white placeholder-slate-500 focus:outline-none"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   />
@@ -591,7 +592,7 @@ Sede: Chroma Space Studios, Calle Cerra, Santurce, San Juan, PR
             <div className="pt-4 border-t border-[var(--sgx-secondary)]/60 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center space-x-2 text-[11px] text-slate-400">
                 <Info className="w-4 h-4 text-[var(--sgx-accent)] shrink-0" />
-                <span>Respuesta garantizada en 24h por Danelson y el equipo de producción.</span>
+                <span>Pago total a más tardar el 14 de noviembre de 2026. Materiales hasta el 30 de noviembre. También puedes escribir a info@spatialgineers.com.</span>
               </div>
 
               <div className="flex items-center space-x-3 w-full sm:w-auto">

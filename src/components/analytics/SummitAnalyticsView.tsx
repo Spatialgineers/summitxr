@@ -187,7 +187,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
             </span>
           </div>
           <p className="text-xs text-slate-300 mt-1 font-mono">
-            Métricas en tiempo real sincronizadas con Firestore, Telemetría 3D (.GLB), Votación CYOA y Récords de Pilotos.
+            Métricas sincronizadas con Firestore, Telemetría 3D (.GLB), Votación CYOA y Récords de Pilotos. Antes del evento, algunos valores de referencia son simulados y no representan asistencia real.
           </p>
         </div>
 
@@ -233,9 +233,9 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
         <div className="flex flex-wrap items-center gap-1.5">
           {[
             { id: '3_DAYS', label: '3 DÍAS (GLOBAL ACUMULADO)' },
-            { id: 'DAY_1', label: 'DÍA 1 · ROBLOX & METAVERSO' },
-            { id: 'DAY_2', label: 'DÍA 2 · SGX GUILD TRIALS' },
-            { id: 'DAY_3', label: 'DÍA 3 · CHROMA SPACE LIVE' },
+            { id: 'DAY_1', label: 'DÍA 1 · PILARES & INITIATES' },
+            { id: 'DAY_2', label: 'DÍA 2 · DÍA DE LA INDUSTRIA' },
+            { id: 'DAY_3', label: 'DÍA 3 · SGX SHOWCASE' },
           ].map((tab) => {
             const isActive = activeRange === tab.id;
             return (

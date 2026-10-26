@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
+  Orbit,
   ArrowRight,
   User,
   Tv,
@@ -35,6 +36,8 @@ import { usePilotProfile } from '../../context/PilotProfileContext';
 import { SgxOrbitalCore3D, SgxCorePillarId } from './SgxOrbitalCore3D';
 import { SummitAnalyticsView } from '../analytics/SummitAnalyticsView';
 import { useSummitFeatures } from '../../context/SummitFeatureContext';
+import { PILLAR_BY_KEY, PillarKey } from '../../lib/sgxPillars';
+import { navigateToPillar } from '../../immersion/navigation';
 
 export interface PillarModuleItem {
   id: string;
@@ -139,7 +142,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
 
   // Strict logical separation of all modules into their 6 SGX Pillars in official v2026.10 order:
   // 1. STORY -> 2. SHOWCASE -> 3. SPARK -> 4. STAGE -> 5. SYSTEM -> 6. SYNTHESIZE
-  const pillarStations: PillarStationDefinition[] = [
+  const rawPillarStations: PillarStationDefinition[] = [
     {
       id: 'STORY',
       name: 'SGX.STORY',
@@ -238,7 +241,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           title: 'Tour Virtual 360° Chroma Space Studios',
           subtitle: 'Recorrido Espacial por la Sede Híbrida en San Juan',
           description:
-            'Explora en 360° los sets de producción virtual, escenario principal y zonas de networking de nuestro Strategic Venue Partner.',
+            'Explora en 360° los sets de producción virtual, escenario principal y zonas de networking de la sede del Día 3 (sujeta a la firma del acuerdo).',
           xpReward: '+90 XP',
           actionLabel: 'Entrar al Tour 360°',
           icon: Globe,
@@ -330,9 +333,9 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         {
           id: 'mod_rewards_store',
           title: 'Tienda de Premios Oficiales & Canje XP',
-          subtitle: 'Cupones, Suscripciones 3M, Sesión Grit & Premio Mayor Tier 1',
+          subtitle: 'Cupones, suscripción 3 meses, sesión Grit y premio mayor',
           description:
-            'Canjea tus XP por cupones de auspiciadores, 3 meses en plataformas SGX, Sesión "Grit" con Vyze y Ericson o el Premio Mayor "Spatialgineers activa tu evento".',
+            'Canjea tus XP por cupones de auspiciadores, 3 meses en plataformas SGX, sesión "Grit" con artistas (por confirmar) o el premio mayor "Spatialgineers activa tu evento".',
           xpReward: 'PREMIOS XP',
           actionLabel: 'Abrir Tienda de Premios',
           icon: Trophy,
@@ -408,7 +411,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         {
           id: 'mod_speakers',
           title: 'Directorio 3D de Speakers & Artistas',
-          subtitle: 'Co-Hosts, Personas Invitadas & Artistas en Vivo',
+          subtitle: 'Hosts, personas invitadas y artistas confirmados por escrito',
           description:
             'Conoce a Danelson ("The Highgineer"), Ricardo ("Lightning Fingers"), personas invitadas de cada pilar, artistas y los 8 Initiates del Guild.',
           xpReward: '+60 XP',
@@ -589,6 +592,44 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
       ],
     },
   ];
+
+  // Each hub module lives in the same home pillar the menus use (lib/sgxPillars), and every
+  // pillar opens with a door to its full station page.
+  const HUB_MODULE_HOME: Record<string, SgxCorePillarId> = {
+    mod_passport: 'SPARK',
+    mod_pilot_profile: 'SPARK',
+    mod_relic_studio: 'SHOWCASE',
+    mod_sponsor_apply: 'SHOWCASE',
+    mod_social_stream: 'STORY',
+    mod_qr_scanner: 'SYSTEM',
+    mod_credential_generator: 'SYSTEM',
+    mod_speaker_portal: 'STAGE',
+    mod_sgx_match: 'SYNTHESIZE',
+    mod_guild_trials: 'SYNTHESIZE',
+  };
+  const allHubModules = rawPillarStations.flatMap((st) => st.modules.map((m) => ({ m, from: st.id })));
+  const pillarStations: PillarStationDefinition[] = rawPillarStations.map((st) => {
+    const def = PILLAR_BY_KEY[st.id as PillarKey];
+    const modules = allHubModules.filter((x) => (HUB_MODULE_HOME[x.m.id] || x.from) === st.id).map((x) => x.m);
+    const door: PillarModuleItem = {
+      id: `mod_station_${def.slug}`,
+      title: `Estación 0${def.index} · ${def.name}`,
+      subtitle: 'Programa de los 3 días, módulos y tu progreso',
+      description: `${def.line.es} ${def.scope.es}`,
+      actionLabel: 'Entrar a la estación',
+      icon: Orbit,
+      onLaunch: () => navigateToPillar(def.slug),
+    };
+    return {
+      ...st,
+      name: def.id,
+      title: def.title.es,
+      subtitle: modules.slice(0, 4).map((m) => m.title.split(' (')[0]).join(' • '),
+      description: `${def.line.es} ${def.scope.es}`,
+      iconUrl: def.iconUrl,
+      modules: [door, ...modules],
+    };
+  });
 
   const activeStation =
     pillarStations.find(s => s.id === activePillarId) || pillarStations[0];

@@ -5,8 +5,9 @@ import { useLanguage } from '../context/LanguageContext';
 import { getAppRouteAndSectionFromUrl } from '../lib/summitUrlSync';
 import { getIsAudioMuted, playUiChirp, toggleAudioMute } from '../lib/cyberAudioEngine';
 import { useImmersion, haptic } from './ImmersionContext';
-import { SECTION_BY_HOTKEY } from './sections';
-import { navigateToSection } from './navigation';
+import { SECTION_BY_KEY } from './sections';
+import { SGX_PILLARS, findPillar } from '../lib/sgxPillars';
+import { navigateToPillar, navigateToSection } from './navigation';
 import { HudToasts } from './HudToasts';
 import { MissionRail } from './MissionRail';
 import { CommandTerminal } from './CommandTerminal';
@@ -27,9 +28,16 @@ function isTypingTarget(el: EventTarget | null): boolean {
   return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || node.isContentEditable;
 }
 
+/** Pillar stations are tracked as "PILLAR:<slug>", every other section by its key. */
+function stationKey(section: string | null | undefined, pillar?: string | null): string {
+  if (section === 'PILLAR') return `PILLAR:${findPillar(pillar)?.slug || 'story'}`;
+  return section || 'OVERVIEW';
+}
+
 function readSection(): string {
   const parsed = getAppRouteAndSectionFromUrl();
-  return parsed.page === 'summit' ? parsed.summitSection || 'OVERVIEW' : `PAGE_${parsed.page.toUpperCase()}`;
+  if (parsed.page !== 'summit') return `PAGE_${parsed.page.toUpperCase()}`;
+  return stationKey(parsed.summitSection, new URLSearchParams(window.location.search).get('subtab'));
 }
 
 export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPage }) => {
@@ -51,8 +59,8 @@ export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPa
   useEffect(() => {
     const sync = () => setSection(readSection());
     const onSwitch = (e: Event) => {
-      const next = (e as CustomEvent<{ section?: string }>).detail?.section;
-      if (next) setSection(next);
+      const d = (e as CustomEvent<{ section?: string; pillar?: string }>).detail;
+      if (d?.section) setSection(stationKey(d.section, d.pillar));
     };
     window.addEventListener('sgx:route_changed', sync);
     window.addEventListener('popstate', sync);
@@ -65,8 +73,17 @@ export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPa
   }, []);
 
   useEffect(() => {
-    if (currentPage === 'summit') markVisited(section);
-  }, [currentPage, section, markVisited]);
+    if (currentPage !== 'summit') return;
+    if (section.startsWith('PILLAR:')) markPillar(section.slice(7));
+    else markVisited(section);
+  }, [currentPage, section, markVisited, markPillar]);
+
+  // Pillar modules can ask for the terminal (SGX.System → Terminal de mando).
+  useEffect(() => {
+    const open = () => setTerminalOpen(true);
+    window.addEventListener('sgx:open_terminal', open);
+    return () => window.removeEventListener('sgx:open_terminal', open);
+  }, [setTerminalOpen]);
 
   // Pillars docked anywhere (3D core, section bar, hub) count toward "Los Seis Pilares".
   useEffect(() => {
@@ -160,8 +177,11 @@ export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPa
         pushToast({ tag: 'AUDIO', title: muted ? 'MUTE' : 'AUDIO ON', tone: 'telemetry' });
       } else if (key === 'f') {
         toggleStageMode();
-      } else if (isGamePage && SECTION_BY_HOTKEY[e.key]) {
-        navigateToSection(SECTION_BY_HOTKEY[e.key].key);
+      } else if (isGamePage && /^[1-6]$/.test(e.key)) {
+        // 1–6: the six pillar stations in official order. 0: back to the 3D core.
+        navigateToPillar(SGX_PILLARS[Number(e.key) - 1].slug);
+      } else if (isGamePage && e.key === '0') {
+        navigateToSection('OVERVIEW');
       }
     };
     window.addEventListener('keydown', onKey);
@@ -184,11 +204,11 @@ export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPa
       {fx && <Atmosphere />}
       {fx && <CursorReticle />}
       {fx && <WarpTransition sectionKey={sectionKey} />}
-      {fx && currentPage === 'summit' && <EnergyCell key={sectionKey} sectionKey={sectionKey} />}
+      {fx && currentPage === 'summit' && SECTION_BY_KEY[section] && <EnergyCell key={sectionKey} sectionKey={sectionKey} />}
       <PulseWaves />
       <OverdriveFrame />
-      {!stageMode && <MissionRail />}
-      {!stageMode && <XpTicker />}
+      {!stageMode && isGamePage && <MissionRail />}
+      {!stageMode && isGamePage && <XpTicker />}
       <CommandTerminal />
       <HudToasts />
     </div>

@@ -4,7 +4,7 @@ export const PRIZE_TIERS: PrizeTier[] = [
   {
     id: 'tier_bronze',
     tier: 'BRONZE',
-    name: 'Explorer Initiate',
+    name: 'Explorer Cadet',
     description: 'Awarded for active participation in the live event stream.',
     minPoints: 100,
     minInteractions: 1,
@@ -28,7 +28,7 @@ export const PRIZE_TIERS: PrizeTier[] = [
   {
     id: 'tier_gold',
     tier: 'GOLD',
-    name: 'Master Co-Producer',
+    name: 'Master Producer',
     description: 'Exceptional instincts shaping the course of the live stage.',
     minPoints: 750,
     minInteractions: 3,

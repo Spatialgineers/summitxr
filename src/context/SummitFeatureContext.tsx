@@ -500,7 +500,7 @@ export const SummitFeatureProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const getSectionStatus = (sectionKey: string): FeatureStatus => {
-    if (sectionKey === 'OVERVIEW') return 'ACTIVE';
+    if (sectionKey === 'OVERVIEW' || sectionKey === 'PILLAR') return 'ACTIVE';
     const featureId = SECTION_KEY_TO_FEATURE_ID[sectionKey] || sectionKey;
     return getFeatureStatus(featureId);
   };

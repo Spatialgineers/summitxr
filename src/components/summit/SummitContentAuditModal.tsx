@@ -269,10 +269,10 @@ export const SummitContentAuditModal: React.FC<{
               <div className="p-4 bg-[#131313] border-2 border-[#00DDFF]/40 space-y-2">
                 <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#00DDFF] uppercase">
                   <FileCheck className="w-4 h-4" />
-                  <span>AUDITORÍA DE INTEGRIDAD: 100% DATOS REALES CONFIRMADOS</span>
+                  <span>AUDITORÍA DE CONTENIDO: VERIFICAR CONTRA EL DOCUMENTO MAESTRO v2026.10.1</span>
                 </div>
                 <p className="text-xs text-slate-300 font-sans leading-relaxed">
-                  La plataforma opera exclusivamente con datos canónicos del Master Plan y el CDN oficial de Spatialgineers. Puedes ocultar cualquier sección o módulo que aún esté en preparación usando la pestaña <strong>Ocultar / Mostrar Módulos</strong>.
+                  El contenido público debe coincidir con el Documento Maestro y el Run of Show v2026.10.1. Los perfiles de muestra y las simulaciones están marcados como datos simulados. Puedes ocultar cualquier sección o módulo que aún esté en preparación usando la pestaña <strong>Ocultar / Mostrar Módulos</strong>.
                 </p>
               </div>
 
@@ -288,7 +288,7 @@ export const SummitContentAuditModal: React.FC<{
                       <span className="text-[#00DDFF] font-bold">CDN Conectado</span>
                     </li>
                     <li className="flex items-center justify-between p-2 bg-[#0B0B0B] border border-white/10">
-                      <span>Logo SGX Summit:</span>
+                      <span>Logo Spatialgineers Summit:</span>
                       <span className="text-[#00DDFF] font-bold">CDN Conectado</span>
                     </li>
                     <li className="flex items-center justify-between p-2 bg-[#0B0B0B] border border-white/10">

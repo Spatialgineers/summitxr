@@ -7,11 +7,11 @@ export const INITIAL_REWARDS: GamificationReward[] = [
     id: 'reward_sponsor_discount_coupon',
     title: 'Cupón de Descuento Oficial de Auspiciador',
     category: 'WEBAPP_SUBSCRIPTION',
-    description: 'Cupón digital de descuento directo cortesía de los auspiciadores oficiales del Spatialgineers Summit 2026, redimible desde el bloque de Networking del Día 3.',
+    description: 'Cupón digital de descuento cortesía de un auspiciador del Spatialgineers Summit 2026 (depende de que haya auspiciadores), redimible desde el bloque de Networking del Día 3.',
     xpCost: 250,
     originalValueUsd: 'Beneficio Digital de Auspiciador',
     inventoryCount: -1, // Ilimitado para participantes activos
-    claimedCount: 18,
+    claimedCount: 0,
     badgeIcon: '🎟️',
     themeColor: '#00DDFF',
     active: true,
@@ -29,13 +29,13 @@ export const INITIAL_REWARDS: GamificationReward[] = [
   },
   {
     id: 'reward_sgx_platform_3months',
-    title: 'Suscripción de 3 Meses a Plataformas SGX',
+    title: 'Suscripción de 3 Meses a Nuestras Plataformas',
     category: 'WEBAPP_SUBSCRIPTION',
-    description: 'Acceso completo durante 3 meses a las plataformas y herramientas digitales del ecosistema Spatialgineers (SGX Live Engine, WebXR Builder y módulos interactivos).',
+    description: 'Suscripción de 3 meses a las plataformas digitales de Spatialgineers.',
     xpCost: 500,
     originalValueUsd: 'Suscripción Digital 3 Meses',
     inventoryCount: 40,
-    claimedCount: 9,
+    claimedCount: 0,
     badgeIcon: '⚡',
     themeColor: '#FDCC0D',
     active: true,
@@ -53,45 +53,42 @@ export const INITIAL_REWARDS: GamificationReward[] = [
   },
   {
     id: 'reward_grit_session_chroma',
-    title: 'Sesión "Grit" con Artistas de La Base de los Élites (Vyze y Ericson) & Chroma Space',
+    title: 'Sesión "Grit" con Artistas (por confirmar)',
     category: 'SERVICE_CONSULTING',
-    description: 'Experiencia exclusiva de estudio y producción creativa ("Sesión Grit") junto a Vyze y Ericson de La Base de los Élites y el equipo de Chroma Space Studios.',
+    description: 'Experiencia "Grit" con artistas. Por confirmar: todavía no hay acuerdo escrito, por lo que no se puede canjear hasta que se confirme.',
     xpCost: 1200,
-    originalValueUsd: 'Experiencia Exclusiva en Estudio',
-    inventoryCount: 5,
-    claimedCount: 1,
+    originalValueUsd: 'Experiencia (por confirmar)',
+    inventoryCount: 0, // POR CONFIRMAR: not redeemable until confirmed in writing
+    claimedCount: 0,
     badgeIcon: '🔥',
     themeColor: '#FFBB00',
     active: true,
-    accessUrl: 'https://chromaspace.pr',
-    accessCodePrefix: 'SGX-GRIT-CHROMA-',
+    accessUrl: 'https://summit.spatialgineers.com',
+    accessCodePrefix: 'SGX-GRIT-',
     features: [
-      'Sesión creativa directa con Vyze y Ericson (La Base de los Élites)',
-      'Inmersión en el flujo de producción de Chroma Space Studios en San Juan',
-      'Mentoría práctica en dirección audiovisual, música y tecnología espacial',
-      'Reconocimiento oficial durante el bloque de cierre del Día 3'
+      'Sesión "Grit" con artistas: por confirmar',
+      'Los detalles se anuncian solo cuando haya confirmación por escrito'
     ],
-    sponsorName: 'La Base de los Élites & Chroma Space Studios',
+    sponsorName: 'Spatialgineers LLC',
     createdAt: Date.now() - 86400000 * 2,
     updatedAt: Date.now()
   },
   {
     id: 'reward_grand_prize_activate_event',
-    title: 'Premio Mayor: "Spatialgineers Activa Tu Evento" (Servicio Tier 1)',
+    title: 'Premio Mayor: "Spatialgineers Activa Tu Evento"',
     category: 'SERVICE_CONSULTING',
-    description: 'El premio máximo del Spatialgineers Summit 2026: Spatialgineers diseña y activa tu próximo evento con un servicio oficial Tier 1 (valorado entre $1,000 y $2,500) y/o suscripciones a plataformas SGX.',
+    description: 'El premio mayor del Spatialgineers Summit 2026: un servicio de Spatialgineers para activar tu próximo evento.',
     xpCost: 2500,
-    originalValueUsd: '$1,000 – $2,500 (Servicio Tier 1)',
+    originalValueUsd: 'Servicio de Spatialgineers',
     inventoryCount: 1,
     claimedCount: 0,
     badgeIcon: '👑',
     themeColor: '#FDCC0D',
     active: true,
     accessUrl: 'https://spatialgineers.com',
-    accessCodePrefix: 'SGX-ACTIVATE-T1-',
+    accessCodePrefix: 'SGX-ACTIVATE-',
     features: [
-      'Servicio oficial Spatialgineers Tier 1 ($1,000 a $2,500) para activar tu evento o marca',
-      'Incluye integración interactiva, visualizadores SGX y/o suscripciones a plataformas SGX',
+      'Un servicio de Spatialgineers para activar tu evento',
       'Anunciado oficialmente en el bloque de Cierre del Día 3 (3:30–4:00 p.m.)',
       'Sesión de planificación estratégica con Danelson ("The Highgineer") y Ricardo ("Lightning Fingers")'
     ],
@@ -103,7 +100,7 @@ export const INITIAL_REWARDS: GamificationReward[] = [
 
 export const INITIAL_LEADERBOARD: LeaderboardEntry[] = [];
 
-const LOCAL_STORAGE_REWARDS_KEY = 'sgx_gamification_rewards_v2026_10';
+const LOCAL_STORAGE_REWARDS_KEY = 'sgx_gamification_rewards_v2026_10_1';
 const LOCAL_STORAGE_REDEEMED_KEY = 'sgx_redeemed_prizes_v2026_10';
 const LOCAL_STORAGE_USER_XP_KEY = 'sgx_user_current_xp';
 

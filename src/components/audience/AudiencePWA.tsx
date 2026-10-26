@@ -45,7 +45,7 @@ const VOTING_GUIDE_STEPS: GuideStep[] = [
     badge: 'GUÍA 2/3 • RECOMPENSAS Y CUPONES',
     title: 'Niveles de Recompensa (Tiers)',
     subtitle: 'Canjea cupones de patrocinadores con tu puntaje',
-    description: 'A medida que acumulas puntos desbloqueas los tiers Bronce, Plata, Oro, Platino y VIP Backstage con códigos de descuento reales para el summit.',
+    description: 'A medida que acumulas puntos desbloqueas los niveles Bronce, Plata, Oro, Platino y Backstage. Los premios son mayormente digitales y se anuncian según el Run of Show.',
     icon: Award,
     tips: [
       'Visita la pestaña "Premios" para consultar tus códigos desbloqueados.'

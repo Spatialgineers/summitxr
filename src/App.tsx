@@ -146,9 +146,9 @@ export default function App() {
 
     // Page-level navigation requests from outside the header (command terminal, HUD).
     const handleNavigatePage = (e: Event) => {
-      const detail = (e as CustomEvent<{ page?: PageRoute; section?: string }>).detail;
+      const detail = (e as CustomEvent<{ page?: PageRoute; section?: string; pillar?: string }>).detail;
       if (!detail?.page) return;
-      syncAppUrl({ page: detail.page, section: detail.section, replace: false });
+      syncAppUrl({ page: detail.page, section: detail.section, subtab: detail.pillar, replace: false });
       setCurrentPage(detail.page);
       if (detail.page === 'summit') setActiveSummitSection(detail.section || 'OVERVIEW');
     };

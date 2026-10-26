@@ -178,7 +178,7 @@ export const SgxHoloCardGeneratorModal: React.FC<
                 ...resolvedProfile,
                 role: 'initiate',
                 jobtitle: 'INICIADO OFICIAL · SGX GUILD',
-                topic: 'DEFENSA TÉCNICA: GOLDEN MASTER 2026'
+                topic: 'SGX GUILD RANKED TRIALS PITCH SESSION'
               });
             }}
             className="px-2.5 py-1 bg-slate-900 hover:bg-cyan-500 text-slate-300 hover:text-black border border-white/15 font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0"

@@ -60,34 +60,34 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
   const [formatFilter, setFormatFilter] = useState<'ALL' | 'DIGITAL' | 'PHYSICAL' | 'HYBRID'>('ALL');
   const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null);
 
-  // Day meta configuration based on Official Run of Show v2026.10
+  // Day meta configuration based on Official Run of Show v2026.10.1
   const dayMeta = {
     1: {
       title: 'Día 1 — Viernes 11 de Diciembre',
-      badge: '100% DIGITAL • YOUTUBE LIVE + ESPACIO DE ROBLOX ACTIVO',
+      badge: '100% DIGITAL • YOUTUBE LIVE + ESPACIO DE ROBLOX (SI SE USA)',
       hours: '10:00 AM – 4:30 PM AST (6h 30m)',
-      focus: '6 bloques de Pilares (Story → Showcase → Spark → Stage → System → Synthesize), 6 intermedios de artistas en Roblox y los 8 Initiates activos (8 min c/u).',
+      focus: 'Apertura (30 min), un artista invitado de 15 min antes de cada pilar, 6 bloques de pilares de 25 min (SGX.Story → SGX.Showcase → SGX.Spark → SGX.Stage → SGX.System → SGX.Synthesize) y los portafolios de los 8 Initiates activos (2:30–4:00 p.m., 8 min c/u).',
       highlight: 'Al cierre (4:00–4:30 p.m.) se anuncian los 6 Initiates que presentan en el Día 3.',
       themeColor: '#FDCC0D',
-      streamNotice: 'Transmisión en YouTube Live con el espacio de Roblox activo durante toda la jornada.',
+      streamNotice: 'Transmisión en YouTube Live con el espacio de Roblox activo desde la apertura (embed opcional, si se usa). Artistas por anunciar: solo se publican los confirmados por escrito.',
     },
     2: {
       title: 'Día 2 — Sábado 12 de Diciembre (Día de la Industria)',
       badge: '100% DIGITAL • YOUTUBE LIVE + VOTACIÓN GAMIFICADA',
       hours: '10:00 AM – 4:00 PM AST (6h exactas)',
-      focus: 'Resumen del Día 1, recordatorio de los 6 Initiates y 6 conversaciones de 45 min con personas invitadas por cada Pilar SGX + pausas de 10 min.',
-      highlight: 'Orden oficial de conversaciones: Story, Showcase, Spark, Stage, System y Synthesize.',
+      focus: 'Introducción (30 min) con resumen del Día 1 y recordatorio de los 6 Initiates, 6 conversaciones de industria de 45 min (una por pilar, persona invitada por anunciar) con pausas de 10 min y cierre de 3:50 a 4:00 p.m.',
+      highlight: 'Orden oficial de conversaciones: SGX.Story, SGX.Showcase, SGX.Spark, SGX.Stage, SGX.System y SGX.Synthesize.',
       themeColor: '#00DDFF',
       streamNotice: '6 conversaciones profundas de industria y rondas de votación estilo Kahoot (+25 XP).',
     },
     3: {
-      title: 'Día 3 — Domingo 13 de Diciembre (Evento Híbrido)',
-      badge: 'CHROMA SPACE STUDIOS (SAN JUAN, 40–60 POR INVITACIÓN) + STREAM GLOBAL',
+      title: 'Día 3 — Domingo 13 de Diciembre (SGX Showcase)',
+      badge: 'HÍBRIDO • CHROMA SPACE STUDIOS (SAN JUAN, SUJETO A LA FIRMA DEL ACUERDO) • POR INVITACIÓN, 40–60 PERSONAS + YOUTUBE LIVE',
       hours: '10:00 AM – 4:00 PM AST (6h)',
-      focus: 'Ricardo marca el ambiente; Danelson con su avatar y captura facial en tiempo real; Artista 1 con visualizadores SGX y Artista 2; y los 6 Initiates (5 min c/u).',
-      highlight: 'Networking con canje de premios, interacción libre y Premio Mayor: "Spatialgineers activa tu evento" (Tier 1: $1,000–$2,500) + Sesión "Grit".',
+      focus: 'Ricardo marca el ambiente; Danelson con su avatar y captura facial en tiempo real; dos artistas invitados (por confirmar), uno con los visualizadores de SGX; y la SGX Guild Ranked Trials Pitch Session con los top 6 Initiates (5 min c/u).',
+      highlight: 'Networking con votación gamificada y canje de premios, interacción libre y cierre con el Premio Mayor "Spatialgineers activa tu evento". Sesión "Grit" con artistas: por confirmar.',
       themeColor: '#FFFFFF',
-      streamNotice: 'Presencial en Chroma Space Studios (San Juan, solo por invitación) y en vivo por YouTube, LinkedIn y Facebook Live.',
+      streamNotice: 'Presencial en Chroma Space Studios (San Juan, por invitación y cupo limitado; sujeto a la firma del acuerdo) y en vivo por YouTube, LinkedIn y Facebook Live.',
     },
   };
 
@@ -210,7 +210,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                   </span>
                 </div>
                 <div className="text-sm font-bold text-white mt-1">
-                  {dayNum === 1 ? 'Pilares & Initiates' : dayNum === 2 ? 'Industry Day' : 'Chroma Space Hybrid'}
+                  {dayNum === 1 ? 'Pilares & Initiates' : dayNum === 2 ? 'Industry Day' : 'SGX Showcase'}
                 </div>
                 <div className="text-[11px] text-slate-400 mt-1 line-clamp-1 font-mono">
                   {meta.badge}

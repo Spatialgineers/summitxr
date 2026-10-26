@@ -101,7 +101,7 @@ const ROLE_META: Record<
   visitante: {
     label: 'Visitante Summit',
     badgeHeader: 'VISITANTE CON PASAPORTE SUMMIT',
-    subHeader: 'ACREDITACIÓN OFICIAL · ACCESO MULTIVERSO & CHROMA',
+    subHeader: 'ACREDITACIÓN OFICIAL · ACCESO DIGITAL & SGX SHOWCASE',
     accent: '#00DDFF',
     secondary: '#FDCC0D',
     clearance: 'CLR-VISITOR-2026'
@@ -117,14 +117,14 @@ const ROLE_META: Record<
   initiate: {
     label: 'Guild Initiate',
     badgeHeader: 'SGX GUILD · RANKED INITIATE',
-    subHeader: 'DEFENSA TÉCNICA GOLDEN MASTER · COHORTE 2026',
+    subHeader: 'SGX GUILD RANKED TRIALS · COHORTE 2026',
     accent: '#38BDF8',
     secondary: '#FDCC0D',
     clearance: 'CLR-GUILD-GM8'
   },
   sponsor: {
-    label: 'Sponsor / Partner',
-    badgeHeader: 'PARTNER ESTRATÉGICO · SGX 365',
+    label: 'Sponsor / Aliado',
+    badgeHeader: 'SPONSOR OFICIAL · SUMMIT 2026',
     subHeader: 'ALIANZA DE INDUSTRIA & SHOWCASE CORPORATIVO',
     accent: '#FFBB00',
     secondary: '#FDCC0D',
@@ -137,22 +137,22 @@ const PASS_TYPE_META: Record<
   { label: string; tag: string; color: string; days: string }
 > = {
   digital: {
-    label: 'Pase Digital / Metaverso',
-    tag: 'ROBLOX + BROADCAST 4K',
+    label: 'Pase Digital',
+    tag: 'YOUTUBE LIVE + ROBLOX',
     color: '#00DDFF',
-    days: 'DIC 11–13 · STREAMING & ROBLOX'
+    days: 'DIC 11–13 · YOUTUBE LIVE'
   },
   showcase: {
-    label: 'Pase Presencial Chroma',
-    tag: 'SAN JUAN, PR + ALL ACCESS',
+    label: 'Pase SGX Showcase (Día 3)',
+    tag: 'SAN JUAN, PR · POR INVITACIÓN',
     color: '#FDCC0D',
-    days: 'DIC 11–13 · CHROMA SPACE STUDIOS'
+    days: 'DIC 13 · CHROMA SPACE STUDIOS'
   },
   vip: {
-    label: 'Pase VIP Executive',
-    tag: 'BACKSTAGE + SGX.MATCH VIP',
+    label: 'Pase Invitado Especial',
+    tag: 'POR INVITACIÓN + SGX.MATCH',
     color: '#FFBB00',
-    days: 'DIC 11–13 · FULL VIP CLEARANCE'
+    days: 'DIC 11–13 · DIGITAL + DÍA 3 POR INVITACIÓN'
   }
 };
 
@@ -532,7 +532,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         ctx.fillText('SPATIALGINEERS SUMMIT 2026', 102, 46);
         ctx.fillStyle = primaryAccent;
         ctx.font = '700 13px monospace';
-        ctx.fillText('DIC 11–13, 2026 · SAN JUAN, PR & ROBLOX METAVERSO', 102, 68);
+        ctx.fillText('DIC 11–13, 2026 · SAN JUAN, PR · YOUTUBE LIVE & ROBLOX', 102, 68);
 
         // Top Right Role Clearance Pill
         const clearanceW = 285;
@@ -740,7 +740,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
           role === 'speaker'
             ? 'PONENCIA / KEYNOTE OFICIAL'
             : role === 'initiate'
-            ? 'DEFENSA GOLDEN MASTER · SGX GUILD'
+            ? 'SGX GUILD RANKED TRIALS PITCH SESSION'
             : 'MISIÓN ESPACIAL & RUTA ACTIVA',
           rightX + 16,
           410
@@ -961,7 +961,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         bctx.fillStyle = '#FDCC0D';
         bctx.font = '700 14px monospace';
         bctx.fillText(
-          'REVERSO OFICIAL · PRESENTA ESTE QR EN EL ACCESO VIP O NETWORKING',
+          'REVERSO OFICIAL · PRESENTA ESTE QR EN EL ACCESO O EN NETWORKING',
           44,
           CARD_H - 26
         );
@@ -1244,7 +1244,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
     handleDownloadPng();
   };
 
-  const socialCaptionText = `¡Acreditación lista como ${ROLE_META[role].badgeHeader} en el Spatialgineers Summit 2026! 🚀✨\n\n📍 Dic 11–13, 2026 · Chroma Space Studios (San Juan, PR) & Roblox Metaverso.\n🎫 Obtén tu pase y genera tu Holo Card 3D en summit.spatialgineers.com\n\n#SpatialgineersSummit #SGX2026 #SpatialComputing #PuertoRicoTech`;
+  const socialCaptionText = `¡Acreditación lista como ${ROLE_META[role].badgeHeader} en el Spatialgineers Summit 2026! 🚀✨\n\n📍 Dic 11–13, 2026 · YouTube Live y SGX Showcase en Chroma Space Studios (San Juan, PR).\n🎫 Obtén tu pase y genera tu Holo Card 3D en summit.spatialgineers.com\n\n#SpatialgineersSummit #SGX2026 #SpatialComputing #PuertoRicoTech`;
 
   const applyQuickPreset = (targetRole: CredentialRoleKey) => {
     playUiChirp(820);
@@ -1254,10 +1254,10 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
       setTopicOrMission('EXPLORACIÓN DEL NÚCLEO 3D & 6 PILARES');
     } else if (targetRole === 'speaker') {
       setJobTitle('PONENTE OFICIAL · SGX STAGE');
-      setTopicOrMission('KEYNOTE: COMPUTACIÓN ESPACIAL & METAVERSO');
+      setTopicOrMission('KEYNOTE: COMPUTACIÓN ESPACIAL');
     } else if (targetRole === 'initiate') {
       setJobTitle('INICIADO OFICIAL · SGX GUILD COHORT');
-      setTopicOrMission('DEFENSA TÉCNICA: GOLDEN MASTER 2026');
+      setTopicOrMission('SGX GUILD RANKED TRIALS PITCH SESSION');
     } else if (targetRole === 'sponsor') {
       setJobTitle('PARTNER EJECUTIVO · SGX SHOWCASE');
       setTopicOrMission('ALIANZA TECNOLÓGICA 365 DÍAS');
@@ -1656,7 +1656,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                       {role === 'speaker'
                         ? 'Título de tu Charla / Panel'
                         : role === 'initiate'
-                        ? 'Proyecto Golden Master'
+                        ? 'Proyecto Ranked Trials'
                         : 'Misión o Interés en el Summit'}
                     </label>
                     <input

@@ -44,6 +44,7 @@ import { INITIAL_TENANTS } from '../../lib/schemas';
 import { useAuth } from '../../context/AuthContext';
 import { useTenantTheme, hexToRgbStr } from '../../context/TenantThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { HeaderPillarNav, PillarDirectoryGrid } from './SgxPillarNav';
 import { UserProfilePassportDrawer } from './UserProfilePassportDrawer';
 import { usePilotProfile } from '../../context/PilotProfileContext';
 import { playUiChirp, getIsAudioMuted, toggleAudioMute } from '../../lib/cyberAudioEngine';
@@ -378,14 +379,14 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               <img 
                 src="https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG" 
                 alt="Spatialgineers Logo" 
-                className="h-7 sm:h-8 w-auto object-contain"
+                className="h-7 sm:h-8 w-auto max-w-[120px] object-contain overflow-hidden"
               />
               <img 
                 src="https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png" 
                 alt="Summit Icon Logo" 
-                className="h-6 sm:h-7 w-auto object-contain"
+                className="h-6 sm:h-7 w-auto max-w-[44px] object-contain overflow-hidden"
               />
-              <div className="hidden xl:block">
+              <div className="hidden min-[1800px]:block">
                 <span className="font-extrabold text-xs tracking-wider text-white uppercase font-['Orbitron',sans-serif] block">
                   SPATIALGINEERS SUMMIT 2026
                 </span>
@@ -401,8 +402,13 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
 
 
+          {/* 2. The six SGX pillars, always one click away */}
+          <div className="hidden xl:flex flex-1 justify-center min-w-0">
+            <HeaderPillarNav />
+          </div>
+
           {/* 3. Transient Sponsor Logo with 10s rotation and '(tu marca podría estar aquí)' */}
-          <div className="hidden md:flex items-center shrink-0">
+          <div className="hidden md:flex xl:hidden min-[1600px]:flex items-center shrink-0">
             <TransientSponsorSlot slotId="header_main" variant="compact" showSubtitleLink={true} />
           </div>
 
@@ -711,7 +717,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           onClick={() => setIsMobileMenuOpen(false)}
         >
           <div 
-            className="max-w-4xl w-full bg-[#111111] border-2 border-cyan-500/60 p-4 sm:p-6 shadow-2xl relative space-y-6 my-auto text-slate-100 font-mono"
+            className="max-w-6xl w-full bg-[#111111] border border-[#FDCC0D]/60 p-4 sm:p-6 shadow-2xl relative space-y-6 my-auto text-slate-100 font-mono"
             style={{ clipPath: 'polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)' }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -721,11 +727,11 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
                   <h3 className="text-base sm:text-lg font-black text-white uppercase font-['Orbitron',sans-serif] tracking-wider">
-                    DIRECTORIO DE ESTACIONES · SPATIALGINEERS SUMMIT 2026
+                    LOS 6 PILARES · SPATIALGINEERS SUMMIT 2026
                   </h3>
                 </div>
                 <p className="text-xs text-slate-400">
-                  Selecciona cualquier estación para acceder directamente sin navegación lateral
+                  Todo el Summit vive dentro de los seis pilares del SGX Framework, en su orden oficial. Teclas 1 a 6.
                 </p>
               </div>
               <button
@@ -741,204 +747,8 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               </button>
             </div>
 
-            {/* Categorized Grid of All Stations */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-              
-              {/* Category 1: Núcleo & Filosofía */}
-              <div className="space-y-2">
-                <div className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider pb-1 border-b border-cyan-500/30 flex items-center gap-1.5">
-                  <Boxes className="w-3.5 h-3.5" />
-                  <span>NÚCLEO & FILOSOFÍA</span>
-                </div>
-                <div className="space-y-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleDirectorySectionClick('OVERVIEW')}
-                    className="w-full text-left p-2.5 bg-slate-950/80 hover:bg-[#32527B]/60 border border-slate-800 hover:border-cyan-400 transition-all cursor-pointer group"
-                  >
-                    <div className="font-bold text-white group-hover:text-cyan-300 flex items-center justify-between">
-                      <span>Inicio & Núcleo 3D</span>
-                      <span className="text-[9px] px-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold">3D</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">Visor orbital y 7 modelos .glb</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDirectorySectionClick('PILLARS_MANIFESTO')}
-                    className="w-full text-left p-2.5 bg-slate-950/80 hover:bg-[#32527B]/60 border border-slate-800 hover:border-cyan-400 transition-all cursor-pointer group"
-                  >
-                    <div className="font-bold text-white group-hover:text-cyan-300 flex items-center justify-between">
-                      <span>Manifiesto 6 Pilares</span>
-                      <span className="text-[9px] px-1 bg-slate-800 text-slate-300">DOC</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">Story, Showcase, Spark, Stage...</div>
-                  </button>
-                </div>
-              </div>
-
-              {/* Category 2: Escenario & Transmisiones */}
-              <div className="space-y-2">
-                <div className="text-[11px] font-bold text-[#FDCC0D] uppercase tracking-wider pb-1 border-b border-[#FDCC0D]/30 flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>ESCENARIO & EN VIVO</span>
-                </div>
-                <div className="space-y-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleDirectorySectionClick('AGENDA')}
-                    className="w-full text-left p-2.5 bg-slate-950/80 hover:bg-[#32527B]/60 border border-slate-800 hover:border-[#FDCC0D] transition-all cursor-pointer group"
-                  >
-                    <div className="font-bold text-white group-hover:text-[#FDCC0D] flex items-center justify-between">
-                      <span>Run of Show (3 Días)</span>
-                      <span className="text-[9px] px-1 bg-[#FDCC0D]/20 text-[#FDCC0D] border border-[#FDCC0D]/40 font-bold">AGENDA</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">Minuto a minuto y timeline</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDirectorySectionClick('BROADCAST_ROOMS')}
-                    className="w-full text-left p-2.5 bg-slate-950/80 hover:bg-[#32527B]/60 border border-slate-800 hover:border-[#FDCC0D] transition-all cursor-pointer group"
-                  >
-                    <div className="font-bold text-white group-hover:text-[#FDCC0D] flex items-center justify-between">
-                      <span>Salas Broadcast 4K</span>
-                      <span className="text-[9px] px-1 bg-red-950 text-red-400 border border-red-500/40 font-bold animate-pulse">LIVE</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">Transmisiones simultáneas</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDirectorySectionClick('SPEAKERS')}
-                    className="w-full text-left p-2.5 bg-slate-950/80 hover:bg-[#32527B]/60 border border-slate-800 hover:border-[#FDCC0D] transition-all cursor-pointer group"
-                  >
-                    <div className="font-bold text-white group-hover:text-[#FDCC0D] flex items-center justify-between">
-                      <span>Speakers & Artistas</span>
-                      <span className="text-[9px] px-1 bg-slate-800 text-slate-300">DECK</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">Baraja interactiva 3D</div>
-                  </button>
-                </div>
-              </div>
-
-              {/* Category 3: Gamificación & Metaverso */}
-              <div className="space-y-2">
-                <div className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider pb-1 border-b border-emerald-500/30 flex items-center gap-1.5">
-                  <Gamepad2 className="w-3.5 h-3.5" />
-                  <span>GAMIFICACIÓN & XP</span>
-                </div>
-                <div className="space-y-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleDirectorySectionClick('EMBEDS_GAMES')}
-                    className="w-full text-left p-2.5 bg-slate-950/80 hover:bg-[#32527B]/60 border border-slate-800 hover:border-emerald-400 transition-all cursor-pointer group"
-                  >
-                    <div className="font-bold text-white group-hover:text-emerald-300 flex items-center justify-between">
-                      <span>Dron 3D & Minijuegos</span>
-                      <span className="text-[9px] px-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">+XP</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">Simulador WebGL y misiones</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDirectorySectionClick('ENTREPRENEUR_MATCH')}
-                    className="w-full text-left p-2.5 bg-slate-950/80 hover:bg-[#32527B]/60 border border-slate-800 hover:border-emerald-400 transition-all cursor-pointer group"
-                  >
-                    <div className="font-bold text-white group-hover:text-emerald-300 flex items-center justify-between">
-                      <span>SGX.Match (Pitch Arena)</span>
-                      <span className="text-[9px] px-1 bg-orange-950 text-orange-400">PITCH</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">Proyectos espaciales</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDirectorySectionClick('GUILD')}
-                    className="w-full text-left p-2.5 bg-slate-950/80 hover:bg-[#32527B]/60 border border-slate-800 hover:border-emerald-400 transition-all cursor-pointer group"
-                  >
-                    <div className="font-bold text-white group-hover:text-emerald-300 flex items-center justify-between">
-                      <span>8 Guild Initiates</span>
-                      <span className="text-[9px] px-1 bg-slate-800 text-slate-300">TRIALS</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">Golden Master y mentores</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDirectoryPageClick('play')}
-                    className="w-full text-left p-2.5 bg-slate-950/80 hover:bg-[#32527B]/60 border border-slate-800 hover:border-emerald-400 transition-all cursor-pointer group"
-                  >
-                    <div className="font-bold text-white group-hover:text-emerald-300 flex items-center justify-between">
-                      <span>Arena 3D Telemetría</span>
-                      <span className="text-[9px] px-1 bg-cyan-950 text-cyan-300">VOTE</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">Físicas de avatar y votos</div>
-                  </button>
-                </div>
-              </div>
-
-              {/* Category 4: Venue, Redes & Alianzas */}
-              <div className="space-y-2">
-                <div className="text-[11px] font-bold text-purple-400 uppercase tracking-wider pb-1 border-b border-purple-500/30 flex items-center gap-1.5">
-                  <Compass className="w-3.5 h-3.5" />
-                  <span>VENUE & COMUNIDAD</span>
-                </div>
-                <div className="space-y-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleDirectorySectionClick('MAP_360')}
-                    className="w-full text-left p-2.5 bg-slate-950/80 hover:bg-[#32527B]/60 border border-slate-800 hover:border-purple-400 transition-all cursor-pointer group"
-                  >
-                    <div className="font-bold text-white group-hover:text-purple-300 flex items-center justify-between">
-                      <span>Tour 360° Chroma</span>
-                      <span className="text-[9px] px-1 bg-purple-500/20 text-purple-300 border border-purple-500/40 font-bold">VR</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">Estudio de producción virtual</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDirectorySectionClick('SPONSORS_HUB')}
-                    className="w-full text-left p-2.5 bg-slate-950/80 hover:bg-[#32527B]/60 border border-slate-800 hover:border-purple-400 transition-all cursor-pointer group"
-                  >
-                    <div className="font-bold text-white group-hover:text-purple-300 flex items-center justify-between">
-                      <span>Partners & Tiers 365</span>
-                      <span className="text-[9px] px-1 bg-slate-800 text-slate-300">TIERS</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">Marcas aliadas y matriz</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDirectorySectionClick('CREDENTIAL_GENERATOR')}
-                    className="w-full text-left p-2.5 bg-slate-950/80 hover:bg-[#32527B]/60 border border-slate-800 hover:border-cyan-400 transition-all cursor-pointer group"
-                  >
-                    <div className="font-bold text-white group-hover:text-cyan-300 flex items-center justify-between">
-                      <span>SGX Credential & Holo Card</span>
-                      <span className="text-[9px] px-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold">PASE 3D</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">Generador de pases y visitante</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDirectorySectionClick('SOCIAL_STREAM')}
-                    className="w-full text-left p-2.5 bg-slate-950/80 hover:bg-[#32527B]/60 border border-slate-800 hover:border-purple-400 transition-all cursor-pointer group"
-                  >
-                    <div className="font-bold text-white group-hover:text-purple-300 flex items-center justify-between">
-                      <span>Live Social Radar</span>
-                      <span className="text-[9px] px-1 bg-pink-950 text-pink-400">#SGX</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">Instagram y feed en vivo</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDirectorySectionClick('NETWORKING')}
-                    className="w-full text-left p-2.5 bg-slate-950/80 hover:bg-[#32527B]/60 border border-slate-800 hover:border-purple-400 transition-all cursor-pointer group"
-                  >
-                    <div className="font-bold text-white group-hover:text-purple-300 flex items-center justify-between">
-                      <span>Foros & Chat</span>
-                      <span className="text-[9px] px-1 bg-slate-800 text-slate-300">CHAT</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">Networking entre asistentes</div>
-                  </button>
-                </div>
-              </div>
-
-            </div>
+            {/* The whole event divided into the six SGX pillars (single source: lib/sgxPillars) */}
+            <PillarDirectoryGrid onDone={() => setIsMobileMenuOpen(false)} />
 
             {/* Quick Actions Footer */}
             <div className="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">

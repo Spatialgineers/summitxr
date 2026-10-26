@@ -119,7 +119,7 @@ export const SgxGuildShowcaseSection: React.FC = () => {
           </h2>
 
           <p className="text-slate-300 text-sm leading-relaxed font-sans">
-            El SGX Guild System es la incubadora de talento tecnocreativo de Puerto Rico. Tras semanas intensas de pruebas en vivo durante los SGX Ranked Trials, los talentos oficiales del Guild presentan sus habilidades y proyectos espaciales.
+            El SGX Guild es público y gratis para estudiantes universitarios (18 años o más). Los SGX Ranked Trials comenzaron el 4 de octubre de 2026. En el Summit, los 8 Initiates activos presentan su portafolio el Día 1 (8 min c/u) y los top 6 presentan en la SGX Guild Ranked Trials Pitch Session del Día 3 (5 min c/u).
           </p>
         </div>
 
@@ -128,10 +128,10 @@ export const SgxGuildShowcaseSection: React.FC = () => {
           <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: tenant.branding.borderColor }}>
             <h3 className="text-lg font-extrabold text-white uppercase tracking-wider font-['Orbitron',sans-serif] flex items-center gap-2">
               <UserCheck className="w-5 h-5" style={{ color: tenant.branding.primaryColor }} />
-              Miembros y Candidatos Oficiales del SGX Guild System
+              Initiates Oficiales del SGX Guild
             </h3>
             <span className="text-xs font-mono font-bold" style={{ color: tenant.branding.neonHighlightColor }}>
-              Cohorte 2026 • 100% Verificados
+              8 Initiates activos
             </span>
           </div>
 

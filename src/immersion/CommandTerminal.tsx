@@ -6,7 +6,8 @@ import { toggleAudioMute, playUiChirp } from '../lib/cyberAudioEngine';
 import { getAppRouteAndSectionFromUrl } from '../lib/summitUrlSync';
 import { SECTION_META, pillarDisplay } from './sections';
 import { QUESTS, SECRET_CODES, TOTAL_CELLS } from './quests';
-import { navigateToPage, navigateToSection } from './navigation';
+import { navigateToPage, navigateToPillar, navigateToSection } from './navigation';
+import { SGX_PILLARS, bi } from '../lib/sgxPillars';
 
 interface Command {
   id: string;
@@ -50,7 +51,18 @@ export const CommandTerminal: React.FC = () => {
 
   const commands = useMemo<Command[]>(() => {
     const go = es ? 'Ir' : 'Go';
-    const list: Command[] = SECTION_META.map((s) => ({
+    const stations: Command[] = SGX_PILLARS.map((p) => ({
+      id: `pillar_${p.slug}`,
+      label: `${es ? 'Estación' : 'Station'} 0${p.index} · ${p.name}`,
+      group: bi(p.title, language),
+      keywords: [p.slug, p.name, p.id, p.guildTeam, `pilar ${p.slug}`, `pillar ${p.slug}`, String(p.index)],
+      run: () => {
+        navigateToPillar(p.slug);
+        window.setTimeout(() => setTerminalOpen(false), 260);
+        return `${es ? 'Entrando a la estación' : 'Entering station'} ${p.name}…`;
+      },
+    }));
+    const list: Command[] = [...stations, ...SECTION_META.map((s) => ({
       id: `go_${s.key}`,
       label: `${go} · ${es ? s.es : s.en}`,
       group: pillarDisplay(s.pillar),
@@ -60,7 +72,7 @@ export const CommandTerminal: React.FC = () => {
         window.setTimeout(() => setTerminalOpen(false), 260);
         return `${es ? 'Navegando a' : 'Navigating to'} ${es ? s.es : s.en}…`;
       },
-    }));
+    }))];
     const act = es ? 'Acción' : 'Action';
     const open = es ? 'Abrir' : 'Open';
     list.push(
@@ -88,13 +100,13 @@ export const CommandTerminal: React.FC = () => {
       {
         id: 'help', label: es ? 'Ayuda' : 'Help', group: 'SGX.System', keywords: ['ayuda', 'help', '?', 'comandos', 'commands'],
         run: () => es
-          ? ['Escribe el nombre de una sección (agenda, speakers, dron, mapa…) o una acción:', 'misiones · pulso · escenario · perfil · boleto · pasaporte · recompensas · estado · fx · sfx · mute · limpiar', 'Atajos: 1–8 secciones · P pulso · M audio · F escenario · / terminal · ESC salir', 'Hay códigos escondidos. Los ingenieros saludan diferente.']
-          : ['Type a section name (agenda, speakers, drone, map…) or an action:', 'quests · pulse · stage · profile · ticket · passport · rewards · status · fx · sfx · mute · clear', 'Shortcuts: 1–8 sections · P pulse · M audio · F stage · / terminal · ESC exit', 'There are hidden codes. Engineers greet differently.'],
+          ? ['Escribe un pilar (story, showcase, spark, stage, system, synthesize), una sección (agenda, dron, mapa…) o una acción:', 'misiones · pulso · escenario · perfil · boleto · pasaporte · recompensas · estado · fx · sfx · mute · limpiar', 'Atajos: 1–6 estaciones de pilar · 0 núcleo · P pulso · M audio · F escenario · / terminal · ESC salir', 'Hay códigos escondidos. Los ingenieros saludan diferente.']
+          : ['Type a pillar (story, showcase, spark, stage, system, synthesize), a section (agenda, drone, map…) or an action:', 'quests · pulse · stage · profile · ticket · passport · rewards · status · fx · sfx · mute · clear', 'Shortcuts: 1–6 pillar stations · 0 core · P pulse · M audio · F stage · / terminal · ESC exit', 'There are hidden codes. Engineers greet differently.'],
       },
       { id: 'clear', label: es ? 'Limpiar terminal' : 'Clear terminal', group: 'SGX.System', keywords: ['limpiar', 'clear', 'cls'], run: () => { setLog([]); } },
     );
     return list;
-  }, [es, imm, profile, setIsProfileModalOpen, setTerminalOpen]);
+  }, [es, imm, profile, setIsProfileModalOpen, setTerminalOpen, language]);
 
   const matches = useMemo(() => {
     const q = normalize(input);

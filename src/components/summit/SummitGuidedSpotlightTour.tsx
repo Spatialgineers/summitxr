@@ -64,7 +64,7 @@ const TOUR_STEPS: TourStepDefinition[] = [
     id: 'step_countdown',
     targetSelector: '#summit-countdown-visualizer',
     title: 'Cuenta Regresiva & Pases Oficiales',
-    directive: 'Monitorea en tiempo real el inicio del Summit y consulta los pases de acceso VIP, Standard y Estudiantil.',
+    directive: 'Monitorea en tiempo real el inicio del Summit y consulta tu pase: entrada gratuita a los días digitales y Día 3 por invitación.',
     xpReward: 40,
     fallbackSection: 'OVERVIEW',
   },

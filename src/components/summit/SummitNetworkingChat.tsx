@@ -70,7 +70,7 @@ const PUBLIC_FORUM_CHANNELS: ForumChannel[] = [
   { 
     id: '#stage-live', 
     name: 'Escenario & Transmisión en Vivo', 
-    topic: 'Reacciones a la transmisión de YouTube 4K y conciertos en Roblox', 
+    topic: 'Reacciones a la transmisión de YouTube Live y a los artistas invitados', 
     desc: 'Comenta en directo lo que está ocurriendo en el escenario principal, las transiciones visuales y los sets de los artistas.',
     icon: Radio, 
     color: 'text-rose-400',
@@ -88,8 +88,8 @@ const PUBLIC_FORUM_CHANNELS: ForumChannel[] = [
   { 
     id: '#sgx-guild-trials', 
     name: 'SGX Guild Trials & Proyectos', 
-    topic: 'Discusión de los 8 Initiates, portafolios Golden Master y trofeo del Guild', 
-    desc: 'Espacio dedicado a analizar los proyectos comunitarios seleccionados y compartir feedback sobre las defensas en vivo.',
+    topic: 'Portafolios de los 8 Initiates (Día 1) y SGX Guild Ranked Trials Pitch Session (Día 3)', 
+    desc: 'Espacio dedicado a comentar los portafolios de los Initiates y compartir feedback sobre sus presentaciones en vivo.',
     icon: Award, 
     color: 'text-[#FDCC0D]',
     badge: 'GUILD'
@@ -106,7 +106,7 @@ const PUBLIC_FORUM_CHANNELS: ForumChannel[] = [
   { 
     id: '#matchmaking-proyectos', 
     name: 'Colaboración & Matchmaking', 
-    topic: 'Búsqueda de socios, ofertas y alianzas para proyectos de computación espacial', 
+    topic: 'Búsqueda de colaboradores, ofertas y alianzas para proyectos de computación espacial', 
     desc: 'Preséntate, muestra tu portafolio y conecta con otros desarrolladores, diseñadores o marcas para futuros proyectos.',
     icon: Users, 
     color: 'text-[#FDCC0D]',
@@ -114,9 +114,9 @@ const PUBLIC_FORUM_CHANNELS: ForumChannel[] = [
   },
   { 
     id: '#venue-san-juan', 
-    name: 'Venue Presencial (San Juan, PR)', 
-    topic: 'Logística, Chroma Space Studios, Santurce, transporte y VIP Lounge', 
-    desc: 'Foro para los asistentes que están físicamente en Chroma Space Studios en San Juan: puntos de encuentro, comida y agenda presencial.',
+    name: 'SGX Showcase · Día 3 (San Juan, PR)', 
+    topic: 'Logística del Día 3 en Chroma Space Studios (por invitación; sujeto a la firma del acuerdo)', 
+    desc: 'Foro para las personas invitadas al SGX Showcase del Día 3 en San Juan: puntos de encuentro, transporte y agenda presencial.',
     icon: MapPin, 
     color: 'text-[#FDCC0D]',
     badge: 'SAN JUAN'

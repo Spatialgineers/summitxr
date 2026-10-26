@@ -33,8 +33,8 @@ export const QUESTS: QuestDef[] = [
   },
   {
     id: 'q_six_pillars', kind: 'main', xp: 250, target: 6,
-    es: { title: 'Los Seis Pilares', hint: 'Acopla los 6 pilares SGX desde el núcleo o la barra de secciones.' },
-    en: { title: 'The Six Pillars', hint: 'Dock all 6 SGX pillars from the core or the section bar.' },
+    es: { title: 'Los Seis Pilares', hint: 'Entra a las 6 estaciones de pilar (teclas 1 a 6) o acóplalas desde el núcleo 3D.' },
+    en: { title: 'The Six Pillars', hint: 'Enter all 6 pillar stations (keys 1 to 6) or dock them from the 3D core.' },
   },
   {
     id: 'q_cells_6', kind: 'side', xp: 120, target: 6,

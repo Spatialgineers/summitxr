@@ -30,7 +30,7 @@ export const PILLAR_META: Record<MatchPillar, { label: string; primary: string; 
   showcase: { label: 'SGX.SHOWCASE', primary: '#FFBB00', secondary: '#FFFFFF', bg: '#1F1008' },
   spark: { label: 'SGX.SPARK', primary: '#00DDFF', secondary: '#FDCC0D', bg: '#1E1E1E' },
   stage: { label: 'SGX.STAGE', primary: '#FFFFFF', secondary: '#FDCC0D', bg: '#201A10' },
-  systems: { label: 'SGX.SYSTEMS', primary: '#32527B', secondary: '#888888', bg: '#1B1B1B' },
+  systems: { label: 'SGX.SYSTEM', primary: '#32527B', secondary: '#888888', bg: '#1B1B1B' },
   synthesize: { label: 'SGX.SYNTHESIZE', primary: '#00DDFF', secondary: '#FDCC0D', bg: '#1B1B1B' }
 };
 

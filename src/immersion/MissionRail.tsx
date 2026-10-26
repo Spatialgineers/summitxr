@@ -157,7 +157,7 @@ export const MissionRail: React.FC = () => {
 
           <p className="sgx-mission__keys">
             <span className="sgx-field__label">{c.keys}</span>
-            <span className="sgx-readout">1–8 · P · M · F · / · ESC</span>
+            <span className="sgx-readout">1–6 · 0 · P · M · F · / · ESC</span>
           </p>
         </aside>
       )}

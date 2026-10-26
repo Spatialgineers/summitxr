@@ -80,12 +80,17 @@
   animation: sgx-scan-x 4.5s ease-in-out infinite;
 }
 @keyframes sgx-scan-x { from { transform: translateX(-100%); } to { transform: translateX(650%); } }
+@media (max-width: 1279px) {
+  /* The visit chip lives on the radar and the core; the HUD keeps it for wide screens only. */
+  .sgx-sechud__tools .sgx-visit-chip { display: none; }
+}
 @media (max-width: 1023px) {
   .sgx-sechud__crumb .sgx-sechud__name, .sgx-sechud__meter { display: none; }
 }
 @media (max-width: 640px) {
   .sgx-sechud__inner { flex-wrap: wrap; gap: 8px; padding: 6px 10px; }
-  .sgx-sechud__crumb { flex: 1; }
+  .sgx-sechud__crumb { flex: 1; min-width: 0; overflow: hidden; }
+  .sgx-sechud__crumb img, .sgx-sechud__sep { display: none; }
   .sgx-sechud__strip { order: 3; flex-basis: 100%; }
 }
 

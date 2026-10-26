@@ -1,3 +1,4 @@
+import { SgxStandby } from '../../immersion/SgxStandby';
 import { SgxPassSection, SgxHoloStudioPanel } from '../../identity/SgxPassSection';
 import React, { useState, useEffect, useRef } from 'react';
 import { SpatialTiltCard } from '../common/SpatialTiltCard';
@@ -461,12 +462,12 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
         setActiveToastNotif({
           id: `holo_xp_${Date.now()}`,
           title: '¡Credencial SGX Exportada (+150 XP)!',
-          message: `Tu pase holográfico (${e.data.name || 'Visitante'}) ha sido generado y acreditado en tu Pasaporte Espacial.`,
+          message: `Tu pase holográfico (${e.data.name || 'Visitante'}) ha sido generado y acreditado en tu SGX Pass.`,
           timestamp: Date.now(),
           type: 'SYSTEM',
           priority: 'HIGH',
           actionUrl: '/summit',
-          actionLabel: 'Ver Pasaporte'
+          actionLabel: 'Ver mi SGX Pass'
         });
       }
     };
@@ -1021,7 +1022,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       className="sgx-btn-cyan px-5 py-3 text-xs font-bold flex items-center justify-center space-x-2 w-full sm:w-auto shadow-lg shadow-[#00DDFF]/20"
                     >
                       <Compass className="w-4 h-4" />
-                      <span>ABRIR TOUR 360° COMPLETO</span>
+                      <span>ABRIR RECORRIDO 360° COMPLETO</span>
                     </button>
                     <button
                       type="button"
@@ -1178,7 +1179,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div className="space-y-4">
             <SummitSectionBanner
               sectionKey="MAP_360"
-              title="Tour 360° Venue — Chroma Studios & Stages"
+              title="Recorrido 360° — Chroma Space Studios"
               subtitle="Explora en 360° el estudio de producción virtual, las zonas de demos y networking del Día 3."
               pillarBadge="SGX.SHOWCASE"
               pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png"
@@ -1238,8 +1239,17 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 </div>
               ))}
               {(!tenant.rooms || tenant.rooms.length === 0) && (
-                <div className="col-span-full p-8 text-center bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] text-slate-400 font-mono text-xs">
-                  No hay salones ni transmisiones configuradas para este evento.
+                <div className="col-span-full">
+                  <SgxStandby
+                    title={language === 'es' ? 'Salas de transmisión' : 'Broadcast rooms'}
+                    body={language === 'es'
+                      ? 'Los Días 1 y 2 se transmiten por YouTube Live, con LinkedIn y Facebook Live. Las salas se encienden aquí cuando empiece la señal.'
+                      : 'Days 1 and 2 stream on YouTube Live, plus LinkedIn and Facebook Live. Rooms light up here when the signal starts.'}
+                    actions={[
+                      { label: language === 'es' ? 'Ver la agenda' : 'See the agenda', primary: true, onClick: () => handleSelectSection('AGENDA') },
+                      { label: language === 'es' ? 'Mi SGX Pass' : 'My SGX Pass', onClick: () => window.dispatchEvent(new CustomEvent('sgx:open_tickets')) },
+                    ]}
+                  />
                 </div>
               )}
             </div>

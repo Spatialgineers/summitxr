@@ -132,7 +132,7 @@ export const DEFAULT_FEATURE_CONFIG: Record<string, FeatureToggleItem> = {
   },
   section_map_360: {
     id: 'section_map_360',
-    name: 'Tour Virtual 360° Chroma Space Studios',
+    name: 'Recorrido 360° Chroma Space Studios',
     category: 'SECTIONS',
     pillar: 'SGX.SHOWCASE',
     description: 'Navegación espacial virtual interactiva de Chroma Space Studios, la sede del Día 3 en San Juan.',
@@ -310,7 +310,7 @@ export const DEFAULT_FEATURE_CONFIG: Record<string, FeatureToggleItem> = {
   },
   modal_passport: {
     id: 'modal_passport',
-    name: 'Pasaporte Digital del Summit (Misiones)',
+    name: 'SGX Pass · Reactor de misiones',
     category: 'MODALS',
     pillar: 'SGX.STORY',
     description: 'Progreso de misiones en los 6 pilares, sellos digitales y código QR del asistente.',

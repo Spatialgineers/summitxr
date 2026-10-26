@@ -91,7 +91,7 @@ export const SUMMIT_TABS: TabItemMeta[] = [
   },
   {
     key: 'MAP_360',
-    label: 'Tour 360° Venue',
+    label: 'Recorrido 360° Chroma',
     pillarBadge: 'SHOWCASE',
     icon: Compass,
     iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',

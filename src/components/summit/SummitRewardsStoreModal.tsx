@@ -476,7 +476,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
                   <Trophy className="w-10 h-10 text-[var(--sgx-neon)] mx-auto opacity-60" />
                   <h3 className="text-sm font-bold text-white uppercase font-mono">Tabla de Clasificación Vacía</h3>
                   <p className="text-xs text-slate-400 font-mono max-w-md mx-auto">
-                    Aún no hay participantes en la tabla de clasificación. ¡Sé el primero en ganar XP completando misiones en tu Pasaporte o participando en votaciones en vivo!
+                    Aún no hay participantes en la tabla de clasificación. ¡Sé el primero en ganar XP completando misiones del Reactor o participando en votaciones en vivo!
                   </p>
                 </div>
               ) : (

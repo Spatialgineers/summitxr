@@ -89,7 +89,7 @@ export const PrivacyPolicyModal: React.FC<PrivacyPolicyModalProps> = ({ onClose 
               Generamos un identificador criptográfico anónimo para permitirte:
             </p>
             <ul className="list-disc list-inside space-y-1 pl-2 text-slate-300">
-              <li>Guardar tu progreso de misiones, logros y rango en el Pasaporte de Misiones.</li>
+              <li>Guardar tu progreso de misiones, logros y rango en tu SGX Pass.</li>
               <li>Registrar tus interacciones y decisiones de diseño en el creador de avatares.</li>
               <li>Validar casos de uso técnicos y métricas de desempeño del motor en tiempo real.</li>
             </ul>

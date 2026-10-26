@@ -6,9 +6,12 @@ import { SgxBolt } from './SgxSymbols';
 export const HudToasts: React.FC = () => {
   const { toasts, dismissToast } = useImmersion();
   if (!toasts.length) return null;
+  // Toast budget: one on screen at a time; the rest show as a counter.
+  const latest = toasts[toasts.length - 1];
+  const queued = toasts.length - 1;
   return (
     <div className="sgx-toasts" role="status" aria-live="polite">
-      {toasts.map((t) => (
+      {[latest].map((t) => (
         <button
           key={t.id}
           type="button"
@@ -25,6 +28,7 @@ export const HudToasts: React.FC = () => {
               <SgxBolt size={12} />+{t.xp} XP
             </span>
           )}
+          {queued > 0 && <span className="sgx-toast__more">+{queued}</span>}
         </button>
       ))}
     </div>

@@ -20,7 +20,7 @@ export const INITIAL_REWARDS: GamificationReward[] = [
     features: [
       'Gana XP votando tipo Kahoot (+25 XP), escaneando QR (+50 XP) o creando tu avatar (+200 XP)',
       'Descuento exclusivo en servicios y productos de marcas aliadas del Summit',
-      'Código digital verificable al instante en tu Pasaporte SGX',
+      'Código digital verificable al instante en tu SGX Pass',
       'Válido para asistentes presenciales en San Juan y audiencia digital global'
     ],
     sponsorName: 'Auspiciadores Oficiales Summit 2026',

@@ -91,7 +91,7 @@ export const PageNavigatorDropdown: React.FC<PageNavigatorDropdownProps> = ({
       id: 'summit',
       title: 'Spatialgineers Summit 2026',
       shortLabel: 'Summit Portal',
-      tagline: 'Portal principal del evento: Agenda de 3 días, directorio de speakers, mapa 360°, simulador drone, registro y boletos.',
+      tagline: 'Portal principal del evento: Agenda de 3 días, directorio de speakers, mapa 360°, simulador drone y SGX Pass.',
       icon: Compass,
       badge: 'PORTAL PRINCIPAL',
       badgeColor: 'border-cyan-400/60 text-cyan-300 bg-cyan-950/40',
@@ -487,7 +487,7 @@ export const PageNavigatorDropdown: React.FC<PageNavigatorDropdownProps> = ({
                       className="px-2 py-1 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)] text-slate-300 hover:text-white transition-colors flex items-center space-x-1"
                     >
                       <Ticket className="w-3 h-3 text-[var(--sgx-neon)]" />
-                      <span>Boletos & Pases</span>
+                      <span>SGX Pass</span>
                     </button>
                     <button
                       type="button"

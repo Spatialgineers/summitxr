@@ -157,7 +157,7 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
               className="px-3.5 py-2 rounded-lg border border-cyan-400 bg-cyan-500/20 text-xs font-mono font-bold text-cyan-300 hover:bg-cyan-500 hover:text-black transition-all flex items-center gap-1.5 cursor-pointer shadow-lg shadow-cyan-500/10"
             >
               <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
-              <span>🪪 Credencial de Sponsor</span>
+              <span>Holo Card de sponsor</span>
             </button>
             <button
               onClick={() => setViewMode(viewMode === 'CARDS' ? 'TABLE' : 'CARDS')}

@@ -893,7 +893,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                 {appliedSuccess ? (
                   <span className="text-[#FDCC0D] font-bold flex items-center space-x-1">
                     <Check className="w-3.5 h-3.5 inline" />
-                    <span>¡Avatar aplicado a tu Credencial & Pasaporte!</span>
+                    <span>¡Avatar aplicado a tu SGX Pass!</span>
                   </span>
                 ) : (
                   <span>Se actualizará en tu pasaporte, ranking y libreta de contactos.</span>
@@ -906,7 +906,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
                 <Save className="w-4 h-4" />
-                <span>APLICAR A MI CREDENCIAL & PASAPORTE</span>
+                <span>APLICAR A MI SGX PASS</span>
               </button>
             </div>
           </div>

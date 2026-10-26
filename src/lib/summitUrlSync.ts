@@ -54,7 +54,6 @@ export const SLUG_TO_SECTION: Record<string, SummitSectionKey> = {
   pilares: 'PILLARS_MANIFESTO',
   manifesto: 'PILLARS_MANIFESTO',
   manifiesto: 'PILLARS_MANIFESTO',
-  story: 'PILLARS_MANIFESTO',
   sgx_pillars: 'PILLARS_MANIFESTO',
 
   // 360 Map / Venue
@@ -118,7 +117,6 @@ export const SLUG_TO_SECTION: Record<string, SummitSectionKey> = {
   // Sponsors
   sponsors: 'SPONSORS_HUB',
   patrocinadores: 'SPONSORS_HUB',
-  showcase: 'SPONSORS_HUB',
   marcas: 'SPONSORS_HUB',
   sponsors_hub: 'SPONSORS_HUB',
   alianzas: 'SPONSORS_HUB',
@@ -198,6 +196,19 @@ export function getAppRouteAndSectionFromUrl(): ParsedAppLocation {
   }
 
   try {
+    // Pillar names in the URL (?tab=story, ?tab=showcase…) open that pillar's
+    // station, so a link never lands on a different page than its name says.
+    // (?tab=stage stays the live 3D stage page used on the venue screens.)
+    {
+      const sp = new URLSearchParams(window.location.search);
+      const tab = (sp.get('tab') || '').trim().toLowerCase();
+      if (['story', 'showcase', 'spark', 'system', 'synthesize'].includes(tab) && !sp.get('section')) {
+        sp.set('tab', 'pillar');
+        sp.set('section', 'pillar');
+        sp.set('subtab', tab);
+        window.history.replaceState(window.history.state, '', `${window.location.pathname}?${sp.toString()}${window.location.hash}`);
+      }
+    }
     const searchParams = new URLSearchParams(window.location.search);
     const rawTab = (searchParams.get('tab') || searchParams.get('page') || '').trim().toLowerCase();
     const rawSection = (searchParams.get('section') || searchParams.get('sec') || '').trim().toLowerCase();

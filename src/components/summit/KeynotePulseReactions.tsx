@@ -293,7 +293,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
       </div>
 
       {/* Persistent Floating Widget Button (Bottom Right) */}
-      <div className={`fixed bottom-5 right-5 z-40 ${className}`}>
+      <div className={`fixed bottom-4 right-4 z-40 ${className}`}>
         {!isExpanded ? (
           <div className="flex items-center space-x-2">
             {/* Main Trigger Button */}
@@ -302,20 +302,23 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                 setIsExpanded(true);
                 playUiChirp(780);
               }}
-              className="group relative px-3.5 py-2.5 bg-gradient-to-r from-cyan-500/25 via-[#121212] to-amber-500/25 border-2 border-[var(--sgx-neon)] hover:border-[var(--sgx-accent)] text-white font-mono text-xs font-black shadow-2xl flex items-center space-x-2 transition-all hover:scale-105"
+              className="group relative p-2.5 2xl:px-3.5 bg-[#121212]/95 border border-[var(--sgx-neon)] hover:border-[var(--sgx-accent)] text-white font-mono text-xs font-black shadow-2xl flex items-center space-x-2 transition-colors"
               style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
+              title="Keynote Pulse: reacciones y encuesta en vivo"
+              aria-label="Keynote Pulse: reacciones y encuesta en vivo"
             >
               <div className="relative flex items-center justify-center">
                 <Radio className="w-4 h-4 text-[var(--sgx-neon)] animate-pulse" />
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#FDCC0D] rounded-full animate-ping" />
               </div>
-              <div className="flex flex-col text-left">
+              {/* Compact by default so it never covers content; the label shows on very wide screens. */}
+              <div className="hidden 2xl:flex flex-col text-left">
                 <span className="text-[10px] text-slate-400 font-normal leading-none">KEYNOTE PULSE</span>
                 <span className="text-xs font-black tracking-wide text-cyan-300 group-hover:text-amber-300">
                   REACCIONES & ENCUESTA
                 </span>
               </div>
-              <span className="px-1.5 py-0.5 bg-cyan-950 text-cyan-400 border border-cyan-800 text-[10px] font-mono">
+              <span className="hidden 2xl:inline px-1.5 py-0.5 bg-cyan-950 text-cyan-400 border border-cyan-800 text-[10px] font-mono">
                 {pulseEnergy}%
               </span>
             </button>

@@ -138,7 +138,6 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                 <button type="button" className="sgx-btn" onClick={downloadPdf}>{es ? 'Descargar PDF' : 'Download PDF'}</button>
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={copyCode}>{copied ? (es ? 'Copiado' : 'Copied') : (es ? 'Copiar código' : 'Copy code')}</button>
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_avatar')), 80); }}>Avatar Studio</button>
-                <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_credential_generator')), 80); }}>Holo Card Studio</button>
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={onForge}>{es ? 'Editar datos' : 'Edit details'}</button>
               </div>
               <div className="sgx-hangar__holo">
@@ -150,6 +149,9 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                       ? (es ? 'Tu última Holo Card exportada. Lleva tu código de pase y, como visitante, el mismo QR en el reverso.' : 'Your last exported Holo Card. It carries your pass code and, as a visitor, the same QR on the back.')
                       : (es ? 'Crea tu credencial 3D como visitante, speaker, initiate o sponsor. Sale con tu nombre, foto y código del pase.' : 'Make your 3D credential as visitor, speaker, initiate or sponsor. It comes with your name, photo and pass code.')}
                   </p>
+                  <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_credential_generator')), 80); }}>
+                    {identity.holo ? (es ? 'Nueva Holo Card' : 'New Holo Card') : (es ? 'Abrir Holo Card Studio' : 'Open Holo Card Studio')}
+                  </button>
                   {identity.holo?.image && (
                     <a className="sgx-btn sgx-btn--sm sgx-btn--ground" href={identity.holo.image} download={`sgx-holo-card-${identity.pass!.serial}.jpg`}>{es ? 'Descargar Holo Card' : 'Download Holo Card'}</a>
                   )}

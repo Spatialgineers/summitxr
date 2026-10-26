@@ -46,6 +46,8 @@ export default function App() {
   // Cinematic SGX boot plays first, then hands off to the sponsor splash.
   const [bootDone, setBootDone] = useState<boolean>(() => new URLSearchParams(window.location.search).get('embed') === 'true');
   const [bootFading, setBootFading] = useState<boolean>(false);
+  // First visit: boot only, straight into the Forge. The sponsor splash plays on "Ver intro".
+  const [splashReplay, setSplashReplay] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<PageRoute>(() => {
     try {
       const parsed = getAppRouteAndSectionFromUrl();
@@ -64,7 +66,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const handleReplaySplash = () => { setBootDone(false); setBootFading(false); setShowSplash(true); };
+    const handleReplaySplash = () => { setBootDone(false); setBootFading(false); setSplashReplay(true); setShowSplash(true); };
     window.addEventListener('sgx:replay_splash', handleReplaySplash);
     return () => window.removeEventListener('sgx:replay_splash', handleReplaySplash);
   }, []);
@@ -989,12 +991,21 @@ export default function App() {
     <div className={`relative bg-[var(--sgx-bg)] text-slate-100 selection:bg-[var(--sgx-primary)] selection:text-black ${currentPage === 'summit' && activeSummitSection === 'OVERVIEW' ? 'h-[100dvh] overflow-hidden' : 'min-h-screen'}`}>
       {/* 5-Second Cybernetic Intro Splash with Official Sponsors & Partners */}
       {showSplash && !bootDone && (
-        <SgxBootSequence onFadeStart={() => setBootFading(true)} onComplete={() => setBootDone(true)} />
+        <SgxBootSequence
+          onFadeStart={() => setBootFading(true)}
+          onComplete={() => {
+            setBootDone(true);
+            if (!splashReplay) {
+              setShowSplash(false);
+              try { sessionStorage.setItem('sgx_splash_shown', '1'); } catch { /* private mode */ }
+            }
+          }}
+        />
       )}
-      {showSplash && (bootDone || bootFading) && (
+      {showSplash && splashReplay && (bootDone || bootFading) && (
         <SummitIntroSplash
           durationMs={4000}
-          onComplete={() => setShowSplash(false)}
+          onComplete={() => { setShowSplash(false); setSplashReplay(false); }}
         />
       )}
 

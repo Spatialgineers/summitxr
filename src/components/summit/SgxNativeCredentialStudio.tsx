@@ -100,7 +100,7 @@ const ROLE_META: Record<
 > = {
   visitante: {
     label: 'Visitante Summit',
-    badgeHeader: 'VISITANTE CON PASAPORTE SUMMIT',
+    badgeHeader: 'VISITANTE CON SGX PASS',
     subHeader: 'ACREDITACIÓN OFICIAL · ACCESO DIGITAL & SGX SHOWCASE',
     accent: '#00DDFF',
     secondary: '#FDCC0D',
@@ -240,7 +240,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
   const [jobTitle, setJobTitle] = useState<string>(
     resolvedDefault.jobtitle ||
       resolvedDefault.title ||
-      'VISITANTE CON PASAPORTE SUMMIT'
+      'VISITANTE CON SGX PASS'
   );
   const [organization, setOrganization] = useState<string>(
     resolvedDefault.org || resolvedDefault.studio || 'SPATIALGINEERS SUMMIT 2026'
@@ -714,7 +714,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         ctx.fillStyle = primaryAccent;
         ctx.font = '700 20px monospace';
         ctx.fillText(
-          (jobTitle || 'VISITANTE CON PASAPORTE SUMMIT')
+          (jobTitle || 'VISITANTE CON SGX PASS')
             .toUpperCase()
             .slice(0, 44),
           rightX,
@@ -857,7 +857,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         bctx.fillStyle = '#FFFFFF';
         bctx.font = '900 22px Orbitron, sans-serif';
         bctx.fillText(
-          'PASAPORTE HOLOGRÁFICO · MATRIZ DE 6 PILARES SGX',
+          'SGX PASS · MATRIZ DE 6 PILARES',
           44,
           52
         );
@@ -1277,7 +1277,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
     playUiChirp(820);
     setRole(targetRole);
     if (targetRole === 'visitante') {
-      setJobTitle('VISITANTE CON PASAPORTE SUMMIT');
+      setJobTitle('VISITANTE CON SGX PASS');
       setTopicOrMission('EXPLORACIÓN DEL NÚCLEO 3D & 6 PILARES');
     } else if (targetRole === 'speaker') {
       setJobTitle('PONENTE OFICIAL · SGX STAGE');
@@ -1594,7 +1594,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                 {role === 'visitante' && (
                   <div>
                     <label className="block text-[10px] font-bold text-[#FDCC0D] uppercase mb-1.5">
-                      MODALIDAD DE BOLETO / PASAPORTE VISITANTE:
+                      MODALIDAD DEL SGX PASS:
                     </label>
                     <div className="grid grid-cols-3 gap-1.5">
                       {(['digital', 'showcase', 'vip'] as VisitorPassType[]).map(
@@ -1646,7 +1646,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                       type="text"
                       value={jobTitle}
                       onChange={(e) => setJobTitle(e.target.value)}
-                      placeholder="VISITANTE CON PASAPORTE SUMMIT"
+                      placeholder="VISITANTE CON SGX PASS"
                       className="w-full px-3 py-2 bg-slate-950 border border-slate-700 focus:border-[#00DDFF] text-white text-xs outline-none"
                     />
                   </div>

@@ -81,7 +81,7 @@ export const SGX_PILLARS: SgxPillar[] = [
       { day: 2, time: '11:25 AM–12:10 PM', label: { es: 'Conversación de industria SGX.Showcase', en: 'SGX.Showcase industry conversation' } },
     ],
     modules: [
-      { kind: 'section', key: 'MAP_360', icon: Globe, label: { es: 'Tour 360° Chroma Space Studios', en: '360° Chroma Space Studios tour' }, desc: { es: 'Recorre Chroma Space Studios, la sede del Día 3 en San Juan.', en: 'Walk Chroma Space Studios, the Day 3 venue in San Juan.' } },
+      { kind: 'section', key: 'MAP_360', icon: Globe, label: { es: 'Recorrido 360° Chroma Space Studios', en: '360° Chroma Space Studios walk-through' }, desc: { es: 'Recorre Chroma Space Studios, la sede del Día 3 en San Juan.', en: 'Walk Chroma Space Studios, the Day 3 venue in San Juan.' } },
       { kind: 'section', key: 'SPONSORS_HUB', icon: Building2, label: { es: 'Partners & Brand Showcases', en: 'Partners & Brand Showcases' }, desc: { es: 'Las marcas viven dentro de la experiencia. Tiers 1 a 5.', en: 'Brands live inside the experience. Tiers 1 to 5.' } },
     ],
   },
@@ -201,4 +201,13 @@ export function moduleCode(sectionKey: string): string | undefined {
   const sections = p.modules.filter((m) => m.kind === 'section');
   const i = sections.findIndex((m) => m.kind === 'section' && m.key === sectionKey);
   return `0${p.index}.${i + 1}`;
+}
+
+/** One label map for every surface (menu, HUD dropdown, terminal, stations). */
+export function sectionModule(sectionKey: string): { label: Bi; desc: Bi } | undefined {
+  for (const p of SGX_PILLARS) {
+    const m = p.modules.find((x) => x.kind === 'section' && x.key === sectionKey);
+    if (m) return { label: m.label, desc: m.desc };
+  }
+  return undefined;
 }

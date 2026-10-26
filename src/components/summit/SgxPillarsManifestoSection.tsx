@@ -148,7 +148,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         {
           title: 'Galería Retrospectiva SGX',
           desc: 'Línea de tiempo de hitos, coleccionables Taínos y archivo digital.',
-          actionLabel: 'Ver Pasaporte de Misiones',
+          actionLabel: 'Ver Reactor de misiones',
           icon: Sparkles,
           onClick: onOpenPassportModal,
           badge: 'ARCHIVO CULTURAL'
@@ -194,9 +194,9 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       industryScope: 'Marcas físicas y digitales, tiendas, diseñadores de moda, diseñadores de producto, arquitectos, brokers inmobiliarios y galerías de arte.',
       features: [
         {
-          title: 'Tour 360° Chroma Space Studios',
+          title: 'Recorrido 360° Chroma Space Studios',
           desc: 'Exploración 360° de Chroma Space Studios, el venue del Día 3, con hotspots tácticos.',
-          actionLabel: 'Abrir Tour Virtual 360°',
+          actionLabel: 'Abrir recorrido 360°',
           icon: Compass,
           onClick: onOpen360Tour,
           badge: 'VENUE 360°'
@@ -268,7 +268,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         {
           title: 'Votación Interactiva CYOA',
           desc: 'Mecánica en vivo para que la audiencia tome decisiones narrativas en directo.',
-          actionLabel: 'Abrir Pasaporte & Misiones',
+          actionLabel: 'Abrir Reactor de misiones',
           icon: Zap,
           onClick: onOpenPassportModal,
           badge: 'INTERACCIÓN EN VIVO'
@@ -926,7 +926,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
               action: onOpenMatchModule,
             },
             {
-              title: 'Tour 360° Venue',
+              title: 'Recorrido 360° Chroma',
               desc: 'Exploración virtual de Chroma Space Studios',
               icon: Compass,
               color: '#FFBB00',
@@ -982,7 +982,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
               action: onOpenAvatarGenerator,
             },
             {
-              title: 'Pases & Boletos',
+              title: 'SGX Pass',
               desc: 'Acreditación oficial para los 3 días',
               icon: Ticket,
               color: '#00DDFF',
@@ -991,7 +991,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             },
             {
               title: 'Misiones & XP',
-              desc: 'Pasaporte gamificado de asistente',
+              desc: 'Pase con misiones, sellos y QR',
               icon: Sparkles,
               color: '#FDCC0D',
               badge: 'SGX.STORY',

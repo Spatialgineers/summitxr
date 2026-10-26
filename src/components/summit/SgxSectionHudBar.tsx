@@ -6,6 +6,7 @@ import { SgxBolt } from '../../immersion/SgxSymbols';
 import { SGX_PILLARS, findPillar, moduleCode } from '../../lib/sgxPillars';
 import { navigateToPillar } from '../../immersion/navigation';
 import { VisitCounterChip } from './SummitVisitRadar';
+import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 
 export interface HudSectionChip {
   key: SummitSectionKey;
@@ -45,6 +46,7 @@ export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
   activeSection, chips, pillarLabel, pillarIconUrl, onSelect, onBack, onTour, onShare, dropdown, stationSlug,
 }) => {
   const { state } = useImmersion();
+  const sgx = useOptionalSgxIdentity();
   const stripRef = useRef<HTMLDivElement>(null);
 
   const ordered = [...chips].sort((a, b) => PILLAR_ORDER.indexOf(a.pillar) - PILLAR_ORDER.indexOf(b.pillar));
@@ -128,13 +130,11 @@ export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
 
         <div className="sgx-sechud__tools">
           <VisitCounterChip className="hidden xl:inline-flex" onOpen={() => onSelect('VISITS')} />
-          <span className="sgx-readout sgx-sechud__meter" title="Estaciones visitadas">
-            <span className="sgx-readout__k">SYNC</span>
-            {ordered.filter((c) => state.visited.includes(c.key)).length}/{ordered.length}
-          </span>
+          {/* One progress counter in the whole app: the Reactor. */}
           <button type="button" className="sgx-btn sgx-btn--sm" onClick={onTour} title="Reactor: misiones por pilar de tu SGX Pass">
             <HelpCircle className="w-3.5 h-3.5" />
             <span className="hidden lg:inline">Reactor</span>
+            {sgx && <span className="sgx-readout">{sgx.missions.filter((m) => sgx.isDone(m.id)).length}/{sgx.missions.length}</span>}
           </button>
           <button type="button" className="sgx-btn sgx-btn--sm" onClick={onShare} title="Copiar enlace directo">
             <Share2 className="w-3.5 h-3.5" />

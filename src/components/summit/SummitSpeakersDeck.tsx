@@ -171,7 +171,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
               className="px-3 py-2 bg-cyan-500/20 hover:bg-cyan-500 hover:text-black border border-cyan-400 text-cyan-300 font-extrabold text-xs font-mono uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 rounded-lg shrink-0 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
-              <span>🎨 Crear Holo Card</span>
+              <span>Crear mi Holo Card de speaker</span>
             </button>
 
             <button
@@ -552,7 +552,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                 className="w-full py-2.5 bg-cyan-500/20 hover:bg-cyan-500 hover:text-black border border-cyan-400 text-cyan-300 font-bold text-xs font-mono uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-cyan-500/10"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>🪪 OBTENER CREDENCIAL HOLOGRÁFICA (PNG)</span>
+                <span>Holo Card de este speaker</span>
               </button>
             </div>
           </div>

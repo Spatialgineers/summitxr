@@ -226,7 +226,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
       id: 'SHOWCASE',
       name: 'SGX.SHOWCASE',
       title: 'Exposición 360°, SGX.Match & Alianzas Oficiales',
-      subtitle: 'Showcase opt.glb • Tour 360° Chroma Studios • Speed Pitching • QR (+50 XP)',
+      subtitle: 'Showcase opt.glb • Recorrido 360° Chroma • Speed Pitching • QR (+50 XP)',
       description:
         'Donde los proyectos, marcas aliadas y fundadores se conectan con el mundo. Recorre en 360° Chroma Space Studios, la sede del Día 3, haz matchmaking estratégico y escanea códigos QR (+50 XP).',
       icon: Building2,
@@ -236,12 +236,12 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
       modules: [
         {
           id: 'mod_map_360',
-          title: 'Tour Virtual 360° Chroma Space Studios',
+          title: 'Recorrido 360° Chroma Space Studios',
           subtitle: 'Recorrido Espacial por la Sede Híbrida en San Juan',
           description:
             'Explora en 360° los sets de producción virtual, escenario principal y zonas de networking de Chroma Space Studios, la sede del Día 3.',
           xpReward: '+90 XP',
-          actionLabel: 'Entrar al Tour 360°',
+          actionLabel: 'Entrar al recorrido 360°',
           icon: Globe,
           onLaunch: () => onSelectSection('MAP_360'),
         },

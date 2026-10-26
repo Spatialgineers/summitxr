@@ -1403,7 +1403,7 @@ export const SPONSORSHIP_TIERS: SponsorshipTier[] = [
       'Todo lo incluido en Tier 2',
       'Un segmento con su nombre, por ejemplo "The [Marca] Showcase" o "[Pilar] powered by [Marca]"',
       'Video de presentación de 30 a 60 segundos antes de su segmento (lo entrega el sponsor o lo produce Spatialgineers)',
-      'Reto personalizado en el Pasaporte Digital del evento',
+      'Reto de marca en el Reactor del SGX Pass (misión y sello propios)',
       'Banners principales y crédito en el recap y el highlight reel',
     ],
     sponsors: []

@@ -14,7 +14,7 @@ const COPY = {
   es: {
     rail: 'Misiones', title: 'Control de Misión', close: 'Cerrar', energy: 'Energía', cells: 'Celdas de energía',
     cellsHint: 'Hay un rayo SGX escondido en cada sección. Aparece cerca de los bordes unos segundos después de llegar.',
-    main: 'Main Quests', side: 'Side Quests', secret: 'Secretos', reactor: 'Reactor · misiones por pilar', reactorHint: 'Completa un pilar y queda sellado en tu SGX Pass.', openReactor: 'Abrir Reactor', terminal: 'Terminal', pulse: 'Pulso', stage: 'Escenario',
+    main: 'Protocolos principales', side: 'Protocolos extra', secret: 'Secretos', reactor: 'Reactor · misiones por pilar', reactorHint: 'Completa un pilar y queda sellado en tu SGX Pass.', openReactor: 'Abrir Reactor', terminal: 'Terminal', pulse: 'Pulso', stage: 'Escenario',
     sound: 'Sonido', keys: 'Atajos', overdrive: 'OVERDRIVE ACTIVO',
   },
   en: {
@@ -55,7 +55,7 @@ export const MissionRail: React.FC = () => {
   const { profile } = usePilotProfile();
   const c = language === 'es' ? COPY.es : COPY.en;
   const lang = language === 'es' ? 'es' : 'en';
-  const fps = useFps(panelOpen);
+  // (FPS readout removed from the attendee panel)
   const [muted, setMuted] = useState(getIsAudioMuted());
 
   useEffect(() => {
@@ -107,7 +107,7 @@ export const MissionRail: React.FC = () => {
       >
         <span className={`sgx-led ${overdrive ? 'sgx-led--alert' : 'sgx-led--action'}`} aria-hidden="true" />
         <span className="sgx-rail__label">{c.rail}</span>
-        <span className="sgx-rail__count">{completedCount + reactorDone}/{QUESTS.length + reactorTotal}</span>
+        <span className="sgx-rail__count">{sgx ? `${reactorDone}/${reactorTotal}` : `${completedCount}/${QUESTS.length}`}</span>
         <span className="sgx-rail__meter" aria-label={`${c.energy} ${energy}%`}>
           <span style={{ transform: `scaleY(${energy / 100})` }} />
         </span>
@@ -123,7 +123,6 @@ export const MissionRail: React.FC = () => {
           <div className="sgx-status sgx-mission__telemetry">
             <span className="sgx-readout"><span className="sgx-readout__k">XP</span>{profile.totalXp.toLocaleString()}</span>
             <span className="sgx-readout"><span className="sgx-readout__k">LVL</span>{profile.level}</span>
-            <span className="sgx-readout"><span className="sgx-readout__k">FPS</span>{fps || '--'}</span>
             <span className="sgx-mission__rank">{profile.rankTitle}</span>
           </div>
 

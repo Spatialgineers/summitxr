@@ -31,7 +31,8 @@ import { useTenantTheme } from '../../context/TenantThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useSummitFeatures } from '../../context/SummitFeatureContext';
-import { SGX_PILLARS, pillarOfSection } from '../../lib/sgxPillars';
+import { SGX_PILLARS, pillarOfSection, sectionModule } from '../../lib/sgxPillars';
+import { SgxPassStrip } from '../../identity/SgxPassStrip';
 
 export type SummitSectionKey = 
   | 'OVERVIEW'
@@ -254,7 +255,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     },
     {
       key: 'MAP_360',
-      title: 'Tour 360° Chroma Space Studios',
+      title: 'Recorrido 360° Chroma Space Studios',
       shortLabel: 'Mapa 360° Venue',
       description: 'Exploración virtual interactiva del venue oficial en San Juan.',
       icon: Navigation,
@@ -439,209 +440,9 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                 </button>
               </div>
 
-              {/* User Profile, Passport & Tool Hub */}
-              <div className="p-3 sm:p-4 bg-[#0d0d0d] border-b border-[var(--sgx-secondary)]/40 shrink-0 space-y-3">
-                {/* User Avatar Badge Header */}
-                <div 
-                  className="flex items-center justify-between p-2.5 bg-[#161616] border rounded-sm"
-                  style={{ borderColor: `${tenant.branding.primaryColor}40` }}
-                >
-                  <div className="flex items-center space-x-3">
-                    <div 
-                      className="w-10 h-10 rounded-full bg-black border-2 overflow-hidden flex items-center justify-center shrink-0"
-                      style={{ 
-                        borderColor: tenant.branding.primaryColor,
-                        boxShadow: `0 0 10px ${tenant.branding.glowShadow}`
-                      }}
-                    >
-                      {userAvatar ? (
-                        <img src={userAvatar} alt="Mi Avatar" className="w-full h-full object-cover" />
-                      ) : (
-                        <Shield 
-                          className="w-6 h-6" 
-                          style={{ color: tenant.branding.primaryColor }}
-                        />
-                      )}
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-white flex items-center gap-2 font-mono">
-                        <span>{playerProfile?.nickname || 'Spatialgineer Asistente'}</span>
-                        <span 
-                          className="px-1.5 py-0.5 border text-[9px] font-bold rounded"
-                          style={{
-                            color: tenant.branding.primaryColor,
-                            borderColor: `${tenant.branding.primaryColor}60`,
-                            backgroundColor: `${tenant.branding.primaryColor}15`
-                          }}
-                        >
-                          {playerProfile?.totalScore || 100} XP
-                        </span>
-                      </div>
-                      <div className="text-[9px] text-slate-300 font-mono flex items-center gap-1 mt-0.5">
-                        <UserCheck 
-                          className="w-3 h-3" 
-                          style={{ color: tenant.branding.primaryColor }}
-                        />
-                        <span>Foto de Perfil & Pasaporte SGX Activos</span>
-                      </div>
-                    </div>
-                  </div>
-                  <span 
-                    className="text-[9px] font-mono font-bold border px-2 py-1 rounded hidden sm:inline-block"
-                    style={{
-                      color: tenant.branding.primaryColor,
-                      borderColor: `${tenant.branding.primaryColor}60`,
-                      backgroundColor: `${tenant.branding.primaryColor}15`
-                    }}
-                  >
-                    {playerProfile?.tierTag || 'SPATIALGINEER'}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 text-center font-mono">
-                  {/* Avatar Creator */}
-                  {onOpenAvatar && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsOpen(false);
-                        playUiChirp(800);
-                        onOpenAvatar();
-                      }}
-                      className="p-2 bg-[#161616] hover:bg-[#262626] border text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group cursor-pointer"
-                      style={{
-                        borderColor: `${tenant.branding.primaryColor}50`,
-                        color: tenant.branding.primaryColor
-                      }}
-                      title="Personalizar mi avatar espacial con colores SGX"
-                    >
-                      <Shield 
-                        className="w-4 h-4 group-hover:scale-110 transition-transform" 
-                        style={{ color: tenant.branding.primaryColor }}
-                      />
-                      <span className="truncate w-full">MI AVATAR</span>
-                    </button>
-                  )}
-
-                  {/* Passport & XP */}
-                  {onOpenPassport && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsOpen(false);
-                        playUiChirp(750);
-                        onOpenPassport();
-                      }}
-                      className="p-2 bg-[#161616] hover:bg-[#262626] border text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group cursor-pointer"
-                      style={{
-                        borderColor: `${tenant.branding.primaryColor}50`,
-                        color: tenant.branding.primaryColor
-                      }}
-                      title="Ver pasaporte de misiones y acumulación de XP"
-                    >
-                      <Trophy 
-                        className="w-4 h-4 group-hover:scale-110 transition-transform" 
-                        style={{ color: tenant.branding.primaryColor }}
-                      />
-                      <span className="truncate w-full">PASAPORTE & XP</span>
-                    </button>
-                  )}
-
-                  {/* QR Scanner */}
-                  {onOpenQrScanner && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsOpen(false);
-                        playUiChirp(840);
-                        onOpenQrScanner();
-                      }}
-                      className="p-2 bg-[#161616] hover:bg-[#262626] border border-[var(--sgx-secondary)]/50 hover:border-white text-slate-200 text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group cursor-pointer"
-                      title="Escanear credencial QR de participantes"
-                    >
-                      <ScanLine className="w-4 h-4 text-slate-300 group-hover:scale-110 transition-transform" />
-                      <span className="truncate w-full">ESCANEAR QR</span>
-                    </button>
-                  )}
-
-                  {/* Rewards Store */}
-                  {onOpenRewards && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsOpen(false);
-                        playUiChirp(820);
-                        onOpenRewards();
-                      }}
-                      className="p-2 bg-[#161616] hover:bg-[#262626] border border-[var(--sgx-secondary)]/50 hover:border-white text-slate-200 text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group cursor-pointer"
-                      title="Canjear puntos por suscripciones y premios"
-                    >
-                      <Award className="w-4 h-4 text-slate-300 group-hover:scale-110 transition-transform" />
-                      <span className="truncate w-full">PREMIOS</span>
-                    </button>
-                  )}
-
-                  {/* Onboarding Tour / Guía */}
-                  {onOpenTour && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsOpen(false);
-                        playUiChirp(850);
-                        onOpenTour();
-                      }}
-                      className="p-2 bg-cyan-950/40 hover:bg-cyan-950/80 border border-cyan-400/60 hover:border-cyan-300 text-cyan-300 text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group"
-                      title="Tour interactivo por las 12 secciones y funciones (+100 XP)"
-                    >
-                      <HelpCircle className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform animate-pulse" />
-                      <span className="truncate w-full">TOUR GUÍA</span>
-                    </button>
-                  )}
-
-                  {/* Ticket Registration */}
-                  {onOpenTickets && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsOpen(false);
-                        playUiChirp(800);
-                        onOpenTickets();
-                      }}
-                      className="p-2 bg-[var(--sgx-neon)] hover:bg-cyan-300 text-black text-[10px] font-extrabold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group"
-                      title="Ver o registrar mi pase de admisión oficial"
-                    >
-                      <Ticket className="w-4 h-4 text-black group-hover:scale-110 transition-transform" />
-                      <span className="truncate w-full">MI PASE</span>
-                    </button>
-                  )}
-
-                  {/* Cyber Ambiance Audio Toggle */}
-                  {onToggleAmbiance && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        playUiChirp(600);
-                        onToggleAmbiance();
-                      }}
-                      className={`p-2 border text-[10px] font-bold flex flex-col items-center justify-center gap-1 transition-all rounded-sm group ${
-                        isAmbiancePlaying
-                          ? 'bg-cyan-950/70 border-[var(--sgx-neon)] text-[var(--sgx-neon)] shadow-[0_0_10px_rgba(0, 221, 255,0.2)]'
-                          : 'bg-[#161616] hover:bg-[#262626] border-slate-700 text-slate-400 hover:text-white'
-                      }`}
-                      title={isAmbiancePlaying ? "Silenciar audio ambiente cyber" : "Activar banda sonora espacial inmersiva"}
-                    >
-                      {isAmbiancePlaying ? (
-                        <Volume2 className="w-4 h-4 text-[var(--sgx-neon)] animate-pulse" />
-                      ) : (
-                        <VolumeX className="w-4 h-4 text-slate-400" />
-                      )}
-                      <span className="truncate w-full">
-                        {isAmbiancePlaying ? 'AUDIO ON' : 'AUDIO OFF'}
-                      </span>
-                    </button>
-                  )}
-                </div>
-
+              {/* The SGX Pass is the one "me" surface; this strip just links to it. */}
+              <div className="p-3 sm:p-4 border-b border-[var(--sgx-secondary)]/40 shrink-0 space-y-2">
+                <SgxPassStrip onAction={() => setIsOpen(false)} />
                 {/* Admin Link if Admin */}
                 {isAdmin && onNavigateToAdmin && (
                   <div className="pt-2 border-t border-slate-800 flex justify-end">
@@ -715,14 +516,14 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                                 <div>
                                   <div className="flex items-center space-x-1.5 flex-wrap">
                                     <span className="font-bold text-white text-xs font-['Orbitron',sans-serif] group-hover:text-[var(--sgx-neon)] transition-colors">
-                                      {item.title}
+                                      {sectionModule(item.key)?.label.es || item.title}
                                     </span>
                                     <span className={`px-1 py-0.1 text-[7px] font-bold border rounded ${item.badgeColor}`}>
                                       {item.badge}
                                     </span>
                                   </div>
                                   <p className="text-[9px] text-slate-400 leading-tight mt-1 line-clamp-2">
-                                    {item.description}
+                                    {sectionModule(item.key)?.desc.es || item.description}
                                   </p>
                                 </div>
                               </div>
@@ -764,7 +565,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                         style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                       >
                         <Ticket className="w-3 h-3" />
-                        <span>REGISTRARSE (BOLETOS)</span>
+                        <span>MI SGX PASS</span>
                       </button>
                     )}
                     {onOpenSponsors && (

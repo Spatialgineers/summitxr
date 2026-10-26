@@ -144,11 +144,11 @@ export const SgxPassHost: React.FC = () => {
     let tries = 0;
     const t = window.setInterval(() => {
       tries += 1;
-      if (forgedRef.current || tries > 40) { window.clearInterval(t); return; }
-      if (document.querySelector('.sgx-boot, [data-sgx-splash]') || tries < 3) return;
+      if (forgedRef.current || tries > 110) { window.clearInterval(t); return; }
+      if (document.querySelector('.sgx-boot, [data-sgx-splash]') || tries < 2) return;
       window.clearInterval(t);
       setForge((f) => f || { tier: 'DIGITAL' });
-    }, 2500);
+    }, 900);
     return () => window.clearInterval(t);
   }, []);
 

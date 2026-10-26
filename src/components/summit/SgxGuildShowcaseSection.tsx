@@ -115,7 +115,7 @@ export const SgxGuildShowcaseSection: React.FC = () => {
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-wider font-['Orbitron',sans-serif] uppercase">
-            SGX Ranked Trials: <span style={styles.gradientTextStyle}>SGX Guild System Showcase</span>
+            SGX Guild: <span style={styles.gradientTextStyle}>Initiates 2026</span>
           </h2>
 
           <p className="text-slate-300 text-sm leading-relaxed font-sans">
@@ -142,7 +142,7 @@ export const SgxGuildShowcaseSection: React.FC = () => {
                 }))}
                 className="sgx-btn sgx-btn--sm"
               >
-                🪪 Soy Initiate · mi Holo Card
+                Soy Initiate · mi Holo Card
               </button>
             </div>
           </div>
@@ -209,7 +209,7 @@ export const SgxGuildShowcaseSection: React.FC = () => {
                     }}
                     className="px-2.5 py-1 bg-cyan-500/20 hover:bg-cyan-500 hover:text-black border border-cyan-400 text-cyan-300 font-bold transition-all rounded cursor-pointer flex items-center gap-1"
                   >
-                    <span>🪪 Holo Card</span>
+                    <span>Holo Card</span>
                   </button>
                 </div>
               </div>

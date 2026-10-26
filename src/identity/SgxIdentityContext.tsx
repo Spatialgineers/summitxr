@@ -105,8 +105,12 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
         stamped = true;
       }
     });
-    recordActivity('quest_complete', `Reactor · ${pillar.name} · ${copy.title}`, copy.hint, m.xp, PILLAR_ACCENT[m.pillar]);
-    pushToast({ tag: `REACTOR · ${pillar.name.toUpperCase()}`, title: copy.title, detail: copy.hint, xp: m.xp, tone: 'action' });
+    // Missions mirrored from a platform quest were already paid and announced
+    // by that quest: one action, one reward, one toast.
+    if (!('quest' in m.trigger)) {
+      recordActivity('quest_complete', `Reactor · ${pillar.name} · ${copy.title}`, copy.hint, m.xp, PILLAR_ACCENT[m.pillar]);
+      pushToast({ tag: `REACTOR · ${pillar.name.toUpperCase()}`, title: copy.title, detail: copy.hint, xp: m.xp, tone: 'action' });
+    }
     if (stamped) {
       window.setTimeout(() => pushToast({
         tag: es ? 'SELLO IMPRESO' : 'STAMP PRINTED',
@@ -201,6 +205,15 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // The pilot profile (leaderboard, /play, telemetry) always wears the pass name and callsign.
+  useEffect(() => {
+    const pass = identity.pass;
+    if (!pass || !identity.callsign) return;
+    const first = pass.fullName.trim().split(/\s+/)[0] || pass.fullName;
+    if (profile.nickname !== first || profile.callsign !== identity.callsign) updateProfileName(first, identity.callsign);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [identity.pass?.fullName, identity.callsign, profile.nickname, profile.callsign]);
 
   // Constellation: the Rolodex as stars. All 6 pillars linked = secret stamp;
   // the public board only gets counts (stars, pillars), never names of contacts.

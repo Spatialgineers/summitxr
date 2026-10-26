@@ -64,7 +64,7 @@ export function resolveStoredUserHoloProfile(
         return {
           role: 'visitante',
           name: pass.fullName,
-          jobtitle: pass.roleTitle || 'VISITANTE CON PASAPORTE SUMMIT',
+          jobtitle: pass.roleTitle || 'VISITANTE CON SGX PASS',
           org: pass.organization || 'SPATIALGINEERS SUMMIT',
           passType:
             pass.ticketType === 'SHOWCASE_PHYSICAL' ? 'showcase' : 'digital',
@@ -79,7 +79,7 @@ export function resolveStoredUserHoloProfile(
         name: fallbackNickname,
         jobtitle: fallbackRole
           ? `RUTA ${fallbackRole.toUpperCase()}`
-          : 'VISITANTE CON PASAPORTE SUMMIT',
+          : 'VISITANTE CON SGX PASS',
         org: 'SPATIALGINEERS SUMMIT 2026',
         passType: 'digital',
         photoUrl: savedAvatar
@@ -149,7 +149,7 @@ export const SgxHoloCardGeneratorModal: React.FC<
               setActiveProfile({
                 ...visitorProf,
                 role: 'visitante',
-                jobtitle: 'VISITANTE CON PASAPORTE SUMMIT'
+                jobtitle: 'VISITANTE CON SGX PASS'
               });
             }}
             className="px-2.5 py-1 bg-[#FDCC0D]/15 hover:bg-[#FDCC0D] text-[#FDCC0D] hover:text-black border border-[#FDCC0D]/60 font-bold transition-colors cursor-pointer flex items-center gap-1 whitespace-nowrap shrink-0"

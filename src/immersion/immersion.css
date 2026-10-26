@@ -289,7 +289,8 @@ body.sgx-overdrive .tenant-btn-primary { filter: drop-shadow(0 0 6px rgba(253, 2
     animation: sgx-sheet-in 0.28s ease-out both;
   }
   @keyframes sgx-sheet-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
-  .sgx-toasts { left: 50%; transform: translateX(-50%); bottom: auto; top: 64px; }
+  /* Phones: docked at the bottom, never over the header or the section HUD. */
+  .sgx-toasts { left: 50%; transform: translateX(-50%); bottom: 14px; top: auto; }
   .sgx-terminal-backdrop { padding-top: 56px; }
 }
 
@@ -327,4 +328,27 @@ body.sgx-overdrive .tenant-btn-primary { filter: drop-shadow(0 0 6px rgba(253, 2
 .sgx-boot__tagline { margin: 0; font-family: var(--font-body); font-size: clamp(0.85rem, 1.4vw, 1.05rem); color: #bdbdbd; }
 .sgx-boot__skip { position: absolute; left: 0; right: 0; bottom: 20px; text-align: center; color: var(--SGX_Grey); }
 @keyframes sgx-boot-title { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
-@media (max-width: 640px) { .sgx-boot__title { top: 70%; } .sgx-boot__log { bottom: 52px; font-size: 0.68rem; } }
+@media (max-width: 640px) { .sgx-boot__title { top: 64%; } .sgx-boot__log { display: none; } }
+
+/* Toasts never talk over a dialog (Forge, Hangar, studios, legacy modals). */
+body:has([aria-modal="true"], .sgx-hangar, .sgx-forge, .sgx-terminal-backdrop, .fixed.inset-0[class*="z-[9999"]) .sgx-toasts {
+  opacity: 0; visibility: hidden;
+}
+.sgx-toast__more {
+  position: absolute; top: 4px; right: 8px; padding: 1px 6px;
+  font-family: var(--font-mono); font-size: 0.65rem; color: var(--SGX_Black_Base); background: var(--SGX_Cyan);
+}
+.sgx-toast { position: relative; }
+
+/* ---------- Standby empty state ---------- */
+.sgx-standby { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 28px 20px; text-align: center; }
+.sgx-standby__tag { margin: 0; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.18em; color: var(--SGX_Cyan); }
+.sgx-standby__count { margin: 4px 0 0; color: var(--SGX_Yellow); }
+.sgx-standby__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 6px; }
+.sgx-standby__signal { display: flex; align-items: flex-end; gap: 4px; height: 22px; }
+.sgx-standby__signal span { width: 6px; background: var(--SGX_Cyan); animation: sgx-signal 1.6s ease-in-out infinite; }
+.sgx-standby__signal span:nth-child(1) { height: 8px; }
+.sgx-standby__signal span:nth-child(2) { height: 14px; animation-delay: 0.2s; }
+.sgx-standby__signal span:nth-child(3) { height: 22px; animation-delay: 0.4s; }
+@keyframes sgx-signal { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .sgx-standby__signal span { animation: none; } }

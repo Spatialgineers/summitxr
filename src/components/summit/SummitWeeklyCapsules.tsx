@@ -114,7 +114,7 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
 • Aforo: por invitación y cupo limitado, 40 a 60 personas como máximo.
 • Horario: 10:00 a.m. a 4:00 p.m., con transmisión por YouTube Live. Apertura de puertas: por anunciar.`,
     relatedSectionKey: 'MAP_360',
-    relatedActionLabel: 'Explorar Tour 360° Venue'
+    relatedActionLabel: 'Explorar el recorrido 360°'
   },
   {
     id: 'capsule_w4',
@@ -163,14 +163,14 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     badgeColor: '#FFFFFF',
     isUnlockedDefault: false,
     xpReward: 50,
-    summary: 'Desbloqueo final antes del Día 1: insignia del Pasaporte y la escalera de premios del Summit.',
+    summary: 'Desbloqueo final antes del Día 1: insignia del SGX Pass y la escalera de premios del Summit.',
     fullTransmission: `SECUENCIA FINAL // LANZAMIENTO GLOBAL:
 • 11 de diciembre de 2026 · 10:00 AM AST: apertura por YouTube Live.
 • 13 de diciembre: SGX Showcase en Chroma Space Studios (por invitación).
 • Premios: cupón de descuento de un auspiciador, suscripción de 3 meses a nuestras plataformas, sesión "Grit" con artistas (por confirmar) y el premio mayor "Spatialgineers activa tu evento".
-• Los pilotos que desbloquearon las 6 cápsulas reciben la Insignia Legendaria "Pionero Cuántico" en su Pasaporte de Piloto.`,
+• Los pilotos que desbloquearon las 6 cápsulas reciben la Insignia Legendaria "Pionero Cuántico" en su SGX Pass.`,
     relatedSectionKey: 'OVERVIEW',
-    relatedActionLabel: 'Ver Pasaporte de Piloto'
+    relatedActionLabel: 'Ver mi SGX Pass'
   }
 ];
 

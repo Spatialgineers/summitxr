@@ -214,6 +214,8 @@ export interface SponsorInquiry {
   submittedAt: number;
   status: 'PENDING_REVIEW' | 'CONTACTED' | 'APPROVED' | 'DECLINED';
   referenceCode: string;
+  /** uid of the visitor who sent it (their sponsor Holo Card). */
+  submittedBy?: string;
 }
 
 export interface ApprovedSponsor {

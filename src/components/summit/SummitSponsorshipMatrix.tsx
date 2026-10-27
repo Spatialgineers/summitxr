@@ -146,21 +146,13 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
             <button
               type="button"
               onClick={() => {
-                window.dispatchEvent(new CustomEvent('sgx:open_holo_card', {
-                  detail: {
-                    self: true,
-                    role: 'SPONSOR',
-                    name: (es ? 'Tu Marca / Empresa' : 'Your Brand / Company'),
-                    title: (es ? 'Patrocinador Oficial' : 'Official Sponsor'),
-                    org: 'Spatialgineers Summit 2026',
-                    tier: 'SPONSOR'
-                  }
-                }));
+                // The sponsor card comes from the sponsor form, once the team approves it.
+                window.dispatchEvent(new CustomEvent('sgx:open_sponsor_modal'));
               }}
               className="px-3.5 py-2 rounded-lg border border-cyan-400 bg-cyan-500/20 text-xs font-mono font-bold text-cyan-300 hover:bg-cyan-500 hover:text-black transition-all flex items-center gap-1.5 cursor-pointer shadow-lg shadow-cyan-500/10"
             >
               <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
-              <span>{es ? 'Holo Card de sponsor' : 'Sponsor Holo Card'}</span>
+              <span>{es ? 'Registrar mi marca' : 'Register my brand'}</span>
             </button>
             <button
               onClick={() => setViewMode(viewMode === 'CARDS' ? 'TABLE' : 'CARDS')}

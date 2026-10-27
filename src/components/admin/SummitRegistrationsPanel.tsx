@@ -5,6 +5,9 @@ import { Download, KeyRound, RefreshCw, Search, Users } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { approveSpeakerSubmission, fetchSpeakerSubmissions, rejectSpeakerSubmission } from '../../lib/summitData';
 import type { SummitSpeaker } from '../../types/summit';
+import { findPillar } from '../../lib/sgxPillars';
+import { grantCredential } from '../../identity/credentials';
+import { SummitInitiatesPanel } from './SummitInitiatesPanel';
 
 /* INSCRITOS: every SGX Pass forged lands in `ticket_inquiries`. The team
    reviews them here, marks who gets the Day 3 invitation, exports the list
@@ -77,9 +80,21 @@ export const SummitRegistrationsPanel: React.FC = () => {
   useEffect(() => { loadSpeakerSubs(); }, []);
   const decideSpeaker = async (sp: SummitSpeaker, approve: boolean) => {
     try {
-      if (approve) await approveSpeakerSubmission(sp);
-      else await rejectSpeakerSubmission(sp.id);
-      setSpeakerMsg(approve ? `${sp.name} ya aparece en el directorio público.` : `Solicitud de ${sp.name} descartada.`);
+      const uid = (sp as any).submittedBy as string | null | undefined;
+      let card = '';
+      if (approve) {
+        await approveSpeakerSubmission(sp);
+        // Their speaker Holo Card becomes official on their own pass.
+        if (uid) {
+          await grantCredential(uid, 'speaker', {
+            name: sp.name, title: sp.role, org: sp.organization,
+            topic: sp.day ? `Día ${sp.day}` : undefined,
+            pillar: findPillar(sp.pillarId)?.key ?? null, photo: sp.avatarUrl || null, handle: sp.handle,
+          }).then(() => { card = ' Su Holo Card de speaker ya es oficial.'; })
+            .catch(() => { card = ' (No se pudo marcar su Holo Card como oficial.)'; });
+        }
+      } else await rejectSpeakerSubmission(sp.id);
+      setSpeakerMsg(approve ? `${sp.name} ya aparece en el directorio público.${card}` : `Solicitud de ${sp.name} descartada.`);
       loadSpeakerSubs();
     } catch (err: any) {
       setSpeakerMsg(`No se pudo completar: ${err?.message || err}`);
@@ -365,6 +380,8 @@ export const SummitRegistrationsPanel: React.FC = () => {
           <p className="text-xs font-mono text-[#FDCC0D]">Todavía no hay código guardado: el check-in del Día 3 no funcionará hasta que guardes uno.</p>
         )}
       </div>
+
+      <SummitInitiatesPanel />
     </div>
   );
 };

@@ -100,7 +100,6 @@ import { SummitSectionsDropdown, SummitSectionKey } from './SummitSectionsDropdo
 import { SummitExperienceHub } from './SummitExperienceHub';
 import { SummitRewardsStoreModal } from './SummitRewardsStoreModal';
 import { KeynotePulseReactions } from './KeynotePulseReactions';
-import type { HoloCardProfile } from './SgxHoloCardGeneratorModal';
 import { SgxSectionHudBar, HudSectionChip } from './SgxSectionHudBar';
 import { SgxPillarStation } from './SgxPillarStation';
 import { SGX_PILLARS, pillarOfSection, findPillar } from '../../lib/sgxPillars';
@@ -391,7 +390,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
   const [selectedSponsorTierId, setSelectedSponsorTierId] = useState<string>('tier_2');
   const [selectedBrandShowcase, setSelectedBrandShowcase] = useState<ApprovedSponsor | null>(null);
   const [isHoloCardModalOpen, setIsHoloCardModalOpen] = useState<boolean>(false);
-  const [holoCardProfile, setHoloCardProfile] = useState<HoloCardProfile | null>(null);
   const [speakerPortalOpen, setSpeakerPortalOpen] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const search = window.location.search;

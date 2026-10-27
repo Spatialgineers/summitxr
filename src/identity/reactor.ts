@@ -99,8 +99,8 @@ export const REACTOR_MISSIONS: ReactorMission[] = [
     en: { title: 'Read the radar', hint: 'See where visitors come from, live.' },
     go: { section: 'VISITS' } },
   { id: 'm_system_holo', pillar: 'SYSTEM', xp: 60, trigger: { flag: 'holo' },
-    es: { title: 'Holo Card', hint: 'Exporta tu Holo Card en el Studio: visitante, speaker, initiate o sponsor.' },
-    en: { title: 'Holo Card', hint: 'Export your Holo Card in the Studio: visitor, speaker, initiate or sponsor.' },
+    es: { title: 'Holo Card', hint: 'Comparte tu Holo Card: tu pase como tarjeta 3D, post o story.' },
+    en: { title: 'Holo Card', hint: 'Share your Holo Card: your pass as a 3D card, post or story.' },
     go: { event: 'sgx:open_credential_generator' } },
 
   // SGX.Synthesize

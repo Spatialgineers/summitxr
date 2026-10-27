@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { SummitSpeaker, SummitPillarId } from '../../types/summit';
 import { registerSpeakerProfile, SUMMIT_PILLARS, playNotificationChime } from '../../lib/summitData';
+import { findPillar } from '../../lib/sgxPillars';
+import { savePendingCredential } from '../../identity/credentials';
 import { useAuth } from '../../context/AuthContext';
 import { AttendeeAvatarGenerator } from './AttendeeAvatarGenerator';
 import { useLanguage } from '../../context/LanguageContext';
@@ -140,6 +142,12 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
       };
 
       const registered = await registerSpeakerProfile(speakerPayload);
+      // Their speaker Holo Card shows "in review" until the team approves it.
+      savePendingCredential('speaker', {
+        name: registered.name, title: registered.role, org: registered.organization,
+        topic: registered.day ? (es ? `Día ${registered.day}` : `Day ${registered.day}`) : undefined,
+        pillar: findPillar(registered.pillarId)?.key ?? null, photo: registered.avatarUrl || null, handle: registered.handle,
+      });
       setCreatedSpeaker(registered);
       setIsSuccess(true);
       playNotificationChime();
@@ -275,24 +283,12 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
                   <button
                     type="button"
                     onClick={() => {
-                      window.dispatchEvent(new CustomEvent('sgx:open_holo_card', {
-                        detail: {
-                          self: true,
-                          role: 'SPEAKER',
-                          name: createdSpeaker?.name || name || (es ? 'Speaker / Creador' : 'Speaker / Creator'),
-                          title: createdSpeaker?.role || role || (es ? 'Ponente / Creador' : 'Speaker / Creator'),
-                          org: createdSpeaker?.organization || organization || 'Spatialgineers Summit 2026',
-                          handle: createdSpeaker?.handle || handle || twitter || linkedin,
-                          photoUrl: createdSpeaker?.avatarUrl || avatarUrl,
-                          bio: createdSpeaker?.bio || bio,
-                          portfolio: portfolio
-                        }
-                      }));
+                      window.dispatchEvent(new CustomEvent('sgx:open_holo_card', { detail: { role: 'speaker' } }));
                     }}
                     className="w-full sm:w-auto bg-cyan-500/20 border border-cyan-400 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold px-5 py-2.5 text-xs font-mono transition-all flex items-center justify-center space-x-1.5 cursor-pointer shadow-lg shadow-cyan-500/10"
                   >
                     <Sparkles className="w-4 h-4" />
-                    <span>{es ? 'Crear mi Holo Card de speaker' : 'Create my speaker Holo Card'}</span>
+                    <span>{es ? 'Ver mi Holo Card (en revisión)' : 'See my Holo Card (in review)'}</span>
                   </button>
 
                   <button

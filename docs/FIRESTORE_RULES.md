@@ -8,9 +8,11 @@ Admins = `info@spatialgineers.com` or `support@spatialgineers.com` signed in wit
 | `site_config` (feature toggles, announcement) | everyone | admins |
 | `summit_content` (live CMS: speakers, sessions, sponsors, embeds, map, tiers) | everyone | admins |
 | `summit_speakers`, `summit_sessions`, `approved_sponsors`, `gamification_tiers`, `tenants`, `questions`, `sessions` | everyone | admins |
-| `summit_private` (Day 3 check-in code) | admins | admins |
+| `summit_private` (Day 3 check-in code, initiate emails) | admins | admins |
+| `credential_grants/{uid}` (Holo Card roles: speaker, sponsor) | owner, admins | admins (on approval) |
+| `initiate_claims/{email}` (which initiate an email is) | that person signed in with that verified email (Google), admins | admins |
 | `ticket_inquiries` (SGX Pass registrations, doc id = pass code) | admins; owner reads own | create: anyone with a valid pass (uid must be yours, no status); owner edits own details and consent, never the status; status/invitation: admins |
-| `sponsor_inquiries` | admins | create: anyone (validated fields); update/delete: admins |
+| `sponsor_inquiries` | admins | create: anyone (validated fields; `submittedBy` must be your own uid); update/delete: admins |
 | `speaker_submissions` | admins | create: anyone (validated, no self-keynote); admins publish |
 | `players` (has emails) | owner, admins | owner, admins |
 | `pilot_profiles`, `pilot_leaderboard` | everyone | owner only, allowed fields, XP ≤ 100,000 |
@@ -30,7 +32,7 @@ Admins = `info@spatialgineers.com` or `support@spatialgineers.com` signed in wit
 | `summit_checkins` | everyone (region only) | Day 3 only, together with a valid proof |
 | `telemetry_*`, `leaderboard_scores` | admins | admins |
 
-Tests: `scripts/rules-test/` (154 cases + Day 3 window) and `scripts/e2e/` (the real app against the emulators).
+Tests: `scripts/rules-test/` (175 cases + Day 3 window) and `scripts/e2e/` (the real app against the emulators).
 
 Deploy: `firebase deploy --only firestore:rules`, or paste `firestore.rules` in
 Firebase console → Firestore → Rules → Publish.

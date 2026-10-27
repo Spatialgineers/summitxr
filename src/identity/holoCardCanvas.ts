@@ -426,14 +426,19 @@ export function renderFormat(
   // card
   const cw = W - 120, k = cw / CARD_W, ch = CARD_H * k;
   const cy = H / 2 - ch / 2 + (format === 'post' ? 10 : 0);
+  // The card renders on its own canvas so the glow is one soft shadow, not one per stroke.
+  const card = document.createElement('canvas');
+  card.width = Math.round(cw * 2); card.height = Math.round(ch * 2);
+  const cctx = card.getContext('2d')!;
+  cctx.scale((cw * 2) / CARD_W, (ch * 2) / CARD_H);
+  face(cctx);
   ctx.save();
   ctx.translate(W / 2, cy + ch / 2);
   ctx.rotate(-0.035);
-  ctx.translate(-cw / 2, -ch / 2);
-  ctx.shadowColor = withAlpha(opts.accent, 0.5);
-  ctx.shadowBlur = 60;
-  ctx.scale(k, k);
-  face(ctx);
+  ctx.shadowColor = withAlpha(opts.accent, 0.45);
+  ctx.shadowBlur = 70;
+  ctx.shadowOffsetY = 24;
+  ctx.drawImage(card, -cw / 2, -ch / 2, cw, ch);
   ctx.restore();
   // headline
   ctx.textAlign = 'center';

@@ -2310,7 +2310,14 @@ export async function submitSponsorInquiry(raw: SponsorInquiry): Promise<boolean
   } as SponsorInquiry;
   saveSingleSponsorInquiry(inquiry);
   try {
-    await setDoc(doc(db, 'sponsor_inquiries', inquiry.id), stripUndefined(inquiry));
+    try {
+      await setDoc(doc(db, 'sponsor_inquiries', inquiry.id), stripUndefined(inquiry));
+    } catch (err: any) {
+      // Rules published before `submittedBy` existed: send it without the link to the Holo Card.
+      if (err?.code !== 'permission-denied' || !inquiry.submittedBy) throw err;
+      const { submittedBy: _uid, ...rest } = inquiry;
+      await setDoc(doc(db, 'sponsor_inquiries', inquiry.id), stripUndefined(rest));
+    }
     return true;
   } catch (err) {
     console.warn('[SGX Sponsors] inquiry could not be sent:', err);

@@ -1,5 +1,7 @@
 # Plan: hero y movimiento con el método MotionSites
 
+> **Decisión (27 oct):** no instalamos el skill ni usamos videos. Tomamos solo la estructura (Fase A: mensaje en el primer pantallazo, calma y luego HUD, Forja sin bloquear, menos fuentes, revisión con capturas) y hacemos animaciones de partículas propias en código, como el splash (Fase B).
+
 Fuente: el skill `Motionsites-AI/claude-skill` (motionsites-web-builder). Lo útil es su método, no sus plantillas:
 - una sola idea fuerte por pantalla;
 - reglas de oficio con números (tipografía, espacio, movimiento, texto);

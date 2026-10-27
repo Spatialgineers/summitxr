@@ -164,14 +164,14 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
               <div className="sgx-hangar__holo">
                 {identity.holo?.image && <img src={identity.holo.image} alt={es ? 'Tu Holo Card' : 'Your Holo Card'} />}
                 <div>
-                  <h4>{identity.holo ? `Holo Card · ${identity.holo.role}` : 'Holo Card 3D'}</h4>
+                  <h4>Holo Card</h4>
                   <p>
-                    {identity.holo
-                      ? (es ? 'Tu última Holo Card exportada. Lleva tu código de pase y, como visitante, el mismo QR en el reverso.' : 'Your last exported Holo Card. It carries your pass code and, as a visitor, the same QR on the back.')
-                      : (es ? 'Crea tu credencial 3D como visitante, speaker, initiate o sponsor. Sale con tu nombre, foto y código del pase.' : 'Make your 3D credential as visitor, speaker, initiate or sponsor. It comes with your name, photo and pass code.')}
+                    {es
+                      ? 'Es este mismo pase, listo para compartir como tarjeta 3D, post o story. Si eres speaker, sponsor o initiate, esa tarjeta aparece en el Studio cuando el equipo confirma tu registro.'
+                      : 'It is this same pass, ready to share as a 3D card, post or story. If you are a speaker, sponsor or initiate, that card shows up in the Studio once the team confirms your registration.'}
                   </p>
                   <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_credential_generator')), 80); }}>
-                    {identity.holo ? (es ? 'Nueva Holo Card' : 'New Holo Card') : (es ? 'Abrir Holo Card Studio' : 'Open Holo Card Studio')}
+                    {es ? 'Compartir mi Holo Card' : 'Share my Holo Card'}
                   </button>
                   {identity.holo?.image && (
                     <a className="sgx-btn sgx-btn--sm sgx-btn--ground" href={identity.holo.image} download={`sgx-holo-card-${identity.pass!.serial}.jpg`}>{es ? 'Descargar Holo Card' : 'Download Holo Card'}</a>

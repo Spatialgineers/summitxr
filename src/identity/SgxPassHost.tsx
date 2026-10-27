@@ -9,9 +9,9 @@ import { useImmersion } from '../immersion/ImmersionContext';
 import { SgxForge } from './SgxForge';
 import { SgxHangar, type HangarTab } from './SgxHangar';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
-import { usePassQr } from './SgxPassCard';
-import { passHoloProfile } from './sgxIdentity';
-import { SgxHoloCardGeneratorModal, type HoloCardProfile } from '../components/summit/SgxHoloCardGeneratorModal';
+import { SgxHoloCardGeneratorModal } from '../components/summit/SgxHoloCardGeneratorModal';
+import { SgxHoloViewer } from './SgxHoloViewer';
+import type { CredentialRole, HoloCredential } from './credentials';
 
 /* Global owner of the identity surfaces. Every legacy entry point (taquilla,
    passport, profile, drawer, tours, credential generator, role selector)
@@ -20,8 +20,6 @@ import { SgxHoloCardGeneratorModal, type HoloCardProfile } from '../components/s
    ?checkin=<code> (the Day 3 entrance poster; the code is set in the admin). */
 
 const FORGE_DISMISSED = 'sgx_forge_dismissed';
-/** Generic CTA values ("make your own card") that the pass replaces. */
-const PLACEHOLDER_NAMES = ['Speaker SGX', 'Tu Marca / Empresa', 'Speaker / Creador', 'Spatialgineers Summit 2026'];
 
 /** Events that used to open their own modals; they all resolve here now. */
 export const IDENTITY_ENTRY_EVENTS = [
@@ -44,9 +42,9 @@ export const SgxPassHost: React.FC = () => {
   const { isProfileModalOpen, setIsProfileModalOpen, isRoleModalOpen, setIsRoleModalOpen } = usePilotProfile();
   const { isForged, addContact, checkIn, identity, myUid } = useSgxIdentity();
   const { pushToast } = useImmersion();
-  const passQrUrl = usePassQr('#050505', '#ffffff');
   // Holo Card Studio (visitante / speaker / initiate / sponsor), prefilled from the pass.
-  const [holo, setHolo] = useState<{ profile: (HoloCardProfile & { self?: boolean }) | null; mine: boolean; n: number } | null>(null);
+  const [holo, setHolo] = useState<{ role?: CredentialRole; n: number } | null>(null);
+  const [viewCard, setViewCard] = useState<HoloCredential | null>(null);
   const [forge, setForge] = useState<{ tier: PassTier } | null>(null);
   const [hangar, setHangar] = useState<HangarTab | null>(null);
   const [incoming, setIncoming] = useState<PassQrPayload | null>(null);
@@ -76,24 +74,28 @@ export const SgxPassHost: React.FC = () => {
       }
     };
     IDENTITY_ENTRY_EVENTS.forEach((n) => window.addEventListener(n, handler));
-    // Every Holo Card in the app opens this one Studio. "Mine" (no profile,
-    // a role only, or self: true from the speaker / sponsor / portal CTAs) is
-    // prefilled from the SGX Pass; someone else's card (a speaker, an
-    // initiate) opens with their profile.
+    // Every Holo Card in the app opens this one Studio, on the cards you
+    // really hold. detail.role only picks which of them shows first.
     const onHolo = (e: Event) => {
-      const d = (e as CustomEvent<(HoloCardProfile & { self?: boolean }) | null>).detail || null;
-      const mine = !d || d.self || Object.keys(d).every((k) => k === 'role');
+      const raw = String((e as CustomEvent<{ role?: string } | null>).detail?.role || '').toLowerCase();
+      const role = (['speaker', 'initiate', 'sponsor'].includes(raw) ? raw : 'visitor') as CredentialRole;
       setForge(null);
       setHangar(null);
-      // n remounts the Studio so nothing from the previous card leaks into this one.
-      setHolo({ profile: d, mine, n: Date.now() });
+      setHolo({ role, n: Date.now() });
     };
+    // Someone else's official card (a published speaker, a Guild initiate).
+    const onView = (e: Event) => {
+      const c = (e as CustomEvent<HoloCredential | null>).detail;
+      if (c?.name) setViewCard(c);
+    };
+    window.addEventListener('sgx:view_holo_card', onView);
     window.addEventListener('sgx:open_holo_card', onHolo);
     window.addEventListener('sgx:open_credential_generator', onHolo);
     return () => {
       IDENTITY_ENTRY_EVENTS.forEach((n) => window.removeEventListener(n, handler));
       window.removeEventListener('sgx:open_holo_card', onHolo);
       window.removeEventListener('sgx:open_credential_generator', onHolo);
+      window.removeEventListener('sgx:view_holo_card', onView);
     };
   }, [openHangarOrForge]);
 
@@ -207,36 +209,15 @@ export const SgxPassHost: React.FC = () => {
       : (es ? 'Ese es tu propio pase.' : 'That is your own pass.'));
   };
 
-  const passProfile = passHoloProfile(identity, identity.affinity ? PILLAR_BY_KEY[identity.affinity].name : undefined);
-  const holoProfile: HoloCardProfile | null = (() => {
-    if (!holo) return null;
-    const d = holo.profile;
-    if (!holo.mine) return d;
-    if (!passProfile) return d ? { ...d } : null;
-    const { self: _self, ...rest } = d || {};
-    const generic = (v?: string) => !v || PLACEHOLDER_NAMES.includes(v);
-    return {
-      ...passProfile,
-      ...rest,
-      role: d?.role || passProfile.role,
-      name: generic(rest.name) ? passProfile.name : rest.name,
-      org: generic(rest.org) ? passProfile.org : rest.org,
-      jobtitle: rest.jobtitle || rest.title || passProfile.jobtitle,
-      photoUrl: rest.photoUrl || passProfile.photoUrl,
-      ticketCode: passProfile.ticketCode,
-      passType: passProfile.passType,
-    };
-  })();
-
   return (
     <>
       <SgxHoloCardGeneratorModal
         key={holo?.n || 0}
         isOpen={!!holo}
         onClose={() => setHolo(null)}
-        initialProfile={holoProfile}
-        passQr={identity.pass && passQrUrl ? { code: identity.pass.code, url: passQrUrl } : null}
+        initialRole={holo?.role}
       />
+      {viewCard && <SgxHoloViewer cred={viewCard} onClose={() => setViewCard(null)} />}
       {forge && (
         <SgxForge
           initialTier={forge.tier}

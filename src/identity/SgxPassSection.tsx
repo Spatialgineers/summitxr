@@ -1,14 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { useAuth } from '../context/AuthContext';
-import { usePilotProfile } from '../context/PilotProfileContext';
-import { PILLAR_BY_KEY, SGX_PILLARS } from '../lib/sgxPillars';
+import { SGX_PILLARS } from '../lib/sgxPillars';
 import { useSgxIdentity } from './SgxIdentityContext';
-import { SgxPassCard, usePassQr } from './SgxPassCard';
+import { SgxPassCard } from './SgxPassCard';
 import { missionsOfPillar } from './reactor';
-import { passHoloProfile } from './sgxIdentity';
-import { SgxNativeCredentialStudio } from '../components/summit/SgxNativeCredentialStudio';
-import { resolveStoredUserHoloProfile } from '../components/summit/SgxHoloCardGeneratorModal';
+import { SgxHoloStudio } from './SgxHoloStudio';
 
 /* The SGX Pass as a page section (SGX.System → SGX Pass). Same card the Hangar
    shows, with the per-pillar progress next to it. */
@@ -77,33 +73,23 @@ export const SgxPassSection: React.FC = () => {
   );
 };
 
-/* Holo Card Studio (the credentials app, native): visitors, speakers,
-   initiates and sponsors. Prefilled from the SGX Pass, and a visitor card
-   carries the pass code and its real QR on the back. */
+/* Holo Card Studio on the page: your SGX Pass in share formats, plus the
+   role cards you really hold (speaker, initiate, sponsor). */
 export const SgxHoloStudioPanel: React.FC = () => {
   const { language } = useLanguage();
   const es = language === 'es';
-  const { identity, isForged } = useSgxIdentity();
-  const { playerProfile, user } = useAuth();
-  const { profile } = usePilotProfile();
-  const qr = usePassQr('#050505', '#ffffff');
-  const initialProfile = useMemo(() => {
-    const fromPass = passHoloProfile(identity, identity.affinity ? PILLAR_BY_KEY[identity.affinity].name : undefined);
-    return fromPass || resolveStoredUserHoloProfile(null, playerProfile?.nickname || user?.displayName || undefined, profile.selectedRole, playerProfile?.avatar);
-    // Only re-seed the studio when the pass itself changes, not on every XP tick.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [identity.pass?.code, identity.pass?.fullName, identity.pass?.organization, identity.avatar.png, identity.affinity]);
+  const { identity } = useSgxIdentity();
 
   return (
     <section className="sgx-holo-panel" aria-labelledby="sgx-holo-title">
       <header className="sgx-holo-panel__head">
         <div>
           <p className="sgx-forge__kicker">SGX Credentials · Holo Card Studio</p>
-          <h3 id="sgx-holo-title">{es ? 'Tu Holo Card 3D' : 'Your 3D Holo Card'}</h3>
+          <h3 id="sgx-holo-title">{es ? 'Tu Holo Card' : 'Your Holo Card'}</h3>
           <p>
             {es
-              ? 'Elige el rol (visitante, speaker, initiate o sponsor), sube tu foto (se queda en tu dispositivo), escoge hasta 2 pilares y exporta en badge 3D, post o story. Al exportar, la tarjeta queda guardada en tu Hangar.'
-              : 'Pick the role (visitor, speaker, initiate or sponsor), upload your photo (it stays on your device), choose up to 2 pillars and export as 3D badge, post or story. Exported cards are saved in your Hangar.'}
+              ? 'Tu Holo Card es tu SGX Pass, lista para compartir como tarjeta 3D, post o story. Si eres speaker, sponsor o initiate, esa tarjeta aparece aquí cuando el equipo confirma tu registro.'
+              : 'Your Holo Card is your SGX Pass, ready to share as a 3D card, post or story. If you are a speaker, sponsor or initiate, that card shows up here once the team confirms your registration.'}
           </p>
         </div>
         <div className="sgx-forge__actions">
@@ -114,12 +100,7 @@ export const SgxHoloStudioPanel: React.FC = () => {
         </div>
       </header>
       <div className="sgx-holo-panel__studio">
-        <SgxNativeCredentialStudio
-          initialProfile={initialProfile}
-          hasRegisteredTicket={isForged}
-          onOpenTicketModal={() => fire(isForged ? 'sgx:open_hangar' : 'sgx:open_forge', { tab: 'pass' })}
-          passQr={identity.pass && qr ? { code: identity.pass.code, url: qr } : null}
-        />
+        <SgxHoloStudio />
       </div>
     </section>
   );

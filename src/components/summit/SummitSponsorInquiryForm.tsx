@@ -21,6 +21,8 @@ import {
 } from 'lucide-react';
 import { SponsorshipTier, SponsorInquiry } from '../../types/summit';
 import { submitSponsorInquiry, SPONSORSHIP_TIERS } from '../../lib/summitData';
+import { auth } from '../../lib/firebase';
+import { savePendingCredential } from '../../identity/credentials';
 import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
 
@@ -116,7 +118,9 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
       customMessage: customMessage.trim() || undefined,
       submittedAt: Date.now(),
       status: 'PENDING_REVIEW',
-      referenceCode: `SGX-SPONSOR-2026-${refNum}`
+      referenceCode: `SGX-SPONSOR-2026-${refNum}`,
+      // Lets the team's approval turn this visitor's sponsor Holo Card official.
+      submittedBy: auth.currentUser?.uid || undefined,
     };
 
     // Lands in the team's Firestore inbox; the local copy is the visitor's receipt.
@@ -127,6 +131,10 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
       setSendError('No pudimos enviar tu solicitud en este momento. Revisa tu conexión e inténtalo de nuevo, o escríbenos a info@spatialgineers.com.');
       return;
     }
+    savePendingCredential('sponsor', {
+      name: newInquiry.contactName, title: newInquiry.roleTitle, org: newInquiry.companyName,
+      topic: chosenTier ? chosenTier.name : undefined,
+    });
     setSubmittedInquiry(newInquiry);
     if (onSuccess) onSuccess(newInquiry);
   };

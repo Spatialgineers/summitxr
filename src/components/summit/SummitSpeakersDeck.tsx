@@ -26,6 +26,7 @@ import { SummitSpeaker, SummitPillarId, SummitSession } from '../../types/summit
 import { SUMMIT_PILLARS } from '../../lib/summitData';
 import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
+import { findPillar } from '../../lib/sgxPillars';
 
 interface SummitSpeakersDeckProps {
   speakers: SummitSpeaker[];
@@ -161,20 +162,13 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
             <button
               type="button"
               onClick={() => {
-                window.dispatchEvent(new CustomEvent('sgx:open_holo_card', {
-                  detail: {
-                    self: true,
-                    role: 'SPEAKER',
-                    name: 'Speaker SGX',
-                    title: (es ? 'Ponente Oficial' : 'Official Speaker'),
-                    org: 'Spatialgineers Summit 2026'
-                  }
-                }));
+                // Speaker cards come from the speaker portal, once the team approves them.
+                window.dispatchEvent(new CustomEvent('sgx:open_speaker_portal'));
               }}
               className="px-3 py-2 bg-cyan-500/20 hover:bg-cyan-500 hover:text-black border border-cyan-400 text-cyan-300 font-extrabold text-xs font-mono uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 rounded-lg shrink-0 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
-              <span>{es ? 'Crear mi Holo Card de speaker' : 'Create my speaker Holo Card'}</span>
+              <span>{es ? 'Soy speaker · enviar mi perfil' : "I'm a speaker · send my profile"}</span>
             </button>
 
             <button
@@ -538,17 +532,17 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
               <button
                 type="button"
                 onClick={() => {
-                  window.dispatchEvent(new CustomEvent('sgx:open_holo_card', {
+                  window.dispatchEvent(new CustomEvent('sgx:view_holo_card', {
                     detail: {
-                      role: 'SPEAKER',
+                      role: 'speaker',
+                      status: 'official',
                       name: inspectedSpeaker.name,
                       title: loc(inspectedSpeaker, 'role', language),
                       org: inspectedSpeaker.organization,
-                      handle: inspectedSpeaker.handle || inspectedSpeaker.socialLinks?.twitter || inspectedSpeaker.socialLinks?.linkedin,
-                      photoUrl: inspectedSpeaker.avatarUrl,
-                      bio: loc(inspectedSpeaker, 'bio', language),
-                      portfolio: inspectedSpeaker.socialLinks?.portfolio,
-                      tier: 'SPEAKER'
+                      topic: inspectedSpeaker.day ? (es ? `Día ${inspectedSpeaker.day}` : `Day ${inspectedSpeaker.day}`) : undefined,
+                      pillar: findPillar(inspectedSpeaker.pillarId)?.key ?? null,
+                      photo: inspectedSpeaker.avatarUrl || null,
+                      handle: inspectedSpeaker.handle,
                     }
                   }));
                 }}

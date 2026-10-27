@@ -4,6 +4,7 @@ import { useTenantTheme } from '../../context/TenantThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
 import { loadAllInitiates, type SgxInitiate } from '../../lib/summitData';
+import { initiateCredential } from '../../identity/credentials';
 
 /** The Guild roster lives in the CMS (admin → Inscritos → Initiates); this is the seed. */
 export { INITIAL_INITIATES as OFFICIAL_INITIATES } from '../../lib/summitData';
@@ -79,12 +80,10 @@ export const SgxGuildShowcaseSection: React.FC = () => {
               <span className="text-xs font-mono font-bold" style={{ color: tenant.branding.neonHighlightColor }}>
                 {language === 'es' ? `${initiates.length} Initiates activos` : `${initiates.length} active Initiates`}
               </span>
-              {/* Initiates make their own card from their SGX Pass (same name, photo and code). */}
+              {/* An initiate's card unlocks on their own pass (Google sign-in with the email the team registered). */}
               <button
                 type="button"
-                onClick={() => window.dispatchEvent(new CustomEvent('sgx:open_holo_card', {
-                  detail: { self: true, role: 'INITIATE', title: (language === 'es' ? 'INICIADO OFICIAL · SGX GUILD' : 'OFFICIAL INITIATE · SGX GUILD'), org: 'SGX Guild Program 2026', tier: 'INITIATE' }
-                }))}
+                onClick={() => window.dispatchEvent(new CustomEvent('sgx:open_holo_card', { detail: { role: 'initiate' } }))}
                 className="sgx-btn sgx-btn--sm"
               >
                 {language === 'es' ? 'Soy Initiate · mi Holo Card' : 'I\'m an Initiate · my Holo Card'}
@@ -140,17 +139,8 @@ export const SgxGuildShowcaseSection: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      window.dispatchEvent(new CustomEvent('sgx:open_holo_card', {
-                        detail: {
-                          role: 'INITIATE',
-                          name: init.name,
-                          handle: init.handle,
-                          title: init.role,
-                          org: 'SGX Guild Program 2026',
-                          bio: loc(init, 'specialty', language),
-                          tier: 'INITIATE'
-                        }
-                      }));
+                      const card = initiateCredential(init.id);
+                      if (card) window.dispatchEvent(new CustomEvent('sgx:view_holo_card', { detail: card }));
                     }}
                     className="px-2.5 py-1 bg-cyan-500/20 hover:bg-cyan-500 hover:text-black border border-cyan-400 text-cyan-300 font-bold transition-all rounded cursor-pointer flex items-center gap-1"
                   >

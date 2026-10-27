@@ -153,6 +153,33 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // Holo Card roles granted by the team when it approves a speaker or a
+    // sponsor. The owner reads their own; only admins write.
+    match /credential_grants/{uid} {
+      allow get: if isAdmin() || (isSignedIn() && uid == me());
+      allow list: if isAdmin();
+      allow create, update: if isAdmin() && isValidId(uid) &&
+        incoming().keys().hasOnly(['speaker', 'sponsor', 'updatedAt']) &&
+        (!('speaker' in incoming()) || incoming().speaker is map) &&
+        (!('sponsor' in incoming()) || incoming().sponsor is map);
+      allow delete: if isAdmin();
+    }
+
+    // Guild initiates: doc id = their email. Only that person, signed in
+    // with that verified address (or Google), can read which initiate they are.
+    match /initiate_claims/{email} {
+      allow get: if isAdmin() ||
+        (isSignedIn() &&
+         request.auth.token.get('email', '').lower() == email &&
+         (request.auth.token.get('email_verified', false) == true ||
+          request.auth.token.get('firebase', {}).get('sign_in_provider', '') == 'google.com'));
+      allow list: if isAdmin();
+      allow create, update: if isAdmin() && email.size() <= 150 &&
+        incoming().keys().hasOnly(['initiateId', 'updatedAt']) &&
+        isShortString(incoming().initiateId, 128);
+      allow delete: if isAdmin();
+    }
+
     match /telemetry_events/{eventId} {
       allow read, write: if isAdmin();
     }
@@ -206,7 +233,7 @@ service cloud.firestore {
     function isValidSponsorInquiry(id, data) {
       return data.keys().hasOnly(['id', 'companyName', 'contactName', 'roleTitle', 'email', 'phone', 'websiteUrl',
                                   'selectedTierId', 'selectedTierName', 'estimatedBudget', 'goals', 'customMessage',
-                                  'submittedAt', 'status', 'referenceCode']) &&
+                                  'submittedAt', 'status', 'referenceCode', 'submittedBy']) &&
              data.keys().hasAll(['id', 'companyName', 'contactName', 'email', 'selectedTierId']) &&
              data.id == id &&
              isShortString(data.companyName, 120) && data.companyName.size() > 0 &&
@@ -222,7 +249,8 @@ service cloud.firestore {
              optString(data, 'referenceCode', 60) &&
              (!('goals' in data) || (data.goals is list && data.goals.size() <= 12)) &&
              (!('submittedAt' in data) || data.submittedAt is int) &&
-             (!('status' in data) || data.status == 'PENDING_REVIEW');
+             (!('status' in data) || data.status == 'PENDING_REVIEW') &&
+             (!('submittedBy' in data) || (isSignedIn() && data.submittedBy == me()));
     }
 
     match /sponsor_inquiries/{inquiryId} {

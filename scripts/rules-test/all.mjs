@@ -1,5 +1,5 @@
 import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
-import { doc, setDoc, getDoc, getDocs, query, where, collection, serverTimestamp, updateDoc, deleteDoc, writeBatch, increment, arrayUnion, addDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, getDocs, query, where, collection, serverTimestamp, updateDoc, deleteDoc, writeBatch, increment, arrayUnion, addDoc, deleteField } from 'firebase/firestore';
 import fs from 'fs';
 
 const env = await initializeTestEnvironment({ projectId: 'demo-sgx', firestore: { rules: fs.readFileSync('firestore.rules', 'utf8'), host: '127.0.0.1', port: 8085 } });
@@ -242,6 +242,32 @@ await ok('pilot profile debounced update 2', setDoc(doc(alice, 'pilot_profiles',
 // Match: admin visibility only on existing card; member reads match
 await ok('admin hides existing card', setDoc(doc(admin, 'match_profiles', 'alice'), { profile: { visible: false } }, { merge: true }));
 await ok('first sender reads the match doc', getDoc(doc(alice, 'matches', 'alice__bob')));
+
+
+// Holo Card roles: grants (admin approval) and initiate claims (verified email)
+const aliceG = ctx('aliceG', { email: 'alice.guild@example.com', email_verified: true, firebase: { sign_in_provider: 'google.com' } });
+const aliceFake = ctx('aliceF', { email: 'alice.guild@example.com', email_verified: false, firebase: { sign_in_provider: 'password' } });
+await ok('admin grants speaker card', setDoc(doc(admin, 'credential_grants', 'alice'), { speaker: { name: 'Alice', title: 'Keynote', grantedAt: 1 }, updatedAt: serverTimestamp() }, { merge: true }));
+await ok('admin grants sponsor card (merge)', setDoc(doc(admin, 'credential_grants', 'alice'), { sponsor: { name: 'Alice', org: 'ACME', grantedAt: 2 }, updatedAt: serverTimestamp() }, { merge: true }));
+await no('grant with extra role key', setDoc(doc(admin, 'credential_grants', 'bob'), { initiate: { name: 'Bob' } }));
+await no('visitor cannot grant self', setDoc(doc(alice, 'credential_grants', 'alice'), { speaker: { name: 'Alice' } }));
+await ok('owner reads own grant', getDoc(doc(alice, 'credential_grants', 'alice')));
+await ok('owner reads own missing grant', getDoc(doc(bob, 'credential_grants', 'bob')));
+await no('cannot read someone else grant', getDoc(doc(bob, 'credential_grants', 'alice')));
+await no('visitor cannot list grants', getDocs(collection(alice, 'credential_grants')));
+await ok('admin revokes a role', updateDoc(doc(admin, 'credential_grants', 'alice'), { sponsor: deleteField(), updatedAt: serverTimestamp() }));
+await ok('admin writes initiate claim', setDoc(doc(admin, 'initiate_claims', 'alice.guild@example.com'), { initiateId: 'init_3', updatedAt: serverTimestamp() }));
+await no('visitor cannot write initiate claim', setDoc(doc(alice, 'initiate_claims', 'alice@x.com'), { initiateId: 'init_1' }));
+await ok('initiate reads own claim (Google)', getDoc(doc(aliceG, 'initiate_claims', 'alice.guild@example.com')));
+await no('unverified same email cannot read claim', getDoc(doc(aliceFake, 'initiate_claims', 'alice.guild@example.com')));
+await no('other person cannot read claim', getDoc(doc(bob, 'initiate_claims', 'alice.guild@example.com')));
+await no('visitor cannot list claims', getDocs(collection(aliceG, 'initiate_claims')));
+await ok('admin saves initiate emails (private)', setDoc(doc(admin, 'summit_private', 'initiate_emails'), { emails: { init_3: 'alice.guild@example.com' }, updatedAt: serverTimestamp() }));
+await no('visitor cannot read initiate emails', getDoc(doc(alice, 'summit_private', 'initiate_emails')));
+await ok('admin publishes initiates roster', setDoc(doc(admin, 'summit_content', 'initiates'), { items: [{ id: 'init_3', name: 'G' }], updatedAt: Date.now() }));
+await ok('sponsor inquiry with own uid', setDoc(doc(alice, 'sponsor_inquiries', 'inq_u1'), { ...inq, id: 'inq_u1', submittedBy: 'alice' }));
+await no('sponsor inquiry with someone else uid', setDoc(doc(alice, 'sponsor_inquiries', 'inq_u2'), { ...inq, id: 'inq_u2', submittedBy: 'bob' }));
+await no('anon sponsor inquiry claiming a uid', setDoc(doc(anon, 'sponsor_inquiries', 'inq_u3'), { ...inq, id: 'inq_u3', submittedBy: 'alice' }));
 
 console.log(`RESULT ${n} passed, ${failed} failed`);
 await env.cleanup();

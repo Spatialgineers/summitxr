@@ -1,3 +1,4 @@
+import { grantCredential, revokeCredential } from '../../identity/credentials';
 import React, { useState, useEffect } from 'react';
 import { 
   Calendar, 
@@ -153,6 +154,12 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
   // --- 1-CLICK APPROVAL & SHOWCASE GENERATION ---
   const handleApproveAndCreateShowcase = (inquiry: SponsorInquiry) => {
     const result = approveSponsorInquiryAndCreateShowcase(inquiry);
+    // The sponsor's Holo Card becomes official on the pass of whoever sent the form.
+    if (inquiry.submittedBy) {
+      grantCredential(inquiry.submittedBy, 'sponsor', {
+        name: inquiry.contactName, title: inquiry.roleTitle, org: inquiry.companyName, topic: inquiry.selectedTierName?.split(' (')[0],
+      }).catch((err) => console.warn('[SGX Sponsors] Holo Card grant failed:', err));
+    }
     // Reload state
     setInquiries(loadAllSponsorInquiries());
     const refreshedSponsors = loadAllApprovedSponsors();
@@ -170,6 +177,10 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
         handleApproveAndCreateShowcase(targetInq);
         return;
       }
+    }
+    const target = inquiries.find(i => i.id === id);
+    if (newStatus === 'DECLINED' && target?.submittedBy) {
+      revokeCredential(target.submittedBy, 'sponsor').catch(() => undefined); // nothing to revoke is fine
     }
     const updated = inquiries.map(inq => inq.id === id ? { ...inq, status: newStatus } : inq);
     setInquiries(updated);

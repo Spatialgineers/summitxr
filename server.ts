@@ -10,7 +10,8 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 async function startServer() {
   const app = express();
-  app.set('trust proxy', true);
+  // Trust only the one proxy hop in front of us (Cloud Run), so X-Forwarded-For can't be spoofed.
+  app.set('trust proxy', 1);
   app.use(express.json({ limit: '100kb' }));
   app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 

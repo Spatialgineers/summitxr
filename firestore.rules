@@ -310,8 +310,10 @@ service cloud.firestore {
         isSignedIn() &&
         changed().hasOnly(['claimedCount', 'inventoryCount', 'lastClaimId', 'updatedAt']) &&
         incoming().claimedCount == existing().claimedCount + 1 &&
-        (incoming().inventoryCount == existing().inventoryCount ||
+        // -1 = unlimited stock (count unchanged); otherwise there must be stock and it steps down by one.
+        ((existing().inventoryCount == -1 && incoming().inventoryCount == -1) ||
           (existing().inventoryCount > 0 && incoming().inventoryCount == existing().inventoryCount - 1)) &&
+        (!('isActive' in existing()) || existing().isActive != false) &&
         incoming().lastClaimId == rewardId + '_' + me() &&
         !exists(/databases/$(database)/documents/redeemed_prizes/$(rewardId + '_' + me())) &&
         existsAfter(/databases/$(database)/documents/redeemed_prizes/$(rewardId + '_' + me())));
@@ -340,6 +342,15 @@ service cloud.firestore {
     // ---------------------------------------------------------------------
     // Chat & social wall
     // ---------------------------------------------------------------------
+    // A reaction adds exactly +1 to exactly one emoji.
+    function isOneReactionStep() {
+      let before = 'reactions' in existing() && existing().reactions is map ? existing().reactions : {};
+      let keys = incoming().reactions.diff(before).affectedKeys();
+      return keys.size() == 1 &&
+             incoming().reactions[keys.toList()[0]] is int &&
+             incoming().reactions[keys.toList()[0]] == (keys.toList()[0] in before ? before[keys.toList()[0]] + 1 : 1);
+    }
+
     match /chat_messages/{messageId} {
       allow get, list: if true;
       allow create: if isSignedIn() &&
@@ -360,7 +371,8 @@ service cloud.firestore {
       allow update: if isAdmin() || (
         isSignedIn() &&
         changed().hasOnly(['reactions']) &&
-        incoming().reactions is map && incoming().reactions.size() <= 12);
+        incoming().reactions is map && incoming().reactions.size() <= 12 &&
+        isOneReactionStep());
       allow delete: if isAdmin() || (isSignedIn() && resource.data.authorUid == me());
     }
 

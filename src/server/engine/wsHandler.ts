@@ -30,8 +30,10 @@ const DIRECTOR_MESSAGES = new Set([
   'TRIGGER_PRESET', 'STAGE_OVERRIDE', 'SIMULATE_VOTES', 'CREATE_QUESTION', 'UPDATE_QUESTIONS',
 ]);
 
-const MAX_SOCKETS_PER_IP = 60;
-const MAX_PAYLOAD_BYTES = 256 * 1024;
+// A whole venue can share one Wi-Fi address (Day 3 at Chroma), so the per-IP cap is generous.
+const MAX_SOCKETS_PER_IP = 600;
+// Directors upload custom visuals over the socket; keep room for them.
+const MAX_PAYLOAD_BYTES = 12 * 1024 * 1024;
 
 export function setupWebSocketEngine(server: http.Server) {
   const wss = new WebSocketServer({ server, path: '/ws', maxPayload: MAX_PAYLOAD_BYTES });
@@ -74,7 +76,9 @@ export function setupWebSocketEngine(server: http.Server) {
 
   wss.on('connection', (ws, req) => {
     try {
-      const ip = (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0].trim() || req.socket.remoteAddress || 'unknown';
+      // Cloud Run appends the real client IP as the LAST X-Forwarded-For entry; earlier ones are client-supplied.
+      const xff = (req.headers['x-forwarded-for'] as string | undefined)?.split(',').map((s) => s.trim()).filter(Boolean) || [];
+      const ip = xff[xff.length - 1] || req.socket.remoteAddress || 'unknown';
       const open = socketsPerIp.get(ip) || 0;
       if (open >= MAX_SOCKETS_PER_IP) {
         ws.close(1013, 'TOO_MANY_CONNECTIONS');

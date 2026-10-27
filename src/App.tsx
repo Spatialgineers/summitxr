@@ -230,7 +230,7 @@ export default function App() {
   };
 
   // The live engine (votes, presets, stage) only runs on the pages that use it.
-  const needsLiveEngine = currentPage === 'admin' || currentPage === 'play' || currentPage === 'stage' || currentPage === 'multiview';
+  const needsLiveEngine = currentPage === 'admin' || currentPage === 'play' || currentPage === 'stage' || currentPage === 'multiview' || currentPage === 'analytics';
   const isAdminRef = useRef(isAdmin);
   isAdminRef.current = isAdmin;
 

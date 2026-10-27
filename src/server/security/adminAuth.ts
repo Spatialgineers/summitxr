@@ -77,7 +77,8 @@ async function identityToolkitVerifier(idToken: string): Promise<AdminIdentity |
     body: JSON.stringify({ idToken }),
     signal: AbortSignal.timeout(5000),
   });
-  if (!res.ok) return null;
+  // Google-side error: throw so the result is not cached as "not admin" and the next try re-checks.
+  if (!res.ok) throw new Error(`identitytoolkit ${res.status}`);
   const data: any = await res.json();
   const user = Array.isArray(data?.users) ? data.users[0] : null;
   if (!user || user.disabled) return null;

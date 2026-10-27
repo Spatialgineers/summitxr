@@ -249,7 +249,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                 senderRole: data.senderRole || 'ATTENDEE',
                 text: data.text || '',
                 timestamp: data.timestamp || Date.now(),
-                reactions: data.reactions || {},
+                reactions: Object.fromEntries(Object.entries(data.reactions || {}).filter(([, v]) => typeof v === 'number')) as Record<string, number>,
                 isPinned: Boolean(data.isPinned)
               };
             }).reverse();

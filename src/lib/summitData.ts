@@ -2298,7 +2298,16 @@ function stripUndefined<T extends object>(o: T): T {
   return JSON.parse(JSON.stringify(o));
 }
 
-export async function submitSponsorInquiry(inquiry: SponsorInquiry): Promise<boolean> {
+export async function submitSponsorInquiry(raw: SponsorInquiry): Promise<boolean> {
+  // Same caps as the Firestore rule, so long answers never get rejected.
+  const cap = (v: unknown, n: number) => (typeof v === 'string' ? v.slice(0, n) : v);
+  const inquiry = {
+    ...raw,
+    companyName: cap(raw.companyName, 120), contactName: cap(raw.contactName, 100), roleTitle: cap(raw.roleTitle, 100),
+    email: cap(raw.email, 150), phone: cap(raw.phone, 40), websiteUrl: cap(raw.websiteUrl, 300),
+    selectedTierName: cap(raw.selectedTierName, 150), estimatedBudget: cap(raw.estimatedBudget, 60),
+    customMessage: cap(raw.customMessage, 2000), goals: (raw.goals || []).slice(0, 12),
+  } as SponsorInquiry;
   saveSingleSponsorInquiry(inquiry);
   try {
     await setDoc(doc(db, 'sponsor_inquiries', inquiry.id), stripUndefined(inquiry));
@@ -2646,21 +2655,22 @@ const LIVE_CONTENT_KEYS: Record<string, string> = {
 let applyingRemoteContent = false;
 
 /** Admin edits go live for everyone. Visitors (anonymous) never publish. */
-export function publishContent(key: keyof typeof LIVE_CONTENT_KEYS | string, items: unknown[]): void {
-  if (applyingRemoteContent) return;
+export function publishContent(key: keyof typeof LIVE_CONTENT_KEYS | string, items: unknown[]): Promise<boolean> {
+  if (applyingRemoteContent) return Promise.resolve(false);
   const user = auth.currentUser;
-  if (!user || user.isAnonymous) return;
+  if (!user || user.isAnonymous) return Promise.resolve(false);
   const payload = JSON.parse(JSON.stringify(items));
+  const fail = (message: string) => {
+    console.warn(`[SGX CMS] "${key}" saved on this device only:`, message);
+    window.dispatchEvent(new CustomEvent('sgx:cms_publish_failed', { detail: { key, message } }));
+    return false;
+  };
   if (JSON.stringify(payload).length > 900_000) {
-    console.warn(`[SGX CMS] "${key}" is too large to publish (Firestore 1 MB limit). Use image URLs instead of embedded images.`);
-    return;
+    return Promise.resolve(fail('demasiado grande para publicar (límite de 1 MB): usa URLs de imagen en vez de imágenes incrustadas'));
   }
-  setDoc(doc(db, 'summit_content', key), { items: payload, updatedAt: serverTimestamp() })
-    .then(() => window.dispatchEvent(new CustomEvent('sgx:cms_published', { detail: { key } })))
-    .catch((err) => {
-      console.warn(`[SGX CMS] "${key}" saved on this device only:`, err?.message || err);
-      window.dispatchEvent(new CustomEvent('sgx:cms_publish_failed', { detail: { key, message: String(err?.message || err) } }));
-    });
+  return setDoc(doc(db, 'summit_content', key), { items: payload, updatedAt: serverTimestamp() })
+    .then(() => { window.dispatchEvent(new CustomEvent('sgx:cms_published', { detail: { key } })); return true; })
+    .catch((err) => fail(String(err?.message || err)));
 }
 
 let liveContentStarted = false;
@@ -2713,15 +2723,18 @@ const ANNOUNCEMENT_TTL_MS = 2 * 60 * 60 * 1000;
 
 export async function publishAnnouncement(n: SummitNotification): Promise<boolean> {
   try {
-    await setDoc(doc(db, 'site_config', 'announcement'), stripUndefined({
-      id: n.id.slice(0, 64),
-      title: n.title.slice(0, 120),
-      message: n.message.slice(0, 600),
-      priority: n.priority === 'URGENT' ? 'CRITICAL' : n.priority,
-      actionUrl: n.actionUrl ? n.actionUrl.slice(0, 300) : undefined,
-      actionLabel: n.actionLabel ? n.actionLabel.slice(0, 40) : undefined,
+    // serverTimestamp() is a sentinel: it must not go through JSON (stripUndefined).
+    await setDoc(doc(db, 'site_config', 'announcement'), {
+      ...stripUndefined({
+        id: n.id.slice(0, 64),
+        title: n.title.slice(0, 120),
+        message: n.message.slice(0, 600),
+        priority: n.priority === 'URGENT' ? 'CRITICAL' : n.priority,
+        actionUrl: n.actionUrl ? n.actionUrl.slice(0, 300) : undefined,
+        actionLabel: n.actionLabel ? n.actionLabel.slice(0, 40) : undefined,
+      }),
       at: serverTimestamp(),
-    }));
+    });
     return true;
   } catch (err) {
     console.warn('[SGX Push] announcement not sent:', err);
@@ -2766,8 +2779,12 @@ export async function fetchSpeakerSubmissions(): Promise<SummitSpeaker[]> {
 /** Admin: publish a submission to the live directory, then clear it from the inbox. */
 export async function approveSpeakerSubmission(speaker: SummitSpeaker): Promise<void> {
   const { submittedAt, submittedBy, ...clean } = speaker as any;
-  const current = loadAllSpeakers().filter((s) => s.id !== speaker.id);
-  saveAllSpeakers([...current, clean as SummitSpeaker]);
+  const next = [...loadAllSpeakers().filter((s) => s.id !== speaker.id), clean as SummitSpeaker];
+  try { localStorage.setItem(STORAGE_KEY_CUSTOM_SPEAKERS, JSON.stringify(next)); } catch { /* ignore */ }
+  // Only clear the inbox once the speaker is really live for everyone.
+  const live = await publishContent('speakers', next);
+  if (!live) throw new Error('No se pudo publicar en vivo (revisa la sesión de admin o el tamaño de la foto). La solicitud sigue en la bandeja.');
+  window.dispatchEvent(new Event('storage'));
   await deleteDoc(doc(db, 'speaker_submissions', speaker.id));
 }
 

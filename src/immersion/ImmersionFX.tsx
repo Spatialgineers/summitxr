@@ -217,7 +217,8 @@ export function useScrollReveal(enabled: boolean, routeKey: string) {
           io.unobserve(e.target);
         }
       });
-    }, { threshold: 0.06, rootMargin: '0px 0px -4% 0px' });
+    // threshold 0: very tall blocks (the phone agenda is ~8,000px) reveal as soon as they enter.
+    }, { threshold: 0, rootMargin: '0px 0px -4% 0px' });
 
     const scan = () => {
       const nodes = document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR);

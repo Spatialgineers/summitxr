@@ -37,12 +37,6 @@
   /* Title rows with a trailing action (e.g. the Guild initiates header) wrap. */
   .flex.justify-between:has(> :is(h2, h3) + .flex > .sgx-btn) { flex-wrap: wrap; gap: 8px; }
 
-  /* ---------- Scroll reveal ---------- */
-  /* Phone sections stack into very tall blocks that can stay under the reveal
-     threshold and remain invisible on the first screen; show them at once. */
-  [data-sgx-reveal="pending"] { opacity: 1; transform: none; }
-  [data-sgx-reveal="in"] { animation: none; }
-
   /* ---------- Readable type ---------- */
   /* Body and meta text at 12px; monospace HUD labels may sit at 11px. */
   .text-\[7px\], .text-\[8px\], .text-\[9px\], .text-\[10px\], .text-\[11px\] { font-size: 12px; }

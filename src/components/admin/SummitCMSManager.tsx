@@ -133,6 +133,18 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
   const [broadcastActionUrl, setBroadcastActionUrl] = useState<string>('/summit');
   const [broadcastActionLabel, setBroadcastActionLabel] = useState<string>('Entrar a la sesión');
 
+  useEffect(() => {
+    const reload = () => setApprovedSponsors(loadAllApprovedSponsors());
+    const onFail = (e: Event) => {
+      const d = (e as CustomEvent).detail || {};
+      showStatus(`No se publicó "${d.key}" para los visitantes: ${d.message}. Quedó guardado solo en este navegador.`);
+    };
+    window.addEventListener('storage', reload);
+    window.addEventListener('sgx:cms_publish_failed', onFail);
+    return () => { window.removeEventListener('storage', reload); window.removeEventListener('sgx:cms_publish_failed', onFail); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const showStatus = (msg: string) => {
     setStatusMessage(msg);
     setTimeout(() => setStatusMessage(null), 3500);
@@ -405,7 +417,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
 
   // --- RESET ALL DATA TO DEFAULTS ---
   const handleResetToDefaults = () => {
-    if (window.confirm('¿Deseas restaurar todos los datos oficiales del Summit 2026 (Operational Bible)?')) {
+    if (window.confirm('¿Restaurar los datos originales del Summit 2026? Esto reemplaza en vivo, para TODOS los visitantes, las sesiones, speakers, mapa, embeds y tiers publicados.')) {
       onUpdateSessions(INITIAL_SUMMIT_SESSIONS);
       saveAllSessions(INITIAL_SUMMIT_SESSIONS);
       onUpdateSpeakers(INITIAL_SUMMIT_SPEAKERS);

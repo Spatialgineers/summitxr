@@ -51,7 +51,9 @@ function toMillis(v: any): number | null {
 }
 
 function csvCell(v: unknown): string {
-  const s = v == null ? '' : String(v);
+  let s = v == null ? '' : String(v);
+  // Names come from visitors: neutralize spreadsheet formulas (=, +, -, @).
+  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
@@ -87,7 +89,7 @@ export const SummitRegistrationsPanel: React.FC = () => {
   useEffect(() => {
     const q = query(collection(db, 'ticket_inquiries'), orderBy('timestamp', 'desc'), limit(MAX_ROWS));
     const unsub = onSnapshot(q, (snap) => {
-      setRows(snap.docs.map((d) => {
+      const mapped = snap.docs.map((d) => {
         const x = d.data() as any;
         return {
           id: d.id,
@@ -100,8 +102,25 @@ export const SummitRegistrationsPanel: React.FC = () => {
           status: (['PENDING', 'INVITED', 'CONFIRMED', 'DECLINED'].includes(x.status) ? x.status : 'PENDING') as RegStatus,
           imageConsent: typeof x.imageConsent === 'boolean' ? x.imageConsent : null,
           createdAt: toMillis(x.timestamp),
+          invitedAt: toMillis(x.invitedAt),
         };
-      }));
+      });
+      // Before this version every digital pass was written as CONFIRMED: that is not a Day 3 confirmation.
+      // And older passes could register more than once: keep one row per pass code, newest details,
+      // most advanced status.
+      const rank: Record<RegStatus, number> = { PENDING: 0, DECLINED: 1, INVITED: 2, CONFIRMED: 3 };
+      const byCode = new Map<string, Registration & { invitedAt: number | null }>();
+      for (const r of mapped) {
+        if (r.ticketType === 'DIGITAL' && r.status === 'CONFIRMED' && !r.invitedAt) r.status = 'PENDING';
+        const key = r.referenceCode || r.id;
+        const prev = byCode.get(key);
+        if (!prev) { byCode.set(key, r); continue; }
+        const newest = (r.createdAt || 0) >= (prev.createdAt || 0) ? r : prev;
+        const status = rank[r.status] >= rank[prev.status] ? r.status : prev.status;
+        const statusDoc = rank[r.status] >= rank[prev.status] ? r : prev;
+        byCode.set(key, { ...newest, id: statusDoc.id, status, imageConsent: newest.imageConsent ?? prev.imageConsent });
+      }
+      setRows(Array.from(byCode.values()));
       setLoading(false);
       setError(null);
     }, (err) => {

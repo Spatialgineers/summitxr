@@ -4,6 +4,7 @@ import { SgxStandby } from '../../immersion/SgxStandby';
 import { SgxPassSection, SgxHoloStudioPanel } from '../../identity/SgxPassSection';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import { LazyBoundary } from '../common/LazyBoundary';
 import { LazyFallback } from '../common/LazyFallback';
 import { SpatialTiltCard } from '../common/SpatialTiltCard';
 import { SummitAnalyticsView } from '../analytics/SummitAnalyticsView';
@@ -1125,9 +1126,9 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               subtitle={es ? 'Desde dónde nos visitan, en vivo. Cada visita enciende su municipio en el mapa de Puerto Rico.' : 'Where our visitors come from, live. Every visit lights up its municipality on the map of Puerto Rico.'}
               pillarBadge="SGX.SYSTEM"
             />
-            <Suspense fallback={<LazyFallback />}>
+            <LazyBoundary fallback={<LazyFallback />}>
               <SummitVisitRadar />
-            </Suspense>
+            </LazyBoundary>
           </div>
         )}
 
@@ -1442,12 +1443,12 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               pillarBadge="SGX.SHOWCASE"
               pillarIconUrl={pillarIcon('SHOWCASE')}
             />
-            <Suspense fallback={<LazyFallback />}>
+            <LazyBoundary fallback={<LazyFallback />}>
               <MatchModule
                 onOpenPassport={() => window.dispatchEvent(new CustomEvent('sgx:open_passport'))}
                 onOpenAvatarGenerator={() => setAvatarGeneratorModalOpen(true)}
               />
-            </Suspense>
+            </LazyBoundary>
           </div>
         )}
 
@@ -1461,9 +1462,9 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               pillarBadge="SGX.SPARK"
               pillarIconUrl={pillarIcon('SPARK')}
             />
-            <Suspense fallback={<LazyFallback />}>
+            <LazyBoundary fallback={<LazyFallback />}>
               <SummitEmbedsHub embeds={embeds} />
-            </Suspense>
+            </LazyBoundary>
           </div>
         )}
 
@@ -1706,20 +1707,20 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
       {/* 10. Avatar Studio Generator Modal */}
       {avatarGeneratorModalOpen && (
-        <Suspense fallback={<LazyFallback overlay />}>
+        <LazyBoundary fallback={<LazyFallback overlay />}>
           <AttendeeAvatarGenerator
             onClose={() => setAvatarGeneratorModalOpen(false)}
           />
-        </Suspense>
+        </LazyBoundary>
       )}
 
       {/* 11. WebXR QR Networking Scanner & Rolodex Modal */}
       {qrScannerModalOpen && (
-        <Suspense fallback={<LazyFallback overlay />}>
+        <LazyBoundary fallback={<LazyFallback overlay />}>
           <NetworkingQrScannerModal
             onClose={() => setQrScannerModalOpen(false)}
           />
-        </Suspense>
+        </LazyBoundary>
       )}
 
       {/* 12. Floating Live Pulse Reactions & Keynote Polls Widget */}
@@ -1765,7 +1766,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
       {/* 12. Speaker & Artist Self-Service Portal Modal */}
       {speakerPortalOpen && (
-        <Suspense fallback={<LazyFallback overlay />}>
+        <LazyBoundary fallback={<LazyFallback overlay />}>
       <SummitSpeakerPortalModal
         isOpen={speakerPortalOpen}
         onClose={() => setSpeakerPortalOpen(false)}
@@ -1781,7 +1782,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           });
         }}
       />
-        </Suspense>
+        </LazyBoundary>
       )}
 
       {/* Live Summit Analytics & Telemetry Full-Width Modal */}

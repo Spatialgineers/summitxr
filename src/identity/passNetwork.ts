@@ -1,5 +1,5 @@
 import {
-  addDoc, collection, doc, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, where, writeBatch,
+  addDoc, collection, doc, getDoc, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, where, writeBatch,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { PassQrPayload, SgxPass } from './sgxIdentity';
@@ -11,20 +11,21 @@ import type { PillarKey } from '../lib/sgxPillars';
 
 /** Registration lands where the old taquilla wrote, so the admin views keep working. */
 export async function registerPass(pass: SgxPass, uid: string | null): Promise<void> {
+  // One registration per pass (doc id = pass code). Editing the pass updates it in place;
+  // the status is never sent from the browser, so an invitation set by the team survives.
   try {
-    await addDoc(collection(db, 'ticket_inquiries'), {
+    await setDoc(doc(db, 'ticket_inquiries', pass.code), {
       email: pass.email,
       fullName: pass.fullName,
       ticketType: pass.tier === 'SHOWCASE' ? 'SHOWCASE_PHYSICAL' : 'DIGITAL',
       referenceCode: pass.code,
       roleTitle: pass.roleTitle || '',
       organization: pass.organization || '',
-      status: 'PENDING',
       imageConsent: pass.imageConsent === true,
       ...(pass.consentAt ? { consentAt: pass.consentAt } : {}),
       userId: uid,
       timestamp: serverTimestamp(),
-    });
+    }, { merge: true });
   } catch (err) {
     console.warn('[SGX Pass] registration kept local:', err instanceof Error ? err.message : err);
   }
@@ -99,6 +100,15 @@ export async function recordCheckin(uid: string, region: { id: string; name: str
     return true;
   } catch (err) {
     console.warn('[SGX Pass] check-in refused:', err instanceof Error ? err.message : err);
+    return false;
+  }
+}
+
+/** True when this uid already has a Day 3 check-in on the server (e.g. after clearing the browser). */
+export async function hasServerCheckin(uid: string): Promise<boolean> {
+  try {
+    return (await getDoc(doc(db, 'summit_checkins', uid))).exists();
+  } catch {
     return false;
   }
 }

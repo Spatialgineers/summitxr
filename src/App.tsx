@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { HeaderNav, PageRoute } from './components/common/HeaderNav';
 import { InteractiveSpatialCanvas } from './components/common/InteractiveSpatialCanvas';
 import { AdminAuthGuard } from './components/admin/AdminAuthGuard';
+import { LazyBoundary } from './components/common/LazyBoundary';
 import { LazyFallback } from './components/common/LazyFallback';
 import { SummitLandingPage } from './components/summit/SummitLandingPage';
 
@@ -1048,9 +1049,9 @@ export default function App() {
       
       {/* Application Content Layer */}
       <div className={`relative z-10 w-full ${currentPage === 'summit' && activeSummitSection === 'OVERVIEW' ? 'h-full overflow-hidden' : 'min-h-screen'}`}>
-        <Suspense fallback={<LazyFallback fullScreen />}>
+        <LazyBoundary fallback={<LazyFallback fullScreen />}>
           {renderCurrentView()}
-        </Suspense>
+        </LazyBoundary>
       </div>
 
       {/* SGX Pass: Forja de identidad + Hangar del piloto (replaces taquilla, profile, passport, tours) */}

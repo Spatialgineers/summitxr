@@ -228,6 +228,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   }, [activeSubpage]);
 
+  // Live content can change under us (another admin, an approval, the live snapshot):
+  // always edit the current version, never the one loaded when this page mounted.
+  useEffect(() => {
+    const reload = () => {
+      setSummitSessions(loadPersistedSessions());
+      setSummitSpeakers(loadPersistedSpeakers());
+      setSummitMapNodes(loadPersistedMapNodes());
+      setSummitEmbeds(loadPersistedEmbedWidgets());
+      setSummitSponsors(loadPersistedSponsorshipTiers());
+      setApprovedSponsors(loadAllApprovedSponsors());
+    };
+    const onFail = (e: Event) => {
+      const d = (e as CustomEvent).detail || {};
+      showCrmStatus(`No se publicó "${d.key}" para los visitantes: ${d.message}. Quedó guardado solo en este navegador.`);
+    };
+    window.addEventListener('storage', reload);
+    window.addEventListener('sgx:cms_publish_failed', onFail);
+    return () => { window.removeEventListener('storage', reload); window.removeEventListener('sgx:cms_publish_failed', onFail); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const showCrmStatus = (msg: string) => {
     setCrmStatusMessage(msg);
     setTimeout(() => setCrmStatusMessage(null), 3500);

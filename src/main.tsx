@@ -14,6 +14,16 @@ import './index.css';
 // Published CMS content (speakers, sessions, sponsors…) reaches every visitor live.
 startLiveContentSync();
 
+// After a new deploy, an open tab may ask for chunks that no longer exist: reload once.
+window.addEventListener('vite:preloadError', (event) => {
+  try {
+    if (sessionStorage.getItem('sgx_chunk_reloaded')) return;
+    sessionStorage.setItem('sgx_chunk_reloaded', '1');
+  } catch { /* storage blocked: still try once */ }
+  event.preventDefault();
+  window.location.reload();
+});
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>

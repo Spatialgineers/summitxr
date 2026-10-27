@@ -14,7 +14,7 @@ import {
 import {
   REACTOR_MISSIONS, sponsorMissions, isPillarComplete, isDay3Open, type IdentityFlag, type ReactorMission,
 } from './reactor';
-import { payloadToCard, publishConstellation, recordCheckin, registerPass, sendExchange, subscribeExchanges } from './passNetwork';
+import { hasServerCheckin, payloadToCard, publishConstellation, recordCheckin, registerPass, sendExchange, subscribeExchanges } from './passNetwork';
 import { constellationPillars } from './constellation';
 
 export interface ForgeInput {
@@ -348,19 +348,34 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     return true;
   }, [commit, flag, profile.totalXp]);
 
+  const checkinBusy = useRef(false);
   const checkIn = useCallback(async (rehearsal = false): Promise<CheckinResult> => {
     const mine = idRef.current;
     if (!mine.pass) return 'no_pass';
     if (mine.stamps['chroma:checkin']) return 'already';
     if (!isDay3Open(Date.now(), rehearsal)) return 'closed';
-    // Rehearsals stamp locally only; the real day needs the door code and the server's OK.
-    if (!rehearsal) {
+    // Rehearsals only show the flow (no stamp, no XP); the real day needs the door code and the server's OK.
+    if (rehearsal) return 'ok';
+    {
       let code = '';
       try { code = sessionStorage.getItem(CHECKIN_CODE_KEY) || ''; } catch { /* ignore */ }
       if (!code) return 'need_code';
       if (!myUid) return 'invalid';
-      const accepted = await recordCheckin(myUid, getMyRegion(), code);
-      if (!accepted) return 'invalid';
+      if (checkinBusy.current) return 'invalid';
+      checkinBusy.current = true;
+      try {
+        const accepted = await recordCheckin(myUid, getMyRegion(), code);
+        if (!accepted) {
+          // Already on the server (browser cleared, second device tap): it counts.
+          if (await hasServerCheckin(myUid)) {
+            commit((d) => { d.stamps['chroma:checkin'] = d.stamps['chroma:checkin'] || Date.now(); });
+            return 'already';
+          }
+          return 'invalid';
+        }
+      } finally {
+        checkinBusy.current = false;
+      }
     }
     commit((d) => { d.stamps['chroma:checkin'] = Date.now(); });
     flag('checkin');

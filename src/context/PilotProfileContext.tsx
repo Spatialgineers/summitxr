@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { 
   PilotProfile, 
   WeekendActivityItem, 
@@ -117,7 +117,31 @@ function toCloudProfile(prof: PilotProfile, uid: string): Record<string, unknown
   if (prof.matchRoles) out.matchRoles = prof.matchRoles.slice(0, 20);
   if (prof.matchIndustries) out.matchIndustries = prof.matchIndustries.slice(0, 20);
   out.updatedAt = Date.now();
-  return out;
+  // Firestore rejects undefined anywhere (e.g. achievements[].unlockedAt): drop them.
+  return JSON.parse(JSON.stringify(out));
+}
+
+/**
+ * Cloud vs local: the most recently active copy wins, and progress never goes
+ * backwards (XP, level, drone record and counters keep the higher value).
+ */
+function mergeProgress(local: PilotProfile, cloud: Partial<PilotProfile>): PilotProfile {
+  const newer = (cloud.lastActive || 0) > (local.lastActive || 0);
+  const base: PilotProfile = newer ? { ...local, ...cloud } as PilotProfile : { ...local };
+  const max = (a?: number, b?: number) => Math.max(Number(a) || 0, Number(b) || 0);
+  base.totalXp = max(local.totalXp, cloud.totalXp);
+  base.level = max(local.level, cloud.level) || 1;
+  if (local.droneStats || cloud.droneStats) {
+    const ld: any = local.droneStats || {}; const cd: any = cloud.droneStats || {};
+    base.droneStats = { ...ld, ...(newer ? cd : {}), highScore: max(ld.highScore, cd.highScore), totalFlights: max(ld.totalFlights, cd.totalFlights), totalTricks: max(ld.totalTricks, cd.totalTricks) } as any;
+  }
+  if (local.weekendStats || cloud.weekendStats) {
+    const lw: any = local.weekendStats || {}; const cw: any = cloud.weekendStats || {};
+    const ws: any = { ...lw };
+    for (const k of new Set([...Object.keys(lw), ...Object.keys(cw)])) ws[k] = max(lw[k], cw[k]);
+    base.weekendStats = ws;
+  }
+  return base;
 }
 
 // Calculate Level and Rank from XP
@@ -283,6 +307,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // has a user before touching Firestore.
   const { user: authUser } = useAuth();
   const authUid = authUser?.uid || null;
+  const [cloudReady, setCloudReady] = useState(false);
   useEffect(() => {
     let unsubscribeUser: (() => void) | undefined;
     if (!authUid) return;
@@ -297,11 +322,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
         if (snap.exists()) {
           const cloudData = snap.data() as Partial<PilotProfile>;
-          setProfile(prev => ({
-            ...prev,
-            ...cloudData,
-            uid: targetUid,
-          }));
+          setProfile(prev => ({ ...mergeProgress(prev, cloudData), uid: targetUid }));
         } else {
           // Push initial profile to Firestore (local progress carries over)
           setProfile(prev => ({ ...prev, uid: targetUid }));
@@ -312,10 +333,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
         unsubscribeUser = onSnapshot(userDocRef, (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data() as Partial<PilotProfile>;
-            setProfile(prev => ({
-              ...prev,
-              ...data,
-            }));
+            setProfile(prev => ({ ...mergeProgress(prev, data), uid: prev.uid }));
           }
         });
       } catch (err) {
@@ -325,13 +343,31 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
     };
 
-    initFirebaseProfile();
+    initFirebaseProfile().then(() => setCloudReady(true));
 
     return () => {
       if (unsubscribeUser) unsubscribeUser();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authUid]);
+
+  // Keep the cloud copy current (debounced), so a reload never loses progress.
+  const lastCloudWrite = useRef<string>('');
+  useEffect(() => {
+    if (!authUid || !cloudReady) return;
+    const payload = toCloudProfile(profile, authUid);
+    const { updatedAt: _u, ...comparable } = payload as Record<string, unknown>;
+    const key = JSON.stringify(comparable);
+    if (key === lastCloudWrite.current) return;
+    const t = window.setTimeout(() => {
+      lastCloudWrite.current = key;
+      setDoc(doc(db, 'pilot_profiles', authUid), payload).catch((err) => {
+        lastCloudWrite.current = '';
+        console.warn('Pilot profile cloud save kept local:', err?.message || err);
+      });
+    }, 3000);
+    return () => window.clearTimeout(t);
+  }, [profile, authUid, cloudReady]);
 
   // Leaderboard listener
   useEffect(() => {

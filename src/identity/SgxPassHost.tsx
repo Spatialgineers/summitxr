@@ -4,7 +4,8 @@ import { usePilotProfile } from '../context/PilotProfileContext';
 import { PILLAR_BY_KEY } from '../lib/sgxPillars';
 import { playScanSuccessSound } from '../lib/cyberAudioEngine';
 import { parsePassQr, PILLAR_ACCENT, type PassQrPayload, type PassTier } from './sgxIdentity';
-import { CHECKIN_CODE_KEY, useSgxIdentity } from './SgxIdentityContext';
+import { CHECKIN_CODE_KEY, useSgxIdentity, type CheckinResult } from './SgxIdentityContext';
+import { useImmersion } from '../immersion/ImmersionContext';
 import { SgxForge } from './SgxForge';
 import { SgxHangar, type HangarTab } from './SgxHangar';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
@@ -41,7 +42,8 @@ export const SgxPassHost: React.FC = () => {
   const { language } = useLanguage();
   const es = language === 'es';
   const { isProfileModalOpen, setIsProfileModalOpen, isRoleModalOpen, setIsRoleModalOpen } = usePilotProfile();
-  const { isForged, addContact, checkIn, identity } = useSgxIdentity();
+  const { isForged, addContact, checkIn, identity, myUid } = useSgxIdentity();
+  const { pushToast } = useImmersion();
   const passQrUrl = usePassQr('#050505', '#ffffff');
   // Holo Card Studio (visitante / speaker / initiate / sponsor), prefilled from the pass.
   const [holo, setHolo] = useState<{ profile: (HoloCardProfile & { self?: boolean }) | null; mine: boolean; n: number } | null>(null);
@@ -123,13 +125,10 @@ export const SgxPassHost: React.FC = () => {
       rehearsalRef.current = params.get('checkinTest') === '1';
       try { sessionStorage.setItem(CHECKIN_CODE_KEY, doorCode); } catch { /* ignore */ }
       stripParam('checkin');
-      if (forgedRef.current) {
-        setHangar('day3');
-        window.setTimeout(() => { checkIn(rehearsalRef.current); }, 400);
-      } else {
-        pendingCheckin.current = true;
-        setForge({ tier: 'SHOWCASE' });
-      }
+      // The check-in itself runs from the effect below, once the pass AND the signed-in uid exist.
+      pendingCheckin.current = true;
+      if (forgedRef.current) setHangar('day3');
+      else setForge({ tier: 'SHOWCASE' });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -156,16 +155,37 @@ export const SgxPassHost: React.FC = () => {
   // Whatever was waiting on a pass runs right after forging.
   useEffect(() => {
     if (!isForged) return;
-    if (pendingCheckin.current) {
+    if (pendingCheckin.current && (myUid || rehearsalRef.current)) {
       pendingCheckin.current = false;
-      window.setTimeout(() => { checkIn(rehearsalRef.current); }, 2600);
+      const rehearsal = rehearsalRef.current;
+      window.setTimeout(() => {
+        checkIn(rehearsal).then((r: CheckinResult) => {
+          const copy: Record<CheckinResult, [string, string]> = es ? {
+            ok: ['Check-in confirmado', 'Bienvenide a Chroma Space Studios.'],
+            already: ['Ya hiciste check-in', 'Tu entrada del Día 3 ya está registrada.'],
+            closed: ['El check-in aún no abre', 'Abre el 13 de diciembre en la entrada de Chroma Space Studios.'],
+            no_pass: ['Primero forja tu SGX Pass', 'Tu pase es tu entrada.'],
+            need_code: ['Escanea el QR de la entrada', 'El check-in necesita el código de la puerta.'],
+            invalid: ['No pudimos confirmar el check-in', 'Vuelve a escanear el QR de la entrada o pide ayuda al equipo.'],
+          } : {
+            ok: ['Checked in', 'Welcome to Chroma Space Studios.'],
+            already: ['Already checked in', 'Your Day 3 entry is already recorded.'],
+            closed: ['Check-in is not open yet', 'It opens on December 13 at the Chroma Space Studios entrance.'],
+            no_pass: ['Forge your SGX Pass first', 'Your pass is your ticket.'],
+            need_code: ['Scan the entrance QR', 'Check-in needs the door code.'],
+            invalid: ['We could not confirm your check-in', 'Scan the entrance QR again or ask the team for help.'],
+          };
+          pushToast({ tag: es ? 'DÍA 3 · CHROMA' : 'DAY 3 · CHROMA', title: copy[r][0], detail: copy[r][1], tone: r === 'ok' ? 'action' : 'telemetry' });
+          setHangar('day3');
+        });
+      }, 800);
     }
     if (pendingContact.current) {
       const p = pendingContact.current;
       pendingContact.current = null;
       addContact(p);
     }
-  }, [isForged, checkIn, addContact]);
+  }, [isForged, myUid, checkIn, addContact, es, pushToast]);
 
   const closeForge = () => {
     try { localStorage.setItem(FORGE_DISMISSED, '1'); } catch { /* ignore */ }

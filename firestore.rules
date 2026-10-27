@@ -184,10 +184,21 @@ service cloud.firestore {
       allow get: if isAdmin() || (isSignedIn() && resource.data.userId == me());
       allow list: if isAdmin() || (isSignedIn() && resource.data.userId == me());
       allow create: if isValidTicketInquiry(incoming());
-      allow update: if isAdmin() &&
-        changed().hasOnly(['status', 'invitedAt', 'notes']) &&
-        incoming().status in ['PENDING', 'INVITED', 'CONFIRMED', 'DECLINED'] &&
-        optString(incoming(), 'notes', 500);
+      // Team: invitation status. Owner (same signed-in uid): edit their own details and consent, never the status.
+      allow update: if (isAdmin() &&
+          changed().hasOnly(['status', 'invitedAt', 'notes']) &&
+          incoming().status in ['PENDING', 'INVITED', 'CONFIRMED', 'DECLINED'] &&
+          optString(incoming(), 'notes', 500)) ||
+        (isSignedIn() && resource.data.userId == me() && incoming().userId == me() &&
+          changed().hasOnly(['email', 'ticketType', 'fullName', 'roleTitle', 'organization', 'imageConsent', 'consentAt', 'timestamp']) &&
+          isShortString(incoming().email, 150) &&
+          incoming().ticketType in ['DIGITAL', 'SHOWCASE_PHYSICAL'] &&
+          optString(incoming(), 'fullName', 100) &&
+          optString(incoming(), 'roleTitle', 100) &&
+          optString(incoming(), 'organization', 150) &&
+          (!('imageConsent' in incoming()) || incoming().imageConsent is bool) &&
+          (!('consentAt' in incoming()) || incoming().consentAt is int) &&
+          incoming().timestamp == request.time);
       allow delete: if isAdmin();
     }
 

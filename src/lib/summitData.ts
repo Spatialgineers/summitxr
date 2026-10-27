@@ -179,7 +179,7 @@ export const SUMMIT_PILLARS: SummitPillar[] = [
 
 // Initial 3-Day Summit Schedule (Dec 11 - 13, 2026) — Official Run of Show v2026.10.1 Single Source of Truth
 export const INITIAL_SUMMIT_SESSIONS: SummitSession[] = [
-  // DAY 1: Viernes 11 de diciembre de 2026 (10:00 a.m. – 4:30 p.m., 6h 30m, 100% digital · YouTube Live + espacio de Roblox activo si se usa)
+  // DAY 1: Viernes 11 de diciembre de 2026 (10:00 a.m. – 4:30 p.m., 6h 30m, 100% digital · YouTube Live + presentaciones de artistas en Roblox)
   {
     id: 'd1_01',
     day: 1,
@@ -188,14 +188,14 @@ export const INITIAL_SUMMIT_SESSIONS: SummitSession[] = [
     endTime: '10:30 AM',
     startMinutes: 600,
     title: 'Apertura — Spatialgineers Summit 2026',
-    subtitle: 'Danelson abre la transmisión. Roblox ya está activo, si se usa (30 min)',
-    description: 'Danelson Maldonado González ("The Highgineer") abre la transmisión oficial en YouTube Live presentando la visión de Spatialgineers ("Ingeniando Imaginación, Construyendo Realidades") y la hoja de ruta de los 3 días. El espacio de Roblox (embed opcional, si se usa) está activo desde la apertura.',
+    subtitle: 'Danelson abre la transmisión (30 min)',
+    description: 'Danelson Maldonado González ("The Highgineer") abre la transmisión oficial en YouTube Live presentando la visión de Spatialgineers ("Ingeniando Imaginación, Construyendo Realidades") y la hoja de ruta de los 3 días. El espacio de Roblox está activo desde la apertura.',
     speakerIds: ['spk_danelson'],
     format: 'DIGITAL',
-    venueLocation: 'YouTube Live + Espacio de Roblox (si se usa)',
+    venueLocation: 'YouTube Live + Roblox (artistas)',
     streamUrl: 'https://www.youtube.com/@spatialgineers',
     mapNodeId: 'node_roblox',
-    tags: ['Apertura', 'Keynote', 'Roblox (si se usa)', 'Highgineer', '30 Min'],
+    tags: ['Apertura', 'Keynote', 'Roblox', 'Highgineer', '30 Min'],
     status: 'UPCOMING',
   },
   {
@@ -206,11 +206,11 @@ export const INITIAL_SUMMIT_SESSIONS: SummitSession[] = [
     endTime: '10:45 AM',
     startMinutes: 630,
     title: 'Artista invitado 1 (por anunciar) — Presentación en vivo dentro de Roblox',
-    subtitle: 'Primer intermedio de artista, en vivo dentro de Roblox si se usa (15 min). Solo se anuncian artistas confirmados por escrito',
-    description: 'Presentación en vivo de un artista invitado (por anunciar) dentro del espacio de Roblox (si se usa), transmitida por YouTube Live. Solo se publican artistas confirmados por escrito.',
+    subtitle: 'Primer intermedio de artista, en vivo dentro de Roblox (15 min). Solo se anuncian artistas confirmados por escrito',
+    description: 'Presentación en vivo de un artista invitado (por anunciar) dentro del espacio de Roblox, transmitida por YouTube Live. Solo se publican artistas confirmados por escrito.',
     speakerIds: [],
     format: 'ROBLOX_STREAM',
-    venueLocation: 'YouTube Live + Espacio de Roblox (si se usa)',
+    venueLocation: 'YouTube Live + Roblox (artistas)',
     mapNodeId: 'node_roblox',
     tags: ['Artista 1', 'Roblox Live', 'Música en Vivo', '15 Min'],
     status: 'UPCOMING',
@@ -245,7 +245,7 @@ export const INITIAL_SUMMIT_SESSIONS: SummitSession[] = [
     description: 'Intermedio en vivo de un artista invitado (por anunciar) con visualizadores reactivos. Solo se publican artistas confirmados por escrito.',
     speakerIds: [],
     format: 'ROBLOX_STREAM',
-    venueLocation: 'YouTube Live + Espacio de Roblox (si se usa)',
+    venueLocation: 'YouTube Live + Roblox (artistas)',
     mapNodeId: 'node_roblox',
     tags: ['Artista 2', 'Roblox Concert', 'Intermedio', '15 Min'],
     status: 'UPCOMING',
@@ -280,7 +280,7 @@ export const INITIAL_SUMMIT_SESSIONS: SummitSession[] = [
     description: 'Intermedio en vivo de un artista invitado (por anunciar) y ronda de votación estilo Kahoot en la webapp del Summit. Solo se publican artistas confirmados por escrito.',
     speakerIds: [],
     format: 'ROBLOX_STREAM',
-    venueLocation: 'YouTube Live + Espacio de Roblox (si se usa)',
+    venueLocation: 'YouTube Live + Roblox (artistas)',
     mapNodeId: 'node_roblox',
     tags: ['Artista 3', 'Votación 25 XP', 'Roblox', '15 Min'],
     status: 'UPCOMING',
@@ -315,7 +315,7 @@ export const INITIAL_SUMMIT_SESSIONS: SummitSession[] = [
     description: 'Intermedio en vivo de un artista invitado (por anunciar) con diseño sonoro reactivo. Solo se publican artistas confirmados por escrito.',
     speakerIds: [],
     format: 'ROBLOX_STREAM',
-    venueLocation: 'YouTube Live + Espacio de Roblox (si se usa)',
+    venueLocation: 'YouTube Live + Roblox (artistas)',
     mapNodeId: 'node_roblox',
     tags: ['Artista 4', 'Por anunciar', 'Intermedio', '15 Min'],
     status: 'UPCOMING',
@@ -350,7 +350,7 @@ export const INITIAL_SUMMIT_SESSIONS: SummitSession[] = [
     description: 'Intermedio en vivo de un artista invitado (por anunciar). Solo se publican artistas confirmados por escrito.',
     speakerIds: [],
     format: 'ROBLOX_STREAM',
-    venueLocation: 'YouTube Live + Espacio de Roblox (si se usa)',
+    venueLocation: 'YouTube Live + Roblox (artistas)',
     mapNodeId: 'node_roblox',
     tags: ['Artista 5', 'Intermedio', '15 Min'],
     status: 'UPCOMING',
@@ -385,7 +385,7 @@ export const INITIAL_SUMMIT_SESSIONS: SummitSession[] = [
     description: 'Intermedio en vivo de un artista invitado (por anunciar) antes del sexto pilar. Solo se publican artistas confirmados por escrito.',
     speakerIds: [],
     format: 'ROBLOX_STREAM',
-    venueLocation: 'YouTube Live + Espacio de Roblox (si se usa)',
+    venueLocation: 'YouTube Live + Roblox (artistas)',
     mapNodeId: 'node_roblox',
     tags: ['Artista 6', 'Audio Espacial', 'Intermedio', '15 Min'],
     status: 'UPCOMING',
@@ -416,14 +416,14 @@ export const INITIAL_SUMMIT_SESSIONS: SummitSession[] = [
     endTime: '4:00 PM',
     startMinutes: 870,
     title: 'Portafolios de los Initiates — 8 Initiates Activos (8 min c/u)',
-    subtitle: 'Los 8 Initiates activos presentan su portafolio interactivo (64 de los 90 min del bloque). Roblox sigue activo (si se usa)',
-    description: 'Los 8 Initiates activos del SGX Guild presentan su portafolio en vivo (8 minutos cada uno, ocupando 64 de los 90 minutos del bloque, con transiciones y comentarios técnicos). El espacio de Roblox (si se usa) permanece activo.',
+    subtitle: 'Los 8 Initiates activos presentan su portafolio interactivo (64 de los 90 min del bloque)',
+    description: 'Los 8 Initiates activos del SGX Guild presentan su portafolio en vivo (8 minutos cada uno, ocupando 64 de los 90 minutos del bloque, con transiciones y comentarios técnicos). El espacio de Roblox permanece activo.',
     speakerIds: [
       'spk_initiate_1', 'spk_initiate_2', 'spk_initiate_3', 'spk_initiate_4', 'spk_initiate_5',
       'spk_initiate_6', 'spk_initiate_7', 'spk_initiate_8'
     ],
     format: 'DIGITAL',
-    venueLocation: 'YouTube Live Stream + Espacio de Roblox (si se usa)',
+    venueLocation: 'YouTube Live',
     mapNodeId: 'node_awaken_gallery',
     tags: ['SGX Guild', '8 Initiates', 'Portafolios 8 Min', '90 Min'],
     status: 'UPCOMING',
@@ -752,8 +752,8 @@ export const INITIAL_SUMMIT_SESSIONS: SummitSession[] = [
     endTime: '3:30 PM',
     startMinutes: 840,
     title: 'Interacción Libre — Initiates, Demos & Roblox',
-    subtitle: 'Sesión abierta para explorar demos en vivo, conversar con los Initiates y recorrer el espacio de Roblox si se usa (90 min). Dinámica por anunciar',
-    description: 'Espacio de interacción libre donde los invitados en San Juan y los participantes en línea prueban las demos de Spatialgineers, conversan directamente con los Initiates del Guild y participan dentro del entorno de Roblox (si se usa).',
+    subtitle: 'Sesión abierta para explorar demos en vivo, conversar con los Initiates y recorrer el espacio de Roblox (90 min). Dinámica por anunciar',
+    description: 'Espacio de interacción libre donde los invitados en San Juan y los participantes en línea prueban las demos de Spatialgineers, conversan directamente con los Initiates del Guild y participan dentro del entorno de Roblox.',
     speakerIds: ['spk_danelson', 'spk_ricardo'],
     format: 'HYBRID',
     venueLocation: 'Chroma Space Studios Showroom + Roblox',
@@ -869,7 +869,7 @@ export const INITIAL_MAP_360_NODES: Map360Node[] = [
     mapCoords: { x: 22, y: 25 },
     panorama360Url: 'https://cdn.spatialgineers.com/Branding/Guild/Guild%20color.png',
     thumbnailUrl: 'https://cdn.spatialgineers.com/Branding/Guild/Guild%20color.png',
-    description: 'Espacio virtual de Spatialgineers en Roblox (embed opcional, si se usa). Puede albergar las presentaciones de los artistas invitados durante los intermedios.',
+    description: 'Espacio virtual de Spatialgineers en Roblox, donde se presentan los artistas invitados durante los intermedios.',
     liveStatus: 'ONLINE_ACTIVE',
     capacityInfo: 'Embed opcional (si se usa)',
     connectedNodeIds: ['node_chroma_studios', 'node_awaken_gallery', 'node_drone_bay'],
@@ -1164,7 +1164,7 @@ export const INITIAL_EMBED_WIDGETS: EmbedWidget[] = [
     embedType: 'URL',
     embedUrl: 'https://www.roblox.com',
     externalUrl: '',
-    description: 'Espacio multijugador en Roblox (embed opcional, si se usa) para los intermedios de artistas invitados durante el Summit 2026. Entra con tu avatar o mira la transmisión en vivo.',
+    description: 'Espacio multijugador en Roblox para las presentaciones de los artistas invitados durante el Summit 2026. Entra con tu avatar o mira la transmisión en vivo.',
     thumbnailUrl: 'https://cdn.spatialgineers.com/Branding/Guild/Guild%20color.png',
     author: 'Spatialgineers Roblox Guild',
     tags: ['Roblox', 'Concerts', 'Multiplayer', 'Virtual World'],
@@ -1355,10 +1355,21 @@ export const SPONSORSHIP_TIERS: SponsorshipTier[] = [
       'La comida es un ejemplo de aporte en especie: si alguien la aporta, se ofrece en el evento, sin compromiso de Spatialgineers',
     ],
     sponsors: [
-      { name: 'Chroma Space Studios', logoUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=100&auto=format&fit=crop&q=80', websiteUrl: 'https://chromaspace.pr', description: 'Venue del Día 3 (SGX Showcase) en San Juan' }
+      { name: 'Chroma Space Studios', logoUrl: monogramLogo('Chroma Space'), websiteUrl: '', description: 'Venue del Día 3 (SGX Showcase) en San Juan' }
     ]
   }
 ];
+
+
+/** Neutral monogram placeholder until a partner sends their real logo (no stock photos). */
+export function monogramLogo(name: string): string {
+  const initials = (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#111317"/><rect x="6" y="6" width="188" height="188" fill="none" stroke="#32527B" stroke-width="4"/><text x="100" y="122" text-anchor="middle" font-family="Orbitron, Arial, sans-serif" font-size="64" font-weight="700" fill="#FFFFFF">${initials.replace(/[<&>]/g, '')}</text></svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+/** Plain dark banner used until a partner sends artwork. */
+export const SPONSOR_BANNER_PLACEHOLDER = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 400"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#0b0d10"/><stop offset="1" stop-color="#1a2230"/></linearGradient></defs><rect width="1400" height="400" fill="url(#g)"/></svg>')}`;
 
 // Initial Analytics Metrics
 export const INITIAL_ANALYTICS: SummitAnalyticsMetrics = {
@@ -2079,8 +2090,8 @@ export const INITIAL_APPROVED_SPONSORS: ApprovedSponsor[] = [
     tierId: 'tier_5',
     tierName: 'Tier 5 · Alianza de servicios esenciales (venue)',
     tagline: 'Venue del Día 3 (SGX Showcase) • San Juan, Puerto Rico',
-    logoUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
-    bannerUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
+    logoUrl: monogramLogo('Chroma Space'),
+    bannerUrl: SPONSOR_BANNER_PLACEHOLDER,
     websiteUrl: '',
     contactName: '',
     contactEmail: '',
@@ -2183,9 +2194,7 @@ export function approveSponsorInquiryAndCreateShowcase(inquiry: SponsorInquiry):
     s => s.inquiryId === inquiry.id || s.companyName.toLowerCase() === inquiry.companyName.toLowerCase()
   );
 
-  const defaultLogo = inquiry.websiteUrl 
-    ? `https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&auto=format&fit=crop&q=80`
-    : `https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop&q=80`;
+  const defaultLogo = monogramLogo(inquiry.companyName);
 
   const newShowcase: ApprovedSponsor = {
     id: existingIdx >= 0 ? currentApproved[existingIdx].id : `sp_appr_${Date.now()}`,
@@ -2196,7 +2205,7 @@ export function approveSponsorInquiryAndCreateShowcase(inquiry: SponsorInquiry):
     tierName: inquiry.selectedTierName || 'Official Summit Partner',
     tagline: inquiry.customMessage?.slice(0, 100) || `Patrocinador Oficial de Spatialgineers Summit 2026`,
     logoUrl: existingIdx >= 0 && currentApproved[existingIdx].logoUrl ? currentApproved[existingIdx].logoUrl : defaultLogo,
-    bannerUrl: existingIdx >= 0 && currentApproved[existingIdx].bannerUrl ? currentApproved[existingIdx].bannerUrl : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1400&auto=format&fit=crop&q=80',
+    bannerUrl: existingIdx >= 0 && currentApproved[existingIdx].bannerUrl ? currentApproved[existingIdx].bannerUrl : SPONSOR_BANNER_PLACEHOLDER,
     websiteUrl: inquiry.websiteUrl || 'https://spatialgineers.com',
     contactName: inquiry.contactName,
     contactEmail: inquiry.email,

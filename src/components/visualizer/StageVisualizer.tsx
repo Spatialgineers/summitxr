@@ -1431,12 +1431,12 @@ export const StageVisualizer: React.FC<StageVisualizerProps> = ({
                 <span className="text-[10px] text-slate-400 block mb-1 font-bold">Panoramas 360° Espaciales (Spatialgineers Summit):</span>
                 <div className="grid grid-cols-2 gap-1.5 mb-2">
                   {[
-                    { name: 'Chroma Studios 360°', url: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=2000&auto=format&fit=crop&q=80' },
-                    { name: 'Roblox Arena 360°', url: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=2000&auto=format&fit=crop&q=80' },
-                    { name: 'SGX Guild Gallery 360°', url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=2000&auto=format&fit=crop&q=80' },
-                    { name: 'Industry Stage 360°', url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=2000&auto=format&fit=crop&q=80' },
-                    { name: 'Drone Bay 360°', url: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=2000&auto=format&fit=crop&q=80' },
-                    { name: 'Chroma Networking Lounge 360°', url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=2000&auto=format&fit=crop&q=80' },
+                    { name: 'Fondo 360° · estudio (stock)', url: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=2000&auto=format&fit=crop&q=80' },
+                    { name: 'Fondo 360° · arena (stock)', url: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=2000&auto=format&fit=crop&q=80' },
+                    { name: 'Fondo 360° · galería (stock)', url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=2000&auto=format&fit=crop&q=80' },
+                    { name: 'Fondo 360° · escenario (stock)', url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=2000&auto=format&fit=crop&q=80' },
+                    { name: 'Fondo 360° · hangar (stock)', url: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=2000&auto=format&fit=crop&q=80' },
+                    { name: 'Fondo 360° · lounge (stock)', url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=2000&auto=format&fit=crop&q=80' },
                   ].map((pano, pIdx) => (
                     <button
                       key={pIdx}

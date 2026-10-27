@@ -100,7 +100,7 @@ export const SGX_PILLARS: SgxPillar[] = [
       { day: 1, time: '11:50 AM–12:05 PM', label: { es: 'Artista invitado (por anunciar)', en: 'Guest artist (to be announced)' } },
       { day: 1, time: '12:05–12:30 PM', label: { es: 'Bloque SGX.Spark', en: 'SGX.Spark block' } },
       { day: 2, time: '12:20–1:05 PM', label: { es: 'Conversación de industria SGX.Spark', en: 'SGX.Spark industry conversation' } },
-      { day: 3, time: '2:00–3:30 PM', label: { es: 'Interacción libre: demos y Roblox (si se usa)', en: 'Free interaction: demos and Roblox (if used)' } },
+      { day: 3, time: '2:00–3:30 PM', label: { es: 'Interacción libre: demos y Roblox', en: 'Free interaction: demos and Roblox' } },
     ],
     modules: [
       { kind: 'section', key: 'EMBEDS_GAMES', icon: Gamepad2, label: { es: 'Simulador de dron 3D', en: '3D drone simulator' }, desc: { es: 'Vuela entre conferencias, haz trucos y gana XP.', en: 'Fly between talks, pull tricks and earn XP.' } },

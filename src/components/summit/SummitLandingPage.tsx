@@ -697,7 +697,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       Run of Show Ejecutivo: Mundos 3D, Día de la Industria & Evento Híbrido
                     </h3>
                     <p className="text-xs text-slate-300 font-mono">
-                      Diciembre 11, 12 & 13, 2026 • YouTube Live, Roblox (si se usa) & Chroma Space Studios, San Juan, PR
+                      Diciembre 11, 12 & 13, 2026 • YouTube Live, presentaciones de artistas en Roblox y Chroma Space Studios, San Juan, PR
                     </p>
                   </div>
                   <button
@@ -731,16 +731,16 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                           <span className="px-1.5 py-0.5 bg-[#FDCC0D]/10 border border-[#FDCC0D]/40 text-[#FDCC0D] text-[10px]">8 Initiates × 8 min</span>
                         </div>
                         <p className="text-slate-300 leading-relaxed text-xs">
-                          Bloques de los 6 pilares en orden oficial (Story, Showcase, Spark, Stage, System, Synthesize) intercalados con 6 intermedios de artistas invitados (por anunciar; el Artista 1 dentro de Roblox, si se usa) y los portafolios de los 8 Initiates activos.
+                          Bloques de los 6 pilares en orden oficial (Story, Showcase, Spark, Stage, System, Synthesize) intercalados con 6 intermedios de artistas invitados (por anunciar; el Artista 1 dentro de Roblox) y los portafolios de los 8 Initiates activos.
                         </p>
 
                         {expandedDayId === 'day_1' && (
                           <div className="pt-3 border-t border-slate-800 space-y-2 text-[11px] text-slate-300">
                             <p className="leading-relaxed">
-                              • <strong>10:00–10:30 AM:</strong> Apertura con Danelson (el espacio de Roblox activo, si se usa).
+                              • <strong>10:00–10:30 AM:</strong> Apertura con Danelson (el espacio de Roblox abre para las presentaciones de artistas).
                             </p>
                             <p className="leading-relaxed">
-                              • <strong>10:30 AM–2:30 PM:</strong> 6 artistas invitados (15 min c/u; Roblox si se usa) + 6 Bloques de Pilares (25m c/u): Story → Showcase → Spark → Stage → System → Synthesize.
+                              • <strong>10:30 AM–2:30 PM:</strong> 6 artistas invitados (15 min c/u, en Roblox) + 6 Bloques de Pilares (25m c/u): Story → Showcase → Spark → Stage → System → Synthesize.
                             </p>
                             <p className="leading-relaxed">
                               • <strong>2:30–4:00 PM:</strong> Portafolios de los 8 Initiates activos (8 min c/u = 64 de los 90 min).
@@ -949,7 +949,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                               alt={sponsor.companyName} 
                               className="w-full h-full object-contain"
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=100&auto=format&fit=crop&q=80';
+                                (e.target as HTMLImageElement).src = '/brand/sgx-bolt.svg';
                               }}
                             />
                           </div>
@@ -1330,7 +1330,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <SummitSectionBanner
               sectionKey="AGENDA"
               title="Run of Show Oficial & Agenda de 3 Días"
-              subtitle="Línea de tiempo minuto a minuto, intermisiones Roblox, conversatorios de industria y show performativo."
+              subtitle="Línea de tiempo minuto a minuto, presentaciones de artistas en Roblox, conversatorios de industria y show performativo."
               pillarBadge="SGX.STAGE"
               pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png"
               additionalParams={{ view: agendaViewMode.toLowerCase() }}
@@ -1541,7 +1541,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                           alt={sp.companyName} 
                           className="w-full h-full object-contain"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=100&auto=format&fit=crop&q=80';
+                            (e.target as HTMLImageElement).src = '/brand/sgx-bolt.svg';
                           }}
                         />
                       </div>

@@ -69,7 +69,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
       focus: 'Apertura (30 min), un artista invitado de 15 min antes de cada pilar, 6 bloques de pilares de 25 min (SGX.Story → SGX.Showcase → SGX.Spark → SGX.Stage → SGX.System → SGX.Synthesize) y los portafolios de los 8 Initiates activos (2:30–4:00 p.m., 8 min c/u).',
       highlight: 'Al cierre (4:00–4:30 p.m.) se anuncian los 6 Initiates que presentan en el Día 3.',
       themeColor: '#FDCC0D',
-      streamNotice: 'Transmisión en YouTube Live con el espacio de Roblox activo desde la apertura (embed opcional, si se usa). Artistas por anunciar: solo se publican los confirmados por escrito.',
+      streamNotice: 'Transmisión en YouTube Live con las presentaciones de artistas en Roblox. Artistas por anunciar: solo se publican los confirmados por escrito.',
     },
     2: {
       title: 'Día 2 — Sábado 12 de Diciembre (Día de la Industria)',

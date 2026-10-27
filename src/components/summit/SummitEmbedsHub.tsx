@@ -200,7 +200,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
       category: formData.category,
       embedType: isCode ? 'CODE' : 'URL',
       description: formData.description.trim() || 'Aplicación integrada personalizada en Spatialgineers Summit.',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80',
+      thumbnailUrl: '',
       embedUrl: isCode ? undefined : parsedUrl,
       externalUrl: isCode ? undefined : formData.sourceValue.trim(),
       customCode: isCode ? formData.sourceValue.trim() : undefined,
@@ -384,7 +384,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
             ) : (
               <div className="w-full h-full bg-slate-950 flex flex-col items-center justify-center p-6 text-center space-y-4">
                 <img
-                  src={activeEmbed?.thumbnailUrl}
+                  src={activeEmbed?.thumbnailUrl || '/brand/sgx-bolt.svg'}
                   alt={activeEmbed?.title}
                   className="w-28 h-28 object-cover border border-[var(--sgx-secondary)] mb-2"
                   style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
@@ -536,7 +536,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
               >
                 <div className="flex items-start space-x-3">
                   <img
-                    src={emb.thumbnailUrl}
+                    src={emb.thumbnailUrl || '/brand/sgx-bolt.svg'}
                     alt={emb.title}
                     className="w-14 h-14 object-cover border border-[#32527B] shrink-0 group-hover:border-[#00DDFF] transition-colors"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}

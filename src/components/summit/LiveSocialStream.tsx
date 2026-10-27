@@ -569,7 +569,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
                       alt={post.author.name}
                       className="w-9 h-9 rounded-full object-cover border border-slate-700 shrink-0"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80';
+                        (e.target as HTMLImageElement).src = '/brand/sgx-bolt.svg';
                       }}
                     />
                     <div className="min-w-0">

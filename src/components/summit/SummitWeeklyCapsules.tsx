@@ -88,7 +88,7 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     badgeColor: '#00DDFF',
     isUnlockedDefault: false,
     xpReward: 30,
-    summary: 'Planos esquemáticos del espacio en Roblox (embed opcional, si se usa): zona de artistas, circuito aéreo de drones y hubs de teletransporte.',
+    summary: 'Planos esquemáticos del espacio en Roblox para las presentaciones de artistas: zona de artistas, circuito aéreo de drones y hubs de teletransporte.',
     fullTransmission: `PLANO ARQUITECTÓNICO // MUNDO VIRTUAL SGX ROBLOX:
 • Coordenadas del Núcleo Central: (0, 100, 0)
 • Zona de Artistas: espacio para los intermedios de artistas invitados del Día 1 (por anunciar).

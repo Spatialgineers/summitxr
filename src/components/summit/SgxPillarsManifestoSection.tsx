@@ -270,7 +270,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         },
         {
           title: 'Artistas Invitados & Roblox',
-          desc: 'Intermedios de artistas invitados (por anunciar) en la transmisión y en Roblox, si se usa.',
+          desc: 'Intermedios de artistas invitados (por anunciar) presentados en Roblox y transmitidos por YouTube Live.',
           actionLabel: 'Ver Cronograma de Shows',
           icon: Radio,
           onClick: onExploreAgenda,
@@ -722,7 +722,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span><strong>Horario:</strong> 10:00 a.m. a 4:30 p.m. por YouTube Live, con Roblox activo si se usa.</span>
+              <span><strong>Horario:</strong> 10:00 a.m. a 4:30 p.m. por YouTube Live, con las presentaciones de artistas en Roblox.</span>
             </li>
           </ul>
         </div>

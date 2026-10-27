@@ -1,29 +1,34 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   BarChart3,
   Users,
-  Tv,
   Vote,
   MessageSquare,
   Eye,
-  Gamepad2,
   Trophy,
   Download,
-  TrendingUp,
   Globe,
   Layers,
   Activity,
   ShieldCheck,
   Zap,
   RefreshCw,
+  MapPin,
+  Ticket,
 } from 'lucide-react';
 import { SummitAnalyticsMetrics } from '../../types/summit';
-import { INITIAL_ANALYTICS } from '../../lib/summitData';
 import { usePilotProfile } from '../../context/PilotProfileContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { getSessionSummary, subscribeTelemetry, exportEventsCSV, recordEvent } from '../../lib/telemetry';
 import { db } from '../../lib/firebase';
-import { collection, getDocs, limit, query } from 'firebase/firestore';
+import { collection, doc, getCountFromServer, getDoc, getDocs, limit, query, where } from 'firebase/firestore';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
+import { SGX_PILLARS } from '../../lib/sgxPillars';
+
+/* Summit telemetry, real numbers only. Every figure comes from Firestore
+   (counts) or from this device's own session; nothing is estimated or
+   seeded. Counts the rules reserve for the team (registrations, prizes)
+   show as "solo admin" to visitors. */
 
 export interface SummitAnalyticsViewProps {
   metrics?: SummitAnalyticsMetrics;
@@ -33,161 +38,174 @@ export interface SummitAnalyticsViewProps {
   telemetryStats?: any;
 }
 
-export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
-  metrics = INITIAL_ANALYTICS,
-  connectedAudienceCount = 0,
-}) => {
-  const [activeRange, setActiveRange] = useState<'3_DAYS' | 'DAY_1' | 'DAY_2' | 'DAY_3'>('3_DAYS');
+interface LiveCounts {
+  pilots: number | null;
+  chats: number | null;
+  votes: number | null;
+  checkins: number | null;
+  registrations: number | null;
+  registrationsDay3: number | null;
+  prizes: number | null;
+  visits: number | null;
+  uniqueVisitors: number | null;
+  countries: { code: string; count: number }[];
+  pillars: Record<string, number>;
+}
+
+const EMPTY: LiveCounts = {
+  pilots: null, chats: null, votes: null, checkins: null, registrations: null, registrationsDay3: null,
+  prizes: null, visits: null, uniqueVisitors: null, countries: [], pillars: {},
+};
+
+async function countOf(q: any): Promise<number | null> {
+  try {
+    const snap = await getCountFromServer(q);
+    return snap.data().count;
+  } catch {
+    return null; // offline, or reserved for admins by the rules
+  }
+}
+
+function flagOf(code: string): string {
+  const cc = (code || '').toUpperCase();
+  if (!/^[A-Z]{2}$/.test(cc)) return '🌐';
+  return String.fromCodePoint(...[...cc].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
+}
+
+export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = () => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { profile, leaderboard, setIsProfileModalOpen } = usePilotProfile();
   const [sessionTelemetry, setSessionTelemetry] = useState(() => getSessionSummary());
-  const [liveCloudCounts, setLiveCloudCounts] = useState({
-    tickets: 0,
-    chats: 0,
-    prizes: 0,
-    pilots: 0,
-  });
+  const [live, setLive] = useState<LiveCounts>(EMPTY);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
 
-  // Subscribe to real-time in-app telemetry events
   useEffect(() => {
     setSessionTelemetry(getSessionSummary());
-    const unsub = subscribeTelemetry(() => {
-      setSessionTelemetry(getSessionSummary());
-    });
-    return unsub;
+    return subscribeTelemetry(() => setSessionTelemetry(getSessionSummary()));
   }, []);
 
-  // Fetch live collection counts from Firestore with graceful fallback
-  const fetchLiveFirestoreCounts = async () => {
+  const refresh = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      const [ticketsSnap, chatsSnap, prizesSnap, pilotsSnap] = await Promise.allSettled([
-        getDocs(query(collection(db, 'ticket_inquiries'), limit(200))),
-        getDocs(query(collection(db, 'chat_messages'), limit(200))),
-        getDocs(query(collection(db, 'redeemed_prizes'), limit(200))),
-        getDocs(query(collection(db, 'pilot_leaderboard'), limit(100))),
+      const [pilots, chats, votes, checkins, registrations, registrationsDay3, prizes] = await Promise.all([
+        countOf(collection(db, 'pilot_leaderboard')),
+        countOf(collection(db, 'chat_messages')),
+        countOf(collection(db, 'summit_poll_votes')),
+        countOf(collection(db, 'summit_checkins')),
+        countOf(collection(db, 'ticket_inquiries')),
+        countOf(query(collection(db, 'ticket_inquiries'), where('ticketType', '==', 'SHOWCASE_PHYSICAL'))),
+        countOf(collection(db, 'redeemed_prizes')),
       ]);
 
-      setLiveCloudCounts({
-        tickets: ticketsSnap.status === 'fulfilled' ? ticketsSnap.value.size : 0,
-        chats: chatsSnap.status === 'fulfilled' ? chatsSnap.value.size : 0,
-        prizes: prizesSnap.status === 'fulfilled' ? prizesSnap.value.size : 0,
-        pilots: pilotsSnap.status === 'fulfilled' ? pilotsSnap.value.size : 0,
+      let visits: number | null = null;
+      let uniqueVisitors: number | null = null;
+      try {
+        const s = await getDoc(doc(db, 'summit_visit_stats', 'global'));
+        if (s.exists()) {
+          visits = Number(s.data().totalVisits) || 0;
+          uniqueVisitors = Number(s.data().uniqueVisitors) || 0;
+        } else {
+          visits = 0;
+          uniqueVisitors = 0;
+        }
+      } catch { /* keep null */ }
+
+      const byCountry = new Map<string, number>();
+      try {
+        const regions = await getDocs(query(collection(db, 'summit_visit_regions'), limit(500)));
+        regions.forEach((d) => {
+          const r = d.data() as any;
+          const cc = String(r.country || '').toUpperCase() || '??';
+          byCountry.set(cc, (byCountry.get(cc) || 0) + (Number(r.totalVisits) || 0));
+        });
+      } catch { /* offline */ }
+
+      const pillars: Record<string, number> = {};
+      try {
+        const stars = await getDocs(query(collection(db, 'summit_constellations'), limit(1000)));
+        stars.forEach((d) => {
+          const a = (d.data() as any).affinity;
+          if (a) pillars[a] = (pillars[a] || 0) + 1;
+        });
+      } catch { /* offline */ }
+
+      setLive({
+        pilots, chats, votes, checkins, registrations, registrationsDay3, prizes, visits, uniqueVisitors,
+        countries: Array.from(byCountry.entries()).map(([code, count]) => ({ code, count })).sort((a, b) => b.count - a.count).slice(0, 6),
+        pillars,
       });
-    } catch {
-      // Keep existing counts if offline
+      setUpdatedAt(Date.now());
     } finally {
       setIsRefreshing(false);
     }
-  };
-
-  useEffect(() => {
-    fetchLiveFirestoreCounts();
   }, []);
 
-  // Compute day multiplier and dynamic live metrics combining baseline + session telemetry + pilot profile + Firestore
-  const computedMetrics = useMemo(() => {
-    const rangeMultiplier =
-      activeRange === '3_DAYS'
-        ? 1.0
-        : activeRange === 'DAY_1'
-        ? 0.34
-        : activeRange === 'DAY_2'
-        ? 0.29
-        : 0.37;
+  useEffect(() => { refresh(); }, [refresh]);
 
-    const sessionEvents = sessionTelemetry.totalEvents || 0;
-    const cat = sessionTelemetry.categoryBreakdown || ({} as Record<string, number>);
-
-    const liveVotesDelta =
-      (profile.weekendStats?.votesSubmitted || 0) + (cat.trivia_vote || 0) + (cat.stage_cyoa || 0);
-    const liveDroneDelta =
-      (profile.droneStats?.totalFlights || 0) + (cat.drone_game || 0);
-    const live360Delta = (cat.map_360 || 0) + (cat.pillar_explore || 0);
-    const liveChatDelta = liveCloudCounts.chats + (cat.networking_chat || 0);
-    const livePrizeDelta = liveCloudCounts.prizes + (cat.reward_redeem || 0);
-    const liveRegDelta = liveCloudCounts.tickets + Math.max(leaderboard.length, liveCloudCounts.pilots) + connectedAudienceCount;
-
-    const scaleVal = (val: number) => Math.max(1, Math.round(val * rangeMultiplier));
-
-    const pillarBase = metrics.pillarEngagement;
-    const dynamicPillarEngagement: Record<string, number> = {
-      'SGX.STORY': scaleVal((pillarBase['SGX.STORY'] || 640) + (cat.navigation || 0) * 5 + 25),
-      'SGX.SHOWCASE': scaleVal((pillarBase['SGX.SHOWCASE'] || 850) + live360Delta * 9 + (cat.sponsor_click || 0) * 6),
-      'SGX.SPARK': scaleVal((pillarBase['SGX.SPARK'] || 790) + liveDroneDelta * 15 + (profile.droneStats?.totalTricks || 0) * 3),
-      'SGX.STAGE': scaleVal((pillarBase['SGX.STAGE'] || 920) + (cat.stage_cyoa || 0) * 12 + liveVotesDelta * 4),
-      'SGX.SYSTEM': scaleVal((pillarBase['SGX.SYSTEM'] || 710) + sessionEvents * 3 + leaderboard.length * 8),
-      'SGX.SYNTHESIZE': scaleVal((pillarBase['SGX.SYNTHESIZE'] || 880) + liveChatDelta * 7 + (profile.weekendStats?.connectionsMade || 0) * 14),
-    };
-
-    return {
-      totalRegistered: scaleVal(metrics.totalRegistered + liveRegDelta),
-      digitalAttendees: scaleVal(metrics.digitalAttendees + liveRegDelta),
-      physicalAttendees: scaleVal(metrics.physicalAttendees + Math.floor(liveCloudCounts.tickets * 0.35)),
-      liveStreamPeakViewers: scaleVal(metrics.liveStreamPeakViewers + connectedAudienceCount * 12 + sessionEvents * 2),
-      totalVotesCast: scaleVal(metrics.totalVotesCast + liveVotesDelta),
-      chatMessagesSent: scaleVal(metrics.chatMessagesSent + liveChatDelta),
-      xr360NodeViews: scaleVal(metrics.xr360NodeViews + live360Delta),
-      droneGamesPlayed: scaleVal(metrics.droneGamesPlayed + liveDroneDelta),
-      prizesClaimed: scaleVal(metrics.prizesClaimed + livePrizeDelta),
-      pillarEngagement: dynamicPillarEngagement,
-      countryDistribution: metrics.countryDistribution.map((c) => ({
-        ...c,
-        count: scaleVal(c.count + (c.country === 'Puerto Rico' ? liveRegDelta : Math.floor(liveRegDelta * 0.2))),
-      })),
-    };
-  }, [activeRange, metrics, sessionTelemetry, profile, leaderboard.length, liveCloudCounts, connectedAudienceCount]);
+  const fmt = (v: number | null, adminOnly = false) =>
+    v === null ? (adminOnly ? (es ? 'Solo admin' : 'Admin only') : '—') : v.toLocaleString(es ? 'es-PR' : 'en-US');
 
   const exportCSV = () => {
     playUiChirp(760);
-    const rows = [
-      ['Metric', 'Range', 'Value'],
-      ['Total Registered', activeRange, computedMetrics.totalRegistered],
-      ['Digital Attendees', activeRange, computedMetrics.digitalAttendees],
-      ['Physical Attendees (San Juan)', activeRange, computedMetrics.physicalAttendees],
-      ['Peak Live Viewers', activeRange, computedMetrics.liveStreamPeakViewers],
-      ['Total Votes Cast', activeRange, computedMetrics.totalVotesCast],
-      ['Chat Messages Sent', activeRange, computedMetrics.chatMessagesSent],
-      ['360 Node Views', activeRange, computedMetrics.xr360NodeViews],
-      ['Drone MiniGames Played', activeRange, computedMetrics.droneGamesPlayed],
-      ['Prizes Claimed', activeRange, computedMetrics.prizesClaimed],
-      ['Active Pilot XP', activeRange, profile.totalXp],
-      ['Story Engagement', activeRange, computedMetrics.pillarEngagement['SGX.STORY']],
-      ['Showcase Engagement', activeRange, computedMetrics.pillarEngagement['SGX.SHOWCASE']],
-      ['Spark Engagement', activeRange, computedMetrics.pillarEngagement['SGX.SPARK']],
-      ['Stage Engagement', activeRange, computedMetrics.pillarEngagement['SGX.STAGE']],
-      ['System Engagement', activeRange, computedMetrics.pillarEngagement['SGX.SYSTEM']],
-      ['Synthesize Engagement', activeRange, computedMetrics.pillarEngagement['SGX.SYNTHESIZE']],
+    const rows: (string | number)[][] = [
+      ['Metric', 'Value'],
+      ['Active pilots', live.pilots ?? ''],
+      ['Platform visits', live.visits ?? ''],
+      ['Unique visitors', live.uniqueVisitors ?? ''],
+      ['Poll votes', live.votes ?? ''],
+      ['Chat messages', live.chats ?? ''],
+      ['Day 3 check-ins', live.checkins ?? ''],
+      ['Registrations', live.registrations ?? ''],
+      ['Registrations Day 3', live.registrationsDay3 ?? ''],
+      ['Prizes redeemed', live.prizes ?? ''],
+      ...SGX_PILLARS.map((p) => [`Pilots with ${p.name} affinity`, live.pillars[p.key] || 0]),
+      ...live.countries.map((c) => [`Visits from ${c.code}`, c.count]),
+      ['Exported at', new Date().toISOString()],
     ];
-
-    const csvContent = 'data:text/csv;charset=utf-8,' + rows.map((e) => e.join(',')).join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([rows.map((r) => r.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Spatialgineers_Summit_Analytics_${activeRange}_2026.csv`);
+    link.href = url;
+    link.setAttribute('download', `Spatialgineers_Summit_2026_metrics_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    link.remove();
+    URL.revokeObjectURL(url);
   };
 
-  const maxPillarValue = Math.max(1, ...(Object.values(computedMetrics.pillarEngagement) as number[]));
+  const maxPillar = Math.max(1, ...SGX_PILLARS.map((p) => live.pillars[p.key] || 0));
+
+  const tiles: { icon: React.ElementType; label: string; value: string; note: string; color: string }[] = [
+    { icon: Users, label: es ? 'Pilotos activos' : 'Active pilots', value: fmt(live.pilots), note: es ? 'En el ranking global' : 'On the global ranking', color: '#00DDFF' },
+    { icon: Eye, label: es ? 'Visitas a la plataforma' : 'Platform visits', value: fmt(live.visits), note: `${fmt(live.uniqueVisitors)} ${es ? 'visitantes únicos' : 'unique visitors'}`, color: '#FDCC0D' },
+    { icon: Vote, label: es ? 'Votos en encuestas' : 'Poll votes', value: fmt(live.votes), note: es ? 'Encuestas del keynote' : 'Keynote polls', color: '#FDCC0D' },
+    { icon: MessageSquare, label: es ? 'Mensajes en el chat' : 'Chat messages', value: fmt(live.chats), note: es ? 'Networking del Summit' : 'Summit networking', color: '#00DDFF' },
+    { icon: MapPin, label: es ? 'Check-ins Día 3' : 'Day 3 check-ins', value: fmt(live.checkins), note: 'Chroma Space Studios', color: '#B87000' },
+    { icon: Ticket, label: es ? 'Inscritos (SGX Pass)' : 'Registrations (SGX Pass)', value: fmt(live.registrations, true), note: live.registrationsDay3 === null ? (es ? 'Visible para el equipo' : 'Visible to the team') : `${fmt(live.registrationsDay3)} ${es ? 'quieren el Día 3' : 'want Day 3'}`, color: '#FFFFFF' },
+    { icon: Trophy, label: es ? 'Premios canjeados' : 'Prizes redeemed', value: fmt(live.prizes, true), note: es ? 'Tienda de recompensas' : 'Rewards store', color: '#FDCC0D' },
+    { icon: Zap, label: es ? 'Tu progreso' : 'Your progress', value: `${profile.totalXp.toLocaleString()} XP`, note: `${es ? 'Nivel' : 'Level'} ${profile.level} · ${es ? 'récord dron' : 'drone best'} ${profile.droneStats?.highScore || 0}`, color: '#888888' },
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Top Header & Day Range Switcher */}
       <div className="sgx-crystal-card p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2">
             <BarChart3 className="w-5 h-5 text-[#00DDFF]" />
             <h2 className="text-base sm:text-lg font-extrabold text-white uppercase tracking-wider font-['Orbitron',sans-serif]">
-              DASHBOARD DE TELEMETRÍA & ENGAGEMENT DEL SUMMIT
+              {es ? 'Telemetría del Summit' : 'Summit telemetry'}
             </h2>
-            <span className="px-2 py-0.5 text-[10px] font-mono font-bold bg-[#FDCC0D]/20 border border-[#FDCC0D] text-[#FDCC0D]">
-              EN VIVO • {sessionTelemetry.totalEvents} PULSOS SESIÓN
+            <span className="px-2 py-0.5 text-[11px] font-mono font-bold bg-[#FDCC0D]/20 border border-[#FDCC0D] text-[#FDCC0D]">
+              {es ? 'DATOS REALES' : 'REAL DATA'}
             </span>
           </div>
           <p className="text-xs text-slate-300 mt-1 font-mono">
-            Métricas sincronizadas con Firestore, Telemetría 3D (.GLB), Votación CYOA y Récords de Pilotos. Antes del evento, algunos valores de referencia son simulados y no representan asistencia real.
+            {es
+              ? 'Conteos en vivo desde Firestore. Sin estimados ni valores de referencia.'
+              : 'Live counts from Firestore. No estimates or placeholder values.'}
+            {updatedAt && ` ${es ? 'Actualizado' : 'Updated'} ${new Date(updatedAt).toLocaleTimeString(es ? 'es-PR' : 'en-US', { hour: '2-digit', minute: '2-digit' })}.`}
           </p>
         </div>
 
@@ -197,353 +215,151 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = ({
             onClick={() => {
               playUiChirp(680);
               recordEvent('pillar_explore', 'manual_telemetry_sync', { source: 'SummitAnalyticsView' });
-              fetchLiveFirestoreCounts();
+              refresh();
             }}
-            className="px-3 py-1.5 bg-[#161616] hover:bg-[#32527B] border border-[#00DDFF]/50 text-[#00DDFF] text-xs font-mono font-bold flex items-center space-x-1.5 cursor-pointer transition-colors"
+            className="min-h-[40px] px-3 py-1.5 bg-[#161616] hover:bg-[#32527B] border border-[#00DDFF]/50 text-[#00DDFF] text-xs font-mono font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>SINCRONIZAR PULSO</span>
+            <span>{es ? 'Actualizar' : 'Refresh'}</span>
           </button>
-
           <button
             type="button"
-            onClick={() => {
-              playUiChirp(620);
-              setIsProfileModalOpen(true);
-            }}
-            className="px-3 py-1.5 bg-[#FDCC0D]/15 hover:bg-[#FDCC0D] hover:text-black border border-[#FDCC0D] text-[#FDCC0D] text-xs font-mono font-bold flex items-center space-x-1.5 cursor-pointer transition-colors"
+            onClick={() => { playUiChirp(620); setIsProfileModalOpen(true); }}
+            className="min-h-[40px] px-3 py-1.5 bg-[#FDCC0D]/15 hover:bg-[#FDCC0D] hover:text-black border border-[#FDCC0D] text-[#FDCC0D] text-xs font-mono font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
           >
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>MI BITÁCORA XP ({profile.totalXp} XP)</span>
+            <span>{es ? 'Mi bitácora' : 'My log'} ({profile.totalXp} XP)</span>
           </button>
-
-          <button
-            type="button"
-            onClick={exportCSV}
-            className="sgx-btn-cyan px-3.5 py-1.5 text-xs font-bold font-mono flex items-center space-x-1.5 cursor-pointer"
-          >
+          <button type="button" onClick={exportCSV} className="min-h-[40px] sgx-btn-cyan px-3.5 py-1.5 text-xs font-bold font-mono flex items-center gap-1.5 cursor-pointer">
             <Download className="w-3.5 h-3.5" />
-            <span>EXPORTAR CSV</span>
+            <span>{es ? 'Exportar CSV' : 'Export CSV'}</span>
           </button>
         </div>
       </div>
 
-      {/* Interactive Day Range Filter Tabs */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-[#0E0E0E]/90 border border-[#32527B] p-2.5 font-mono text-xs">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {[
-            { id: '3_DAYS', label: '3 DÍAS (GLOBAL ACUMULADO)' },
-            { id: 'DAY_1', label: 'DÍA 1 · PILARES & INITIATES' },
-            { id: 'DAY_2', label: 'DÍA 2 · DÍA DE LA INDUSTRIA' },
-            { id: 'DAY_3', label: 'DÍA 3 · SGX SHOWCASE' },
-          ].map((tab) => {
-            const isActive = activeRange === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => {
-                  playUiChirp(700);
-                  setActiveRange(tab.id as any);
-                }}
-                className={`px-3 py-1.5 font-bold transition-all cursor-pointer ${
-                  isActive
-                    ? 'bg-[#FDCC0D] text-black shadow-[0_0_14px_rgba(253,204,13,0.45)]'
-                    : 'bg-black/50 text-slate-300 hover:text-white border border-white/10'
-                }`}
-                style={{
-                  clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)',
-                }}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-
-        <button
-          type="button"
-          onClick={() => {
-            playUiChirp(740);
-            exportEventsCSV();
-          }}
-          className="text-[11px] text-[#00DDFF] hover:underline flex items-center gap-1 cursor-pointer px-2 py-1"
-        >
-          <Activity className="w-3.5 h-3.5" />
-          <span>Descargar Log Crudo de Sesión ({sessionTelemetry.totalEvents} eventos)</span>
-        </button>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {tiles.map((t) => {
+          const Icon = t.icon;
+          return (
+            <div key={t.label} className="p-3.5 sgx-crystal-card flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border flex items-center justify-center shrink-0" style={{ borderColor: t.color, color: t.color }}>
+                <Icon className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[11px] text-slate-400 uppercase font-mono block">{t.label}</span>
+                <span className="text-xl font-extrabold text-white font-mono tabular-nums block truncate">{t.value}</span>
+                <span className="text-[11px] block truncate" style={{ color: t.color }}>{t.note}</span>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Primary KPI Grid (8 Cards) */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {/* Total Registered */}
-        <div className="p-3.5 sgx-crystal-card flex items-center space-x-3">
-          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#00DDFF] flex items-center justify-center text-[#00DDFF] shrink-0">
-            <Users className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 uppercase font-mono block">Asistentes Totales</span>
-            <span className="text-xl font-extrabold text-white font-mono tabular-nums">
-              {computedMetrics.totalRegistered.toLocaleString()}
-            </span>
-            <span className="text-[9px] text-[#00DDFF] block">
-              {computedMetrics.physicalAttendees.toLocaleString()} Presenciales / {computedMetrics.digitalAttendees.toLocaleString()} Digital
-            </span>
-          </div>
-        </div>
-
-        {/* Live Stream Peak Viewers */}
-        <div className="p-3.5 sgx-crystal-card flex items-center space-x-3">
-          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#FDCC0D] flex items-center justify-center text-[#FDCC0D] shrink-0">
-            <Tv className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 uppercase font-mono block">Pico Audiencia Stream</span>
-            <span className="text-xl font-extrabold text-white font-mono tabular-nums">
-              {computedMetrics.liveStreamPeakViewers.toLocaleString()}
-            </span>
-            <span className="text-[9px] text-[#FDCC0D] block">YouTube Live + Roblox</span>
-          </div>
-        </div>
-
-        {/* Total Votes Cast */}
-        <div className="p-3.5 sgx-crystal-card flex items-center space-x-3">
-          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#FDCC0D] flex items-center justify-center text-[#FDCC0D] shrink-0">
-            <Vote className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 uppercase font-mono block">Votos Registrados</span>
-            <span className="text-xl font-extrabold text-white font-mono tabular-nums">
-              {computedMetrics.totalVotesCast.toLocaleString()}
-            </span>
-            <span className="text-[9px] text-[#FDCC0D] block">
-              CYOA & Trivia (+{profile.weekendStats?.votesSubmitted || 0} tuyos)
-            </span>
-          </div>
-        </div>
-
-        {/* 360 Map Node Views */}
-        <div className="p-3.5 sgx-crystal-card flex items-center space-x-3">
-          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#00DDFF] flex items-center justify-center text-[#00DDFF] shrink-0">
-            <Eye className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 uppercase font-mono block">Vistas Nodos 360° & GLB</span>
-            <span className="text-xl font-extrabold text-white font-mono tabular-nums">
-              {computedMetrics.xr360NodeViews.toLocaleString()}
-            </span>
-            <span className="text-[9px] text-[#00DDFF] block">7 Núcleos 3D + Sedes XR</span>
-          </div>
-        </div>
-
-        {/* Chat Messages */}
-        <div className="p-3.5 sgx-crystal-card flex items-center space-x-3">
-          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#FDCC0D] flex items-center justify-center text-[#FDCC0D] shrink-0">
-            <MessageSquare className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 uppercase font-mono block">Mensajes en Chat</span>
-            <span className="text-xl font-extrabold text-white font-mono tabular-nums">
-              {computedMetrics.chatMessagesSent.toLocaleString()}
-            </span>
-            <span className="text-[9px] text-[#FDCC0D] block">5 Canales + SGX.Match</span>
-          </div>
-        </div>
-
-        {/* Drone MiniGames Played */}
-        <div className="p-3.5 sgx-crystal-card flex items-center space-x-3">
-          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#FFBB00] flex items-center justify-center text-[#FFBB00] shrink-0">
-            <Gamepad2 className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 uppercase font-mono block">Partidas de Drones 3D</span>
-            <span className="text-xl font-extrabold text-white font-mono tabular-nums">
-              {computedMetrics.droneGamesPlayed.toLocaleString()}
-            </span>
-            <span className="text-[9px] text-[#FFBB00] block">
-              Récord Local: {profile.droneStats?.highScore || 0} PTS
-            </span>
-          </div>
-        </div>
-
-        {/* Prizes Claimed */}
-        <div className="p-3.5 sgx-crystal-card flex items-center space-x-3">
-          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#FDCC0D] flex items-center justify-center text-[#FDCC0D] shrink-0">
-            <Trophy className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 uppercase font-mono block">Premios Canjeados</span>
-            <span className="text-xl font-extrabold text-white font-mono tabular-nums">
-              {computedMetrics.prizesClaimed.toLocaleString()}
-            </span>
-            <span className="text-[9px] text-[#FDCC0D] block">Tienda de Recompensas XP</span>
-          </div>
-        </div>
-
-        {/* System Efficiency */}
-        <div className="p-3.5 sgx-crystal-card flex items-center space-x-3">
-          <div className="w-10 h-10 rounded bg-[var(--sgx-bg)] border border-[#00DDFF] flex items-center justify-center text-[#00DDFF] shrink-0">
-            <TrendingUp className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 uppercase font-mono block">Sincronización Firestore</span>
-            <span className="text-xl font-extrabold text-white font-mono tabular-nums">60 FPS</span>
-            <span className="text-[9px] text-[#00DDFF] block">
-              {leaderboard.length} Pilotos en Ranking
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Engagement by Pillar & Country Distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left 7 Cols: Pillar Engagement Bars (100% Official SGX Colors) */}
         <div className="lg:col-span-7 sgx-crystal-card p-4 sm:p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-[var(--sgx-secondary)]/60 pb-2.5">
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-between border-b border-[var(--sgx-secondary)]/60 pb-2.5 gap-2">
+            <div className="flex items-center gap-2">
               <Layers className="w-4 h-4 text-[#00DDFF]" />
               <span className="text-xs font-bold text-white uppercase font-['Orbitron',sans-serif]">
-                INTERÉS & PARTICIPACIÓN POR PILAR SGX (.GLB CORES)
+                {es ? 'Pilotos por pilar de afinidad' : 'Pilots by affinity pillar'}
               </span>
             </div>
-            <span className="text-[10px] text-[#FDCC0D] font-mono">
-              {activeRange === '3_DAYS' ? 'ACUMULADO 3 DÍAS' : activeRange}
-            </span>
+            <span className="text-[11px] text-slate-400 font-mono">{es ? 'Constelaciones' : 'Constellations'}</span>
           </div>
-
           <div className="space-y-3.5">
-            {Object.entries(computedMetrics.pillarEngagement).map(([pillar, val]) => {
-              const numVal = Number(val) || 0;
-              const pct = Math.round((numVal / maxPillarValue) * 100);
-              // Strict Official Spatialgineers Palette
-              const color =
-                pillar === 'SGX.STAGE'
-                  ? '#FFFFFF'
-                  : pillar === 'SGX.SHOWCASE'
-                  ? '#00DDFF'
-                  : pillar === 'SGX.SPARK'
-                  ? '#FFBB00'
-                  : pillar === 'SGX.STORY'
-                  ? '#FDCC0D'
-                  : pillar === 'SGX.SYSTEM'
-                  ? '#00DDFF'
-                  : '#FDCC0D';
-
+            {SGX_PILLARS.map((p) => {
+              const val = live.pillars[p.key] || 0;
+              const pct = Math.round((val / maxPillar) * 100);
               return (
-                <div key={pillar} className="space-y-1">
+                <div key={p.key} className="space-y-1">
                   <div className="flex items-center justify-between text-xs font-mono">
                     <span className="font-bold text-white flex items-center gap-2">
-                      <span
-                        className="w-2 h-2 inline-block"
-                        style={{ backgroundColor: color }}
-                      />
-                      {pillar}
+                      <span className="w-2 h-2 inline-block" style={{ backgroundColor: p.color }} />
+                      {p.name}
                     </span>
-                    <span className="text-slate-300 tabular-nums">
-                      {val.toLocaleString()} interacciones ({pct}%)
-                    </span>
+                    <span className="text-slate-300 tabular-nums">{val.toLocaleString()} {es ? 'pilotos' : 'pilots'}</span>
                   </div>
                   <div className="w-full h-2.5 bg-black/70 border border-[#32527B]/70 overflow-hidden">
-                    <div
-                      className="h-full transition-all duration-500"
-                      style={{ width: `${pct}%`, backgroundColor: color }}
-                    />
+                    <div className="h-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: p.color }} />
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* Live Session Telemetry Breakdown */}
           <div className="pt-3 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-xs">
             <div className="p-2.5 bg-black/50 border border-white/10">
-              <span className="text-[10px] text-slate-400 block">TU NIVEL PILOTO</span>
-              <strong className="text-[#FDCC0D] text-sm">
-                Nv.{profile.level} ({profile.totalXp} XP)
-              </strong>
+              <span className="text-[11px] text-slate-400 block">{es ? 'TU NIVEL' : 'YOUR LEVEL'}</span>
+              <strong className="text-[#FDCC0D] text-sm">Nv.{profile.level} ({profile.totalXp} XP)</strong>
             </div>
             <div className="p-2.5 bg-black/50 border border-white/10">
-              <span className="text-[10px] text-slate-400 block">TIEMPO ACTIVO</span>
-              <strong className="text-[#00DDFF] text-sm tabular-nums">
-                {sessionTelemetry.durationMinutes} min
-              </strong>
+              <span className="text-[11px] text-slate-400 block">{es ? 'TIEMPO EN ESTA SESIÓN' : 'TIME THIS SESSION'}</span>
+              <strong className="text-[#00DDFF] text-sm tabular-nums">{sessionTelemetry.durationMinutes} min</strong>
             </div>
             <div className="p-2.5 bg-black/50 border border-white/10">
-              <span className="text-[10px] text-slate-400 block">TRUCOS DRON 3D</span>
-              <strong className="text-[#FFBB00] text-sm tabular-nums">
-                {profile.droneStats?.totalTricks || 0} Maniobras
-              </strong>
+              <span className="text-[11px] text-slate-400 block">{es ? 'TRUCOS DE DRON' : 'DRONE TRICKS'}</span>
+              <strong className="text-[#B87000] text-sm tabular-nums">{profile.droneStats?.totalTricks || 0}</strong>
             </div>
             <div className="p-2.5 bg-black/50 border border-white/10">
-              <span className="text-[10px] text-slate-400 block">PILAR FAVORITO</span>
-              <strong className="text-white text-sm truncate block">
-                {sessionTelemetry.mostActivePillar}
-              </strong>
+              <span className="text-[11px] text-slate-400 block">{es ? 'TU PILAR MÁS VISITADO' : 'YOUR MOST VISITED PILLAR'}</span>
+              <strong className="text-white text-sm truncate block">{sessionTelemetry.mostActivePillar}</strong>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => { playUiChirp(740); exportEventsCSV(); }}
+            className="text-[11px] text-[#00DDFF] hover:underline flex items-center gap-1 cursor-pointer py-2"
+          >
+            <Activity className="w-3.5 h-3.5" />
+            <span>{es ? 'Descargar el registro de esta sesión' : 'Download this session log'} ({sessionTelemetry.totalEvents} {es ? 'eventos' : 'events'})</span>
+          </button>
         </div>
 
-        {/* Right 5 Cols: Country Distribution & Top Live Pilots */}
         <div className="lg:col-span-5 sgx-crystal-card p-4 sm:p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-[var(--sgx-secondary)]/60 pb-2.5">
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-between border-b border-[var(--sgx-secondary)]/60 pb-2.5 gap-2">
+            <div className="flex items-center gap-2">
               <Globe className="w-4 h-4 text-[#FDCC0D]" />
               <span className="text-xs font-bold text-white uppercase font-['Orbitron',sans-serif]">
-                DISTRIBUCIÓN GEOGRÁFICA & TOP PILOTOS
+                {es ? 'Desde dónde nos visitan' : 'Where visitors come from'}
               </span>
             </div>
-            <span className="text-[10px] text-slate-400 font-mono">EN VIVO</span>
+            <span className="text-[11px] text-slate-400 font-mono">{es ? 'Visitas' : 'Visits'}</span>
           </div>
-
           <div className="space-y-1.5">
-            {computedMetrics.countryDistribution.map((item) => (
-              <div
-                key={item.country}
-                className="p-2 bg-[var(--sgx-bg)]/90 border border-[#32527B]/70 flex items-center justify-between text-xs font-mono"
-              >
-                <div className="flex items-center space-x-2">
-                  <span className="text-base">{item.flag}</span>
-                  <span className="text-white font-bold">{item.country}</span>
+            {!live.countries.length && (
+              <p className="text-xs font-mono text-slate-400">{es ? 'Todavía no hay visitas registradas.' : 'No visits recorded yet.'}</p>
+            )}
+            {live.countries.map((c) => (
+              <div key={c.code} className="p-2 bg-[var(--sgx-bg)]/90 border border-[#32527B]/70 flex items-center justify-between text-xs font-mono">
+                <div className="flex items-center gap-2">
+                  <span className="text-base" aria-hidden="true">{flagOf(c.code)}</span>
+                  <span className="text-white font-bold">{c.code}</span>
                 </div>
-                <span className="text-[#00DDFF] font-bold tabular-nums">
-                  {item.count.toLocaleString()} Asistentes
-                </span>
+                <span className="text-[#00DDFF] font-bold tabular-nums">{c.count.toLocaleString()} {es ? 'visitas' : 'visits'}</span>
               </div>
             ))}
           </div>
 
-          {/* Live Top 3 Leaderboard Snapshot */}
           <div className="pt-2 border-t border-white/10 space-y-2">
-            <div className="flex items-center justify-between text-[11px] font-mono">
+            <div className="flex items-center justify-between text-[11px] font-mono gap-2">
               <span className="text-[#FDCC0D] font-bold flex items-center gap-1">
                 <Zap className="w-3.5 h-3.5" />
-                <span>TOP PILOTOS EN CLASIFICACIÓN GLOBAL</span>
+                <span>{es ? 'Top pilotos' : 'Top pilots'}</span>
               </span>
-              <button
-                type="button"
-                onClick={() => {
-                  playUiChirp(640);
-                  setIsProfileModalOpen(true);
-                }}
-                className="text-[#00DDFF] hover:underline cursor-pointer"
-              >
-                Ver Ranking Completo →
+              <button type="button" onClick={() => { playUiChirp(640); setIsProfileModalOpen(true); }} className="text-[#00DDFF] hover:underline cursor-pointer py-2">
+                {es ? 'Ver ranking completo →' : 'Full ranking →'}
               </button>
             </div>
             <div className="space-y-1.5 font-mono text-xs">
+              {!leaderboard.length && <p className="text-slate-400">{es ? 'El ranking empieza con los primeros pilotos.' : 'The ranking starts with the first pilots.'}</p>}
               {leaderboard.slice(0, 3).map((entry, idx) => (
-                <div
-                  key={entry.uid}
-                  className="px-2.5 py-1.5 bg-black/60 border border-white/10 flex items-center justify-between"
-                >
+                <div key={entry.uid} className="px-2.5 py-1.5 bg-black/60 border border-white/10 flex items-center justify-between">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-[#FDCC0D] font-black">#{idx + 1}</span>
                     <span className="text-white font-bold truncate">{entry.nickname}</span>
-                    <span className="text-[10px] text-slate-400">Nv.{entry.level}</span>
+                    <span className="text-[11px] text-slate-400">Nv.{entry.level}</span>
                   </div>
-                  <span className="text-[#00DDFF] font-extrabold tabular-nums">
-                    {entry.totalXp.toLocaleString()} XP
-                  </span>
+                  <span className="text-[#00DDFF] font-extrabold tabular-nums">{entry.totalXp.toLocaleString()} XP</span>
                 </div>
               ))}
             </div>

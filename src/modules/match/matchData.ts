@@ -442,6 +442,53 @@ export async function sendMatchConnectIntent(
 }
 
 /**
+ * The person who connected first only learns about the match when the other side
+ * connects back. On load, check each intent we sent for a match doc (members can
+ * read it) and add the ones we don't have yet. Returns the newly found matches.
+ */
+export async function syncRemoteMatches(myUid: string): Promise<MutualMatch[]> {
+  if (!db || !myUid || myUid === 'local_player') return [];
+  const known = new Set(getLocalMatches().map((m) => m.id));
+  const found: MutualMatch[] = [];
+  for (const toUid of getSentIntents()) {
+    const [a, b] = [myUid, toUid].sort();
+    const matchId = `${a}__${b}`;
+    if (known.has(matchId)) continue;
+    try {
+      const snap = await getDoc(doc(db, 'matches', matchId));
+      if (!snap.exists()) continue;
+      const card = await getDoc(doc(db, 'match_profiles', toUid));
+      const c = card.exists() ? (card.data() as any) : {};
+      const other: MatchCandidate = {
+        uid: toUid,
+        displayName: c.displayName || 'Piloto SGX',
+        organization: c.organization || '',
+        roleTitle: c.roleTitle || '',
+        avatarUrl: '',
+        avatarSeed: c.avatarSeed || toUid,
+        xp: 0,
+        profile: c.profile as MatchProfile,
+      };
+      found.push({
+        id: matchId, userA: a, userB: b,
+        createdAt: (snap.data() as any).createdAt || new Date().toISOString(),
+        xpAwarded: true, notes: {},
+        candidateA: a === toUid ? other : undefined,
+        candidateB: b === toUid ? other : undefined,
+      });
+    } catch {
+      /* offline or not a member: skip */
+    }
+  }
+  if (found.length) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.MATCHES, JSON.stringify([...found, ...getLocalMatches()]));
+    } catch { /* ignore */ }
+  }
+  return found;
+}
+
+/**
  * Load all mutual matches for user
  */
 export function getLocalMatches(): MutualMatch[] {
@@ -474,7 +521,7 @@ export async function fetchCandidatesDeck(
       const snap = await getDocs(query(collection(db, 'match_profiles'), limit(300)));
       snap.forEach(d => {
         const data = d.data() as any;
-        if (!data?.profile || data.profile.visible === false || d.id === myUid) return;
+        if (!data?.profile || typeof data.profile.pitch !== 'string' || !data.profile.pitch || data.profile.visible === false || d.id === myUid) return;
         pool.push({
           uid: d.id,
           displayName: data.displayName || 'Piloto SGX',
@@ -604,7 +651,10 @@ export async function toggleProfileVisibilityAdmin(uid: string, visible: boolean
       await setDoc(doc(db, 'players', uid), {
         matchProfile: { visible }
       }, { merge: true });
-      await setDoc(doc(db, 'match_profiles', uid), { profile: { visible } }, { merge: true }).catch(() => {});
+      // Only touch an existing public card; never create a partial one.
+      const cardRef = doc(db, 'match_profiles', uid);
+      const card = await getDoc(cardRef).catch(() => null);
+      if (card?.exists()) await setDoc(cardRef, { profile: { visible } }, { merge: true }).catch(() => {});
     }
   } catch (err) {
     console.warn('Firestore toggleProfileVisibilityAdmin note:', err);

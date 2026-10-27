@@ -307,7 +307,10 @@ export type WebSocketMessageType =
   | 'SAVE_PRESET'
   | 'DELETE_PRESET'
   | 'FX_PRESET_TRIGGER'
-  | 'SEND_REACTION';
+  | 'SEND_REACTION'
+  | 'AUTH'
+  | 'AUTH_RESULT'
+  | 'ERROR';
 
 export interface CustomVisualAssets {
   customBackgroundUrl?: string | null;

@@ -13,7 +13,7 @@ import {
 import { triggerPresetOverride, processAudienceReaction } from './visualizerBridge';
 import { verifyAdminToken } from '../security/adminAuth';
 import { TokenBucket } from '../security/rateLimit';
-import { isValidId, LIMITS, validateQuestionList } from '../security/validation';
+import { cleanNickname, isValidId, LIMITS, validateQuestionList } from '../security/validation';
 
 export interface ClientMeta {
   tenantId: string;
@@ -100,6 +100,7 @@ export function setupWebSocketEngine(server: http.Server) {
       // The voter id is fixed for the life of the socket; vote payloads cannot change it.
       const rawUserId = url.searchParams.get('userId');
       const userId = isValidId(rawUserId) ? rawUserId : `user_${Math.random().toString(36).substring(2, 11)}`;
+      const nickname = cleanNickname(url.searchParams.get('nickname'));
 
       const meta: ClientMeta = { tenantId, eventId, userId, role, isAdmin: false };
       clientMap.set(ws, meta);
@@ -148,7 +149,7 @@ export function setupWebSocketEngine(server: http.Server) {
               const matchedOpt = curQ.options.find(o => o.code === optionCode) || curQ.options[optionCode - 1];
               if (matchedOpt) {
                 messageType = 'SUBMIT_VOTE';
-                payload = { optionId: matchedOpt.id };
+                payload = { optionId: matchedOpt.id, nickname };
               }
             }
           } else {
@@ -196,7 +197,7 @@ export function setupWebSocketEngine(server: http.Server) {
 
             case 'SUBMIT_VOTE':
             case 'VOTE_SUBMIT': {
-              const result = processVoteSubmission(room, userId, payload || {}, broadcastToRoom);
+              const result = processVoteSubmission(room, userId, { ...(payload || {}), nickname: payload?.nickname || nickname }, broadcastToRoom);
               if (result.status === 'ACCEPTED') {
                 const ok = result as Extract<typeof result, { status: 'ACCEPTED' }>;
                 ws.send(JSON.stringify({

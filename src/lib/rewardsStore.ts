@@ -319,10 +319,14 @@ export async function redeemPrize(
       }
       return { success: false, error: 'No se pudo canjear este premio ahora mismo (agotado o no disponible).' };
     }
-    // Offline or other transient error: keep the voucher locally.
+    if (err?.code === 'not-found') {
+      return { success: false, error: 'Este premio todavía no está activo en la tienda.' };
+    }
+    // A voucher only counts once the server has it (staff verify against Firestore).
+    return { success: false, error: 'Sin conexión: no se pudo canjear. Inténtalo de nuevo en un momento.' };
   }
 
-  // Keep a local copy of the voucher (offline view of "Mis premios")
+  // Keep a local copy of the confirmed voucher (offline view of "Mis premios")
   try {
     const updated = [redeemedItem, ...readLocalRedeemed().filter(p => p.id !== redemptionId)];
     localStorage.setItem(LOCAL_STORAGE_REDEEMED_KEY, JSON.stringify(updated));

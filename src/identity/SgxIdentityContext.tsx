@@ -100,12 +100,15 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   // Browser storage full: tell the pilot once instead of losing progress silently.
   useEffect(() => {
-    const onFull = () => {
+    const onFull = (e: Event) => {
       const es = langRef.current === 'es';
+      const saved = !!(e as CustomEvent).detail?.saved;
       pushToast({
         tag: es ? 'ALMACENAMIENTO' : 'STORAGE',
         title: es ? 'Tu navegador está sin espacio' : 'Your browser is out of space',
-        detail: es ? 'Guardamos tu pase sin la imagen de la Holo Card. Libera espacio o expórtala de nuevo.' : 'We saved your pass without the Holo Card image. Free some space or export it again.',
+        detail: saved
+          ? (es ? 'Guardamos tu pase sin la imagen de la Holo Card. Libera espacio o expórtala de nuevo.' : 'We saved your pass without the Holo Card image. Free some space or export it again.')
+          : (es ? 'No pudimos guardar tu pase en este navegador. Libera espacio (o sal del modo privado) y vuelve a intentarlo.' : "We couldn't save your pass in this browser. Free some space (or leave private mode) and try again."),
         tone: 'telemetry',
       });
     };

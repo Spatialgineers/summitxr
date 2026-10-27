@@ -3,6 +3,9 @@ import { HeaderNav, PageRoute } from './components/common/HeaderNav';
 import { InteractiveSpatialCanvas } from './components/common/InteractiveSpatialCanvas';
 import { AdminAuthGuard } from './components/admin/AdminAuthGuard';
 import { LazyBoundary } from './components/common/LazyBoundary';
+import { SummitPushAlertToast } from './components/summit/SummitPushAlertToast';
+import { subscribeAnnouncement } from './lib/summitData';
+import type { SummitNotification } from './types/summit';
 import { LazyFallback } from './components/common/LazyFallback';
 import { SummitLandingPage } from './components/summit/SummitLandingPage';
 
@@ -231,6 +234,20 @@ export default function App() {
   };
 
   // The live engine (votes, presets, stage) only runs on the pages that use it.
+  // CMS announcements reach every page; the Summit landing shows them itself.
+  const [announcement, setAnnouncement] = useState<SummitNotification | null>(null);
+  useEffect(() => {
+    if (currentPage === 'summit') return;
+    return subscribeAnnouncement(setAnnouncement);
+  }, [currentPage]);
+
+  const [engineNotice, setEngineNotice] = useState<string | null>(null);
+  useEffect(() => {
+    if (!engineNotice) return;
+    const t = window.setTimeout(() => setEngineNotice(null), 8000);
+    return () => window.clearTimeout(t);
+  }, [engineNotice]);
+
   const needsLiveEngine = currentPage === 'admin' || currentPage === 'play' || currentPage === 'stage' || currentPage === 'multiview' || currentPage === 'analytics';
   const isAdminRef = useRef(isAdmin);
   isAdminRef.current = isAdmin;
@@ -267,7 +284,7 @@ export default function App() {
     const connectWS = () => {
       if (isDisposed) return;
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${window.location.host}/ws?tenantId=${selectedTenantId}&eventId=${selectedEventId}&userId=${userProfile.id}`;
+      const wsUrl = `${protocol}//${window.location.host}/ws?tenantId=${selectedTenantId}&eventId=${selectedEventId}&userId=${userProfile.id}&nickname=${encodeURIComponent(userProfile.nickname || '')}`;
 
       try {
         const ws = new WebSocket(wsUrl);
@@ -472,6 +489,22 @@ export default function App() {
           if (me) {
             setUserProfile(me);
           }
+        }
+        break;
+      }
+
+      case 'ERROR': {
+        // The live engine refused a director action (e.g. an invalid question import).
+        // Tell the director and pull the server's real state so the console doesn't drift.
+        const reason = (msg.payload as any)?.error || 'acción rechazada';
+        setEngineNotice(`El servidor rechazó la acción: ${reason}`);
+        fetchInitialState();
+        break;
+      }
+
+      case 'AUTH_RESULT': {
+        if (isAdminRef.current && !(msg.payload as any)?.isAdmin) {
+          setEngineNotice('El servidor no verificó tu sesión de admin: vuelve a entrar con Google (info@ o support@).');
         }
         break;
       }
@@ -1047,6 +1080,20 @@ export default function App() {
       {/* Persistent 3D Three.js Spatial Atmosphere & Cursor-Reactive Canvas */}
       <InteractiveSpatialCanvas />
       
+      {currentPage !== 'summit' && (
+        <SummitPushAlertToast
+          notification={announcement}
+          onClose={() => setAnnouncement(null)}
+          onActionClick={(url) => { if (url) window.location.href = url; }}
+        />
+      )}
+
+      {engineNotice && (
+        <div role="alert" className="fixed top-16 left-1/2 -translate-x-1/2 z-[140] max-w-[92vw] px-4 py-2 bg-red-950/90 border border-red-500/60 text-red-100 text-xs font-mono">
+          {engineNotice}
+        </div>
+      )}
+
       {/* Application Content Layer */}
       <div className={`relative z-10 w-full ${currentPage === 'summit' && activeSummitSection === 'OVERVIEW' ? 'h-full overflow-hidden' : 'min-h-screen'}`}>
         <LazyBoundary fallback={<LazyFallback fullScreen />}>

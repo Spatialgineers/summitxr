@@ -29,7 +29,8 @@ import { MatchConnectionSheet } from './MatchConnectionSheet';
 import { 
   loadUserMatchProfile, 
   getMatchModuleKillSwitch, 
-  getLocalMatches 
+  getLocalMatches,
+  syncRemoteMatches
 } from './matchData';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -106,6 +107,12 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
       }
       setMatchCount(getLocalMatches().length);
       setLoadingProfile(false);
+      // Matches completed by the other person while we were away.
+      const fresh = await syncRemoteMatches(myUid);
+      if (fresh.length) {
+        setMatchCount(getLocalMatches().length);
+        setCelebrationMatch(fresh[0]);
+      }
     }
     load();
   }, [myUid, syncMatchDetails]);

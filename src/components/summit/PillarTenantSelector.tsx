@@ -1,3 +1,4 @@
+import { pillarIcon } from '../../lib/sgxPillars';
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Tenant } from '../../types/engine';
@@ -59,12 +60,12 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
 
   const getIconForPillar = (pillarId?: string, sizeClass: string = "w-4 h-4") => {
     const cdnMap: Record<string, string> = {
-      'SGX.STORY': 'https://cdn.spatialgineers.com/Branding/Pilares/Story1.png',
-      'SGX.SHOWCASE': 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
-      'SGX.SPARK': 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png',
-      'SGX.STAGE': 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png',
-      'SGX.SYSTEM': 'https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png',
-      'SGX.SYNTHESIZE': 'https://cdn.spatialgineers.com/Branding/Pilares/Synthesize1.png',
+      'SGX.STORY': pillarIcon('STORY'),
+      'SGX.SHOWCASE': pillarIcon('SHOWCASE'),
+      'SGX.SPARK': pillarIcon('SPARK'),
+      'SGX.STAGE': pillarIcon('STAGE'),
+      'SGX.SYSTEM': pillarIcon('SYSTEM'),
+      'SGX.SYNTHESIZE': pillarIcon('SYNTHESIZE'),
     };
 
     if (pillarId && cdnMap[pillarId]) {

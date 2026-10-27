@@ -1,3 +1,4 @@
+import { pillarIcon } from '../../lib/sgxPillars';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Sparkles,
@@ -48,42 +49,42 @@ const SGX_PILLARS: PillarItem[] = [
     name: 'SGX.STORY',
     tag: 'Narrativa & Lore',
     color: '#FDCC0D',
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Story1.png'
+    iconUrl: pillarIcon('STORY')
   },
   {
     id: 'showcase',
     name: 'SGX.SHOWCASE',
     tag: 'Expo & Demos XR',
     color: '#00DDFF',
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png'
+    iconUrl: pillarIcon('SHOWCASE')
   },
   {
     id: 'spark',
     name: 'SGX.SPARK',
     tag: 'Juegos & Retos',
     color: '#FFBB00',
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png'
+    iconUrl: pillarIcon('SPARK')
   },
   {
     id: 'stage',
     name: 'SGX.STAGE',
     tag: 'Keynotes & Show',
     color: '#38BDF8',
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png'
+    iconUrl: pillarIcon('STAGE')
   },
   {
     id: 'systems',
     name: 'SGX.SYSTEM',
     tag: 'Ingeniería & IA',
     color: '#5F86B4',
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png'
+    iconUrl: pillarIcon('SYSTEM')
   },
   {
     id: 'synthesize',
     name: 'SGX.SYNTHESIZE',
     tag: 'Alianzas & Red',
     color: '#10B981',
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Synthesize1.png'
+    iconUrl: pillarIcon('SYNTHESIZE')
   }
 ];
 

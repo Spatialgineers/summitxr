@@ -1,3 +1,4 @@
+import { pillarIcon } from '../../lib/sgxPillars';
 import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { PILLAR_BY_KEY, type PillarKey } from '../../lib/sgxPillars';
 import React, { useEffect, useRef, useState } from 'react';
@@ -74,7 +75,7 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     shortRole: pillarModulesLine('STORY'),
     colorHex: PILLAR_BY_KEY['STORY'].color,
     threeColor: parseInt(PILLAR_BY_KEY['STORY'].color.slice(1), 16),
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Story1.png',
+    iconUrl: pillarIcon('STORY'),
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Story%20opt.glb',
     moduleCount: PILLAR_BY_KEY['STORY'].modules.length,
     physicsLabel: 'Pilar 01 • Brasas Ascendentes 432Hz',
@@ -86,7 +87,7 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     shortRole: pillarModulesLine('SHOWCASE'),
     colorHex: PILLAR_BY_KEY['SHOWCASE'].color,
     threeColor: parseInt(PILLAR_BY_KEY['SHOWCASE'].color.slice(1), 16),
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
+    iconUrl: pillarIcon('SHOWCASE'),
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Showcase%20opt.glb',
     moduleCount: PILLAR_BY_KEY['SHOWCASE'].modules.length,
     physicsLabel: 'Pilar 02 • Galería Holográfica Cian',
@@ -98,7 +99,7 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     shortRole: pillarModulesLine('SPARK'),
     colorHex: PILLAR_BY_KEY['SPARK'].color,
     threeColor: parseInt(PILLAR_BY_KEY['SPARK'].color.slice(1), 16),
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png',
+    iconUrl: pillarIcon('SPARK'),
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Spark%20Opt.glb',
     moduleCount: PILLAR_BY_KEY['SPARK'].modules.length,
     physicsLabel: 'Pilar 03 • Vórtice Cinético Ignis',
@@ -110,7 +111,7 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     shortRole: pillarModulesLine('STAGE'),
     colorHex: PILLAR_BY_KEY['STAGE'].color,
     threeColor: parseInt(PILLAR_BY_KEY['STAGE'].color.slice(1), 16),
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png',
+    iconUrl: pillarIcon('STAGE'),
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Stage%20opt.glb',
     moduleCount: PILLAR_BY_KEY['STAGE'].modules.length,
     physicsLabel: 'Pilar 04 • Ondas Acústicas en Vivo',
@@ -122,7 +123,7 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     shortRole: pillarModulesLine('SYSTEM'),
     colorHex: PILLAR_BY_KEY['SYSTEM'].color,
     threeColor: parseInt(PILLAR_BY_KEY['SYSTEM'].color.slice(1), 16),
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png',
+    iconUrl: pillarIcon('SYSTEM'),
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/System%20opt.glb',
     moduleCount: PILLAR_BY_KEY['SYSTEM'].modules.length,
     physicsLabel: 'Pilar 05 • Retícula Cuántica Cloud',
@@ -134,7 +135,7 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     shortRole: pillarModulesLine('SYNTHESIZE'),
     colorHex: PILLAR_BY_KEY['SYNTHESIZE'].color,
     threeColor: parseInt(PILLAR_BY_KEY['SYNTHESIZE'].color.slice(1), 16),
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Synthesize1.png',
+    iconUrl: pillarIcon('SYNTHESIZE'),
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Synthesize%20opt.glb',
     moduleCount: PILLAR_BY_KEY['SYNTHESIZE'].modules.length,
     physicsLabel: 'Pilar 06 • Convergencia Armónica SGX',

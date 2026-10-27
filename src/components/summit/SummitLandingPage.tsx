@@ -1,3 +1,4 @@
+import { pillarIcon } from '../../lib/sgxPillars';
 import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { SgxStandby } from '../../immersion/SgxStandby';
 import { SgxPassSection, SgxHoloStudioPanel } from '../../identity/SgxPassSection';
@@ -1142,7 +1143,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               title="Manifiesto Oficial & Los 6 Pilares Spatialgineers"
               subtitle="Story, Showcase, Spark, Stage, System y Synthesize: la filosofía tecnocreativa que impulsa el Summit 2026."
               pillarBadge="SGX.STORY"
-              pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Story1.png"
+              pillarIconUrl={pillarIcon('STORY')}
             />
             <SgxPillarsManifestoSection
               onNavigateToSection={(sec) => handleSelectSection(sec)}
@@ -1171,7 +1172,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               title="Recorrido 360° — Chroma Space Studios"
               subtitle="Explora en 360° el estudio de producción virtual, las zonas de demos y networking del Día 3."
               pillarBadge="SGX.SHOWCASE"
-              pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png"
+              pillarIconUrl={pillarIcon('SHOWCASE')}
             />
             <Summit360MapViewer
               nodes={mapNodes}
@@ -1191,7 +1192,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               title="Salas de transmisión & canales en vivo"
               subtitle="Transmisiones simultáneas de alta fidelidad con audio espacial y selector multivista."
               pillarBadge="SGX.STAGE"
-              pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png"
+              pillarIconUrl={pillarIcon('STAGE')}
             />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {(tenant.rooms || []).map((room, idx) => (
@@ -1291,7 +1292,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               title="Live Social Stream & Radar del Summit"
               subtitle="Feed interactivo en vivo de Instagram, Threads y X con publicaciones oficiales #SpatialgineersSummit."
               pillarBadge="SGX.SHOWCASE"
-              pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png"
+              pillarIconUrl={pillarIcon('SHOWCASE')}
             />
             <LiveSocialStream
               onOpenBroadcastRoom={() => handleSelectSection('BROADCAST_ROOMS')}
@@ -1306,7 +1307,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               title="Run of Show Oficial & Agenda de 3 Días"
               subtitle="Línea de tiempo minuto a minuto, presentaciones de artistas en Roblox, conversatorios de industria y show performativo."
               pillarBadge="SGX.STAGE"
-              pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png"
+              pillarIconUrl={pillarIcon('STAGE')}
               additionalParams={{ view: agendaViewMode.toLowerCase() }}
             >
               {/* View Switcher: Interactive Run of Show Timeline vs. Agenda Builder */}
@@ -1369,7 +1370,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               title="SGX Guild Initiates & Ranked Trials 2026"
               subtitle="Los 8 iniciados oficiales de la cohorte técnica Spatialgineers con matrices de habilidades y mentoría."
               pillarBadge="SGX.SYSTEM"
-              pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png"
+              pillarIconUrl={pillarIcon('SYSTEM')}
             />
             <SgxGuildShowcaseSection />
           </div>
@@ -1383,7 +1384,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               title="Directorio Oficial de Speakers & Artistas"
               subtitle="Se publican solo speakers y artistas confirmados por escrito. Los anuncios van del 7 al 21 de noviembre."
               pillarBadge="SGX.STAGE"
-              pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png"
+              pillarIconUrl={pillarIcon('STAGE')}
             />
             <SummitSpeakersDeck
               speakers={speakers}
@@ -1423,7 +1424,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               title="Foros del Summit & Espacio de Networking"
               subtitle="Conecta con asistentes, speakers y empresas para generar alianzas, co-creación y proyectos espaciales."
               pillarBadge="SGX.SYNTHESIZE"
-              pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Synthesize1.png"
+              pillarIconUrl={pillarIcon('SYNTHESIZE')}
             />
             <SummitNetworkingChat />
           </div>
@@ -1437,7 +1438,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               title="SGX.Match — Speed Pitching & Citas Estratégicas"
               subtitle="Conecta con creadores y marcas de todos los pilares."
               pillarBadge="SGX.SHOWCASE"
-              pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png"
+              pillarIconUrl={pillarIcon('SHOWCASE')}
             />
             <Suspense fallback={<LazyFallback />}>
               <MatchModule
@@ -1456,7 +1457,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               title="Simulador de Dron & Minijuegos Gamificados"
               subtitle="Entorno de simulación de vuelo en tiempo real, colisiones espaciales y retos interactivos con ranking."
               pillarBadge="SGX.SPARK"
-              pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png"
+              pillarIconUrl={pillarIcon('SPARK')}
             />
             <Suspense fallback={<LazyFallback />}>
               <SummitEmbedsHub embeds={embeds} />
@@ -1472,7 +1473,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               title={`Directorio de Patrocinadores & Marcas Aliadas (${approvedSponsors.length})`}
               subtitle="Marcas de vanguardia que hacen posible el Spatialgineers Summit 2026. Conoce sus stands y beneficios."
               pillarBadge="SGX.SHOWCASE"
-              pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png"
+              pillarIconUrl={pillarIcon('SHOWCASE')}
             />
             {/* 5-Tier Sponsorship Matrix & Dossier */}
             <SummitSponsorshipMatrix
@@ -1561,7 +1562,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 ? 'Tu SGX Pass es tu registro, QR y entrada. El Holo Card Studio crea la credencial 3D para visitantes, speakers, initiates y sponsors, con el mismo código y QR del pase.'
                 : 'Your SGX Pass is your registration, QR and entrance. The Holo Card Studio makes the 3D credential for visitors, speakers, initiates and sponsors, with the same pass code and QR.'}
               pillarBadge="SGX.SYSTEM"
-              pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/System1.png"
+              pillarIconUrl={pillarIcon('SYSTEM')}
             />
             <SgxPassSection />
             <SgxHoloStudioPanel />

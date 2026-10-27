@@ -260,3 +260,6 @@ export function pillarTheme(key: PillarKey) {
     gradientCss: `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`,
   };
 }
+
+/** The pillar's official icon (single source for every screen). */
+export const pillarIcon = (key: PillarKey): string => PILLAR_BY_KEY[key].iconUrl;

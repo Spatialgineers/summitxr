@@ -2643,6 +2643,114 @@ export function playNotificationChime(): void {
    no published doc, visitors keep the bundled defaults.
    ========================================================================= */
 
+/* ---------- SGX Guild Initiates (CMS: summit_content/initiates) ----------
+   Public card data only. Each initiate's email lives in summit_private and
+   initiate_claims/{email}, never here: this list is readable by everyone. */
+export interface SgxInitiate {
+  id: string;
+  name: string;
+  handle: string;
+  role: string;
+  pillar: string;
+  specialty: string;
+  specialtyEn?: string;
+  photoUrl?: string;
+}
+
+export const STORAGE_KEY_INITIATES = 'sgx_summit_initiates_v1';
+
+export const INITIAL_INITIATES: SgxInitiate[] = [
+  {
+    id: 'init_1',
+    name: 'Fabián Nieves',
+    handle: '@fabian_nieves',
+    role: 'Spatial Architect',
+    pillar: 'SGX.SPARK',
+    specialty: 'WebGL Pavilions & Arquitectura Espacial 3D',
+    specialtyEn: 'WebGL Pavilions & 3D Spatial Architecture',
+  },
+  {
+    id: 'init_2',
+    name: 'Sebasthian Andre Rosado',
+    handle: '@sebasthian_rosado',
+    role: 'Transmedia Lead',
+    pillar: 'SGX.STAGE',
+    specialty: 'Dirección Transmedia & Entornos Virtuales',
+    specialtyEn: 'Transmedia Direction & Virtual Environments',
+  },
+  {
+    id: 'init_3',
+    name: 'Gabriela Cintrón',
+    handle: '@gabriela_cintron',
+    role: 'Shader Artisan',
+    pillar: 'SGX.STORY',
+    specialty: 'GLSL Shader Art & Iluminación Procedural',
+    specialtyEn: 'GLSL Shader Art & Procedural Lighting',
+  },
+  {
+    id: 'init_4',
+    name: 'Elvin G. Andrades',
+    handle: '@elvin_andrades',
+    role: 'Stage MoCap Engineer',
+    pillar: 'SGX.STAGE',
+    specialty: 'Captura de Movimiento & Rigging Reactivo',
+    specialtyEn: 'Motion Capture & Reactive Rigging',
+  },
+  {
+    id: 'init_5',
+    name: 'Christian Jimenez Machuca',
+    handle: '@christian_jimenez',
+    role: 'Systems Logic Engineer',
+    pillar: 'SGX.SYSTEM',
+    specialty: 'Gamificación, WebSockets & Real-Time Sync',
+    specialtyEn: 'Gamification, WebSockets & Real-Time Sync',
+  },
+  {
+    id: 'init_6',
+    name: 'Mellangie González',
+    handle: '@mellangie_gonzalez',
+    role: 'Worldbuilder & Environment Artist',
+    pillar: 'SGX.SHOWCASE',
+    specialty: 'Modelado Espacial & Narrativa Ambiental',
+    specialtyEn: 'Spatial Modeling & Environmental Storytelling',
+  },
+  {
+    id: 'init_7',
+    name: 'Luis E. A. Fontánez Casanova',
+    handle: '@luis_fontanez',
+    role: 'Mechanics & Gamification Dev',
+    pillar: 'SGX.SPARK',
+    specialty: 'Mecánicas de Interacción & Recompensas',
+    specialtyEn: 'Interaction Mechanics & Rewards',
+  },
+  {
+    id: 'init_8',
+    name: 'Luis A. Oneill',
+    handle: '@luis_oneill',
+    role: 'Full-Stack AI & WebXR Pipeline',
+    pillar: 'SGX.SYNTHESIZE',
+    specialty: 'Pipelines WebXR Autónomos con IA',
+    specialtyEn: 'AI-Driven Autonomous WebXR Pipelines',
+  },
+];
+
+export function loadAllInitiates(): SgxInitiate[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_INITIATES);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return withEnTwins(parsed, INITIAL_INITIATES);
+    }
+  } catch { /* ignore */ }
+  return INITIAL_INITIATES;
+}
+
+export function saveAllInitiates(items: SgxInitiate[]): Promise<boolean> {
+  try { localStorage.setItem(STORAGE_KEY_INITIATES, JSON.stringify(items)); } catch { /* ignore */ }
+  window.dispatchEvent(new Event('storage'));
+  return publishContent('initiates', items);
+}
+
 const LIVE_CONTENT_KEYS: Record<string, string> = {
   sessions: STORAGE_KEY_CUSTOM_SESSIONS,
   speakers: STORAGE_KEY_CUSTOM_SPEAKERS,
@@ -2650,6 +2758,7 @@ const LIVE_CONTENT_KEYS: Record<string, string> = {
   embeds: STORAGE_KEY_CUSTOM_EMBEDS,
   sponsorship_tiers: STORAGE_KEY_CUSTOM_SPONSORS,
   approved_sponsors: STORAGE_KEY_APPROVED_SPONSORS,
+  initiates: STORAGE_KEY_INITIATES,
 };
 
 let applyingRemoteContent = false;

@@ -1,83 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Award, UserCheck, Target } from 'lucide-react';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
+import { loadAllInitiates, type SgxInitiate } from '../../lib/summitData';
 
-export const OFFICIAL_INITIATES = [
-  {
-    id: 'init_1',
-    name: 'Fabián Nieves',
-    handle: '@fabian_nieves',
-    role: 'Spatial Architect',
-    pillar: 'SGX.SPARK',
-    specialty: 'WebGL Pavilions & Arquitectura Espacial 3D',
-    specialtyEn: 'WebGL Pavilions & 3D Spatial Architecture',
-  },
-  {
-    id: 'init_2',
-    name: 'Sebasthian Andre Rosado',
-    handle: '@sebasthian_rosado',
-    role: 'Transmedia Lead',
-    pillar: 'SGX.STAGE',
-    specialty: 'Dirección Transmedia & Entornos Virtuales',
-    specialtyEn: 'Transmedia Direction & Virtual Environments',
-  },
-  {
-    id: 'init_3',
-    name: 'Gabriela Cintrón',
-    handle: '@gabriela_cintron',
-    role: 'Shader Artisan',
-    pillar: 'SGX.STORY',
-    specialty: 'GLSL Shader Art & Iluminación Procedural',
-    specialtyEn: 'GLSL Shader Art & Procedural Lighting',
-  },
-  {
-    id: 'init_4',
-    name: 'Elvin G. Andrades',
-    handle: '@elvin_andrades',
-    role: 'Stage MoCap Engineer',
-    pillar: 'SGX.STAGE',
-    specialty: 'Captura de Movimiento & Rigging Reactivo',
-    specialtyEn: 'Motion Capture & Reactive Rigging',
-  },
-  {
-    id: 'init_5',
-    name: 'Christian Jimenez Machuca',
-    handle: '@christian_jimenez',
-    role: 'Systems Logic Engineer',
-    pillar: 'SGX.SYSTEM',
-    specialty: 'Gamificación, WebSockets & Real-Time Sync',
-    specialtyEn: 'Gamification, WebSockets & Real-Time Sync',
-  },
-  {
-    id: 'init_6',
-    name: 'Mellangie González',
-    handle: '@mellangie_gonzalez',
-    role: 'Worldbuilder & Environment Artist',
-    pillar: 'SGX.SHOWCASE',
-    specialty: 'Modelado Espacial & Narrativa Ambiental',
-    specialtyEn: 'Spatial Modeling & Environmental Storytelling',
-  },
-  {
-    id: 'init_7',
-    name: 'Luis E. A. Fontánez Casanova',
-    handle: '@luis_fontanez',
-    role: 'Mechanics & Gamification Dev',
-    pillar: 'SGX.SPARK',
-    specialty: 'Mecánicas de Interacción & Recompensas',
-    specialtyEn: 'Interaction Mechanics & Rewards',
-  },
-  {
-    id: 'init_8',
-    name: 'Luis A. Oneill',
-    handle: '@luis_oneill',
-    role: 'Full-Stack AI & WebXR Pipeline',
-    pillar: 'SGX.SYNTHESIZE',
-    specialty: 'Pipelines WebXR Autónomos con IA',
-    specialtyEn: 'AI-Driven Autonomous WebXR Pipelines',
-  },
-];
+/** The Guild roster lives in the CMS (admin → Inscritos → Initiates); this is the seed. */
+export { INITIAL_INITIATES as OFFICIAL_INITIATES } from '../../lib/summitData';
 
 export const GUILD_MINDSET_QUOTES = [
   "De espectadores pasivos a ingenieros creativos del futuro espacial.",
@@ -97,6 +26,12 @@ export const SgxGuildShowcaseSection: React.FC = () => {
   const { language } = useLanguage();
   const [activeQuoteIdx, setActiveQuoteIdx] = useState(0);
   const { tenant, styles } = useTenantTheme();
+  const [initiates, setInitiates] = useState<SgxInitiate[]>(() => loadAllInitiates());
+  useEffect(() => {
+    const reload = () => setInitiates(loadAllInitiates());
+    window.addEventListener('storage', reload);
+    return () => window.removeEventListener('storage', reload);
+  }, []);
 
   return (
     <section className="border-y py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-400" style={styles.ambientBgStyle}>
@@ -142,7 +77,7 @@ export const SgxGuildShowcaseSection: React.FC = () => {
             </h3>
             <div className="flex items-center gap-3">
               <span className="text-xs font-mono font-bold" style={{ color: tenant.branding.neonHighlightColor }}>
-                {language === 'es' ? '8 Initiates activos' : '8 active Initiates'}
+                {language === 'es' ? `${initiates.length} Initiates activos` : `${initiates.length} active Initiates`}
               </span>
               {/* Initiates make their own card from their SGX Pass (same name, photo and code). */}
               <button
@@ -158,7 +93,7 @@ export const SgxGuildShowcaseSection: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {OFFICIAL_INITIATES.map((init) => (
+            {initiates.map((init) => (
               <div
                 key={init.id}
                 className="p-4 transition-all font-mono space-y-2 group sgx-crystal-card hover:scale-[1.01]"

@@ -1,7 +1,7 @@
 import { pillarIcon } from '../../lib/sgxPillars';
 import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { PILLAR_BY_KEY, type PillarKey } from '../../lib/sgxPillars';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
 import * as THREE from 'three';
@@ -43,6 +43,8 @@ import {
 } from '../../lib/cyberAudioEngine';
 import { usePilotProfile } from '../../context/PilotProfileContext';
 import { SPONSORSHIP_TIERS } from '../../lib/summitData';
+import { SgxHeroOverlay } from './SgxHeroOverlay';
+import { explore, startCalm } from '../../immersion/calmMode';
 
 export type SgxCorePillarId = 'STORY' | 'SHOWCASE' | 'SPARK' | 'STAGE' | 'SYSTEM' | 'SYNTHESIZE';
 
@@ -475,6 +477,9 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     const diff = Math.max(0, new Date('2026-12-11T10:00:00-04:00').getTime() - Date.now());
     return { days: Math.floor(diff / 86400000), hours: Math.floor((diff % 86400000) / 3600000), minutes: Math.floor((diff % 3600000) / 60000), seconds: Math.floor((diff % 60000) / 1000) };
   });
+  // First screen: the hero over the core; the HUD comes in on the first interaction.
+  useLayoutEffect(() => startCalm(), []);
+
   useEffect(() => {
     const targetMs = new Date('2026-12-11T10:00:00-04:00').getTime();
     const updateClock = () => {
@@ -1577,6 +1582,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   }, [liteMode]);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    explore(); // first touch on the core brings the HUD in
     const target = e.target as HTMLElement;
     if (target && (target.closest('button') || target.closest('[data-holographic-drawer="true"]'))) {
       return;
@@ -1677,7 +1683,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       }}
     >
       {/* Top Bar HUD Overlay: Clean, Uncluttered & Mobile-Responsive */}
-      <div className="relative z-30 flex items-center justify-between gap-2 px-3 sm:px-5 py-2 bg-[#050505]/95 backdrop-blur-md border-b border-[#32527B]/60 shrink-0">
+      <div className="sgx-calm-collapse relative z-30 flex items-center justify-between gap-2 px-3 sm:px-5 py-2 bg-[#050505]/95 backdrop-blur-md border-b border-[#32527B]/60 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
           <img
             src={activeNode.iconUrl}
@@ -1904,24 +1910,26 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
-        className="relative w-full flex-1 min-h-[440px] h-[calc(100dvh-126px)] cursor-grab active:cursor-grabbing overflow-hidden touch-none overscroll-contain bg-[#050505]"
+        className="sgx-core-viewport relative w-full flex-1 min-h-[440px] h-[calc(100dvh-126px)] cursor-grab active:cursor-grabbing overflow-hidden touch-none overscroll-contain bg-[#050505]"
         style={{
           height: 'calc(100dvh - 126px)',
           minHeight: '440px',
           touchAction: 'none',
         }}
       >
+        <SgxHeroOverlay />
+
         {/* Official Brand & Tactical Guide Credit: "POWERED BY SPATIALGINEERS" at 40% opacity */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute top-3 right-4 z-20 font-['Orbitron',sans-serif] text-[10px] sm:text-xs font-bold tracking-[0.2em] text-white opacity-40 uppercase"
+          className="sgx-calm-hide pointer-events-none absolute top-3 right-4 z-20 font-['Orbitron',sans-serif] text-[10px] sm:text-xs font-bold tracking-[0.2em] text-white opacity-40 uppercase"
         >
           POWERED BY SPATIALGINEERS
         </div>
 
         {/* LEFT 3D COCKPIT WING: THE 4 CIRCULAR COUNTDOWN CLOCKS ("LOS RELOJES") — Sleek on Desktop & Compact Pill on Mobile */}
         {!zenImmersionMode && (
-          <div className="absolute top-2.5 left-2.5 sm:top-4 sm:left-4 z-25 pointer-events-auto">
+          <div className="sgx-calm-hide absolute top-2.5 left-2.5 sm:top-4 sm:left-4 z-25 pointer-events-auto">
             {/* Mobile Compact Pill (when collapsed) */}
             {clocksCollapsedMobile && (
               <button
@@ -2174,7 +2182,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                   e.stopPropagation();
                   handleDockPillar(pillar.id, true);
                 }}
-                className={`absolute left-0 top-0 pointer-events-auto cursor-pointer transition-shadow duration-200 px-2.5 py-1 backdrop-blur-md flex items-center gap-1.5 text-left ${
+                className={`sgx-calm-hide absolute left-0 top-0 pointer-events-auto cursor-pointer transition-shadow duration-200 px-2.5 py-1 backdrop-blur-md flex items-center gap-1.5 text-left ${
                   isDocked
                     ? 'bg-[#1A1A1A]/95 border-2 shadow-2xl'
                     : 'bg-[#050505]/75 hover:bg-[#1A1A1A]/95 border border-[#32527B]/70'
@@ -2681,7 +2689,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         )}
 
         {/* Bottom Status Bar / Mobile Bottom Sheet Launcher inside 3D Viewport */}
-        <div className="absolute bottom-2.5 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-auto text-xs font-mono text-slate-200">
+        <div className="sgx-calm-hide absolute bottom-2.5 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-auto text-xs font-mono text-slate-200">
           <div className="px-3 py-1.5 bg-[#050505]/85 backdrop-blur-md border border-[#32527B]/70 pointer-events-none hidden sm:block">
             {es ? 'Toca cualquier escultura ' : 'Tap any '}<strong className="text-[#FDCC0D]">.GLB</strong>{es ? ' o los orbes en 3D · Arrastra para orbitar el espacio' : ' sculpture or the 3D orbs · Drag to orbit the space'}
           </div>
@@ -2715,7 +2723,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       </div>
 
       {/* Direct 6-Pillar Quick Docking Strip (Bottom Bar — Sleek Horizontal Swipe Dock on Mobile, 6-Col Grid on Desktop) */}
-      <div className="relative z-30 flex items-center gap-1.5 p-2 bg-[#050505] border-t border-[#32527B]/60 font-mono text-xs overflow-x-auto scroll-smooth no-scrollbar lg:grid lg:grid-cols-6">
+      <div className="sgx-calm-collapse relative z-30 flex items-center gap-1.5 p-2 bg-[#050505] border-t border-[#32527B]/60 font-mono text-xs overflow-x-auto scroll-smooth no-scrollbar lg:grid lg:grid-cols-6">
         {SGX_ORBITAL_PILLARS.map((p, index) => {
           const isSelected = p.id === activePillarId;
           const pillAccent = p.colorHex === '#32527B' ? '#00DDFF' : p.colorHex;

@@ -135,7 +135,9 @@ export const SgxPassHost: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // First visit: the Forge replaces the old tours, once per device.
+  // First visit: a quiet nudge to forge the pass, once per device. It never
+  // covers the first screen; the hero's own button opens the Forge directly.
+  const [nudge, setNudge] = useState(false);
   useEffect(() => {
     if (forgedRef.current) return;
     let dismissed = false;
@@ -147,9 +149,9 @@ export const SgxPassHost: React.FC = () => {
     const t = window.setInterval(() => {
       tries += 1;
       if (forgedRef.current || tries > 110) { window.clearInterval(t); return; }
-      if (document.querySelector('.sgx-boot, [data-sgx-splash]') || tries < 2) return;
+      if (document.querySelector('.sgx-boot, [data-sgx-splash]') || tries < 22) return; // ~20 s after the intro
       window.clearInterval(t);
-      setForge((f) => f || { tier: 'DIGITAL' });
+      setNudge(true);
     }, 900);
     return () => window.clearInterval(t);
   }, []);
@@ -209,8 +211,20 @@ export const SgxPassHost: React.FC = () => {
       : (es ? 'Ese es tu propio pase.' : 'That is your own pass.'));
   };
 
+  const dismissNudge = () => {
+    try { localStorage.setItem(FORGE_DISMISSED, '1'); } catch { /* ignore */ }
+    setNudge(false);
+  };
+
   return (
     <>
+      {nudge && !forge && !isForged && (
+        <div className="sgx-nudge" role="status">
+          <p><b>{es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass'}</b>{es ? 'Tu registro, tu Holo Card y tu entrada del Día 3, en un minuto.' : 'Your registration, Holo Card and Day 3 entrance, in one minute.'}</p>
+          <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => { setNudge(false); setForge({ tier: 'DIGITAL' }); }}>{es ? 'Forjar' : 'Forge'}</button>
+          <button type="button" className="sgx-nudge__x" onClick={dismissNudge} aria-label={es ? 'Ahora no' : 'Not now'}>✕</button>
+        </div>
+      )}
       <SgxHoloCardGeneratorModal
         key={holo?.n || 0}
         isOpen={!!holo}

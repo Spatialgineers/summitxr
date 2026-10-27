@@ -2,6 +2,7 @@
 @import "./styles/sgx-design-system.css";
 @import "./styles/sgx-platform.css";
 @import "./immersion/immersion.css";
+@import "./immersion/hero.css";
 @import "./identity/identity.css";
 @import "./styles/sgx-mobile.css";
 

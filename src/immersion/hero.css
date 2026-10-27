@@ -1,0 +1,66 @@
+/* =========================================================================
+   FIRST SCREEN: calm (hero over the 3D core), then explore (the HUD).
+   html.sgx-calm is set by startCalm() and removed by explore().
+   ========================================================================= */
+@layer components {
+  .sgx-calm-hide { transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+  html.sgx-calm .sgx-calm-hide { opacity: 0 !important; transform: translateY(8px); pointer-events: none !important; }
+  html.sgx-calm .sgx-calm-collapse { display: none !important; }
+  /* the hidden energy cells are part of exploring, not of the first look */
+  html.sgx-calm .sgx-cell { opacity: 0 !important; pointer-events: none !important; }
+  html.sgx-calm .sgx-core-viewport { height: calc(100dvh - 54px) !important; }
+
+  .sgx-corehero { position: absolute; inset: 0; z-index: 26; pointer-events: none; display: flex; align-items: flex-end; transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0s; }
+  .sgx-corehero.is-gone { opacity: 0; visibility: hidden; transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.45s; }
+  .sgx-corehero__scrim {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, rgba(5, 5, 5, 0.86) 0%, rgba(5, 5, 5, 0.62) 38%, rgba(5, 5, 5, 0) 64%),
+      linear-gradient(0deg, rgba(5, 5, 5, 0.75) 0%, rgba(5, 5, 5, 0) 45%);
+  }
+  .sgx-corehero__scrim::after {
+    /* fine grain: unifies the 3D and the type, kills banding */
+    content: ""; position: absolute; inset: 0; opacity: 0.06; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  .sgx-corehero__copy { position: relative; display: flex; flex-direction: column; gap: 14px; max-width: min(720px, 100vw); padding: 0 clamp(16px, 4.5vw, 64px) clamp(28px, 7vh, 72px); }
+  .sgx-corehero__badge { margin: 0; display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255, 255, 255, 0.72); }
+  .sgx-corehero__dot { width: 7px; height: 7px; background: var(--SGX_Cyan); box-shadow: 0 0 10px var(--SGX_Cyan); }
+  .sgx-corehero__title { margin: 0; display: flex; flex-direction: column; font-family: var(--font-display); font-weight: 600; font-size: clamp(30px, 5vw, 78px); line-height: 0.98; letter-spacing: -0.01em; white-space: nowrap; text-transform: uppercase; color: var(--SGX_White); text-shadow: 0 16px 38px rgba(0, 0, 0, 0.4); }
+  .sgx-corehero__accent { color: var(--SGX_Yellow); }
+  .sgx-corehero__dates { margin: 0; font-family: var(--font-mono); font-size: clamp(13px, 1.2vw, 15px); letter-spacing: 0.14em; text-transform: uppercase; color: var(--SGX_Cyan); }
+  .sgx-corehero__sub { margin: 0; max-width: 34rem; font-family: var(--font-body); font-size: clamp(15px, 1.25vw, 17px); line-height: 1.55; color: rgba(255, 255, 255, 0.74); text-shadow: 0 2px 18px rgba(0, 0, 0, 0.42); }
+  .sgx-corehero__ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; pointer-events: auto; }
+  .sgx-corehero__ctas .sgx-btn { min-height: 46px; }
+  .sgx-corehero__strip { margin: 4px 0 0; font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); font-variant-numeric: tabular-nums; }
+  .sgx-corehero__strip b { color: var(--SGX_White); font-weight: 400; font-size: 15px; }
+  .sgx-corehero__strip i { font-style: normal; color: rgba(255, 255, 255, 0.3); margin: 0 4px; }
+  .sgx-corehero__strip span { margin-left: 6px; color: rgba(255, 255, 255, 0.45); }
+
+  /* staggered blur-rise; the rest state is the visible one */
+  .sgx-corehero__in { animation: sgx-corehero-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(0.15s + var(--i, 0) * 0.12s); }
+  @keyframes sgx-corehero-in { from { opacity: 0; transform: translateY(24px); filter: blur(10px); } }
+
+  @media (max-width: 640px) {
+    .sgx-corehero__scrim { background: linear-gradient(0deg, rgba(5, 5, 5, 0.92) 0%, rgba(5, 5, 5, 0.7) 42%, rgba(5, 5, 5, 0) 72%); }
+    .sgx-corehero__copy { gap: 10px; padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
+    .sgx-corehero__title { font-size: clamp(28px, 8.6vw, 44px); }
+    .sgx-corehero__badge { font-size: 11px; letter-spacing: 0.12em; }
+    .sgx-corehero__dates { letter-spacing: 0.08em; }
+    .sgx-corehero__ctas { flex-direction: column; align-items: stretch; }
+    .sgx-corehero__ctas .sgx-glow, .sgx-corehero__ctas .sgx-btn { width: 100%; }
+  }
+  @media (max-height: 720px) and (min-width: 641px) { .sgx-corehero__sub { display: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .sgx-corehero__in { animation: none; }
+    .sgx-calm-hide, .sgx-corehero { transition: none; }
+  }
+
+  /* non-blocking Forge nudge (replaces the modal on first visit) */
+  .sgx-nudge { position: fixed; left: 16px; bottom: 76px; z-index: 90; display: flex; align-items: center; gap: 12px; max-width: min(420px, calc(100vw - 32px)); padding: 12px 12px 12px 16px; background: rgba(13, 15, 19, 0.96); box-shadow: inset 0 0 0 1px rgba(253, 204, 13, 0.55), 0 18px 40px rgba(0, 0, 0, 0.5); clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); animation: sgx-corehero-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .sgx-nudge p { margin: 0; font-family: var(--font-body); font-size: 14px; line-height: 1.35; color: rgba(255, 255, 255, 0.82); }
+  .sgx-nudge p b { display: block; font-family: var(--font-display); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--SGX_Yellow); }
+  .sgx-nudge .sgx-btn { min-height: 40px; white-space: nowrap; }
+  .sgx-nudge__x { width: 40px; height: 40px; flex: none; color: rgba(255, 255, 255, 0.6); background: transparent; border: 1px solid rgba(255, 255, 255, 0.15); cursor: pointer; }
+  @media (max-width: 640px) { .sgx-nudge { left: 16px; right: 16px; bottom: calc(76px + env(safe-area-inset-bottom)); max-width: none; } }
+}

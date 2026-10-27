@@ -31,7 +31,7 @@ export const SgxMobileDock: React.FC<{ section: string }> = ({ section }) => {
   ];
 
   return (
-    <nav className="sgx-dock" aria-label={es ? 'Navegación rápida' : 'Quick navigation'}>
+    <nav className="sgx-dock sgx-calm-hide" aria-label={es ? 'Navegación rápida' : 'Quick navigation'}>
       {items.map((it) => {
         const Icon = it.icon;
         return (

@@ -99,7 +99,7 @@ export const MissionRail: React.FC = () => {
     <>
       <button
         type="button"
-        className={`sgx-rail ${overdrive ? 'is-overdrive' : ''}`}
+        className={`sgx-rail sgx-calm-hide ${overdrive ? 'is-overdrive' : ''}`}
         onClick={() => setPanelOpen(!panelOpen)}
         aria-expanded={panelOpen}
         aria-controls="sgx-mission-panel"

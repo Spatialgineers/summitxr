@@ -65,6 +65,10 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
   check('pilot profile saved', (await list('pilot_profiles')).length >= 1);
   check('leaderboard row saved', (await list('pilot_leaderboard')).length >= 1);
 
+  // A live announcement (e.g. left by admin.cjs) sits bottom-right: close it like a visitor would.
+  await p.evaluate(() => document.querySelector('.fixed.bottom-6.right-6 button')?.click());
+  await p.waitForTimeout(300);
+
   // 3. Keynote poll vote
   const votesBefore = (await list('summit_poll_votes')).length;
   const pollOk = await p.evaluate(async () => {

@@ -14,6 +14,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface SummitPrivacyPolicyModalProps {
   isOpen?: boolean;
@@ -21,6 +22,8 @@ interface SummitPrivacyPolicyModalProps {
 }
 
 export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> = ({ onClose }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const [activeTab, setActiveTab] = useState<'all' | 'anonymous' | 'telemetry' | 'no_sale' | 'email' | 'pr_law'>('all');
 
   return (
@@ -46,15 +49,15 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
                 PRIVACY & DATA DISCLOSURE • PUERTO RICO COMPLIANT
               </span>
               <span className="text-[10px] text-[#FDCC0D] font-mono hidden sm:inline flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 inline text-[#FDCC0D]" /> VERIFICADO 2026
+                <CheckCircle2 className="w-3 h-3 inline text-[#FDCC0D]" />{es ? ' VERIFICADO 2026' : ' VERIFIED 2026'}
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white uppercase font-['Orbitron',sans-serif] tracking-wider flex items-center gap-2">
               <ShieldCheck className="w-6 h-6 text-[var(--sgx-neon)]" />
-              Política de Privacidad y Tratamiento de Datos
+              {es ? 'Política de Privacidad y Tratamiento de Datos' : 'Privacy Policy and Data Processing'}
             </h2>
             <p className="text-xs text-slate-400 font-mono">
-              Spatialgineers, LLC • San Juan, Puerto Rico • Marco de Transparencia para Experiencias Espaciales Gratuitas
+              {es ? 'Spatialgineers, LLC • San Juan, Puerto Rico • Marco de Transparencia para Experiencias Espaciales Gratuitas' : 'Spatialgineers, LLC • San Juan, Puerto Rico • Transparency Framework for Free Spatial Experiences'}
             </p>
           </div>
 
@@ -65,7 +68,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
             }}
             className="p-1.5 bg-[#1E1E1E] hover:bg-[var(--sgx-neon)] hover:text-black border border-slate-700 hover:border-[var(--sgx-neon)] text-slate-400 transition-colors"
             style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-            title="Cerrar modal"
+            title={es ? 'Cerrar modal' : 'Close modal'}
           >
             <X className="w-5 h-5" />
           </button>
@@ -74,12 +77,12 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
         {/* Interactive Filter Pills */}
         <div className="flex flex-wrap gap-1.5 text-[11px] font-mono border-b border-slate-800 pb-3">
           {[
-            { id: 'all', label: 'Ver Todo el Documento', icon: FileText },
-            { id: 'anonymous', label: '1. Login Anónimo & Cero Datos Privados', icon: Lock },
-            { id: 'telemetry', label: '2. Telemetría & Decisiones en la App', icon: Cpu },
-            { id: 'no_sale', label: '3. Garantía de NO Venta a 3ros', icon: ShieldCheck },
-            { id: 'email', label: '4. Uso de Email & Noticias', icon: Mail },
-            { id: 'pr_law', label: '5. Leyes de Puerto Rico & Gratis', icon: Scale },
+            { id: 'all', label: (es ? 'Ver Todo el Documento' : 'View the Whole Document'), icon: FileText },
+            { id: 'anonymous', label: (es ? '1. Login Anónimo & Cero Datos Privados' : '1. Anonymous Login & Zero Private Data'), icon: Lock },
+            { id: 'telemetry', label: (es ? '2. Telemetría & Decisiones en la App' : '2. Telemetry & In-App Decisions'), icon: Cpu },
+            { id: 'no_sale', label: (es ? '3. Garantía de NO Venta a 3ros' : '3. NO Sale to Third Parties Guarantee'), icon: ShieldCheck },
+            { id: 'email', label: (es ? '4. Uso de Email & Noticias' : '4. Email Use & News'), icon: Mail },
+            { id: 'pr_law', label: (es ? '5. Leyes de Puerto Rico & Gratis' : '5. Puerto Rico Law & Free Access'), icon: Scale },
           ].map((tab) => {
             const Icon = tab.icon;
             const isSelected = activeTab === tab.id;
@@ -114,10 +117,10 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
           >
             <div className="flex items-center gap-2 text-[var(--sgx-neon)] font-bold text-xs font-mono uppercase">
               <Sparkles className="w-4 h-4" />
-              <span>Nuestra Promesa Central de Transparencia</span>
+              <span>{es ? 'Nuestra Promesa Central de Transparencia' : 'Our Core Transparency Promise'}</span>
             </div>
             <p className="text-slate-200 text-xs">
-              Nuestras experiencias, simuladores y juegos espaciales son <strong>100% gratuitos</strong>. No solicitamos ni almacenamos datos personales sensibles mediante el inicio de sesión anónimo. Recopilamos únicamente datos de interacción y telemetría de decisiones para validar casos de uso y mejorar nuestros servicios. <strong>Jamás vendemos ni comercializamos tus datos con terceros bajo ninguna circunstancia.</strong>
+              {es ? 'Nuestras experiencias, simuladores y juegos espaciales son ' : 'Our spatial experiences, simulators and games are '}<strong>{es ? '100% gratuitos' : '100% free'}</strong>{es ? '. No solicitamos ni almacenamos datos personales sensibles mediante el inicio de sesión anónimo. Recopilamos únicamente datos de interacción y telemetría de decisiones para validar casos de uso y mejorar nuestros servicios. ' : '. We don\'t request or store sensitive personal data through anonymous sign-in. We only collect interaction data and decision telemetry to validate use cases and improve our services. '}<strong>{es ? 'Jamás vendemos ni comercializamos tus datos con terceros bajo ninguna circunstancia.' : 'We never sell or trade your data with third parties under any circumstances.'}</strong>
             </p>
           </div>
 
@@ -126,13 +129,13 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
             <div className="p-4 bg-[#171717] border border-slate-800 space-y-2 rounded-sm">
               <div className="flex items-center gap-2 text-cyan-400 font-bold text-sm font-['Orbitron',sans-serif]">
                 <Lock className="w-4 h-4" />
-                <span>1. Autenticación Anónima (Guest Mode) y Cero Datos Personales</span>
+                <span>{es ? '1. Autenticación Anónima (Guest Mode) y Cero Datos Personales' : '1. Anonymous Authentication (Guest Mode) and Zero Personal Data'}</span>
               </div>
               <p>
-                Al utilizar el <strong>Spatialgineers Summit Gamified Engine</strong> en modo invitado o inicio anónimo, la plataforma <strong>no recopila</strong> nombres reales, domicilios físicos, números de teléfono, documentos de identidad ni información financiera o bancaria.
+                {es ? 'Al utilizar el ' : 'When you use the '}<strong>Spatialgineers Summit Gamified Engine</strong>{es ? ' en modo invitado o inicio anónimo, la plataforma ' : ' in guest mode or with anonymous sign-in, the platform '}<strong>{es ? 'no recopila' : 'does not collect'}</strong>{es ? ' nombres reales, domicilios físicos, números de teléfono, documentos de identidad ni información financiera o bancaria.' : ' real names, physical addresses, phone numbers, ID documents or financial or banking information.'}
               </p>
               <p className="text-slate-400">
-                Se te asigna un identificador criptográfico pseudo-aleatorio en tu navegador para permitirte acumular puntos de experiencia (XP), desbloquear insignias en el pasaporte, conservar tu avatar y votar en tiempo real sin revelar tu identidad real.
+                {es ? 'Se te asigna un identificador criptográfico pseudo-aleatorio en tu navegador para permitirte acumular puntos de experiencia (XP), desbloquear insignias en el pasaporte, conservar tu avatar y votar en tiempo real sin revelar tu identidad real.' : 'You\'re assigned a pseudo-random cryptographic identifier in your browser so you can earn experience points (XP), unlock passport badges, keep your avatar and vote in real time without revealing your real identity.'}
               </p>
             </div>
           )}
@@ -142,19 +145,19 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
             <div className="p-4 bg-[#171717] border border-slate-800 space-y-2 rounded-sm">
               <div className="flex items-center gap-2 text-[#FDCC0D] font-bold text-sm font-['Orbitron',sans-serif]">
                 <Cpu className="w-4 h-4" />
-                <span>2. Telemetría de Decisiones, Interacciones y Validación de Casos de Uso</span>
+                <span>{es ? '2. Telemetría de Decisiones, Interacciones y Validación de Casos de Uso' : '2. Decision Telemetry, Interactions and Use-Case Validation'}</span>
               </div>
               <p>
-                Recopilamos y analizamos métricas técnicas de interacción dentro del entorno web, incluyendo:
+                {es ? 'Recopilamos y analizamos métricas técnicas de interacción dentro del entorno web, incluyendo:' : 'We collect and analyze technical interaction metrics within the web environment, including:'}
               </p>
               <ul className="list-disc list-inside space-y-1 text-slate-300 pl-2">
-                <li>Decisiones tomadas en encuestas de conferencias y votaciones de keynotes en vivo.</li>
-                <li>Rutas y pilares elegidos en los minijuegos de computación espacial y simulador de vuelo.</li>
-                <li>Puntos de interés explorados en el mapa 360° y stands virtuales visitados.</li>
-                <li>Rendimiento del pipeline gráfico (tasas de cuadros por segundo de WebGL y Three.js, compatibilidad con navegadores y latencia de audio Web Audio API).</li>
+                <li>{es ? 'Decisiones tomadas en encuestas de conferencias y votaciones de keynotes en vivo.' : 'Choices made in conference polls and live keynote votes.'}</li>
+                <li>{es ? 'Rutas y pilares elegidos en los minijuegos de computación espacial y simulador de vuelo.' : 'Routes and pillars chosen in the spatial computing mini-games and the flight simulator.'}</li>
+                <li>{es ? 'Puntos de interés explorados en el mapa 360° y stands virtuales visitados.' : 'Points of interest explored on the 360° map and virtual booths visited.'}</li>
+                <li>{es ? 'Rendimiento del pipeline gráfico (tasas de cuadros por segundo de WebGL y Three.js, compatibilidad con navegadores y latencia de audio Web Audio API).' : 'Graphics pipeline performance (WebGL and Three.js frame rates, browser compatibility and Web Audio API audio latency).'}</li>
               </ul>
               <div className="p-3 bg-[#32527B]/30 border border-[#FDCC0D]/40 text-slate-200 text-[11px] font-mono">
-                <strong>PROPÓSITO EXCLUSIVO:</strong> Esta información se utiliza de forma interna y agregada para auditar y mejorar la calidad del software, optimizar la experiencia de usuario, balancear servidores de streaming y validar casos de uso reales de computación espacial y tecnologías WebXR.
+                <strong>{es ? 'PROPÓSITO EXCLUSIVO:' : 'SOLE PURPOSE:'}</strong>{es ? ' Esta información se utiliza de forma interna y agregada para auditar y mejorar la calidad del software, optimizar la experiencia de usuario, balancear servidores de streaming y validar casos de uso reales de computación espacial y tecnologías WebXR.' : ' This information is used internally and in aggregate to audit and improve software quality, optimize the user experience, balance streaming servers and validate real use cases for spatial computing and WebXR technologies.'}
               </div>
             </div>
           )}
@@ -164,13 +167,13 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
             <div className="p-4 bg-[#171717] border border-[#FDCC0D]/40 space-y-2 rounded-sm">
               <div className="flex items-center gap-2 text-[#FDCC0D] font-bold text-sm font-['Orbitron',sans-serif]">
                 <ShieldCheck className="w-4 h-4" />
-                <span>3. Garantía Estricta de NO Venta ni Transferencia a Terceros</span>
+                <span>{es ? '3. Garantía Estricta de NO Venta ni Transferencia a Terceros' : '3. Strict Guarantee of NO Sale or Transfer to Third Parties'}</span>
               </div>
               <p className="text-white font-medium">
-                Spatialgineers, LLC mantiene una política estricta y sin excepciones: <strong>NUNCA vendemos, comercializamos, alquilamos, monetizamos ni cedemos</strong> tus datos de navegación, telemetría o correos electrónicos a corredores de datos (data brokers), agencias de publicidad externas, redes de anuncios o terceros no afiliados.
+                {es ? 'Spatialgineers, LLC mantiene una política estricta y sin excepciones: ' : 'Spatialgineers, LLC keeps a strict policy with no exceptions: '}<strong>{es ? 'NUNCA vendemos, comercializamos, alquilamos, monetizamos ni cedemos' : 'we NEVER sell, trade, rent, monetize or hand over'}</strong>{es ? ' tus datos de navegación, telemetría o correos electrónicos a corredores de datos (data brokers), agencias de publicidad externas, redes de anuncios o terceros no afiliados.' : ' your browsing data, telemetry or email addresses to data brokers, outside advertising agencies, ad networks or unaffiliated third parties.'}
               </p>
               <p className="text-slate-400">
-                La información procesada es de uso exclusivo para las operaciones, infraestructura e investigación de <strong>Spatialgineers, LLC</strong> y el ecosistema del Summit.
+                {es ? 'La información procesada es de uso exclusivo para las operaciones, infraestructura e investigación de ' : 'The information processed is used exclusively for the operations, infrastructure and research of '}<strong>Spatialgineers, LLC</strong>{es ? ' y el ecosistema del Summit.' : ' and the Summit ecosystem.'}
               </p>
             </div>
           )}
@@ -180,26 +183,26 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
             <div className="p-4 bg-[#171717] border border-slate-800 space-y-2 rounded-sm">
               <div className="flex items-center gap-2 text-amber-400 font-bold text-sm font-['Orbitron',sans-serif]">
                 <Mail className="w-4 h-4" />
-                <span>4. Uso de Correos Electrónicos Recopilados Voluntariamente</span>
+                <span>{es ? '4. Uso de Correos Electrónicos Recopilados Voluntariamente' : '4. Use of Voluntarily Provided Email Addresses'}</span>
               </div>
               <p>
-                Cuando un usuario proporciona voluntariamente su correo electrónico para:
+                {es ? 'Cuando un usuario proporciona voluntariamente su correo electrónico para:' : 'When a user voluntarily provides their email address to:'}
               </p>
               <ul className="list-disc list-inside space-y-1 text-slate-300 pl-2">
-                <li>Registrar su pase de admisión oficial (Summit Pass digital o presencial en San Juan).</li>
-                <li>Postularse como ponente en el <em>Speaker Portal</em>.</li>
-                <li>Solicitar información sobre patrocinios o alianzas de marca.</li>
+                <li>{es ? 'Registrar su pase de admisión oficial (Summit Pass digital o presencial en San Juan).' : 'Register their official admission pass (digital Summit Pass or in person in San Juan).'}</li>
+                <li>{es ? 'Postularse como ponente en el ' : 'Apply as a speaker through the '}<em>Speaker Portal</em>.</li>
+                <li>{es ? 'Solicitar información sobre patrocinios o alianzas de marca.' : 'Request information about sponsorships or brand partnerships.'}</li>
               </ul>
               <p>
-                El usuario autoriza a <strong>Spatialgineers, LLC</strong> a utilizar dicha dirección de correo para:
+                {es ? 'El usuario autoriza a ' : 'The user authorizes '}<strong>Spatialgineers, LLC</strong>{es ? ' a utilizar dicha dirección de correo para:' : ' to use that email address to:'}
               </p>
               <ol className="list-decimal list-inside space-y-1 text-slate-300 pl-2">
-                <li>Envío de sus credenciales, códigos de confirmación y notificaciones operativas esenciales del evento.</li>
-                <li>Compartir noticias tecnológicas, resúmenes de conferencias y anuncios de nuevos proyectos espaciales.</li>
-                <li>Promociones de futuras ediciones del Spatialgineers Summit, actividades del SGX Guild (como los SGX Ranked Trials) y lanzamientos de nuevas webapps de la comunidad.</li>
+                <li>{es ? 'Envío de sus credenciales, códigos de confirmación y notificaciones operativas esenciales del evento.' : 'Send their credentials, confirmation codes and essential event notices.'}</li>
+                <li>{es ? 'Compartir noticias tecnológicas, resúmenes de conferencias y anuncios de nuevos proyectos espaciales.' : 'Share technology news, conference recaps and announcements of new spatial projects.'}</li>
+                <li>{es ? 'Promociones de futuras ediciones del Spatialgineers Summit, actividades del SGX Guild (como los SGX Ranked Trials) y lanzamientos de nuevas webapps de la comunidad.' : 'Promote future editions of the Spatialgineers Summit, SGX Guild activities (such as the SGX Ranked Trials) and new community web app launches.'}</li>
               </ol>
               <p className="text-[11px] text-slate-400 pt-1">
-                <em>* Derecho de Desuscripción (Opt-Out): En cualquier momento puedes solicitar la cancelación de envíos informativos escribiendo a <strong>info@spatialgineers.com</strong> o haciendo clic en el enlace de desuscripción incluido en los comunicados.</em>
+                <em>{es ? '* Derecho de Desuscripción (Opt-Out): En cualquier momento puedes solicitar la cancelación de envíos informativos escribiendo a ' : '* Right to Opt Out: You can ask to stop receiving informational emails at any time by writing to '}<strong>info@spatialgineers.com</strong>{es ? ' o haciendo clic en el enlace de desuscripción incluido en los comunicados.' : ' or by clicking the unsubscribe link included in our messages.'}</em>
               </p>
             </div>
           )}
@@ -209,22 +212,22 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
             <div className="p-4 bg-[#171717] border border-slate-800 space-y-3 rounded-sm">
               <div className="flex items-center gap-2 text-blue-400 font-bold text-sm font-['Orbitron',sans-serif]">
                 <Scale className="w-4 h-4" />
-                <span>5. Marco Jurídico del Estado Libre Asociado de Puerto Rico & Modelo Gratuito</span>
+                <span>{es ? '5. Marco Jurídico del Estado Libre Asociado de Puerto Rico & Modelo Gratuito' : '5. Legal Framework of the Commonwealth of Puerto Rico & Free Model'}</span>
               </div>
               <p>
-                Esta política se rige en estricto cumplimiento con el ordenamiento jurídico del <strong>Estado Libre Asociado de Puerto Rico</strong>, en concordancia con el derecho a la intimidad y las disposiciones relativas a la protección de datos y comunicaciones digitales aplicables en la jurisdicción:
+                {es ? 'Esta política se rige en estricto cumplimiento con el ordenamiento jurídico del ' : 'This policy is governed in strict compliance with the laws of the '}<strong>{es ? 'Estado Libre Asociado de Puerto Rico' : 'Commonwealth of Puerto Rico'}</strong>{es ? ', en concordancia con el derecho a la intimidad y las disposiciones relativas a la protección de datos y comunicaciones digitales aplicables en la jurisdicción:' : ', in line with the right to privacy and the data protection and digital communications provisions that apply in the jurisdiction:'}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-[11px]">
                 <div className="p-3 bg-[#1B1B1B] border border-slate-700/60 space-y-1">
-                  <div className="text-white font-bold font-mono">NATURALEZA GRATUITA</div>
+                  <div className="text-white font-bold font-mono">{es ? 'NATURALEZA GRATUITA' : 'FREE OF CHARGE'}</div>
                   <div className="text-slate-400">
-                    Nuestras aplicaciones, minijuegos y simuladores son provistos de forma libre y sin tarifa de acceso. La contraprestación legítima es la autorización expresa del usuario para procesar la telemetría generada con fines de optimización interna.
+                    {es ? 'Nuestras aplicaciones, minijuegos y simuladores son provistos de forma libre y sin tarifa de acceso. La contraprestación legítima es la autorización expresa del usuario para procesar la telemetría generada con fines de optimización interna.' : 'Our apps, mini-games and simulators are provided freely with no access fee. The legitimate consideration is the user\'s express authorization to process the generated telemetry for internal optimization.'}
                   </div>
                 </div>
                 <div className="p-3 bg-[#1B1B1B] border border-slate-700/60 space-y-1">
-                  <div className="text-white font-bold font-mono">JURISDICCIÓN & TRIBUNALES</div>
+                  <div className="text-white font-bold font-mono">{es ? 'JURISDICCIÓN & TRIBUNALES' : 'JURISDICTION & COURTS'}</div>
                   <div className="text-slate-400">
-                    Cualquier controversia relacionada con el uso de la plataforma o esta política se someterá de forma exclusiva a la jurisdicción de los tribunales de San Juan, Puerto Rico.
+                    {es ? 'Cualquier controversia relacionada con el uso de la plataforma o esta política se someterá de forma exclusiva a la jurisdicción de los tribunales de San Juan, Puerto Rico.' : 'Any dispute related to the use of the platform or this policy will be submitted exclusively to the jurisdiction of the courts of San Juan, Puerto Rico.'}
                   </div>
                 </div>
               </div>
@@ -234,10 +237,10 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
           {/* Section 6: Contact & Rights */}
           <div className="p-4 bg-slate-900/60 border border-slate-800 space-y-2 rounded-sm text-slate-300 text-xs">
             <div className="font-bold text-white uppercase font-mono text-[11px]">
-              Contacto del Delegado de Privacidad & Ejercicio de Derechos
+              {es ? 'Contacto del Delegado de Privacidad & Ejercicio de Derechos' : 'Privacy Officer Contact & Exercising Your Rights'}
             </div>
             <p>
-              Si tienes preguntas sobre cómo gestionamos los datos, deseas actualizar tu correo o solicitar la eliminación de tu registro de pase, puedes comunicarte directamente con nuestro equipo:
+              {es ? 'Si tienes preguntas sobre cómo gestionamos los datos, deseas actualizar tu correo o solicitar la eliminación de tu registro de pase, puedes comunicarte directamente con nuestro equipo:' : 'If you have questions about how we handle data, want to update your email or request deletion of your pass record, you can contact our team directly:'}
             </p>
             <div className="flex flex-wrap items-center gap-4 pt-1 font-mono text-xs">
               <div className="flex items-center gap-1.5 text-[var(--sgx-neon)]">
@@ -255,7 +258,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
         {/* Footer Actions */}
         <div className="pt-3 border-t border-[var(--sgx-secondary)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono">
           <div className="text-slate-400 text-[11px] text-center sm:text-left">
-            Última actualización: <span className="text-slate-200">Septiembre 2026</span> • Versión 2.4 PR-Compliant
+            {es ? 'Última actualización: ' : 'Last updated: '}<span className="text-slate-200">{es ? 'Septiembre 2026' : 'September 2026'}</span> • Versión 2.4 PR-Compliant
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -266,7 +269,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
               }}
               className="sgx-btn py-2 px-6 text-xs font-extrabold uppercase w-full sm:w-auto text-center"
             >
-              ENTENDIDO & ACEPTAR
+              {es ? 'ENTENDIDO & ACEPTAR' : 'UNDERSTOOD & ACCEPT'}
             </button>
           </div>
         </div>

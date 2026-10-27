@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { SummitSpeaker, SummitPillarId, SummitSession } from '../../types/summit';
 import { SUMMIT_PILLARS } from '../../lib/summitData';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 interface SummitSpeakersDeckProps {
   speakers: SummitSpeaker[];
@@ -55,6 +57,8 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
   onOpenSessionModal,
   onOpenSpeakerPortal,
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>('ALL');
   const [activePillar, setActivePillar] = useState<SummitPillarId | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -84,9 +88,9 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
         const q = searchQuery.toLowerCase();
         const matchName = spk.name.toLowerCase().includes(q);
         const matchHandle = spk.handle?.toLowerCase().includes(q);
-        const matchRole = spk.role.toLowerCase().includes(q);
+        const matchRole = loc(spk, 'role', language).toLowerCase().includes(q);
         const matchOrg = spk.organization?.toLowerCase().includes(q);
-        const matchBio = spk.bio?.toLowerCase().includes(q);
+        const matchBio = loc(spk, 'bio', language)?.toLowerCase().includes(q);
         if (!matchName && !matchHandle && !matchRole && !matchOrg && !matchBio) return false;
       }
       return true;
@@ -94,9 +98,9 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
   }, [classifiedSpeakers, activeCategory, activePillar, searchQuery]);
 
   const categoriesMeta: { id: CategoryFilter; label: string; count: number; icon: any }[] = [
-    { id: 'ALL', label: 'Todos', count: classifiedSpeakers.length, icon: Users },
-    { id: 'HOSTS', label: 'Hosts & Fundadores', count: classifiedSpeakers.filter(s => s.category === 'HOSTS').length, icon: Award },
-    { id: 'PILOTS', label: 'Postulaciones (sin confirmar)', count: classifiedSpeakers.filter(s => s.category === 'PILOTS').length, icon: Sparkles },
+    { id: 'ALL', label: (es ? 'Todos' : 'All'), count: classifiedSpeakers.length, icon: Users },
+    { id: 'HOSTS', label: (es ? 'Hosts & Fundadores' : 'Hosts & Founders'), count: classifiedSpeakers.filter(s => s.category === 'HOSTS').length, icon: Award },
+    { id: 'PILOTS', label: (es ? 'Postulaciones (sin confirmar)' : 'Applications (unconfirmed)'), count: classifiedSpeakers.filter(s => s.category === 'PILOTS').length, icon: Sparkles },
   ];
 
   const getPillarColor = (pillarId?: SummitPillarId) => {
@@ -130,15 +134,14 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                 3D INTERACTIVE CARD DECK
               </span>
               <span className="px-2.5 py-0.5 rounded text-[10px] font-mono text-slate-400 bg-slate-800/60 border border-slate-700">
-                Roster Oficial
+                {es ? 'Roster Oficial' : 'Official Roster'}
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider font-['Orbitron',sans-serif]">
-              Directorio de Ponentes, Artistas & SGX Guild
+              {es ? 'Directorio de Ponentes, Artistas & SGX Guild' : 'Speakers, Artists & SGX Guild Directory'}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl mt-1">
-              Conoce a los creadores detrás de cada pilar: los hosts confirmados, Danelson Maldonado González y Ricardo A. Hernández Díaz. 
-              Las personas invitadas del Día 2 y los artistas invitados se anuncian solo cuando estén confirmados por escrito.
+              {es ? 'Conoce a los creadores detrás de cada pilar: los hosts confirmados, Danelson Maldonado González y Ricardo A. Hernández Díaz. Las personas invitadas del Día 2 y los artistas invitados se anuncian solo cuando estén confirmados por escrito.' : 'Meet the creators behind each pillar: the confirmed hosts, Danelson Maldonado González and Ricardo A. Hernández Díaz. Day 2 guests and guest artists are announced only once confirmed in writing.'}
             </p>
           </div>
 
@@ -150,7 +153,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar por nombre o pilar..."
+                placeholder={es ? 'Buscar por nombre o pilar...' : 'Search by name or pillar...'}
                 className="w-full bg-slate-900/90 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 font-mono focus:border-[#FDCC0D] focus:outline-none"
               />
             </div>
@@ -163,7 +166,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                     self: true,
                     role: 'SPEAKER',
                     name: 'Speaker SGX',
-                    title: 'Ponente Oficial',
+                    title: (es ? 'Ponente Oficial' : 'Official Speaker'),
                     org: 'Spatialgineers Summit 2026'
                   }
                 }));
@@ -171,7 +174,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
               className="px-3 py-2 bg-cyan-500/20 hover:bg-cyan-500 hover:text-black border border-cyan-400 text-cyan-300 font-extrabold text-xs font-mono uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 rounded-lg shrink-0 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
-              <span>Crear mi Holo Card de speaker</span>
+              <span>{es ? 'Crear mi Holo Card de speaker' : 'Create my speaker Holo Card'}</span>
             </button>
 
             <button
@@ -183,7 +186,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
               className="px-3 py-2 bg-[#FDCC0D] hover:bg-yellow-300 text-black font-extrabold text-xs font-mono uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 rounded-lg shadow-md shadow-yellow-500/20 shrink-0 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 fill-black" />
-              <span>Crear Perfil</span>
+              <span>{es ? 'Crear Perfil' : 'Create Profile'}</span>
             </button>
           </div>
         </div>
@@ -216,7 +219,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
         {/* Pillar Filter Bar */}
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">
-            Filtrar por Pilar:
+            {es ? 'Filtrar por Pilar:' : 'Filter by Pillar:'}
           </span>
           <button
             onClick={() => setActivePillar('ALL')}
@@ -226,7 +229,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                 : 'border-slate-800 bg-slate-900/40 text-slate-500 hover:text-slate-300'
             }`}
           >
-            Todos
+            {es ? 'Todos' : 'All'}
           </button>
           {SUMMIT_PILLARS.map(p => {
             const isSelected = activePillar === p.id;
@@ -297,7 +300,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                   ) : (
                     <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-[#00DDFF]/20 text-[#00DDFF] border border-[#00DDFF]/50 flex items-center gap-1">
                       <Sparkles className="w-2.5 h-2.5" />
-                      POSTULACIÓN · SIN CONFIRMAR
+                      {es ? 'POSTULACIÓN · SIN CONFIRMAR' : 'APPLICATION · UNCONFIRMED'}
                     </span>
                   )}
                 </div>
@@ -328,14 +331,14 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                       {speaker.handle || `@${speaker.name.toLowerCase().replace(/\s+/g, '_')}`}
                     </div>
                     <div className="text-[10px] text-slate-300 font-medium truncate mt-0.5">
-                      {speaker.role}
+                      {loc(speaker, 'role', language)}
                     </div>
                   </div>
                 </div>
 
                 {/* Bio snippet */}
                 <p className="text-xs text-slate-400 mt-3 line-clamp-2 leading-relaxed font-sans">
-                  {speaker.bio || 'Postulación sin confirmar.'}
+                  {loc(speaker, 'bio', language) || (es ? 'Postulación sin confirmar.' : 'Unconfirmed application.')}
                 </p>
 
                 {/* Organization & Session Count */}
@@ -365,10 +368,10 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
             <div>
               <div className="flex items-center justify-between gap-1 mb-3">
                 <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold tracking-wider uppercase border border-[#00DDFF]/40 bg-[#00DDFF]/10 text-[#00DDFF]">
-                  CONVOCATORIA
+                  {es ? 'CONVOCATORIA' : 'OPEN CALL'}
                 </span>
                 <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-[#FDCC0D]/20 text-[#FDCC0D] border border-[#FDCC0D]/40 animate-pulse">
-                  SLOTS DISPONIBLES
+                  {es ? 'SLOTS DISPONIBLES' : 'SLOTS AVAILABLE'}
                 </span>
               </div>
 
@@ -378,7 +381,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white group-hover:text-[#FDCC0D] transition-colors font-['Orbitron',sans-serif]">
-                    Crea tu Perfil de Piloto Speaker
+                    {es ? 'Crea tu Perfil de Piloto Speaker' : 'Create Your Speaker Pilot Profile'}
                   </h3>
                   <div className="text-[10px] font-mono text-slate-400 mt-0.5">
                     Spatial Computing · WebXR · Audio 3D · IA
@@ -387,12 +390,12 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
               </div>
 
               <p className="text-xs text-slate-300 mt-3 leading-relaxed font-sans">
-                Por ahora los únicos ponentes confirmados son Danelson y Ricardo. Los demás ponentes deben registrar y calibrar su perfil de piloto para unirse a la agenda oficial.
+                {es ? 'Por ahora los únicos ponentes confirmados son Danelson y Ricardo. Los demás ponentes deben registrar y calibrar su perfil de piloto para unirse a la agenda oficial.' : 'For now the only confirmed speakers are Danelson and Ricardo. Other speakers must register and calibrate their pilot profile to join the official agenda.'}
               </p>
             </div>
 
             <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs font-mono font-bold text-[#FDCC0D] group-hover:text-yellow-300">
-              <span>Registrar mi Perfil</span>
+              <span>{es ? 'Registrar mi Perfil' : 'Register my Profile'}</span>
               <ChevronRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
@@ -458,7 +461,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                 <h3 className="text-lg font-bold text-white mt-1">
                   {inspectedSpeaker.name}
                 </h3>
-                <div className="text-xs text-slate-300">{inspectedSpeaker.role}</div>
+                <div className="text-xs text-slate-300">{loc(inspectedSpeaker, 'role', language)}</div>
                 <div className="text-[11px] font-mono text-[#FDCC0D]">{inspectedSpeaker.organization}</div>
               </div>
             </div>
@@ -466,10 +469,10 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
             {/* Bio */}
             <div className="mt-4 p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
               <div className="text-[10px] font-mono uppercase text-slate-400 tracking-wider mb-1">
-                Biografía Canónica:
+                {es ? 'Biografía Canónica:' : 'Official Bio:'}
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                {inspectedSpeaker.bio}
+                {loc(inspectedSpeaker, 'bio', language)}
               </p>
             </div>
 
@@ -499,7 +502,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                 {inspectedSpeaker.socialLinks.portfolio && (
                   <a href={inspectedSpeaker.socialLinks.portfolio} target="_blank" rel="noreferrer" className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-[#FDCC0D] flex items-center gap-1 text-xs font-mono">
                     <Globe className="w-4 h-4" />
-                    <span>Portafolio</span>
+                    <span>{es ? 'Portafolio' : 'Portfolio'}</span>
                   </a>
                 )}
               </div>
@@ -508,7 +511,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
             {/* Sessions in Summit */}
             <div className="mt-4 pt-3 border-t border-slate-800">
               <div className="text-[10px] font-mono uppercase text-slate-400 tracking-wider mb-2">
-                Participación en el Run of Show:
+                {es ? 'Participación en el Run of Show:' : 'Run of Show participation:'}
               </div>
               <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
                 {getSpeakerSessions(inspectedSpeaker.id).map(session => (
@@ -520,9 +523,9 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                     className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-[#FDCC0D] cursor-pointer transition-colors flex items-center justify-between"
                   >
                     <div>
-                      <div className="text-xs font-bold text-white line-clamp-1">{session.title}</div>
+                      <div className="text-xs font-bold text-white line-clamp-1">{loc(session, 'title', language)}</div>
                       <div className="text-[10px] font-mono text-slate-400">
-                        Día {session.day} • {session.startTime} – {session.endTime}
+                        {es ? 'Día ' : 'Day '}{session.day} • {session.startTime} – {session.endTime}
                       </div>
                     </div>
                     <ChevronRight className="w-4 h-4 text-slate-500" />
@@ -539,11 +542,11 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                     detail: {
                       role: 'SPEAKER',
                       name: inspectedSpeaker.name,
-                      title: inspectedSpeaker.role,
+                      title: loc(inspectedSpeaker, 'role', language),
                       org: inspectedSpeaker.organization,
                       handle: inspectedSpeaker.handle || inspectedSpeaker.socialLinks?.twitter || inspectedSpeaker.socialLinks?.linkedin,
                       photoUrl: inspectedSpeaker.avatarUrl,
-                      bio: inspectedSpeaker.bio,
+                      bio: loc(inspectedSpeaker, 'bio', language),
                       portfolio: inspectedSpeaker.socialLinks?.portfolio,
                       tier: 'SPEAKER'
                     }
@@ -552,7 +555,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                 className="w-full py-2.5 bg-cyan-500/20 hover:bg-cyan-500 hover:text-black border border-cyan-400 text-cyan-300 font-bold text-xs font-mono uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-cyan-500/10"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Holo Card de este speaker</span>
+                <span>{es ? 'Holo Card de este speaker' : 'This speaker\'s Holo Card'}</span>
               </button>
             </div>
           </div>

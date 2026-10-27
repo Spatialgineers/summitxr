@@ -49,6 +49,8 @@ const PodiumAvatar: React.FC<{ seed: string; color?: string; size: number; ring:
 );
 
 type StoreLeaderRow = LeaderboardEntry & { avatarSeed: string; avatarColor?: string };
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 interface SummitRewardsStoreModalProps {
   onClose: () => void;
@@ -65,6 +67,8 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
   onOpenAdminRewards,
   isAdmin = false
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'STORE' | 'LEADERBOARD' | 'MY_PRIZES'>('STORE');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -130,7 +134,7 @@ const [loading, setLoading] = useState<boolean>(true);
 
   const handleConfirmRedeem = async (reward: GamificationReward) => {
     if (userXp < reward.xpCost) {
-      setRedeemError(`Necesitas ${reward.xpCost - userXp} XP adicionales para canjear este premio.`);
+      setRedeemError((es ? `Necesitas ${reward.xpCost - userXp} XP adicionales para canjear este premio.` : `You need ${reward.xpCost - userXp} more XP to redeem this prize.`));
       playUiChirp(220, 'sawtooth');
       return;
     }
@@ -143,13 +147,13 @@ const [loading, setLoading] = useState<boolean>(true);
     const currentUserObj = {
       uid: user.uid,
       email: user?.email || 'asistente@spatialgineers.com',
-      displayName: user?.displayName || 'Asistente Summit'
+      displayName: user?.displayName || (es ? 'Asistente Summit' : 'Summit Attendee')
     };
 
     const result = await redeemPrize(reward, currentUserObj);
     if (result.success && result.voucher) {
       const newXp = Math.max(0, userXp - reward.xpCost);
-      sgxIdentity?.spendXp({ rewardId: reward.id, title: reward.title, cost: reward.xpCost, voucher: result.voucher.voucherCode });
+      sgxIdentity?.spendXp({ rewardId: reward.id, title: loc(reward, 'title', language), cost: reward.xpCost, voucher: result.voucher.voucherCode });
       if (onXpChange) onXpChange(newXp);
 
       setRedeemedPrizes(prev => [result.voucher!, ...prev]);
@@ -165,25 +169,25 @@ const [loading, setLoading] = useState<boolean>(true);
       });
       playUiChirp(1200);
     } else {
-      setRedeemError(result.error || 'Error al procesar el canje.');
+      setRedeemError(result.error || (es ? 'Error al procesar el canje.' : 'Error processing the redemption.'));
     }
   };
 
   const filteredRewards = rewards.filter(r => {
     const matchesCategory = selectedCategory === 'ALL' || r.category === selectedCategory;
     const matchesSearch = searchQuery === '' || 
-      r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      loc(r, 'title', language).toLowerCase().includes(searchQuery.toLowerCase()) ||
+      loc(r, 'description', language).toLowerCase().includes(searchQuery.toLowerCase()) ||
       (r.sponsorName && r.sponsorName.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCategory && matchesSearch;
   });
 
   const categories: { key: string; label: string; icon: string }[] = [
-    { key: 'ALL', label: 'Todos los Premios', icon: '✨' },
-    { key: 'WEBAPP_SUBSCRIPTION', label: 'Suscripciones WebApps', icon: '💻' },
-    { key: 'SERVICE_CONSULTING', label: 'Mentoría & Servicios', icon: '🚀' },
+    { key: 'ALL', label: (es ? 'Todos los Premios' : 'All Prizes'), icon: '✨' },
+    { key: 'WEBAPP_SUBSCRIPTION', label: (es ? 'Suscripciones WebApps' : 'Web App Subscriptions'), icon: '💻' },
+    { key: 'SERVICE_CONSULTING', label: (es ? 'Mentoría & Servicios' : 'Mentorship & Services'), icon: '🚀' },
     { key: 'PHYSICAL_SWAG', label: 'Merchandising & Swag', icon: '🎁' },
-    { key: 'EARLY_ACCESS', label: 'Pases VIP & Betas', icon: '👑' }
+    { key: 'EARLY_ACCESS', label: (es ? 'Pases VIP & Betas' : 'VIP Passes & Betas'), icon: '👑' }
   ];
 
   return (
@@ -212,14 +216,14 @@ const [loading, setLoading] = useState<boolean>(true);
             <div>
               <div className="flex items-center space-x-2.5">
                 <h2 className="text-lg sm:text-xl font-black font-['Orbitron',sans-serif] text-white tracking-wide uppercase">
-                  TIENDA DE CANJE & LEADERBOARD
+                  {es ? 'TIENDA DE CANJE & LEADERBOARD' : 'REDEMPTION STORE & LEADERBOARD'}
                 </h2>
                 <span className="text-[10px] font-mono px-2 py-0.5 bg-[#FDCC0D]/20 border border-[#FDCC0D] text-[#FDCC0D] font-extrabold uppercase">
                   SUMMIT 2026
                 </span>
               </div>
               <p className="text-xs text-slate-400 font-mono mt-0.5">
-                Canjea tus puntos ganados por votos, misiones y minijuegos por servicios y suscripciones a nuestras webapps gratis.
+                {es ? 'Canjea tus puntos ganados por votos, misiones y minijuegos por servicios y suscripciones a nuestras webapps gratis.' : 'Redeem the points you earn from votes, missions and mini-games for services and free subscriptions to our web apps.'}
               </p>
             </div>
           </div>
@@ -234,7 +238,7 @@ const [loading, setLoading] = useState<boolean>(true);
             >
               <Zap className="w-4 h-4 fill-current animate-pulse" />
               <div>
-                <div className="text-[10px] text-slate-400 leading-none">TU BALANCE DISPONIBLE:</div>
+                <div className="text-[10px] text-slate-400 leading-none">{es ? 'TU BALANCE DISPONIBLE:' : 'YOUR AVAILABLE BALANCE:'}</div>
                 <div className="text-sm font-black text-white">{userXp} <span className="text-[#FDCC0D]">XP</span></div>
               </div>
             </div>
@@ -249,7 +253,7 @@ const [loading, setLoading] = useState<boolean>(true);
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
                 <Edit3 className="w-3.5 h-3.5" />
-                <span>EDITAR PREMIOS (ADMIN)</span>
+                <span>{es ? 'EDITAR PREMIOS (ADMIN)' : 'EDIT PRIZES (ADMIN)'}</span>
               </button>
             )}
 
@@ -280,7 +284,7 @@ const [loading, setLoading] = useState<boolean>(true);
               style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
             >
               <ShoppingBag className="w-4 h-4" />
-              <span>CATÁLOGO DE CANJE ({rewards.length})</span>
+              <span>{es ? 'CATÁLOGO DE CANJE (' : 'REDEMPTION CATALOG ('}{rewards.length})</span>
             </button>
 
             <button
@@ -296,7 +300,7 @@ const [loading, setLoading] = useState<boolean>(true);
               style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
             >
               <Trophy className="w-4 h-4" />
-              <span>RANKING DEL FIN DE SEMANA</span>
+              <span>{es ? 'RANKING DEL FIN DE SEMANA' : 'WEEKEND RANKING'}</span>
             </button>
 
             <button
@@ -312,14 +316,14 @@ const [loading, setLoading] = useState<boolean>(true);
               style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
             >
               <Award className="w-4 h-4" />
-              <span>MIS PREMIOS CANJEADOS ({redeemedPrizes.length})</span>
+              <span>{es ? 'MIS PREMIOS CANJEADOS (' : 'MY REDEEMED PRIZES ('}{redeemedPrizes.length})</span>
             </button>
 
           </div>
 
           <div className="hidden lg:flex items-center space-x-2 text-xs font-mono text-slate-400">
             <Clock className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Score final se consolida al cierre del Summit</span>
+            <span>{es ? 'Score final se consolida al cierre del Summit' : 'The final score is locked in at the Summit closing'}</span>
           </div>
         </div>
 
@@ -360,7 +364,7 @@ const [loading, setLoading] = useState<boolean>(true);
                   <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
-                    placeholder="Buscar webapp o servicio..."
+                    placeholder={es ? 'Buscar webapp o servicio...' : 'Search web app or service...'}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full bg-black border border-[var(--sgx-secondary)] pl-9 pr-3 py-1.5 text-xs font-mono text-white placeholder-slate-500 focus:border-[var(--sgx-neon)] outline-none"
@@ -374,7 +378,7 @@ const [loading, setLoading] = useState<boolean>(true);
                 <div className="p-3 bg-[#1A0A0A] border border-amber-600 text-amber-200 text-xs font-mono flex items-center justify-between">
                   <span>⚠️ {redeemError}</span>
                   <button onClick={() => setRedeemError(null)} className="text-slate-400 hover:text-white font-bold ml-2">
-                    CERRAR
+                    {es ? 'CERRAR' : 'CLOSE'}
                   </button>
                 </div>
               )}
@@ -398,8 +402,8 @@ const [loading, setLoading] = useState<boolean>(true);
                             {reward.badgeIcon || '⚡'}
                           </span>
                           <div className="text-right">
-                            <div className="text-[10px] font-mono text-slate-400 uppercase">VALOR OFICIAL:</div>
-                            <div className="text-xs font-mono font-bold text-[#FDCC0D]">{reward.originalValueUsd}</div>
+                            <div className="text-[10px] font-mono text-slate-400 uppercase">{es ? 'VALOR OFICIAL:' : 'OFFICIAL VALUE:'}</div>
+                            <div className="text-xs font-mono font-bold text-[#FDCC0D]">{loc(reward, 'originalValueUsd', language)}</div>
                           </div>
                         </div>
 
@@ -408,17 +412,17 @@ const [loading, setLoading] = useState<boolean>(true);
                           {reward.category.replace('_', ' ')}
                         </div>
                         <h3 className="text-sm font-bold text-white font-['Orbitron',sans-serif] mt-1 leading-snug">
-                          {reward.title}
+                          {loc(reward, 'title', language)}
                         </h3>
 
                         <p className="text-xs text-slate-300 mt-2 line-clamp-3 leading-relaxed">
-                          {reward.description}
+                          {loc(reward, 'description', language)}
                         </p>
 
                         {/* Features bullet list */}
-                        {reward.features && reward.features.length > 0 && (
+                        {loc(reward, 'features', language) && loc(reward, 'features', language).length > 0 && (
                           <div className="mt-3.5 space-y-1 pt-3 border-t border-slate-800">
-                            {reward.features.slice(0, 3).map((feat, i) => (
+                            {loc(reward, 'features', language).slice(0, 3).map((feat, i) => (
                               <div key={i} className="flex items-start space-x-1.5 text-[11px] text-slate-400">
                                 <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
                                 <span className="line-clamp-1">{feat}</span>
@@ -433,7 +437,7 @@ const [loading, setLoading] = useState<boolean>(true);
                         
                         <div className="flex items-center justify-between text-xs font-mono">
                           <div>
-                            <span className="text-slate-400 text-[10px]">COSTO CANJE:</span>
+                            <span className="text-slate-400 text-[10px]">{es ? 'COSTO CANJE:' : 'REDEMPTION COST:'}</span>
                             <div className="font-extrabold text-[#FDCC0D] text-base flex items-center space-x-1">
                               <Zap className="w-4 h-4 fill-current" />
                               <span>{reward.xpCost} XP</span>
@@ -441,9 +445,9 @@ const [loading, setLoading] = useState<boolean>(true);
                           </div>
 
                           <div className="text-right text-[11px] font-mono">
-                            <span className="text-slate-500">DISPONIBILIDAD:</span>
+                            <span className="text-slate-500">{es ? 'DISPONIBILIDAD:' : 'AVAILABILITY:'}</span>
                             <div className="text-slate-300 font-bold">
-                              {reward.inventoryCount === -1 ? 'Ilimitado' : `${reward.inventoryCount} cupos rest.`}
+                              {reward.inventoryCount === -1 ? (es ? 'Ilimitado' : 'Unlimited') : (es ? `${reward.inventoryCount} cupos rest.` : `${reward.inventoryCount} left`)}
                             </div>
                           </div>
                         </div>
@@ -454,7 +458,7 @@ const [loading, setLoading] = useState<boolean>(true);
                             disabled
                             className="w-full py-2.5 bg-slate-800 text-slate-500 text-xs font-mono font-bold cursor-not-allowed text-center uppercase"
                           >
-                            AGOTADO TEMPORALMENTE
+                            {es ? 'AGOTADO TEMPORALMENTE' : 'TEMPORARILY SOLD OUT'}
                           </button>
                         ) : (
                           <button
@@ -471,7 +475,7 @@ const [loading, setLoading] = useState<boolean>(true);
                           >
                             <Gift className="w-4 h-4" />
                             <span>
-                              {canAfford ? 'CANJEAR PREMIO AHORA' : `NECESITAS ${reward.xpCost - userXp} XP MÁS`}
+                              {canAfford ? (es ? 'CANJEAR PREMIO AHORA' : 'REDEEM PRIZE NOW') : (es ? `NECESITAS ${reward.xpCost - userXp} XP MÁS` : `YOU NEED ${reward.xpCost - userXp} MORE XP`)}
                             </span>
                           </button>
                         )}
@@ -491,9 +495,9 @@ const [loading, setLoading] = useState<boolean>(true);
               {leaderboard.length === 0 ? (
                 <div className="p-8 text-center bg-[#0D0D0D] border border-[var(--sgx-secondary)] space-y-3">
                   <Trophy className="w-10 h-10 text-[var(--sgx-neon)] mx-auto opacity-60" />
-                  <h3 className="text-sm font-bold text-white uppercase font-mono">Tabla de Clasificación Vacía</h3>
+                  <h3 className="text-sm font-bold text-white uppercase font-mono">{es ? 'Tabla de Clasificación Vacía' : 'Leaderboard Empty'}</h3>
                   <p className="text-xs text-slate-400 font-mono max-w-md mx-auto">
-                    Aún no hay participantes en la tabla de clasificación. ¡Sé el primero en ganar XP completando misiones del Reactor o participando en votaciones en vivo!
+                    {es ? 'Aún no hay participantes en la tabla de clasificación. ¡Sé el primero en ganar XP completando misiones del Reactor o participando en votaciones en vivo!' : 'No one is on the leaderboard yet. Be the first to earn XP by completing Reactor missions or joining live votes!'}
                   </p>
                 </div>
               ) : (
@@ -517,8 +521,8 @@ const [loading, setLoading] = useState<boolean>(true);
                       {leaderboard[1].totalXp} XP
                     </div>
                     <div className="text-[10px] text-slate-500 font-mono mt-2 flex items-center space-x-2">
-                      <span>🗳️ {leaderboard[1].votesCount} Votos</span>
-                      <span>🎯 {leaderboard[1].questsCount} Conexiones</span>
+                      <span>🗳️ {leaderboard[1].votesCount}{es ? ' Votos' : ' Votes'}</span>
+                      <span>🎯 {leaderboard[1].questsCount}{es ? ' Conexiones' : ' Connections'}</span>
                     </div>
                   </div>
                 )}
@@ -539,8 +543,8 @@ const [loading, setLoading] = useState<boolean>(true);
                       {leaderboard[0].totalXp} XP
                     </div>
                     <div className="text-[11px] text-amber-200 font-mono mt-2 flex items-center space-x-3">
-                      <span>🗳️ {leaderboard[0].votesCount} Votos</span>
-                      <span>🎯 {leaderboard[0].questsCount} Conexiones</span>
+                      <span>🗳️ {leaderboard[0].votesCount}{es ? ' Votos' : ' Votes'}</span>
+                      <span>🎯 {leaderboard[0].questsCount}{es ? ' Conexiones' : ' Connections'}</span>
                     </div>
                   </div>
                 )}
@@ -561,8 +565,8 @@ const [loading, setLoading] = useState<boolean>(true);
                       {leaderboard[2].totalXp} XP
                     </div>
                     <div className="text-[10px] text-slate-500 font-mono mt-2 flex items-center space-x-2">
-                      <span>🗳️ {leaderboard[2].votesCount} Votos</span>
-                      <span>🎯 {leaderboard[2].questsCount} Conexiones</span>
+                      <span>🗳️ {leaderboard[2].votesCount}{es ? ' Votos' : ' Votes'}</span>
+                      <span>🎯 {leaderboard[2].questsCount}{es ? ' Conexiones' : ' Connections'}</span>
                     </div>
                   </div>
                 )}
@@ -572,8 +576,8 @@ const [loading, setLoading] = useState<boolean>(true);
               {/* Full Ranking Table */}
               <div className="bg-[#0D0D0D] border border-[var(--sgx-secondary)] overflow-hidden">
                 <div className="p-3 bg-black border-b border-[var(--sgx-secondary)] font-mono text-xs font-bold text-slate-300 flex items-center justify-between">
-                  <span>TABLA COMPLETA DE PARTICIPACIÓN DEL FIN DE SEMANA</span>
-                  <span className="text-cyan-400">Puntaje en Tiempo Real</span>
+                  <span>{es ? 'TABLA COMPLETA DE PARTICIPACIÓN DEL FIN DE SEMANA' : 'FULL WEEKEND PARTICIPATION TABLE'}</span>
+                  <span className="text-cyan-400">{es ? 'Puntaje en Tiempo Real' : 'Real-Time Score'}</span>
                 </div>
 
                 <div className="divide-y divide-slate-800 font-mono text-xs">
@@ -603,7 +607,7 @@ const [loading, setLoading] = useState<boolean>(true);
                               )}
                             </div>
                             <div className="text-[11px] text-slate-400 mt-0.5">
-                              {entry.rankTitle} • {entry.votesCount} votos • {entry.questsCount} conexiones
+                              {entry.rankTitle} • {entry.votesCount}{es ? ' votos • ' : ' votes • '}{entry.questsCount}{es ? ' conexiones' : ' connections'}
                             </div>
                           </div>
                         </div>
@@ -611,7 +615,7 @@ const [loading, setLoading] = useState<boolean>(true);
                         <div className="text-right shrink-0">
                           <div className="text-sm font-black text-[#FDCC0D]">{entry.totalXp} XP</div>
                           {entry.droneHighScore > 0 && (
-                            <div className="text-[10px] text-slate-500">Dron: {entry.droneHighScore} pts</div>
+                            <div className="text-[10px] text-slate-500">{es ? 'Dron: ' : 'Drone: '}{entry.droneHighScore} pts</div>
                           )}
                         </div>
                       </div>
@@ -627,20 +631,20 @@ const [loading, setLoading] = useState<boolean>(true);
               >
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-[var(--sgx-neon)] text-black font-extrabold rounded">
-                    TU SCORE
+                    {es ? 'TU SCORE' : 'YOUR SCORE'}
                   </div>
                   <div>
                     <div className="font-bold text-white text-sm">
-                      {user?.displayName || user?.email || 'Asistente Summit'}
+                      {user?.displayName || user?.email || (es ? 'Asistente Summit' : 'Summit Attendee')}
                     </div>
                     <div className="text-cyan-300 text-xs">
-                      Participa en más votos y misiones para subir al podio final del domingo.
+                      {es ? 'Participa en más votos y misiones para subir al podio final del domingo.' : 'Join more votes and missions to climb onto Sunday\'s final podium.'}
                     </div>
                   </div>
                 </div>
 
                 <div className="text-right font-extrabold text-base text-[#FDCC0D]">
-                  {userXp} XP ACUMULADOS
+                  {userXp}{es ? ' XP ACUMULADOS' : ' XP EARNED'}
                 </div>
               </div>
             </>
@@ -655,15 +659,15 @@ const [loading, setLoading] = useState<boolean>(true);
               {redeemedPrizes.length === 0 ? (
                 <div className="p-10 text-center border border-dashed border-[var(--sgx-secondary)] bg-[#0D0D0D] space-y-3">
                   <Gift className="w-10 h-10 text-slate-600 mx-auto" />
-                  <h4 className="text-sm font-bold text-slate-300 font-mono">Aún no has canjeado premios</h4>
+                  <h4 className="text-sm font-bold text-slate-300 font-mono">{es ? 'Aún no has canjeado premios' : 'You haven\'t redeemed any prizes yet'}</h4>
                   <p className="text-xs text-slate-500 max-w-md mx-auto">
-                    Explora el catálogo de canje, acumula XP votando en las sesiones en vivo y canjea licencias de software, suscripciones y mentorías gratuitas.
+                    {es ? 'Explora el catálogo de canje, acumula XP votando en las sesiones en vivo y canjea licencias de software, suscripciones y mentorías gratuitas.' : 'Browse the redemption catalog, earn XP by voting in the live sessions and redeem free software licenses, subscriptions and mentorships.'}
                   </p>
                   <button
                     onClick={() => setActiveTab('STORE')}
                     className="px-4 py-2 bg-[var(--sgx-neon)] text-black font-mono font-bold text-xs hover:bg-cyan-300 transition-colors"
                   >
-                    Ver Catálogo de Premios
+                    {es ? 'Ver Catálogo de Premios' : 'View Prize Catalog'}
                   </button>
                 </div>
               ) : (
@@ -677,7 +681,7 @@ const [loading, setLoading] = useState<boolean>(true);
                       <div className="flex items-start justify-between gap-2 border-b border-slate-800 pb-3">
                         <div>
                           <span className="text-[10px] font-mono px-2 py-0.5 bg-[#191919] border border-[#FDCC0D] text-[#FDCC0D] font-bold uppercase">
-                            CANJEADO EXITOSAMENTE
+                            {es ? 'CANJEADO EXITOSAMENTE' : 'REDEEMED SUCCESSFULLY'}
                           </span>
                           <h4 className="text-sm font-bold text-white font-['Orbitron',sans-serif] mt-1.5">
                             {prize.rewardTitle}
@@ -690,7 +694,7 @@ const [loading, setLoading] = useState<boolean>(true);
 
                       {/* Code Box */}
                       <div className="p-3 bg-black border border-[var(--sgx-secondary)] space-y-1">
-                        <div className="text-[10px] text-slate-400 font-mono">CÓDIGO DE LICENCIA / VOUCHER:</div>
+                        <div className="text-[10px] text-slate-400 font-mono">{es ? 'CÓDIGO DE LICENCIA / VOUCHER:' : 'LICENSE CODE / VOUCHER:'}</div>
                         <div className="flex items-center justify-between">
                           <code className="text-sm font-mono font-extrabold text-[#FDCC0D] tracking-wider">
                             {prize.voucherCode}
@@ -700,14 +704,14 @@ const [loading, setLoading] = useState<boolean>(true);
                             className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white text-xs font-mono flex items-center space-x-1"
                           >
                             {copiedCode === prize.voucherCode ? <Check className="w-3.5 h-3.5 text-[#FDCC0D]" /> : <Copy className="w-3.5 h-3.5" />}
-                            <span>{copiedCode === prize.voucherCode ? 'Copiado' : 'Copiar'}</span>
+                            <span>{copiedCode === prize.voucherCode ? (es ? 'Copiado' : 'Copied') : (es ? 'Copiar' : 'Copy')}</span>
                           </button>
                         </div>
                       </div>
 
                       {/* Action Links */}
                       <div className="flex items-center justify-between pt-1 text-xs font-mono">
-                        <span className="text-slate-400 text-[11px]">Inversión: {prize.xpSpent} XP</span>
+                        <span className="text-slate-400 text-[11px]">{es ? 'Inversión: ' : 'Cost: '}{prize.xpSpent} XP</span>
                         {prize.accessUrl && (
                           <a
                             href={prize.accessUrl}
@@ -715,7 +719,7 @@ const [loading, setLoading] = useState<boolean>(true);
                             rel="noopener noreferrer"
                             className="text-[var(--sgx-neon)] hover:underline flex items-center space-x-1 font-bold"
                           >
-                            <span>Abrir WebApp / Redimir</span>
+                            <span>{es ? 'Abrir WebApp / Redimir' : 'Open Web App / Redeem'}</span>
                             <ExternalLink className="w-3.5 h-3.5" />
                           </a>
                         )}
@@ -741,7 +745,7 @@ const [loading, setLoading] = useState<boolean>(true);
                 <div className="flex items-center space-x-2.5">
                   <span className="text-2xl">{redeemingReward.badgeIcon}</span>
                   <h3 className="text-base font-bold font-['Orbitron',sans-serif] text-white">
-                    Confirmar Canje
+                    {es ? 'Confirmar Canje' : 'Confirm Redemption'}
                   </h3>
                 </div>
                 <button onClick={() => setRedeemingReward(null)} className="text-slate-400 hover:text-white">
@@ -751,26 +755,26 @@ const [loading, setLoading] = useState<boolean>(true);
 
               <div className="space-y-3 text-xs font-mono">
                 <p className="text-slate-300">
-                  Estás a punto de canjear <strong className="text-white">{redeemingReward.title}</strong>.
+                  {es ? 'Estás a punto de canjear ' : 'You\'re about to redeem '}<strong className="text-white">{loc(redeemingReward, 'title', language)}</strong>.
                 </p>
 
                 <div className="p-3 bg-black border border-[var(--sgx-secondary)] space-y-1.5">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Balance Actual:</span>
+                    <span className="text-slate-400">{es ? 'Balance Actual:' : 'Current Balance:'}</span>
                     <span className="text-white font-bold">{userXp} XP</span>
                   </div>
                   <div className="flex justify-between text-[#FDCC0D]">
-                    <span>Costo del Premio:</span>
+                    <span>{es ? 'Costo del Premio:' : 'Prize Cost:'}</span>
                     <span className="font-extrabold">-{redeemingReward.xpCost} XP</span>
                   </div>
                   <div className="flex justify-between border-t border-slate-800 pt-1.5 font-bold">
-                    <span className="text-slate-300">Balance Restante:</span>
+                    <span className="text-slate-300">{es ? 'Balance Restante:' : 'Remaining Balance:'}</span>
                     <span className="text-[var(--sgx-neon)]">{userXp - redeemingReward.xpCost} XP</span>
                   </div>
                 </div>
 
                 <p className="text-[11px] text-slate-400">
-                  Al confirmar, se generará tu voucher con código de licencia digital y acceso instantáneo.
+                  {es ? 'Al confirmar, se generará tu voucher con código de licencia digital y acceso instantáneo.' : 'When you confirm, your voucher with a digital license code and instant access will be generated.'}
                 </p>
               </div>
 
@@ -779,13 +783,13 @@ const [loading, setLoading] = useState<boolean>(true);
                   onClick={() => setRedeemingReward(null)}
                   className="px-4 py-2 bg-slate-900 border border-[var(--sgx-secondary)] hover:bg-slate-800 text-xs font-mono"
                 >
-                  CANCELAR
+                  {es ? 'CANCELAR' : 'CANCEL'}
                 </button>
                 <button
                   onClick={() => handleConfirmRedeem(redeemingReward)}
                   className="px-5 py-2 bg-[var(--sgx-neon)] hover:bg-cyan-300 text-black font-mono font-black text-xs shadow-lg"
                 >
-                  SÍ, CANJEAR AHORA
+                  {es ? 'SÍ, CANJEAR AHORA' : 'YES, REDEEM NOW'}
                 </button>
               </div>
             </div>
@@ -795,14 +799,14 @@ const [loading, setLoading] = useState<boolean>(true);
         {/* Modal Footer */}
         <div className="p-3 sm:p-4 bg-[#0D0D0D] border-t border-[var(--sgx-secondary)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono shrink-0">
           <span className="text-slate-400 text-[11px]">
-            Spatialgineers Gamification Engine • Puntuaciones y licencias sincronizadas en la nube
+            {es ? 'Spatialgineers Gamification Engine • Puntuaciones y licencias sincronizadas en la nube' : 'Spatialgineers Gamification Engine • Scores and licenses synced to the cloud'}
           </span>
           <button
             onClick={onClose}
             className="w-full sm:w-auto px-5 py-2 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)] text-white text-xs font-bold transition-colors"
             style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
           >
-            CERRAR TIENDA
+            {es ? 'CERRAR TIENDA' : 'CLOSE STORE'}
           </button>
         </div>
 

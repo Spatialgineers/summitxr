@@ -149,6 +149,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   const [activeSummitSection, setActiveSummitSection] = useState<string>('OVERVIEW');
   const { tenant, tenants, selectTenant, selectPillar, styles } = useTenantTheme();
   const { language, setLanguage, t } = useLanguage();
+  const es = language === 'es';
   const { profile, liteMode, setLiteMode } = usePilotProfile();
   const sgxId = useOptionalSgxIdentity();
 
@@ -244,7 +245,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
     setTimeout(() => setCopiedPath(false), 2000);
   };
 
-  const displayName = playerProfile?.nickname || user?.displayName || (user && !user.isAnonymous ? user.email?.split('@')[0] : 'Invitado');
+  const displayName = playerProfile?.nickname || user?.displayName || (user && !user.isAnonymous ? user.email?.split('@')[0] : (es ? 'Invitado' : 'Guest'));
   const userAvatar = playerProfile?.avatar || (user as any)?.photoURL;
 
   // Identify current pillar config
@@ -261,42 +262,42 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
     switch (pillarId) {
       case 'SGX.STORY':
         return [
-          { id: 'summit_overview', label: 'INICIO', icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
-          { id: 'summit_pillars', label: 'MANIFIESTO & 6 PILARES', icon: Layers, type: 'SUMMIT_SECTION', sectionKey: 'PILLARS_MANIFESTO', isActive: currentPage === 'summit' && activeSummitSection === 'PILLARS_MANIFESTO' },
+          { id: 'summit_overview', label: (es ? 'INICIO' : 'HOME'), icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
+          { id: 'summit_pillars', label: (es ? 'MANIFIESTO & 6 PILARES' : 'MANIFESTO & 6 PILLARS'), icon: Layers, type: 'SUMMIT_SECTION', sectionKey: 'PILLARS_MANIFESTO', isActive: currentPage === 'summit' && activeSummitSection === 'PILLARS_MANIFESTO' },
           { id: 'summit_speakers', label: 'SPEAKERS & LORE', icon: Users, type: 'SUMMIT_SECTION', sectionKey: 'SPEAKERS', isActive: currentPage === 'summit' && activeSummitSection === 'SPEAKERS' },
           { id: 'summit_passport', label: 'SGX PASS & REACTOR', icon: Sparkles, type: 'ACTION', actionKey: 'open_passport', isActive: false },
         ];
 
       case 'SGX.STAGE':
         return [
-          { id: 'summit_overview', label: 'INICIO', icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
+          { id: 'summit_overview', label: (es ? 'INICIO' : 'HOME'), icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
           { id: 'summit_agenda', label: 'RUN OF SHOW & AGENDA', icon: Calendar, type: 'SUMMIT_SECTION', sectionKey: 'AGENDA', isActive: currentPage === 'summit' && activeSummitSection === 'AGENDA' },
-          { id: 'summit_broadcast', label: 'SALAS DE TRANSMISIÓN', icon: Tv, type: 'SUMMIT_SECTION', sectionKey: 'BROADCAST_ROOMS', isActive: currentPage === 'summit' && activeSummitSection === 'BROADCAST_ROOMS' },
+          { id: 'summit_broadcast', label: (es ? 'SALAS DE TRANSMISIÓN' : 'BROADCAST ROOMS'), icon: Tv, type: 'SUMMIT_SECTION', sectionKey: 'BROADCAST_ROOMS', isActive: currentPage === 'summit' && activeSummitSection === 'BROADCAST_ROOMS' },
           { id: 'summit_speakers', label: 'SPEAKERS', icon: Users, type: 'SUMMIT_SECTION', sectionKey: 'SPEAKERS', isActive: currentPage === 'summit' && activeSummitSection === 'SPEAKERS' },
-          { id: 'page_play', label: 'ARENA 3D EN VIVO', icon: Vote, type: 'PAGE', pageRoute: 'play', isActive: currentPage === 'play' },
+          { id: 'page_play', label: (es ? 'ARENA 3D EN VIVO' : 'LIVE 3D ARENA'), icon: Vote, type: 'PAGE', pageRoute: 'play', isActive: currentPage === 'play' },
         ];
 
       case 'SGX.SPARK':
         return [
-          { id: 'summit_overview', label: 'INICIO', icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
-          { id: 'summit_drones', label: 'SIMULADOR DE DRONES 3D', icon: Gamepad2, type: 'SUMMIT_SECTION', sectionKey: 'EMBEDS_GAMES', isActive: currentPage === 'summit' && activeSummitSection === 'EMBEDS_GAMES' },
+          { id: 'summit_overview', label: (es ? 'INICIO' : 'HOME'), icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
+          { id: 'summit_drones', label: (es ? 'SIMULADOR DE DRONES 3D' : '3D DRONE SIMULATOR'), icon: Gamepad2, type: 'SUMMIT_SECTION', sectionKey: 'EMBEDS_GAMES', isActive: currentPage === 'summit' && activeSummitSection === 'EMBEDS_GAMES' },
           { id: 'summit_match', label: 'SGX.MATCH', icon: Flame, type: 'SUMMIT_SECTION', sectionKey: 'ENTREPRENEUR_MATCH', isActive: currentPage === 'summit' && activeSummitSection === 'ENTREPRENEUR_MATCH' },
-          { id: 'page_play', label: 'ARENA 3D GAMIFICADA', icon: Vote, type: 'PAGE', pageRoute: 'play', isActive: currentPage === 'play' },
+          { id: 'page_play', label: (es ? 'ARENA 3D GAMIFICADA' : 'GAMIFIED 3D ARENA'), icon: Vote, type: 'PAGE', pageRoute: 'play', isActive: currentPage === 'play' },
         ];
 
       case 'SGX.SYSTEM':
         return [
-          { id: 'summit_overview', label: 'INICIO', icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
+          { id: 'summit_overview', label: (es ? 'INICIO' : 'HOME'), icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
           { id: 'summit_guild', label: 'SGX GUILD INITIATES', icon: Award, type: 'SUMMIT_SECTION', sectionKey: 'GUILD', isActive: currentPage === 'summit' && activeSummitSection === 'GUILD' },
-          { id: 'page_play', label: 'TELEMETRÍA & ARENA 3D', icon: Vote, type: 'PAGE', pageRoute: 'play', isActive: currentPage === 'play' },
+          { id: 'page_play', label: (es ? 'TELEMETRÍA & ARENA 3D' : 'TELEMETRY & 3D ARENA'), icon: Vote, type: 'PAGE', pageRoute: 'play', isActive: currentPage === 'play' },
         ];
 
       case 'SGX.SHOWCASE':
         return [
-          { id: 'summit_overview', label: 'INICIO', icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
-          { id: 'summit_map', label: 'RECORRIDO 360° CHROMA', icon: Globe, type: 'SUMMIT_SECTION', sectionKey: 'MAP_360', isActive: currentPage === 'summit' && activeSummitSection === 'MAP_360' },
+          { id: 'summit_overview', label: (es ? 'INICIO' : 'HOME'), icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
+          { id: 'summit_map', label: (es ? 'RECORRIDO 360° CHROMA' : 'CHROMA 360° TOUR'), icon: Globe, type: 'SUMMIT_SECTION', sectionKey: 'MAP_360', isActive: currentPage === 'summit' && activeSummitSection === 'MAP_360' },
           { id: 'summit_match', label: 'SGX.MATCH (PITCHING)', icon: Flame, type: 'SUMMIT_SECTION', sectionKey: 'ENTREPRENEUR_MATCH', isActive: currentPage === 'summit' && activeSummitSection === 'ENTREPRENEUR_MATCH' },
-          { id: 'summit_sponsors', label: 'PATROCINADORES & MARCAS', icon: Building2, type: 'SUMMIT_SECTION', sectionKey: 'SPONSORS_HUB', isActive: currentPage === 'summit' && activeSummitSection === 'SPONSORS_HUB' },
+          { id: 'summit_sponsors', label: (es ? 'PATROCINADORES & MARCAS' : 'SPONSORS & BRANDS'), icon: Building2, type: 'SUMMIT_SECTION', sectionKey: 'SPONSORS_HUB', isActive: currentPage === 'summit' && activeSummitSection === 'SPONSORS_HUB' },
           { id: 'summit_credential', label: 'SGX PASS', icon: Award, type: 'SUMMIT_SECTION', sectionKey: 'CREDENTIAL_GENERATOR', isActive: currentPage === 'summit' && activeSummitSection === 'CREDENTIAL_GENERATOR' },
           { id: 'summit_social', label: 'LIVE STREAM', icon: MessageSquare, type: 'SUMMIT_SECTION', sectionKey: 'SOCIAL_STREAM', isActive: currentPage === 'summit' && activeSummitSection === 'SOCIAL_STREAM' },
         ];
@@ -304,12 +305,12 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
       case 'SGX.SYNTHESIZE':
       default:
         return [
-          { id: 'summit_overview', label: 'INICIO', icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && (activeSummitSection === 'OVERVIEW' || !activeSummitSection) },
+          { id: 'summit_overview', label: (es ? 'INICIO' : 'HOME'), icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && (activeSummitSection === 'OVERVIEW' || !activeSummitSection) },
           { id: 'summit_agenda', label: 'RUN OF SHOW', icon: Calendar, type: 'SUMMIT_SECTION', sectionKey: 'AGENDA', isActive: currentPage === 'summit' && activeSummitSection === 'AGENDA' },
-          { id: 'summit_pillars', label: '6 PILARES', icon: Layers, type: 'SUMMIT_SECTION', sectionKey: 'PILLARS_MANIFESTO', isActive: currentPage === 'summit' && activeSummitSection === 'PILLARS_MANIFESTO' },
+          { id: 'summit_pillars', label: (es ? '6 PILARES' : '6 PILLARS'), icon: Layers, type: 'SUMMIT_SECTION', sectionKey: 'PILLARS_MANIFESTO', isActive: currentPage === 'summit' && activeSummitSection === 'PILLARS_MANIFESTO' },
           { id: 'summit_speakers', label: 'SPEAKERS', icon: Users, type: 'SUMMIT_SECTION', sectionKey: 'SPEAKERS', isActive: currentPage === 'summit' && activeSummitSection === 'SPEAKERS' },
           { id: 'summit_match', label: 'SGX.MATCH', icon: Flame, type: 'SUMMIT_SECTION', sectionKey: 'ENTREPRENEUR_MATCH', isActive: currentPage === 'summit' && activeSummitSection === 'ENTREPRENEUR_MATCH' },
-          { id: 'summit_map', label: 'RECORRIDO 360°', icon: Globe, type: 'SUMMIT_SECTION', sectionKey: 'MAP_360', isActive: currentPage === 'summit' && activeSummitSection === 'MAP_360' },
+          { id: 'summit_map', label: (es ? 'RECORRIDO 360°' : '360° TOUR'), icon: Globe, type: 'SUMMIT_SECTION', sectionKey: 'MAP_360', isActive: currentPage === 'summit' && activeSummitSection === 'MAP_360' },
           { id: 'page_play', label: 'ARENA 3D', icon: Vote, type: 'PAGE', pageRoute: 'play', isActive: currentPage === 'play' },
         ];
     }
@@ -452,7 +453,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   : 'bg-slate-900/90 border-cyan-500/50 text-cyan-300 hover:border-cyan-400'
               }`}
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title={isAudioMuted ? 'Activar efectos de sonido y ambiente espacial' : 'Silenciar audio espacial (Mute SFX)'}
+              title={isAudioMuted ? (es ? 'Activar efectos de sonido y ambiente espacial' : 'Turn on sound effects and spatial ambience') : (es ? 'Silenciar audio espacial (Mute SFX)' : 'Mute spatial audio (Mute SFX)')}
             >
               {isAudioMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
             </button>
@@ -469,11 +470,11 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   : 'bg-slate-900/90 border-slate-700 hover:border-amber-400 text-amber-300'
               }`}
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title={liteMode ? 'Modo ligero activo: toca para volver a los efectos 3D' : 'Efectos 3D activos: toca para el modo ligero (ahorra batería)'}
+              title={liteMode ? (es ? 'Modo ligero activo: toca para volver a los efectos 3D' : 'Lite mode on: tap to go back to 3D effects') : (es ? 'Efectos 3D activos: toca para el modo ligero (ahorra batería)' : '3D effects on: tap for lite mode (saves battery)')}
               aria-pressed={liteMode}
             >
               <Zap className={`w-3 h-3 ${liteMode ? 'fill-black' : 'text-amber-400'}`} />
-              <span>{liteMode ? 'LIGERO' : 'FX'}</span>
+              <span>{liteMode ? (es ? 'LIGERO' : 'LITE') : 'FX'}</span>
             </button>
 
             {/* System Utilities Popover (admin control plane: hidden for attendees) */}
@@ -490,10 +491,10 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                     : 'bg-[#111111] border-[#00DDFF]/50 text-[#00DDFF] hover:bg-[#00DDFF] hover:text-black'
                 }`}
                 style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-                title="Herramientas del Sistema, Módulos y Admin"
+                title={es ? 'Herramientas del Sistema, Módulos y Admin' : 'System Tools, Modules and Admin'}
               >
                 <Sliders className="w-3.5 h-3.5" />
-                <span className="hidden xl:inline text-[10px]">SISTEMA</span>
+                <span className="hidden xl:inline text-[10px]">{es ? 'SISTEMA' : 'SYSTEM'}</span>
               </button>
 
               {isSystemMenuOpen && (
@@ -505,7 +506,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   }}
                 >
                   <div className="px-2 py-1 text-[9px] font-mono text-cyan-300 uppercase tracking-wider border-b border-white/10 font-bold">
-                    Control Plane & Herramientas
+                    {es ? 'Control Plane & Herramientas' : 'Control Plane & Tools'}
                   </div>
 
                   <button
@@ -517,7 +518,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                     className="w-full text-left px-2.5 py-1.5 hover:bg-cyan-950/70 text-slate-200 hover:text-cyan-300 text-xs font-mono flex items-center space-x-2 transition-colors cursor-pointer"
                   >
                     <Sliders className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Módulos & Visibilidad</span>
+                    <span>{es ? 'Módulos & Visibilidad' : 'Modules & Visibility'}</span>
                   </button>
 
                   {isAdmin && (
@@ -543,7 +544,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                     className="w-full text-left px-2.5 py-1.5 hover:bg-cyan-950/70 text-slate-200 hover:text-cyan-300 text-xs font-mono flex items-center space-x-2 transition-colors cursor-pointer"
                   >
                     <BarChart3 className="w-3.5 h-3.5 text-[#FDCC0D]" />
-                    <span>Analíticas & Telemetría</span>
+                    <span>{es ? 'Analíticas & Telemetría' : 'Analytics & Telemetry'}</span>
                   </button>
 
                   <button
@@ -555,7 +556,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                     className="w-full text-left px-2.5 py-1.5 hover:bg-cyan-950/70 text-cyan-300 hover:text-white text-xs font-mono flex items-center space-x-2 transition-colors cursor-pointer"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Mi SGX Pass</span>
+                    <span>{es ? 'Mi SGX Pass' : 'My SGX Pass'}</span>
                   </button>
 
                   <button
@@ -567,7 +568,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                     className="w-full text-left px-2.5 py-1.5 hover:bg-cyan-950/70 text-slate-200 hover:text-cyan-300 text-xs font-mono flex items-center space-x-2 transition-colors cursor-pointer"
                   >
                     <Building2 className="w-3.5 h-3.5 text-orange-400" />
-                    <span>Ser Patrocinador</span>
+                    <span>{es ? 'Ser Patrocinador' : 'Become a Sponsor'}</span>
                   </button>
 
                   <button
@@ -579,7 +580,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                     className="w-full text-left px-2.5 py-1.5 hover:bg-cyan-950/70 text-slate-200 hover:text-amber-300 text-xs font-mono flex items-center space-x-2 transition-colors cursor-pointer"
                   >
                     <Zap className={`w-3.5 h-3.5 ${liteMode ? 'text-amber-400 fill-amber-400' : 'text-slate-400'}`} />
-                    <span>{liteMode ? 'Modo 3D Completo' : 'Modo Ligero (Ahorro)'}</span>
+                    <span>{liteMode ? (es ? 'Modo 3D Completo' : 'Full 3D Mode') : (es ? 'Modo Ligero (Ahorro)' : 'Lite Mode (Saver)')}</span>
                   </button>
                 </div>
               )}
@@ -594,7 +595,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                 window.dispatchEvent(new CustomEvent(sgxId?.isForged ? 'sgx:open_hangar' : 'sgx:open_forge', { detail: { tab: 'pass' } }));
               }}
               className={`sgx-passchip ${sgxId?.isForged ? '' : 'sgx-passchip--forge'}`}
-              title={sgxId?.isForged ? 'Abrir mi Hangar (SGX Pass, Reactor, Rolodex)' : 'Forja tu SGX Pass'}
+              title={sgxId?.isForged ? (es ? 'Abrir mi Hangar (SGX Pass, Reactor, Rolodex)' : 'Open my Hangar (SGX Pass, Reactor, Rolodex)') : (es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass')}
             >
               <span className="sgx-passchip__face">
                 {sgxId?.identity.avatar.png ? (
@@ -625,7 +626,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               onClick={handleCopyCurrentURL}
               className="hidden sm:inline-flex p-1.5 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)] text-[var(--sgx-neon)] transition-colors cursor-pointer"
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title="Copiar enlace directo"
+              title={es ? 'Copiar enlace directo' : 'Copy direct link'}
             >
               {copiedPath ? <Check className="w-3.5 h-3.5 text-[#FDCC0D]" /> : <Share2 className="w-3.5 h-3.5" />}
             </button>
@@ -638,14 +639,14 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               }}
               className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 bg-slate-900 hover:bg-[#32527B] border border-cyan-400/60 hover:border-cyan-300 text-white transition-all cursor-pointer text-xs font-mono font-bold shadow-sm"
               style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-              title="Abrir Directorio de Estaciones del Summit"
+              title={es ? 'Abrir Directorio de Estaciones del Summit' : 'Open the Summit Stations Directory'}
             >
               {isMobileMenuOpen ? (
                 <X className="w-4 h-4 text-cyan-300" />
               ) : (
                 <Menu className="w-4 h-4 text-cyan-300" />
               )}
-              <span className="font-extrabold uppercase tracking-wider text-[11px]">MENÚ</span>
+              <span className="font-extrabold uppercase tracking-wider text-[11px]">{es ? 'MENÚ' : 'MENU'}</span>
             </button>
 
           </div>
@@ -671,11 +672,11 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
                   <h3 className="text-base sm:text-lg font-black text-white uppercase font-['Orbitron',sans-serif] tracking-wider">
-                    LOS 6 PILARES · SPATIALGINEERS SUMMIT 2026
+                    {es ? 'LOS 6 PILARES · SPATIALGINEERS SUMMIT 2026' : 'THE 6 PILLARS · SPATIALGINEERS SUMMIT 2026'}
                   </h3>
                 </div>
                 <p className="text-xs text-slate-400">
-                  Todo el Summit vive dentro de los seis pilares del SGX Framework, en su orden oficial. Teclas 1 a 6.
+                  {es ? 'Todo el Summit vive dentro de los seis pilares del SGX Framework, en su orden oficial. Teclas 1 a 6.' : 'The whole Summit lives inside the six pillars of the SGX Framework, in their official order. Keys 1 to 6.'}
                 </p>
               </div>
               <button
@@ -685,7 +686,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   setIsMobileMenuOpen(false);
                 }}
                 className="p-1.5 bg-slate-900 hover:bg-red-950 border border-slate-700 hover:border-red-500 text-slate-300 hover:text-white transition-colors cursor-pointer"
-                title="Cerrar menú (Esc)"
+                title={es ? 'Cerrar menú (Esc)' : 'Close menu (Esc)'}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -698,7 +699,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             <div className="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
               <div className="flex flex-wrap items-center gap-2">
                 {/* On phones the header keeps only the pass chip and MENÚ; language, sound and link live here. */}
-                <div className="sgx-seg sm:hidden" role="group" aria-label="Idioma">
+                <div className="sgx-seg sm:hidden" role="group" aria-label={es ? 'Idioma' : 'Language'}>
                   <button type="button" className="sgx-btn sgx-btn--sm" aria-pressed={language === 'es'} onClick={() => setLanguage('es')}>ES</button>
                   <button type="button" className="sgx-btn sgx-btn--sm" aria-pressed={language === 'en'} onClick={() => setLanguage('en')}>EN</button>
                 </div>
@@ -706,7 +707,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   {isAudioMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
                 </button>
                 <button type="button" className="sgx-btn sgx-btn--sm sm:hidden" onClick={handleCopyCurrentURL}>
-                  <Share2 className="w-3.5 h-3.5" /> {copiedPath ? 'Copiado' : 'Enlace'}
+                  <Share2 className="w-3.5 h-3.5" /> {copiedPath ? (es ? 'Copiado' : 'Copied') : (es ? 'Enlace' : 'Link')}
                 </button>
                 <button
                   type="button"
@@ -731,7 +732,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                 >
                   <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>MI HANGAR</span>
+                  <span>{es ? 'MI HANGAR' : 'MY HANGAR'}</span>
                 </button>
                 {isAdmin && (
                 <button
@@ -744,13 +745,13 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                 >
                   <Sliders className="w-3.5 h-3.5 text-[#FDCC0D]" />
-                  <span>GESTOR DE MÓDULOS</span>
+                  <span>{es ? 'GESTOR DE MÓDULOS' : 'MODULE MANAGER'}</span>
                 </button>
                 )}
               </div>
 
               <div className="text-slate-500 text-[11px]">
-                Pulsa <kbd className="px-1 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 rounded text-[10px]">ESC</kbd> para cerrar
+                {es ? 'Pulsa ' : 'Press '}<kbd className="px-1 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 rounded text-[10px]">ESC</kbd>{es ? ' para cerrar' : ' to close'}
               </div>
             </div>
 

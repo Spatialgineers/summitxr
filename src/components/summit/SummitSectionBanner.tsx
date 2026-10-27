@@ -18,6 +18,7 @@ import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { ScrambleText } from '../../immersion/ScrambleText';
 import { moduleCode, pillarOfSection } from '../../lib/sgxPillars';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface SummitSectionBannerProps {
   sectionKey: SummitSectionKey;
@@ -38,6 +39,8 @@ export const SummitSectionBanner: React.FC<SummitSectionBannerProps> = ({
   children,
   additionalParams,
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { tenant } = useTenantTheme();
   const [copied, setCopied] = useState(false);
 
@@ -107,7 +110,7 @@ export const SummitSectionBanner: React.FC<SummitSectionBannerProps> = ({
           <div className="sgx-hero__telemetry">
             <span className="sgx-led sgx-led--action" aria-hidden="true" />
             <span className="sgx-hero__badge">{homePillar?.name.toUpperCase() || pillarBadge}</span>
-            <span className="sgx-hero__path">MÓDULO {code} // #/{slug} // SYNC OK</span>
+            <span className="sgx-hero__path">{es ? 'MÓDULO ' : 'MODULE '}{code} // #/{slug} // SYNC OK</span>
           </div>
           <h1 className="sgx-hero__title">
             <ScrambleText text={title} />
@@ -117,19 +120,19 @@ export const SummitSectionBanner: React.FC<SummitSectionBannerProps> = ({
 
         <div className="sgx-hero__actions">
           {children}
-          <button type="button" onClick={handleShare} className="sgx-btn sgx-btn--sm" title="Compartir enlace directo a esta sección">
+          <button type="button" onClick={handleShare} className="sgx-btn sgx-btn--sm" title={es ? 'Compartir enlace directo a esta sección' : 'Share a direct link to this section'}>
             <Share2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Compartir</span>
+            <span className="hidden sm:inline">{es ? 'Compartir' : 'Share'}</span>
           </button>
           <span className="sgx-glow">
             <button
               type="button"
               onClick={handleCopy}
               className={`sgx-btn sgx-btn--sm ${copied ? 'is-active' : ''}`}
-              title={`Copiar enlace directo: ${shareUrl}`}
+              title={(es ? `Copiar enlace directo: ${shareUrl}` : `Copy direct link: ${shareUrl}`)}
             >
               {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? 'Enlace copiado' : 'Copiar enlace'}</span>
+              <span>{copied ? (es ? 'Enlace copiado' : 'Link copied') : (es ? 'Copiar enlace' : 'Copy link')}</span>
             </button>
           </span>
         </div>

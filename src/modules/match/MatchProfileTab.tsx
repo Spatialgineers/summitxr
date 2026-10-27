@@ -15,6 +15,7 @@ import { MATCH_I18N } from './match.i18n';
 import { MatchCard } from './MatchCard';
 import { saveUserMatchProfile } from './matchData';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface MatchProfileTabProps {
   candidate: MatchCandidate;
@@ -29,6 +30,8 @@ export const MatchProfileTab: React.FC<MatchProfileTabProps> = ({
   onEditProfile,
   onProfileUpdated
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const strings = MATCH_I18N[lang] || MATCH_I18N.es;
   const [isVisible, setIsVisible] = useState<boolean>(candidate.profile.visible !== false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
@@ -72,7 +75,7 @@ export const MatchProfileTab: React.FC<MatchProfileTabProps> = ({
               {isVisible ? strings.profileVisible : strings.profileHidden}
             </p>
             <p className="text-[10px] text-slate-400">
-              {isVisible ? 'Otros fundadores pueden verte en el mazo.' : 'Tu tarjeta está oculta del mazo.'}
+              {isVisible ? (es ? 'Otros fundadores pueden verte en el mazo.' : 'Other founders can see you in the deck.') : (es ? 'Tu tarjeta está oculta del mazo.' : 'Your card is hidden from the deck.')}
             </p>
           </div>
         </div>
@@ -100,7 +103,7 @@ export const MatchProfileTab: React.FC<MatchProfileTabProps> = ({
       {/* Helper text */}
       <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-3 text-xs text-slate-400 flex items-center gap-2">
         <Info className="w-4 h-4 text-[#00DDFF] flex-shrink-0" />
-        <span>Las opciones [Pasar] y [Conectar] en esta vista previa están deshabilitadas ya que es tu propia tarjeta.</span>
+        <span>{es ? 'Las opciones [Pasar] y [Conectar] en esta vista previa están deshabilitadas ya que es tu propia tarjeta.' : 'The [Pass] and [Connect] options are disabled in this preview because it\'s your own card.'}</span>
       </div>
     </div>
   );

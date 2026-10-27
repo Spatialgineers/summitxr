@@ -21,10 +21,13 @@ import { playCyberBurstSound, playUiChirp } from '../../lib/cyberAudioEngine';
 import { useAuth } from '../../context/AuthContext';
 import { collection, doc, onSnapshot, query, serverTimestamp, setDoc, where, limit } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 export interface KeynotePollOption {
   id: string;
   label: string;
+  labelEn?: string;
   votes: number;
   color: string;
 }
@@ -34,39 +37,50 @@ export interface KeynotePoll {
   question: string;
   speaker: string;
   sessionTitle: string;
+  questionEn?: string;
+  speakerEn?: string;
+  sessionTitleEn?: string;
   options: KeynotePollOption[];
 }
 
 // Polls tied to the real Run of Show. Speakers are named only when confirmed in writing.
 const PILLAR_OPTIONS = [
-  { id: 'opt_story', label: 'SGX.Story (lore)', votes: 0, color: PILLAR_BY_KEY['STORY'].color },
-  { id: 'opt_showcase', label: 'SGX.Showcase (inmersión)', votes: 0, color: PILLAR_BY_KEY['SHOWCASE'].color },
-  { id: 'opt_spark', label: 'SGX.Spark (interactividad y juegos)', votes: 0, color: PILLAR_BY_KEY['SPARK'].color },
-  { id: 'opt_stage', label: 'SGX.Stage (eventos)', votes: 0, color: PILLAR_BY_KEY['STAGE'].color },
-  { id: 'opt_system', label: 'SGX.System (herramientas, IA y backend)', votes: 0, color: PILLAR_BY_KEY['SYSTEM'].color },
-  { id: 'opt_synthesize', label: 'SGX.Synthesize (todo converge)', votes: 0, color: PILLAR_BY_KEY['SYNTHESIZE'].color },
+  { id: 'opt_story', label: 'SGX.Story (lore)', labelEn: 'SGX.Story (lore)', votes: 0, color: PILLAR_BY_KEY['STORY'].color },
+  { id: 'opt_showcase', label: 'SGX.Showcase (inmersión)', labelEn: 'SGX.Showcase (immersion)', votes: 0, color: PILLAR_BY_KEY['SHOWCASE'].color },
+  { id: 'opt_spark', label: 'SGX.Spark (interactividad y juegos)', labelEn: 'SGX.Spark (interactivity and games)', votes: 0, color: PILLAR_BY_KEY['SPARK'].color },
+  { id: 'opt_stage', label: 'SGX.Stage (eventos)', labelEn: 'SGX.Stage (events)', votes: 0, color: PILLAR_BY_KEY['STAGE'].color },
+  { id: 'opt_system', label: 'SGX.System (herramientas, IA y backend)', labelEn: 'SGX.System (tools, AI and backend)', votes: 0, color: PILLAR_BY_KEY['SYSTEM'].color },
+  { id: 'opt_synthesize', label: 'SGX.Synthesize (todo converge)', labelEn: 'SGX.Synthesize (everything converges)', votes: 0, color: PILLAR_BY_KEY['SYNTHESIZE'].color },
 ];
 
 const DEFAULT_POLLS: KeynotePoll[] = [
   {
     id: 'poll_day1_open',
     sessionTitle: 'Día 1 · Apertura',
+    sessionTitleEn: 'Day 1 · Opening',
     speaker: 'Danelson Maldonado González',
     question: '¿Qué pilar te mueve más?',
+    questionEn: 'Which pillar moves you the most?',
     options: PILLAR_OPTIONS.map((o) => ({ ...o })),
   },
   {
     id: 'poll_day2_industry',
     sessionTitle: 'Día 2 · Día de la Industria',
+    sessionTitleEn: 'Day 2 · Industry Day',
     speaker: 'Personas invitadas (por anunciar)',
+    speakerEn: 'Guests (TBA)',
     question: '¿Qué conversación de industria quieres escuchar primero?',
+    questionEn: 'Which industry conversation do you want to hear first?',
     options: PILLAR_OPTIONS.map((o) => ({ ...o })),
   },
   {
     id: 'poll_day3_showcase',
     sessionTitle: 'Día 3 · SGX Showcase',
+    sessionTitleEn: 'Day 3 · SGX Showcase',
     speaker: 'Initiates del SGX Guild',
+    speakerEn: 'SGX Guild Initiates',
     question: '¿En qué pilar quieres ver el próximo proyecto de un Initiate?',
+    questionEn: 'In which pillar do you want to see an Initiate\'s next project?',
     options: PILLAR_OPTIONS.map((o) => ({ ...o })),
   },
 ];
@@ -88,6 +102,8 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
   onAwardXp,
   className = ''
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { playerProfile, savePlayerProfile, user } = useAuth();
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'REACTIONS' | 'POLL'>('REACTIONS');
@@ -270,7 +286,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
     // Award +25 XP
     const earnedXp = 25;
     if (onAwardXp) {
-      onAwardXp(earnedXp, 'Voto en Encuesta de Keynote');
+      onAwardXp(earnedXp, (es ? 'Voto en Encuesta de Keynote' : 'Keynote Poll Vote'));
     }
     if (savePlayerProfile && playerProfile) {
       savePlayerProfile({
@@ -279,7 +295,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
       });
     }
 
-    setJustEarnedXp(`+${earnedXp} XP Voto Registrado`);
+    setJustEarnedXp((es ? `+${earnedXp} XP Voto Registrado` : `+${earnedXp} XP Vote Recorded`));
     setTimeout(() => setJustEarnedXp(null), 3200);
   };
 
@@ -321,8 +337,8 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
               }}
               className="group relative p-2.5 2xl:px-3.5 bg-[#121212]/95 border border-[var(--sgx-neon)] hover:border-[var(--sgx-accent)] text-white font-mono text-xs font-black shadow-2xl flex items-center space-x-2 transition-colors"
               style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-              title="Keynote Pulse: reacciones y encuesta en vivo"
-              aria-label="Keynote Pulse: reacciones y encuesta en vivo"
+              title={es ? 'Keynote Pulse: reacciones y encuesta en vivo' : 'Keynote Pulse: live reactions and poll'}
+              aria-label={es ? 'Keynote Pulse: reacciones y encuesta en vivo' : 'Keynote Pulse: live reactions and poll'}
             >
               <div className="relative flex items-center justify-center">
                 <Radio className="w-4 h-4 text-[var(--sgx-neon)] animate-pulse" />
@@ -332,7 +348,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
               <div className="hidden 2xl:flex flex-col text-left">
                 <span className="text-[10px] text-slate-400 font-normal leading-none">KEYNOTE PULSE</span>
                 <span className="text-xs font-black tracking-wide text-cyan-300 group-hover:text-amber-300">
-                  REACCIONES & ENCUESTA
+                  {es ? 'REACCIONES & ENCUESTA' : 'REACTIONS & POLL'}
                 </span>
               </div>
               <span className="hidden 2xl:inline px-1.5 py-0.5 bg-cyan-950 text-cyan-400 border border-cyan-800 text-[10px] font-mono">
@@ -353,10 +369,10 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                 <div>
                   <div className="text-[11px] font-black text-white tracking-wider flex items-center space-x-1.5">
                     <span>KEYNOTE LIVE PULSE</span>
-                    <span className="px-1.5 py-0.2 bg-[#FDCC0D]/20 text-[#FDCC0D] border border-[#FDCC0D]/60 text-[9px] font-bold">EN VIVO</span>
+                    <span className="px-1.5 py-0.2 bg-[#FDCC0D]/20 text-[#FDCC0D] border border-[#FDCC0D]/60 text-[9px] font-bold">{es ? 'EN VIVO' : 'LIVE'}</span>
                   </div>
                   <div className="text-[10px] text-slate-400 font-sans">
-                    Fuegos artificiales, reacciones y encuestas en tiempo real
+                    {es ? 'Fuegos artificiales, reacciones y encuestas en tiempo real' : 'Real-time fireworks, reactions and polls'}
                   </div>
                 </div>
               </div>
@@ -364,7 +380,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
               <button
                 onClick={() => setIsExpanded(false)}
                 className="p-1 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-                title="Minimizar panel"
+                title={es ? 'Minimizar panel' : 'Minimize panel'}
               >
                 <Minimize2 className="w-4 h-4" />
               </button>
@@ -375,7 +391,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
               <div className="flex items-center justify-between text-[11px] mb-1.5">
                 <span className="text-slate-400 flex items-center space-x-1">
                   <Zap className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Audiencia en vivo:</span>
+                  <span>{es ? 'Audiencia en vivo:' : 'Live audience:'}</span>
                 </span>
                 <span className="font-bold text-cyan-300">
                   {allPollVotes.toLocaleString()} votos • {totalReactionsCount.toLocaleString()} {totalReactionsCount === 1 ? 'pulso tuyo' : 'pulsos tuyos'}
@@ -410,7 +426,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>LANZAR REACCIONES</span>
+                <span>{es ? 'LANZAR REACCIONES' : 'SEND REACTIONS'}</span>
               </button>
               <button
                 onClick={() => {
@@ -424,7 +440,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                 }`}
               >
                 <Vote className="w-3.5 h-3.5" />
-                <span>ENCUESTA EN VIVO (+25 XP)</span>
+                <span>{es ? 'ENCUESTA EN VIVO (+25 XP)' : 'LIVE POLL (+25 XP)'}</span>
               </button>
             </div>
 
@@ -432,18 +448,18 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
             {activeTab === 'REACTIONS' && (
               <div className="p-3 space-y-3">
                 <div className="text-[11px] text-slate-300">
-                  Haz clic para detonar partículas e interactuar con la pantalla de la keynote:
+                  {es ? 'Haz clic para detonar partículas e interactuar con la pantalla de la keynote:' : 'Click to trigger particles and interact with the keynote screen:'}
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <button
-                    onClick={() => handleTriggerReaction('FIREWORKS', 'Fuegos Artificiales', '🎆')}
+                    onClick={() => handleTriggerReaction('FIREWORKS', (es ? 'Fuegos Artificiales' : 'Fireworks'), '🎆')}
                     className="p-2.5 bg-[#1C1C1C] border border-cyan-500/40 hover:border-cyan-400 text-left hover:bg-cyan-950/30 transition-all flex items-center space-x-2 active:scale-95 group"
                   >
                     <span className="text-xl">🎆</span>
                     <div>
-                      <div className="font-bold text-cyan-300 text-[11px]">Fuegos Digitales</div>
-                      <div className="text-[9px] text-slate-400">Pirotecnia 6 Pilares</div>
+                      <div className="font-bold text-cyan-300 text-[11px]">{es ? 'Fuegos Digitales' : 'Digital Fireworks'}</div>
+                      <div className="text-[9px] text-slate-400">{es ? 'Pirotecnia 6 Pilares' : '6 Pillars Pyrotechnics'}</div>
                     </div>
                   </button>
 
@@ -453,8 +469,8 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                   >
                     <span className="text-xl">🔥</span>
                     <div>
-                      <div className="font-bold text-orange-300 text-[11px]">Llama Volcánica</div>
-                      <div className="text-[9px] text-slate-400">Erupción de Brasas</div>
+                      <div className="font-bold text-orange-300 text-[11px]">{es ? 'Llama Volcánica' : 'Volcanic Flame'}</div>
+                      <div className="text-[9px] text-slate-400">{es ? 'Erupción de Brasas' : 'Ember Eruption'}</div>
                     </div>
                   </button>
 
@@ -465,18 +481,18 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                     <span className="text-xl">🏆</span>
                     <div>
                       <div className="font-bold text-amber-300 text-[11px]">Spatial Kudos</div>
-                      <div className="text-[9px] text-slate-400">Lluvia de Oro</div>
+                      <div className="text-[9px] text-slate-400">{es ? 'Lluvia de Oro' : 'Golden Rain'}</div>
                     </div>
                   </button>
 
                   <button
-                    onClick={() => handleTriggerReaction('QUANTUM', 'Pulso Cuántico', '⚡')}
+                    onClick={() => handleTriggerReaction('QUANTUM', (es ? 'Pulso Cuántico' : 'Quantum Pulse'), '⚡')}
                     className="p-2.5 bg-[#1C1C1C] border border-[#32527B] hover:border-[#FDCC0D] text-left hover:bg-[#32527B]/30 transition-all flex items-center space-x-2 active:scale-95 group"
                   >
                     <span className="text-xl">⚡</span>
                     <div>
                       <div className="font-bold text-[#FDCC0D] text-[11px]">Shockwave</div>
-                      <div className="text-[9px] text-slate-400">Onda de Energía</div>
+                      <div className="text-[9px] text-slate-400">{es ? 'Onda de Energía' : 'Energy Wave'}</div>
                     </div>
                   </button>
 
@@ -487,7 +503,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                     <span className="text-xl">💛</span>
                     <div>
                       <div className="font-bold text-[#FDCC0D] text-[11px]">Holo Love</div>
-                      <div className="text-[9px] text-slate-400">Resonancia Oro</div>
+                      <div className="text-[9px] text-slate-400">{es ? 'Resonancia Oro' : 'Gold Resonance'}</div>
                     </div>
                   </button>
 
@@ -498,20 +514,20 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                     <span className="text-xl">🤯</span>
                     <div>
                       <div className="font-bold text-slate-200 text-[11px]">Mind Blown</div>
-                      <div className="text-[9px] text-slate-400">Galaxia Cósmica</div>
+                      <div className="text-[9px] text-slate-400">{es ? 'Galaxia Cósmica' : 'Cosmic Galaxy'}</div>
                     </div>
                   </button>
                 </div>
 
                 <div className="p-2 bg-slate-900/60 border border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">
-                  <span>Tus reacciones se ven en tu pantalla. Los votos de la encuesta se suman en vivo para toda la audiencia.</span>
+                  <span>{es ? 'Tus reacciones se ven en tu pantalla. Los votos de la encuesta se suman en vivo para toda la audiencia.' : 'Your reactions show on your screen. Poll votes add up live for the whole audience.'}</span>
                   <button
                     onClick={() => {
-                      handleTriggerReaction('FIREWORKS', 'Máximo Pulso', '🎆');
+                      handleTriggerReaction('FIREWORKS', (es ? 'Máximo Pulso' : 'Maximum Pulse'), '🎆');
                     }}
                     className="text-cyan-400 hover:underline font-bold"
                   >
-                    Sobrecargar
+                    {es ? 'Sobrecargar' : 'Overload'}
                   </button>
                 </div>
               </div>
@@ -523,7 +539,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                 {/* Question Selector Carousel */}
                 <div className="flex items-center justify-between bg-black/50 p-1.5 border border-[var(--sgx-secondary)]">
                   <div className="text-[10px] text-slate-400">
-                    Pregunta {selectedPollIndex + 1} de {polls.length}
+                    {es ? 'Pregunta ' : 'Question '}{selectedPollIndex + 1} de {polls.length}
                   </div>
                   <div className="flex items-center space-x-1">
                     {polls.map((p, idx) => (
@@ -545,10 +561,10 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                 {/* Question Info */}
                 <div className="space-y-1">
                   <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">
-                    {currentPoll.sessionTitle}
+                    {loc(currentPoll, 'sessionTitle', language)}
                   </div>
                   <div className="text-xs font-black text-white leading-snug">
-                    {currentPoll.question}
+                    {loc(currentPoll, 'question', language)}
                   </div>
                 </div>
 
@@ -590,7 +606,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                                 style={{ backgroundColor: opt.color }} 
                               />
                             )}
-                            <span className="text-[11px] font-bold">{opt.label}</span>
+                            <span className="text-[11px] font-bold">{loc(opt, 'label', language)}</span>
                           </div>
 
                           {hasVoted && (
@@ -614,14 +630,14 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                     {userVoteForCurrent ? (
                       <span className="text-[#FDCC0D] font-bold flex items-center space-x-1">
                         <CheckCircle2 className="w-3 h-3 inline" />
-                        <span>¡Tu voto está computado en vivo!</span>
+                        <span>{es ? '¡Tu voto está computado en vivo!' : 'Your vote is counted live!'}</span>
                       </span>
                     ) : (
-                      <span>Vota para recibir <strong className="text-amber-300">+25 XP</strong></span>
+                      <span>{es ? 'Vota para recibir ' : 'Vote to get '}<strong className="text-amber-300">+25 XP</strong></span>
                     )}
                   </div>
                   <span className="text-slate-400 font-mono">
-                    {totalPollVotes.toLocaleString()} votos totales
+                    {totalPollVotes.toLocaleString()}{es ? ' votos totales' : ' total votes'}
                   </span>
                 </div>
               </div>
@@ -637,7 +653,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                 onClick={() => setIsExpanded(false)}
                 className="text-slate-300 hover:text-white underline font-mono"
               >
-                Cerrar
+                {es ? 'Cerrar' : 'Close'}
               </button>
             </div>
           </div>

@@ -4,6 +4,7 @@ import { ApprovedSponsor, SponsorshipTier } from '../../types/summit';
 import { loadAllApprovedSponsors, SPONSORSHIP_TIERS } from '../../lib/summitData';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 export interface TransientSponsorSlotProps {
   slotId?: string;
@@ -22,13 +23,18 @@ const DEFAULT_PARTNERS: ApprovedSponsor[] = [
     brandSlug: 'chroma-space-studios',
     tierId: 'tier_5',
     tierName: 'Tier 5 · Venue del Día 3',
+    tierNameEn: 'Tier 5 · Day 3 Venue',
     tagline: 'Venue del Día 3 (SGX Showcase) • San Juan, Puerto Rico',
+    taglineEn: 'Day 3 venue (SGX Showcase) • San Juan, Puerto Rico',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
     websiteUrl: '',
     description: 'Estudio de producción en San Juan, venue del Día 3.',
+    descriptionEn: 'Production studio in San Juan, the Day 3 venue.',
     highlights: ['Venue del Día 3', 'Estudio de producción en San Juan'],
+    highlightsEn: ['Day 3 venue', 'Production studio in San Juan'],
     ctaButtonText: 'CONOCE MÁS',
+    ctaButtonTextEn: 'LEARN MORE',
     activeInVisualizer: true,
     activeInMiniGame: true,
     activeInAppTicker: true,
@@ -41,13 +47,18 @@ const DEFAULT_PARTNERS: ApprovedSponsor[] = [
     brandSlug: 'los-mismos-tv',
     tierId: 'media_partner',
     tierName: 'Transmite junto a nosotros',
+    tierNameEn: 'Streams alongside us',
     tagline: 'Transmite el Summit desde su canal, junto al de Spatialgineers',
+    taglineEn: 'Streams the Summit from its channel, alongside the Spatialgineers channel',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
     websiteUrl: '',
     description: 'Los Mismos TV transmite el Spatialgineers Summit 2026 junto a nosotros.',
+    descriptionEn: 'Los Mismos TV streams the Spatialgineers Summit 2026 alongside us.',
     highlights: ['Transmite junto a nosotros', 'YouTube Live'],
+    highlightsEn: ['Streams alongside us', 'YouTube Live'],
     ctaButtonText: 'CONOCE MÁS',
+    ctaButtonTextEn: 'LEARN MORE',
     activeInVisualizer: true,
     activeInMiniGame: false,
     activeInAppTicker: true,
@@ -57,16 +68,21 @@ const DEFAULT_PARTNERS: ApprovedSponsor[] = [
   {
     id: 'sp_default_induction_1',
     companyName: 'Tu Marca Aquí (Tier 3)',
+    companyNameEn: 'Your Brand Here (Tier 3)',
     brandSlug: 'tu-marca-tier-3',
     tierId: 'tier_3',
     tierName: 'Experience (Tier 3)',
     tagline: 'Presencia de Marca en Consola de Audiencia & Streaming',
+    taglineEn: 'Brand Presence on the Audience Console & Streaming',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
     websiteUrl: 'https://summit.spatialgineers.com',
     description: 'Posición destacada para patrocinadores y empresas del sector XR.',
+    descriptionEn: 'A featured spot for sponsors and companies in the XR sector.',
     highlights: ['Logo en webapp y transmisión', 'Exposición interactiva'],
+    highlightsEn: ['Logo on the web app and broadcast', 'Interactive exposure'],
     ctaButtonText: 'POSTULAR MARCA',
+    ctaButtonTextEn: 'APPLY YOUR BRAND',
     activeInVisualizer: true,
     activeInMiniGame: true,
     activeInAppTicker: true,
@@ -76,16 +92,21 @@ const DEFAULT_PARTNERS: ApprovedSponsor[] = [
   {
     id: 'sp_default_induction_2',
     companyName: 'Tu Marca Aquí (Tier 4)',
+    companyNameEn: 'Your Brand Here (Tier 4)',
     brandSlug: 'tu-marca-tier-4',
     tierId: 'tier_4',
     tierName: 'Signature Experience (Tier 4)',
     tagline: 'Experience by [Marca] · activación híbrida',
+    taglineEn: 'Experience by [Brand] · hybrid activation',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
     websiteUrl: 'https://summit.spatialgineers.com',
     description: 'Activación principal "Experience by [Marca]" y licencia de acceso de 365 días desde noviembre.',
+    descriptionEn: 'Main "Experience by [Brand]" activation and a 365-day access license starting in November.',
     highlights: ['"Experience by [Marca]"', 'Exclusividad por categoría'],
+    highlightsEn: ['"Experience by [Brand]"', 'Category exclusivity'],
     ctaButtonText: 'POSTULAR MARCA',
+    ctaButtonTextEn: 'APPLY YOUR BRAND',
     activeInVisualizer: true,
     activeInMiniGame: true,
     activeInAppTicker: true,
@@ -103,6 +124,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
   onOpenSponsorshipModal,
 }) => {
   const { language } = useLanguage();
+  const es = language === 'es';
   const [sponsorsList, setSponsorsList] = useState<ApprovedSponsor[]>(() => {
     const loaded = loadAllApprovedSponsors();
     return loaded.length > 0 ? loaded : DEFAULT_PARTNERS;
@@ -238,7 +260,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
           <div className="w-5 h-5 rounded bg-black/60 border border-slate-700 p-0.5 overflow-hidden flex items-center justify-center shrink-0">
             <img 
               src={activeSponsor.logoUrl} 
-              alt={activeSponsor.companyName} 
+              alt={loc(activeSponsor, 'companyName', language)} 
               className="w-full h-full object-contain"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png';
@@ -246,7 +268,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
             />
           </div>
           <span className="text-[11px] font-bold text-white tracking-wide truncate max-w-[110px] sm:max-w-[140px] font-mono">
-            {activeSponsor.companyName}
+            {loc(activeSponsor, 'companyName', language)}
           </span>
         </div>
 
@@ -279,7 +301,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
             <div className="w-7 h-7 rounded bg-black border border-cyan-400/60 p-0.5 flex items-center justify-center overflow-hidden shrink-0 shadow-[0_0_8px_rgba(0, 221, 255,0.25)]">
               <img 
                 src={activeSponsor.logoUrl} 
-                alt={activeSponsor.companyName} 
+                alt={loc(activeSponsor, 'companyName', language)} 
                 className="w-full h-full object-contain"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png';
@@ -294,7 +316,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
                 <span className="text-[9px] font-mono text-slate-400 hidden sm:inline">10s ROTATION</span>
               </div>
               <h4 className="text-xs font-bold text-white truncate font-['Orbitron',sans-serif]">
-                {activeSponsor.companyName}
+                {loc(activeSponsor, 'companyName', language)}
               </h4>
             </div>
           </div>
@@ -330,7 +352,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
             <div className="w-10 h-10 rounded-lg bg-black/80 border border-cyan-400 p-1 flex items-center justify-center overflow-hidden shrink-0 shadow-[0_0_12px_rgba(0, 221, 255,0.2)]">
               <img 
                 src={activeSponsor.logoUrl} 
-                alt={activeSponsor.companyName} 
+                alt={loc(activeSponsor, 'companyName', language)} 
                 className="w-full h-full object-contain"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png';
@@ -343,14 +365,14 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
                   PARTNER DESTACADO
                 </span>
                 <span className="text-[10px] font-mono text-slate-400">
-                  {activeSponsor.tierName.split('(')[0]}
+                  {loc(activeSponsor, 'tierName', language).split('(')[0]}
                 </span>
               </div>
               <h3 className="text-sm font-extrabold text-white font-['Orbitron',sans-serif] tracking-wide">
-                {activeSponsor.companyName}
+                {loc(activeSponsor, 'companyName', language)}
               </h3>
               <p className="text-[11px] text-slate-300 font-mono line-clamp-1">
-                {activeSponsor.tagline || activeSponsor.description}
+                {loc(activeSponsor, 'tagline', language) || loc(activeSponsor, 'description', language)}
               </p>
             </div>
           </div>
@@ -386,7 +408,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
         <div className="w-8 h-8 rounded-lg bg-black border border-slate-700 p-1 flex items-center justify-center shrink-0">
           <img 
             src={activeSponsor.logoUrl} 
-            alt={activeSponsor.companyName} 
+            alt={loc(activeSponsor, 'companyName', language)} 
             className="w-full h-full object-contain"
             onError={(e) => {
               (e.target as HTMLImageElement).src = 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png';
@@ -395,10 +417,10 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
         </div>
         <div className="flex-1 min-w-0">
           <h4 className="text-xs font-bold text-white truncate font-['Orbitron',sans-serif]">
-            {activeSponsor.companyName}
+            {loc(activeSponsor, 'companyName', language)}
           </h4>
           <span className="text-[10px] text-cyan-400 font-mono block truncate">
-            {activeSponsor.tagline || 'Patrocinador Oficial'}
+            {loc(activeSponsor, 'tagline', language) || (es ? 'Patrocinador Oficial' : 'Official Sponsor')}
           </span>
         </div>
       </div>

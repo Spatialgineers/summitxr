@@ -189,7 +189,7 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
       {(phase === 'title' || phase === 'out') && (
         <div className="sgx-boot__title">
           <h1><ScrambleText text="SPATIALGINEERS SUMMIT 2026" durationMs={650} /></h1>
-          <p className="sgx-boot__meta">11–13 DIC · YOUTUBE LIVE · DÍA 3 EN SAN JUAN</p>
+          <p className="sgx-boot__meta">{es ? '11–13 DIC · YOUTUBE LIVE · DÍA 3 EN SAN JUAN' : 'DEC 11–13 · YOUTUBE LIVE · DAY 3 IN SAN JUAN'}</p>
           <p className="sgx-boot__tagline">
             {es ? 'Ingeniando imaginación, construyendo realidades.' : 'Engineering imagination, building reality.'}
           </p>

@@ -3,6 +3,7 @@ import { ApprovedSponsor } from '../../types/summit';
 import { Award } from 'lucide-react';
 import { loadAllApprovedSponsors } from '../../lib/summitData';
 import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 interface SummitSponsorTickerProps {
   sponsors?: ApprovedSponsor[];
@@ -15,6 +16,7 @@ export const SummitSponsorTicker: React.FC<SummitSponsorTickerProps> = ({
   onSelectSponsor,
   className = '',
 }) => {
+  const { language } = useLanguage();
   const { t } = useLanguage();
   const sponsorList = sponsors && sponsors.length > 0 ? sponsors : loadAllApprovedSponsors();
   const activeSponsors = (sponsorList || []).filter(s => s && s.activeInAppTicker !== false);
@@ -71,7 +73,7 @@ export const SummitSponsorTicker: React.FC<SummitSponsorTickerProps> = ({
                 >
                   <img 
                     src={sponsor.logoUrl} 
-                    alt={sponsor.companyName} 
+                    alt={loc(sponsor, 'companyName', language)} 
                     className="w-full h-full object-contain"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png';
@@ -80,10 +82,10 @@ export const SummitSponsorTicker: React.FC<SummitSponsorTickerProps> = ({
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-white group-hover:text-[var(--sgx-neon)] font-['Orbitron',sans-serif] tracking-wide transition-colors">
-                    {sponsor.companyName}
+                    {loc(sponsor, 'companyName', language)}
                   </span>
                   <span className="text-[9px] font-mono text-slate-400 truncate max-w-[150px]">
-                    {sponsor.tierName.split('(')[0]}
+                    {loc(sponsor, 'tierName', language).split('(')[0]}
                   </span>
                 </div>
                 <span className="text-[10px] text-[var(--sgx-neon)] opacity-0 group-hover:opacity-100 transition-opacity ml-1">

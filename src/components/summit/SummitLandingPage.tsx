@@ -115,6 +115,7 @@ import { getAppRouteAndSectionFromUrl, getSectionFromUrl, syncAppUrl, syncSectio
 import { toggleCyberAmbiance, getIsCyberAmbiancePlaying, playUiChirp, playPillarDockSound, playScanSuccessSound } from '../../lib/cyberAudioEngine';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 import { usePilotProfile } from '../../context/PilotProfileContext';
 import { useSummitFeatures } from '../../context/SummitFeatureContext';
 import { SummitContentAuditModal } from './SummitContentAuditModal';
@@ -131,7 +132,7 @@ const SummitSpeakerPortalModal = lazy(() => import('./SummitSpeakerPortalModal')
 // Every section's home pillar, chips and icons come from the single six-pillar source (lib/sgxPillars).
 const HUD_SECTION_CHIPS: HudSectionChip[] = SGX_PILLARS.flatMap((p) =>
   p.modules.flatMap((m) => (m.kind === 'section'
-    ? [{ key: m.key as SummitSectionKey, label: m.label.es, pillar: p.id, icon: m.icon }]
+    ? [{ key: m.key as SummitSectionKey, label: m.label.es, labelEn: m.label.en, pillar: p.id, icon: m.icon }]
     : [])),
 );
 
@@ -156,6 +157,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
   const { user, playerProfile, isAdmin, signInWithGoogle, loading: authLoading, authError, recordActivity } = useAuth();
   const { tenant, styles, selectPillar } = useTenantTheme();
   const { language, setLanguage, t } = useLanguage();
+  const es = language === 'es';
   const { 
     profile, 
     isProfileModalOpen, 
@@ -460,13 +462,13 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
         recordActivity?.('holo_card_generated', 150, 'SGX Holo Card 3D Generada');
         setActiveToastNotif({
           id: `holo_xp_${Date.now()}`,
-          title: '¡Credencial SGX Exportada (+150 XP)!',
-          message: `Tu pase holográfico (${e.data.name || 'Visitante'}) ha sido generado y acreditado en tu SGX Pass.`,
+          title: (es ? '¡Credencial SGX Exportada (+150 XP)!' : 'SGX Credential Exported (+150 XP)!'),
+          message: (es ? `Tu pase holográfico (${e.data.name || 'Visitante'}) ha sido generado y acreditado en tu SGX Pass.` : `Your holographic pass (${e.data.name || 'Visitor'}) has been generated and credited to your SGX Pass.`),
           timestamp: Date.now(),
           type: 'SYSTEM',
           priority: 'HIGH',
           actionUrl: '/summit',
-          actionLabel: 'Ver mi SGX Pass'
+          actionLabel: (es ? 'Ver mi SGX Pass' : 'View my SGX Pass')
         });
       }
     };
@@ -482,7 +484,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       window.removeEventListener('sgx:switch_summit_section', handleSwitchSummitSection);
       window.removeEventListener('message', handleCredentialMessage);
     };
-  }, [recordActivity]);
+  }, [recordActivity, language]);
 
 
   const handleBroadcastPush = (notif: SummitNotification) => {
@@ -495,13 +497,13 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
   const handleSessionNotification = (session: SummitSession) => {
     const notif: SummitNotification = {
       id: `alert_${session.id}_${Date.now()}`,
-      title: `Alerta Programada: ${session.title}`,
-      message: `La sesión "${session.title}" comenzará a las ${session.startTime} (${session.venueLocation}).`,
+      title: (es ? `Alerta Programada: ${session.title}` : `Scheduled Alert: ${loc(session, 'title', language)}`),
+      message: (es ? `La sesión "${session.title}" comenzará a las ${session.startTime} (${session.venueLocation}).` : `The session "${loc(session, 'title', language)}" starts at ${session.startTime} (${loc(session, 'venueLocation', language)}).`),
       timestamp: Date.now(),
       type: 'SESSION_START',
       priority: 'HIGH',
       actionUrl: '/summit',
-      actionLabel: 'Ver Agenda',
+      actionLabel: (es ? 'Ver Agenda' : 'View Agenda'),
     };
     setActiveToastNotif(notif);
   };
@@ -572,15 +574,15 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               <Sparkles className="w-4 h-4" />
               <span>
                 {getSectionStatus(activeSection) === 'MAINTENANCE'
-                  ? 'MÓDULO EN FASE DE CALIBRACIÓN ESPACIAL — PRÓXIMAMENTE'
-                  : 'MÓDULO OCULTO POR EL ADMINISTRADOR'}
+                  ? (es ? 'MÓDULO EN FASE DE CALIBRACIÓN ESPACIAL — PRÓXIMAMENTE' : 'MODULE IN SPATIAL CALIBRATION — COMING SOON')
+                  : (es ? 'MÓDULO OCULTO POR EL ADMINISTRADOR' : 'MODULE HIDDEN BY THE ADMINISTRATOR')}
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-white uppercase font-['Orbitron',sans-serif]">
-              Esta Estación del Summit se Activará Próximamente
+              {es ? 'Esta Estación del Summit se Activará Próximamente' : 'This Summit Station Will Go Live Soon'}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 font-mono leading-relaxed">
-              Nuestro equipo de ingeniería espacial está finalizando los últimos detalles de este módulo para el Spatialgineers Summit 2026. Mientras tanto, explora el Núcleo Orbital 3D.
+              {es ? 'Nuestro equipo de ingeniería espacial está finalizando los últimos detalles de este módulo para el Spatialgineers Summit 2026. Mientras tanto, explora el Núcleo Orbital 3D.' : 'Our spatial engineering team is putting the finishing touches on this module for the Spatialgineers Summit 2026. Meanwhile, explore the 3D Orbital Core.'}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <button
@@ -588,7 +590,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 onClick={() => handleSelectSection('OVERVIEW')}
                 className="px-5 py-2.5 bg-[#00DDFF] hover:bg-[#FDCC0D] text-black font-mono text-xs font-extrabold uppercase transition-colors cursor-pointer"
               >
-                ← Volver al Núcleo 3D Principal
+                {es ? '← Volver al Núcleo 3D Principal' : '← Back to the Main 3D Core'}
               </button>
               {isAdmin && (
               <button
@@ -597,7 +599,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 className="px-4 py-2.5 bg-[#121212] hover:bg-[#32527B] border border-[#00DDFF]/60 text-[#00DDFF] hover:text-white font-mono text-xs font-bold uppercase transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <Sliders className="w-3.5 h-3.5" />
-                <span>Gestionar Visibilidad de Módulos</span>
+                <span>{es ? 'Gestionar Visibilidad de Módulos' : 'Manage Module Visibility'}</span>
               </button>
               )}
             </div>
@@ -639,14 +641,14 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                   <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-800 font-mono">
                     <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-white uppercase font-['Orbitron',sans-serif]">
                       <Clock className="w-4 h-4 text-[#00DDFF]" />
-                      <span>CÁPSULAS DE LORE & RETOS JUGABLES RUMBO AL SUMMIT</span>
+                      <span>{es ? 'CÁPSULAS DE LORE & RETOS JUGABLES RUMBO AL SUMMIT' : 'LORE CAPSULES & PLAYABLE CHALLENGES ON THE ROAD TO THE SUMMIT'}</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => setTimeCapsulesModalOpen(false)}
                       className="px-3 py-1 bg-slate-900 hover:bg-[#00DDFF] hover:text-black border border-white/20 text-xs font-mono font-bold text-slate-200 cursor-pointer"
                     >
-                      Cerrar ✕
+                      {es ? 'Cerrar ✕' : 'Close ✕'}
                     </button>
                   </div>
                   <SummitWeeklyCapsules
@@ -666,13 +668,13 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                   <div className="space-y-1">
                     <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#00DDFF]/10 border border-[#00DDFF]/40 text-[#00DDFF] text-[10px] font-mono font-bold uppercase">
                       <Calendar className="w-3 h-3" />
-                      <span>RUN OF SHOW OFICIAL v2026.10 • 3 DÍAS DE EXPERIENCIAS INMERSIVAS XR</span>
+                      <span>{es ? 'RUN OF SHOW OFICIAL v2026.10 • 3 DÍAS DE EXPERIENCIAS INMERSIVAS XR' : 'OFFICIAL RUN OF SHOW v2026.10 • 3 DAYS OF IMMERSIVE XR EXPERIENCES'}</span>
                     </div>
                     <h3 className="text-lg font-black text-white font-['Orbitron',sans-serif] uppercase">
-                      Run of Show Ejecutivo: Mundos 3D, Día de la Industria & Evento Híbrido
+                      {es ? 'Run of Show Ejecutivo: Mundos 3D, Día de la Industria & Evento Híbrido' : 'Executive Run of Show: 3D Worlds, Industry Day & Hybrid Event'}
                     </h3>
                     <p className="text-xs text-slate-300 font-mono">
-                      Diciembre 11, 12 & 13, 2026 • YouTube Live, presentaciones de artistas en Roblox y Chroma Space Studios, San Juan, PR
+                      {es ? 'Diciembre 11, 12 & 13, 2026 • YouTube Live, presentaciones de artistas en Roblox y Chroma Space Studios, San Juan, PR' : 'December 11, 12 & 13, 2026 • YouTube Live, artist performances in Roblox & Chroma Space Studios, San Juan, PR'}
                     </p>
                   </div>
                   <button
@@ -683,7 +685,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                     }}
                     className="sgx-btn px-4 py-2 text-xs font-bold font-mono uppercase flex items-center space-x-1.5 shrink-0"
                   >
-                    <span>VER LÍNEA DE TIEMPO COMPLETA</span>
+                    <span>{es ? 'VER LÍNEA DE TIEMPO COMPLETA' : 'VIEW FULL TIMELINE'}</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -694,34 +696,34 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                     <div className="p-5 h-full sgx-spatial-card sgx-cyber-bevel flex flex-col justify-between space-y-4">
                       <div className="space-y-3">
                         <div className="flex items-center justify-between text-[#FDCC0D] font-bold">
-                          <span className="px-2 py-0.5 bg-[#FDCC0D]/10 border border-[#FDCC0D]/40 text-[10px]">DÍA 1 • 100% DIGITAL</span>
-                          <span className="text-[11px]">VIE 11 DIC • 10:00 AM – 4:30 PM</span>
+                          <span className="px-2 py-0.5 bg-[#FDCC0D]/10 border border-[#FDCC0D]/40 text-[10px]">{es ? 'DÍA 1 • 100% DIGITAL' : 'DAY 1 • 100% DIGITAL'}</span>
+                          <span className="text-[11px]">{es ? 'VIE 11 DIC • 10:00 AM – 4:30 PM' : 'FRI DEC 11 • 10:00 AM – 4:30 PM'}</span>
                         </div>
                         <h4 className="text-base font-bold text-white font-['Orbitron',sans-serif]">
-                          6 PILARES, ARTISTAS & 8 INITIATES
+                          {es ? '6 PILARES, ARTISTAS & 8 INITIATES' : '6 PILLARS, ARTISTS & 8 INITIATES'}
                         </h4>
                         <div className="flex flex-wrap gap-1.5">
                           <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">6h 30m • YouTube Live</span>
-                          <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">6 artistas invitados (por anunciar)</span>
+                          <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">{es ? '6 artistas invitados (por anunciar)' : '6 guest artists (TBA)'}</span>
                           <span className="px-1.5 py-0.5 bg-[#FDCC0D]/10 border border-[#FDCC0D]/40 text-[#FDCC0D] text-[10px]">8 Initiates × 8 min</span>
                         </div>
                         <p className="text-slate-300 leading-relaxed text-xs">
-                          Bloques de los 6 pilares en orden oficial (Story, Showcase, Spark, Stage, System, Synthesize) intercalados con 6 intermedios de artistas invitados (por anunciar; el Artista 1 dentro de Roblox) y los portafolios de los 8 Initiates activos.
+                          {es ? 'Bloques de los 6 pilares en orden oficial (Story, Showcase, Spark, Stage, System, Synthesize) intercalados con 6 intermedios de artistas invitados (por anunciar; el Artista 1 dentro de Roblox) y los portafolios de los 8 Initiates activos.' : 'Blocks for the 6 pillars in official order (Story, Showcase, Spark, Stage, System, Synthesize), alternating with 6 guest artist interludes (TBA; Artist 1 inside Roblox) and the portfolios of the 8 active Initiates.'}
                         </p>
 
                         {expandedDayId === 'day_1' && (
                           <div className="pt-3 border-t border-slate-800 space-y-2 text-[11px] text-slate-300">
                             <p className="leading-relaxed">
-                              • <strong>10:00–10:30 AM:</strong> Apertura con Danelson (el espacio de Roblox abre para las presentaciones de artistas).
+                              • <strong>10:00–10:30 AM:</strong>{es ? ' Apertura con Danelson (el espacio de Roblox abre para las presentaciones de artistas).' : ' Opening with Danelson (the Roblox space opens for the artist performances).'}
                             </p>
                             <p className="leading-relaxed">
-                              • <strong>10:30 AM–2:30 PM:</strong> 6 artistas invitados (15 min c/u, en Roblox) + 6 Bloques de Pilares (25m c/u): Story → Showcase → Spark → Stage → System → Synthesize.
+                              • <strong>10:30 AM–2:30 PM:</strong>{es ? ' 6 artistas invitados (15 min c/u, en Roblox) + 6 Bloques de Pilares (25m c/u): Story → Showcase → Spark → Stage → System → Synthesize.' : ' 6 guest artists (15 min each, in Roblox) + 6 Pillar Blocks (25m each): Story → Showcase → Spark → Stage → System → Synthesize.'}
                             </p>
                             <p className="leading-relaxed">
-                              • <strong>2:30–4:00 PM:</strong> Portafolios de los 8 Initiates activos (8 min c/u = 64 de los 90 min).
+                              • <strong>2:30–4:00 PM:</strong>{es ? ' Portafolios de los 8 Initiates activos (8 min c/u = 64 de los 90 min).' : ' Portfolios of the 8 active Initiates (8 min each = 64 of the 90 min).'}
                             </p>
                             <p className="leading-relaxed">
-                              • <strong>4:00–4:30 PM:</strong> Cierre del Día 1 y anuncio de los 6 Initiates que presentan el Día 3.
+                              • <strong>4:00–4:30 PM:</strong>{es ? ' Cierre del Día 1 y anuncio de los 6 Initiates que presentan el Día 3.' : ' Day 1 closing and announcement of the 6 Initiates who present on Day 3.'}
                             </p>
                           </div>
                         )}
@@ -733,7 +735,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                           onClick={() => setExpandedDayId(expandedDayId === 'day_1' ? null : 'day_1')}
                           className="w-full text-slate-400 hover:text-white text-[11px] flex items-center justify-between py-1 cursor-pointer"
                         >
-                          <span>{expandedDayId === 'day_1' ? 'Menos detalles' : 'Ver desglose minuto a minuto'}</span>
+                          <span>{expandedDayId === 'day_1' ? (es ? 'Menos detalles' : 'Fewer details') : (es ? 'Ver desglose minuto a minuto' : 'See the minute-by-minute breakdown')}</span>
                           {expandedDayId === 'day_1' ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                         </button>
                         <button
@@ -741,7 +743,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                           onClick={() => handleSelectSection('AGENDA')}
                           className="w-full py-1.5 px-3 bg-slate-900 hover:bg-[#32527B] border border-[#FDCC0D]/50 text-[#FDCC0D] hover:text-white font-bold text-center transition-colors cursor-pointer text-[11px]"
                         >
-                          Ver Bloques del Día 1 →
+                          {es ? 'Ver Bloques del Día 1 →' : 'View Day 1 Blocks →'}
                         </button>
                       </div>
                     </div>
@@ -752,34 +754,34 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                     <div className="p-5 h-full sgx-spatial-card sgx-cyber-bevel flex flex-col justify-between space-y-4">
                       <div className="space-y-3">
                         <div className="flex items-center justify-between text-[#00DDFF] font-bold">
-                          <span className="px-2 py-0.5 bg-[#00DDFF]/10 border border-[#00DDFF]/40 text-[10px]">DÍA 2 • 100% DIGITAL</span>
-                          <span className="text-[11px]">SÁB 12 DIC • 10:00 AM – 4:00 PM</span>
+                          <span className="px-2 py-0.5 bg-[#00DDFF]/10 border border-[#00DDFF]/40 text-[10px]">{es ? 'DÍA 2 • 100% DIGITAL' : 'DAY 2 • 100% DIGITAL'}</span>
+                          <span className="text-[11px]">{es ? 'SÁB 12 DIC • 10:00 AM – 4:00 PM' : 'SAT DEC 12 • 10:00 AM – 4:00 PM'}</span>
                         </div>
                         <h4 className="text-base font-bold text-white font-['Orbitron',sans-serif]">
-                          DÍA DE LA INDUSTRIA
+                          {es ? 'DÍA DE LA INDUSTRIA' : 'INDUSTRY DAY'}
                         </h4>
                         <div className="flex flex-wrap gap-1.5">
-                          <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">6h • 6 Conversaciones</span>
-                          <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">45 min c/u + Pausas 10m</span>
-                          <span className="px-1.5 py-0.5 bg-[#00DDFF]/10 border border-[#00DDFF]/40 text-[#00DDFF] text-[10px]">Votación +25 XP</span>
+                          <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">{es ? '6h • 6 Conversaciones' : '6h • 6 Conversations'}</span>
+                          <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">{es ? '45 min c/u + Pausas 10m' : '45 min each + 10m Breaks'}</span>
+                          <span className="px-1.5 py-0.5 bg-[#00DDFF]/10 border border-[#00DDFF]/40 text-[#00DDFF] text-[10px]">{es ? 'Votación +25 XP' : 'Voting +25 XP'}</span>
                         </div>
                         <p className="text-slate-300 leading-relaxed text-xs">
-                          Resumen del Día 1, recordatorio de los 6 Initiates seleccionados y 6 conversaciones de 45 minutos con personas invitadas por cada pilar SGX.
+                          {es ? 'Resumen del Día 1, recordatorio de los 6 Initiates seleccionados y 6 conversaciones de 45 minutos con personas invitadas por cada pilar SGX.' : 'Day 1 recap, a reminder of the 6 selected Initiates and 6 45-minute conversations with guests for each SGX pillar.'}
                         </p>
 
                         {expandedDayId === 'day_2' && (
                           <div className="pt-3 border-t border-slate-800 space-y-2 text-[11px] text-slate-300">
                             <p className="leading-relaxed">
-                              • <strong>10:00–10:30 AM:</strong> Introducción, resumen del Día 1 y recordatorio de los 6 Initiates.
+                              • <strong>10:00–10:30 AM:</strong>{es ? ' Introducción, resumen del Día 1 y recordatorio de los 6 Initiates.' : ' Introduction, Day 1 recap and a reminder of the 6 Initiates.'}
                             </p>
                             <p className="leading-relaxed">
-                              • <strong>10:30 AM–1:05 PM:</strong> Conversaciones SGX.Story (10:30), SGX.Showcase (11:25) y SGX.Spark (12:20) con pausas de 10 min.
+                              • <strong>10:30 AM–1:05 PM:</strong>{es ? ' Conversaciones SGX.Story (10:30), SGX.Showcase (11:25) y SGX.Spark (12:20) con pausas de 10 min.' : ' SGX.Story (10:30), SGX.Showcase (11:25) and SGX.Spark (12:20) conversations with 10-min breaks.'}
                             </p>
                             <p className="leading-relaxed">
-                              • <strong>1:15–3:50 PM:</strong> Conversaciones SGX.Stage (1:15), SGX.System (2:10) y SGX.Synthesize (3:05).
+                              • <strong>1:15–3:50 PM:</strong>{es ? ' Conversaciones SGX.Stage (1:15), SGX.System (2:10) y SGX.Synthesize (3:05).' : ' SGX.Stage (1:15), SGX.System (2:10) and SGX.Synthesize (3:05) conversations.'}
                             </p>
                             <p className="leading-relaxed">
-                              • <strong>3:50–4:00 PM:</strong> Cierre del Día 2 y adelanto del Día 3, el SGX Showcase.
+                              • <strong>3:50–4:00 PM:</strong>{es ? ' Cierre del Día 2 y adelanto del Día 3, el SGX Showcase.' : ' Day 2 closing and a preview of Day 3, the SGX Showcase.'}
                             </p>
                           </div>
                         )}
@@ -791,7 +793,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                           onClick={() => setExpandedDayId(expandedDayId === 'day_2' ? null : 'day_2')}
                           className="w-full text-slate-400 hover:text-white text-[11px] flex items-center justify-between py-1 cursor-pointer"
                         >
-                          <span>{expandedDayId === 'day_2' ? 'Menos detalles' : 'Ver desglose minuto a minuto'}</span>
+                          <span>{expandedDayId === 'day_2' ? (es ? 'Menos detalles' : 'Fewer details') : (es ? 'Ver desglose minuto a minuto' : 'See the minute-by-minute breakdown')}</span>
                           {expandedDayId === 'day_2' ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                         </button>
                         <button
@@ -799,7 +801,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                           onClick={() => handleSelectSection('GUILD')}
                           className="w-full py-1.5 px-3 bg-slate-900 hover:bg-[#32527B] border border-[#00DDFF]/50 text-[#00DDFF] hover:text-white font-bold text-center transition-colors cursor-pointer text-[11px]"
                         >
-                          Ver SGX Guild & Initiates →
+                          {es ? 'Ver SGX Guild & Initiates →' : 'View SGX Guild & Initiates →'}
                         </button>
                       </div>
                     </div>
@@ -810,37 +812,37 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                     <div className="p-5 h-full sgx-spatial-card sgx-cyber-bevel flex flex-col justify-between space-y-4 border-2 border-[#00DDFF] bg-gradient-to-b from-[#1f1f1f] to-[#1d1d1d]">
                       <div className="space-y-3">
                         <div className="flex items-center justify-between text-[#00DDFF] font-bold">
-                          <span className="px-2 py-0.5 bg-[#00DDFF]/20 border border-[#00DDFF] text-[10px]">DÍA 3 • HÍBRIDO (SAN JUAN)</span>
-                          <span className="text-[11px]">DOM 13 DIC • 10:00 AM – 4:00 PM</span>
+                          <span className="px-2 py-0.5 bg-[#00DDFF]/20 border border-[#00DDFF] text-[10px]">{es ? 'DÍA 3 • HÍBRIDO (SAN JUAN)' : 'DAY 3 • HYBRID (SAN JUAN)'}</span>
+                          <span className="text-[11px]">{es ? 'DOM 13 DIC • 10:00 AM – 4:00 PM' : 'SUN DEC 13 • 10:00 AM – 4:00 PM'}</span>
                         </div>
                         <h4 className="text-base font-bold text-white font-['Orbitron',sans-serif]">
                           CHROMA SPACE STUDIOS & STREAM
                         </h4>
                         <div className="flex flex-wrap gap-1.5">
-                          <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">40–60 Invitados</span>
+                          <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">{es ? '40–60 Invitados' : '40–60 Guests'}</span>
                           <span className="px-1.5 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 text-[10px]">6 Initiates × 5 min</span>
-                          <span className="px-1.5 py-0.5 bg-[#FDCC0D]/20 border border-[#FDCC0D]/50 text-[#FDCC0D] text-[10px]">Premio Mayor Tier 1</span>
+                          <span className="px-1.5 py-0.5 bg-[#FDCC0D]/20 border border-[#FDCC0D]/50 text-[#FDCC0D] text-[10px]">{es ? 'Premio Mayor Tier 1' : 'Tier 1 Grand Prize'}</span>
                         </div>
                         <p className="text-slate-300 leading-relaxed text-xs">
-                          En vivo desde Chroma Space Studios (San Juan, por invitación) + YouTube/LinkedIn/Facebook Live: avatar facial en tiempo real, artistas invitados (por confirmar), los 6 Initiates, networking y premios mayores.
+                          {es ? 'En vivo desde Chroma Space Studios (San Juan, por invitación) + YouTube/LinkedIn/Facebook Live: avatar facial en tiempo real, artistas invitados (por confirmar), los 6 Initiates, networking y premios mayores.' : 'Live from Chroma Space Studios (San Juan, by invitation) + YouTube/LinkedIn/Facebook Live: real-time facial avatar, guest artists (TBC), the 6 Initiates, networking and grand prizes.'}
                         </p>
 
                         {expandedDayId === 'day_3' && (
                           <div className="pt-3 border-t border-slate-800 space-y-2 text-[11px] text-slate-300">
                             <p className="leading-relaxed">
-                              • <strong>10:00–11:00 AM:</strong> Introducción del evento (Ricardo marca el ambiente).
+                              • <strong>10:00–11:00 AM:</strong>{es ? ' Introducción del evento (Ricardo marca el ambiente).' : ' Event introduction (Ricardo sets the mood).'}
                             </p>
                             <p className="leading-relaxed">
-                              • <strong>11:00 AM–12:30 PM:</strong> Presentación y showcase: Danelson con su avatar y captura facial en tiempo real + Artista 1 con visualizadores SGX + Artista 2.
+                              • <strong>11:00 AM–12:30 PM:</strong>{es ? ' Presentación y showcase: Danelson con su avatar y captura facial en tiempo real + Artista 1 con visualizadores SGX + Artista 2.' : ' Presentation and showcase: Danelson with his avatar and real-time facial capture + Artist 1 with SGX visualizers + Artist 2.'}
                             </p>
                             <p className="leading-relaxed">
-                              • <strong>12:30–1:00 PM:</strong> Presentaciones del Guild: los 6 Initiates (5 min c/u, presencial o remoto).
+                              • <strong>12:30–1:00 PM:</strong>{es ? ' Presentaciones del Guild: los 6 Initiates (5 min c/u, presencial o remoto).' : ' Guild presentations: the 6 Initiates (5 min each, in person or remote).'}
                             </p>
                             <p className="leading-relaxed">
-                              • <strong>1:00–3:30 PM:</strong> Networking con votación gamificada y canje de premios (1:00–2:00 PM) + Interacción libre con Initiates, demos y Roblox (2:00–3:30 PM).
+                              • <strong>1:00–3:30 PM:</strong>{es ? ' Networking con votación gamificada y canje de premios (1:00–2:00 PM) + Interacción libre con Initiates, demos y Roblox (2:00–3:30 PM).' : ' Networking with gamified voting and prize redemption (1:00–2:00 PM) + Open interaction with Initiates, demos and Roblox (2:00–3:30 PM).'}
                             </p>
                             <p className="leading-relaxed">
-                              • <strong>3:30–4:00 PM:</strong> Cierre, anuncios finales, sesión "Grit" con artistas (por confirmar) y premio mayor: "Spatialgineers activa tu evento".
+                              • <strong>3:30–4:00 PM:</strong>{es ? ' Cierre, anuncios finales, sesión "Grit" con artistas (por confirmar) y premio mayor: "Spatialgineers activa tu evento".' : ' Closing, final announcements, "Grit" session with artists (TBC) and the grand prize: "Spatialgineers activa tu evento" (Spatialgineers activates your event).'}
                             </p>
                           </div>
                         )}
@@ -852,7 +854,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                           onClick={() => setExpandedDayId(expandedDayId === 'day_3' ? null : 'day_3')}
                           className="w-full text-slate-400 hover:text-white text-[11px] flex items-center justify-between py-1 cursor-pointer"
                         >
-                          <span>{expandedDayId === 'day_3' ? 'Menos detalles' : 'Ver desglose minuto a minuto'}</span>
+                          <span>{expandedDayId === 'day_3' ? (es ? 'Menos detalles' : 'Fewer details') : (es ? 'Ver desglose minuto a minuto' : 'See the minute-by-minute breakdown')}</span>
                           {expandedDayId === 'day_3' ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                         </button>
                         <button
@@ -860,7 +862,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                           onClick={() => handleSelectSection('BROADCAST_ROOMS')}
                           className="w-full py-1.5 px-3 bg-[#FDCC0D] hover:bg-[#00DDFF] text-black font-extrabold text-center transition-colors cursor-pointer text-[11px]"
                         >
-                          Salas de transmisión →
+                          {es ? 'Salas de transmisión →' : 'Broadcast rooms →'}
                         </button>
                       </div>
                     </div>
@@ -876,13 +878,13 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                   <div className="space-y-1">
                     <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#FDCC0D]/10 border border-[#FDCC0D]/40 text-[#FDCC0D] text-[10px] font-mono font-bold uppercase">
                       <Building2 className="w-3 h-3" />
-                      <span>ALIANZAS ESTRATÉGICAS & PERMANENCIA 365 DÍAS</span>
+                      <span>{es ? 'ALIANZAS ESTRATÉGICAS & PERMANENCIA 365 DÍAS' : 'STRATEGIC ALLIANCES & 365-DAY PRESENCE'}</span>
                     </div>
                     <h3 className="text-lg font-black text-white font-['Orbitron',sans-serif] uppercase">
-                      Patrocinadores Oficiales & Brand Showcases
+                      {es ? 'Patrocinadores Oficiales & Brand Showcases' : 'Official Sponsors & Brand Showcases'}
                     </h3>
                     <p className="text-xs text-slate-300 font-mono">
-                      Marcas que impulsan el ecosistema de computación espacial en el Caribe y el mundo.
+                      {es ? 'Marcas que impulsan el ecosistema de computación espacial en el Caribe y el mundo.' : 'Brands driving the spatial computing ecosystem in the Caribbean and around the world.'}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -892,14 +894,14 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       className="px-4 py-2 bg-[#FDCC0D] hover:bg-[#FDCC0D]/90 text-black font-mono text-xs font-bold uppercase transition-colors cursor-pointer flex items-center gap-1.5"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span>Postular como Sponsor</span>
+                      <span>{es ? 'Postular como Sponsor' : 'Apply as a Sponsor'}</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleSelectSection('SPONSORS_HUB')}
                       className="px-3 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-mono text-xs font-bold uppercase transition-colors cursor-pointer"
                     >
-                      Ver Todos los Tiers →
+                      {es ? 'Ver Todos los Tiers →' : 'View All Tiers →'}
                     </button>
                   </div>
                 </div>
@@ -939,22 +941,22 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                               className="text-[9px] px-1.5 py-0.5 bg-[var(--sgx-accent)]/10 text-[var(--sgx-accent)] border border-[var(--sgx-accent)]/40 font-bold mt-1 inline-block"
                               style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                             >
-                              {sponsor.tierName.split('(')[0]}
+                              {loc(sponsor, 'tierName', language).split('(')[0]}
                             </span>
                             <p className="text-[11px] text-slate-300 font-mono line-clamp-2 mt-1">
-                              {sponsor.tagline}
+                              {loc(sponsor, 'tagline', language)}
                             </p>
                           </div>
                         </div>
 
                         <div className="flex items-center justify-between pt-3 border-t border-[var(--sgx-secondary)]/40 text-xs font-mono">
                           <span className="text-[var(--sgx-neon)] font-bold group-hover:underline flex items-center space-x-1">
-                            <span>Ver Brand Landing</span>
+                            <span>{es ? 'Ver Brand Landing' : 'View Brand Landing'}</span>
                             <ChevronRight className="w-3.5 h-3.5" />
                           </span>
                           {sponsor.specialOfferCode && (
                             <span className="text-[9px] text-[var(--sgx-accent)] font-bold">
-                              PROMO ACTIVA
+                              {es ? 'PROMO ACTIVA' : 'ACTIVE PROMO'}
                             </span>
                           )}
                         </div>
@@ -984,17 +986,17 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                     >
                       <MapPin className="w-3 h-3" />
-                      <span>SEDE DEL DÍA 3 • SAN JUAN, PUERTO RICO</span>
+                      <span>{es ? 'SEDE DEL DÍA 3 • SAN JUAN, PUERTO RICO' : 'DAY 3 VENUE • SAN JUAN, PUERTO RICO'}</span>
                     </div>
                     <h3 className="text-2xl font-bold text-white font-['Orbitron',sans-serif]">
                       Chroma Space Studios
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                      Sede del Día 3, el SGX Showcase: networking y demos en vivo mientras presentan los Initiates. Por invitación y cupo limitado (40 a 60 personas). El estudio cuenta con luces, proyectores y cámaras integrados.
+                      {es ? 'Sede del Día 3, el SGX Showcase: networking y demos en vivo mientras presentan los Initiates. Por invitación y cupo limitado (40 a 60 personas). El estudio cuenta con luces, proyectores y cámaras integrados.' : 'Venue for Day 3, the SGX Showcase: networking and live demos while the Initiates present. By invitation, limited capacity (40 to 60 people). The studio has built-in lights, projectors and cameras.'}
                     </p>
                     <div className="flex flex-wrap gap-2 pt-2">
-                      <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">Domingo 13 dic · 10:00 AM–4:00 PM</span>
-                      <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">Por invitación · 40 a 60 personas</span>
+                      <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">{es ? 'Domingo 13 dic · 10:00 AM–4:00 PM' : 'Sunday Dec 13 · 10:00 AM–4:00 PM'}</span>
+                      <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">{es ? 'Por invitación · 40 a 60 personas' : 'By invitation · 40 to 60 people'}</span>
                       <span className="px-2 py-0.5 bg-black/60 border border-slate-700 text-slate-300 text-[10px]">SGX Guild Ranked Trials Pitch Session</span>
                       <span className="px-2 py-0.5 bg-[#00DDFF]/10 border border-[#00DDFF]/40 text-[#00DDFF] text-[10px]">YouTube Live</span>
                     </div>
@@ -1010,14 +1012,14 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       className="sgx-btn-cyan px-5 py-3 text-xs font-bold flex items-center justify-center space-x-2 w-full sm:w-auto shadow-lg shadow-[#00DDFF]/20"
                     >
                       <Compass className="w-4 h-4" />
-                      <span>ABRIR RECORRIDO 360° COMPLETO</span>
+                      <span>{es ? 'ABRIR RECORRIDO 360° COMPLETO' : 'OPEN FULL 360° TOUR'}</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleSelectSection('AGENDA')}
                       className="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs font-mono font-bold text-center transition-colors cursor-pointer"
                     >
-                      Ver Agenda del Día 3 en Chroma →
+                      {es ? 'Ver Agenda del Día 3 en Chroma →' : 'View the Day 3 Agenda at Chroma →'}
                     </button>
                   </div>
                 </div>
@@ -1051,17 +1053,17 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                         </span>
                         <span className="px-2 py-0.5 bg-red-950 border border-red-500/60 text-red-400 text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 animate-pulse">
                           <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                          <span>EN VIVO</span>
+                          <span>{es ? 'EN VIVO' : 'LIVE'}</span>
                         </span>
                       </div>
 
                       <h3 className="text-lg font-black text-white uppercase font-['Orbitron',sans-serif] tracking-wider flex items-center gap-2">
                         <Radio className="w-5 h-5 text-[var(--sgx-neon)]" />
-                        <span>Live Social Stream: Sintoniza el Pulso del Summit</span>
+                        <span>{es ? 'Live Social Stream: Sintoniza el Pulso del Summit' : 'Live Social Stream: Tune In to the Summit\'s Pulse'}</span>
                       </h3>
 
                       <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
-                        Publica en Instagram, X o Threads con <strong>#SpatialgineersSummit</strong> y <strong>#SGX2026</strong> para que tus fotos, vídeos y opiniones aparezcan proyectados en la pantalla LED gigante de Chroma Space Studios y en la transmisión oficial.
+                        {es ? 'Publica en Instagram, X o Threads con ' : 'Post on Instagram, X or Threads with '}<strong>#SpatialgineersSummit</strong> y <strong>#SGX2026</strong>{es ? ' para que tus fotos, vídeos y opiniones aparezcan proyectados en la pantalla LED gigante de Chroma Space Studios y en la transmisión oficial.' : ' so your photos, videos and opinions appear on the giant LED screen at Chroma Space Studios and on the official broadcast.'}
                       </p>
                     </div>
 
@@ -1073,7 +1075,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                         }}
                         className="sgx-btn py-2.5 px-5 text-xs font-bold uppercase flex items-center space-x-1.5 shadow-lg shadow-[var(--sgx-neon)]/20 hover:scale-105 transition-all font-mono"
                       >
-                        <span>ABRIR LIVE SOCIAL STREAM COMPLETO</span>
+                        <span>{es ? 'ABRIR LIVE SOCIAL STREAM COMPLETO' : 'OPEN FULL LIVE SOCIAL STREAM'}</span>
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
@@ -1081,7 +1083,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
                   <div className="pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
                     <div className="flex flex-wrap items-center gap-1.5 text-slate-400 text-[11px]">
-                      <span className="text-slate-200 font-bold">Hashtags oficiales (clic para copiar):</span>
+                      <span className="text-slate-200 font-bold">{es ? 'Hashtags oficiales (clic para copiar):' : 'Official hashtags (click to copy):'}</span>
                       {['#SpatialgineersSummit', '#SGX2026', '#ChromaStudios', '#SpatialComputing'].map((tag) => (
                         <button
                           key={tag}
@@ -1103,7 +1105,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       style={{ color: tenant.branding.primaryColor }}
                     >
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span>Gana +50 XP por publicar en vivo</span>
+                      <span>{es ? 'Gana +50 XP por publicar en vivo' : 'Earn +50 XP for posting live'}</span>
                     </div>
                   </div>
                 </div>
@@ -1119,8 +1121,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div id="summit-section-visitas" className="w-full">
             <SummitSectionBanner
               sectionKey="VISITS"
-              title="Radar de visitas del Summit"
-              subtitle="Desde dónde nos visitan, en vivo. Cada visita enciende su municipio en el mapa de Puerto Rico."
+              title={es ? 'Radar de visitas del Summit' : 'Summit Visit Radar'}
+              subtitle={es ? 'Desde dónde nos visitan, en vivo. Cada visita enciende su municipio en el mapa de Puerto Rico.' : 'Where our visitors come from, live. Every visit lights up its municipality on the map of Puerto Rico.'}
               pillarBadge="SGX.SYSTEM"
             />
             <Suspense fallback={<LazyFallback />}>
@@ -1140,8 +1142,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div className="space-y-6">
             <SummitSectionBanner
               sectionKey="PILLARS_MANIFESTO"
-              title="Manifiesto Oficial & Los 6 Pilares Spatialgineers"
-              subtitle="Story, Showcase, Spark, Stage, System y Synthesize: la filosofía tecnocreativa que impulsa el Summit 2026."
+              title={es ? 'Manifiesto Oficial & Los 6 Pilares Spatialgineers' : 'Official Manifesto & the 6 Spatialgineers Pillars'}
+              subtitle={es ? 'Story, Showcase, Spark, Stage, System y Synthesize: la filosofía tecnocreativa que impulsa el Summit 2026.' : 'Story, Showcase, Spark, Stage, System and Synthesize: the tech-creative philosophy driving Summit 2026.'}
               pillarBadge="SGX.STORY"
               pillarIconUrl={pillarIcon('STORY')}
             />
@@ -1169,8 +1171,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div className="space-y-4">
             <SummitSectionBanner
               sectionKey="MAP_360"
-              title="Recorrido 360° — Chroma Space Studios"
-              subtitle="Explora en 360° el estudio de producción virtual, las zonas de demos y networking del Día 3."
+              title={es ? 'Recorrido 360° — Chroma Space Studios' : '360° Tour — Chroma Space Studios'}
+              subtitle={es ? 'Explora en 360° el estudio de producción virtual, las zonas de demos y networking del Día 3.' : 'Explore in 360° the virtual production studio and the Day 3 demo and networking areas.'}
               pillarBadge="SGX.SHOWCASE"
               pillarIconUrl={pillarIcon('SHOWCASE')}
             />
@@ -1189,8 +1191,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div className="space-y-4">
             <SummitSectionBanner
               sectionKey="BROADCAST_ROOMS"
-              title="Salas de transmisión & canales en vivo"
-              subtitle="Transmisiones simultáneas de alta fidelidad con audio espacial y selector multivista."
+              title={es ? 'Salas de transmisión & canales en vivo' : 'Broadcast rooms & live channels'}
+              subtitle={es ? 'Transmisiones simultáneas de alta fidelidad con audio espacial y selector multivista.' : 'Simultaneous high-fidelity streams with spatial audio and a multi-view selector.'}
               pillarBadge="SGX.STAGE"
               pillarIconUrl={pillarIcon('STAGE')}
             />
@@ -1201,7 +1203,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                     className="absolute top-2 right-2 flex items-center space-x-1 bg-black/60 border px-1.5 py-0.5 text-[8px] uppercase tracking-wider"
                     style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                   >
-                    {room.status === 'LIVE' ? <><div className="w-1.5 h-1.5 bg-red-500 animate-pulse" /><span className="text-red-400 font-bold">EN VIVO</span></> : <><div className="w-1.5 h-1.5 bg-slate-500" /><span className="text-slate-400">{room.status}</span></>}
+                    {room.status === 'LIVE' ? <><div className="w-1.5 h-1.5 bg-red-500 animate-pulse" /><span className="text-red-400 font-bold">{es ? 'EN VIVO' : 'LIVE'}</span></> : <><div className="w-1.5 h-1.5 bg-slate-500" /><span className="text-slate-400">{room.status}</span></>}
                   </div>
                   <div className="font-bold text-white text-sm font-['Orbitron',sans-serif] pr-16">{room.name}</div>
                   {room.streamUrl && room.status === 'LIVE' ? (
@@ -1222,7 +1224,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
                     >
                       <Video className="w-6 h-6 mb-1 opacity-50" />
-                      <span>{room.status === 'LIVE' ? 'Sin transmisión' : 'Transmisión inactiva'}</span>
+                      <span>{room.status === 'LIVE' ? (es ? 'Sin transmisión' : 'No stream') : (es ? 'Transmisión inactiva' : 'Stream inactive')}</span>
                     </div>
                   )}
                   <p className="text-[10px] text-slate-400 font-mono line-clamp-3">{room.description}</p>
@@ -1262,11 +1264,11 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 </div>
                 <div>
                   <div className="font-bold text-white uppercase flex items-center gap-1.5">
-                    <span>LIVE SOCIAL STREAM VINCULADO AL BROADCAST</span>
+                    <span>{es ? 'LIVE SOCIAL STREAM VINCULADO AL BROADCAST' : 'LIVE SOCIAL STREAM LINKED TO THE BROADCAST'}</span>
                     <span className="px-1.5 py-0.2 bg-red-600 text-white text-[9px] rounded-xs font-bold">RADAR</span>
                   </div>
                   <p className="text-[11px] text-slate-300">
-                    Sigue las publicaciones en tiempo real en Instagram, X y Threads con <strong>#SpatialgineersSummit</strong>.
+                    {es ? 'Sigue las publicaciones en tiempo real en Instagram, X y Threads con ' : 'Follow posts in real time on Instagram, X and Threads with '}<strong>#SpatialgineersSummit</strong>.
                   </p>
                 </div>
               </div>
@@ -1278,7 +1280,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 }}
                 className="sgx-btn py-2 px-4 text-xs font-bold uppercase shrink-0"
               >
-                VER LIVE SOCIAL STREAM
+                {es ? 'VER LIVE SOCIAL STREAM' : 'VIEW LIVE SOCIAL STREAM'}
               </button>
             </div>
           </div>
@@ -1289,8 +1291,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div className="space-y-6">
             <SummitSectionBanner
               sectionKey="SOCIAL_STREAM"
-              title="Live Social Stream & Radar del Summit"
-              subtitle="Feed interactivo en vivo de Instagram, Threads y X con publicaciones oficiales #SpatialgineersSummit."
+              title={es ? 'Live Social Stream & Radar del Summit' : 'Live Social Stream & Summit Radar'}
+              subtitle={es ? 'Feed interactivo en vivo de Instagram, Threads y X con publicaciones oficiales #SpatialgineersSummit.' : 'Live interactive feed from Instagram, Threads and X with official #SpatialgineersSummit posts.'}
               pillarBadge="SGX.SHOWCASE"
               pillarIconUrl={pillarIcon('SHOWCASE')}
             />
@@ -1304,8 +1306,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div className="space-y-6">
             <SummitSectionBanner
               sectionKey="AGENDA"
-              title="Run of Show Oficial & Agenda de 3 Días"
-              subtitle="Línea de tiempo minuto a minuto, presentaciones de artistas en Roblox, conversatorios de industria y show performativo."
+              title={es ? 'Run of Show Oficial & Agenda de 3 Días' : 'Official Run of Show & 3-Day Agenda'}
+              subtitle={es ? 'Línea de tiempo minuto a minuto, presentaciones de artistas en Roblox, conversatorios de industria y show performativo.' : 'Minute-by-minute timeline, artist performances in Roblox, industry conversations and a live performance show.'}
               pillarBadge="SGX.STAGE"
               pillarIconUrl={pillarIcon('STAGE')}
               additionalParams={{ view: agendaViewMode.toLowerCase() }}
@@ -1323,7 +1325,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  Línea de Tiempo (Run of Show)
+                  {es ? 'Línea de Tiempo (Run of Show)' : 'Timeline (Run of Show)'}
                 </button>
                 <button
                   onClick={() => {
@@ -1336,7 +1338,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  Mi Agenda & Alertas
+                  {es ? 'Mi Agenda & Alertas' : 'My Agenda & Alerts'}
                 </button>
               </div>
             </SummitSectionBanner>
@@ -1368,7 +1370,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <SummitSectionBanner
               sectionKey="GUILD"
               title="SGX Guild Initiates & Ranked Trials 2026"
-              subtitle="Los 8 iniciados oficiales de la cohorte técnica Spatialgineers con matrices de habilidades y mentoría."
+              subtitle={es ? 'Los 8 iniciados oficiales de la cohorte técnica Spatialgineers con matrices de habilidades y mentoría.' : 'The 8 official Initiates of the Spatialgineers technical cohort, with skill matrices and mentorship.'}
               pillarBadge="SGX.SYSTEM"
               pillarIconUrl={pillarIcon('SYSTEM')}
             />
@@ -1381,8 +1383,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div id="summit-section-speakers" className="space-y-6">
             <SummitSectionBanner
               sectionKey="SPEAKERS"
-              title="Directorio Oficial de Speakers & Artistas"
-              subtitle="Se publican solo speakers y artistas confirmados por escrito. Los anuncios van del 7 al 21 de noviembre."
+              title={es ? 'Directorio Oficial de Speakers & Artistas' : 'Official Speakers & Artists Directory'}
+              subtitle={es ? 'Se publican solo speakers y artistas confirmados por escrito. Los anuncios van del 7 al 21 de noviembre.' : 'Only speakers and artists confirmed in writing are published. Announcements run from November 7 to 21.'}
               pillarBadge="SGX.STAGE"
               pillarIconUrl={pillarIcon('STAGE')}
             />
@@ -1398,10 +1400,10 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <div className="p-4 rounded-xl border border-slate-800 bg-[#121212]/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h4 className="text-sm font-bold text-white uppercase font-['Orbitron',sans-serif]">
-                  ¿ERES SPEAKER, ARTISTA O CREADOR SPATIALGINEER?
+                  {es ? '¿ERES SPEAKER, ARTISTA O CREADOR SPATIALGINEER?' : 'ARE YOU A SPEAKER, ARTIST OR SPATIALGINEER CREATOR?'}
                 </h4>
                 <p className="text-xs text-slate-400 font-mono mt-0.5">
-                  Accede a la consola de creadores para actualizar tu biografía técnica, links y ficha de sesión.
+                  {es ? 'Accede a la consola de creadores para actualizar tu biografía técnica, links y ficha de sesión.' : 'Open the creator console to update your technical bio, links and session sheet.'}
                 </p>
               </div>
 
@@ -1410,7 +1412,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 className="sgx-btn py-2 px-4 text-xs font-bold uppercase flex items-center space-x-2 shrink-0 shadow-lg shadow-[var(--sgx-neon)]/20 hover:scale-105 transition-all font-mono cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>PORTAL DE SPEAKERS & ARTISTAS</span>
+                <span>{es ? 'PORTAL DE SPEAKERS & ARTISTAS' : 'SPEAKERS & ARTISTS PORTAL'}</span>
               </button>
             </div>
           </div>
@@ -1421,8 +1423,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div className="space-y-4">
             <SummitSectionBanner
               sectionKey="NETWORKING"
-              title="Foros del Summit & Espacio de Networking"
-              subtitle="Conecta con asistentes, speakers y empresas para generar alianzas, co-creación y proyectos espaciales."
+              title={es ? 'Foros del Summit & Espacio de Networking' : 'Summit Forums & Networking Space'}
+              subtitle={es ? 'Conecta con asistentes, speakers y empresas para generar alianzas, co-creación y proyectos espaciales.' : 'Connect with attendees, speakers and companies to build alliances, co-creation and spatial projects.'}
               pillarBadge="SGX.SYNTHESIZE"
               pillarIconUrl={pillarIcon('SYNTHESIZE')}
             />
@@ -1435,8 +1437,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div className="space-y-4">
             <SummitSectionBanner
               sectionKey="ENTREPRENEUR_MATCH"
-              title="SGX.Match — Speed Pitching & Citas Estratégicas"
-              subtitle="Conecta con creadores y marcas de todos los pilares."
+              title={es ? 'SGX.Match — Speed Pitching & Citas Estratégicas' : 'SGX.Match — Speed Pitching & Strategic Meetings'}
+              subtitle={es ? 'Conecta con creadores y marcas de todos los pilares.' : 'Connect with creators and brands from every pillar.'}
               pillarBadge="SGX.SHOWCASE"
               pillarIconUrl={pillarIcon('SHOWCASE')}
             />
@@ -1454,8 +1456,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div className="space-y-4">
             <SummitSectionBanner
               sectionKey="EMBEDS_GAMES"
-              title="Simulador de Dron & Minijuegos Gamificados"
-              subtitle="Entorno de simulación de vuelo en tiempo real, colisiones espaciales y retos interactivos con ranking."
+              title={es ? 'Simulador de Dron & Minijuegos Gamificados' : 'Drone Simulator & Gamified Mini-Games'}
+              subtitle={es ? 'Entorno de simulación de vuelo en tiempo real, colisiones espaciales y retos interactivos con ranking.' : 'Real-time flight simulation, spatial collisions and interactive challenges with a leaderboard.'}
               pillarBadge="SGX.SPARK"
               pillarIconUrl={pillarIcon('SPARK')}
             />
@@ -1470,8 +1472,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div className="space-y-8">
             <SummitSectionBanner
               sectionKey="SPONSORS_HUB"
-              title={`Directorio de Patrocinadores & Marcas Aliadas (${approvedSponsors.length})`}
-              subtitle="Marcas de vanguardia que hacen posible el Spatialgineers Summit 2026. Conoce sus stands y beneficios."
+              title={(es ? `Directorio de Patrocinadores & Marcas Aliadas (${approvedSponsors.length})` : `Sponsors & Partner Brands Directory (${approvedSponsors.length})`)}
+              subtitle={es ? 'Marcas de vanguardia que hacen posible el Spatialgineers Summit 2026. Conoce sus stands y beneficios.' : 'Cutting-edge brands that make the Spatialgineers Summit 2026 possible. Discover their booths and benefits.'}
               pillarBadge="SGX.SHOWCASE"
               pillarIconUrl={pillarIcon('SHOWCASE')}
             />
@@ -1490,11 +1492,11 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 <div className="flex items-center space-x-2">
                   <Sparkles className="w-5 h-5 text-[var(--sgx-neon)]" />
                   <h3 className="text-base font-bold text-white uppercase font-['Orbitron',sans-serif]">
-                    PATROCINADORES Y BRAND SHOWCASES ACTIVOS ({approvedSponsors.length})
+                    {es ? 'PATROCINADORES Y BRAND SHOWCASES ACTIVOS (' : 'ACTIVE SPONSORS & BRAND SHOWCASES ('}{approvedSponsors.length})
                   </h3>
                 </div>
                 <p className="text-xs text-slate-400 font-mono mt-0.5">
-                  Haz clic en cualquier marca para abrir su landing interactivo oficial con ofertas exclusivas, códigos promocionales y activación en el evento.
+                  {es ? 'Haz clic en cualquier marca para abrir su landing interactivo oficial con ofertas exclusivas, códigos promocionales y activación en el evento.' : 'Click any brand to open its official interactive landing with exclusive offers, promo codes and its activation at the event.'}
                 </p>
               </div>
 
@@ -1528,14 +1530,14 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                           className="text-[9px] px-1.5 py-0.5 bg-[var(--sgx-accent)]/10 text-[var(--sgx-accent)] border border-[var(--sgx-accent)]/40 font-bold inline-block mt-0.5"
                           style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                         >
-                          {sp.tierName.split('(')[0]}
+                          {loc(sp, 'tierName', language).split('(')[0]}
                         </span>
-                        <p className="text-[11px] text-slate-300 font-mono line-clamp-2 mt-1">{sp.tagline}</p>
+                        <p className="text-[11px] text-slate-300 font-mono line-clamp-2 mt-1">{loc(sp, 'tagline', language)}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-[var(--sgx-secondary)]/40 text-[11px] font-mono text-[var(--sgx-neon)] font-bold">
-                      <span>VER LANDING DE MARCA ➔</span>
+                      <span>{es ? 'VER LANDING DE MARCA ➔' : 'VIEW BRAND LANDING ➔'}</span>
                       {sp.specialOfferCode && (
                         <span className="text-[9px] text-[var(--sgx-accent)] font-bold">PROMO: {sp.specialOfferCode}</span>
                       )}
@@ -1581,10 +1583,10 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <div className="flex items-start justify-between border-b border-[var(--sgx-secondary)] pb-3">
               <div>
                 <span className="text-[10px] font-mono text-[var(--sgx-neon)] font-bold uppercase">
-                  DÍA {selectedSessionModal.day} • {selectedSessionModal.startTime} – {selectedSessionModal.endTime}
+                  {es ? 'DÍA ' : 'DAY '}{selectedSessionModal.day} • {selectedSessionModal.startTime} – {selectedSessionModal.endTime}
                 </span>
                 <h3 className="text-base font-bold text-white font-['Orbitron',sans-serif]">
-                  {selectedSessionModal.title}
+                  {loc(selectedSessionModal, 'title', language)}
                 </h3>
               </div>
               <button onClick={() => setSelectedSessionModal(null)} className="text-slate-400 hover:text-white">
@@ -1594,14 +1596,14 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
             <div className="space-y-3 text-xs font-mono">
               <p className="text-slate-300 leading-relaxed text-sm">
-                {selectedSessionModal.description}
+                {loc(selectedSessionModal, 'description', language)}
               </p>
 
               <div 
                 className="p-3 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] space-y-1"
                 style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
               >
-                <div className="text-slate-400">Ubicación: <strong className="text-white">{selectedSessionModal.venueLocation}</strong></div>
+                <div className="text-slate-400">{es ? 'Ubicación: ' : 'Location: '}<strong className="text-white">{loc(selectedSessionModal, 'venueLocation', language)}</strong></div>
                 <div className="text-slate-400">Formato: <strong className="text-[var(--sgx-accent)]">{selectedSessionModal.format}</strong></div>
                 {selectedSessionModal.pillarId && (
                   <div className="text-slate-400">Pilar: <strong className="text-[var(--sgx-neon)]">{selectedSessionModal.pillarId}</strong></div>
@@ -1615,7 +1617,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                   className="sgx-btn-cyan px-3 py-1.5 text-xs font-bold flex items-center space-x-1"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>DESCARGAR .ICS</span>
+                  <span>{es ? 'DESCARGAR .ICS' : 'DOWNLOAD .ICS'}</span>
                 </button>
 
                 <a
@@ -1625,7 +1627,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                   className="sgx-btn px-3 py-1.5 text-xs font-bold flex items-center space-x-1"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  <span>AÑADIR A GOOGLE CALENDAR</span>
+                  <span>{es ? 'AÑADIR A GOOGLE CALENDAR' : 'ADD TO GOOGLE CALENDAR'}</span>
                 </a>
               </div>
             </div>
@@ -1659,7 +1661,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 )}
                 <div>
                   <h3 className="text-sm font-bold text-white font-['Orbitron',sans-serif]">{selectedSpeakerModal.name}</h3>
-                  <span className="text-xs text-[var(--sgx-accent)] font-mono block">{selectedSpeakerModal.role}</span>
+                  <span className="text-xs text-[var(--sgx-accent)] font-mono block">{loc(selectedSpeakerModal, 'role', language)}</span>
                 </div>
               </div>
               <button onClick={() => setSelectedSpeakerModal(null)} className="text-slate-400 hover:text-white">
@@ -1668,7 +1670,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             </div>
 
             <p className="text-xs text-slate-300 font-mono leading-relaxed">
-              {selectedSpeakerModal.bio}
+              {loc(selectedSpeakerModal, 'bio', language)}
             </p>
 
             <div className="pt-2 border-t border-[var(--sgx-secondary)] text-xs font-mono flex items-center justify-between">
@@ -1680,7 +1682,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 }}
                 className="text-[var(--sgx-neon)] font-bold hover:underline"
               >
-                Conectar en Chat →
+                {es ? 'Conectar en Chat →' : 'Connect in Chat →'}
               </button>
             </div>
           </div>
@@ -1723,7 +1725,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       {/* 12. Floating Live Pulse Reactions & Keynote Polls Widget */}
       {isFeatureVisible('exp_pulse_reactions') && (
         <KeynotePulseReactions
-          currentSessionTitle={sessions[0]?.title || 'Keynote Oficial: The Spatial Web'}
+          currentSessionTitle={(sessions[0] && loc(sessions[0], 'title', language)) || (es ? 'Keynote Oficial: The Spatial Web' : 'Official Keynote: The Spatial Web')}
         />
       )}
 
@@ -1771,8 +1773,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           setSpeakers(loadPersistedSpeakers());
           setActiveToastNotif({
             id: `toast_speaker_${Date.now()}`,
-            title: 'Perfil recibido',
-            message: `Gracias, ${newSpeaker.name}. El equipo revisa tu perfil y lo publica en el directorio cuando esté confirmado por escrito.`,
+            title: (es ? 'Perfil recibido' : 'Profile received'),
+            message: (es ? `Gracias, ${newSpeaker.name}. El equipo revisa tu perfil y lo publica en el directorio cuando esté confirmado por escrito.` : `Thanks, ${newSpeaker.name}. The team reviews your profile and adds it to the directory once confirmed in writing.`),
             actionUrl: '/summit',
             priority: 'HIGH',
             timestamp: Date.now()
@@ -1790,7 +1792,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               <div className="flex items-center gap-2.5">
                 <BarChart3 className="w-5 h-5 text-[#FDCC0D]" />
                 <span className="text-sm sm:text-base font-black text-white font-['Orbitron',sans-serif] uppercase tracking-wider">
-                  SGX.SYSTEM · Analíticas & Telemetría en Tiempo Real
+                  {es ? 'SGX.SYSTEM · Analíticas & Telemetría en Tiempo Real' : 'SGX.SYSTEM · Real-Time Analytics & Telemetry'}
                 </span>
               </div>
               <button
@@ -1798,7 +1800,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 onClick={() => setAnalyticsModalOpen(false)}
                 className="px-3 py-1.5 bg-[#1B1B1B] hover:bg-[#FFBB00] hover:text-black border border-white/20 text-xs font-mono font-bold text-white transition-colors cursor-pointer"
               >
-                Cerrar Analíticas ✕
+                {es ? 'Cerrar Analíticas ✕' : 'Close Analytics ✕'}
               </button>
             </div>
             <SummitAnalyticsView />
@@ -1821,16 +1823,16 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
           {/* Line 1 */}
           <div className="text-slate-300 leading-relaxed max-w-5xl mx-auto">
-            © 2026 Spatialgineers LLC. Todos los derechos reservados. <span className="text-slate-600 mx-2">•</span> Día 3: Chroma Space Studios, San Juan <span className="text-slate-600 mx-2">•</span> <span className="text-[var(--sgx-neon)] font-bold">YouTube Live, con Los Mismos TV transmitiendo junto a nosotros</span> <span className="text-slate-600 mx-2">•</span> Gratis · En español <span className="text-slate-600 mx-2">•</span> <a href="mailto:info@spatialgineers.com" className="hover:text-[var(--sgx-neon)]">info@spatialgineers.com</a> · +1 (787) 445-5284 · <a href={SGX_YOUTUBE} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--sgx-neon)]">YouTube @spatialgineers</a> · #SpatialgineersSummit <span className="text-slate-600 mx-2">•</span> Prensa: acreditación antes del 1 de diciembre (6 cupos, un acceso por medio) en info@spatialgineers.com
+            {es ? '© 2026 Spatialgineers LLC. Todos los derechos reservados. ' : '© 2026 Spatialgineers LLC. All rights reserved. '}<span className="text-slate-600 mx-2">•</span>{es ? ' Día 3: Chroma Space Studios, San Juan ' : ' Day 3: Chroma Space Studios, San Juan '}<span className="text-slate-600 mx-2">•</span> <span className="text-[var(--sgx-neon)] font-bold">{es ? 'YouTube Live, con Los Mismos TV transmitiendo junto a nosotros' : 'YouTube Live, with Los Mismos TV streaming alongside us'}</span> <span className="text-slate-600 mx-2">•</span>{es ? ' Gratis · En español ' : ' Free · In Spanish '}<span className="text-slate-600 mx-2">•</span> <a href="mailto:info@spatialgineers.com" className="hover:text-[var(--sgx-neon)]">info@spatialgineers.com</a> · +1 (787) 445-5284 · <a href={SGX_YOUTUBE} target="_blank" rel="noopener noreferrer" className="hover:text-[var(--sgx-neon)]">YouTube @spatialgineers</a> · #SpatialgineersSummit <span className="text-slate-600 mx-2">•</span>{es ? ' Prensa: acreditación antes del 1 de diciembre (6 cupos, un acceso por medio) en info@spatialgineers.com' : ' Press: accreditation before December 1 (6 slots, one pass per outlet) at info@spatialgineers.com'}
           </div>
           {/* Line 2 */}
           <div className="text-[11px] text-slate-400 max-w-3xl mx-auto leading-relaxed">
-            Ingeniando Imaginación, Construyendo Realidades — Plataforma de computación espacial, experiencias inmersivas XR, mundos 3D y transmisión en vivo.
+            {es ? 'Ingeniando Imaginación, Construyendo Realidades — Plataforma de computación espacial, experiencias inmersivas XR, mundos 3D y transmisión en vivo.' : 'Engineering Imagination, Building Realities — A platform for spatial computing, immersive XR experiences, 3D worlds and live streaming.'}
           </div>
           {/* Line 3 */}
           <div className="pt-3 border-t border-[var(--sgx-secondary)]/30 max-w-xl mx-auto">
             <span className="text-[13px] font-bold text-[#FDCC0D] tracking-wider font-['Orbitron',sans-serif] uppercase block filter drop-shadow-[0_0_8px_rgba(253,204,13,0.45)] transition-transform duration-300 hover:scale-[1.02]">
-              ★ POWERED BY SPATIALGINEERS • INGENIANDO IMAGINACIÓN, CONSTRUYENDO REALIDADES ★
+              {es ? '★ POWERED BY SPATIALGINEERS • INGENIANDO IMAGINACIÓN, CONSTRUYENDO REALIDADES ★' : '★ POWERED BY SPATIALGINEERS • ENGINEERING IMAGINATION, BUILDING REALITIES ★'}
             </span>
           </div>
 
@@ -1839,7 +1841,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <div className="flex items-center gap-2 text-left">
               <span className="w-2 h-2 rounded-full bg-[#FDCC0D] animate-pulse" />
               <span>
-                <strong>Privacidad & Datos (Leyes de Puerto Rico):</strong> Login anónimo sin datos privados. Telemetría usada para mejorar servicios y validar use cases. Jamás vendemos datos a 3ros.
+                <strong>{es ? 'Privacidad & Datos (Leyes de Puerto Rico):' : 'Privacy & Data (Puerto Rico Law):'}</strong>{es ? ' Login anónimo sin datos privados. Telemetría usada para mejorar servicios y validar use cases. Jamás vendemos datos a 3ros.' : ' Anonymous login with no private data. Telemetry is used to improve services and validate use cases. We never sell data to third parties.'}
               </span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -1850,9 +1852,9 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 }}
                 className="px-2.5 py-1.5 bg-[#141414] hover:bg-cyan-500 hover:text-black border border-cyan-500/50 text-cyan-300 font-bold text-[10px] tracking-wider uppercase transition-all whitespace-nowrap cursor-pointer"
                 style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-                title="Volver a reproducir la pantalla de carga cibernética de 5 segundos"
+                title={es ? 'Volver a reproducir la pantalla de carga cibernética de 5 segundos' : 'Replay the 5-second cyber loading screen'}
               >
-                ⚡ VER INTRO 5S
+                {es ? '⚡ VER INTRO 5S' : '⚡ WATCH 5S INTRO'}
               </button>
               <button
                 onClick={() => {
@@ -1862,7 +1864,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 className="px-3 py-1.5 bg-[#1b1b1b] hover:bg-[var(--sgx-neon)] hover:text-black border border-slate-700 hover:border-[var(--sgx-neon)] text-[var(--sgx-neon)] font-bold text-[10px] tracking-wider uppercase transition-all whitespace-nowrap cursor-pointer"
                 style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
               >
-                🛡️ POLÍTICA DE PRIVACIDAD
+                {es ? '🛡️ POLÍTICA DE PRIVACIDAD' : '🛡️ PRIVACY POLICY'}
               </button>
             </div>
           </div>

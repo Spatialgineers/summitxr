@@ -25,6 +25,7 @@ import { PILLAR_META, MatchCard } from './MatchCard';
 import { saveUserMatchProfile } from './matchData';
 import { playUiChirp, playScanSuccessSound } from '../../lib/cyberAudioEngine';
 import { triggerMatchConfetti } from './MatchBurstFX';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface MatchProfileWizardProps {
   initialProfile?: MatchProfile | null;
@@ -94,6 +95,8 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
   onCompleted,
   onCancel
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const strings = MATCH_I18N[lang] || MATCH_I18N.es;
 
   // Current wizard step: 1 to 6
@@ -133,7 +136,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
       setBrings(brings.filter(b => b !== chip));
     } else {
       if (brings.length >= 5) {
-        setErrorMsg('Máximo 5 habilidades a la vez.');
+        setErrorMsg((es ? 'Máximo 5 habilidades a la vez.' : 'Up to 5 skills at a time.'));
         return;
       }
       setBrings([...brings, chip]);
@@ -148,7 +151,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
       setSeeking(seeking.filter(s => s !== chip));
     } else {
       if (seeking.length >= 3) {
-        setErrorMsg('Selecciona entre 1 y 3 necesidades clave.');
+        setErrorMsg((es ? 'Selecciona entre 1 y 3 necesidades clave.' : 'Pick between 1 and 3 key needs.'));
         return;
       }
       setSeeking([...seeking, chip]);
@@ -174,7 +177,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
         return;
       }
       if (pitch.length > 80) {
-        setErrorMsg('Máximo 80 caracteres para el pitch.');
+        setErrorMsg((es ? 'Máximo 80 caracteres para el pitch.' : 'Up to 80 characters for the pitch.'));
         return;
       }
     } else if (step === 2) {
@@ -253,7 +256,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
       receivedIntentCount: 0
     },
     score: 98,
-    matchReason: 'Así lucirá tu tarjeta en el mazo'
+    matchReason: (es ? 'Así lucirá tu tarjeta en el mazo' : 'This is how your card will look in the deck')
   };
 
   return (
@@ -308,7 +311,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
               className="w-full bg-slate-900/90 border border-slate-700 rounded-xl p-3 text-white text-sm focus:border-[#00DDFF] focus:outline-none placeholder:text-slate-500 font-sans resize-none"
             />
             <div className="flex justify-between items-center text-[11px] font-mono mt-1.5 text-slate-400">
-              <span>Sé directo y conciso. Máximo 1–2 líneas.</span>
+              <span>{es ? 'Sé directo y conciso. Máximo 1–2 líneas.' : 'Be direct and concise. 1–2 lines max.'}</span>
               <span className={pitch.length > 70 ? 'text-amber-400 font-bold' : ''}>
                 {pitch.length}/80
               </span>
@@ -325,7 +328,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
               {strings.stepBringsLabel}
             </label>
             <p className="text-xs text-slate-400 mt-0.5">
-              Elige de 1 a 5 fortalezas que aportas a un equipo o proyecto ({brings.length}/5 seleccionadas).
+              {es ? 'Elige de 1 a 5 fortalezas que aportas a un equipo o proyecto (' : 'Pick 1 to 5 strengths you bring to a team or project ('}{brings.length}/5 seleccionadas).
             </p>
           </div>
 
@@ -353,14 +356,14 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
           {/* Custom Bring Text */}
           <div className="pt-2">
             <label className="block text-xs font-mono text-slate-400 mb-1">
-              + Otra habilidad específica (opcional, máx 60 caracteres):
+              {es ? '+ Otra habilidad específica (opcional, máx 60 caracteres):' : '+ Another specific skill (optional, max 60 characters):'}
             </label>
             <input
               type="text"
               value={customBrings}
               maxLength={60}
               onChange={e => setCustomBrings(e.target.value)}
-              placeholder="Ej: Shader programming, Unreal Engine 5..."
+              placeholder={es ? 'Ej: Shader programming, Unreal Engine 5...' : 'E.g. Shader programming, Unreal Engine 5...'}
               className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-[#00DDFF] focus:outline-none"
             />
           </div>
@@ -375,7 +378,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
               {strings.stepSeekingLabel}
             </label>
             <p className="text-xs text-slate-400 mt-0.5">
-              Elige entre 1 y 3 roles o perfiles que impulsan tu momento actual ({seeking.length}/3 seleccionados).
+              {es ? 'Elige entre 1 y 3 roles o perfiles que impulsan tu momento actual (' : 'Pick between 1 and 3 roles or profiles that drive where you are right now ('}{seeking.length}/3 seleccionados).
             </p>
           </div>
 
@@ -410,7 +413,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
               {strings.stepPillarLabel}
             </label>
             <p className="text-xs text-slate-400 mt-0.5">
-              Cada pilar define tu color de resonancia y enfoque dentro de Spatialgineers.
+              {es ? 'Cada pilar define tu color de resonancia y enfoque dentro de Spatialgineers.' : 'Each pillar sets your resonance color and focus within Spatialgineers.'}
             </p>
           </div>
 
@@ -466,7 +469,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
               {strings.stepOpenToLabel}
             </label>
             <p className="text-xs text-slate-400 mt-0.5">
-              Etiquetas de vibra y tipo de relación profesional abiertas.
+              {es ? 'Etiquetas de vibra y tipo de relación profesional abiertas.' : 'Vibe tags and the kinds of professional relationships you\'re open to.'}
             </p>
           </div>
 
@@ -493,7 +496,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
 
           <div className="mt-4 p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400 flex items-center gap-2">
             <Info className="w-4 h-4 text-[#00DDFF] flex-shrink-0" />
-            <span>Al publicar, recibirás +150 XP de bonificación para tu Summit Passport.</span>
+            <span>{es ? 'Al publicar, recibirás +150 XP de bonificación para tu Summit Passport.' : 'When you publish, you\'ll get a +150 XP bonus for your Summit Passport.'}</span>
           </div>
         </div>
       )}
@@ -506,7 +509,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
               {strings.reviewTitle}
             </h3>
             <p className="text-xs text-slate-400">
-              Revisa cómo te verán otros fundadores antes de saltar al mazo.
+              {es ? 'Revisa cómo te verán otros fundadores antes de saltar al mazo.' : 'Check how other founders will see you before jumping into the deck.'}
             </p>
           </div>
 
@@ -530,7 +533,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
             className="py-2.5 px-4 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-mono font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Atrás</span>
+            <span>{es ? 'Atrás' : 'Back'}</span>
           </button>
         ) : onCancel ? (
           <button
@@ -538,7 +541,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
             onClick={onCancel}
             className="py-2.5 px-4 rounded-xl border border-slate-800 text-slate-400 hover:bg-slate-900 text-xs font-mono transition-colors cursor-pointer"
           >
-            Cancelar
+            {es ? 'Cancelar' : 'Cancel'}
           </button>
         ) : (
           <div />
@@ -550,7 +553,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
             onClick={handleNext}
             className="py-2.5 px-5 rounded-xl bg-[#00DDFF] hover:bg-[#00d0e0] text-black text-xs font-mono font-bold flex items-center gap-1.5 shadow-md shadow-cyan-900/40 transition-all cursor-pointer"
           >
-            <span>Siguiente</span>
+            <span>{es ? 'Siguiente' : 'Next'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         ) : (

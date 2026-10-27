@@ -13,6 +13,7 @@ import { doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, limit } fr
 import { useAuth } from './AuthContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import { recordEvent } from '../lib/telemetry';
+import { useLanguage } from './LanguageContext';
 
 // Default initial achievements
 const DEFAULT_ACHIEVEMENTS: PilotAchievement[] = [
@@ -175,6 +176,8 @@ const LOCAL_STORAGE_KEY = 'sgx_pilot_profile_v2';
 const LITE_MODE_STORAGE_KEY = 'sgx_lite_mode';
 
 export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isCapsulesModalOpen, setIsCapsulesModalOpen] = useState(false);
@@ -237,8 +240,8 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
         {
           id: 'act_init_' + Date.now(),
           category: 'tour_complete',
-          title: 'Credencial de Vuelo Activada',
-          details: 'Bienvenido al Spatialgineers Summit 2026. Tu perfil de piloto está enlazado.',
+          title: (es ? 'Credencial de Vuelo Activada' : 'Flight Credential Activated'),
+          details: (es ? 'Bienvenido al Spatialgineers Summit 2026. Tu perfil de piloto está enlazado.' : 'Welcome to the Spatialgineers Summit 2026. Your pilot profile is linked.'),
           xpEarned: 150,
           day: getCurrentWeekendDay(),
           timestamp: Date.now(),
@@ -530,8 +533,8 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const newActivityItem: WeekendActivityItem = {
         id: 'act_trick_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
         category: 'drone_trick',
-        title: `Truco Aéreo: ${trickName}`,
-        details: `Ejecutaste con éxito la maniobra aérea ${trickName} en el simulador.`,
+        title: (es ? `Truco Aéreo: ${trickName}` : `Aerial Trick: ${trickName}`),
+        details: (es ? `Ejecutaste con éxito la maniobra aérea ${trickName} en el simulador.` : `You pulled off the ${trickName} aerial maneuver in the simulator.`),
         xpEarned: xpAward,
         day: getCurrentWeekendDay(),
         timestamp: Date.now(),
@@ -594,8 +597,8 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const newActivityItem: WeekendActivityItem = {
         id: 'act_flight_' + Date.now(),
         category: 'drone_flight',
-        title: `Misión de Dron Completada`,
-        details: `Puntaje: ${score} pts • ${packages} paquetes entregados • ${tricks} trucos realizados.`,
+        title: (es ? `Misión de Dron Completada` : `Drone Mission Complete`),
+        details: (es ? `Puntaje: ${score} pts • ${packages} paquetes entregados • ${tricks} trucos realizados.` : `Score: ${score} pts • ${packages} packages delivered • ${tricks} tricks performed.`),
         xpEarned: flightXp,
         day: getCurrentWeekendDay(),
         timestamp: Date.now(),
@@ -697,8 +700,8 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const activityItem: WeekendActivityItem = {
         id: 'act_ach_' + Date.now(),
         category: 'rewards_claim',
-        title: `Logro Reclamado: ${target.title}`,
-        details: `Completaste "${target.description}" y ganaste +${target.xpReward} XP.`,
+        title: (es ? `Logro Reclamado: ${target.title}` : `Achievement Claimed: ${target.title}`),
+        details: (es ? `Completaste "${target.description}" y ganaste +${target.xpReward} XP.` : `You completed "${target.description}" and earned +${target.xpReward} XP.`),
         xpEarned: target.xpReward,
         day: getCurrentWeekendDay(),
         timestamp: Date.now(),
@@ -736,10 +739,10 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const activityItem: WeekendActivityItem = {
         id: 'act_role_' + Date.now(),
         category: 'avatar_customized',
-        title: `Ruta de Piloto: ${roleLabels[role] || role}`,
+        title: (es ? `Ruta de Piloto: ${roleLabels[role] || role}` : `Pilot Route: ${roleLabels[role] || role}`),
         details: isFirstTime
-          ? `Has sintonizado tu sendero táctico en el Summit. +${xpReward} XP otorgados.`
-          : `Has recalibrado tu ruta de exploración a ${roleLabels[role] || role}. +${xpReward} XP.`,
+          ? (es ? `Has sintonizado tu sendero táctico en el Summit. +${xpReward} XP otorgados.` : `You've tuned in your tactical path at the Summit. +${xpReward} XP awarded.`)
+          : (es ? `Has recalibrado tu ruta de exploración a ${roleLabels[role] || role}. +${xpReward} XP.` : `You've recalibrated your exploration route to ${roleLabels[role] || role}. +${xpReward} XP.`),
         xpEarned: xpReward,
         day: getCurrentWeekendDay(),
         timestamp: Date.now(),
@@ -776,8 +779,8 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const activityItem: WeekendActivityItem = {
         id: 'act_capsule_' + Date.now(),
         category: 'tour_complete',
-        title: `Cápsula Cuántica Revelada: ${title}`,
-        details: `Has interceptado la transmisión de lore del Summit. +${xpReward} XP acreditados.`,
+        title: (es ? `Cápsula Cuántica Revelada: ${title}` : `Quantum Capsule Revealed: ${title}`),
+        details: (es ? `Has interceptado la transmisión de lore del Summit. +${xpReward} XP acreditados.` : `You've intercepted the Summit's lore transmission. +${xpReward} XP credited.`),
         xpEarned: xpReward,
         day: getCurrentWeekendDay(),
         timestamp: Date.now(),

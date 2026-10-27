@@ -23,7 +23,7 @@ export const SgxMobileDock: React.FC<{ section: string }> = ({ section }) => {
     { id: 'core', label: es ? 'Núcleo' : 'Core', icon: Orbit, active: section === 'OVERVIEW', run: () => navigateToSection('OVERVIEW') },
     { id: 'pillars', label: es ? 'Pilares' : 'Pillars', icon: Boxes, active: section.startsWith('PILLAR'), run: () => fire('sgx:open_main_menu') },
     {
-      id: 'pass', label: sgx?.isForged ? 'Pase' : (es ? 'Forjar' : 'Forge'), icon: Ticket, active: section === 'CREDENTIAL_GENERATOR', primary: !sgx?.isForged,
+      id: 'pass', label: sgx?.isForged ? (es ? 'Pase' : 'Pass') : (es ? 'Forjar' : 'Forge'), icon: Ticket, active: section === 'CREDENTIAL_GENERATOR', primary: !sgx?.isForged,
       run: () => fire(sgx?.isForged ? 'sgx:open_hangar' : 'sgx:open_forge', { tab: 'pass' }),
     },
     { id: 'reactor', label: sgx ? `${done}/${sgx.missions.length}` : 'Reactor', icon: Cpu, active: false, run: () => fire('sgx:open_hangar', { tab: 'reactor' }) },

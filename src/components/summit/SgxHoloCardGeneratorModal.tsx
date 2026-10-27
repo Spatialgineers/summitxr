@@ -4,6 +4,7 @@ import { playUiChirp, playCyberBurstSound } from '../../lib/cyberAudioEngine';
 import { usePilotProfile } from '../../context/PilotProfileContext';
 import { useAuth } from '../../context/AuthContext';
 import { SgxNativeCredentialStudio } from './SgxNativeCredentialStudio';
+import { useLanguage } from '../../context/LanguageContext';
 
 export interface HoloCardProfile {
   name?: string;
@@ -94,6 +95,8 @@ export function resolveStoredUserHoloProfile(
 export const SgxHoloCardGeneratorModal: React.FC<
   SgxHoloCardGeneratorModalProps
 > = ({ isOpen, onClose, initialProfile, passQr = null }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { profile: pilotProfile } = usePilotProfile();
   const { playerProfile, user } = useAuth();
   const [activeProfile, setActiveProfile] = useState<HoloCardProfile | null>(
@@ -128,7 +131,7 @@ export const SgxHoloCardGeneratorModal: React.FC<
             <h2 className="text-xs sm:text-sm md:text-base font-black text-white font-['Orbitron',sans-serif] uppercase tracking-wider flex items-center gap-2">
               <span>SGX 3D Credential & Holo Card Studio</span>
               <span className="text-[10px] px-2 py-0.5 bg-[#FDCC0D]/15 border border-[#FDCC0D]/50 text-[#FDCC0D] font-mono hidden sm:inline">
-                +150 XP AL EXPORTAR
+                {es ? '+150 XP AL EXPORTAR' : '+150 XP ON EXPORT'}
               </span>
             </h2>
           </div>
@@ -142,20 +145,20 @@ export const SgxHoloCardGeneratorModal: React.FC<
               playUiChirp(760);
               const visitorProf = resolveStoredUserHoloProfile(
                 null,
-                playerProfile?.nickname || user?.displayName || 'Visitante SGX',
+                playerProfile?.nickname || user?.displayName || (es ? 'Visitante SGX' : 'SGX Visitor'),
                 pilotProfile?.selectedRole,
                 playerProfile?.avatar || (user as any)?.photoURL
               );
               setActiveProfile({
                 ...visitorProf,
                 role: 'visitante',
-                jobtitle: 'VISITANTE CON SGX PASS'
+                jobtitle: (es ? 'VISITANTE CON SGX PASS' : 'VISITOR WITH SGX PASS')
               });
             }}
             className="px-2.5 py-1 bg-[#FDCC0D]/15 hover:bg-[#FDCC0D] text-[#FDCC0D] hover:text-black border border-[#FDCC0D]/60 font-bold transition-colors cursor-pointer flex items-center gap-1 whitespace-nowrap shrink-0"
           >
             <Ticket className="w-3 h-3" />
-            <span>Mi SGX Pass</span>
+            <span>{es ? 'Mi SGX Pass' : 'My SGX Pass'}</span>
           </button>
 
           <button
@@ -165,13 +168,13 @@ export const SgxHoloCardGeneratorModal: React.FC<
               setActiveProfile({
                 ...resolvedProfile,
                 role: 'speaker',
-                jobtitle: 'PONENTE OFICIAL · SGX STAGE',
-                topic: 'KEYNOTE: COMPUTACIÓN ESPACIAL & PRODUCCIÓN VIRTUAL'
+                jobtitle: (es ? 'PONENTE OFICIAL · SGX STAGE' : 'OFFICIAL SPEAKER · SGX STAGE'),
+                topic: (es ? 'KEYNOTE: COMPUTACIÓN ESPACIAL & PRODUCCIÓN VIRTUAL' : 'KEYNOTE: SPATIAL COMPUTING & VIRTUAL PRODUCTION')
               });
             }}
             className="px-2.5 py-1 bg-slate-900 hover:bg-cyan-500 text-slate-300 hover:text-black border border-white/15 font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
-            Modo Speaker
+            {es ? 'Modo Speaker' : 'Speaker Mode'}
           </button>
 
           <button
@@ -181,13 +184,13 @@ export const SgxHoloCardGeneratorModal: React.FC<
               setActiveProfile({
                 ...resolvedProfile,
                 role: 'initiate',
-                jobtitle: 'INICIADO OFICIAL · SGX GUILD',
+                jobtitle: (es ? 'INICIADO OFICIAL · SGX GUILD' : 'OFFICIAL INITIATE · SGX GUILD'),
                 topic: 'SGX GUILD RANKED TRIALS PITCH SESSION'
               });
             }}
             className="px-2.5 py-1 bg-slate-900 hover:bg-cyan-500 text-slate-300 hover:text-black border border-white/15 font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
-            Modo Guild
+            {es ? 'Modo Guild' : 'Guild Mode'}
           </button>
 
           <button
@@ -197,13 +200,13 @@ export const SgxHoloCardGeneratorModal: React.FC<
               setActiveProfile({
                 ...resolvedProfile,
                 role: 'sponsor',
-                jobtitle: 'PARTNER OFICIAL · SGX SHOWCASE',
+                jobtitle: (es ? 'PARTNER OFICIAL · SGX SHOWCASE' : 'OFFICIAL PARTNER · SGX SHOWCASE'),
                 topic: 'BRAND SHOWCASE · SPATIALGINEERS SUMMIT 2026'
               });
             }}
             className="px-2.5 py-1 bg-slate-900 hover:bg-cyan-500 text-slate-300 hover:text-black border border-white/15 font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
-            Modo Sponsor
+            {es ? 'Modo Sponsor' : 'Sponsor Mode'}
           </button>
         </div>
 
@@ -216,7 +219,7 @@ export const SgxHoloCardGeneratorModal: React.FC<
           className="px-3 py-1.5 bg-slate-800/90 hover:bg-rose-600 border border-slate-700 hover:border-rose-400 text-slate-200 hover:text-white transition-colors text-xs font-mono font-bold flex items-center gap-1 cursor-pointer shrink-0"
         >
           <X className="w-4 h-4" />
-          <span>CERRAR</span>
+          <span>{es ? 'CERRAR' : 'CLOSE'}</span>
         </button>
       </div>
 

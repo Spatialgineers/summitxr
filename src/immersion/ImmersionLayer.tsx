@@ -47,6 +47,7 @@ export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPa
     panelOpen, setPanelOpen, completeQuest, addEnergy, pushToast } = imm;
   const { liteMode } = usePilotProfile();
   const { language } = useLanguage();
+  const es = language === 'es';
   const [section, setSection] = useState<string>(() => readSection());
   const konamiRef = useRef<string[]>([]);
   const embed = useRef(new URLSearchParams(window.location.search).get('embed') === 'true').current;
@@ -163,7 +164,7 @@ export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPa
           window.setTimeout(() => boltBurst(window.innerWidth * (0.15 + Math.random() * 0.7), window.innerHeight * 0.25, 30), i * 180);
         }
         haptic([80, 50, 80, 50, 200]);
-        pushToast({ tag: 'HIGHGINEER', title: language === 'es' ? 'Modo Highgineer desbloqueado' : 'Highgineer Mode unlocked', detail: 'Ingeniando imaginación, construyendo realidades.', tone: 'action' });
+        pushToast({ tag: 'HIGHGINEER', title: language === 'es' ? 'Modo Highgineer desbloqueado' : 'Highgineer Mode unlocked', detail: (es ? 'Ingeniando imaginación, construyendo realidades.' : 'Engineering imagination, building realities.'), tone: 'action' });
         return;
       }
 

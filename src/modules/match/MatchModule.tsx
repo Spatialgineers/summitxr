@@ -51,6 +51,7 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
 }) => {
   const { user, playerProfile, savePlayerProfile } = useAuth();
   const { language } = useLanguage();
+  const es = language === 'es';
   const { tenant, styles } = useTenantTheme();
   const { recordActivity, syncMatchDetails } = usePilotProfile();
   const lang = (language === 'en' ? 'en' : 'es') as 'es' | 'en';
@@ -173,7 +174,7 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
 
     // Update Passport Quest: Step 2 (First Match)
 
-    const matchedName = match.candidateB?.displayName || match.candidateA?.displayName || 'Emprendedor';
+    const matchedName = match.candidateB?.displayName || match.candidateA?.displayName || (es ? 'Emprendedor' : 'Entrepreneur');
     const matchedRole = match.candidateB?.roleTitle || match.candidateA?.roleTitle || 'Founder';
 
     recordActivity(
@@ -229,10 +230,10 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
           <ShieldAlert className="w-8 h-8" />
         </div>
         <h3 className="text-xl font-bold font-sans mb-2">
-          Módulo en Mantenimiento Táctico
+          {es ? 'Módulo en Mantenimiento Táctico' : 'Module in Tactical Maintenance'}
         </h3>
         <p className="text-xs text-slate-400 max-w-md mx-auto">
-          El módulo de Entrepreneur Match está pausado temporalmente por la dirección técnica del evento. Regresa en unos minutos.
+          {es ? 'El módulo de Entrepreneur Match está pausado temporalmente por la dirección técnica del evento. Regresa en unos minutos.' : 'The Entrepreneur Match module is temporarily paused by the event\'s technical team. Come back in a few minutes.'}
         </p>
       </div>
     );
@@ -246,7 +247,7 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
           style={{ borderColor: `var(--sgx-neon)` }}
         />
         <p className="text-xs font-mono text-slate-400">
-          Verificando credenciales de fundador...
+          {es ? 'Verificando credenciales de fundador...' : 'Verifying founder credentials...'}
         </p>
       </div>
     );
@@ -326,17 +327,17 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
             onClick={handleCopyShareLink}
             type="button"
             className="px-2.5 py-1.5 rounded-xl border border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)] text-[11px] font-mono flex items-center gap-1.5 text-slate-300 hover:text-white transition-all bg-[var(--sgx-bg)]/80 cursor-pointer"
-            title="Copiar enlace directo a este módulo de Matchmaking"
+            title={es ? 'Copiar enlace directo a este módulo de Matchmaking' : 'Copy a direct link to this Matchmaking module'}
           >
             {copiedLink ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400 font-bold">¡Enlace Copiado!</span>
+                <span className="text-emerald-400 font-bold">{es ? '¡Enlace Copiado!' : 'Link Copied!'}</span>
               </>
             ) : (
               <>
                 <Share2 className="w-3.5 h-3.5 text-[var(--sgx-neon)]" />
-                <span className="hidden sm:inline">Compartir Match</span>
+                <span className="hidden sm:inline">{es ? 'Compartir Match' : 'Share Match'}</span>
               </>
             )}
           </button>

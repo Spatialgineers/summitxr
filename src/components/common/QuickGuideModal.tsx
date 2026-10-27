@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, ChevronRight, ChevronLeft, Sparkles, CheckCircle2, Gamepad2, Lightbulb, Zap, Shield, Key } from 'lucide-react';
 import { useTenantTheme, hexToRgbStr } from '../../context/TenantThemeContext';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
+import { useLanguage } from '../../context/LanguageContext';
 
 export interface GuideStep {
   title: string;
@@ -31,8 +32,10 @@ export const QuickGuideModal: React.FC<QuickGuideModalProps> = ({
   guideCategory,
   steps,
   onPrimaryAction,
-  primaryActionLabel = '¡Entendido, vamos!'
+  primaryActionLabel
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const { tenant } = useTenantTheme();
 
@@ -103,7 +106,7 @@ export const QuickGuideModal: React.FC<QuickGuideModalProps> = ({
                   {guideCategory}
                 </span>
                 <span className="text-xs text-slate-400 font-mono">
-                  Paso {currentStepIndex + 1} de {steps.length}
+                  {es ? 'Paso ' : 'Step '}{currentStepIndex + 1} de {steps.length}
                 </span>
               </div>
               <h2 className="text-base sm:text-lg font-bold text-white tracking-wide mt-0.5">
@@ -163,7 +166,7 @@ export const QuickGuideModal: React.FC<QuickGuideModalProps> = ({
             <div className="space-y-2">
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                 <Gamepad2 className="w-3.5 h-3.5 text-cyan-400" />
-                Controles & Maniobras
+                {es ? 'Controles & Maniobras' : 'Controls & Maneuvers'}
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {currentStep.keyControls.map((ctrl, i) => (
@@ -193,7 +196,7 @@ export const QuickGuideModal: React.FC<QuickGuideModalProps> = ({
             <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-500/30 space-y-1.5">
               <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
                 <Lightbulb className="w-3.5 h-3.5" />
-                <span>Consejos Tácticos</span>
+                <span>{es ? 'Consejos Tácticos' : 'Tactical Tips'}</span>
               </div>
               <ul className="space-y-1 text-xs text-amber-200/90 list-disc list-inside">
                 {currentStep.tips.map((tip, idx) => (
@@ -219,7 +222,7 @@ export const QuickGuideModal: React.FC<QuickGuideModalProps> = ({
             }`}
           >
             <ChevronLeft className="w-4 h-4" />
-            Anterior
+            {es ? 'Anterior' : 'Previous'}
           </button>
 
           <button
@@ -233,11 +236,11 @@ export const QuickGuideModal: React.FC<QuickGuideModalProps> = ({
             {isLastStep ? (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                {primaryActionLabel}
+                {primaryActionLabel ?? (es ? '¡Entendido, vamos!' : 'Got it, let\'s go!')}
               </>
             ) : (
               <>
-                Siguiente
+                {es ? 'Siguiente' : 'Next'}
                 <ChevronRight className="w-4 h-4" />
               </>
             )}

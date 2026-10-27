@@ -29,6 +29,8 @@ import {
 import { HoloCardProfile, resolveStoredUserHoloProfile } from './SgxHoloCardGeneratorModal';
 import { usePilotProfile } from '../../context/PilotProfileContext';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 export type CredentialRoleKey = 'visitante' | 'speaker' | 'initiate' | 'sponsor';
 export type VisitorPassType = 'digital' | 'showcase' | 'vip';
@@ -39,6 +41,7 @@ interface PillarItem {
   id: string;
   name: string;
   tag: string;
+  tagEn?: string;
   color: string;
   iconUrl: string;
 }
@@ -48,6 +51,7 @@ const SGX_PILLARS: PillarItem[] = [
     id: 'story',
     name: 'SGX.STORY',
     tag: 'Narrativa & Lore',
+    tagEn: 'Narrative & Lore',
     color: '#FDCC0D',
     iconUrl: pillarIcon('STORY')
   },
@@ -55,6 +59,7 @@ const SGX_PILLARS: PillarItem[] = [
     id: 'showcase',
     name: 'SGX.SHOWCASE',
     tag: 'Expo & Demos XR',
+    tagEn: 'Expo & XR Demos',
     color: '#00DDFF',
     iconUrl: pillarIcon('SHOWCASE')
   },
@@ -62,6 +67,7 @@ const SGX_PILLARS: PillarItem[] = [
     id: 'spark',
     name: 'SGX.SPARK',
     tag: 'Juegos & Retos',
+    tagEn: 'Games & Challenges',
     color: '#FFBB00',
     iconUrl: pillarIcon('SPARK')
   },
@@ -76,6 +82,7 @@ const SGX_PILLARS: PillarItem[] = [
     id: 'systems',
     name: 'SGX.SYSTEM',
     tag: 'Ingeniería & IA',
+    tagEn: 'Engineering & AI',
     color: '#5F86B4',
     iconUrl: pillarIcon('SYSTEM')
   },
@@ -83,6 +90,7 @@ const SGX_PILLARS: PillarItem[] = [
     id: 'synthesize',
     name: 'SGX.SYNTHESIZE',
     tag: 'Alianzas & Red',
+    tagEn: 'Partnerships & Network',
     color: '#10B981',
     iconUrl: pillarIcon('SYNTHESIZE')
   }
@@ -92,8 +100,11 @@ const ROLE_META: Record<
   CredentialRoleKey,
   {
     label: string;
+    labelEn?: string;
     badgeHeader: string;
+    badgeHeaderEn?: string;
     subHeader: string;
+    subHeaderEn?: string;
     accent: string;
     secondary: string;
     clearance: string;
@@ -101,16 +112,22 @@ const ROLE_META: Record<
 > = {
   visitante: {
     label: 'Visitante Summit',
+    labelEn: 'Summit Visitor',
     badgeHeader: 'VISITANTE CON SGX PASS',
+    badgeHeaderEn: 'VISITOR WITH SGX PASS',
     subHeader: 'ACREDITACIÓN OFICIAL · ACCESO DIGITAL & SGX SHOWCASE',
+    subHeaderEn: 'OFFICIAL ACCREDITATION · DIGITAL ACCESS & SGX SHOWCASE',
     accent: '#00DDFF',
     secondary: '#FDCC0D',
     clearance: 'CLR-VISITOR-2026'
   },
   speaker: {
     label: 'Speaker / Artista',
+    labelEn: 'Speaker / Artist',
     badgeHeader: 'SPEAKER OFICIAL · SGX STAGE',
+    badgeHeaderEn: 'OFFICIAL SPEAKER · SGX STAGE',
     subHeader: 'PONENTE & CREADOR DESTACADO · SAN JUAN, PR',
+    subHeaderEn: 'FEATURED SPEAKER & CREATOR · SAN JUAN, PR',
     accent: '#FDCC0D',
     secondary: '#00DDFF',
     clearance: 'CLR-STAGE-VIP'
@@ -119,14 +136,18 @@ const ROLE_META: Record<
     label: 'Guild Initiate',
     badgeHeader: 'SGX GUILD · RANKED INITIATE',
     subHeader: 'SGX GUILD RANKED TRIALS · COHORTE 2026',
+    subHeaderEn: 'SGX GUILD RANKED TRIALS · 2026 COHORT',
     accent: '#38BDF8',
     secondary: '#FDCC0D',
     clearance: 'CLR-GUILD-GM8'
   },
   sponsor: {
     label: 'Sponsor / Aliado',
+    labelEn: 'Sponsor / Partner',
     badgeHeader: 'SPONSOR OFICIAL · SUMMIT 2026',
+    badgeHeaderEn: 'OFFICIAL SPONSOR · SUMMIT 2026',
     subHeader: 'ALIANZA DE INDUSTRIA & SHOWCASE CORPORATIVO',
+    subHeaderEn: 'INDUSTRY PARTNERSHIP & CORPORATE SHOWCASE',
     accent: '#FFBB00',
     secondary: '#FDCC0D',
     clearance: 'CLR-PARTNER-EXEC'
@@ -135,25 +156,33 @@ const ROLE_META: Record<
 
 const PASS_TYPE_META: Record<
   VisitorPassType,
-  { label: string; tag: string; color: string; days: string }
+  { label: string; labelEn?: string; tag: string; tagEn?: string; color: string; days: string; daysEn?: string }
 > = {
   digital: {
     label: 'Pase Digital',
+    labelEn: 'Digital Pass',
     tag: 'YOUTUBE LIVE',
     color: '#00DDFF',
-    days: 'DIC 11–13 · YOUTUBE LIVE'
+    days: 'DIC 11–13 · YOUTUBE LIVE',
+    daysEn: 'DEC 11–13 · YOUTUBE LIVE',
   },
   showcase: {
     label: 'Pase SGX Showcase (Día 3)',
+    labelEn: 'SGX Showcase Pass (Day 3)',
     tag: 'SAN JUAN, PR · POR INVITACIÓN',
+    tagEn: 'SAN JUAN, PR · BY INVITATION',
     color: '#FDCC0D',
-    days: 'DIC 13 · CHROMA SPACE STUDIOS'
+    days: 'DIC 13 · CHROMA SPACE STUDIOS',
+    daysEn: 'DEC 13 · CHROMA SPACE STUDIOS',
   },
   vip: {
     label: 'Pase Invitado Especial',
+    labelEn: 'Special Guest Pass',
     tag: 'POR INVITACIÓN + SGX.MATCH',
+    tagEn: 'BY INVITATION + SGX.MATCH',
     color: '#FFBB00',
-    days: 'DIC 11–13 · DIGITAL + DÍA 3 POR INVITACIÓN'
+    days: 'DIC 11–13 · DIGITAL + DÍA 3 POR INVITACIÓN',
+    daysEn: 'DEC 11–13 · DIGITAL + DAY 3 BY INVITATION',
   }
 };
 
@@ -212,6 +241,8 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
   isModal = false,
   passQr = null
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { profile: pilotProfile, recordActivity } = usePilotProfile();
   const { playerProfile, user } = useAuth();
 
@@ -236,12 +267,12 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
   });
 
   const [fullName, setFullName] = useState<string>(
-    resolvedDefault.name || playerProfile?.nickname || 'PILOTO SPATIALGINEER'
+    resolvedDefault.name || playerProfile?.nickname || (es ? 'PILOTO SPATIALGINEER' : 'SPATIALGINEER PILOT')
   );
   const [jobTitle, setJobTitle] = useState<string>(
     resolvedDefault.jobtitle ||
       resolvedDefault.title ||
-      'VISITANTE CON SGX PASS'
+      (es ? 'VISITANTE CON SGX PASS' : 'VISITOR WITH SGX PASS')
   );
   const [organization, setOrganization] = useState<string>(
     resolvedDefault.org || resolvedDefault.studio || 'SPATIALGINEERS SUMMIT 2026'
@@ -249,7 +280,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
   const [topicOrMission, setTopicOrMission] = useState<string>(
     resolvedDefault.topic ||
       resolvedDefault.portfolio ||
-      'EXPLORACIÓN DEL NÚCLEO 3D & 6 PILARES'
+      (es ? 'EXPLORACIÓN DEL NÚCLEO 3D & 6 PILARES' : 'EXPLORING THE 3D CORE & 6 PILLARS')
   );
   const [socialHandle, setSocialHandle] = useState<string>(
     resolvedDefault.handle || '@spatialgineers'
@@ -549,7 +580,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         ctx.fillText('SPATIALGINEERS SUMMIT 2026', 102, 46);
         ctx.fillStyle = primaryAccent;
         ctx.font = '700 13px monospace';
-        ctx.fillText('DIC 11–13, 2026 · YOUTUBE LIVE · DÍA 3 SAN JUAN, PR', 102, 68);
+        ctx.fillText((es ? 'DIC 11–13, 2026 · YOUTUBE LIVE · DÍA 3 SAN JUAN, PR' : 'DEC 11–13, 2026 · YOUTUBE LIVE · DAY 3 SAN JUAN, PR'), 102, 68);
 
         // Top Right Role Clearance Pill
         const clearanceW = 285;
@@ -564,7 +595,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         ctx.font = '900 14px Orbitron, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(
-          role === 'visitante' ? passCfg.tag : roleCfg.clearance,
+          role === 'visitante' ? loc(passCfg, 'tag', language) : roleCfg.clearance,
           CARD_W - clearanceW / 2 - 32,
           51
         );
@@ -643,7 +674,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
           ctx.fillStyle = '#94A3B8';
           ctx.font = '700 13px monospace';
           ctx.fillText(
-            'SUBE TU FOTO ARRIBA',
+            (es ? 'SUBE TU FOTO ARRIBA' : 'UPLOAD YOUR PHOTO ABOVE'),
             photoX + photoW / 2,
             photoY + photoH - 42
           );
@@ -691,19 +722,19 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
 
         ctx.fillStyle = '#0A0A0A';
         ctx.font = '900 20px Orbitron, sans-serif';
-        ctx.fillText(roleCfg.badgeHeader, rightX + 20, 156);
+        ctx.fillText(loc(roleCfg, 'badgeHeader', language), rightX + 20, 156);
 
         // Subheader
         ctx.fillStyle = '#FDCC0D';
         ctx.font = '700 13px monospace';
         ctx.fillText(
-          role === 'visitante' ? passCfg.days : roleCfg.subHeader,
+          role === 'visitante' ? loc(passCfg, 'days', language) : loc(roleCfg, 'subHeader', language),
           rightX + 4,
           198
         );
 
         // Attendee Name (Auto-scaling font size for long names)
-        const displayName = (fullName || 'TU NOMBRE AQUÍ').toUpperCase();
+        const displayName = (fullName || (es ? 'TU NOMBRE AQUÍ' : 'YOUR NAME HERE')).toUpperCase();
         let nameFontSize = 44;
         if (displayName.length > 22) nameFontSize = 34;
         if (displayName.length > 30) nameFontSize = 28;
@@ -715,7 +746,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         ctx.fillStyle = primaryAccent;
         ctx.font = '700 20px monospace';
         ctx.fillText(
-          (jobTitle || 'VISITANTE CON SGX PASS')
+          (jobTitle || (es ? 'VISITANTE CON SGX PASS' : 'VISITOR WITH SGX PASS'))
             .toUpperCase()
             .slice(0, 44),
           rightX,
@@ -732,7 +763,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
 
         ctx.fillStyle = '#94A3B8';
         ctx.font = '700 11px monospace';
-        ctx.fillText('ORGANIZACIÓN / ESTUDIO / COMUNIDAD', rightX + 16, 332);
+        ctx.fillText((es ? 'ORGANIZACIÓN / ESTUDIO / COMUNIDAD' : 'ORGANIZATION / STUDIO / COMMUNITY'), rightX + 16, 332);
         ctx.fillStyle = '#F8FAFC';
         ctx.font = '800 19px Orbitron, sans-serif';
         ctx.fillText(
@@ -755,17 +786,17 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         ctx.font = '700 11px monospace';
         ctx.fillText(
           role === 'speaker'
-            ? 'PONENCIA / KEYNOTE OFICIAL'
+            ? (es ? 'PONENCIA / KEYNOTE OFICIAL' : 'OFFICIAL TALK / KEYNOTE')
             : role === 'initiate'
             ? 'SGX GUILD RANKED TRIALS PITCH SESSION'
-            : 'MISIÓN ESPACIAL & RUTA ACTIVA',
+            : (es ? 'MISIÓN ESPACIAL & RUTA ACTIVA' : 'SPATIAL MISSION & ACTIVE ROUTE'),
           rightX + 16,
           410
         );
         ctx.fillStyle = '#E2E8F0';
         ctx.font = '700 16px monospace';
         ctx.fillText(
-          (topicOrMission || 'EXPLORACIÓN DEL NÚCLEO 3D & 6 PILARES')
+          (topicOrMission || (es ? 'EXPLORACIÓN DEL NÚCLEO 3D & 6 PILARES' : 'EXPLORING THE 3D CORE & 6 PILLARS'))
             .toUpperCase()
             .slice(0, 46),
           rightX + 16,
@@ -799,7 +830,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
           ctx.fillText(pillar.name, px + 78, py + 36);
           ctx.fillStyle = '#CBD5E1';
           ctx.font = '700 12px monospace';
-          ctx.fillText(pillar.tag.toUpperCase(), px + 78, py + 56);
+          ctx.fillText(loc(pillar, 'tag', language).toUpperCase(), px + 78, py + 56);
         });
 
         // Bottom Telemetry Footer Bar
@@ -858,7 +889,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         bctx.fillStyle = '#FFFFFF';
         bctx.font = '900 22px Orbitron, sans-serif';
         bctx.fillText(
-          'SGX PASS · MATRIZ DE 6 PILARES',
+          (es ? 'SGX PASS · MATRIZ DE 6 PILARES' : 'SGX PASS · 6-PILLAR MATRIX'),
           44,
           52
         );
@@ -866,7 +897,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         bctx.fillStyle = primaryAccent;
         bctx.font = '700 14px monospace';
         bctx.textAlign = 'right';
-        bctx.fillText(`CÓDIGO: ${ticketCode.toUpperCase()}`, CARD_W - 44, 52);
+        bctx.fillText((es ? `CÓDIGO: ${ticketCode.toUpperCase()}` : `CODE: ${ticketCode.toUpperCase()}`), CARD_W - 44, 52);
         bctx.textAlign = 'left';
 
         // Left 6 Pillars Stamp Matrix (2x3 Grid)
@@ -899,12 +930,12 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
 
           bctx.fillStyle = '#E2E8F0';
           bctx.font = '700 12px monospace';
-          bctx.fillText(pillar.tag.toUpperCase(), bx + 98, by + 74);
+          bctx.fillText(loc(pillar, 'tag', language).toUpperCase(), bx + 98, by + 74);
 
           bctx.fillStyle = isSelected ? '#10B981' : '#767676';
           bctx.font = '700 11px monospace';
           bctx.fillText(
-            isSelected ? '★ AFINIDAD ACTIVA' : '○ ESTACIÓN DISPONIBLE',
+            isSelected ? (es ? '★ AFINIDAD ACTIVA' : '★ ACTIVE AFFINITY') : (es ? '○ ESTACIÓN DISPONIBLE' : '○ STATION AVAILABLE'),
             bx + 98,
             by + 98
           );
@@ -961,12 +992,12 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         bctx.fillStyle = '#FFFFFF';
         bctx.font = '900 16px Orbitron, sans-serif';
         bctx.textAlign = 'center';
-        bctx.fillText(realQr ? 'SGX PASS VERIFICADO' : 'ESCANEO WEBXR ACTIVO', qx + qw / 2, qrY + qrBoxSize + 36);
+        bctx.fillText(realQr ? (es ? 'SGX PASS VERIFICADO' : 'SGX PASS VERIFIED') : (es ? 'ESCANEO WEBXR ACTIVO' : 'WEBXR SCAN ACTIVE'), qx + qw / 2, qrY + qrBoxSize + 36);
 
         bctx.fillStyle = primaryAccent;
         bctx.font = '700 13px monospace';
         bctx.fillText(
-          roleCfg.badgeHeader.slice(0, 28),
+          loc(roleCfg, 'badgeHeader', language).slice(0, 28),
           qx + qw / 2,
           qrY + qrBoxSize + 62
         );
@@ -974,7 +1005,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         bctx.fillStyle = '#94A3B8';
         bctx.font = '600 12px monospace';
         bctx.fillText('CHROMA SPACE STUDIOS · PR', qx + qw / 2, qrY + qrBoxSize + 92);
-        bctx.fillText('11 · 12 · 13 DICIEMBRE 2026', qx + qw / 2, qrY + qrBoxSize + 114);
+        bctx.fillText((es ? '11 · 12 · 13 DICIEMBRE 2026' : 'DECEMBER 11 · 12 · 13, 2026'), qx + qw / 2, qrY + qrBoxSize + 114);
         bctx.textAlign = 'left';
 
         // Footer
@@ -983,7 +1014,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         bctx.fillStyle = '#FDCC0D';
         bctx.font = '700 14px monospace';
         bctx.fillText(
-          'REVERSO OFICIAL · PRESENTA ESTE QR EN EL ACCESO O EN NETWORKING',
+          (es ? 'REVERSO OFICIAL · PRESENTA ESTE QR EN EL ACCESO O EN NETWORKING' : 'OFFICIAL BACK · SHOW THIS QR AT THE ENTRANCE OR AT NETWORKING'),
           44,
           CARD_H - 26
         );
@@ -1068,14 +1099,14 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         sctx.font = '900 38px Orbitron, sans-serif';
         sctx.textAlign = 'center';
         sctx.fillText(
-          'NOS VEMOS EN EL SPATIALGINEERS SUMMIT',
+          (es ? 'NOS VEMOS EN EL SPATIALGINEERS SUMMIT' : 'SEE YOU AT THE SPATIALGINEERS SUMMIT'),
           sw / 2,
           cy - 90
         );
         sctx.fillStyle = primaryAccent;
         sctx.font = '700 22px monospace';
         sctx.fillText(
-          '11 · 12 · 13 DICIEMBRE 2026 · YOUTUBE LIVE · DÍA 3 SAN JUAN, PR',
+          (es ? '11 · 12 · 13 DICIEMBRE 2026 · YOUTUBE LIVE · DÍA 3 SAN JUAN, PR' : 'DECEMBER 11 · 12 · 13, 2026 · YOUTUBE LIVE · DAY 3 SAN JUAN, PR'),
           sw / 2,
           cy - 48
         );
@@ -1105,7 +1136,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
         sctx.fillStyle = '#CBD5E1';
         sctx.font = '700 20px monospace';
         sctx.fillText(
-          'OBTÉN TU PASE Y CREDENCIAL HOLOGRÁFICA EN SUMMIT.SPATIALGINEERS.COM',
+          (es ? 'OBTÉN TU PASE Y CREDENCIAL HOLOGRÁFICA EN SUMMIT.SPATIALGINEERS.COM' : 'GET YOUR PASS AND HOLOGRAPHIC CREDENTIAL AT SUMMIT.SPATIALGINEERS.COM'),
           sw / 2,
           footY + 46
         );
@@ -1197,7 +1228,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
       150
     );
     setExportBanner(
-      '¡Credencial 3D descargada! +150 XP acreditados en tu SGX Pass'
+      (es ? '¡Credencial 3D descargada! +150 XP acreditados en tu SGX Pass' : '3D credential downloaded! +150 XP credited to your SGX Pass')
     );
     let image: string | undefined;
     try {
@@ -1259,7 +1290,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
           type: 'image/png'
         });
         await navigator.share({
-          title: 'Mi Credencial Oficial — Spatialgineers Summit 2026',
+          title: (es ? 'Mi Credencial Oficial — Spatialgineers Summit 2026' : 'My Official Credential — Spatialgineers Summit 2026'),
           text: socialCaptionText,
           files: [file]
         });
@@ -1272,23 +1303,28 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
     handleDownloadPng();
   };
 
-  const socialCaptionText = `¡Acreditación lista como ${ROLE_META[role].badgeHeader} en el Spatialgineers Summit 2026! 🚀✨\n\n📍 Dic 11–13, 2026 · YouTube Live y SGX Showcase en Chroma Space Studios (San Juan, PR).\n🎫 Obtén tu pase y genera tu Holo Card 3D en summit.spatialgineers.com\n\n#SpatialgineersSummit #SGX2026 #SpatialComputing #PuertoRicoTech`;
+  const socialCaptionText = (es ? `¡Acreditación lista como ${ROLE_META[role].badgeHeader} en el Spatialgineers Summit 2026! 🚀✨\n\n📍 Dic 11–13, 2026 · YouTube Live y SGX Showcase en Chroma Space Studios (San Juan, PR).\n🎫 Obtén tu pase y genera tu Holo Card 3D en summit.spatialgineers.com\n\n#SpatialgineersSummit #SGX2026 #SpatialComputing #PuertoRicoTech` : `Accredited as ${loc(ROLE_META[role], 'badgeHeader', language)} at the Spatialgineers Summit 2026! 🚀✨
+
+📍 Dec 11–13, 2026 · YouTube Live and the SGX Showcase at Chroma Space Studios (San Juan, PR).
+🎫 Get your pass and generate your 3D Holo Card at summit.spatialgineers.com
+
+#SpatialgineersSummit #SGX2026 #SpatialComputing #PuertoRicoTech`);
 
   const applyQuickPreset = (targetRole: CredentialRoleKey) => {
     playUiChirp(820);
     setRole(targetRole);
     if (targetRole === 'visitante') {
-      setJobTitle('VISITANTE CON SGX PASS');
-      setTopicOrMission('EXPLORACIÓN DEL NÚCLEO 3D & 6 PILARES');
+      setJobTitle((es ? 'VISITANTE CON SGX PASS' : 'VISITOR WITH SGX PASS'));
+      setTopicOrMission((es ? 'EXPLORACIÓN DEL NÚCLEO 3D & 6 PILARES' : 'EXPLORING THE 3D CORE & 6 PILLARS'));
     } else if (targetRole === 'speaker') {
-      setJobTitle('PONENTE OFICIAL · SGX STAGE');
-      setTopicOrMission('KEYNOTE: COMPUTACIÓN ESPACIAL');
+      setJobTitle((es ? 'PONENTE OFICIAL · SGX STAGE' : 'OFFICIAL SPEAKER · SGX STAGE'));
+      setTopicOrMission((es ? 'KEYNOTE: COMPUTACIÓN ESPACIAL' : 'KEYNOTE: SPATIAL COMPUTING'));
     } else if (targetRole === 'initiate') {
-      setJobTitle('INICIADO OFICIAL · SGX GUILD COHORT');
+      setJobTitle((es ? 'INICIADO OFICIAL · SGX GUILD COHORT' : 'OFFICIAL INITIATE · SGX GUILD COHORT'));
       setTopicOrMission('SGX GUILD RANKED TRIALS PITCH SESSION');
     } else if (targetRole === 'sponsor') {
-      setJobTitle('PARTNER EJECUTIVO · SGX SHOWCASE');
-      setTopicOrMission('ALIANZA TECNOLÓGICA 365 DÍAS');
+      setJobTitle((es ? 'PARTNER EJECUTIVO · SGX SHOWCASE' : 'EXECUTIVE PARTNER · SGX SHOWCASE'));
+      setTopicOrMission((es ? 'ALIANZA TECNOLÓGICA 365 DÍAS' : '365-DAY TECHNOLOGY PARTNERSHIP'));
     }
   };
 
@@ -1322,7 +1358,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
             {/* Format Switcher: 3D Badge vs Post 3:4 vs Story 9:16 */}
             <div className="flex items-center gap-1">
               {[
-                { id: 'badge3d', label: 'TARJETA 3D INTERACTIVA' },
+                { id: 'badge3d', label: (es ? 'TARJETA 3D INTERACTIVA' : 'INTERACTIVE 3D CARD') },
                 { id: 'post', label: 'POST 3:4' },
                 { id: 'story', label: 'STORY 9:16' }
               ].map((fmt) => (
@@ -1359,19 +1395,19 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                 }`}
               >
                 <FlipHorizontal className="w-3.5 h-3.5" />
-                <span>{isFlippedBack ? 'VER ANVERSO' : 'VER REVERSO QR'}</span>
+                <span>{isFlippedBack ? (es ? 'VER ANVERSO' : 'VIEW FRONT') : (es ? 'VER REVERSO QR' : 'VIEW QR BACK')}</span>
               </button>
 
               <button
                 type="button"
                 onClick={trigger360Spin}
                 className="px-2.5 py-1 bg-slate-900 hover:bg-[#32527B] text-[#FDCC0D] border border-[#FDCC0D]/50 text-[10px] sm:text-[11px] font-bold uppercase flex items-center gap-1 transition-all cursor-pointer"
-                title="Giro Holográfico 360°"
+                title={es ? 'Giro Holográfico 360°' : '360° Holographic Flip'}
               >
                 <RotateCw
                   className={`w-3.5 h-3.5 ${isSpinning360 ? 'animate-spin' : ''}`}
                 />
-                <span className="hidden sm:inline">GIRO 360°</span>
+                <span className="hidden sm:inline">{es ? 'GIRO 360°' : '360° FLIP'}</span>
               </button>
             </div>
           </div>
@@ -1481,11 +1517,11 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
               <span className="flex items-center gap-1 text-cyan-300 font-bold">
                 <Smartphone className="w-3.5 h-3.5" />
                 <span>
-                  ARRASTRA PARA INCLINAR EN 3D · TOCA &quot;VER REVERSO QR&quot; PARA GIRAR
+                  {es ? 'ARRASTRA PARA INCLINAR EN 3D · TOCA "VER REVERSO QR" PARA GIRAR' : 'DRAG TO TILT IN 3D · TAP "VIEW QR BACK" TO FLIP'}
                 </span>
               </span>
               <span className="text-[#FDCC0D] font-bold">
-                100% PRIVADO EN TU NAVEGADOR
+                {es ? '100% PRIVADO EN TU NAVEGADOR' : '100% PRIVATE IN YOUR BROWSER'}
               </span>
             </div>
           </div>
@@ -1498,7 +1534,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
               className="py-2.5 px-3 bg-[#1E1E1E] hover:bg-cyan-500 text-cyan-300 hover:text-black border border-cyan-400 font-bold text-xs uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer"
             >
               <Camera className="w-4 h-4" />
-              <span>{userPhotoImg ? 'Cambiar Mi Foto' : 'Subir Mi Foto'}</span>
+              <span>{userPhotoImg ? (es ? 'Cambiar Mi Foto' : 'Change My Photo') : (es ? 'Subir Mi Foto' : 'Upload My Photo')}</span>
             </button>
 
             <button
@@ -1507,7 +1543,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
               className="py-2.5 px-3 bg-[#FDCC0D] hover:bg-yellow-300 text-black font-black text-xs uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-[0_0_18px_rgba(253,204,13,0.4)]"
             >
               <Download className="w-4 h-4" />
-              <span>Descargar PNG (+150 XP)</span>
+              <span>{es ? 'Descargar PNG (+150 XP)' : 'Download PNG (+150 XP)'}</span>
             </button>
 
             <button
@@ -1516,7 +1552,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
               className="col-span-2 sm:col-span-1 py-2.5 px-3 bg-cyan-500/20 hover:bg-cyan-400 text-cyan-200 hover:text-black border border-cyan-400/70 font-bold text-xs uppercase flex items-center justify-center gap-1.5 transition-all cursor-pointer"
             >
               <Share2 className="w-4 h-4" />
-              <span>Compartir Pase</span>
+              <span>{es ? 'Compartir Pase' : 'Share Pass'}</span>
             </button>
           </div>
         </div>
@@ -1528,10 +1564,10 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
           {/* Thumb-Friendly Tab Bar */}
           <div className="grid grid-cols-4 border-b border-slate-800 bg-[#0B0B0B]">
             {[
-              { id: 'identity', label: '1. Datos', icon: User },
-              { id: 'photo', label: '2. Foto', icon: Camera },
-              { id: 'pillars', label: '3. Pilares', icon: Layers },
-              { id: 'export', label: '4. Redes', icon: Share2 }
+              { id: 'identity', label: (es ? '1. Datos' : '1. Details'), icon: User },
+              { id: 'photo', label: (es ? '2. Foto' : '2. Photo'), icon: Camera },
+              { id: 'pillars', label: (es ? '3. Pilares' : '3. Pillars'), icon: Layers },
+              { id: 'export', label: (es ? '4. Redes' : '4. Social'), icon: Share2 }
             ].map((tab) => {
               const Icon = tab.icon;
               const active = mobileTab === tab.id;
@@ -1563,7 +1599,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
               <div className="space-y-3.5 animate-fadeIn">
                 <div>
                   <label className="block text-[10px] font-bold text-cyan-300 uppercase mb-1.5">
-                    ROL DE ACREDITACIÓN EN EL SUMMIT:
+                    {es ? 'ROL DE ACREDITACIÓN EN EL SUMMIT:' : 'SUMMIT ACCREDITATION ROLE:'}
                   </label>
                   <div className="grid grid-cols-2 gap-1.5">
                     {(
@@ -1581,7 +1617,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                               : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-600'
                           }`}
                         >
-                          <span>{ROLE_META[rKey].label}</span>
+                          <span>{loc(ROLE_META[rKey], 'label', language)}</span>
                           {active && (
                             <span className="w-2 h-2 rounded-full bg-[#00DDFF]" />
                           )}
@@ -1595,7 +1631,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                 {role === 'visitante' && (
                   <div>
                     <label className="block text-[10px] font-bold text-[#FDCC0D] uppercase mb-1.5">
-                      MODALIDAD DEL SGX PASS:
+                      {es ? 'MODALIDAD DEL SGX PASS:' : 'SGX PASS TYPE:'}
                     </label>
                     <div className="grid grid-cols-3 gap-1.5">
                       {(['digital', 'showcase', 'vip'] as VisitorPassType[]).map(
@@ -1615,7 +1651,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                                   : 'bg-slate-950 border-slate-800 text-slate-400'
                               }`}
                             >
-                              {PASS_TYPE_META[pt].label.replace('Pase ', '')}
+                              {loc(PASS_TYPE_META[pt], 'label', language).replace('Pase ', '')}
                             </button>
                           );
                         }
@@ -1628,26 +1664,26 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                 <div className="space-y-2.5">
                   <div>
                     <label className="block text-[10px] text-slate-400 uppercase mb-1">
-                      Nombre o Nickname en la Credencial
+                      {es ? 'Nombre o Nickname en la Credencial' : 'Name or Nickname on the Credential'}
                     </label>
                     <input
                       type="text"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      placeholder="Ej. Alex Rivera"
+                      placeholder={es ? 'Ej. Alex Rivera' : 'E.g. Alex Rivera'}
                       className="w-full px-3 py-2 bg-slate-950 border border-slate-700 focus:border-[#00DDFF] text-white text-xs font-bold outline-none"
                     />
                   </div>
 
                   <div>
                     <label className="block text-[10px] text-slate-400 uppercase mb-1">
-                      Distinción / Cargo / Especialidad
+                      {es ? 'Distinción / Cargo / Especialidad' : 'Distinction / Title / Specialty'}
                     </label>
                     <input
                       type="text"
                       value={jobTitle}
                       onChange={(e) => setJobTitle(e.target.value)}
-                      placeholder="VISITANTE CON SGX PASS"
+                      placeholder={es ? 'VISITANTE CON SGX PASS' : 'VISITOR WITH SGX PASS'}
                       className="w-full px-3 py-2 bg-slate-950 border border-slate-700 focus:border-[#00DDFF] text-white text-xs outline-none"
                     />
                   </div>
@@ -1655,7 +1691,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div>
                       <label className="block text-[10px] text-slate-400 uppercase mb-1">
-                        Organización / Universidad / Estudio
+                        {es ? 'Organización / Universidad / Estudio' : 'Organization / University / Studio'}
                       </label>
                       <input
                         type="text"
@@ -1667,7 +1703,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                     </div>
                     <div>
                       <label className="block text-[10px] text-slate-400 uppercase mb-1">
-                        Usuario Social (@handle)
+                        {es ? 'Usuario Social (@handle)' : 'Social Handle (@handle)'}
                       </label>
                       <input
                         type="text"
@@ -1682,10 +1718,10 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                   <div>
                     <label className="block text-[10px] text-slate-400 uppercase mb-1">
                       {role === 'speaker'
-                        ? 'Título de tu Charla / Panel'
+                        ? (es ? 'Título de tu Charla / Panel' : 'Your Talk / Panel Title')
                         : role === 'initiate'
-                        ? 'Proyecto Ranked Trials'
-                        : 'Misión o Interés en el Summit'}
+                        ? (es ? 'Proyecto Ranked Trials' : 'Ranked Trials Project')
+                        : (es ? 'Misión o Interés en el Summit' : 'Mission or Interest at the Summit')}
                     </label>
                     <input
                       type="text"
@@ -1700,8 +1736,8 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                   <div className="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
                     <span className="text-[10px] text-slate-400">
                       {hasRegisteredTicket
-                        ? '✓ Código sincronizado con tu SGX Pass'
-                        : '¿Aún no tienes tu SGX Pass?'}
+                        ? (es ? '✓ Código sincronizado con tu SGX Pass' : '✓ Code synced with your SGX Pass')
+                        : (es ? '¿Aún no tienes tu SGX Pass?' : 'Don\'t have your SGX Pass yet?')}
                     </span>
                     <button
                       type="button"
@@ -1711,8 +1747,8 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                       <Ticket className="w-3 h-3" />
                       <span>
                         {hasRegisteredTicket
-                          ? 'Ver mi SGX Pass'
-                          : 'Forjar SGX Pass (+120 XP)'}
+                          ? (es ? 'Ver mi SGX Pass' : 'View my SGX Pass')
+                          : (es ? 'Forjar SGX Pass (+120 XP)' : 'Forge SGX Pass (+120 XP)')}
                       </span>
                     </button>
                   </div>
@@ -1726,10 +1762,10 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                 <div className="p-4 bg-slate-950 border border-dashed border-cyan-500/60 text-center space-y-2.5">
                   <Camera className="w-8 h-8 text-[#00DDFF] mx-auto" />
                   <div className="text-xs font-bold text-white uppercase">
-                    Fotografía de Retrato (100% Local y Privada)
+                    {es ? 'Fotografía de Retrato (100% Local y Privada)' : 'Portrait Photo (100% Local and Private)'}
                   </div>
                   <p className="text-[11px] text-slate-400 leading-relaxed">
-                    Tu imagen se procesa directamente en el motor Canvas 3D de tu dispositivo sin subirse a ningún servidor externo.
+                    {es ? 'Tu imagen se procesa directamente en el motor Canvas 3D de tu dispositivo sin subirse a ningún servidor externo.' : 'Your image is processed directly in your device\'s 3D Canvas engine without being uploaded to any external server.'}
                   </p>
                   <button
                     type="button"
@@ -1737,7 +1773,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                     className="px-4 py-2 bg-[#00DDFF] hover:bg-[#FDCC0D] text-black font-extrabold text-xs uppercase transition-colors cursor-pointer inline-flex items-center gap-1.5"
                   >
                     <Upload className="w-3.5 h-3.5" />
-                    <span>Seleccionar Foto desde mi Dispositivo</span>
+                    <span>{es ? 'Seleccionar Foto desde mi Dispositivo' : 'Select a Photo from my Device'}</span>
                   </button>
                 </div>
 
@@ -1746,7 +1782,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                   <div>
                     <div className="flex justify-between text-[11px] mb-1">
                       <span className="text-slate-300 font-bold">
-                        Zoom de Retrato
+                        {es ? 'Zoom de Retrato' : 'Portrait Zoom'}
                       </span>
                       <span className="text-cyan-400">
                         {Math.round(photoScale * 100)}%
@@ -1766,7 +1802,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                   <div>
                     <div className="flex justify-between text-[11px] mb-1">
                       <span className="text-slate-300 font-bold">
-                        Encuadre Horizontal (X)
+                        {es ? 'Encuadre Horizontal (X)' : 'Horizontal Framing (X)'}
                       </span>
                       <span className="text-cyan-400">{photoOffsetX}px</span>
                     </div>
@@ -1786,7 +1822,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                   <div>
                     <div className="flex justify-between text-[11px] mb-1">
                       <span className="text-slate-300 font-bold">
-                        Encuadre Vertical (Y)
+                        {es ? 'Encuadre Vertical (Y)' : 'Vertical Framing (Y)'}
                       </span>
                       <span className="text-cyan-400">{photoOffsetY}px</span>
                     </div>
@@ -1812,7 +1848,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                     }}
                     className="w-full py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-[11px] font-bold uppercase cursor-pointer"
                   >
-                    Restablecer Encuadre
+                    {es ? 'Restablecer Encuadre' : 'Reset Framing'}
                   </button>
                 </div>
               </div>
@@ -1824,7 +1860,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-[10px] font-bold text-cyan-300 uppercase">
-                      ELIGE HASTA 2 PILARES SGX DE AFINIDAD:
+                      {es ? 'ELIGE HASTA 2 PILARES SGX DE AFINIDAD:' : 'PICK UP TO 2 SGX AFFINITY PILLARS:'}
                     </label>
                     <span className="text-[10px] text-[#FDCC0D] font-bold">
                       {selectedPillars.length}/2 ACTIVOS
@@ -1857,7 +1893,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                               {pillar.name}
                             </div>
                             <div className="text-[9px] text-slate-400 truncate">
-                              {pillar.tag}
+                              {loc(pillar, 'tag', language)}
                             </div>
                           </div>
                         </button>
@@ -1870,7 +1906,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                 <div className="p-3 bg-slate-950 border border-slate-800 space-y-2">
                   <div className="flex justify-between text-[11px]">
                     <span className="text-white font-bold">
-                      Intensidad de Foil Holográfico 3D
+                      {es ? 'Intensidad de Foil Holográfico 3D' : '3D Holographic Foil Intensity'}
                     </span>
                     <span className="text-[#FDCC0D] font-bold">
                       {Math.round(foilIntensity * 100)}%
@@ -1897,7 +1933,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                 <div className="p-3 bg-slate-950 border border-slate-800 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold text-cyan-300 uppercase">
-                      CAPTION OFICIAL PARA INSTAGRAM / LINKEDIN / X:
+                      {es ? 'CAPTION OFICIAL PARA INSTAGRAM / LINKEDIN / X:' : 'OFFICIAL CAPTION FOR INSTAGRAM / LINKEDIN / X:'}
                     </span>
                     <button
                       type="button"
@@ -1912,12 +1948,12 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                       {copiedCaption ? (
                         <>
                           <Check className="w-3 h-3" />
-                          <span>COPIADO</span>
+                          <span>{es ? 'COPIADO' : 'COPIED'}</span>
                         </>
                       ) : (
                         <>
                           <Copy className="w-3 h-3" />
-                          <span>COPIAR TEXTO</span>
+                          <span>{es ? 'COPIAR TEXTO' : 'COPY TEXT'}</span>
                         </>
                       )}
                     </button>
@@ -1935,7 +1971,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                   >
                     <Download className="w-4 h-4" />
                     <span>
-                      DESCARGAR CREDENCIAL EN ALTA RESOLUCIÓN (+150 XP)
+                      {es ? 'DESCARGAR CREDENCIAL EN ALTA RESOLUCIÓN (+150 XP)' : 'DOWNLOAD HIGH-RESOLUTION CREDENTIAL (+150 XP)'}
                     </span>
                   </button>
 
@@ -1945,7 +1981,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
                     className="w-full py-2.5 bg-cyan-500/20 hover:bg-cyan-400 text-cyan-200 hover:text-black border border-cyan-400 font-bold text-xs uppercase flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Share2 className="w-4 h-4" />
-                    <span>COMPARTIR DIRECTO DESDE MÓVIL</span>
+                    <span>{es ? 'COMPARTIR DIRECTO DESDE MÓVIL' : 'SHARE DIRECTLY FROM PHONE'}</span>
                   </button>
                 </div>
               </div>

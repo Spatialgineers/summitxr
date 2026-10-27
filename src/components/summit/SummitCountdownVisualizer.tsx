@@ -35,6 +35,8 @@ export const SummitCountdownVisualizer: React.FC<SummitCountdownVisualizerProps>
   onOpenPasses,
   onOpenSponsors,
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { tenant, styles } = useTenantTheme();
   const { t } = useLanguage();
   const [timeLeft, setTimeLeft] = useState<{
@@ -196,7 +198,7 @@ export const SummitCountdownVisualizer: React.FC<SummitCountdownVisualizerProps>
               </span>
             </div>
           </div>
-          <span className="text-[9px] font-mono text-slate-400 mt-1">DIC 11, 2026</span>
+          <span className="text-[9px] font-mono text-slate-400 mt-1">{es ? 'DIC 11, 2026' : 'DEC 11, 2026'}</span>
         </div>
 
         {/* HOURS GAUGE */}
@@ -362,18 +364,18 @@ export const SummitCountdownVisualizer: React.FC<SummitCountdownVisualizerProps>
         <div className="flex items-center justify-between text-slate-300">
           <div className="flex items-center space-x-1.5">
             <MapPin className="w-3.5 h-3.5 text-[var(--sgx-accent)]" />
-            <span className="text-slate-400">Venue del Día 3:</span>
+            <span className="text-slate-400">{es ? 'Venue del Día 3:' : 'Day 3 venue:'}</span>
             <span className="text-white font-bold">Chroma Space Studios</span>
           </div>
           <span 
             className="text-[10px] px-1.5 py-0.5 bg-[var(--sgx-accent)]/10 border border-[var(--sgx-accent)]/40 text-[var(--sgx-accent)]"
             style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
           >
-            SAN JUAN · DÍA 3
+            {es ? 'SAN JUAN · DÍA 3' : 'SAN JUAN · DAY 3'}
           </span>
         </div>
         <p className="text-[11px] text-slate-400 leading-snug">
-          Chroma Space Studios, en San Juan, Puerto Rico, es el venue del SGX Showcase (Día 3, híbrido, por invitación y cupo limitado de 40 a 60 personas).
+          {es ? 'Chroma Space Studios, en San Juan, Puerto Rico, es el venue del SGX Showcase (Día 3, híbrido, por invitación y cupo limitado de 40 a 60 personas).' : 'Chroma Space Studios, in San Juan, Puerto Rico, is the venue of the SGX Showcase (Day 3, hybrid, by invitation with limited capacity of 40 to 60 people).'}
         </p>
       </div>
 
@@ -397,7 +399,7 @@ export const SummitCountdownVisualizer: React.FC<SummitCountdownVisualizerProps>
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
             >
               <Compass className="w-3.5 h-3.5 text-[var(--sgx-neon)]" />
-              <span>MAPA 360°</span>
+              <span>{es ? 'MAPA 360°' : '360° MAP'}</span>
             </button>
           )}
         </div>
@@ -409,7 +411,7 @@ export const SummitCountdownVisualizer: React.FC<SummitCountdownVisualizerProps>
             style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
           >
             <Calendar className="w-3.5 h-3.5" />
-            <span>SINCRONIZAR CALENDARIO</span>
+            <span>{es ? 'SINCRONIZAR CALENDARIO' : 'SYNC CALENDAR'}</span>
           </button>
         )}
       </div>

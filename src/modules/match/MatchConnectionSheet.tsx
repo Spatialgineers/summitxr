@@ -16,6 +16,7 @@ import { MATCH_I18N } from './match.i18n';
 import { PILLAR_META } from './MatchCard';
 import { exportContactAsVCard, saveMatchPrivateNote } from './matchData';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface MatchConnectionSheetProps {
   match: MutualMatch;
@@ -32,6 +33,8 @@ export const MatchConnectionSheet: React.FC<MatchConnectionSheetProps> = ({
   onClose,
   onGoToMatches
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const strings = MATCH_I18N[lang] || MATCH_I18N.es;
 
   const candidate = match.userA === myUid 
@@ -84,7 +87,7 @@ export const MatchConnectionSheet: React.FC<MatchConnectionSheetProps> = ({
             <span>{strings.hitTitle}</span>
           </div>
           <h2 className="text-2xl font-bold font-sans">
-            ¡Están Conectados!
+            {es ? '¡Están Conectados!' : 'You\'re Connected!'}
           </h2>
           <p className="text-xs text-amber-400 font-mono mt-1 flex items-center justify-center gap-1">
             <Zap className="w-3.5 h-3.5 fill-amber-400" />
@@ -149,7 +152,7 @@ export const MatchConnectionSheet: React.FC<MatchConnectionSheetProps> = ({
             </label>
             {noteSaved && (
               <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-                <Check className="w-3 h-3" /> Guardado
+                <Check className="w-3 h-3" />{es ? ' Guardado' : ' Saved'}
               </span>
             )}
           </div>
@@ -158,7 +161,7 @@ export const MatchConnectionSheet: React.FC<MatchConnectionSheetProps> = ({
               type="text"
               value={note}
               onChange={e => setNote(e.target.value)}
-              placeholder="Ej: Charlar sobre partnership WebXR en el break..."
+              placeholder={es ? 'Ej: Charlar sobre partnership WebXR en el break...' : 'E.g. Chat about a WebXR partnership during the break...'}
               className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-[#00DDFF] focus:outline-none"
             />
             <button
@@ -166,7 +169,7 @@ export const MatchConnectionSheet: React.FC<MatchConnectionSheetProps> = ({
               disabled={isSavingNote}
               className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-mono text-white transition-colors cursor-pointer"
             >
-              Guardar
+              {es ? 'Guardar' : 'Save'}
             </button>
           </div>
         </div>
@@ -194,7 +197,7 @@ export const MatchConnectionSheet: React.FC<MatchConnectionSheetProps> = ({
               onClick={onClose}
               className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-mono text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
-              Seguir Descubriendo
+              {es ? 'Seguir Descubriendo' : 'Keep Discovering'}
             </button>
           </div>
         </div>

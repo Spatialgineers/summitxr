@@ -2,7 +2,6 @@
 import express from "express";
 import http from "http";
 import path from "path";
-import fs from "fs";
 import { createServer as createViteServer } from "vite";
 
 // src/server/engine/wsHandler.ts
@@ -11,9 +10,9 @@ import { WebSocketServer, WebSocket } from "ws";
 // src/lib/assetCache.ts
 import * as THREE from "three";
 var BUILTIN_BG_SAMPLES = [
-  { id: "grid_floor", name: "\u{1F310} Cyber Grid Matrix", url: `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#0a0c10"/><path d="M0 50 L100 50 M50 0 L50 100" stroke="#00ffff" stroke-width="0.5" opacity="0.4"/></svg>')}` },
+  { id: "grid_floor", name: "\u{1F310} Cyber Grid Matrix", url: `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#0d0d0d"/><path d="M0 50 L100 50 M50 0 L50 100" stroke="#00ddff" stroke-width="0.5" opacity="0.4"/></svg>')}` },
   { id: "hex_mesh", name: "\u2B22 Neon Hex Cell", url: `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><polygon points="30,5 55,20 55,50 30,65 5,50 5,20" fill="none" stroke="#ff0055" stroke-width="1" opacity="0.4"/></svg>')}` },
-  { id: "nebula_space", name: "\u2728 Deep Cosmic Starfield", url: `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#050510"/><circle cx="30" cy="40" r="1.5" fill="#ffffff" opacity="0.8"/><circle cx="150" cy="80" r="2" fill="#00ffff" opacity="0.9"/><circle cx="90" cy="160" r="1" fill="#fdcc0d" opacity="0.7"/></svg>')}` }
+  { id: "nebula_space", name: "\u2728 Deep Cosmic Starfield", url: `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#090909"/><circle cx="30" cy="40" r="1.5" fill="#ffffff" opacity="0.8"/><circle cx="150" cy="80" r="2" fill="#00ddff" opacity="0.9"/><circle cx="90" cy="160" r="1" fill="#fdcc0d" opacity="0.7"/></svg>')}` }
 ];
 var BUILTIN_PARTICLE_SPRITES = {
   ember: {
@@ -42,7 +41,7 @@ var BUILTIN_PARTICLE_SPRITES = {
         <defs>
           <radialGradient id="sparkGrad" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
-            <stop offset="35%" stop-color="#00ffff" stop-opacity="0.9"/>
+            <stop offset="35%" stop-color="#00ddff" stop-opacity="0.9"/>
             <stop offset="70%" stop-color="#0088ff" stop-opacity="0.4"/>
             <stop offset="100%" stop-color="#0022ff" stop-opacity="0"/>
           </radialGradient>
@@ -131,7 +130,7 @@ var BUILTIN_PARTICLE_SPRITES = {
     description: "High-voltage electric discharge tendril",
     dataUri: `data:image/svg+xml;utf8,${encodeURIComponent(`
       <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-        <polygon points="36,2 14,34 30,34 26,62 50,28 34,28" fill="#00ffff" stroke="#ffffff" stroke-width="1.5"/>
+        <polygon points="36,2 14,34 30,34 26,62 50,28 34,28" fill="#00ddff" stroke="#ffffff" stroke-width="1.5"/>
       </svg>
     `.trim())}`
   }
@@ -145,7 +144,7 @@ var BUILTIN_PRESETS = {
     category: "Abstract",
     description: "Modelo 3D oficial del icono de Spatialgineers rotando en escenario espacial hologr\xE1fico con part\xEDculas de alta energ\xEDa.",
     themeColor: "#FDCC0D",
-    accentColor: "#00FFFF",
+    accentColor: "#00DDFF",
     shaderKey: "grid",
     glitchIntensity: 0.12,
     warpSpeed: 1,
@@ -195,7 +194,7 @@ var BUILTIN_PRESETS = {
     category: "Abstract",
     description: "Calm, structured narrative wireframe with gentle yellow grid noise and golden ember runes (Erratic Level 1/6)",
     themeColor: "#FDCC0D",
-    accentColor: "#64748B",
+    accentColor: "#767676",
     shaderKey: "grid",
     glitchIntensity: 0.08,
     warpSpeed: 0.8,
@@ -219,7 +218,7 @@ var BUILTIN_PRESETS = {
     category: "UberShaders",
     description: "Maximum erratic multi-color spectrum swirl, extreme relativistic warp 4.5, CRT glitch split, and 12,000-particle vortex (Erratic Level 6/6)",
     themeColor: "#FDCC0D",
-    accentColor: "#00FFFF",
+    accentColor: "#00DDFF",
     shaderKey: "ubershader",
     glitchIntensity: 0.98,
     warpSpeed: 4.5,
@@ -314,7 +313,7 @@ var BUILTIN_PRESETS = {
     name: "Synthwave Wireframe Terrain",
     category: "Cyber",
     description: "Retro-futuristic infinite perspective wireframe terrain with undulating mountain noise and a pulsing synthwave sun",
-    themeColor: "#00f0ff",
+    themeColor: "#00ddff",
     accentColor: "#ff007f",
     shaderKey: "grid",
     glitchIntensity: 0.15,
@@ -363,7 +362,7 @@ var BUILTIN_PRESETS = {
     category: "Elements",
     description: "Radiant high-voltage plasma tendrils, electric arcs, and dynamic pulsing holographic bloom discharges",
     themeColor: "#fdcc0d",
-    accentColor: "#00ffff",
+    accentColor: "#00ddff",
     shaderKey: "plasma",
     glitchIntensity: 0.45,
     warpSpeed: 1.4,
@@ -444,41 +443,20 @@ var INITIAL_TENANTS = [
     name: "SGX.STORY \u2014 Lore & Craft",
     slug: "story",
     pillarId: "SGX.STORY",
-    vibe: "Amarillo & Gris (Narrativa & Lore)",
-    description: "Preset enfocado en desarrollo conceptual, worldbuilding y est\xE9tica amarillo/gris.",
+    vibe: "Amarillo Ne\xF3n & Oro (Narrativa & Lore)",
+    description: "Preset enfocado en desarrollo conceptual, worldbuilding y est\xE9tica amarillo ne\xF3n.",
     erraticRating: 1,
     presetId: "preset_story_float",
     branding: {
       primaryColor: "#FDCC0D",
-      secondaryColor: "#64748B",
-      accentColor: "#CBD5E1",
-      backgroundColor: "#0B0F17",
-      cardBgColor: "#151D2A",
-      borderColor: "#475569",
-      neonHighlightColor: "#FFE066",
-      glowShadow: "rgba(253, 204, 13, 0.35)",
-      gradientCss: "linear-gradient(135deg, #FDCC0D 0%, #64748B 100%)"
-    }
-  },
-  {
-    id: "tenant_sgx_showcase",
-    name: "SGX.SHOWCASE \u2014 Brand & Exhibition",
-    slug: "showcase",
-    pillarId: "SGX.SHOWCASE",
-    vibe: "Anaranjado & Blanco (Showroom de Marcas)",
-    description: "Preset de alta claridad pensado para exhibici\xF3n de patrocinadores y marcas tecnocreativas.",
-    erraticRating: 2,
-    presetId: "preset_aurora_crystal",
-    branding: {
-      primaryColor: "#FF6B00",
-      secondaryColor: "#FFFFFF",
-      accentColor: "#FF9944",
-      backgroundColor: "#140904",
-      cardBgColor: "#1F1008",
-      borderColor: "#FF6B00",
-      neonHighlightColor: "#FF8533",
-      glowShadow: "rgba(255, 107, 0, 0.45)",
-      gradientCss: "linear-gradient(135deg, #FF6B00 0%, #FFFFFF 100%)"
+      secondaryColor: "#32527B",
+      accentColor: "#FFE566",
+      backgroundColor: "#101010",
+      cardBgColor: "#1B1B1B",
+      borderColor: "#FDCC0D",
+      neonHighlightColor: "#FFE566",
+      glowShadow: "rgba(253, 204, 13, 0.45)",
+      gradientCss: "linear-gradient(135deg, #FDCC0D 0%, #32527B 100%)"
     }
   },
   {
@@ -486,20 +464,41 @@ var INITIAL_TENANTS = [
     name: "SGX.SPARK \u2014 Gamification & Logic",
     slug: "spark",
     pillarId: "SGX.SPARK",
-    vibe: "Cyan & Amarillo (Alto Voltaje L\xF3gico)",
-    description: "Preset para mec\xE1nicas de gamificaci\xF3n, votaci\xF3n cyoa y simulaciones interactivas.",
+    vibe: "Naranja Ne\xF3n & Fuego (Alto Voltaje L\xF3gico)",
+    description: "Preset para mec\xE1nicas de gamificaci\xF3n, simulador de dron y dinamismo interactivo.",
     erraticRating: 3,
     presetId: "preset_plasma_bloom",
     branding: {
-      primaryColor: "#00FFFF",
+      primaryColor: "#FFBB00",
       secondaryColor: "#FDCC0D",
+      accentColor: "#FF8800",
+      backgroundColor: "#140904",
+      cardBgColor: "#1F1008",
+      borderColor: "#FFBB00",
+      neonHighlightColor: "#FFAA33",
+      glowShadow: "rgba(255, 187, 0, 0.55)",
+      gradientCss: "linear-gradient(135deg, #FFBB00 0%, #FDCC0D 100%)"
+    }
+  },
+  {
+    id: "tenant_sgx_showcase",
+    name: "SGX.SHOWCASE \u2014 Brand & Exhibition",
+    slug: "showcase",
+    pillarId: "SGX.SHOWCASE",
+    vibe: "Cyan Ne\xF3n & WebXR (Showroom de Marcas)",
+    description: "Preset de alta claridad pensado para exhibici\xF3n de patrocinadores, 3D y marcas.",
+    erraticRating: 2,
+    presetId: "preset_aurora_crystal",
+    branding: {
+      primaryColor: "#00DDFF",
+      secondaryColor: "#32527B",
       accentColor: "#33FFFF",
-      backgroundColor: "#041219",
-      cardBgColor: "#09222E",
-      borderColor: "#00FFFF",
-      neonHighlightColor: "#00FFFF",
-      glowShadow: "rgba(0, 255, 255, 0.5)",
-      gradientCss: "linear-gradient(135deg, #00FFFF 0%, #FDCC0D 100%)"
+      backgroundColor: "#101010",
+      cardBgColor: "#1E1E1E",
+      borderColor: "#00DDFF",
+      neonHighlightColor: "#00DDFF",
+      glowShadow: "rgba(0, 221, 255, 0.55)",
+      gradientCss: "linear-gradient(135deg, #00DDFF 0%, #32527B 100%)"
     }
   },
   {
@@ -507,20 +506,20 @@ var INITIAL_TENANTS = [
     name: "SGX.STAGE \u2014 Virtual Production Arena",
     slug: "stage",
     pillarId: "SGX.STAGE",
-    vibe: "Blanco & Amarillo (Luces de Escenario & Spotlights)",
-    description: "Preset de escenario en vivo con strobes de alta intensidad y bloom \xE1mbar.",
+    vibe: "Blanco Puro & Spotlights (Luces de Escenario)",
+    description: "Preset de escenario en vivo con strobes de alta intensidad y presencia esc\xE9nica.",
     erraticRating: 4,
     presetId: "preset_volcano_fire",
     branding: {
       primaryColor: "#FFFFFF",
-      secondaryColor: "#FDCC0D",
+      secondaryColor: "#32527B",
       accentColor: "#F8FAFC",
-      backgroundColor: "#14120B",
-      cardBgColor: "#242013",
-      borderColor: "#E2E8F0",
-      neonHighlightColor: "#FFF5C0",
-      glowShadow: "rgba(255, 255, 255, 0.6)",
-      gradientCss: "linear-gradient(135deg, #FFFFFF 0%, #FDCC0D 100%)"
+      backgroundColor: "#1B1B1B",
+      cardBgColor: "#2B2B2B",
+      borderColor: "#FFFFFF",
+      neonHighlightColor: "#F8FAFC",
+      glowShadow: "rgba(255, 255, 255, 0.65)",
+      gradientCss: "linear-gradient(135deg, #FFFFFF 0%, #32527B 100%)"
     }
   },
   {
@@ -528,41 +527,41 @@ var INITIAL_TENANTS = [
     name: "SGX.SYSTEM \u2014 Core Matrix Infrastructure",
     slug: "system",
     pillarId: "SGX.SYSTEM",
-    vibe: "Azul Met\xE1lico & Gris (#32527B & #333333)",
-    description: "Preset t\xE9cnico de bajo nivel con arquitectura en azul met\xE1lico y tonos gris industrial.",
+    vibe: "Azul Oficial SGX & Cian (#32527B & #00DDFF)",
+    description: "Preset t\xE9cnico de bajo nivel con arquitectura en Azul Oficial SGX (#32527B) e infraestructura cloud.",
     erraticRating: 5,
     presetId: "preset_glitch_cyber",
     branding: {
       primaryColor: "#32527B",
-      secondaryColor: "#333333",
-      accentColor: "#888888",
-      backgroundColor: "#1A1A1A",
-      cardBgColor: "#121927",
+      secondaryColor: "#00DDFF",
+      accentColor: "#FDCC0D",
+      backgroundColor: "#0F0F0F",
+      cardBgColor: "#191919",
       borderColor: "#32527B",
-      neonHighlightColor: "#32527B",
+      neonHighlightColor: "#00DDFF",
       glowShadow: "rgba(50, 82, 123, 0.75)",
-      gradientCss: "linear-gradient(135deg, #32527B 0%, #333333 100%)"
+      gradientCss: "linear-gradient(135deg, #32527B 0%, #00DDFF 100%)"
     }
   },
   {
     id: "tenant_sgx_synthesize",
-    name: "SGX.SYNTHESIZE \u2014 Full Spectrum Hyper-Overdrive",
+    name: "SGX.SYNTHESIZE \u2014 Full Spectrum SGX",
     slug: "synthesize",
     pillarId: "SGX.SYNTHESIZE",
-    vibe: "Todos los Colores SGX (Amarillo, Anaranjado, Cyan & Azul Met\xE1lico)",
-    description: "Preset sin\xE9rgico total que armoniza todos los pilares con reactividad 3D espectral de alto voltaje.",
+    vibe: "Gradiente Amarillo / Azul SGX (#FDCC0D & #32527B)",
+    description: "Preset sin\xE9rgico total que armoniza todos los pilares con el gradiente oficial SGX.",
     erraticRating: 6,
     presetId: "preset_synthesize_chaos",
     branding: {
       primaryColor: "#FDCC0D",
-      secondaryColor: "#00FFFF",
-      accentColor: "#B87333",
-      backgroundColor: "#1A1A1A",
-      cardBgColor: "#121927",
-      borderColor: "#00FFFF",
-      neonHighlightColor: "#FFAA00",
-      glowShadow: "rgba(0, 255, 255, 0.75)",
-      gradientCss: "linear-gradient(135deg, #FDCC0D 0%, #FFAA00 25%, #B87333 50%, #00FFFF 75%, #32527B 100%)"
+      secondaryColor: "#32527B",
+      accentColor: "#00DDFF",
+      backgroundColor: "#0F0F0F",
+      cardBgColor: "#1E1E1E",
+      borderColor: "#FDCC0D",
+      neonHighlightColor: "#FFE566",
+      glowShadow: "rgba(253, 204, 13, 0.65)",
+      gradientCss: "linear-gradient(135deg, #FDCC0D 0%, #32527B 100%)"
     }
   }
 ];
@@ -588,7 +587,7 @@ var SAMPLE_QUESTIONS = [
         label: "A: Synthwave Neon Grid",
         description: "Retro 80s perspective wireframe mountains and glowing cyber sun",
         presetId: "preset_neon_grid",
-        color: "#00f0ff",
+        color: "#00ddff",
         effectType: "cyber_grid_pulse",
         effectName: "Onda Ne\xF3n Rejilla Synthwave",
         effectMultiplier: 1.5,
@@ -614,7 +613,7 @@ var SAMPLE_QUESTIONS = [
         label: "C: Quantum Particle Storm",
         description: "Cosmic 8,000-particle gravitational attractor vortex",
         presetId: "preset_particle_storm",
-        color: "#a855f7",
+        color: "#5f86b4",
         effectType: "quantum_vortex",
         effectName: "V\xF3rtice Cu\xE1ntico Orbital",
         effectMultiplier: 1.4,
@@ -689,7 +688,7 @@ var SAMPLE_QUESTIONS = [
         description: "Remote cloud streaming buffer",
         presetId: "preset_neon_grid",
         isCorrect: false,
-        color: "#00f0ff",
+        color: "#00ddff",
         effectType: "cyber_grid_pulse",
         effectName: "Malla Ne\xF3n Distorsionada",
         effectMultiplier: 1,
@@ -782,6 +781,11 @@ var SAMPLE_QUESTIONS = [
 ];
 
 // src/server/engine/roomManager.ts
+var DEFAULT_TENANT_ID = "tenant_spatialgineers";
+var DEFAULT_EVENT_ID = "event_live_main";
+var MAX_ROOMS = 20;
+var ROOM_ID_RE = /^[A-Za-z0-9_-]{1,64}$/;
+var KNOWN_TENANT_IDS = /* @__PURE__ */ new Set([DEFAULT_TENANT_ID, ...INITIAL_TENANTS.map((t) => t.id)]);
 var rooms = /* @__PURE__ */ new Map();
 function getOrCreateRoom(tenantId = "tenant_spatialgineers", eventId = "event_live_main") {
   const key = `${tenantId}:${eventId}`;
@@ -807,6 +811,21 @@ function getOrCreateRoom(tenantId = "tenant_spatialgineers", eventId = "event_li
     });
   }
   return rooms.get(key);
+}
+function resolveRoom(tenantIdRaw, eventIdRaw) {
+  const tenantId = tenantIdRaw === void 0 || tenantIdRaw === null || tenantIdRaw === "" ? DEFAULT_TENANT_ID : tenantIdRaw;
+  const eventId = eventIdRaw === void 0 || eventIdRaw === null || eventIdRaw === "" ? DEFAULT_EVENT_ID : eventIdRaw;
+  if (typeof tenantId !== "string" || !ROOM_ID_RE.test(tenantId) || typeof eventId !== "string" || !ROOM_ID_RE.test(eventId)) {
+    return { ok: false, status: 400, error: "INVALID_ROOM_ID" };
+  }
+  const key = `${tenantId}:${eventId}`;
+  const existing = rooms.get(key);
+  if (existing) return { ok: true, room: existing };
+  const alwaysAllowed = KNOWN_TENANT_IDS.has(tenantId) && eventId === DEFAULT_EVENT_ID;
+  if (!alwaysAllowed && rooms.size >= MAX_ROOMS) {
+    return { ok: false, status: 503, error: "ROOM_LIMIT_REACHED" };
+  }
+  return { ok: true, room: getOrCreateRoom(tenantId, eventId) };
 }
 
 // src/lib/gamification.ts
@@ -844,12 +863,158 @@ function calculatePoints(answerType, isCorrectOption, responseTimeMs, totalDurat
   };
 }
 
+// src/server/security/validation.ts
+var LIMITS = {
+  MAX_QUESTIONS: 200,
+  MIN_OPTIONS: 2,
+  MAX_OPTIONS: 8,
+  PROMPT_MAX: 300,
+  LABEL_MAX: 120,
+  TEXT_MAX: 500,
+  SHORT_MAX: 80,
+  ID_MAX: 64,
+  NICKNAME_MAX: 40,
+  SIMULATE_MAX: 500
+};
+var ID_RE = /^[A-Za-z0-9_.:-]{1,64}$/;
+var HEX_COLOR_RE = /^#[0-9a-fA-F]{3,8}$/;
+function isValidId(v) {
+  return typeof v === "string" && ID_RE.test(v);
+}
+function cleanText(v, max) {
+  if (typeof v !== "string") return "";
+  return v.replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, max);
+}
+function optText(v, max) {
+  const s = cleanText(v, max);
+  return s ? s : void 0;
+}
+function clampInt(v, min, max, fallback) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, Math.round(n)));
+}
+function optNumber(v, min, max) {
+  const n = Number(v);
+  if (v === void 0 || v === null || !Number.isFinite(n)) return void 0;
+  return Math.min(max, Math.max(min, n));
+}
+function validateOption(raw, idx, qIdx) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    return { ok: false, error: `question[${qIdx}].options[${idx}] must be an object` };
+  }
+  const label = cleanText(raw.label, LIMITS.LABEL_MAX + 1);
+  if (!label) return { ok: false, error: `question[${qIdx}].options[${idx}].label is required` };
+  if (label.length > LIMITS.LABEL_MAX) {
+    return { ok: false, error: `question[${qIdx}].options[${idx}].label exceeds ${LIMITS.LABEL_MAX} chars` };
+  }
+  if (raw.id !== void 0 && !isValidId(raw.id)) {
+    return { ok: false, error: `question[${qIdx}].options[${idx}].id is invalid` };
+  }
+  const presetId = isValidId(raw.presetId) ? raw.presetId : "preset_neon_grid";
+  const color = typeof raw.color === "string" && HEX_COLOR_RE.test(raw.color) ? raw.color : "#00DDFF";
+  const opt = {
+    id: raw.id || `opt_${idx + 1}`,
+    index: idx,
+    code: idx + 1,
+    label,
+    presetId,
+    color
+  };
+  const description = optText(raw.description, LIMITS.TEXT_MAX);
+  if (description) opt.description = description;
+  if (typeof raw.isCorrect === "boolean") opt.isCorrect = raw.isCorrect;
+  if (isValidId(raw.effectType)) opt.effectType = raw.effectType;
+  const effectName = optText(raw.effectName, LIMITS.SHORT_MAX);
+  if (effectName) opt.effectName = effectName;
+  const effectMultiplier = optNumber(raw.effectMultiplier, 0, 5);
+  if (effectMultiplier !== void 0) opt.effectMultiplier = effectMultiplier;
+  const effectTargetParam = optText(raw.effectTargetParam, LIMITS.SHORT_MAX);
+  if (effectTargetParam) opt.effectTargetParam = effectTargetParam;
+  return { ok: true, value: opt };
+}
+function validateQuestion(raw, qIdx, fallbackId) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    return { ok: false, error: `question[${qIdx}] must be an object` };
+  }
+  if (raw.id !== void 0 && !isValidId(raw.id)) return { ok: false, error: `question[${qIdx}].id is invalid` };
+  const prompt = cleanText(raw.prompt ?? raw.text, LIMITS.PROMPT_MAX + 1);
+  if (!prompt) return { ok: false, error: `question[${qIdx}].prompt is required` };
+  if (prompt.length > LIMITS.PROMPT_MAX) {
+    return { ok: false, error: `question[${qIdx}].prompt exceeds ${LIMITS.PROMPT_MAX} chars` };
+  }
+  if (!Array.isArray(raw.options)) return { ok: false, error: `question[${qIdx}].options must be an array` };
+  if (raw.options.length < LIMITS.MIN_OPTIONS || raw.options.length > LIMITS.MAX_OPTIONS) {
+    return { ok: false, error: `question[${qIdx}] needs ${LIMITS.MIN_OPTIONS}-${LIMITS.MAX_OPTIONS} options` };
+  }
+  const options = [];
+  const seen = /* @__PURE__ */ new Set();
+  for (let i = 0; i < raw.options.length; i++) {
+    const r = validateOption(raw.options[i], i, qIdx);
+    if (!r.ok) return r;
+    if (seen.has(r.value.id)) return { ok: false, error: `question[${qIdx}] has duplicate option id ${r.value.id}` };
+    seen.add(r.value.id);
+    options.push(r.value);
+  }
+  const q = {
+    id: raw.id || fallbackId,
+    tenantId: "",
+    eventId: "",
+    order: 0,
+    prompt,
+    category: cleanText(raw.category, LIMITS.SHORT_MAX) || "AUDIENCE_POLL",
+    answerType: raw.answerType === "KNOWLEDGE" ? "KNOWLEDGE" : "OPINION_CYOA",
+    durationSeconds: clampInt(raw.durationSeconds, 5, 600, 30),
+    basePoints: clampInt(raw.basePoints, 0, 1e4, 100),
+    maxSpeedBonus: clampInt(raw.maxSpeedBonus, 0, 1e4, 50),
+    participationWeight: clampInt(raw.participationWeight, 0, 1e4, 20),
+    options
+  };
+  const subtitle = optText(raw.subtitle, LIMITS.PROMPT_MAX);
+  if (subtitle) q.subtitle = subtitle;
+  if (raw.storyPathOutcome && typeof raw.storyPathOutcome === "object") {
+    q.storyPathOutcome = {
+      narrative: cleanText(raw.storyPathOutcome.narrative, LIMITS.TEXT_MAX),
+      stageTitle: cleanText(raw.storyPathOutcome.stageTitle, LIMITS.PROMPT_MAX)
+    };
+  }
+  return { ok: true, value: q };
+}
+function validateQuestionList(rawList, maxCount, idPrefix) {
+  if (!Array.isArray(rawList)) return { ok: false, error: "questions must be an array" };
+  if (rawList.length === 0) return { ok: false, error: "questions must not be empty" };
+  if (rawList.length > maxCount) return { ok: false, error: `at most ${maxCount} questions allowed` };
+  const out = [];
+  const seen = /* @__PURE__ */ new Set();
+  for (let i = 0; i < rawList.length; i++) {
+    const r = validateQuestion(rawList[i], i, `${idPrefix}_${i}`);
+    if (!r.ok) return r;
+    if (seen.has(r.value.id)) return { ok: false, error: `duplicate question id ${r.value.id}` };
+    seen.add(r.value.id);
+    out.push(r.value);
+  }
+  return { ok: true, value: out };
+}
+function cleanNickname(v) {
+  return cleanText(v, LIMITS.NICKNAME_MAX);
+}
+function cleanAvatar(v) {
+  const s = cleanText(v, 16);
+  return s && !s.includes(":") ? s : void 0;
+}
+function cleanColor(v) {
+  return typeof v === "string" && HEX_COLOR_RE.test(v) ? v : void 0;
+}
+
 // src/server/engine/votingEngine.ts
+var VOTE_BROADCAST_INTERVAL_MS = 500;
+var LIVE_USERS_LIMIT = 50;
 function computeVoteSummary(room, question) {
+  const options = Array.isArray(question?.options) ? question.options.filter((o) => o && typeof o.id === "string") : [];
   const totalVotes = room.votes.size;
   const optionCounts = {};
   const optionPercentages = {};
-  question.options.forEach((opt) => {
+  options.forEach((opt) => {
     optionCounts[opt.id] = 0;
     optionPercentages[opt.id] = 0;
   });
@@ -859,20 +1024,20 @@ function computeVoteSummary(room, question) {
     }
   });
   let highestCount = -1;
-  let winningOptionId = question.options[0]?.id || "";
-  let winningPresetId = question.options[0]?.presetId || DEFAULT_PRESET.id;
-  question.options.forEach((opt) => {
+  let winningOptionId = options[0]?.id || "";
+  let winningPresetId = options[0]?.presetId || DEFAULT_PRESET.id;
+  options.forEach((opt) => {
     const count = optionCounts[opt.id] || 0;
     optionPercentages[opt.id] = totalVotes > 0 ? Math.round(count / totalVotes * 100) : 0;
     if (count > highestCount) {
       highestCount = count;
       winningOptionId = opt.id;
-      winningPresetId = opt.presetId;
+      winningPresetId = opt.presetId || DEFAULT_PRESET.id;
     }
   });
-  const correctOption = question.options.find((o) => o.isCorrect);
+  const correctOption = options.find((o) => o.isCorrect);
   return {
-    questionId: question.id,
+    questionId: question?.id || "",
     totalVotes,
     optionCounts,
     optionPercentages,
@@ -886,6 +1051,7 @@ function endVotingAndReveal(room, question, broadcast) {
     clearInterval(room.timerInterval);
     room.timerInterval = void 0;
   }
+  cancelVoteBroadcast(room);
   const summary = computeVoteSummary(room, question);
   room.session.status = "RESULT_REVEALED";
   room.session.activePresetId = summary.winningPresetId;
@@ -953,6 +1119,7 @@ function startQuestionVoting(room, questionIndex, broadcast) {
   if (room.timerInterval) {
     clearInterval(room.timerInterval);
   }
+  cancelVoteBroadcast(room);
   const initialSummary = computeVoteSummary(room, question);
   broadcast(room.tenantId, room.eventId, {
     type: "QUESTION_START",
@@ -982,52 +1149,101 @@ function startQuestionVoting(room, questionIndex, broadcast) {
     }
   });
   room.timerInterval = setInterval(() => {
-    const now = Date.now();
-    const remainingMs = Math.max(0, endTime - now);
-    const remainingSec = Math.ceil(remainingMs / 1e3);
-    room.session.timeRemaining = remainingSec;
-    broadcast(room.tenantId, room.eventId, {
-      type: "TIMER_TICK",
-      tenantId: room.tenantId,
-      eventId: room.eventId,
-      timestamp: now,
-      payload: {
-        questionId: question.id,
-        timeRemaining: remainingSec,
-        totalDuration: duration
+    try {
+      const now = Date.now();
+      const remainingMs = Math.max(0, endTime - now);
+      const remainingSec = Math.ceil(remainingMs / 1e3);
+      room.session.timeRemaining = remainingSec;
+      broadcast(room.tenantId, room.eventId, {
+        type: "TIMER_TICK",
+        tenantId: room.tenantId,
+        eventId: room.eventId,
+        timestamp: now,
+        payload: {
+          questionId: question.id,
+          timeRemaining: remainingSec,
+          totalDuration: duration
+        }
+      });
+      broadcast(room.tenantId, room.eventId, {
+        type: "COUNTDOWN_TICK",
+        tenantId: room.tenantId,
+        eventId: room.eventId,
+        timestamp: now,
+        payload: {
+          questionId: question.id,
+          timeRemaining: remainingSec,
+          totalDuration: duration
+        }
+      });
+      if (remainingSec <= 0) {
+        endVotingAndReveal(room, question, broadcast);
       }
-    });
-    broadcast(room.tenantId, room.eventId, {
-      type: "COUNTDOWN_TICK",
-      tenantId: room.tenantId,
-      eventId: room.eventId,
-      timestamp: now,
-      payload: {
-        questionId: question.id,
-        timeRemaining: remainingSec,
-        totalDuration: duration
-      }
-    });
-    if (remainingSec <= 0) {
-      endVotingAndReveal(room, question, broadcast);
+    } catch (err) {
+      console.error("[Voting Engine] timer tick error:", err);
+      if (room.timerInterval) clearInterval(room.timerInterval);
+      room.timerInterval = void 0;
     }
   }, 1e3);
   return question;
 }
-function processVoteSubmission(room, payload, broadcast) {
+function cancelVoteBroadcast(room) {
+  if (room.voteBroadcastTimer) {
+    clearTimeout(room.voteBroadcastTimer);
+    room.voteBroadcastTimer = void 0;
+  }
+}
+function topUsers(room) {
+  return Array.from(room.users.values()).sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)).slice(0, LIVE_USERS_LIMIT);
+}
+function scheduleVoteBroadcast(room, broadcast) {
+  if (room.voteBroadcastTimer) return;
+  room.voteBroadcastTimer = setTimeout(() => {
+    room.voteBroadcastTimer = void 0;
+    try {
+      const currentQ = room.questions[room.currentQuestionIndex];
+      if (!currentQ) return;
+      const liveSummary = computeVoteSummary(room, currentQ);
+      broadcast(room.tenantId, room.eventId, {
+        type: "VOTE_UPDATE",
+        tenantId: room.tenantId,
+        eventId: room.eventId,
+        timestamp: Date.now(),
+        payload: liveSummary
+      });
+      broadcast(room.tenantId, room.eventId, {
+        type: "STATE_SYNC",
+        tenantId: room.tenantId,
+        eventId: room.eventId,
+        timestamp: Date.now(),
+        payload: {
+          voteSummary: liveSummary,
+          totalVotes: room.votes.size,
+          users: topUsers(room)
+        }
+      });
+    } catch (err) {
+      console.error("[Voting Engine] vote broadcast error:", err);
+    }
+  }, VOTE_BROADCAST_INTERVAL_MS);
+}
+function processVoteSubmission(room, voterId, payload, broadcast) {
   const currentQ = room.questions[room.currentQuestionIndex];
-  if (!currentQ || room.session.status !== "VOTING_ACTIVE") return null;
-  const voterId = payload.userId;
-  const optionId = payload.optionId || currentQ.options.find((o) => o.code === payload.optionCode)?.id || currentQ.options[0].id;
-  const opt = currentQ.options.find((o) => o.id === optionId) || currentQ.options[0];
-  const isCorrect = currentQ.answerType === "OPINION_CYOA" ? true : opt?.isCorrect ?? false;
-  const responseTimeMs = payload.responseTimeMs || 2e3;
+  if (!currentQ || room.session.status !== "VOTING_ACTIVE" || !Array.isArray(currentQ.options)) {
+    return { status: "NOT_ACTIVE" };
+  }
+  if (room.votes.has(voterId)) return { status: "DUPLICATE" };
+  const opt = typeof payload.optionId === "string" && currentQ.options.find((o) => o.id === payload.optionId) || typeof payload.optionCode === "number" && currentQ.options.find((o) => o.code === payload.optionCode) || null;
+  if (!opt) return { status: "INVALID_OPTION" };
+  const durationMs = (currentQ.durationSeconds || 30) * 1e3;
+  const elapsed = room.session.startedAt ? Date.now() - room.session.startedAt : 2e3;
+  const responseTimeMs = Math.min(durationMs, Math.max(250, elapsed));
   let user = room.users.get(voterId);
   if (!user) {
     user = {
       id: voterId,
-      nickname: payload.nickname || `User #${voterId.slice(-4)}`,
-      avatar: payload.avatar || "\u{1F680}",
+      nickname: cleanNickname(payload.nickname) || `User #${voterId.slice(-4)}`,
+      avatar: cleanAvatar(payload.avatar) || "\u{1F680}",
       avatarSeed: voterId,
       tenantId: room.tenantId,
       eventId: room.eventId,
@@ -1045,12 +1261,15 @@ function processVoteSubmission(room, payload, broadcast) {
       choiceHistory: []
     };
     room.users.set(voterId, user);
+  } else {
+    const nick = cleanNickname(payload.nickname);
+    if (nick) user.nickname = nick;
   }
   const calc = calculatePoints(
     currentQ.answerType,
-    opt?.isCorrect ?? false,
+    opt.isCorrect ?? false,
     responseTimeMs,
-    (currentQ.durationSeconds || 30) * 1e3,
+    durationMs,
     currentQ.basePoints,
     currentQ.maxSpeedBonus,
     currentQ.participationWeight,
@@ -1071,37 +1290,22 @@ function processVoteSubmission(room, payload, broadcast) {
     responseTimeMs,
     timestamp: Date.now()
   });
+  if (user.choiceHistory.length > LIMITS.MAX_QUESTIONS) user.choiceHistory.shift();
   room.votes.set(voterId, {
     optionId: opt.id,
-    optionCode: opt.code || payload.optionCode || 1,
+    optionCode: opt.code || 1,
     responseTimeMs,
     isCorrect: calc.isCorrect,
     points: calc.totalPointsEarned
   });
   const liveSummary = computeVoteSummary(room, currentQ);
-  broadcast(room.tenantId, room.eventId, {
-    type: "VOTE_UPDATE",
-    tenantId: room.tenantId,
-    eventId: room.eventId,
-    timestamp: Date.now(),
-    payload: liveSummary
-  });
-  broadcast(room.tenantId, room.eventId, {
-    type: "STATE_SYNC",
-    tenantId: room.tenantId,
-    eventId: room.eventId,
-    timestamp: Date.now(),
-    payload: {
-      voteSummary: liveSummary,
-      totalVotes: room.votes.size,
-      users: Array.from(room.users.values())
-    }
-  });
-  return { calc, user, summary: liveSummary };
+  scheduleVoteBroadcast(room, broadcast);
+  return { status: "ACCEPTED", calc, user, summary: liveSummary };
 }
 function simulateAudienceVotes(room, count, broadcast) {
   const currentQ = room.questions[room.currentQuestionIndex];
-  if (!currentQ) return null;
+  if (!currentQ || !Array.isArray(currentQ.options) || currentQ.options.length === 0) return null;
+  count = Math.min(LIMITS.SIMULATE_MAX, Math.max(1, Math.floor(Number(count) || 0)));
   const firstNames = ["Kai", "Nova", "Zephyr", "Echo", "Alex", "Jordan", "Taylor", "Morgan", "Casey", "Riley", "Avery", "Sam", "Cameron", "Dakota", "Skylar", "Quinn", "Harper", "Rowan"];
   for (let i = 0; i < count; i++) {
     const mockUserId = `sim_user_${Math.random().toString(36).substring(2, 9)}`;
@@ -1171,7 +1375,7 @@ function simulateAudienceVotes(room, count, broadcast) {
       voteSummary: updatedSummary,
       totalVotes: room.votes.size,
       connectedAudienceCount: room.users.size + 1,
-      users: Array.from(room.users.values())
+      users: topUsers(room)
     }
   });
   return updatedSummary;
@@ -1208,10 +1412,10 @@ function triggerPresetOverride(room, presetId, source = "MANUAL_DIRECTOR", broad
 function processAudienceReaction(room, reaction, broadcast) {
   const burst = {
     id: `rx_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-    emoji: reaction.emoji || "\u{1F525}",
-    userId: reaction.userId || "anon",
+    emoji: cleanText(reaction.emoji, 8) || "\u{1F525}",
+    userId: cleanText(reaction.userId, 64) || "anon",
     timestamp: Date.now(),
-    color: reaction.color || "#00ffff"
+    color: cleanColor(reaction.color) || "#00ddff"
   };
   room.recentReactions.push(burst);
   if (room.recentReactions.length > 50) room.recentReactions.shift();
@@ -1232,10 +1436,184 @@ function processAudienceReaction(room, reaction, broadcast) {
   return burst;
 }
 
+// firebase-applet-config.json
+var firebase_applet_config_default = {
+  projectId: "gen-lang-client-0564995587",
+  appId: "1:820027070342:web:790508789793a2948a3e07",
+  apiKey: "AIzaSyCe4suHK7La5ZFI_ex29yFO2_80fF_Oz9A",
+  authDomain: "gen-lang-client-0564995587.firebaseapp.com",
+  firestoreDatabaseId: "ai-studio-sgxliveengine-630b78e7-0845-4046-9176-53bab53744ac",
+  storageBucket: "gen-lang-client-0564995587.firebasestorage.app",
+  messagingSenderId: "820027070342",
+  measurementId: "G-REDR3QBK74",
+  oAuthClientId: "820027070342-jdqa3bfnp43110cll3ro31t3qtqedfdr.apps.googleusercontent.com",
+  recaptchaSiteKey: ""
+};
+
+// src/server/security/adminAuth.ts
+var IS_PRODUCTION = process.env.NODE_ENV === "production";
+var LOOKUP_URL = "https://identitytoolkit.googleapis.com/v1/accounts:lookup";
+var MAX_TOKEN_LENGTH = 4096;
+var NEGATIVE_CACHE_MS = 6e4;
+var MAX_CACHE_ENTRIES = 1e3;
+function adminAllowlist() {
+  const raw = process.env.SGX_ADMIN_EMAILS || "info@spatialgineers.com,support@spatialgineers.com";
+  return new Set(
+    raw.split(",").map((e) => e.trim().toLowerCase()).filter(Boolean)
+  );
+}
+function decodeJwtPayload(token) {
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+  try {
+    return JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+  } catch {
+    return null;
+  }
+}
+var cache = /* @__PURE__ */ new Map();
+function cacheSet(token, identity, expiresAt) {
+  if (cache.size >= MAX_CACHE_ENTRIES) {
+    const now = Date.now();
+    for (const [k, v] of cache) {
+      if (v.expiresAt <= now) cache.delete(k);
+    }
+    while (cache.size >= MAX_CACHE_ENTRIES) {
+      const oldest = cache.keys().next().value;
+      if (oldest === void 0) break;
+      cache.delete(oldest);
+    }
+  }
+  cache.set(token, { identity, expiresAt });
+}
+async function identityToolkitVerifier(idToken) {
+  const claims = decodeJwtPayload(idToken);
+  if (!claims || typeof claims.exp !== "number") return null;
+  const expMs = claims.exp * 1e3;
+  if (expMs <= Date.now()) return null;
+  if (firebase_applet_config_default.projectId && claims.aud !== firebase_applet_config_default.projectId) return null;
+  const apiKey = process.env.FIREBASE_API_KEY || firebase_applet_config_default.apiKey;
+  const res = await fetch(`${LOOKUP_URL}?key=${encodeURIComponent(apiKey)}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken }),
+    signal: AbortSignal.timeout(5e3)
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  const user = Array.isArray(data?.users) ? data.users[0] : null;
+  if (!user || user.disabled) return null;
+  const email = typeof user.email === "string" ? user.email.trim().toLowerCase() : "";
+  if (!email || !adminAllowlist().has(email)) return null;
+  const viaGoogle = Array.isArray(user.providerUserInfo) && user.providerUserInfo.some((p) => p?.providerId === "google.com");
+  if (user.emailVerified !== true && !viaGoogle) return null;
+  return { uid: String(user.localId || claims.sub || ""), email };
+}
+var verifierOverride = null;
+async function verifyAdminToken(token) {
+  if (typeof token !== "string" || token.length === 0 || token.length > MAX_TOKEN_LENGTH) return null;
+  if (!IS_PRODUCTION) {
+    const testToken = process.env.SGX_TEST_ADMIN_TOKEN;
+    if (testToken && token === testToken) return { uid: "test_admin", email: "test-admin@localhost" };
+  }
+  const now = Date.now();
+  const hit = cache.get(token);
+  if (hit && hit.expiresAt > now) return hit.identity;
+  try {
+    const identity = await (verifierOverride || identityToolkitVerifier)(token);
+    const claims = decodeJwtPayload(token);
+    const tokenExp = claims && typeof claims.exp === "number" ? claims.exp * 1e3 : now + NEGATIVE_CACHE_MS;
+    cacheSet(token, identity, identity ? tokenExp : Math.min(tokenExp, now + NEGATIVE_CACHE_MS));
+    return identity;
+  } catch (err) {
+    console.warn("[SGX Auth] token verification failed:", err?.message || err);
+    return null;
+  }
+}
+function bearerToken(req) {
+  const header = req.headers.authorization;
+  if (typeof header !== "string") return null;
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  return match ? match[1].trim() : null;
+}
+async function requireAdmin(req, res, next) {
+  const token = bearerToken(req);
+  if (!token) {
+    res.status(401).json({ error: "AUTH_REQUIRED" });
+    return;
+  }
+  const identity = await verifyAdminToken(token);
+  if (!identity) {
+    res.status(401).json({ error: "NOT_AUTHORIZED" });
+    return;
+  }
+  res.locals.admin = identity;
+  next();
+}
+
+// src/server/security/rateLimit.ts
+var TokenBucket = class {
+  constructor(capacity, refillPerSec) {
+    this.capacity = capacity;
+    this.refillPerSec = refillPerSec;
+    this.tokens = capacity;
+    this.last = Date.now();
+  }
+  take(cost = 1) {
+    const now = Date.now();
+    this.tokens = Math.min(this.capacity, this.tokens + (now - this.last) / 1e3 * this.refillPerSec);
+    this.last = now;
+    if (this.tokens < cost) return false;
+    this.tokens -= cost;
+    return true;
+  }
+  isFull() {
+    const now = Date.now();
+    return this.tokens + (now - this.last) / 1e3 * this.refillPerSec >= this.capacity;
+  }
+};
+function ipRateLimit(opts) {
+  const buckets = /* @__PURE__ */ new Map();
+  const maxKeys = opts.maxKeys ?? 2e4;
+  const sweep = setInterval(() => {
+    for (const [k, b] of buckets) if (b.isFull()) buckets.delete(k);
+  }, 6e4);
+  sweep.unref?.();
+  return (req, res, next) => {
+    const key = req.ip || req.socket.remoteAddress || "unknown";
+    let bucket = buckets.get(key);
+    if (!bucket) {
+      if (buckets.size >= maxKeys) buckets.clear();
+      bucket = new TokenBucket(opts.capacity, opts.refillPerSec);
+      buckets.set(key, bucket);
+    }
+    if (!bucket.take()) {
+      res.setHeader("Retry-After", "5");
+      res.status(429).json({ error: "RATE_LIMITED" });
+      return;
+    }
+    next();
+  };
+}
+
 // src/server/engine/wsHandler.ts
+var DIRECTOR_MESSAGES = /* @__PURE__ */ new Set([
+  "BROADCAST_QUESTION",
+  "START_VOTING",
+  "CLOSE_VOTING",
+  "END_VOTING",
+  "TRIGGER_PRESET",
+  "STAGE_OVERRIDE",
+  "SIMULATE_VOTES",
+  "CREATE_QUESTION",
+  "UPDATE_QUESTIONS"
+]);
+var MAX_SOCKETS_PER_IP = 60;
+var MAX_PAYLOAD_BYTES = 256 * 1024;
 function setupWebSocketEngine(server) {
-  const wss = new WebSocketServer({ server, path: "/ws" });
+  const wss = new WebSocketServer({ server, path: "/ws", maxPayload: MAX_PAYLOAD_BYTES });
   const clientMap = /* @__PURE__ */ new Map();
+  const socketsPerIp = /* @__PURE__ */ new Map();
   function broadcastToRoom(tenantId, eventId, message) {
     const payloadStr = JSON.stringify(message);
     wss.clients.forEach((client) => {
@@ -1247,213 +1625,211 @@ function setupWebSocketEngine(server) {
       }
     });
   }
-  wss.on("connection", (ws, req) => {
-    const url = new URL(req.url || "", `http://${req.headers.host || "localhost"}`);
-    const tenantId = url.searchParams.get("tenantId") || "tenant_spatialgineers";
-    const eventId = url.searchParams.get("eventId") || "event_live_main";
-    const role = url.searchParams.get("role") || "audience";
-    const userId = url.searchParams.get("userId") || `user_${Math.random().toString(36).substring(2, 9)}`;
-    const room = getOrCreateRoom(tenantId, eventId);
-    clientMap.set(ws, { tenantId, eventId, userId, role });
+  const roomCount = (tenantId, eventId) => Array.from(clientMap.values()).filter((c) => c.tenantId === tenantId && c.eventId === eventId).length;
+  function syncRoom(room) {
     const currentQ = room.questions[room.currentQuestionIndex];
-    const initialSummary = currentQ ? computeVoteSummary(room, currentQ) : void 0;
-    const count = Array.from(clientMap.values()).filter((c) => c.tenantId === tenantId && c.eventId === eventId).length;
-    const initStatePayload = {
-      session: room.session,
-      currentQuestion: currentQ,
-      currentQuestionIndex: room.currentQuestionIndex,
-      questions: room.questions,
-      voteSummary: initialSummary,
-      activePreset: VISUALIZER_PRESETS[room.session.activePresetId] || DEFAULT_PRESET,
-      connectedAudienceCount: count,
-      users: Array.from(room.users.values())
-    };
-    ws.send(JSON.stringify({
-      type: "INIT_STATE",
-      tenantId,
-      eventId,
-      timestamp: Date.now(),
-      payload: initStatePayload
-    }));
-    ws.send(JSON.stringify({
+    broadcastToRoom(room.tenantId, room.eventId, {
       type: "ROOM_STATE_SYNC",
-      tenantId,
-      eventId,
-      timestamp: Date.now(),
-      payload: initStatePayload
-    }));
-    broadcastToRoom(tenantId, eventId, {
-      type: "STATE_SYNC",
-      tenantId,
-      eventId,
+      tenantId: room.tenantId,
+      eventId: room.eventId,
       timestamp: Date.now(),
       payload: {
-        connectedAudienceCount: count
+        session: room.session,
+        currentQuestionIndex: room.currentQuestionIndex,
+        currentQuestion: currentQ,
+        questions: room.questions,
+        voteSummary: computeVoteSummary(room, currentQ),
+        connectedAudienceCount: roomCount(room.tenantId, room.eventId),
+        users: Array.from(room.users.values()).slice(0, 200)
       }
     });
-    ws.on("message", (data, isBinary) => {
-      try {
-        const currentRoom = getOrCreateRoom(tenantId, eventId);
-        let messageType = "";
-        let payload = {};
-        if (isBinary) {
-          const buffer = Buffer.from(data);
-          const optionCode = buffer[0];
-          const curQ = currentRoom.questions[currentRoom.currentQuestionIndex];
-          if (curQ) {
-            const matchedOpt = curQ.options.find((o) => o.code === optionCode) || curQ.options[optionCode - 1];
-            if (matchedOpt) {
-              messageType = "SUBMIT_VOTE";
-              payload = {
-                userId,
-                nickname: "Mobile Attendee",
-                questionId: curQ.id,
-                optionId: matchedOpt.id,
-                optionCode: matchedOpt.code,
-                responseTimeMs: 1800
-              };
-            }
-          }
-        } else {
-          const parsed = JSON.parse(data.toString());
-          messageType = parsed.type;
-          payload = parsed.payload || {};
-        }
-        switch (messageType) {
-          case "BROADCAST_QUESTION":
-          case "START_VOTING": {
-            const index = payload.index ?? payload.questionIndex ?? 0;
-            startQuestionVoting(currentRoom, index, broadcastToRoom);
-            break;
-          }
-          case "CLOSE_VOTING":
-          case "END_VOTING": {
-            const curQ = currentRoom.questions[currentRoom.currentQuestionIndex];
-            if (curQ) {
-              endVotingAndReveal(currentRoom, curQ, broadcastToRoom);
-            }
-            break;
-          }
-          case "TRIGGER_PRESET":
-          case "STAGE_OVERRIDE": {
-            const presetId = payload.presetId;
-            if (presetId) {
-              triggerPresetOverride(currentRoom, presetId, "MANUAL_DIRECTOR", broadcastToRoom);
-            }
-            break;
-          }
-          case "SUBMIT_VOTE":
-          case "VOTE_SUBMIT": {
-            const result = processVoteSubmission(
-              currentRoom,
-              { ...payload, userId: payload.userId || userId },
-              broadcastToRoom
-            );
-            if (result) {
-              ws.send(JSON.stringify({
-                type: "SCORE_UPDATE",
-                tenantId,
-                eventId,
-                timestamp: Date.now(),
-                payload: {
-                  calculation: result.calc,
-                  user: result.user
-                }
-              }));
-            }
-            break;
-          }
-          case "SIMULATE_VOTES": {
-            const simCount = payload.count || 25;
-            simulateAudienceVotes(currentRoom, simCount, broadcastToRoom);
-            break;
-          }
-          case "CREATE_QUESTION": {
-            if (Array.isArray(payload)) {
-              const newQuestions = payload.map((q, idx) => ({
-                ...q,
-                id: q.id || `q_${Date.now()}_${idx}`,
-                tenantId,
-                eventId,
-                order: currentRoom.questions.length + idx + 1
-              }));
-              currentRoom.questions.push(...newQuestions);
-            } else {
-              const newQ = {
-                ...payload,
-                id: payload.id || `q_${Date.now()}`,
-                tenantId,
-                eventId,
-                order: currentRoom.questions.length + 1
-              };
-              currentRoom.questions.push(newQ);
-            }
-            broadcastToRoom(tenantId, eventId, {
-              type: "ROOM_STATE_SYNC",
-              tenantId,
-              eventId,
-              timestamp: Date.now(),
-              payload: {
-                session: currentRoom.session,
-                currentQuestionIndex: currentRoom.currentQuestionIndex,
-                currentQuestion: currentRoom.questions[currentRoom.currentQuestionIndex],
-                questions: currentRoom.questions,
-                voteSummary: computeVoteSummary(currentRoom, currentRoom.questions[currentRoom.currentQuestionIndex]),
-                connectedAudienceCount: Array.from(clientMap.values()).filter((c) => c.tenantId === tenantId && c.eventId === eventId).length,
-                users: Array.from(currentRoom.users.values())
-              }
-            });
-            break;
-          }
-          case "UPDATE_QUESTIONS": {
-            if (Array.isArray(payload)) {
-              currentRoom.questions = payload.map((q, idx) => ({
-                ...q,
-                id: q.id || `q_${Date.now()}_${idx}`,
-                tenantId,
-                eventId,
-                order: idx + 1
-              }));
-            }
-            broadcastToRoom(tenantId, eventId, {
-              type: "ROOM_STATE_SYNC",
-              tenantId,
-              eventId,
-              timestamp: Date.now(),
-              payload: {
-                session: currentRoom.session,
-                currentQuestionIndex: currentRoom.currentQuestionIndex,
-                currentQuestion: currentRoom.questions[currentRoom.currentQuestionIndex],
-                questions: currentRoom.questions,
-                voteSummary: computeVoteSummary(currentRoom, currentRoom.questions[currentRoom.currentQuestionIndex]),
-                connectedAudienceCount: Array.from(clientMap.values()).filter((c) => c.tenantId === tenantId && c.eventId === eventId).length,
-                users: Array.from(currentRoom.users.values())
-              }
-            });
-            break;
-          }
-          case "SEND_REACTION":
-          case "REACTION_BURST": {
-            processAudienceReaction(currentRoom, { ...payload, userId }, broadcastToRoom);
-            break;
-          }
-        }
-      } catch (err) {
-        console.error("[WebSocket Engine Error]:", err);
+  }
+  wss.on("connection", (ws, req) => {
+    try {
+      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "unknown";
+      const open = socketsPerIp.get(ip) || 0;
+      if (open >= MAX_SOCKETS_PER_IP) {
+        ws.close(1013, "TOO_MANY_CONNECTIONS");
+        return;
       }
-    });
-    ws.on("close", () => {
-      clientMap.delete(ws);
+      socketsPerIp.set(ip, open + 1);
+      const url = new URL(req.url || "", `http://${req.headers.host || "localhost"}`);
+      const lookup = resolveRoom(url.searchParams.get("tenantId"), url.searchParams.get("eventId"));
+      if (lookup.ok === false) {
+        ws.close(1008, lookup.error);
+        socketsPerIp.set(ip, Math.max(0, (socketsPerIp.get(ip) || 1) - 1));
+        return;
+      }
+      const room = lookup.room;
+      const { tenantId, eventId } = room;
+      const requestedRole = url.searchParams.get("role");
+      const role = requestedRole === "admin" || requestedRole === "stage" ? requestedRole : "audience";
+      const rawUserId = url.searchParams.get("userId");
+      const userId = isValidId(rawUserId) ? rawUserId : `user_${Math.random().toString(36).substring(2, 11)}`;
+      const meta = { tenantId, eventId, userId, role, isAdmin: false };
+      clientMap.set(ws, meta);
+      const limiter = new TokenBucket(30, 10);
+      const authenticate = async (token) => {
+        const identity = await verifyAdminToken(token);
+        meta.isAdmin = !!identity;
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: "AUTH_RESULT", tenantId, eventId, timestamp: Date.now(), payload: { isAdmin: meta.isAdmin } }));
+        }
+      };
+      const urlToken = url.searchParams.get("token");
+      if (urlToken) authenticate(urlToken).catch(() => {
+      });
+      const currentQ = room.questions[room.currentQuestionIndex];
+      const initStatePayload = {
+        session: room.session,
+        currentQuestion: currentQ,
+        currentQuestionIndex: room.currentQuestionIndex,
+        questions: room.questions,
+        voteSummary: currentQ ? computeVoteSummary(room, currentQ) : void 0,
+        activePreset: VISUALIZER_PRESETS[room.session.activePresetId] || DEFAULT_PRESET,
+        connectedAudienceCount: roomCount(tenantId, eventId),
+        users: Array.from(room.users.values()).slice(0, 200)
+      };
+      ws.send(JSON.stringify({ type: "INIT_STATE", tenantId, eventId, timestamp: Date.now(), payload: initStatePayload }));
+      ws.send(JSON.stringify({ type: "ROOM_STATE_SYNC", tenantId, eventId, timestamp: Date.now(), payload: initStatePayload }));
       broadcastToRoom(tenantId, eventId, {
         type: "STATE_SYNC",
         tenantId,
         eventId,
         timestamp: Date.now(),
-        payload: {
-          connectedAudienceCount: Array.from(clientMap.values()).filter((c) => c.tenantId === tenantId && c.eventId === eventId).length
+        payload: { connectedAudienceCount: roomCount(tenantId, eventId) }
+      });
+      ws.on("message", (data, isBinary) => {
+        try {
+          if (!limiter.take()) return;
+          let messageType = "";
+          let payload = {};
+          if (isBinary) {
+            const buffer = Buffer.from(data);
+            const optionCode = buffer[0];
+            const curQ = room.questions[room.currentQuestionIndex];
+            if (curQ && Array.isArray(curQ.options)) {
+              const matchedOpt = curQ.options.find((o) => o.code === optionCode) || curQ.options[optionCode - 1];
+              if (matchedOpt) {
+                messageType = "SUBMIT_VOTE";
+                payload = { optionId: matchedOpt.id };
+              }
+            }
+          } else {
+            const parsed = JSON.parse(data.toString());
+            if (!parsed || typeof parsed !== "object") return;
+            messageType = typeof parsed.type === "string" ? parsed.type : "";
+            payload = parsed.payload ?? {};
+          }
+          if (messageType === "AUTH") {
+            authenticate(payload?.token).catch(() => {
+            });
+            return;
+          }
+          if (DIRECTOR_MESSAGES.has(messageType) && !meta.isAdmin) {
+            ws.send(JSON.stringify({ type: "ERROR", tenantId, eventId, timestamp: Date.now(), payload: { error: "NOT_AUTHORIZED", for: messageType } }));
+            return;
+          }
+          switch (messageType) {
+            case "BROADCAST_QUESTION":
+            case "START_VOTING": {
+              const index = Number(payload?.index ?? payload?.questionIndex ?? 0);
+              if (Number.isInteger(index) && index >= 0 && index < room.questions.length) {
+                startQuestionVoting(room, index, broadcastToRoom);
+              }
+              break;
+            }
+            case "CLOSE_VOTING":
+            case "END_VOTING": {
+              const curQ = room.questions[room.currentQuestionIndex];
+              if (curQ) endVotingAndReveal(room, curQ, broadcastToRoom);
+              break;
+            }
+            case "TRIGGER_PRESET":
+            case "STAGE_OVERRIDE": {
+              const presetId = payload?.presetId;
+              if (typeof presetId === "string" && VISUALIZER_PRESETS[presetId]) {
+                triggerPresetOverride(room, presetId, "MANUAL_DIRECTOR", broadcastToRoom);
+              }
+              break;
+            }
+            case "SUBMIT_VOTE":
+            case "VOTE_SUBMIT": {
+              const result = processVoteSubmission(room, userId, payload || {}, broadcastToRoom);
+              if (result.status === "ACCEPTED") {
+                const ok = result;
+                ws.send(JSON.stringify({
+                  type: "SCORE_UPDATE",
+                  tenantId,
+                  eventId,
+                  timestamp: Date.now(),
+                  payload: { calculation: ok.calc, user: ok.user }
+                }));
+              }
+              break;
+            }
+            case "SIMULATE_VOTES": {
+              simulateAudienceVotes(room, Number(payload?.count) || 25, broadcastToRoom);
+              break;
+            }
+            case "CREATE_QUESTION": {
+              const list = Array.isArray(payload) ? payload : [payload];
+              const room_left = LIMITS.MAX_QUESTIONS - room.questions.length;
+              const v = validateQuestionList(list, Math.max(0, room_left), `q_${Date.now()}`);
+              if (v.ok === false) {
+                ws.send(JSON.stringify({ type: "ERROR", tenantId, eventId, timestamp: Date.now(), payload: { error: v.error } }));
+                break;
+              }
+              const base = room.questions.length;
+              room.questions.push(...v.value.map((q, idx) => ({ ...q, tenantId, eventId, order: base + idx + 1 })));
+              syncRoom(room);
+              break;
+            }
+            case "UPDATE_QUESTIONS": {
+              const v = validateQuestionList(payload, LIMITS.MAX_QUESTIONS, `q_${Date.now()}`);
+              if (v.ok === false) {
+                ws.send(JSON.stringify({ type: "ERROR", tenantId, eventId, timestamp: Date.now(), payload: { error: v.error } }));
+                break;
+              }
+              room.questions = v.value.map((q, idx) => ({ ...q, tenantId, eventId, order: idx + 1 }));
+              if (room.currentQuestionIndex >= room.questions.length) room.currentQuestionIndex = 0;
+              syncRoom(room);
+              break;
+            }
+            case "SEND_REACTION":
+            case "REACTION_BURST": {
+              processAudienceReaction(room, { emoji: payload?.emoji, color: payload?.color, userId }, broadcastToRoom);
+              break;
+            }
+          }
+        } catch (err) {
+          console.error("[WebSocket Engine Error]:", err);
         }
       });
-    });
+      ws.on("close", () => {
+        clientMap.delete(ws);
+        socketsPerIp.set(ip, Math.max(0, (socketsPerIp.get(ip) || 1) - 1));
+        if ((socketsPerIp.get(ip) || 0) === 0) socketsPerIp.delete(ip);
+        try {
+          broadcastToRoom(tenantId, eventId, {
+            type: "STATE_SYNC",
+            tenantId,
+            eventId,
+            timestamp: Date.now(),
+            payload: { connectedAudienceCount: roomCount(tenantId, eventId) }
+          });
+        } catch (err) {
+          console.error("[WebSocket Engine Error]:", err);
+        }
+      });
+      ws.on("error", (err) => console.warn("[WebSocket Engine] socket error:", err?.message || err));
+    } catch (err) {
+      console.error("[WebSocket Engine] connection error:", err);
+      try {
+        ws.close(1011, "SERVER_ERROR");
+      } catch {
+      }
+    }
   });
   return { wss, clientMap, broadcastToRoom };
 }
@@ -1462,6 +1838,17 @@ function setupWebSocketEngine(server) {
 import { Router } from "express";
 function createApiRouter(broadcastToRoom) {
   const router = Router();
+  router.use(ipRateLimit({ capacity: 120, refillPerSec: 40 }));
+  const roomFrom = (req, res) => {
+    const src = req.method === "GET" ? req.query : req.body || {};
+    const r = resolveRoom(src.tenantId, src.eventId);
+    if (r.ok === false) {
+      const bad = r;
+      res.status(bad.status).json({ error: bad.error });
+      return null;
+    }
+    return r.room;
+  };
   router.get("/health", (req, res) => {
     res.json({ status: "ok", engine: "SGX Live Engine", timestamp: Date.now() });
   });
@@ -1477,9 +1864,8 @@ function createApiRouter(broadcastToRoom) {
     res.json({ tenants: INITIAL_TENANTS });
   });
   router.get("/state", (req, res) => {
-    const tenantId = req.query.tenantId || "tenant_spatialgineers";
-    const eventId = req.query.eventId || "event_live_main";
-    const room = getOrCreateRoom(tenantId, eventId);
+    const room = roomFrom(req, res);
+    if (!room) return;
     const currentQ = room.questions[room.currentQuestionIndex];
     const summary = currentQ ? computeVoteSummary(room, currentQ) : null;
     res.json({
@@ -1490,88 +1876,85 @@ function createApiRouter(broadcastToRoom) {
       voteSummary: summary,
       connectedAudienceCount: room.users.size + 1,
       activePreset: VISUALIZER_PRESETS[room.session.activePresetId] || DEFAULT_PRESET,
-      users: Array.from(room.users.values())
+      users: Array.from(room.users.values()).slice(0, 200)
     });
   });
   router.get("/questions", (req, res) => {
-    const tenantId = req.query.tenantId || "tenant_spatialgineers";
-    const eventId = req.query.eventId || "event_live_main";
-    const room = getOrCreateRoom(tenantId, eventId);
+    const room = roomFrom(req, res);
+    if (!room) return;
     res.json({ questions: room.questions });
   });
-  router.post("/questions", (req, res) => {
-    const tenantId = req.body.tenantId || "tenant_spatialgineers";
-    const eventId = req.body.eventId || "event_live_main";
-    const room = getOrCreateRoom(tenantId, eventId);
-    const newQ = {
-      ...req.body,
-      id: `q_${Date.now()}`,
-      tenantId,
-      eventId,
-      order: room.questions.length + 1
-    };
+  router.post("/questions", requireAdmin, (req, res) => {
+    const room = roomFrom(req, res);
+    if (!room) return;
+    const v = validateQuestionList([req.body], Math.max(0, LIMITS.MAX_QUESTIONS - room.questions.length), `q_${Date.now()}`);
+    if (v.ok === false) return res.status(400).json({ error: v.error });
+    const newQ = { ...v.value[0], tenantId: room.tenantId, eventId: room.eventId, order: room.questions.length + 1 };
     room.questions.push(newQ);
     res.json({ success: true, question: newQ });
   });
-  router.post("/action/broadcast-question", (req, res) => {
-    const tenantId = req.body.tenantId || "tenant_spatialgineers";
-    const eventId = req.body.eventId || "event_live_main";
+  router.post("/action/broadcast-question", requireAdmin, (req, res) => {
     const questionIndex = req.body.questionIndex ?? req.body.index ?? 0;
-    const room = getOrCreateRoom(tenantId, eventId);
-    const question = startQuestionVoting(room, questionIndex, broadcastToRoom);
+    const room = roomFrom(req, res);
+    if (!room) return;
+    const question = Number.isInteger(Number(questionIndex)) ? startQuestionVoting(room, Number(questionIndex), broadcastToRoom) : null;
     if (!question) {
       return res.status(400).json({ error: "Question not found" });
     }
     res.json({ success: true, session: room.session, question });
   });
   router.post("/vote", (req, res) => {
-    const { tenantId = "tenant_spatialgineers", eventId = "event_live_main" } = req.body;
-    const room = getOrCreateRoom(tenantId, eventId);
-    const result = processVoteSubmission(room, req.body, broadcastToRoom);
-    if (!result) {
-      return res.status(400).json({ error: "Voting is not active" });
+    const room = roomFrom(req, res);
+    if (!room) return;
+    const voterId = req.body?.userId;
+    if (!isValidId(voterId)) return res.status(400).json({ error: "INVALID_USER_ID" });
+    const result = processVoteSubmission(room, voterId, req.body || {}, broadcastToRoom);
+    if (result.status !== "ACCEPTED") {
+      return res.status(result.status === "DUPLICATE" ? 409 : 400).json({ error: result.status });
     }
-    res.json({ success: true, calculation: result.calc, summary: result.summary, user: result.user });
+    const ok = result;
+    res.json({ success: true, calculation: ok.calc, summary: ok.summary, user: ok.user });
   });
   router.post("/reaction", (req, res) => {
-    const { tenantId = "tenant_spatialgineers", eventId = "event_live_main" } = req.body;
-    const room = getOrCreateRoom(tenantId, eventId);
-    const reaction = processAudienceReaction(room, req.body, broadcastToRoom);
+    const room = roomFrom(req, res);
+    if (!room) return;
+    const reaction = processAudienceReaction(room, { emoji: req.body?.emoji, color: req.body?.color, userId: isValidId(req.body?.userId) ? req.body.userId : "anon" }, broadcastToRoom);
     res.json({ success: true, reaction });
   });
-  router.post("/action/close-voting", (req, res) => {
-    const tenantId = req.body.tenantId || "tenant_spatialgineers";
-    const eventId = req.body.eventId || "event_live_main";
-    const room = getOrCreateRoom(tenantId, eventId);
+  router.post("/action/close-voting", requireAdmin, (req, res) => {
+    const room = roomFrom(req, res);
+    if (!room) return;
     const question = room.questions[room.currentQuestionIndex];
     if (question) {
       endVotingAndReveal(room, question, broadcastToRoom);
     }
     res.json({ success: true, session: room.session });
   });
-  router.post("/action/trigger-preset", (req, res) => {
-    const { tenantId = "tenant_spatialgineers", eventId = "event_live_main", presetId } = req.body;
-    const room = getOrCreateRoom(tenantId, eventId);
-    const success = triggerPresetOverride(room, presetId, "MANUAL_DIRECTOR", broadcastToRoom);
+  router.post("/action/trigger-preset", requireAdmin, (req, res) => {
+    const { presetId } = req.body || {};
+    const room = roomFrom(req, res);
+    if (!room) return;
+    const success = typeof presetId === "string" && !!VISUALIZER_PRESETS[presetId] && triggerPresetOverride(room, presetId, "MANUAL_DIRECTOR", broadcastToRoom);
     if (success) {
       res.json({ success: true, activePresetId: presetId });
     } else {
       res.status(400).json({ error: "Invalid preset ID" });
     }
   });
-  router.post("/action/simulate-votes", (req, res) => {
-    const { tenantId = "tenant_spatialgineers", eventId = "event_live_main", count = 100 } = req.body;
-    const room = getOrCreateRoom(tenantId, eventId);
-    const updatedSummary = simulateAudienceVotes(room, count, broadcastToRoom);
+  router.post("/action/simulate-votes", requireAdmin, (req, res) => {
+    const { count = 100 } = req.body || {};
+    const room = roomFrom(req, res);
+    if (!room) return;
+    const simCount = Math.min(LIMITS.SIMULATE_MAX, Math.max(1, Math.floor(Number(count) || 0)));
+    const updatedSummary = simulateAudienceVotes(room, simCount, broadcastToRoom);
     if (!updatedSummary) {
       return res.status(400).json({ error: "No active question" });
     }
-    res.json({ success: true, simulatedCount: count, totalVotes: room.votes.size, summary: updatedSummary });
+    res.json({ success: true, simulatedCount: simCount, totalVotes: room.votes.size, summary: updatedSummary });
   });
-  router.get("/analytics", (req, res) => {
-    const tenantId = req.query.tenantId || "tenant_spatialgineers";
-    const eventId = req.query.eventId || "event_live_main";
-    const room = getOrCreateRoom(tenantId, eventId);
+  router.get("/analytics", requireAdmin, (req, res) => {
+    const room = roomFrom(req, res);
+    if (!room) return;
     const userList = Array.from(room.users.values()).sort((a, b) => b.totalScore - a.totalScore);
     const topLeaderboard = userList.slice(0, 20);
     const totalInteractions = userList.reduce((acc, u) => acc + u.totalInteractions, 0);
@@ -1601,8 +1984,9 @@ function createApiRouter(broadcastToRoom) {
 var PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3e3;
 async function startServer() {
   const app = express();
-  app.use(express.json({ limit: "10mb" }));
-  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+  app.set("trust proxy", true);
+  app.use(express.json({ limit: "100kb" }));
+  app.use(express.urlencoded({ extended: true, limit: "100kb" }));
   const server = http.createServer(app);
   const { broadcastToRoom } = setupWebSocketEngine(server);
   app.use("/api", createApiRouter(broadcastToRoom));
@@ -1610,15 +1994,18 @@ async function startServer() {
     res.status(200).send("OK");
   });
   const distPath = path.join(process.cwd(), "dist");
-  const hasDist = fs.existsSync(path.join(distPath, "index.html"));
-  if (process.env.NODE_ENV === "production" || hasDist) {
+  const isProduction = process.env.NODE_ENV === "production";
+  if (isProduction) {
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });
   } else {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: process.env.DISABLE_HMR === "true" ? false : void 0
+      },
       appType: "spa"
     });
     app.use(vite.middlewares);

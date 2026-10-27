@@ -145,7 +145,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
         onSpeakerRegistered(registered);
       }
     } catch (err: any) {
-      setSubmitError(err?.message || 'Error al guardar el perfil en Firestore.');
+      setSubmitError(err?.message || 'No pudimos enviar tu perfil. Revisa tu conexión e inténtalo de nuevo.');
     } finally {
       setIsSubmitting(false);
     }
@@ -234,7 +234,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
 
                 <div>
                   <span className="text-xs font-mono text-[#FDCC0D] font-bold uppercase tracking-widest">
-                    ¡PERFIL REGISTRADO Y SINCRONIZADO EN FIRESTORE!
+                    PERFIL RECIBIDO · EL EQUIPO LO REVISA Y LO PUBLICA
                   </span>
                   <h3 className="text-xl font-bold text-white font-['Orbitron',sans-serif] mt-1">
                     {createdSpeaker.name}
@@ -590,7 +590,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
                       </div>
 
                       <div className="text-[11px] text-slate-300 line-clamp-2 font-mono">
-                        {bio || 'La biografía de tu perfil aparecerá aquí en el Cartel Oficial del Summit 2026.'}
+                        {bio || 'Tu biografía aparecerá aquí. El equipo publica en el cartel solo a quien esté confirmado por escrito.'}
                       </div>
 
                       <div className="flex items-center justify-between pt-2 border-t border-[var(--sgx-secondary)] text-[10px] font-mono">
@@ -629,7 +629,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
                     ) : (
                       <>
                         <Sparkles className="w-4 h-4" />
-                        <span>{initialSpeaker ? 'GUARDAR CAMBIOS' : 'PUBLICAR PERFIL DE SPEAKER'}</span>
+                        <span>{initialSpeaker ? 'GUARDAR CAMBIOS' : 'ENVIAR PERFIL PARA REVISIÓN'}</span>
                       </>
                     )}
                   </button>

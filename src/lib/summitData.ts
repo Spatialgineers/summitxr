@@ -1929,7 +1929,8 @@ export async function registerSpeakerProfile(speaker: SummitSpeaker): Promise<Su
       submittedBy: auth.currentUser?.uid || null,
     });
   } catch (err) {
-    console.warn('[SGX Speakers] submission kept on this device only:', err);
+    console.warn('[SGX Speakers] submission not sent:', err);
+    throw new Error('No pudimos enviar tu perfil al equipo. Revisa tu conexión e inténtalo de nuevo.');
   }
   return speaker;
 }

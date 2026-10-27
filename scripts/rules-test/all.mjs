@@ -195,6 +195,54 @@ await no('check-in without proof', setDoc(doc(alice, 'summit_checkins', 'alice')
 await ok('pass exchange', setDoc(doc(bob, 'summit_pass_exchanges', 'alice_bob'), { toUid: 'alice', fromUid: 'bob', card: { c: 'SGX26-A', n: 'Bob', s: 'B1', p: 'STAGE', r: '', o: '' }, at: serverTimestamp() }));
 await no('exchange inbox private', getDocs(query(collection(ctx('carol'), 'summit_pass_exchanges'), where('toUid', '==', 'alice'))));
 
+
+// ---- Plan de cierre: exact payloads of the new client code ----
+// Registration keyed by pass code, merge, no status (passNetwork.registerPass)
+const regPayload = (extra = {}) => ({ email: 'carol@x.com', fullName: 'Carol', ticketType: 'DIGITAL', referenceCode: 'SGX26-CCCC-DDDD', roleTitle: '', organization: '', imageConsent: true, consentAt: Date.now(), userId: 'carol', timestamp: serverTimestamp(), ...extra });
+const carol = ctx('carol');
+await ok('register by pass code (merge, no status)', setDoc(doc(carol, 'ticket_inquiries', 'SGX26-CCCC-DDDD'), regPayload(), { merge: true }));
+await ok('admin invites carol', updateDoc(doc(admin, 'ticket_inquiries', 'SGX26-CCCC-DDDD'), { status: 'INVITED', invitedAt: serverTimestamp() }));
+await ok('owner edits details later (merge, keeps INVITED)', setDoc(doc(carol, 'ticket_inquiries', 'SGX26-CCCC-DDDD'), regPayload({ fullName: 'Carol R.', ticketType: 'SHOWCASE_PHYSICAL' }), { merge: true }));
+{
+  let snap = {};
+  await env.withSecurityRulesDisabled(async (c) => { snap = (await getDoc(doc(c.firestore(), 'ticket_inquiries', 'SGX26-CCCC-DDDD'))).data() || {}; });
+  if (snap.status !== 'INVITED' || snap.fullName !== 'Carol R.') { failed++; console.log('FAIL status kept after owner edit', snap.status, snap.fullName); } else n++;
+}
+await no('owner cannot set status', setDoc(doc(carol, 'ticket_inquiries', 'SGX26-CCCC-DDDD'), { status: 'CONFIRMED' }, { merge: true }));
+await no('other user cannot edit carol registration', setDoc(doc(alice, 'ticket_inquiries', 'SGX26-CCCC-DDDD'), regPayload({ userId: 'alice' }), { merge: true }));
+
+// Chat reactions: exactly +1 on one emoji
+await ok('reaction +1 again', updateDoc(doc(alice, 'chat_messages', 'm1'), { 'reactions.🔥': increment(1) }));
+await ok('new emoji starts at 1', updateDoc(doc(alice, 'chat_messages', 'm1'), { 'reactions.🚀': increment(1) }));
+await no('reaction set to 999', updateDoc(doc(alice, 'chat_messages', 'm1'), { 'reactions.🔥': 999 }));
+await no('reaction object value', updateDoc(doc(alice, 'chat_messages', 'm1'), { reactions: { x: { a: 1 } } }));
+await no('reactions wiped', updateDoc(doc(alice, 'chat_messages', 'm1'), { reactions: {} }));
+await no('two emojis at once', updateDoc(doc(alice, 'chat_messages', 'm1'), { 'reactions.🔥': increment(1), 'reactions.🚀': increment(1) }));
+
+// Rewards: sold out and unlimited stock
+await env.withSecurityRulesDisabled(async (c) => {
+  await setDoc(doc(c.firestore(), 'gamification_rewards', 'r0'), { title: 'Agotado', claimedCount: 3, inventoryCount: 0 });
+  await setDoc(doc(c.firestore(), 'gamification_rewards', 'rinf'), { title: 'Ilimitado', claimedCount: 0, inventoryCount: -1 });
+  await setDoc(doc(c.firestore(), 'gamification_rewards', 'roff'), { title: 'Inactivo', claimedCount: 0, inventoryCount: 5, isActive: false });
+});
+const claim = (who, rid, step) => { const d = ctx(who); const b = writeBatch(d); b.set(doc(d, 'redeemed_prizes', `${rid}_${who}`), { ...voucher, id: `${rid}_${who}`, rewardId: rid, userId: who }); b.update(doc(d, 'gamification_rewards', rid), { claimedCount: increment(1), ...(step ? { inventoryCount: increment(-1) } : {}), lastClaimId: `${rid}_${who}`, updatedAt: Date.now() }); return b.commit(); };
+await no('sold-out reward (inventory unchanged)', claim('dave', 'r0', false));
+await no('sold-out reward (step to -1)', claim('dave', 'r0', true));
+await ok('unlimited reward', claim('dave', 'rinf', false));
+await no('inactive reward', claim('erin', 'roff', true));
+
+// Announcement exactly as publishAnnouncement sends it
+await ok('announcement (client shape)', setDoc(doc(admin, 'site_config', 'announcement'), { id: 'notif_1', title: 'Empezamos', message: 'Día 1 en vivo', priority: 'HIGH', actionUrl: '/summit', at: serverTimestamp() }));
+
+// Pilot profile: full replace with nested stats (toCloudProfile shape), repeated updates
+const cloud = { uid: 'alice', nickname: 'Alice', callsign: 'ALC', avatarSeed: 's', avatarColor: '#fff', level: 3, totalXp: 1200, rankTitle: 'Cadete', createdAt: 1, lastActive: Date.now(), weekendStats: { totalInteractions: 5, votesSubmitted: 2 }, weekendActivity: [{ id: 'a1', title: 't' }], droneStats: { highScore: 10, totalFlights: 1, totalTricks: 0 }, achievements: [{ id: 'x', unlocked: true }], updatedAt: Date.now() };
+await ok('pilot profile debounced update 1', setDoc(doc(alice, 'pilot_profiles', 'alice'), cloud));
+await ok('pilot profile debounced update 2', setDoc(doc(alice, 'pilot_profiles', 'alice'), { ...cloud, totalXp: 1500, level: 4 }));
+
+// Match: admin visibility only on existing card; member reads match
+await ok('admin hides existing card', setDoc(doc(admin, 'match_profiles', 'alice'), { profile: { visible: false } }, { merge: true }));
+await ok('first sender reads the match doc', getDoc(doc(alice, 'matches', 'alice__bob')));
+
 console.log(`RESULT ${n} passed, ${failed} failed`);
 await env.cleanup();
 process.exit(failed ? 1 : 0);

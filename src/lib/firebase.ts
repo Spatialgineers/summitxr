@@ -7,15 +7,24 @@ import {
   signOut, 
   signInAnonymously,
   setPersistence,
+  connectAuthEmulator,
   browserLocalPersistence
 } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { getFirestore, doc, getDocFromServer, connectFirestoreEmulator } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
+
+// Local testing only: point the app at the Firebase emulators instead of the real project.
+// Needs BOTH the explicit build flag and a localhost page, so it can never switch on in production.
+if ((import.meta as any).env?.VITE_USE_EMULATORS === '1' && typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+  connectFirestoreEmulator(db, '127.0.0.1', 8085);
+  connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+  console.info('[SGX] Firebase emulators in use (local testing).');
+}
 
 // Configure Google Auth Provider with strict account prompt and standard profile scopes
 export const googleProvider = new GoogleAuthProvider();

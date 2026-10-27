@@ -22,8 +22,9 @@ service cloud.firestore {
     // Google sign-in. An unverified account typed with the same email is not one.
     function isSuperAdmin() {
       return isSignedIn() &&
-             request.auth.token.email in ['info@spatialgineers.com', 'support@spatialgineers.com'] &&
-             (request.auth.token.email_verified == true || request.auth.token.firebase.sign_in_provider == 'google.com');
+             request.auth.token.get('email', '') in ['info@spatialgineers.com', 'support@spatialgineers.com'] &&
+             (request.auth.token.get('email_verified', false) == true ||
+              request.auth.token.get('firebase', {}).get('sign_in_provider', '') == 'google.com');
     }
 
     function isAdmin() {
@@ -354,12 +355,25 @@ service cloud.firestore {
     // Chat & social wall
     // ---------------------------------------------------------------------
     // A reaction adds exactly +1 to exactly one emoji.
+    function reactionsBefore() {
+      return existing().get('reactions', {});
+    }
+
+    // Same emoji set the chat offers. Each one may stay the same or go up by exactly 1.
+    function reactionEmojis() {
+      return ['🔥', '🚀', '👏', '💎', '❤️', '💡', '🙌', '😂'];
+    }
+
+    function emojiStepOk(e) {
+      return incoming().reactions.get(e, 0) == reactionsBefore().get(e, 0) ||
+             incoming().reactions.get(e, 0) == reactionsBefore().get(e, 0) + 1;
+    }
+
     function isOneReactionStep() {
-      let before = 'reactions' in existing() && existing().reactions is map ? existing().reactions : {};
-      let keys = incoming().reactions.diff(before).affectedKeys();
-      return keys.size() == 1 &&
-             incoming().reactions[keys.toList()[0]] is int &&
-             incoming().reactions[keys.toList()[0]] == (keys.toList()[0] in before ? before[keys.toList()[0]] + 1 : 1);
+      return incoming().reactions.diff(reactionsBefore()).affectedKeys().size() == 1 &&
+             incoming().reactions.diff(reactionsBefore()).affectedKeys().hasOnly(reactionEmojis()) &&
+             emojiStepOk('🔥') && emojiStepOk('🚀') && emojiStepOk('👏') && emojiStepOk('💎') &&
+             emojiStepOk('❤️') && emojiStepOk('💡') && emojiStepOk('🙌') && emojiStepOk('😂');
     }
 
     match /chat_messages/{messageId} {

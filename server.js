@@ -1499,7 +1499,7 @@ async function identityToolkitVerifier(idToken) {
     body: JSON.stringify({ idToken }),
     signal: AbortSignal.timeout(5e3)
   });
-  if (!res.ok) return null;
+  if (!res.ok) throw new Error(`identitytoolkit ${res.status}`);
   const data = await res.json();
   const user = Array.isArray(data?.users) ? data.users[0] : null;
   if (!user || user.disabled) return null;
@@ -1608,8 +1608,8 @@ var DIRECTOR_MESSAGES = /* @__PURE__ */ new Set([
   "CREATE_QUESTION",
   "UPDATE_QUESTIONS"
 ]);
-var MAX_SOCKETS_PER_IP = 60;
-var MAX_PAYLOAD_BYTES = 256 * 1024;
+var MAX_SOCKETS_PER_IP = 600;
+var MAX_PAYLOAD_BYTES = 12 * 1024 * 1024;
 function setupWebSocketEngine(server) {
   const wss = new WebSocketServer({ server, path: "/ws", maxPayload: MAX_PAYLOAD_BYTES });
   const clientMap = /* @__PURE__ */ new Map();
@@ -1646,7 +1646,8 @@ function setupWebSocketEngine(server) {
   }
   wss.on("connection", (ws, req) => {
     try {
-      const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "unknown";
+      const xff = req.headers["x-forwarded-for"]?.split(",").map((s) => s.trim()).filter(Boolean) || [];
+      const ip = xff[xff.length - 1] || req.socket.remoteAddress || "unknown";
       const open = socketsPerIp.get(ip) || 0;
       if (open >= MAX_SOCKETS_PER_IP) {
         ws.close(1013, "TOO_MANY_CONNECTIONS");
@@ -1666,6 +1667,7 @@ function setupWebSocketEngine(server) {
       const role = requestedRole === "admin" || requestedRole === "stage" ? requestedRole : "audience";
       const rawUserId = url.searchParams.get("userId");
       const userId = isValidId(rawUserId) ? rawUserId : `user_${Math.random().toString(36).substring(2, 11)}`;
+      const nickname = cleanNickname(url.searchParams.get("nickname"));
       const meta = { tenantId, eventId, userId, role, isAdmin: false };
       clientMap.set(ws, meta);
       const limiter = new TokenBucket(30, 10);
@@ -1712,7 +1714,7 @@ function setupWebSocketEngine(server) {
               const matchedOpt = curQ.options.find((o) => o.code === optionCode) || curQ.options[optionCode - 1];
               if (matchedOpt) {
                 messageType = "SUBMIT_VOTE";
-                payload = { optionId: matchedOpt.id };
+                payload = { optionId: matchedOpt.id, nickname };
               }
             }
           } else {
@@ -1755,7 +1757,7 @@ function setupWebSocketEngine(server) {
             }
             case "SUBMIT_VOTE":
             case "VOTE_SUBMIT": {
-              const result = processVoteSubmission(room, userId, payload || {}, broadcastToRoom);
+              const result = processVoteSubmission(room, userId, { ...payload || {}, nickname: payload?.nickname || nickname }, broadcastToRoom);
               if (result.status === "ACCEPTED") {
                 const ok = result;
                 ws.send(JSON.stringify({
@@ -1984,7 +1986,7 @@ function createApiRouter(broadcastToRoom) {
 var PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3e3;
 async function startServer() {
   const app = express();
-  app.set("trust proxy", true);
+  app.set("trust proxy", 1);
   app.use(express.json({ limit: "100kb" }));
   app.use(express.urlencoded({ extended: true, limit: "100kb" }));
   const server = http.createServer(app);

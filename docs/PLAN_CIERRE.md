@@ -1,7 +1,7 @@
 # Plan de cierre · Auditoría 2 (Spatialgineers Summit 2026)
 
-Estado al 27 oct 2026. Todo el trabajo vive en la rama `claude/practical-maxwell-gdsdse`.
-**Main no se ha tocado.** No se ha desplegado ninguna regla de Firestore.
+Estado al 27 oct 2026: **plan ejecutado y verificado**; todo está en `main`.
+Las reglas de Firestore **no se han publicado**: hay que hacerlo siguiendo la sección 3.
 
 ---
 
@@ -10,10 +10,10 @@ Estado al 27 oct 2026. Todo el trabajo vive en la rama `claude/practical-maxwell
 | Área | Qué se hizo | Cómo se verificó |
 |---|---|---|
 | Servidor de votación | Admin verificado con token de Google (info@ / support@) para dirigir; validación de preguntas; 1 voto por socket; límites de tamaño y de ritmo; sin crash con datos malos | 11/11 pruebas WebSocket + REST |
-| Reglas de Firestore | Reescritas por colección (ver `docs/FIRESTORE_RULES.md`) | 133 casos en el emulador + check-in del Día 3 |
-| Inscritos | Pestaña admin "0. INSCRITOS & DÍA 3": lista, estados, CSV, código y QR del check-in, solicitudes de speakers | Compila; falta prueba con admin real |
+| Reglas de Firestore | Reescritas por colección (ver `docs/FIRESTORE_RULES.md`) | 154 casos en el emulador + check-in del Día 3 |
+| Inscritos | Pestaña admin "0. INSCRITOS & DÍA 3": lista, estados, CSV, código y QR del check-in, solicitudes de speakers | Emulador: admin con Google invita y guarda el código |
 | Forja | Consentimiento de imagen obligatorio, se guarda en el registro | Navegador |
-| Contenido en vivo | Lo que publica el admin en el CMS llega a todos (`summit_content`) | Compila; falta prueba con admin real |
+| Contenido en vivo | Lo que publica el admin en el CMS llega a todos (`summit_content`) | Emulador: publicación y anuncio llegan a Firestore |
 | Anuncios, encuestas, analítica | Reales y compartidos; sin números inventados | Navegador |
 | Sponsors / speakers | El formulario y el portal llegan al equipo (Firestore) | Navegador (con Firebase bloqueado) |
 | Match, chat, premios, social | Sin perfiles de muestra, sin fotos de stock, sin datos ajenos expuestos | Emulador |
@@ -24,7 +24,7 @@ Estado al 27 oct 2026. Todo el trabajo vive en la rama `claude/practical-maxwell
 
 ---
 
-## 2. Lo que falta (fallos confirmados por la revisión)
+## 2. Fallos de la revisión (todos arreglados salvo los menores de C)
 
 Ordenados por prioridad. Ya arreglados en el último commit WIP: anuncios rechazados por las reglas, premios agotados canjeables, reacciones del chat manipulables, límite de conexiones del venue, tamaño de mensajes del director, IP falsificable, verificación de admin que se quedaba en "no admin", analítica sin datos en vivo, aprobación de speaker que borraba la solicitud aunque fallara, formulario de sponsors rechazado por textos largos.
 
@@ -46,7 +46,7 @@ Ordenados por prioridad. Ya arreglados en el último commit WIP: anuncios rechaz
 13. **Los anuncios solo aparecen en la portada.** Mover `subscribeAnnouncement` a un nivel global (p. ej. `ImmersionLayer` o `App.tsx`).
 
 ### C. Menores (si sobra tiempo)
-- Nombre del pase no llega al servidor en votos binarios.
+- ~~Nombre del pase no llega al servidor en votos binarios.~~ Hecho (el nombre va en la conexión).
 - Textos sin traducir: errores de inicio de sesión, nombres de logros y rangos, "Versión".
 - Draco: los decodificadores locales se emiten sin usarse (no afecta a visitantes).
 
@@ -73,12 +73,13 @@ Las reglas **no cambian ni borran datos**: solo deciden quién lee y escribe. El
 
 ## 4. Checklist para dar por terminado
 
-- [ ] Arreglos A1–A5 hechos.
-- [ ] B6–B13 hechos o descartados con razón.
-- [ ] `npx tsc --noEmit -p .` limpio y `npx vite build` OK.
-- [ ] Servidor: 11/11 pruebas (`scripts/server-test/wstest.mjs`).
-- [ ] Reglas: suite del emulador en verde con los casos nuevos.
-- [ ] Playwright: flujos clave en ES y EN, móvil y escritorio, 0 errores de página.
-- [ ] `server.js` regenerado (`npx esbuild server.ts --bundle --platform=node --format=esm --packages=external --outfile=server.js`).
-- [ ] Merge a main y push.
-- [ ] Despliegue en el orden de la sección 3.
+- [x] Arreglos A1–A5 hechos.
+- [x] B6–B13 hechos (B13: el anuncio aparece en todas las páginas).
+- [x] `npx tsc --noEmit -p .` limpio y `npx vite build` OK.
+- [x] Servidor: 11/11 pruebas (`scripts/server-test/wstest.mjs`). Extra: la audiencia no puede mandar mensajes de más de 64 KB.
+- [x] Reglas: 154/154 en el emulador + ventana del Día 3.
+- [x] Punta a punta contra el emulador (`scripts/e2e/`): visitante 15/15, admin 9/9, 0 errores de página, 0 llamadas al Firebase real.
+- [x] `server.js` regenerado.
+- [x] Merge a main y push.
+- [ ] Despliegue en el orden de la sección 3 (lo hace el equipo).
+- [ ] Pendientes menores (C): algunos textos sin traducir; decodificadores Draco sin uso.

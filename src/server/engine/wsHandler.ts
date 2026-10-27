@@ -34,6 +34,8 @@ const DIRECTOR_MESSAGES = new Set([
 const MAX_SOCKETS_PER_IP = 600;
 // Directors upload custom visuals over the socket; keep room for them.
 const MAX_PAYLOAD_BYTES = 12 * 1024 * 1024;
+// The audience only sends votes, reactions and its sign-in token.
+const MAX_AUDIENCE_PAYLOAD_BYTES = 64 * 1024;
 
 export function setupWebSocketEngine(server: http.Server) {
   const wss = new WebSocketServer({ server, path: '/ws', maxPayload: MAX_PAYLOAD_BYTES });
@@ -138,6 +140,8 @@ export function setupWebSocketEngine(server: http.Server) {
       ws.on('message', (data, isBinary) => {
         try {
           if (!limiter.take()) return;
+          const size = Array.isArray(data) ? data.reduce((n, b) => n + b.length, 0) : (data as Buffer | ArrayBuffer).byteLength;
+          if (!meta.isAdmin && size > MAX_AUDIENCE_PAYLOAD_BYTES) { ws.close(1009, 'Message too big'); return; }
           let messageType = '';
           let payload: any = {};
 

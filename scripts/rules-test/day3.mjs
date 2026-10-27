@@ -1,0 +1,14 @@
+import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
+import { doc, setDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
+import fs from 'fs';
+const env = await initializeTestEnvironment({ projectId: 'demo-sgx3', firestore: { rules: fs.readFileSync('firestore.day3.rules', 'utf8'), host: '127.0.0.1', port: 8085 } });
+await env.clearFirestore();
+await env.withSecurityRulesDisabled(async (c) => { await setDoc(doc(c.firestore(), 'summit_private', 'checkin'), { code: 'chroma-test1234' }); });
+const db = (u) => env.authenticatedContext(u).firestore();
+const tryCheckin = (u, code) => { const d = db(u); const b = writeBatch(d); b.set(doc(d, 'summit_checkin_proofs', u), { code, at: serverTimestamp() }); b.set(doc(d, 'summit_checkins', u), { regionId: 'pr_sj', regionName: 'San Juan', at: serverTimestamp() }); return b.commit(); };
+let f = 0; const t = async (n, p, good) => { try { await (good ? assertSucceeds(p) : assertFails(p)); console.log('PASS', n); } catch { f++; console.log('FAIL', n); } };
+await t('right code checks in', tryCheckin('alice', 'chroma-test1234'), true);
+await t('wrong code refused', tryCheckin('bob', 'chroma26'), false);
+await t('second check-in refused', tryCheckin('alice', 'chroma-test1234'), false);
+await t('check-in for someone else refused', (() => { const d = db('carol'); const b = writeBatch(d); b.set(doc(d, 'summit_checkin_proofs', 'dave'), { code: 'chroma-test1234', at: serverTimestamp() }); b.set(doc(d, 'summit_checkins', 'dave'), { regionId: 'x', regionName: 'x', at: serverTimestamp() }); return b.commit(); })(), false);
+console.log('RESULT', f ? 'FAIL' : 'OK'); await env.cleanup(); process.exit(f ? 1 : 0);

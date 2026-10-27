@@ -1,0 +1,4 @@
+node_modules/
+firestore.rules
+firestore.day3.rules
+*.log

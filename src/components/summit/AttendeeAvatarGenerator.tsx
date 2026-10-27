@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { loc } from '../../lib/localize';
 import { 
   Dices, 
   Download, 
@@ -18,6 +19,7 @@ import {
 import { playUiChirp, playDiceRollSound, playCyberBurstSound } from '../../lib/cyberAudioEngine';
 import { useAuth } from '../../context/AuthContext';
 import { PILLAR_BY_KEY, pillarTheme } from '../../lib/sgxPillars';
+import { useLanguage } from '../../context/LanguageContext';
 
 export interface AvatarConfig {
   pillar: 'SGX.SYNTHESIZE' | 'SGX.SYSTEM' | 'SGX.STAGE' | 'SGX.SHOWCASE' | 'SGX.SPARK' | 'SGX.STORY';
@@ -32,12 +34,12 @@ export interface AvatarConfig {
 }
 
 export const PILLAR_COLORS = {
-  'SGX.STORY': { primary: PILLAR_BY_KEY['STORY'].color, secondary: pillarTheme('STORY').secondaryColor, bg: '#0c1d3b', name: 'SGX.STORY', desc: 'Lore e historias' },
-  'SGX.SHOWCASE': { primary: PILLAR_BY_KEY['SHOWCASE'].color, secondary: pillarTheme('SHOWCASE').secondaryColor, bg: '#042338', name: 'SGX.SHOWCASE', desc: 'Presentación 3D/XR e inmersión' },
-  'SGX.SPARK': { primary: PILLAR_BY_KEY['SPARK'].color, secondary: pillarTheme('SPARK').secondaryColor, bg: '#2e1b00', name: 'SGX.SPARK', desc: 'Interactividad y juegos' },
-  'SGX.STAGE': { primary: PILLAR_BY_KEY['STAGE'].color, secondary: pillarTheme('STAGE').secondaryColor, bg: '#332600', name: 'SGX.STAGE', desc: 'Eventos y shows en vivo' },
-  'SGX.SYSTEM': { primary: PILLAR_BY_KEY['SYSTEM'].color, secondary: pillarTheme('SYSTEM').secondaryColor, bg: '#032536', name: 'SGX.SYSTEM', desc: 'Herramientas, IA y backend' },
-  'SGX.SYNTHESIZE': { primary: PILLAR_BY_KEY['SYNTHESIZE'].color, secondary: pillarTheme('SYNTHESIZE').secondaryColor, bg: '#002233', name: 'SGX.SYNTHESIZE', desc: 'Todo converge: proyectos multi-pilar' },
+  'SGX.STORY': { primary: PILLAR_BY_KEY['STORY'].color, secondary: pillarTheme('STORY').secondaryColor, bg: '#0c1d3b', name: 'SGX.STORY', desc: 'Lore e historias', descEn: 'Lore and stories' },
+  'SGX.SHOWCASE': { primary: PILLAR_BY_KEY['SHOWCASE'].color, secondary: pillarTheme('SHOWCASE').secondaryColor, bg: '#042338', name: 'SGX.SHOWCASE', desc: 'Presentación 3D/XR e inmersión', descEn: '3D/XR presentation and immersion' },
+  'SGX.SPARK': { primary: PILLAR_BY_KEY['SPARK'].color, secondary: pillarTheme('SPARK').secondaryColor, bg: '#2e1b00', name: 'SGX.SPARK', desc: 'Interactividad y juegos', descEn: 'Interactivity and games' },
+  'SGX.STAGE': { primary: PILLAR_BY_KEY['STAGE'].color, secondary: pillarTheme('STAGE').secondaryColor, bg: '#332600', name: 'SGX.STAGE', desc: 'Eventos y shows en vivo', descEn: 'Live events and shows' },
+  'SGX.SYSTEM': { primary: PILLAR_BY_KEY['SYSTEM'].color, secondary: pillarTheme('SYSTEM').secondaryColor, bg: '#032536', name: 'SGX.SYSTEM', desc: 'Herramientas, IA y backend', descEn: 'Tools, AI and backend' },
+  'SGX.SYNTHESIZE': { primary: PILLAR_BY_KEY['SYNTHESIZE'].color, secondary: pillarTheme('SYNTHESIZE').secondaryColor, bg: '#002233', name: 'SGX.SYNTHESIZE', desc: 'Todo converge: proyectos multi-pilar', descEn: 'Everything converges: multi-pillar projects' },
 };
 
 const DEFAULT_AVATAR: AvatarConfig = {
@@ -61,6 +63,8 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
   onClose,
   onApplyAvatar
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { playerProfile, savePlayerProfile } = useAuth();
   const [config, setConfig] = useState<AvatarConfig>(() => {
     try {
@@ -462,7 +466,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
             <Sparkles className="w-4 h-4 text-amber-400" />
             <div>
               <div className="text-sm font-black text-white flex items-center space-x-2">
-                <span>AVATAR STUDIO DE ASISTENTE</span>
+                <span>{es ? 'AVATAR STUDIO DE ASISTENTE' : 'ATTENDEE AVATAR STUDIO'}</span>
                 <span 
                   className="px-2 py-0.5 text-[10px] font-bold border"
                   style={{ color: colors.primary, borderColor: colors.primary, backgroundColor: `${colors.primary}15` }}
@@ -471,7 +475,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                 </span>
               </div>
               <div className="text-[10px] text-slate-400 font-sans">
-                Personaliza tu astronauta y credencial oficial para el Summit San Juan 2026
+                {es ? 'Personaliza tu astronauta y credencial oficial para el Summit San Juan 2026' : 'Customize your astronaut and official credential for the San Juan Summit 2026'}
               </div>
             </div>
           </div>
@@ -480,10 +484,10 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
             <button
               onClick={handleRandomize}
               className="px-2.5 py-1.5 bg-[#242424] hover:bg-[#313131] border border-slate-700 hover:border-amber-400 text-amber-300 font-bold flex items-center space-x-1 transition-colors"
-              title="Generar combinación aleatoria"
+              title={es ? 'Generar combinación aleatoria' : 'Generate a random combination'}
             >
               <Dices className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">ALEATORIO</span>
+              <span className="hidden sm:inline">{es ? 'ALEATORIO' : 'RANDOM'}</span>
             </button>
 
             {onClose && (
@@ -533,9 +537,9 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
               </div>
 
               <div className="mt-2 text-[10px] text-slate-400 flex items-center space-x-2 font-mono">
-                <span>Estilo: <strong className="text-white uppercase">{config.style}</strong></span>
+                <span>{es ? 'Estilo: ' : 'Style: '}<strong className="text-white uppercase">{config.style}</strong></span>
                 <span>•</span>
-                <span>Semilla: <strong className="text-cyan-400 font-mono">{config.seed}</strong></span>
+                <span>{es ? 'Semilla: ' : 'Seed: '}<strong className="text-cyan-400 font-mono">{config.seed}</strong></span>
               </div>
             </div>
 
@@ -560,7 +564,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                 </div>
                 <div className="overflow-hidden">
                   <div className="text-[10px] text-slate-400 uppercase tracking-wider font-mono">
-                    CREDENCIAL SPATIALGINEERS
+                    {es ? 'CREDENCIAL SPATIALGINEERS' : 'SPATIALGINEERS CREDENTIAL'}
                   </div>
                   <div className="text-xs font-black text-white break-words">
                     {playerProfile?.nickname || 'ASISTENTE_SGX'}
@@ -582,7 +586,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                 className="p-2 bg-[#242424] hover:bg-[#313131] border border-slate-700 hover:border-cyan-400 text-cyan-300 font-bold flex items-center justify-center space-x-1.5 transition-colors"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>BAJAR PNG</span>
+                <span>{es ? 'BAJAR PNG' : 'DOWNLOAD PNG'}</span>
               </button>
 
               <button
@@ -590,7 +594,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                 className="p-2 bg-[#242424] hover:bg-[#313131] border border-slate-700 hover:border-amber-400 text-amber-300 font-bold flex items-center justify-center space-x-1.5 transition-colors"
               >
                 <Copy className="w-3.5 h-3.5" />
-                <span>{copiedSvg ? '¡COPIADO!' : 'COPIAR SVG'}</span>
+                <span>{copiedSvg ? '¡COPIADO!' : (es ? 'COPIAR SVG' : 'COPY SVG')}</span>
               </button>
             </div>
           </div>
@@ -600,12 +604,12 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
             {/* Category Navigation Tabs */}
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-1 bg-black/60 p-1 border border-slate-800 text-[10px]">
               {[
-                { key: 'PILLAR' as const, label: 'Pilar', icon: Palette },
-                { key: 'HELMET' as const, label: 'Casco', icon: Shield },
-                { key: 'SUIT' as const, label: 'Traje', icon: Layers },
+                { key: 'PILLAR' as const, label: (es ? 'Pilar' : 'Pillar'), icon: Palette },
+                { key: 'HELMET' as const, label: (es ? 'Casco' : 'Helmet'), icon: Shield },
+                { key: 'SUIT' as const, label: (es ? 'Traje' : 'Suit'), icon: Layers },
                 { key: 'VISOR' as const, label: 'Visor FX', icon: Eye },
-                { key: 'ACCESSORY' as const, label: 'Antena', icon: Radio },
-                { key: 'BADGE' as const, label: 'Rango', icon: Award }
+                { key: 'ACCESSORY' as const, label: (es ? 'Antena' : 'Antenna'), icon: Radio },
+                { key: 'BADGE' as const, label: (es ? 'Rango' : 'Rank'), icon: Award }
               ].map(cat => {
                 const Icon = cat.icon;
                 const isActive = activeCategory === cat.key;
@@ -635,7 +639,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
               {activeCategory === 'PILLAR' && (
                 <div className="space-y-2">
                   <div className="text-[11px] text-slate-300 font-bold">
-                    Elige el Pilar de Spatialgineers que define tu misión:
+                    {es ? 'Elige el Pilar de Spatialgineers que define tu misión:' : 'Choose the Spatialgineers Pillar that defines your mission:'}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {(Object.keys(PILLAR_COLORS) as Array<keyof typeof PILLAR_COLORS>).map(pilKey => {
@@ -663,7 +667,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                               {p.name}
                             </div>
                             <div className="text-[9px] text-slate-400">
-                              {p.desc}
+                              {loc(p, 'desc', language)}
                             </div>
                           </div>
                         </button>
@@ -673,7 +677,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
 
                   {/* Render Style Toggle */}
                   <div className="pt-2 border-t border-slate-800">
-                    <div className="text-[10px] text-slate-400 mb-1.5">Estilo Gráfico:</div>
+                    <div className="text-[10px] text-slate-400 mb-1.5">{es ? 'Estilo Gráfico:' : 'Graphic Style:'}</div>
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => setConfig(prev => ({ ...prev, style: 'lowpoly' }))}
@@ -683,7 +687,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                             : 'border-slate-800 text-slate-400'
                         }`}
                       >
-                        📐 LOW-POLY GEOMÉTRICO
+                        {es ? '📐 LOW-POLY GEOMÉTRICO' : '📐 GEOMETRIC LOW-POLY'}
                       </button>
                       <button
                         onClick={() => setConfig(prev => ({ ...prev, style: 'pixel' }))}
@@ -704,16 +708,16 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
               {activeCategory === 'HELMET' && (
                 <div className="space-y-2">
                   <div className="text-[11px] text-slate-300 font-bold">
-                    Modelo de Casco Espacial:
+                    {es ? 'Modelo de Casco Espacial:' : 'Space Helmet Model:'}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { id: 'lowpoly_facet' as const, name: 'Low-Poly Facetado', desc: 'Aristas de sigilo y malla hexagonal' },
-                      { id: 'cyber_visor' as const, name: 'Cyber Visor Táctico', desc: 'Banda horizontal de escaneo óptico' },
-                      { id: 'bubble' as const, name: 'Astro Bubble Clásico', desc: 'Bóveda esférica presurizada' },
-                      { id: 'mecha_crown' as const, name: 'Corona Mecha', desc: 'Chasis reforzado con sensores cornamenta' },
-                      { id: 'holo_dome' as const, name: 'Domo Holográfico', desc: 'Cristal transparente con ojos de energía' },
-                      { id: 'orbital_pilot' as const, name: 'Piloto Orbital Gold', desc: 'Escudo polarizado dorado anti-radiación' }
+                      { id: 'lowpoly_facet' as const, name: (es ? 'Low-Poly Facetado' : 'Faceted Low-Poly'), desc: (es ? 'Aristas de sigilo y malla hexagonal' : 'Stealth edges and hexagonal mesh') },
+                      { id: 'cyber_visor' as const, name: (es ? 'Cyber Visor Táctico' : 'Tactical Cyber Visor'), desc: (es ? 'Banda horizontal de escaneo óptico' : 'Horizontal optical scan band') },
+                      { id: 'bubble' as const, name: (es ? 'Astro Bubble Clásico' : 'Classic Astro Bubble'), desc: (es ? 'Bóveda esférica presurizada' : 'Pressurized spherical dome') },
+                      { id: 'mecha_crown' as const, name: (es ? 'Corona Mecha' : 'Mecha Crown'), desc: (es ? 'Chasis reforzado con sensores cornamenta' : 'Reinforced chassis with antler sensors') },
+                      { id: 'holo_dome' as const, name: (es ? 'Domo Holográfico' : 'Holographic Dome'), desc: (es ? 'Cristal transparente con ojos de energía' : 'Clear glass with energy eyes') },
+                      { id: 'orbital_pilot' as const, name: (es ? 'Piloto Orbital Gold' : 'Gold Orbital Pilot'), desc: (es ? 'Escudo polarizado dorado anti-radiación' : 'Polarized gold anti-radiation shield') }
                     ].map(h => (
                       <button
                         key={h.id}
@@ -739,14 +743,14 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
               {activeCategory === 'SUIT' && (
                 <div className="space-y-2">
                   <div className="text-[11px] text-slate-300 font-bold">
-                    Traje de Presión y Exoesqueleto:
+                    {es ? 'Traje de Presión y Exoesqueleto:' : 'Pressure Suit and Exoskeleton:'}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { id: 'eva_flight' as const, name: 'EVA Flight Suit', desc: 'Arnés de gravedad cero con soporte vital' },
-                      { id: 'cyber_jacket' as const, name: 'Chaqueta Cyber Táctica', desc: 'Cuellos altos de neón y fibra de carbono' },
-                      { id: 'heavy_exo' as const, name: 'Exo-Armadura de Asalto', desc: 'Placas de titanio y reactor en el pecho' },
-                      { id: 'san_juan_linen' as const, name: 'Spatial Linen San Juan', desc: 'Traje blanco tropical con bordes dorados' }
+                      { id: 'eva_flight' as const, name: 'EVA Flight Suit', desc: (es ? 'Arnés de gravedad cero con soporte vital' : 'Zero-gravity harness with life support') },
+                      { id: 'cyber_jacket' as const, name: (es ? 'Chaqueta Cyber Táctica' : 'Tactical Cyber Jacket'), desc: (es ? 'Cuellos altos de neón y fibra de carbono' : 'High neon collars and carbon fiber') },
+                      { id: 'heavy_exo' as const, name: (es ? 'Exo-Armadura de Asalto' : 'Assault Exo-Armor'), desc: (es ? 'Placas de titanio y reactor en el pecho' : 'Titanium plates and a chest reactor') },
+                      { id: 'san_juan_linen' as const, name: 'Spatial Linen San Juan', desc: (es ? 'Traje blanco tropical con bordes dorados' : 'Tropical white suit with gold trim') }
                     ].map(s => (
                       <button
                         key={s.id}
@@ -772,15 +776,15 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
               {activeCategory === 'VISOR' && (
                 <div className="space-y-2">
                   <div className="text-[11px] text-slate-300 font-bold">
-                    Efecto de HUD y Reflejo en Visera:
+                    {es ? 'Efecto de HUD y Reflejo en Visera:' : 'HUD Effect and Visor Reflection:'}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { id: 'scanline' as const, name: 'Barrido Láser Scanline', desc: 'Haz horizontal continuo de telemetría' },
-                      { id: 'matrix_grid' as const, name: 'Malla Holográfica Matrix', desc: 'Coordenadas espaciales de realidad mixta' },
-                      { id: 'reticle' as const, name: 'Mira de Puntería Táctica', desc: 'Círculo de enfoque y punto focal' },
-                      { id: 'solar_glare' as const, name: 'Destello Solar San Juan', desc: 'Reflejo de luz solar ultravioleta' },
-                      { id: 'void_stealth' as const, name: 'Void Negro Sigiloso', desc: 'Superficie de absorción pura sin reflejos' }
+                      { id: 'scanline' as const, name: (es ? 'Barrido Láser Scanline' : 'Scanline Laser Sweep'), desc: (es ? 'Haz horizontal continuo de telemetría' : 'Continuous horizontal telemetry beam') },
+                      { id: 'matrix_grid' as const, name: (es ? 'Malla Holográfica Matrix' : 'Matrix Holographic Mesh'), desc: (es ? 'Coordenadas espaciales de realidad mixta' : 'Mixed-reality spatial coordinates') },
+                      { id: 'reticle' as const, name: (es ? 'Mira de Puntería Táctica' : 'Tactical Crosshair'), desc: (es ? 'Círculo de enfoque y punto focal' : 'Focus ring and focal point') },
+                      { id: 'solar_glare' as const, name: (es ? 'Destello Solar San Juan' : 'San Juan Solar Flare'), desc: (es ? 'Reflejo de luz solar ultravioleta' : 'Ultraviolet sunlight reflection') },
+                      { id: 'void_stealth' as const, name: (es ? 'Void Negro Sigiloso' : 'Stealth Black Void'), desc: (es ? 'Superficie de absorción pura sin reflejos' : 'Pure absorption surface with no reflections') }
                     ].map(v => (
                       <button
                         key={v.id}
@@ -806,15 +810,15 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
               {activeCategory === 'ACCESSORY' && (
                 <div className="space-y-2">
                   <div className="text-[11px] text-slate-300 font-bold">
-                    Antenas y Accesorios de Cabeza:
+                    {es ? 'Antenas y Accesorios de Cabeza:' : 'Antennas and Head Accessories:'}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { id: 'holo_halo' as const, name: 'Halo de Energía Cuántica', desc: 'Aura elíptica orbital sobre el casco' },
-                      { id: 'comms_antenna' as const, name: 'Antenas Satelitales Gemelas', desc: 'Enlace bidireccional de baja latencia' },
-                      { id: 'dj_cans' as const, name: 'Audífonos DJ Espaciales', desc: 'Monitores acústicos con LEDs luminosos' },
-                      { id: 'neural_horns' as const, name: 'Espigas Neuronales Horns', desc: 'Receptores de interfaz cerebro-máquina' },
-                      { id: 'none' as const, name: 'Ninguno / Chasis Limpio', desc: 'Sin protuberancias adicionales' }
+                      { id: 'holo_halo' as const, name: (es ? 'Halo de Energía Cuántica' : 'Quantum Energy Halo'), desc: (es ? 'Aura elíptica orbital sobre el casco' : 'Elliptical orbital aura over the helmet') },
+                      { id: 'comms_antenna' as const, name: (es ? 'Antenas Satelitales Gemelas' : 'Twin Satellite Antennas'), desc: (es ? 'Enlace bidireccional de baja latencia' : 'Low-latency two-way link') },
+                      { id: 'dj_cans' as const, name: (es ? 'Audífonos DJ Espaciales' : 'Space DJ Headphones'), desc: (es ? 'Monitores acústicos con LEDs luminosos' : 'Acoustic monitors with glowing LEDs') },
+                      { id: 'neural_horns' as const, name: (es ? 'Espigas Neuronales Horns' : 'Neural Spike Horns'), desc: (es ? 'Receptores de interfaz cerebro-máquina' : 'Brain-machine interface receivers') },
+                      { id: 'none' as const, name: (es ? 'Ninguno / Chasis Limpio' : 'None / Clean Chassis'), desc: (es ? 'Sin protuberancias adicionales' : 'No extra protrusions') }
                     ].map(a => (
                       <button
                         key={a.id}
@@ -840,7 +844,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
               {activeCategory === 'BADGE' && (
                 <div className="space-y-2">
                   <div className="text-[11px] text-slate-300 font-bold">
-                    Rango y Fondo de la Credencial:
+                    {es ? 'Rango y Fondo de la Credencial:' : 'Credential Rank and Background:'}
                   </div>
                   <div className="grid grid-cols-3 gap-1.5">
                     {['SPATIALGINEER', 'ARCHITECT', 'CREATIVE PRODUCER', 'AI FOUNDER', 'DEV GUILD', 'VIP GUEST'].map(rank => (
@@ -862,7 +866,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                   </div>
 
                   <div className="pt-2 border-t border-slate-800">
-                    <div className="text-[10px] text-slate-400 mb-1.5">Fondo de Avatar:</div>
+                    <div className="text-[10px] text-slate-400 mb-1.5">{es ? 'Fondo de Avatar:' : 'Avatar Background:'}</div>
                     <div className="grid grid-cols-4 gap-1.5 text-[10px]">
                       {[
                         { id: 'grid' as const, label: 'Cyber Grid' },
@@ -894,10 +898,10 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                 {appliedSuccess ? (
                   <span className="text-[#FDCC0D] font-bold flex items-center space-x-1">
                     <Check className="w-3.5 h-3.5 inline" />
-                    <span>¡Avatar aplicado a tu SGX Pass!</span>
+                    <span>{es ? '¡Avatar aplicado a tu SGX Pass!' : 'Avatar applied to your SGX Pass!'}</span>
                   </span>
                 ) : (
-                  <span>Se actualizará en tu pasaporte, ranking y libreta de contactos.</span>
+                  <span>{es ? 'Se actualizará en tu pasaporte, ranking y libreta de contactos.' : 'It will update on your passport, ranking and contact book.'}</span>
                 )}
               </div>
 
@@ -907,7 +911,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
                 <Save className="w-4 h-4" />
-                <span>APLICAR A MI SGX PASS</span>
+                <span>{es ? 'APLICAR A MI SGX PASS' : 'APPLY TO MY SGX PASS'}</span>
               </button>
             </div>
           </div>

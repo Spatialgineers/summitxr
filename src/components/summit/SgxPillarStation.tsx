@@ -12,6 +12,7 @@ import { missionsOfPillar } from '../../identity/reactor';
 import { goToMission } from '../../identity/missionNav';
 import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
 import { portfolioOf } from '../../lib/sgxPortfolio';
+import { loc } from '../../lib/localize';
 
 const DAYS = {
   1: { es: 'Día 1 · Viernes 11 dic · Digital', en: 'Day 1 · Fri Dec 11 · Digital' },
@@ -213,12 +214,12 @@ export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pil
             {portfolioOf(pillar.key).map((proj) => (
               <li key={proj.id} className={`sgx-portfolio__item ${proj.useCase ? 'is-case' : ''}`}>
                 <div className="sgx-portfolio__head">
-                  <strong>{proj.name}</strong>
+                  <strong>{loc(proj, 'name', language)}</strong>
                   {proj.useCase && <span className="sgx-portfolio__tag">{es ? 'CASO DE USO' : 'USE CASE'}</span>}
                 </div>
-                <span className="sgx-portfolio__metric">{proj.metric}</span>
-                {proj.partners && <span className="sgx-portfolio__partners">{proj.partners}</span>}
-                <p>{proj.desc}</p>
+                <span className="sgx-portfolio__metric">{loc(proj, 'metric', language)}</span>
+                {loc(proj, 'partners', language) && <span className="sgx-portfolio__partners">{loc(proj, 'partners', language)}</span>}
+                <p>{loc(proj, 'desc', language)}</p>
               </li>
             ))}
           </ul>

@@ -30,6 +30,7 @@ import {
   playNotificationChime
 } from '../../lib/summitData';
 import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 interface SummitAgendaBuilderProps {
   sessions: SummitSession[];
@@ -45,6 +46,7 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
   onTriggerNotification,
 }) => {
   const { t, language } = useLanguage();
+  const es = language === 'es';
   const [selectedDay, setSelectedDay] = useState<1 | 2 | 3 | 'ALL'>(1);
   const [selectedPillar, setSelectedPillar] = useState<SummitPillarId | 'ALL'>('ALL');
   const [onlyMyAgenda, setOnlyMyAgenda] = useState<boolean>(false);
@@ -94,7 +96,7 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
 
   const handleShareSession = (session: SummitSession, e: React.MouseEvent) => {
     e.stopPropagation();
-    const shareText = `Asiste a "${session.title}" en el Spatialgineers Summit 2026! (${session.dateStr} - ${session.startTime})`;
+    const shareText = (es ? `Asiste a "${loc(session, 'title', language)}" en el Spatialgineers Summit 2026! (${session.dateStr} - ${session.startTime})` : `Join "${loc(session, 'title', language)}" at the Spatialgineers Summit 2026! (${session.dateStr} - ${session.startTime})`);
     navigator.clipboard.writeText(shareText);
     setCopiedSessionId(session.id);
     setTimeout(() => setCopiedSessionId(null), 2000);
@@ -107,9 +109,9 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
     if (onlyMyAgenda && !bookmarkedIds.includes(session.id)) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      const matchTitle = session.title.toLowerCase().includes(q);
-      const matchDesc = session.description.toLowerCase().includes(q);
-      const matchTags = session.tags.some(t => t.toLowerCase().includes(q));
+      const matchTitle = loc(session, 'title', language).toLowerCase().includes(q);
+      const matchDesc = loc(session, 'description', language).toLowerCase().includes(q);
+      const matchTags = loc(session, 'tags', language).some(t => t.toLowerCase().includes(q));
       const matchSpeaker = session.speakerIds.some(spkId => {
         const spk = speakers.find(s => s.id === spkId);
         return spk && spk.name.toLowerCase().includes(q);
@@ -211,12 +213,12 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
             className="w-full bg-transparent text-xs font-mono text-white focus:outline-none cursor-pointer"
           >
             <option value="ALL" className="bg-[var(--sgx-bg)] text-white">{t('filter_all', 'FILTRAR POR PILAR (TODOS LOS 6)')}</option>
-            <option value="SGX.STORY" className="bg-[var(--sgx-bg)] text-[#3B82F6]">SGX.STORY — Narrativa & Lore</option>
+            <option value="SGX.STORY" className="bg-[var(--sgx-bg)] text-[#3B82F6]">{es ? 'SGX.STORY — Narrativa & Lore' : 'SGX.STORY — Narrative & Lore'}</option>
             <option value="SGX.SHOWCASE" className="bg-[var(--sgx-bg)] text-[var(--sgx-neon)]">SGX.SHOWCASE — 3D & Pavilions</option>
-            <option value="SGX.SPARK" className="bg-[var(--sgx-bg)] text-[var(--sgx-accent)]">SGX.SPARK — Ideación & IA</option>
-            <option value="SGX.STAGE" className="bg-[var(--sgx-bg)] text-[#FDCC0D]">SGX.STAGE — Visualizadores & MoCap</option>
+            <option value="SGX.SPARK" className="bg-[var(--sgx-bg)] text-[var(--sgx-accent)]">{es ? 'SGX.SPARK — Ideación & IA' : 'SGX.SPARK — Ideation & AI'}</option>
+            <option value="SGX.STAGE" className="bg-[var(--sgx-bg)] text-[#FDCC0D]">{es ? 'SGX.STAGE — Visualizadores & MoCap' : 'SGX.STAGE — Visualizers & MoCap'}</option>
             <option value="SGX.SYSTEM" className="bg-[var(--sgx-bg)] text-[#38BDF8]">SGX.SYSTEM — Cloud & WebSockets</option>
-            <option value="SGX.SYNTHESIZE" className="bg-[var(--sgx-bg)] text-[#00B0FF]">SGX.SYNTHESIZE — WebXR & Híbrido</option>
+            <option value="SGX.SYNTHESIZE" className="bg-[var(--sgx-bg)] text-[#00B0FF]">{es ? 'SGX.SYNTHESIZE — WebXR & Híbrido' : 'SGX.SYNTHESIZE — WebXR & Hybrid'}</option>
           </select>
         </div>
 
@@ -284,7 +286,7 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
                       </span>
 
                       <span className="px-2 py-0.5 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] text-slate-300">
-                        {session.dateStr} (DÍA {session.day})
+                        {session.dateStr}{es ? ' (DÍA ' : ' (DAY '}{session.day})
                       </span>
 
                       <span className={`px-2 py-0.5 border font-bold uppercase ${
@@ -292,8 +294,8 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
                         session.format === 'ROBLOX_STREAM' ? 'bg-amber-500/20 border-amber-400 text-amber-300' :
                         'bg-cyan-500/20 border-cyan-400 text-cyan-300'
                       }`}>
-                        {session.format === 'HYBRID' ? '🔴 HÍBRIDO (SAN JUAN + STREAM)' :
-                         session.format === 'ROBLOX_STREAM' ? '🎵 INTERMEDIO DE ARTISTA (ROBLOX SI SE USA)' : '🌐 DIGITAL YOUTUBE LIVE'}
+                        {session.format === 'HYBRID' ? (es ? '🔴 HÍBRIDO (SAN JUAN + STREAM)' : '🔴 HYBRID (SAN JUAN + STREAM)') :
+                         session.format === 'ROBLOX_STREAM' ? (es ? '🎵 INTERMEDIO DE ARTISTA (ROBLOX SI SE USA)' : '🎵 ARTIST INTERLUDE (ROBLOX IF USED)') : '🌐 DIGITAL YOUTUBE LIVE'}
                       </span>
 
                       {session.pillarId && (
@@ -306,25 +308,25 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
                     {/* Title & Subtitle */}
                     <div>
                       <h3 className="text-sm md:text-base font-bold text-white group-hover:text-[var(--sgx-neon)] transition-colors font-['Orbitron',sans-serif]">
-                        {session.title}
+                        {loc(session, 'title', language)}
                       </h3>
-                      {session.subtitle && (
+                      {loc(session, 'subtitle', language) && (
                         <p className="text-xs text-[var(--sgx-accent)] font-mono mt-0.5">
-                          {session.subtitle}
+                          {loc(session, 'subtitle', language)}
                         </p>
                       )}
                     </div>
 
                     {/* Description */}
                     <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
-                      {session.description}
+                      {loc(session, 'description', language)}
                     </p>
 
                     {/* Speakers & Location */}
                     <div className="flex flex-wrap items-center gap-4 pt-1 text-[11px] text-slate-400">
                       <div className="flex items-center space-x-1 text-slate-300">
                         <MapPin className="w-3.5 h-3.5 text-[var(--sgx-accent)]" />
-                        <span>{session.venueLocation}</span>
+                        <span>{loc(session, 'venueLocation', language)}</span>
                       </div>
 
                       {session.speakerIds.map(spkId => {
@@ -375,7 +377,7 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
                           ? 'border-[var(--sgx-accent)] bg-[var(--sgx-accent)]/20 text-[var(--sgx-accent)] animate-pulse' 
                           : 'border-[var(--sgx-secondary)] bg-[var(--sgx-bg)] text-slate-400 hover:text-white'
                       }`}
-                      title={isNotified ? 'Alerta activa para esta sesión' : 'Notificarme al iniciar'}
+                      title={isNotified ? (es ? 'Alerta activa para esta sesión' : 'Alert active for this session') : (es ? 'Notificarme al iniciar' : 'Notify me when it starts')}
                     >
                       {isNotified ? <BellRing className="w-3.5 h-3.5 text-[var(--sgx-accent)]" /> : <Bell className="w-3.5 h-3.5" />}
                       <span className="text-[10px] hidden sm:inline">{isNotified ? t('btn_notify_active', 'NOTIFICAR ACTIVO') : t('btn_notify_session', 'ALERTAR')}</span>
@@ -410,7 +412,7 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
                       <button
                         onClick={(e) => handleShareSession(session, e)}
                         className="p-1.5 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] hover:border-white text-slate-400 hover:text-white text-[10px] font-mono"
-                        title="Copiar información de la sesión"
+                        title={es ? 'Copiar información de la sesión' : 'Copy session info'}
                       >
                         {copiedSessionId === session.id ? <CheckCircle2 className="w-3 h-3 text-[#FDCC0D]" /> : <Share2 className="w-3 h-3" />}
                       </button>

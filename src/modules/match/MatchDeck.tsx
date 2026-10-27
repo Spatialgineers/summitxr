@@ -29,6 +29,7 @@ import {
 import { rankCandidatesDeck } from './matchScore';
 import { playUiChirp, playScanSuccessSound } from '../../lib/cyberAudioEngine';
 import { triggerMatchConfetti } from './MatchBurstFX';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface MatchDeckProps {
   myUid: string;
@@ -45,6 +46,8 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
   onMutualMatch,
   onEditProfile
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const strings = MATCH_I18N[lang] || MATCH_I18N.es;
 
   const [deck, setDeck] = useState<MatchCandidate[]>([]);
@@ -141,7 +144,7 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <div className="w-12 h-12 rounded-full border-2 border-[#00DDFF] border-t-transparent animate-spin mb-4" />
         <p className="text-sm font-mono text-slate-400">
-          Sincronizando fundadores en Chroma Space...
+          {es ? 'Sincronizando fundadores en Chroma Space...' : 'Syncing founders at Chroma Space...'}
         </p>
       </div>
     );
@@ -155,7 +158,7 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
           <UserCheck className="w-8 h-8" />
         </div>
         <h3 className="text-lg font-bold text-white mb-2 font-sans">
-          Mazo al día
+          {es ? 'Mazo al día' : 'Deck up to date'}
         </h3>
         <p className="text-xs text-slate-400 mb-6 leading-relaxed">
           {strings.deckEmpty}
@@ -173,7 +176,7 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
             className="w-full sm:w-auto py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-mono text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Recargar mazo</span>
+            <span>{es ? 'Recargar mazo' : 'Reload deck'}</span>
           </button>
         </div>
       </div>
@@ -186,10 +189,10 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
       <div className="flex items-center justify-between w-full max-w-[420px] mb-3 px-1 text-[11px] font-mono text-slate-400">
         <span className="flex items-center gap-1.5">
           <Layers className="w-3.5 h-3.5 text-[#00DDFF]" />
-          <span>{deck.length} perfiles restantes</span>
+          <span>{deck.length}{es ? ' perfiles restantes' : ' profiles left'}</span>
         </span>
         <span className="hidden sm:inline text-slate-500">
-          Usa teclas [← Pasar] / [→ Conectar]
+          {es ? 'Usa teclas [← Pasar] / [→ Conectar]' : 'Use keys [← Pass] / [→ Connect]'}
         </span>
       </div>
 
@@ -211,23 +214,23 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
           <div className="w-full max-w-sm bg-[#151515] border border-slate-700 rounded-2xl p-5 shadow-2xl text-white">
             <div className="flex items-center gap-2 mb-3 text-rose-400">
               <ShieldAlert className="w-5 h-5" />
-              <h4 className="font-bold text-sm">Reportar perfil</h4>
+              <h4 className="font-bold text-sm">{es ? 'Reportar perfil' : 'Report profile'}</h4>
             </div>
             <p className="text-xs text-slate-400 mb-4">
-              ¿Por qué deseas reportar a <strong className="text-white">{reportingCandidate.displayName}</strong>?
+              {es ? '¿Por qué deseas reportar a ' : 'Why do you want to report '}<strong className="text-white">{reportingCandidate.displayName}</strong>?
             </p>
 
             {reportSent ? (
               <div className="p-3 bg-emerald-950/50 border border-emerald-500/50 rounded-xl text-emerald-300 text-xs text-center flex items-center justify-center gap-2">
-                <Check className="w-4 h-4" /> Reporte enviado para revisión.
+                <Check className="w-4 h-4" />{es ? ' Reporte enviado para revisión.' : ' Report sent for review.'}
               </div>
             ) : (
               <>
                 <div className="space-y-2 mb-5">
                   {[
-                    { id: 'spam', label: 'Spam o contenido comercial abusivo' },
-                    { id: 'inappropriate', label: 'Lenguaje o conducta inapropiada' },
-                    { id: 'not-an-entrepreneur', label: 'No es un asistente o fundador' }
+                    { id: 'spam', label: (es ? 'Spam o contenido comercial abusivo' : 'Spam or abusive commercial content') },
+                    { id: 'inappropriate', label: (es ? 'Lenguaje o conducta inapropiada' : 'Inappropriate language or conduct') },
+                    { id: 'not-an-entrepreneur', label: (es ? 'No es un asistente o fundador' : 'Not an attendee or founder') }
                   ].map(opt => (
                     <label 
                       key={opt.id} 
@@ -250,13 +253,13 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
                     onClick={() => setReportingCandidate(null)}
                     className="py-1.5 px-3 rounded-lg border border-slate-700 text-xs text-slate-400 hover:text-white"
                   >
-                    Cancelar
+                    {es ? 'Cancelar' : 'Cancel'}
                   </button>
                   <button
                     onClick={handleConfirmReport}
                     className="py-1.5 px-3 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-mono text-xs font-semibold"
                   >
-                    Enviar reporte
+                    {es ? 'Enviar reporte' : 'Send report'}
                   </button>
                 </div>
               </>

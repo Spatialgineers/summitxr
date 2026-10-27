@@ -1,6 +1,8 @@
 import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { PILLAR_BY_KEY, type PillarKey } from '../../lib/sgxPillars';
 import React, { useEffect, useRef, useState } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { VisitCounterChip } from './SummitVisitRadar';
@@ -48,6 +50,8 @@ export interface SgxOrbitalPillarNode {
   code: string;
   title: string;
   shortRole: string;
+  titleEn?: string;
+  physicsLabelEn?: string;
   colorHex: string;
   threeColor: number;
   iconUrl: string;
@@ -71,6 +75,7 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     id: 'STORY',
     code: 'SGX.STORY',
     title: 'Historias que mueven ideas',
+    titleEn: 'Stories that move ideas',
     shortRole: pillarModulesLine('STORY'),
     colorHex: PILLAR_BY_KEY['STORY'].color,
     threeColor: parseInt(PILLAR_BY_KEY['STORY'].color.slice(1), 16),
@@ -78,11 +83,13 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Story%20opt.glb',
     moduleCount: PILLAR_BY_KEY['STORY'].modules.length,
     physicsLabel: 'Pilar 01 • Brasas Ascendentes 432Hz',
+    physicsLabelEn: 'Pillar 01 • Rising Embers 432Hz',
   },
   {
     id: 'SHOWCASE',
     code: 'SGX.SHOWCASE',
     title: 'Visuales que comunican innovación',
+    titleEn: 'Visuals that communicate innovation',
     shortRole: pillarModulesLine('SHOWCASE'),
     colorHex: PILLAR_BY_KEY['SHOWCASE'].color,
     threeColor: parseInt(PILLAR_BY_KEY['SHOWCASE'].color.slice(1), 16),
@@ -90,11 +97,13 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Showcase%20opt.glb',
     moduleCount: PILLAR_BY_KEY['SHOWCASE'].modules.length,
     physicsLabel: 'Pilar 02 • Galería Holográfica Cian',
+    physicsLabelEn: 'Pillar 02 • Cyan Holographic Gallery',
   },
   {
     id: 'SPARK',
     code: 'SGX.SPARK',
     title: 'Experiencias que activan la conexión',
+    titleEn: 'Experiences that spark connection',
     shortRole: pillarModulesLine('SPARK'),
     colorHex: PILLAR_BY_KEY['SPARK'].color,
     threeColor: parseInt(PILLAR_BY_KEY['SPARK'].color.slice(1), 16),
@@ -102,11 +111,13 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Spark%20Opt.glb',
     moduleCount: PILLAR_BY_KEY['SPARK'].modules.length,
     physicsLabel: 'Pilar 03 • Vórtice Cinético Ignis',
+    physicsLabelEn: 'Pillar 03 • Ignis Kinetic Vortex',
   },
   {
     id: 'STAGE',
     code: 'SGX.STAGE',
     title: 'Creatividad en tiempo real',
+    titleEn: 'Creativity in real time',
     shortRole: pillarModulesLine('STAGE'),
     colorHex: PILLAR_BY_KEY['STAGE'].color,
     threeColor: parseInt(PILLAR_BY_KEY['STAGE'].color.slice(1), 16),
@@ -114,11 +125,13 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Stage%20opt.glb',
     moduleCount: PILLAR_BY_KEY['STAGE'].modules.length,
     physicsLabel: 'Pilar 04 • Ondas Acústicas en Vivo',
+    physicsLabelEn: 'Pillar 04 • Live Acoustic Waves',
   },
   {
     id: 'SYSTEM',
     code: 'SGX.SYSTEM',
     title: 'Tecnología que soluciona',
+    titleEn: 'Technology that solves',
     shortRole: pillarModulesLine('SYSTEM'),
     colorHex: PILLAR_BY_KEY['SYSTEM'].color,
     threeColor: parseInt(PILLAR_BY_KEY['SYSTEM'].color.slice(1), 16),
@@ -126,11 +139,13 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/System%20opt.glb',
     moduleCount: PILLAR_BY_KEY['SYSTEM'].modules.length,
     physicsLabel: 'Pilar 05 • Retícula Cuántica Cloud',
+    physicsLabelEn: 'Pillar 05 • Cloud Quantum Grid',
   },
   {
     id: 'SYNTHESIZE',
     code: 'SGX.SYNTHESIZE',
     title: 'Innovación que une disciplinas',
+    titleEn: 'Innovation that unites disciplines',
     shortRole: pillarModulesLine('SYNTHESIZE'),
     colorHex: PILLAR_BY_KEY['SYNTHESIZE'].color,
     threeColor: parseInt(PILLAR_BY_KEY['SYNTHESIZE'].color.slice(1), 16),
@@ -138,6 +153,7 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Synthesize%20opt.glb',
     moduleCount: PILLAR_BY_KEY['SYNTHESIZE'].modules.length,
     physicsLabel: 'Pilar 06 • Convergencia Armónica SGX',
+    physicsLabelEn: 'Pillar 06 • SGX Harmonic Convergence',
   },
 ];
 
@@ -171,9 +187,12 @@ export interface SgxSponsorStationData {
   id: string;
   tierId: string;
   name: string;
+  nameEn?: string;
   tierLabel: string;
+  tierLabelEn?: string;
   tierNumber: number;
   roleSubtitle: string;
+  roleSubtitleEn?: string;
   colorHex: string;
   threeColor: number;
   angle: number;
@@ -188,6 +207,7 @@ export const SGX_3D_SPONSOR_STATIONS: SgxSponsorStationData[] = [
     tierId: 'tier_5',
     name: 'Chroma Space Studios',
     tierLabel: 'TIER 5 · SEDE DEL DÍA 3',
+    tierLabelEn: 'TIER 5 · DAY 3 VENUE',
     tierNumber: 5,
     roleSubtitle: 'San Juan · SGX Showcase',
     colorHex: '#FDCC0D',
@@ -201,9 +221,11 @@ export const SGX_3D_SPONSOR_STATIONS: SgxSponsorStationData[] = [
     id: 'roblox',
     tierId: 'tier_4',
     name: 'Tu marca aquí',
+    nameEn: 'Your brand here',
     tierLabel: 'TIER 4 · SIGNATURE EXPERIENCE',
     tierNumber: 4,
     roleSubtitle: '"Experience by [Marca]" · 3 cupos',
+    roleSubtitleEn: '"Experience by [Brand]" · 3 slots',
     colorHex: '#00DDFF',
     threeColor: 0x00DDFF,
     angle: Math.PI * 0.72,
@@ -216,8 +238,10 @@ export const SGX_3D_SPONSOR_STATIONS: SgxSponsorStationData[] = [
     tierId: 'media_partner',
     name: 'Los Mismos TV',
     tierLabel: 'ALIADO DE TRANSMISIÓN',
+    tierLabelEn: 'BROADCAST PARTNER',
     tierNumber: 0,
     roleSubtitle: 'Transmite el Summit junto a nosotros',
+    roleSubtitleEn: 'Streams the Summit alongside us',
     colorHex: '#FFBB00',
     threeColor: 0xFFBB00,
     angle: Math.PI * 1.22,
@@ -229,9 +253,11 @@ export const SGX_3D_SPONSOR_STATIONS: SgxSponsorStationData[] = [
     id: 'sgxaudio',
     tierId: 'tier_3',
     name: 'Tu marca aquí',
+    nameEn: 'Your brand here',
     tierLabel: 'TIER 3 · EXPERIENCE',
     tierNumber: 3,
     roleSubtitle: '"[Pilar] powered by [Marca]" · 6 cupos',
+    roleSubtitleEn: '"[Pillar] powered by [Brand]" · 6 slots',
     colorHex: '#B87000',
     threeColor: 0xB87000,
     angle: Math.PI * 1.72,
@@ -267,8 +293,7 @@ function createSponsorBillboardTexture(
   name: string,
   tierLabel: string,
   roleSubtitle: string,
-  colorHex: string
-): THREE.Texture {
+  colorHex: string, lang: string = 'es'): THREE.Texture {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 256;
@@ -342,11 +367,11 @@ function createSponsorBillboardTexture(
     // Footer Interactive Telemetry
     ctx.fillStyle = colorHex;
     ctx.font = 'bold 12px "Share Tech Mono", monospace';
-    ctx.fillText('▲ ESTACIÓN DE PATROCINIO 3D · TOCAR PARA ACTIVAR', 24, 202);
+    ctx.fillText(lang === 'es' ? '▲ ESTACIÓN DE PATROCINIO 3D · TOCAR PARA ACTIVAR' : '▲ 3D SPONSOR STATION · TAP TO ACTIVATE', 24, 202);
 
     ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
     ctx.font = '11px "Orbitron", sans-serif';
-    ctx.fillText('SPATIALGINEERS SUMMIT 2026 · ÁREA OFICIAL', 24, 228);
+    ctx.fillText(lang === 'es' ? 'SPATIALGINEERS SUMMIT 2026 · ÁREA OFICIAL' : 'SPATIALGINEERS SUMMIT 2026 · OFFICIAL AREA', 24, 228);
   }
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -424,6 +449,8 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   onOpenCredential,
   onOpen360Tour,
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const viewportRef = useRef<HTMLDivElement>(null);
   const nodeMarkerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const { recordActivity, liteMode, setLiteMode } = usePilotProfile();
@@ -1084,10 +1111,11 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       // Rotating Billboard Assembly
       const billboardPivot = new THREE.Group();
       const billboardTexture = createSponsorBillboardTexture(
-        s.name,
-        s.tierLabel,
-        s.roleSubtitle,
-        s.colorHex
+        loc(s, 'name', language),
+        loc(s, 'tierLabel', language),
+        loc(s, 'roleSubtitle', language),
+        s.colorHex,
+        language
       );
       const billboardGeo = new THREE.BoxGeometry(20, 10.5, 0.45);
       const borderMat = new THREE.MeshStandardMaterial({
@@ -1200,7 +1228,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           spawnShockwave(worldPos, 0xFDCC0D);
           playScanSuccessSound();
           setXpOrbsCollected(c => c + 1);
-          setFloatingXpNotice('+25 XP • ORBE CUÁNTICO RECOLECTADO');
+          setFloatingXpNotice((es ? '+25 XP • ORBE CUÁNTICO RECOLECTADO' : '+25 XP • QUANTUM ORB COLLECTED'));
           setTimeout(() => setFloatingXpNotice(null), 2200);
           recordActivity('easter_egg', 'Orbe Cuántico 3D Recolectado', 'Núcleo Orbital SGX', 25);
           return;
@@ -1224,7 +1252,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           sm.group.getWorldPosition(worldPos);
           spawnShockwave(worldPos, sm.threeColor);
           playScanSuccessSound();
-          setFloatingXpNotice(`+25 XP • ESTACIÓN 3D: ${sm.name.toUpperCase()}`);
+          setFloatingXpNotice((es ? `+25 XP • ESTACIÓN 3D: ${sm.name.toUpperCase()}` : `+25 XP • 3D STATION: ${sm.name.toUpperCase()}`));
           setTimeout(() => setFloatingXpNotice(null), 2400);
           recordActivity('tour_complete', `Estación Sponsor 3D: ${sm.name}`, sm.tierLabel, 25);
           setFocusedSponsorId(sm.id);
@@ -1621,7 +1649,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       triggerShockwaveRef.current(new THREE.Vector3(0, 0, 0), station?.threeColor || 0xFDCC0D);
     }
     if (station) {
-      setFloatingXpNotice(`🔭 ENFOCANDO EN ÁREA 3D: ${station.name.toUpperCase()}`);
+      setFloatingXpNotice((es ? `🔭 ENFOCANDO EN ÁREA 3D: ${station.name.toUpperCase()}` : `🔭 FOCUSING ON 3D AREA: ${station.name.toUpperCase()}`));
       setTimeout(() => setFloatingXpNotice(null), 2000);
     }
   };
@@ -1633,7 +1661,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       triggerShockwaveRef.current(new THREE.Vector3(0, 0, 0), pNode?.threeColor || 0x00DDFF);
     }
     pulseSurgeRef.current = 1.4;
-    setFloatingXpNotice(`⚡ FRECUENCIA ${label} EMITIDA EN EL NÚCLEO`);
+    setFloatingXpNotice((es ? `⚡ FRECUENCIA ${label} EMITIDA EN EL NÚCLEO` : `⚡ FREQUENCY ${label} SENT TO THE CORE`));
     setTimeout(() => setFloatingXpNotice(null), 1800);
   };
 
@@ -1662,10 +1690,10 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 {activeNode.code}
               </span>
               <span className="text-slate-500 hidden md:inline">·</span>
-              <span className="text-slate-400 truncate hidden md:inline">{activeNode.title}</span>
+              <span className="text-slate-400 truncate hidden md:inline">{loc(activeNode, 'title', language)}</span>
             </div>
             <h3 className="text-xs sm:text-sm font-extrabold text-white font-['Orbitron',sans-serif] truncate">
-              NÚCLEO 3D SPATIALGINEERS
+              {es ? 'NÚCLEO 3D SPATIALGINEERS' : 'SPATIALGINEERS 3D CORE'}
             </h3>
           </div>
         </div>
@@ -1683,7 +1711,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               }}
               className="hidden md:flex px-2 sm:px-2.5 py-1.5 bg-[#1A1A1A] hover:bg-[#32527B] border border-[#32527B] text-slate-200 hover:text-white items-center gap-1 cursor-pointer text-xs font-bold"
               style={{ clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}
-              title="Ver Run of Show y Agenda de 3 Días"
+              title={es ? 'Ver Run of Show y Agenda de 3 Días' : 'View the Run of Show and 3-Day Agenda'}
             >
               <Calendar className="w-3.5 h-3.5 text-[#00DDFF] shrink-0" />
               <span>Agenda</span>
@@ -1700,7 +1728,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               }}
               className="hidden lg:flex px-2 sm:px-2.5 py-1.5 bg-[#1A1A1A] hover:bg-[#32527B] border border-cyan-500/50 text-cyan-300 hover:text-white items-center gap-1 cursor-pointer text-xs font-bold"
               style={{ clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}
-              title="Tu SGX Pass: registro, Holo Card y credencial en uno"
+              title={es ? 'Tu SGX Pass: registro, Holo Card y credencial en uno' : 'Your SGX Pass: registration, Holo Card and credential in one'}
             >
               <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
               <span>SGX Pass</span>
@@ -1720,10 +1748,10 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
             }}
             className="px-2 py-1.5 bg-[#1A1A1A] hover:bg-[#32527B]/60 border border-[#32527B] text-white flex items-center gap-1 cursor-pointer text-xs font-bold"
             style={{ clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}
-            title={autoRotate ? 'Pausar rotación de órbita' : 'Girar órbita'}
+            title={autoRotate ? (es ? 'Pausar rotación de órbita' : 'Pause orbit rotation') : (es ? 'Girar órbita' : 'Rotate orbit')}
           >
             {autoRotate ? <Pause className="w-3.5 h-3.5 text-[#00DDFF]" /> : <Play className="w-3.5 h-3.5 text-[#FDCC0D]" />}
-            <span className="hidden sm:inline">{autoRotate ? 'Pausa' : 'Girar'}</span>
+            <span className="hidden sm:inline">{autoRotate ? (es ? 'Pausa' : 'Pause') : (es ? 'Girar' : 'Rotate')}</span>
           </button>
 
           {/* Primary Exploration Trigger Button (Roomy Inspection Modal) */}
@@ -1738,7 +1766,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
             style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
           >
             <Compass className="w-3.5 h-3.5 text-[#050505]" />
-            <span>{drawerOpen ? 'Cerrar' : `Explorar ${activeNode.id}`}</span>
+            <span>{drawerOpen ? (es ? 'Cerrar' : 'Close') : (es ? `Explorar ${activeNode.id}` : `Explore ${activeNode.id}`)}</span>
           </button>
 
           {/* Sleek Options Popover Button (De-clutters secondary controls) */}
@@ -1754,10 +1782,10 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 : 'bg-[#1A1A1A] hover:bg-[#373737] text-slate-300 border-[#32527B]'
             }`}
             style={{ clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}
-            title="Opciones avanzadas del Núcleo 3D"
+            title={es ? 'Opciones avanzadas del Núcleo 3D' : 'Advanced 3D Core options'}
           >
             <Settings className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Ajustes</span>
+            <span className="hidden sm:inline">{es ? 'Ajustes' : 'Settings'}</span>
           </button>
 
           {/* Clean Options Dropdown Popover */}
@@ -1767,7 +1795,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
             >
               <div className="px-2 py-1 text-[10px] font-bold text-slate-400 border-b border-[#32527B]/60 uppercase tracking-wider">
-                Control de Cámara & Espacio 3D
+                {es ? 'Control de Cámara & Espacio 3D' : 'Camera & 3D Space Control'}
               </div>
 
               {cameraFocusedOnPillar || focusedSponsorId ? (
@@ -1783,7 +1811,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                   className="w-full px-2.5 py-1.5 bg-[#1A1A1A] hover:bg-[#FDCC0D] hover:text-black border border-[#32527B] flex items-center gap-2 text-left transition-colors cursor-pointer text-xs text-white"
                 >
                   <RotateCcw className="w-3.5 h-3.5 text-[#FDCC0D]" />
-                  <span>Restablecer Vista Orbital</span>
+                  <span>{es ? 'Restablecer Vista Orbital' : 'Reset Orbital View'}</span>
                 </button>
               ) : (
                 <button
@@ -1797,7 +1825,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                   className="w-full px-2.5 py-1.5 bg-[#1A1A1A] hover:bg-[#00DDFF] hover:text-black border border-[#32527B] flex items-center gap-2 text-left transition-colors cursor-pointer text-xs text-white"
                 >
                   <Eye className="w-3.5 h-3.5 text-[#00DDFF]" />
-                  <span>Zoom a {activeNode.id} (.GLB)</span>
+                  <span>{es ? 'Zoom a ' : 'Zoom to '}{activeNode.id} (.GLB)</span>
                 </button>
               )}
 
@@ -1814,7 +1842,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 className="w-full px-2.5 py-1.5 bg-[#1A1A1A] hover:bg-[#FFBB00] hover:text-black border border-[#32527B] flex items-center gap-2 text-left transition-colors cursor-pointer text-xs text-white"
               >
                 <Building2 className="w-3.5 h-3.5 text-[#FFBB00]" />
-                <span>Navegar Sponsors 3D (4 Áreas)</span>
+                <span>{es ? 'Navegar Sponsors 3D (4 Áreas)' : 'Browse 3D Sponsors (4 Areas)'}</span>
               </button>
 
               {/* Zen Immersion */}
@@ -1828,7 +1856,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                     setDrawerOpen(false);
                     setCameraFocusedOnPillar(true);
                     setOrbitSpeedMultiplier(1.8);
-                    setFloatingXpNotice('🌌 MODO INMERSIÓN TOTAL ACTIVO');
+                    setFloatingXpNotice((es ? '🌌 MODO INMERSIÓN TOTAL ACTIVO' : '🌌 FULL IMMERSION MODE ON'));
                     setTimeout(() => setFloatingXpNotice(null), 2400);
                   } else {
                     setCameraFocusedOnPillar(false);
@@ -1843,7 +1871,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 }`}
               >
                 <Maximize2 className="w-3.5 h-3.5" />
-                <span>{zenImmersionMode ? 'Salir Inmersión Total' : 'Modo Inmersión Total 3D'}</span>
+                <span>{zenImmersionMode ? (es ? 'Salir Inmersión Total' : 'Exit Full Immersion') : (es ? 'Modo Inmersión Total 3D' : 'Full 3D Immersion Mode')}</span>
               </button>
 
               {/* Lite Mode */}
@@ -1861,7 +1889,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 }`}
               >
                 <Zap className="w-3.5 h-3.5" />
-                <span>{liteMode ? 'Modo Ligero: Activo' : 'Activar Modo Ligero (Batería)'}</span>
+                <span>{liteMode ? (es ? 'Modo Ligero: Activo' : 'Lite Mode: On') : (es ? 'Activar Modo Ligero (Batería)' : 'Turn On Lite Mode (Battery)')}</span>
               </button>
             </div>
           )}
@@ -1900,7 +1928,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 onClick={() => setClocksCollapsedMobile(false)}
                 className="sm:hidden px-2.5 py-1.5 bg-[#050505]/95 border border-[#FDCC0D] text-white font-mono text-[11px] font-bold flex items-center gap-2 shadow-2xl cursor-pointer"
                 style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-                title="Expandir relojes del Summit"
+                title={es ? 'Expandir relojes del Summit' : 'Expand the Summit clocks'}
               >
                 <Clock className="w-3.5 h-3.5 text-[#FDCC0D]" />
                 <span className="tabular-nums tracking-wide">{countdown.days}D : {countdown.hours}H : {countdown.minutes}M</span>
@@ -1920,25 +1948,25 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-[#32527B]/50">
                 <div className="min-w-0">
                   <div className="text-[9px] font-mono font-bold text-[#FDCC0D] tracking-widest uppercase">
-                    11–13 DIC 2026 · 10:00 AM AST
+                    {es ? '11–13 DIC 2026 · 10:00 AM AST' : 'DEC 11–13, 2026 · 10:00 AM AST'}
                   </div>
                   <div className="text-xs font-black text-white font-['Orbitron',sans-serif] tracking-wide truncate">
-                    RELOJES DEL SUMMIT
+                    {es ? 'RELOJES DEL SUMMIT' : 'SUMMIT CLOCKS'}
                   </div>
                   <div className="text-[9px] font-mono text-slate-300 leading-snug mt-0.5">
-                    Días 1–2 por <a href={SGX_YOUTUBE} target="_blank" rel="noopener noreferrer" className="text-[#00DDFF] underline">YouTube Live</a> · Día 3 en Chroma Space Studios (por invitación) · Gratis · En español
+                    {es ? 'Días 1–2 por ' : 'Days 1–2 on '}<a href={SGX_YOUTUBE} target="_blank" rel="noopener noreferrer" className="text-[#00DDFF] underline">YouTube Live</a>{es ? ' · Día 3 en Chroma Space Studios (por invitación) · Gratis · En español' : ' · Day 3 at Chroma Space Studios (by invitation) · Free · In Spanish'}
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setClocksCollapsedMobile(true)}
                   className="sm:hidden px-1.5 py-0.5 bg-[#050505] border border-[#32527B] text-[10px] font-mono text-[#00DDFF] cursor-pointer"
-                  title="Minimizar relojes"
+                  title={es ? 'Minimizar relojes' : 'Minimize clocks'}
                 >
                   ▲
                 </button>
                 <span className="hidden sm:inline-block px-1.5 py-0.5 bg-[#00DDFF]/15 border border-[#00DDFF]/50 text-[9px] font-mono font-bold text-[#00DDFF] shrink-0">
-                  CUENTA ATRÁS
+                  {es ? 'CUENTA ATRÁS' : 'COUNTDOWN'}
                 </span>
               </div>
 
@@ -1946,14 +1974,14 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               <div className="grid grid-cols-2 gap-2">
                 {[
                   {
-                    label: 'DÍAS',
+                    label: (es ? 'DÍAS' : 'DAYS'),
                     value: String(countdown.days).padStart(2, '0'),
                     color: '#00DDFF',
                     progress: Math.min(1, countdown.days / 120),
                     hz: 1.0,
                   },
                   {
-                    label: 'HORAS',
+                    label: (es ? 'HORAS' : 'HOURS'),
                     value: String(countdown.hours).padStart(2, '0'),
                     color: '#FDCC0D',
                     progress: countdown.hours / 24,
@@ -1967,7 +1995,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                     hz: 1.5,
                   },
                   {
-                    label: 'SEG',
+                    label: (es ? 'SEG' : 'SEC'),
                     value: String(countdown.seconds).padStart(2, '0'),
                     color: '#B87000',
                     progress: countdown.seconds / 60,
@@ -1985,7 +2013,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                       style={{
                         clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)',
                       }}
-                      title={`Emitir pulso armónico 432Hz (${dial.label})`}
+                      title={(es ? `Emitir pulso armónico 432Hz (${dial.label})` : `Send a 432Hz harmonic pulse (${dial.label})`)}
                     >
                       <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center">
                         <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
@@ -2045,7 +2073,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 >
                   <span className="flex items-center gap-1.5 truncate">
                     <Clock className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">Cápsulas & Retos</span>
+                    <span className="truncate">{es ? 'Cápsulas & Retos' : 'Capsules & Challenges'}</span>
                   </span>
                   <ArrowRight className="w-3.5 h-3.5 shrink-0" />
                 </button>
@@ -2117,7 +2145,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
 
             <div className="mt-4 px-3.5 py-2 bg-[#1A1A1A] border border-[#FFBB00]/50 text-[#FFBB00] font-body text-xs flex items-center gap-2">
               <Zap className="w-4 h-4 text-[#FFBB00] shrink-0" />
-              <span>Modo Ligero Activo · Ahorro de GPU y Batería al 100% · Toca cualquier pilar para inspeccionar</span>
+              <span>{es ? 'Modo Ligero Activo · Ahorro de GPU y Batería al 100% · Toca cualquier pilar para inspeccionar' : 'Lite Mode On · 100% GPU & Battery Saving · Tap any pillar to inspect'}</span>
             </div>
           </div>
         )}
@@ -2192,7 +2220,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               {/* Mobile Top Grabber & Quick Close Bar */}
               <div className="md:hidden flex items-center justify-between px-4 py-2.5 bg-[#050505] border-b border-[#32527B]/60 shrink-0">
                 <span className="text-[11px] font-mono font-bold text-[#FDCC0D] uppercase tracking-wider">
-                  MODAL DE INSPECCIÓN NÚCLEO 3D
+                  {es ? 'MODAL DE INSPECCIÓN NÚCLEO 3D' : '3D CORE INSPECTION MODAL'}
                 </span>
                 <button
                   type="button"
@@ -2203,7 +2231,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                   className="px-2.5 py-1 bg-[#1A1A1A] hover:bg-[#FDCC0D] hover:text-black border border-[#FDCC0D]/60 text-xs font-['Orbitron',sans-serif] font-bold text-[#FDCC0D] transition-colors cursor-pointer flex items-center gap-1"
                 >
                   <X className="w-3.5 h-3.5" />
-                  <span>Volver al 3D</span>
+                  <span>{es ? 'Volver al 3D' : 'Back to 3D'}</span>
                 </button>
               </div>
 
@@ -2230,13 +2258,13 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                         className="text-[11px] font-mono font-bold uppercase tracking-wider"
                         style={{ color: readableAccent }}
                       >
-                        ESTACIÓN ACOPLADA · {activeNode.code}
+                        {es ? 'ESTACIÓN ACOPLADA · ' : 'DOCKED STATION · '}{activeNode.code}
                       </div>
                       <h4
                         className="font-black text-white font-['Orbitron',sans-serif] truncate"
                         style={{ fontSize: 'clamp(1rem, 1.4vw, 1.25rem)' }}
                       >
-                        {activeNode.title}
+                        {loc(activeNode, 'title', language)}
                       </h4>
                     </div>
                   </div>
@@ -2251,10 +2279,10 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                     style={{
                       clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
                     }}
-                    title="Cerrar panel y despejar vista 3D"
+                    title={es ? 'Cerrar panel y despejar vista 3D' : 'Close panel and clear the 3D view'}
                   >
                     <X className="w-3.5 h-3.5" />
-                    <span>Cerrar</span>
+                    <span>{es ? 'Cerrar' : 'Close'}</span>
                   </button>
                 </div>
 
@@ -2272,7 +2300,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                         : 'text-slate-300 hover:text-white hover:bg-[#1A1A1A]'
                     }`}
                   >
-                    Módulos ({activePillarModules.length})
+                    {es ? 'Módulos (' : 'Modules ('}{activePillarModules.length})
                   </button>
                   <button
                     type="button"
@@ -2384,19 +2412,19 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                       <div className="flex items-center justify-between text-[#FDCC0D] font-['Orbitron',sans-serif] font-bold text-xs sm:text-sm">
                         <span className="flex items-center gap-2">
                           <Building2 className="w-4 h-4 text-[#FDCC0D]" />
-                          <span>4 ÁREAS DE PATROCINIO 3D EN EL NÚCLEO</span>
+                          <span>{es ? '4 ÁREAS DE PATROCINIO 3D EN EL NÚCLEO' : '4 3D SPONSOR AREAS IN THE CORE'}</span>
                         </span>
-                        <span className="font-mono text-xs text-[#00DDFF]">+25 XP / VISITA</span>
+                        <span className="font-mono text-xs text-[#00DDFF]">{es ? '+25 XP / VISITA' : '+25 XP / VISIT'}</span>
                       </div>
                       <p className="text-slate-200 font-body text-xs sm:text-sm leading-relaxed">
-                        Toca cualquier monolito rotando en la arena 3D o pulsa <strong className="text-[#FDCC0D]">"Enfocar en 3D"</strong> para volar la cámara hacia esa estación de patrocinio oficial.
+                        {es ? 'Toca cualquier monolito rotando en la arena 3D o pulsa ' : 'Tap any rotating monolith in the 3D arena or press '}<strong className="text-[#FDCC0D]">{es ? '"Enfocar en 3D"' : '"Focus in 3D"'}</strong>{es ? ' para volar la cámara hacia esa estación de patrocinio oficial.' : ' to fly the camera to that official sponsor station.'}
                       </p>
                     </div>
 
                     {/* The 4 Rotating 3D Sponsor Stations */}
                     <div className="space-y-3">
                       <div className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider px-1">
-                        Estaciones 3D Activas en el Espacio:
+                        {es ? 'Estaciones 3D Activas en el Espacio:' : 'Active 3D Stations in the Space:'}
                       </div>
 
                       {SGX_3D_SPONSOR_STATIONS.map((station, sIdx) => {
@@ -2421,21 +2449,21 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                                   border: `1px solid ${station.colorHex}60`,
                                 }}
                               >
-                                {station.tierLabel}
+                                {loc(station, 'tierLabel', language)}
                               </span>
                               {isFocused && (
                                 <span className="px-2 py-0.5 bg-[#FDCC0D] text-black font-['Orbitron',sans-serif] font-black text-[10px]">
-                                  ENFOCADO EN 3D ⚡
+                                  {es ? 'ENFOCADO EN 3D ⚡' : 'FOCUSED IN 3D ⚡'}
                                 </span>
                               )}
                             </div>
 
                             <div className="text-white font-extrabold text-base font-['Orbitron',sans-serif]">
-                              0{sIdx + 1}. {station.name}
+                              0{sIdx + 1}. {loc(station, 'name', language)}
                             </div>
 
                             <p className="text-slate-200 font-body text-sm leading-relaxed">
-                              {station.roleSubtitle}
+                              {loc(station, 'roleSubtitle', language)}
                             </p>
 
                             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#32527B]/40">
@@ -2448,20 +2476,20 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                                 className="sgx-btn px-3 py-1.5 text-xs flex items-center gap-1.5 font-bold cursor-pointer"
                               >
                                 <Eye className="w-3.5 h-3.5" />
-                                <span>Enfocar en Órbita 3D 🔭</span>
+                                <span>{es ? 'Enfocar en Órbita 3D 🔭' : 'Focus in 3D Orbit 🔭'}</span>
                               </button>
 
                               <button
                                 type="button"
                                 onClick={() => {
                                   playUiChirp(840);
-                                  setFloatingXpNotice(`+25 XP · ESTACIÓN ${station.name.toUpperCase()} REGISTRADA`);
+                                  setFloatingXpNotice((es ? `+25 XP · ESTACIÓN ${station.name.toUpperCase()} REGISTRADA` : `+25 XP · STATION ${station.name.toUpperCase()} LOGGED`));
                                   setTimeout(() => setFloatingXpNotice(null), 2000);
                                   recordActivity('tour_complete', `Estación Sponsor 3D: ${station.name}`, station.tierLabel, 25);
                                 }}
                                 className="px-3 py-1.5 bg-[#1A1A1A] hover:bg-[#00DDFF] hover:text-black border border-[#00DDFF]/60 text-xs font-mono text-[#00DDFF] font-bold cursor-pointer transition-colors"
                               >
-                                +25 XP Descubrir
+                                {es ? '+25 XP Descubrir' : '+25 XP Discover'}
                               </button>
                             </div>
                           </div>
@@ -2472,7 +2500,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                     {/* Official Sponsorship Packages (Tiers 1–5) */}
                     <div className="space-y-3 pt-3 border-t border-[#32527B]/60">
                       <div className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider px-1">
-                        Paquetes Oficiales de Alianza (Tiers 1 al 5):
+                        {es ? 'Paquetes Oficiales de Alianza (Tiers 1 al 5):' : 'Official Partnership Packages (Tiers 1 to 5):'}
                       </div>
 
                       {SPONSORSHIP_TIERS.map(tier => {
@@ -2506,19 +2534,19 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                                   border: `1px solid ${tierColor}60`,
                                 }}
                               >
-                                TIER {tier.tierNumber} · {tier.priceRange}
+                                TIER {tier.tierNumber} · {loc(tier, 'priceRange', language)}
                               </span>
                               <button
                                 type="button"
                                 onClick={() => {
                                   playUiChirp(840);
-                                  setFloatingXpNotice(`+15 XP · BALIZA ${tier.name.toUpperCase()} ESCANEADA`);
+                                  setFloatingXpNotice((es ? `+15 XP · BALIZA ${tier.name.toUpperCase()} ESCANEADA` : `+15 XP · BEACON ${tier.name.toUpperCase()} SCANNED`));
                                   setTimeout(() => setFloatingXpNotice(null), 2000);
                                   recordActivity('tour_complete', `Baliza Sponsor: ${tier.name}`, tier.priceRange, 15);
                                 }}
                                 className="text-xs font-mono font-bold text-[#00DDFF] hover:text-[#FDCC0D] underline cursor-pointer"
                               >
-                                Escanear (+15 XP)
+                                {es ? 'Escanear (+15 XP)' : 'Scan (+15 XP)'}
                               </button>
                             </div>
 
@@ -2538,7 +2566,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                               }}
                               className="sgx-btn w-full py-2 text-xs flex items-center justify-center gap-1.5 font-bold"
                             >
-                              <span>Ver Detalles Completos de Tier {tier.tierNumber}</span>
+                              <span>{es ? 'Ver Detalles Completos de Tier ' : 'View Full Tier Details '}{tier.tierNumber}</span>
                               <ArrowRight className="w-3.5 h-3.5" />
                             </button>
                           </div>
@@ -2560,14 +2588,14 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                       <div className="flex items-center justify-between text-[#00DDFF] font-['Orbitron',sans-serif] font-bold text-xs sm:text-sm">
                         <span className="flex items-center gap-2">
                           <Sliders className="w-4 h-4" />
-                          <span>FIDELIDAD .GLB & SHADER 3D</span>
+                          <span>{es ? 'FIDELIDAD .GLB & SHADER 3D' : '.GLB & 3D SHADER FIDELITY'}</span>
                         </span>
                         <span className="font-mono text-xs text-[#FDCC0D]">
                           {loadedModelsCount}/7 GLBs Activos
                         </span>
                       </div>
                       <p className="text-slate-200 font-body text-xs sm:text-sm leading-relaxed">
-                        El domo volumétrico GLSL, las partículas cuánticas circulares y las 4 áreas de sponsors giran en tiempo real respetando los materiales nativos PBR de cada escultura <strong className="text-[#FDCC0D]">.glb</strong>.
+                        {es ? 'El domo volumétrico GLSL, las partículas cuánticas circulares y las 4 áreas de sponsors giran en tiempo real respetando los materiales nativos PBR de cada escultura ' : 'The volumetric GLSL dome, the circular quantum particles and the 4 sponsor areas rotate in real time, keeping each sculpture\'s native PBR materials '}<strong className="text-[#FDCC0D]">.glb</strong>.
                       </p>
                     </div>
 
@@ -2581,9 +2609,9 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                       <div className="flex items-center justify-between text-[#FDCC0D] font-['Orbitron',sans-serif] font-bold text-xs sm:text-sm">
                         <span className="flex items-center gap-2">
                           <Volume2 className="w-4 h-4" />
-                          <span>SINTETIZADOR ARMÓNICO 432Hz</span>
+                          <span>{es ? 'SINTETIZADOR ARMÓNICO 432Hz' : '432Hz HARMONIC SYNTHESIZER'}</span>
                         </span>
-                        <span className="font-mono text-xs text-slate-300">Ondas 3D</span>
+                        <span className="font-mono text-xs text-slate-300">{es ? 'Ondas 3D' : '3D Waves'}</span>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         {[
@@ -2612,7 +2640,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                       }}
                     >
                       <div className="flex items-center justify-between text-white font-['Orbitron',sans-serif] font-bold text-xs sm:text-sm">
-                        <span>VELOCIDAD DE REACTOR ORBITAL</span>
+                        <span>{es ? 'VELOCIDAD DE REACTOR ORBITAL' : 'ORBITAL REACTOR SPEED'}</span>
                         <span className="font-mono text-[#00DDFF] tabular-nums">
                           {orbitSpeedMultiplier.toFixed(1)}x
                         </span>
@@ -2634,7 +2662,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               {/* Modal Footer Telemetry */}
               <div className="px-4 py-2.5 bg-[#050505] border-t border-[#32527B]/60 flex items-center justify-between text-xs font-mono text-slate-300 shrink-0">
                 <span>
-                  Orbes 3D: <strong className="text-[#FDCC0D] tabular-nums">{xpOrbsCollected}</strong>
+                  {es ? 'Orbes 3D: ' : '3D Orbs: '}<strong className="text-[#FDCC0D] tabular-nums">{xpOrbsCollected}</strong>
                 </span>
                 <button
                   type="button"
@@ -2644,7 +2672,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                   }}
                   className="text-xs text-[#00DDFF] hover:text-[#FDCC0D] font-bold underline cursor-pointer"
                 >
-                  Volver al Visor 3D ✕
+                  {es ? 'Volver al Visor 3D ✕' : 'Back to the 3D Viewer ✕'}
                 </button>
               </div>
             </aside>
@@ -2654,7 +2682,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         {/* Bottom Status Bar / Mobile Bottom Sheet Launcher inside 3D Viewport */}
         <div className="absolute bottom-2.5 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-auto text-xs font-mono text-slate-200">
           <div className="px-3 py-1.5 bg-[#050505]/85 backdrop-blur-md border border-[#32527B]/70 pointer-events-none hidden sm:block">
-            Toca cualquier escultura <strong className="text-[#FDCC0D]">.GLB</strong> o los orbes en 3D · Arrastra para orbitar el espacio
+            {es ? 'Toca cualquier escultura ' : 'Tap any '}<strong className="text-[#FDCC0D]">.GLB</strong>{es ? ' o los orbes en 3D · Arrastra para orbitar el espacio' : ' sculpture or the 3D orbs · Drag to orbit the space'}
           </div>
 
           {!drawerOpen && (
@@ -2678,7 +2706,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 </span>
               </span>
               <span className="px-1.5 py-0.5 bg-[#FDCC0D] text-[#050505] text-[9px] font-['Orbitron',sans-serif] font-extrabold">
-                EXPLORAR ↑
+                {es ? 'EXPLORAR ↑' : 'EXPLORE ↑'}
               </span>
             </button>
           )}

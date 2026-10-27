@@ -31,6 +31,8 @@ import { useAuth } from '../../context/AuthContext';
 import { PILLAR_COLORS } from './AttendeeAvatarGenerator';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import { parsePassQr, passQrUrl } from '../../identity/sgxIdentity';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 export interface SummitContact {
   id: string;
@@ -46,6 +48,11 @@ export interface SummitContact {
   notes?: string;
   scannedAt: string;
   tags?: string[];
+  roleEn?: string;
+  companyEn?: string;
+  bioEn?: string;
+  notesEn?: string;
+  tagsEn?: string[];
 }
 
 const DEMO_CONTACTS_POOL: SummitContact[] = [
@@ -54,42 +61,53 @@ const DEMO_CONTACTS_POOL: SummitContact[] = [
     name: 'Elena Vega',
     role: 'Lead Spatial Architect',
     company: 'Demo Studio (datos simulados)',
+    companyEn: 'Demo Studio (simulated data)',
     pillar: 'SGX.SYNTHESIZE',
     email: 'elena@demo.example',
     linkedin: 'linkedin.com/in/elenavega-spatial',
     twitter: '@elenaspatial',
     bio: 'Pionera en pipelines WebGPU y shaders reactivos para eventos masivos en San Juan.',
+    bioEn: 'A pioneer in WebGPU pipelines and reactive shaders for large events in San Juan.',
     scannedAt: new Date().toLocaleDateString('es-ES'),
     notes: 'Nos conocimos en el keynote de apertura. Interesada en colaborar en shaders WebGL.',
-    tags: ['Speaker', 'WebGPU', 'Colaboración']
+    notesEn: 'We met at the opening keynote. Interested in collaborating on WebGL shaders.',
+    tags: ['Speaker', 'WebGPU', 'Colaboración'],
+    tagsEn: ['Speaker', 'WebGPU', 'Collaboration'],
   },
   {
     id: 'sgx_user_carlos_mendez',
     name: 'Carlos Méndez',
     role: 'Co-Fundador & CTO',
+    roleEn: 'Co-Founder & CTO',
     company: 'Vortex HoloTech PR',
     pillar: 'SGX.STAGE',
     email: 'carlos@vortexholo.pr',
     linkedin: 'linkedin.com/in/carlosmendez-xr',
     twitter: '@carlos_xr_pr',
     bio: 'Desarrollador Unreal Engine 5.5 y WebXR Live Broadcast multijugador.',
+    bioEn: 'Unreal Engine 5.5 and multiplayer WebXR Live Broadcast developer.',
     scannedAt: new Date().toLocaleDateString('es-ES'),
     notes: 'Presentará demo de tracking de cámara en vivo en el Stage C.',
+    notesEn: 'Will present a live camera-tracking demo on Stage C.',
     tags: ['Founder', 'Unreal', 'San Juan']
   },
   {
     id: 'sgx_user_maya_lin',
     name: 'Maya Lin',
     role: 'Directora de Inversión WebXR',
+    roleEn: 'WebXR Investment Director',
     company: 'Caribbean Cyber Ventures',
     pillar: 'SGX.SHOWCASE',
     email: 'maya@caribbeancyber.vc',
     linkedin: 'linkedin.com/in/mayalinvc',
     twitter: '@mayalin_vc',
     bio: 'Buscando startups en fase pre-seed en computación espacial y agentes de IA.',
+    bioEn: 'Looking for pre-seed startups in spatial computing and AI agents.',
     scannedAt: new Date().toLocaleDateString('es-ES'),
     notes: 'Seguimiento el lunes para presentar deck de Spatialgineers.',
-    tags: ['Inversionista', 'VC', 'Pre-Seed']
+    notesEn: 'Follow up on Monday to present the Spatialgineers deck.',
+    tags: ['Inversionista', 'VC', 'Pre-Seed'],
+    tagsEn: ['Investor', 'VC', 'Pre-Seed'],
   }
 ];
 
@@ -104,6 +122,8 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
   onAwardXp,
   initialTab = 'SCANNER'
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { user, playerProfile, savePlayerProfile } = useAuth();
   const sgx = useOptionalSgxIdentity();
   const [activeTab, setActiveTab] = useState<'SCANNER' | 'MY_BADGE' | 'ROLODEX'>(initialTab);
@@ -157,7 +177,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
         email: user?.email || 'asistente@spatialgineers.com',
         linkedin: `linkedin.com/in/${userName.toLowerCase()}`,
         twitter: `@${userName.toLowerCase()}`,
-        bio: 'Participante oficial en Spatialgineers Summit 2026 San Juan & Global Live.',
+        bio: (es ? 'Participante oficial en Spatialgineers Summit 2026 San Juan & Global Live.' : 'Official participant at the Spatialgineers Summit 2026 San Juan & Global Live.'),
         scannedAt: new Date().toLocaleDateString('es-ES')
       };
 
@@ -223,8 +243,8 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
       console.warn('Camera stream notice:', err);
       setCameraError(
         err?.name === 'NotAllowedError'
-          ? 'Permiso de cámara denegado en el navegador. Puedes usar los escaneos de demostración o subir una foto de la credencial.'
-          : 'No se pudo iniciar la cámara en este dispositivo. Puedes usar la simulación de escaneo o subir una imagen.'
+          ? (es ? 'Permiso de cámara denegado en el navegador. Puedes usar los escaneos de demostración o subir una foto de la credencial.' : 'Camera permission denied by the browser. You can use the demo scans or upload a photo of the credential.')
+          : (es ? 'No se pudo iniciar la cámara en este dispositivo. Puedes usar la simulación de escaneo o subir una imagen.' : 'Couldn\'t start the camera on this device. You can use the scan simulation or upload an image.')
       );
       setCameraActive(false);
     }
@@ -256,7 +276,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
         setTorchOn(!torchOn);
         playUiChirp(840);
       } else {
-        alert('La linterna no está disponible en este dispositivo o cámara.');
+        alert((es ? 'La linterna no está disponible en este dispositivo o cámara.' : 'The flashlight isn\'t available on this device or camera.'));
       }
     } catch (err) {
       console.warn('Torch toggle notice:', err);
@@ -323,7 +343,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
         parsedContact = {
           id: `scan_${Date.now()}`,
           name: rawData.slice(0, 30),
-          role: 'Asistente Summit',
+          role: (es ? 'Asistente Summit' : 'Summit Attendee'),
           company: 'Spatialgineers 2026',
           pillar: 'SGX.STAGE',
           email: 'contacto@spatialgineers.com',
@@ -333,8 +353,8 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
     } catch (err) {
       parsedContact = {
         id: `scan_${Date.now()}`,
-        name: 'Asistente Detectado',
-        role: 'Invitado Summit',
+        name: (es ? 'Asistente Detectado' : 'Attendee Detected'),
+        role: (es ? 'Invitado Summit' : 'Summit Guest'),
         company: 'Spatial Computing PR',
         pillar: 'SGX.SYNTHESIZE',
         email: 'info@spatialgineers.com',
@@ -357,7 +377,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
       });
     }
 
-    setJustEarnedXp(`+${earnedXp} XP Networking Desbloqueado`);
+    setJustEarnedXp((es ? `+${earnedXp} XP Networking Desbloqueado` : `+${earnedXp} XP Networking Unlocked`));
     setTimeout(() => setJustEarnedXp(null), 3500);
   };
 
@@ -367,7 +387,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
 
     const finalizedContact: SummitContact = {
       ...scannedResult,
-      notes: scannedNotesInput || scannedResult.notes || 'Contacto escaneado en San Juan Summit 2026'
+      notes: scannedNotesInput || scannedResult.notes || (es ? 'Contacto escaneado en San Juan Summit 2026' : 'Contact scanned at the San Juan Summit 2026')
     };
 
     // Check if already in list
@@ -399,7 +419,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
           if (code && code.data) {
             handleProcessQrData(code.data);
           } else {
-            alert('No se detectó un código QR válido en la imagen seleccionada.');
+            alert((es ? 'No se detectó un código QR válido en la imagen seleccionada.' : 'No valid QR code was detected in the selected image.'));
           }
         }
       };
@@ -419,7 +439,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
       `EMAIL:${contact.email}`,
       contact.linkedin ? `URL;type=LinkedIn:${contact.linkedin}` : '',
       contact.twitter ? `X-SOCIALPROFILE;type=twitter:${contact.twitter}` : '',
-      `NOTE:${contact.notes || ''} [Spatialgineers Summit 2026 - ${contact.pillar}]`,
+      `NOTE:${loc(contact, 'notes', language) || ''} [Spatialgineers Summit 2026 - ${contact.pillar}]`,
       'END:VCARD'
     ].filter(Boolean).join('\r\n');
 
@@ -435,7 +455,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
 
   const handleExportCsv = () => {
     playUiChirp(840);
-    const headers = ['Nombre', 'Cargo', 'Empresa', 'Pilar', 'Email', 'LinkedIn', 'Twitter', 'Notas', 'Fecha'];
+    const headers = [(es ? 'Nombre' : 'Name'), (es ? 'Cargo' : 'Title'), (es ? 'Empresa' : 'Company'), (es ? 'Pilar' : 'Pillar'), 'Email', 'LinkedIn', 'Twitter', (es ? 'Notas' : 'Notes'), (es ? 'Fecha' : 'Date')];
     const rows = contacts.map(c => [
       `"${c.name}"`,
       `"${c.role}"`,
@@ -483,13 +503,13 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
             <ScanLine className="w-4 h-4 text-cyan-400 animate-pulse" />
             <div>
               <div className="text-sm font-black text-white flex items-center space-x-2">
-                <span>NETWORKING QR & LIBRETA DE CONTACTOS</span>
+                <span>{es ? 'NETWORKING QR & LIBRETA DE CONTACTOS' : 'NETWORKING QR & CONTACT BOOK'}</span>
                 <span className="px-1.5 py-0.5 bg-cyan-950 text-cyan-300 border border-cyan-800 text-[10px]">
                   SAN JUAN 2026
                 </span>
               </div>
               <div className="text-[10px] text-slate-400 font-sans">
-                Escanea credenciales presenciales, comparte tu QR y exporta a tu móvil (.vcf)
+                {es ? 'Escanea credenciales presenciales, comparte tu QR y exporta a tu móvil (.vcf)' : 'Scan in-person credentials, share your QR and export to your phone (.vcf)'}
               </div>
             </div>
           </div>
@@ -524,7 +544,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
             }`}
           >
             <Camera className="w-3.5 h-3.5" />
-            <span>ESCANEAR CÁMARA</span>
+            <span>{es ? 'ESCANEAR CÁMARA' : 'CAMERA SCAN'}</span>
           </button>
 
           <button
@@ -539,7 +559,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
             }`}
           >
             <QrCode className="w-3.5 h-3.5" />
-            <span>MI CREDENCIAL QR</span>
+            <span>{es ? 'MI CREDENCIAL QR' : 'MY QR CREDENTIAL'}</span>
           </button>
 
           <button
@@ -554,7 +574,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
             }`}
           >
             <BookUser className="w-3.5 h-3.5" />
-            <span>LIBRETA ({contacts.length})</span>
+            <span>{es ? 'LIBRETA (' : 'CONTACT BOOK ('}{contacts.length})</span>
           </button>
         </div>
 
@@ -615,7 +635,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                       }`}
                     >
                       <Zap className="w-3.5 h-3.5" />
-                      <span>{torchOn ? 'LINTERNA ON' : 'LINTERNA'}</span>
+                      <span>{torchOn ? (es ? 'LINTERNA ON' : 'FLASHLIGHT ON') : (es ? 'LINTERNA' : 'FLASHLIGHT')}</span>
                     </button>
 
                     <button
@@ -626,12 +646,12 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                       className="px-3 py-1.5 bg-slate-900 border border-slate-700 hover:border-cyan-400 text-slate-300 font-bold flex items-center space-x-1"
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
-                      <span>CAMBIAR CÁMARA</span>
+                      <span>{es ? 'CAMBIAR CÁMARA' : 'SWITCH CAMERA'}</span>
                     </button>
 
                     <label className="px-3 py-1.5 bg-slate-900 border border-slate-700 hover:border-[#FDCC0D] text-[#FDCC0D] font-bold flex items-center space-x-1 cursor-pointer">
                       <Upload className="w-3.5 h-3.5" />
-                      <span>SUBIR IMAGEN</span>
+                      <span>{es ? 'SUBIR IMAGEN' : 'UPLOAD IMAGE'}</span>
                       <input 
                         type="file" 
                         accept="image/*" 
@@ -649,7 +669,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                     <div className="flex items-center space-x-2">
                       <div className="w-3 h-3 bg-[#FDCC0D] rounded-full animate-ping" />
                       <span className="text-xs font-black text-[#FDCC0D] uppercase tracking-wider">
-                        ¡CREDENCIAL ESCANEADA CON ÉXITO! (+50 XP)
+                        {es ? '¡CREDENCIAL ESCANEADA CON ÉXITO! (+50 XP)' : 'CREDENTIAL SCANNED SUCCESSFULLY! (+50 XP)'}
                       </span>
                     </div>
                     <span className="text-[10px] text-slate-400">{scannedResult.scannedAt}</span>
@@ -666,10 +686,10 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
 
                     <div className="flex-1 overflow-hidden space-y-1">
                       <div className="text-base font-black text-white">{scannedResult.name}</div>
-                      <div className="text-xs text-cyan-300 font-bold">{scannedResult.role}</div>
+                      <div className="text-xs text-cyan-300 font-bold">{loc(scannedResult, 'role', language)}</div>
                       <div className="text-[11px] text-slate-400 flex items-center space-x-1">
                         <Building2 className="w-3 h-3" />
-                        <span>{scannedResult.company}</span>
+                        <span>{loc(scannedResult, 'company', language)}</span>
                       </div>
                       <div className="inline-block px-2 py-0.5 bg-amber-950/60 border border-amber-400 text-amber-300 text-[10px] font-bold mt-1">
                         {scannedResult.pillar}
@@ -677,21 +697,21 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                     </div>
                   </div>
 
-                  {scannedResult.bio && (
+                  {loc(scannedResult, 'bio', language) && (
                     <div className="p-2.5 bg-black/60 border border-slate-800 text-[11px] text-slate-300 italic">
-                      "{scannedResult.bio}"
+                      "{loc(scannedResult, 'bio', language)}"
                     </div>
                   )}
 
                   {/* Private Notes Input */}
                   <div className="space-y-1">
                     <label className="text-[10px] text-slate-400 font-bold uppercase">
-                      Nota privada para el seguimiento:
+                      {es ? 'Nota privada para el seguimiento:' : 'Private follow-up note:'}
                     </label>
                     <textarea
                       value={scannedNotesInput}
                       onChange={e => setScannedNotesInput(e.target.value)}
-                      placeholder="Ej: Hablamos en el panel de WebXR, quiere demo de shaders o inversión..."
+                      placeholder={es ? 'Ej: Hablamos en el panel de WebXR, quiere demo de shaders o inversión...' : 'E.g. We talked at the WebXR panel, wants a shader demo or investment...'}
                       rows={2}
                       className="w-full p-2 bg-black border border-slate-700 text-white text-xs focus:border-[#FDCC0D] outline-none"
                     />
@@ -704,7 +724,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                       className="p-2.5 bg-[#FDCC0D] hover:bg-[#E5B80B] text-black font-extrabold flex items-center justify-center space-x-1.5 shadow-lg hover:scale-[1.02] transition-transform"
                     >
                       <UserPlus className="w-4 h-4" />
-                      <span>GUARDAR EN LIBRETA</span>
+                      <span>{es ? 'GUARDAR EN LIBRETA' : 'SAVE TO CONTACT BOOK'}</span>
                     </button>
 
                     <button
@@ -714,7 +734,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                       }}
                       className="p-2.5 bg-[#232323] border border-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center space-x-1"
                     >
-                      <span>ESCANEAR OTRO</span>
+                      <span>{es ? 'ESCANEAR OTRO' : 'SCAN ANOTHER'}</span>
                     </button>
                   </div>
                 </div>
@@ -748,19 +768,19 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                   {myQrDataUrl ? (
                     <img 
                       src={myQrDataUrl} 
-                      alt="Mi Credencial QR" 
+                      alt={es ? 'Mi Credencial QR' : 'My QR Credential'} 
                       className="w-56 h-56 object-contain"
                     />
                   ) : (
                     <div className="w-56 h-56 flex items-center justify-center text-slate-500">
-                      Generando QR...
+                      {es ? 'Generando QR...' : 'Generating QR...'}
                     </div>
                   )}
                 </div>
 
                 {/* Badge Bottom Metadata */}
                 <div className="text-center text-[10px] text-slate-400 space-y-1">
-                  <div>Muestra este código para que otros participantes te agreguen a su libreta.</div>
+                  <div>{es ? 'Muestra este código para que otros participantes te agreguen a su libreta.' : 'Show this code so other participants can add you to their contact book.'}</div>
                   <div className="text-[#FDCC0D] font-mono font-bold">
                     ID: {user?.uid ? user.uid.slice(0, 12) : 'SGX-LIVE-2026'}
                   </div>
@@ -779,7 +799,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                   className="flex-1 p-2.5 bg-[#202020] border border-cyan-400 text-cyan-300 font-bold flex items-center justify-center space-x-1.5 hover:bg-cyan-950/40 transition-colors"
                 >
                   <Check className="w-3.5 h-3.5" />
-                  <span>{copiedLink ? '¡ENLACE COPIADO!' : 'COPIAR LINK DE ASISTENTE'}</span>
+                  <span>{copiedLink ? (es ? '¡ENLACE COPIADO!' : 'LINK COPIED!') : (es ? 'COPIAR LINK DE ASISTENTE' : 'COPY ATTENDEE LINK')}</span>
                 </button>
 
                 <button
@@ -790,10 +810,10 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                     a.click();
                   }}
                   className="p-2.5 bg-[#202020] border border-amber-400 text-amber-300 font-bold flex items-center space-x-1"
-                  title="Descargar imagen QR"
+                  title={es ? 'Descargar imagen QR' : 'Download QR image'}
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">BAJAR QR</span>
+                  <span className="hidden sm:inline">{es ? 'BAJAR QR' : 'DOWNLOAD QR'}</span>
                 </button>
               </div>
             </div>
@@ -810,7 +830,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                     type="text"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    placeholder="Buscar por nombre, cargo..."
+                    placeholder={es ? 'Buscar por nombre, cargo...' : 'Search by name, title...'}
                     className="w-full pl-8 pr-3 py-1.5 bg-black border border-slate-700 text-white text-xs outline-none focus:border-cyan-400"
                   />
                 </div>
@@ -821,7 +841,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                     onChange={e => setSelectedPillarFilter(e.target.value)}
                     className="p-1.5 bg-black border border-slate-700 text-slate-300 text-xs outline-none"
                   >
-                    <option value="ALL">Todos los Pilares</option>
+                    <option value="ALL">{es ? 'Todos los Pilares' : 'All Pillars'}</option>
                     <option value="SGX.SYNTHESIZE">SGX.SYNTHESIZE</option>
                     <option value="SGX.STAGE">SGX.STAGE</option>
                     <option value="SGX.SYSTEM">SGX.SYSTEM</option>
@@ -831,7 +851,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                   <button
                     onClick={handleExportCsv}
                     className="px-3 py-1.5 bg-[#232323] hover:bg-[#313131] border border-slate-700 hover:border-cyan-400 text-cyan-300 font-bold flex items-center space-x-1"
-                    title="Exportar todos los contactos a Excel / CSV"
+                    title={es ? 'Exportar todos los contactos a Excel / CSV' : 'Export all contacts to Excel / CSV'}
                   >
                     <FileText className="w-3.5 h-3.5" />
                     <span>CSV</span>
@@ -843,12 +863,12 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
               {filteredContacts.length === 0 ? (
                 <div className="text-center p-8 bg-black/40 border border-slate-800 space-y-2">
                   <BookUser className="w-8 h-8 text-slate-600 mx-auto" />
-                  <div className="text-slate-400 text-xs">No hay contactos guardados con ese filtro.</div>
+                  <div className="text-slate-400 text-xs">{es ? 'No hay contactos guardados con ese filtro.' : 'No saved contacts match that filter.'}</div>
                   <button
                     onClick={() => setActiveTab('SCANNER')}
                     className="px-3 py-1.5 bg-cyan-950 border border-cyan-500 text-cyan-300 font-bold"
                   >
-                    Escanear primer contacto
+                    {es ? 'Escanear primer contacto' : 'Scan your first contact'}
                   </button>
                 </div>
               ) : (
@@ -869,8 +889,8 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                           </div>
                           <div>
                             <div className="font-black text-white text-xs">{contact.name}</div>
-                            <div className="text-[11px] text-cyan-300 font-bold">{contact.role}</div>
-                            <div className="text-[10px] text-slate-400">{contact.company}</div>
+                            <div className="text-[11px] text-cyan-300 font-bold">{loc(contact, 'role', language)}</div>
+                            <div className="text-[10px] text-slate-400">{loc(contact, 'company', language)}</div>
                           </div>
                         </div>
 
@@ -883,9 +903,9 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                       </div>
 
                       {/* Notes / Follow-up */}
-                      {contact.notes && (
+                      {loc(contact, 'notes', language) && (
                         <div className="p-2 bg-black/50 border border-slate-800 text-[10px] text-slate-300 italic">
-                          "{contact.notes}"
+                          "{loc(contact, 'notes', language)}"
                         </div>
                       )}
 
@@ -929,16 +949,16 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
                           <button
                             onClick={() => handleExportVCard(contact)}
                             className="px-2.5 py-1 bg-[#232323] hover:bg-amber-950/60 border border-slate-700 hover:border-[#FDCC0D] text-[#FDCC0D] font-bold text-[10px] flex items-center space-x-1 transition-colors"
-                            title="Guardar directo en tus contactos del celular"
+                            title={es ? 'Guardar directo en tus contactos del celular' : 'Save directly to your phone contacts'}
                           >
                             <Phone className="w-3 h-3" />
-                            <span>AÑADIR A CONTACTOS (.VCF)</span>
+                            <span>{es ? 'AÑADIR A CONTACTOS (.VCF)' : 'ADD TO CONTACTS (.VCF)'}</span>
                           </button>
 
                           <button
                             onClick={() => handleDeleteContact(contact.id)}
                             className="p-1 text-slate-500 hover:text-rose-400 transition-colors"
-                            title="Eliminar de libreta"
+                            title={es ? 'Eliminar de libreta' : 'Remove from contact book'}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -956,14 +976,14 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
         <div className="p-3 bg-black border-t border-[var(--sgx-secondary)] flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-slate-400">
           <span className="flex items-center space-x-1.5">
             <Award className="w-3.5 h-3.5 text-amber-400" />
-            <span>Los contactos y notas se guardan de forma privada en tu dispositivo y perfil.</span>
+            <span>{es ? 'Los contactos y notas se guardan de forma privada en tu dispositivo y perfil.' : 'Contacts and notes are saved privately on your device and profile.'}</span>
           </span>
 
           <button
             onClick={onClose}
             className="w-full sm:w-auto px-4 py-1.5 bg-[var(--sgx-bg)] border border-slate-700 hover:border-[var(--sgx-neon)] text-white text-xs font-bold transition-colors"
           >
-            Cerrar
+            {es ? 'Cerrar' : 'Close'}
           </button>
         </div>
       </div>

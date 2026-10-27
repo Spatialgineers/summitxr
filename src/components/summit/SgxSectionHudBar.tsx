@@ -7,10 +7,13 @@ import { SGX_PILLARS, findPillar, moduleCode } from '../../lib/sgxPillars';
 import { navigateToPillar } from '../../immersion/navigation';
 import { VisitCounterChip } from './SummitVisitRadar';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 export interface HudSectionChip {
   key: SummitSectionKey;
   label: string;
+  labelEn?: string;
   pillar: string;
   icon: React.ComponentType<{ className?: string }>;
 }
@@ -45,6 +48,8 @@ function pillarShort(id: string) {
 export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
   activeSection, chips, pillarLabel, pillarIconUrl, onSelect, onBack, onTour, onShare, dropdown, stationSlug,
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { state } = useImmersion();
   const sgx = useOptionalSgxIdentity();
   const stripRef = useRef<HTMLDivElement>(null);
@@ -70,7 +75,7 @@ export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
       <div className="sgx-sechud__inner">
         <button type="button" className="sgx-sechud__back" onClick={onBack} data-sgx-hover>
           <ChevronLeft className="w-4 h-4" />
-          <span>Núcleo</span>
+          <span>{es ? 'Núcleo' : 'Core'}</span>
         </button>
 
         <div className="sgx-sechud__crumb" aria-live="polite">
@@ -80,12 +85,12 @@ export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
           {station ? (
             <>
               <span className="sgx-sechud__index">0{station.index}</span>
-              <span className="sgx-sechud__name">Estación</span>
+              <span className="sgx-sechud__name">{es ? 'Estación' : 'Station'}</span>
             </>
           ) : (
             <>
               <span className="sgx-sechud__index">{code}</span>
-              <span className="sgx-sechud__name">{active?.label || activeSection.replace(/_/g, ' ')}</span>
+              <span className="sgx-sechud__name">{(active && loc(active, 'label', language)) || activeSection.replace(/_/g, ' ')}</span>
             </>
           )}
         </div>
@@ -105,7 +110,7 @@ export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
                     type="button"
                     className={`sgx-sechud__group ${station?.id === chip.pillar ? 'is-active' : ''}`}
                     onClick={() => { const p = findPillar(chip.pillar); if (p) navigateToPillar(p.slug); }}
-                    title="Abrir la estación del pilar"
+                    title={es ? 'Abrir la estación del pilar' : 'Open the pillar station'}
                     data-sgx-hover
                   >
                     {String(PILLAR_ORDER.indexOf(chip.pillar) + 1).padStart(2, '0')} {pillarShort(chip.pillar)}
@@ -120,7 +125,7 @@ export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
                   data-sgx-hover
                 >
                   <Icon className="w-3.5 h-3.5" />
-                  <span>{chip.label}</span>
+                  <span>{loc(chip, 'label', language)}</span>
                   {cell ? <SgxBolt size={10} /> : visited ? <span className="sgx-sechud__dot" aria-hidden="true" /> : null}
                 </button>
               </React.Fragment>
@@ -131,12 +136,12 @@ export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
         <div className="sgx-sechud__tools">
           <VisitCounterChip className="hidden xl:inline-flex" onOpen={() => onSelect('VISITS')} />
           {/* One progress counter in the whole app: the Reactor. */}
-          <button type="button" className="sgx-btn sgx-btn--sm" onClick={onTour} title="Reactor: misiones por pilar de tu SGX Pass">
+          <button type="button" className="sgx-btn sgx-btn--sm" onClick={onTour} title={es ? 'Reactor: misiones por pilar de tu SGX Pass' : 'Reactor: your SGX Pass missions by pillar'}>
             <HelpCircle className="w-3.5 h-3.5" />
             <span className="hidden lg:inline">Reactor</span>
             {sgx && <span className="sgx-readout">{sgx.missions.filter((m) => sgx.isDone(m.id)).length}/{sgx.missions.length}</span>}
           </button>
-          <button type="button" className="sgx-btn sgx-btn--sm" onClick={onShare} title="Copiar enlace directo">
+          <button type="button" className="sgx-btn sgx-btn--sm" onClick={onShare} title={es ? 'Copiar enlace directo' : 'Copy direct link'}>
             <Share2 className="w-3.5 h-3.5" />
             <span className="hidden lg:inline">Link</span>
           </button>

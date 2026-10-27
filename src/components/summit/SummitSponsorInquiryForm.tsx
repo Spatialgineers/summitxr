@@ -21,6 +21,8 @@ import {
 } from 'lucide-react';
 import { SponsorshipTier, SponsorInquiry } from '../../types/summit';
 import { saveSingleSponsorInquiry, SPONSORSHIP_TIERS } from '../../lib/summitData';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 interface SummitSponsorInquiryFormProps {
   initialTierId?: string;
@@ -30,14 +32,14 @@ interface SummitSponsorInquiryFormProps {
 }
 
 const AVAILABLE_GOALS = [
-  { id: '4K_STREAM_OVERLAY', label: 'Logo en la webapp y en los overlays de la transmisión (Días 1-3)', icon: Sparkles },
-  { id: 'PHYSICAL_BOOTH_CHROMA', label: 'Activación "Experience by [Marca]" (Tier 4 y 5)', icon: Building2 },
-  { id: 'DRONE_MINIGAME_BRANDING', label: 'Branding en Minijuego de Drones & Zonas de Aterrizaje', icon: Flame },
-  { id: 'GAMIFIED_CHALLENGE_POINTS', label: 'Pregunta de trivia de marca en vivo (+25 XP)', icon: Award },
-  { id: 'SEGMENT_NAMING', label: 'Naming de Segmento o Pilar ("Showcase Powered by...")', icon: Layers },
-  { id: 'VIP_CATERING', label: 'Alianza de servicios esenciales: venue, internet, comida u otros (Tier 5)', icon: ShieldCheck },
-  { id: 'YEAR_LONG_LICENSE', label: 'Licencia de acceso a la webapp por 365 días desde noviembre (Tier 4 y 5)', icon: Globe },
-  { id: 'TALENT_RECRUITMENT', label: 'Reclutamiento de Talento 3D / Desarrolladores Roblox', icon: Building2 }
+  { id: '4K_STREAM_OVERLAY', label: 'Logo en la webapp y en los overlays de la transmisión (Días 1-3)', labelEn: 'Logo on the web app and on the broadcast overlays (Days 1-3)', icon: Sparkles },
+  { id: 'PHYSICAL_BOOTH_CHROMA', label: 'Activación "Experience by [Marca]" (Tier 4 y 5)', labelEn: '"Experience by [Brand]" activation (Tier 4 and 5)', icon: Building2 },
+  { id: 'DRONE_MINIGAME_BRANDING', label: 'Branding en Minijuego de Drones & Zonas de Aterrizaje', labelEn: 'Branding in the Drone Mini-Game & Landing Zones', icon: Flame },
+  { id: 'GAMIFIED_CHALLENGE_POINTS', label: 'Pregunta de trivia de marca en vivo (+25 XP)', labelEn: 'Live brand trivia question (+25 XP)', icon: Award },
+  { id: 'SEGMENT_NAMING', label: 'Naming de Segmento o Pilar ("Showcase Powered by...")', labelEn: 'Segment or Pillar Naming ("Showcase Powered by...")', icon: Layers },
+  { id: 'VIP_CATERING', label: 'Alianza de servicios esenciales: venue, internet, comida u otros (Tier 5)', labelEn: 'Essential services alliance: venue, internet, food or others (Tier 5)', icon: ShieldCheck },
+  { id: 'YEAR_LONG_LICENSE', label: 'Licencia de acceso a la webapp por 365 días desde noviembre (Tier 4 y 5)', labelEn: '365-day web app access license starting in November (Tier 4 and 5)', icon: Globe },
+  { id: 'TALENT_RECRUITMENT', label: 'Reclutamiento de Talento 3D / Desarrolladores Roblox', labelEn: '3D Talent / Roblox Developer Recruiting', icon: Building2 }
 ];
 
 export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> = ({
@@ -46,6 +48,8 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
   onSuccess,
   isModal = false
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const [selectedTierId, setSelectedTierId] = useState<string>(initialTierId);
   const [companyName, setCompanyName] = useState<string>('');
   const [contactName, setContactName] = useState<string>('');
@@ -74,14 +78,14 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
-    if (!companyName.trim()) newErrors.companyName = 'Ingresa el nombre de tu empresa o marca';
-    if (!contactName.trim()) newErrors.contactName = 'Ingresa el nombre del representante';
+    if (!companyName.trim()) newErrors.companyName = (es ? 'Ingresa el nombre de tu empresa o marca' : 'Enter your company or brand name');
+    if (!contactName.trim()) newErrors.contactName = (es ? 'Ingresa el nombre del representante' : 'Enter the representative\'s name');
     if (!email.trim()) {
-      newErrors.email = 'Ingresa un correo de contacto';
+      newErrors.email = (es ? 'Ingresa un correo de contacto' : 'Enter a contact email');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Ingresa un correo electrónico válido';
+      newErrors.email = (es ? 'Ingresa un correo electrónico válido' : 'Enter a valid email address');
     }
-    if (!phone.trim()) newErrors.phone = 'Ingresa un número telefónico o WhatsApp';
+    if (!phone.trim()) newErrors.phone = (es ? 'Ingresa un número telefónico o WhatsApp' : 'Enter a phone or WhatsApp number');
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -93,7 +97,7 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
     setIsSubmitting(true);
 
     const chosenTier = SPONSORSHIP_TIERS.find(t => t.id === selectedTierId);
-    const tierName = chosenTier ? `${chosenTier.name} (${chosenTier.priceRange})` : 'Personalizado';
+    const tierName = chosenTier ? `${chosenTier.name} (${chosenTier.priceRange})` : (es ? 'Personalizado' : 'Custom');
 
     const refNum = Math.floor(1000 + Math.random() * 9000);
     const newInquiry: SponsorInquiry = {
@@ -133,7 +137,7 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
 
   const handleDownloadSummary = () => {
     if (!submittedInquiry) return;
-    const summaryText = `=====================================================
+    const summaryText = (es ? `=====================================================
 SPATIALGINEERS SUMMIT 2026 • SOLICITUD DE PATROCINIO
 Día 3 (SGX Showcase): Chroma Space Studios, San Juan, Puerto Rico
 Fecha del Evento: Diciembre 11 - 13, 2026
@@ -165,7 +169,39 @@ ${submittedInquiry.customMessage || 'Sin notas adicionales.'}
 CONTACTO DIRECTO DE PRODUCCIÓN:
 Correo: info@spatialgineers.com · Teléfono: +1 (787) 445-5284 · @spatialgineers
 Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio firmado por ambas partes.
-=====================================================`;
+=====================================================` : `=====================================================
+SPATIALGINEERS SUMMIT 2026 • SPONSORSHIP REQUEST
+Day 3 (SGX Showcase): Chroma Space Studios, San Juan, Puerto Rico
+Event Dates: December 11 - 13, 2026
+Full payment: by November 14, 2026 · Materials: by November 30, 2026
+=====================================================
+
+TRACKING CODE: ${submittedInquiry.referenceCode}
+REQUEST DATE: ${new Date(submittedInquiry.submittedAt).toLocaleString()}
+STATUS: Under review by Spatialgineers
+
+COMPANY DETAILS:
+- Company / Brand: ${submittedInquiry.companyName}
+- Representative: ${submittedInquiry.contactName}
+- Title / Role: ${submittedInquiry.roleTitle || 'N/A'}
+- Email: ${submittedInquiry.email}
+- Phone / WhatsApp: ${submittedInquiry.phone}
+- Website / Link: ${submittedInquiry.websiteUrl || 'N/A'}
+
+SPONSORSHIP DETAILS:
+- Selected Tier: ${submittedInquiry.selectedTierName}
+- Estimated Budget: ${submittedInquiry.estimatedBudget || 'N/A'}
+
+SELECTED GOALS AND ACTIVATIONS:
+${submittedInquiry.goals.map(g => `  • ${AVAILABLE_GOALS.find(item => item.id === g)?.labelEn || g}`).join('\n')}
+
+CUSTOM MESSAGE / PROPOSAL:
+${submittedInquiry.customMessage || 'No additional notes.'}
+
+DIRECT PRODUCTION CONTACT:
+Email: info@spatialgineers.com · Phone: +1 (787) 445-5284 · @spatialgineers
+This summary is not a binding offer. The short sponsorship contract signed by both parties governs.
+=====================================================`);
 
     const blob = new Blob([summaryText], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -189,7 +225,7 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
           <div className="space-y-1">
             <div className="flex items-center space-x-2">
               <span className="text-[10px] text-[var(--sgx-accent)] font-mono font-bold tracking-widest uppercase bg-[var(--sgx-accent)]/10 px-2 py-0.5 border border-[var(--sgx-accent)]/30">
-                PORTAL OFICIAL DE PATROCINIOS & ALIANZAS
+                {es ? 'PORTAL OFICIAL DE PATROCINIOS & ALIANZAS' : 'OFFICIAL SPONSORSHIPS & PARTNERSHIPS PORTAL'}
               </span>
               <span className="text-[10px] text-[var(--sgx-neon)] font-mono">
                 CHROMA SPACE STUDIOS • SAN JUAN
@@ -197,10 +233,10 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
             </div>
             <h2 className="text-xl md:text-2xl font-bold font-['Orbitron',sans-serif] text-white uppercase tracking-wider flex items-center space-x-2">
               <Building2 className="w-6 h-6 text-[var(--sgx-accent)]" />
-              <span>POSTÚLATE COMO PATROCINADOR SGX</span>
+              <span>{es ? 'POSTÚLATE COMO PATROCINADOR SGX' : 'APPLY AS AN SGX SPONSOR'}</span>
             </h2>
             <p className="text-xs text-slate-300 font-mono">
-              Posiciona tu marca en la transmisión de YouTube Live y en la webapp del Summit.
+              {es ? 'Posiciona tu marca en la transmisión de YouTube Live y en la webapp del Summit.' : 'Position your brand on the YouTube Live broadcast and on the Summit web app.'}
             </p>
           </div>
 
@@ -230,13 +266,13 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
               </div>
               <div className="space-y-1">
                 <span className="text-xs text-[var(--sgx-accent)] font-bold uppercase tracking-widest">
-                  ¡SOLICITUD REGISTRADA EXITOSAMENTE!
+                  {es ? '¡SOLICITUD REGISTRADA EXITOSAMENTE!' : 'REQUEST SUBMITTED SUCCESSFULLY!'}
                 </span>
                 <h3 className="text-xl font-bold text-white font-['Orbitron',sans-serif]">
-                  Gracias por tu interés, {submittedInquiry.companyName}
+                  {es ? 'Gracias por tu interés, ' : 'Thank you for your interest, '}{submittedInquiry.companyName}
                 </h3>
                 <p className="text-xs text-slate-300 max-w-xl mx-auto leading-relaxed">
-                  El equipo de <span className="text-[var(--sgx-neon)] font-bold">Spatialgineers</span> revisará tu propuesta y se comunicará contigo por correo. Recuerda: pago total a más tardar el 14 de noviembre y materiales hasta el 30 de noviembre.
+                  {es ? 'El equipo de ' : 'The '}<span className="text-[var(--sgx-neon)] font-bold">Spatialgineers</span>{es ? ' revisará tu propuesta y se comunicará contigo por correo. Recuerda: pago total a más tardar el 14 de noviembre y materiales hasta el 30 de noviembre.' : ' team will review your proposal and contact you by email. Remember: full payment by November 14 and materials by November 30.'}
                 </p>
               </div>
 
@@ -246,7 +282,7 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                 style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
               >
                 <div className="text-left">
-                  <span className="text-[9px] text-slate-400 block uppercase">CÓDIGO DE SEGUIMIENTO:</span>
+                  <span className="text-[9px] text-slate-400 block uppercase">{es ? 'CÓDIGO DE SEGUIMIENTO:' : 'TRACKING CODE:'}</span>
                   <span className="text-sm font-extrabold text-[var(--sgx-accent)] font-mono tracking-wider">
                     {submittedInquiry.referenceCode}
                   </span>
@@ -257,7 +293,7 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                   style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                 >
                   {copiedCode ? <Check className="w-3.5 h-3.5 text-[#FDCC0D]" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedCode ? 'COPIADO' : 'COPIAR'}</span>
+                  <span>{copiedCode ? (es ? 'COPIADO' : 'COPIED') : (es ? 'COPIAR' : 'COPY')}</span>
                 </button>
               </div>
             </div>
@@ -268,32 +304,32 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
               style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
             >
               <div className="flex items-center justify-between border-b border-[var(--sgx-secondary)]/60 pb-2">
-                <span className="text-[var(--sgx-accent)] font-bold uppercase">RESUMEN DE LA POSTULACIÓN</span>
+                <span className="text-[var(--sgx-accent)] font-bold uppercase">{es ? 'RESUMEN DE LA POSTULACIÓN' : 'APPLICATION SUMMARY'}</span>
                 <span className="text-slate-400 text-[10px]">Tier: {submittedInquiry.selectedTierName}</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-300">
                 <div>
-                  <span className="text-slate-500 text-[10px] block">Contacto:</span>
-                  <span className="font-bold text-white">{submittedInquiry.contactName} ({submittedInquiry.roleTitle || 'Representante'})</span>
+                  <span className="text-slate-500 text-[10px] block">{es ? 'Contacto:' : 'Contact:'}</span>
+                  <span className="font-bold text-white">{submittedInquiry.contactName} ({submittedInquiry.roleTitle || (es ? 'Representante' : 'Representative')})</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 text-[10px] block">Correo de enlace:</span>
+                  <span className="text-slate-500 text-[10px] block">{es ? 'Correo de enlace:' : 'Contact email:'}</span>
                   <span className="font-bold text-[var(--sgx-neon)]">{submittedInquiry.email}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 text-[10px] block">Teléfono / WhatsApp:</span>
+                  <span className="text-slate-500 text-[10px] block">{es ? 'Teléfono / WhatsApp:' : 'Phone / WhatsApp:'}</span>
                   <span className="font-bold text-white">{submittedInquiry.phone}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 text-[10px] block">Presupuesto Estimado:</span>
+                  <span className="text-slate-500 text-[10px] block">{es ? 'Presupuesto Estimado:' : 'Estimated Budget:'}</span>
                   <span className="font-bold text-[var(--sgx-accent)]">{submittedInquiry.estimatedBudget}</span>
                 </div>
               </div>
 
               {submittedInquiry.goals.length > 0 && (
                 <div className="pt-2 border-t border-[var(--sgx-secondary)]/40">
-                  <span className="text-slate-400 text-[10px] block mb-1">Activaciones seleccionadas:</span>
+                  <span className="text-slate-400 text-[10px] block mb-1">{es ? 'Activaciones seleccionadas:' : 'Selected activations:'}</span>
                   <div className="flex flex-wrap gap-1.5">
                     {submittedInquiry.goals.map(g => {
                       const item = AVAILABLE_GOALS.find(x => x.id === g);
@@ -303,7 +339,7 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                           className="px-2 py-0.5 bg-[#1b1b1b] border border-[var(--sgx-neon)]/40 text-[var(--sgx-neon)] text-[10px]"
                           style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
                         >
-                          ✓ {item?.label || g}
+                          ✓ {(item && loc(item, 'label', language)) || g}
                         </span>
                       );
                     })}
@@ -320,7 +356,7 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
                 <Download className="w-4 h-4" />
-                <span>DESCARGAR COMPROBANTE (.TXT)</span>
+                <span>{es ? 'DESCARGAR COMPROBANTE (.TXT)' : 'DOWNLOAD RECEIPT (.TXT)'}</span>
               </button>
 
               <div className="flex items-center space-x-2">
@@ -329,14 +365,14 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                   className="px-4 py-2.5 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] text-slate-300 hover:text-white text-xs font-bold font-mono uppercase transition-all"
                   style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                 >
-                  ENVIAR OTRA CONSULTA
+                  {es ? 'ENVIAR OTRA CONSULTA' : 'SEND ANOTHER INQUIRY'}
                 </button>
                 {onClose && (
                   <button
                     onClick={onClose}
                     className="sgx-btn text-xs font-bold py-2.5 px-6"
                   >
-                    CERRAR
+                    {es ? 'CERRAR' : 'CLOSE'}
                   </button>
                 )}
               </div>
@@ -351,9 +387,9 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-[var(--sgx-accent)] uppercase flex items-center space-x-1.5">
                   <Award className="w-4 h-4 text-[var(--sgx-accent)]" />
-                  <span>1. SELECCIONA EL TIER DE PATROCINIO DESEADO *</span>
+                  <span>{es ? '1. SELECCIONA EL TIER DE PATROCINIO DESEADO *' : '1. SELECT THE SPONSORSHIP TIER YOU WANT *'}</span>
                 </label>
-                <span className="text-[10px] text-slate-400">Precios en USD</span>
+                <span className="text-[10px] text-slate-400">{es ? 'Precios en USD' : 'Prices in USD'}</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -389,22 +425,22 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                             TIER {tier.tierNumber}
                           </span>
                           <span className="text-xs font-extrabold text-[var(--sgx-accent)]">
-                            {tier.priceRange}
+                            {loc(tier, 'priceRange', language)}
                           </span>
                         </div>
                         <h4 className="text-xs font-bold text-white uppercase mb-1">
-                          {tier.name}
+                          {loc(tier, 'name', language)}
                         </h4>
                         <p className="text-[10px] text-slate-300 leading-tight">
-                          {tier.keyBenefit}
+                          {loc(tier, 'keyBenefit', language)}
                         </p>
                       </div>
                       <div className="mt-3 pt-2 border-t border-[var(--sgx-secondary)]/40 flex items-center justify-between text-[9px]">
                         <span className={isSelected ? 'text-[var(--sgx-accent)] font-bold' : 'text-slate-400'}>
-                          {isSelected ? '✓ SELECCIONADO' : 'Elegir este'}
+                          {isSelected ? (es ? '✓ SELECCIONADO' : '✓ SELECTED') : (es ? 'Elegir este' : 'Choose this one')}
                         </span>
                         {tier.yearLongLicense && (
-                          <span className="text-[#FDCC0D] font-bold">LICENCIA 365 DÍAS</span>
+                          <span className="text-[#FDCC0D] font-bold">{es ? 'LICENCIA 365 DÍAS' : '365-DAY LICENSE'}</span>
                         )}
                       </div>
                     </button>
@@ -417,17 +453,17 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
             <div className="space-y-3">
               <label className="text-xs font-bold text-[var(--sgx-accent)] uppercase flex items-center space-x-1.5">
                 <Building2 className="w-4 h-4 text-[var(--sgx-accent)]" />
-                <span>2. INFORMACIÓN DE TU EMPRESA Y REPRESENTANTE *</span>
+                <span>{es ? '2. INFORMACIÓN DE TU EMPRESA Y REPRESENTANTE *' : '2. YOUR COMPANY AND REPRESENTATIVE INFORMATION *'}</span>
               </label>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[10px] text-slate-300 block mb-1">EMPRESA / MARCA *</label>
+                  <label className="text-[10px] text-slate-300 block mb-1">{es ? 'EMPRESA / MARCA *' : 'COMPANY / BRAND *'}</label>
                   <input
                     type="text"
                     value={companyName}
                     onChange={e => setCompanyName(e.target.value)}
-                    placeholder="Ej. CyberCraft Studios, MetaTech PR"
+                    placeholder={es ? 'Ej. CyberCraft Studios, MetaTech PR' : 'E.g. CyberCraft Studios, MetaTech PR'}
                     className={`w-full p-2.5 bg-[#1b1b1b] border text-xs text-white placeholder-slate-500 focus:outline-none ${
                       errors.companyName ? 'border-red-500 bg-red-950/20' : 'border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)]'
                     }`}
@@ -437,12 +473,12 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                 </div>
 
                 <div>
-                  <label className="text-[10px] text-slate-300 block mb-1">REPRESENTANTE DE CONTACTO *</label>
+                  <label className="text-[10px] text-slate-300 block mb-1">{es ? 'REPRESENTANTE DE CONTACTO *' : 'CONTACT REPRESENTATIVE *'}</label>
                   <input
                     type="text"
                     value={contactName}
                     onChange={e => setContactName(e.target.value)}
-                    placeholder="Nombre y Apellidos"
+                    placeholder={es ? 'Nombre y Apellidos' : 'First and Last Name'}
                     className={`w-full p-2.5 bg-[#1b1b1b] border text-xs text-white placeholder-slate-500 focus:outline-none ${
                       errors.contactName ? 'border-red-500 bg-red-950/20' : 'border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)]'
                     }`}
@@ -452,19 +488,19 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                 </div>
 
                 <div>
-                  <label className="text-[10px] text-slate-300 block mb-1">CARGO / POSICIÓN</label>
+                  <label className="text-[10px] text-slate-300 block mb-1">{es ? 'CARGO / POSICIÓN' : 'TITLE / POSITION'}</label>
                   <input
                     type="text"
                     value={roleTitle}
                     onChange={e => setRoleTitle(e.target.value)}
-                    placeholder="Ej. Director de Marketing, Founder, CMO"
+                    placeholder={es ? 'Ej. Director de Marketing, Founder, CMO' : 'E.g. Marketing Director, Founder, CMO'}
                     className="w-full p-2.5 bg-[#1b1b1b] border border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)] text-xs text-white placeholder-slate-500 focus:outline-none"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   />
                 </div>
 
                 <div>
-                  <label className="text-[10px] text-slate-300 block mb-1">CORREO ELECTRÓNICO PROFESIONAL *</label>
+                  <label className="text-[10px] text-slate-300 block mb-1">{es ? 'CORREO ELECTRÓNICO PROFESIONAL *' : 'PROFESSIONAL EMAIL *'}</label>
                   <div className="relative">
                     <input
                       type="email"
@@ -482,7 +518,7 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                 </div>
 
                 <div>
-                  <label className="text-[10px] text-slate-300 block mb-1">TELÉFONO O WHATSAPP DE NEGOCIOS *</label>
+                  <label className="text-[10px] text-slate-300 block mb-1">{es ? 'TELÉFONO O WHATSAPP DE NEGOCIOS *' : 'BUSINESS PHONE OR WHATSAPP *'}</label>
                   <div className="relative">
                     <input
                       type="tel"
@@ -500,7 +536,7 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                 </div>
 
                 <div>
-                  <label className="text-[10px] text-slate-300 block mb-1">SITIO WEB O PERFIL PROFESIONAL</label>
+                  <label className="text-[10px] text-slate-300 block mb-1">{es ? 'SITIO WEB O PERFIL PROFESIONAL' : 'WEBSITE OR PROFESSIONAL PROFILE'}</label>
                   <div className="relative">
                     <input
                       type="url"
@@ -520,7 +556,7 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
             <div className="space-y-3">
               <label className="text-xs font-bold text-[var(--sgx-accent)] uppercase flex items-center space-x-1.5">
                 <Sparkles className="w-4 h-4 text-[var(--sgx-accent)]" />
-                <span>3. ACTIVACIONES Y BENEFICIOS QUE TE INTERESAN</span>
+                <span>{es ? '3. ACTIVACIONES Y BENEFICIOS QUE TE INTERESAN' : '3. ACTIVATIONS AND BENEFITS YOU\'RE INTERESTED IN'}</span>
               </label>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -548,7 +584,7 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                         {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
                       </div>
                       <Icon className={`w-4 h-4 shrink-0 ${isChecked ? 'text-[var(--sgx-neon)]' : 'text-slate-500'}`} />
-                      <span className="leading-tight">{goal.label}</span>
+                      <span className="leading-tight">{loc(goal, 'label', language)}</span>
                     </button>
                   );
                 })}
@@ -559,7 +595,7 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
             <div className="space-y-3">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="text-[10px] text-slate-300 block mb-1">RANGO DE INVERSIÓN ESTIMADO</label>
+                  <label className="text-[10px] text-slate-300 block mb-1">{es ? 'RANGO DE INVERSIÓN ESTIMADO' : 'ESTIMATED INVESTMENT RANGE'}</label>
                   <select
                     value={estimatedBudget}
                     onChange={e => setEstimatedBudget(e.target.value)}
@@ -570,17 +606,17 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                     <option value="$250 – $500">$250 – $500 (Tier 2: Gamified)</option>
                     <option value="$750 – $1,000">$750 – $1,000 (Tier 3: Experience)</option>
                     <option value="$1,500 – $2,500">$1,500 – $2,500 (Tier 4: Signature Experience)</option>
-                    <option value="A convenir (sin precio público)">A convenir (Tier 5: Alianza de servicios esenciales)</option>
+                    <option value="A convenir (sin precio público)">{es ? 'A convenir (Tier 5: Alianza de servicios esenciales)' : 'To be agreed (Tier 5: Essential Services Alliance)'}</option>
                   </select>
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="text-[10px] text-slate-300 block mb-1">PROPUESTA DE ACTIVACIÓN / MENSAJE PERSONALIZADO</label>
+                  <label className="text-[10px] text-slate-300 block mb-1">{es ? 'PROPUESTA DE ACTIVACIÓN / MENSAJE PERSONALIZADO' : 'ACTIVATION PROPOSAL / CUSTOM MESSAGE'}</label>
                   <textarea
                     rows={2}
                     value={customMessage}
                     onChange={e => setCustomMessage(e.target.value)}
-                    placeholder="Cuéntanos sobre tu producto, ideas de activación en la transmisión, la webapp o los minijuegos..."
+                    placeholder={es ? 'Cuéntanos sobre tu producto, ideas de activación en la transmisión, la webapp o los minijuegos...' : 'Tell us about your product and your activation ideas for the broadcast, the web app or the mini-games...'}
                     className="w-full p-2 bg-[#1b1b1b] border border-[var(--sgx-secondary)] focus:border-[var(--sgx-neon)] text-xs text-white placeholder-slate-500 focus:outline-none"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   />
@@ -592,7 +628,7 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
             <div className="pt-4 border-t border-[var(--sgx-secondary)]/60 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center space-x-2 text-[11px] text-slate-400">
                 <Info className="w-4 h-4 text-[var(--sgx-accent)] shrink-0" />
-                <span>Pago total a más tardar el 14 de noviembre de 2026. Materiales hasta el 30 de noviembre. También puedes escribir a info@spatialgineers.com.</span>
+                <span>{es ? 'Pago total a más tardar el 14 de noviembre de 2026. Materiales hasta el 30 de noviembre. También puedes escribir a info@spatialgineers.com.' : 'Full payment by November 14, 2026. Materials by November 30. You can also write to info@spatialgineers.com.'}</span>
               </div>
 
               <div className="flex items-center space-x-3 w-full sm:w-auto">
@@ -603,7 +639,7 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                     className="px-4 py-2.5 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] text-slate-300 hover:text-white text-xs font-bold"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   >
-                    CANCELAR
+                    {es ? 'CANCELAR' : 'CANCEL'}
                   </button>
                 )}
 
@@ -615,12 +651,12 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                   {isSubmitting ? (
                     <>
                       <div className="w-4 h-4 border-2 border-black border-t-transparent animate-spin" />
-                      <span>ENVIANDO SOLICITUD...</span>
+                      <span>{es ? 'ENVIANDO SOLICITUD...' : 'SENDING REQUEST...'}</span>
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4 text-black" />
-                      <span>ENVIAR SOLICITUD DE PATROCINIO</span>
+                      <span>{es ? 'ENVIAR SOLICITUD DE PATROCINIO' : 'SEND SPONSORSHIP REQUEST'}</span>
                     </>
                   )}
                 </button>

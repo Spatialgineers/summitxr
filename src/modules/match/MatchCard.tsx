@@ -15,6 +15,7 @@ import {
 import { MatchCandidate, MatchPillar } from './match.types';
 import { MATCH_I18N } from './match.i18n';
 import { useTenantTheme } from '../../context/TenantThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface MatchCardProps {
   candidate: MatchCandidate;
@@ -42,6 +43,8 @@ export const MatchCard: React.FC<MatchCardProps> = ({
   onReport,
   isProcessing = false
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { tenant } = useTenantTheme();
   const strings = MATCH_I18N[lang] || MATCH_I18N.es;
   const pillar = candidate.profile.pillar || 'spark';
@@ -261,7 +264,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
           {onReport && (
             <button
               onClick={() => onReport(candidate)}
-              title="Reportar perfil"
+              title={es ? 'Reportar perfil' : 'Report profile'}
               className="p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-500 hover:text-slate-300 transition-colors"
             >
               <Flag className="w-4 h-4" />

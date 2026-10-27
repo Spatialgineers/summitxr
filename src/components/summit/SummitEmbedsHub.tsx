@@ -29,6 +29,8 @@ import {
 import { EmbedWidget, EmbedCategory } from '../../types/summit';
 import { SummitDroneMiniGame } from './SummitDroneMiniGame';
 import { saveAllEmbedWidgets, loadAllEmbedWidgets } from '../../lib/summitData';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 interface SummitEmbedsHubProps {
   embeds?: EmbedWidget[];
@@ -73,6 +75,8 @@ function parseEmbedUrl(url: string): string {
 export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
   embeds: initialEmbedsProp,
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const [embedList, setEmbedList] = useState<EmbedWidget[]>(() => {
     try {
       const saved = loadAllEmbedWidgets();
@@ -162,7 +166,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
 
   const handleDeleteEmbed = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('¿Estás seguro de que deseas eliminar esta aplicación integrada?')) {
+    if (confirm((es ? '¿Estás seguro de que deseas eliminar esta aplicación integrada?' : 'Are you sure you want to remove this embedded app?'))) {
       const updated = embedList.filter(item => item.id !== id);
       setEmbedList(updated);
       saveAllEmbedWidgets(updated);
@@ -189,7 +193,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
       title: formData.title.trim(),
       category: formData.category,
       embedType: isCode ? 'CODE' : 'URL',
-      description: formData.description.trim() || 'Aplicación integrada personalizada en Spatialgineers Summit.',
+      description: formData.description.trim() || (es ? 'Aplicación integrada personalizada en Spatialgineers Summit.' : 'Custom app embedded in the Spatialgineers Summit.'),
       thumbnailUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80',
       embedUrl: isCode ? undefined : parsedUrl,
       externalUrl: isCode ? undefined : formData.sourceValue.trim(),
@@ -236,7 +240,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
           <div className="flex items-center space-x-2.5 max-w-full">
             <Gamepad2 className="w-4 h-4 text-[#FDCC0D] shrink-0" />
             <span className="text-xs sm:text-sm font-extrabold text-white font-['Orbitron',sans-serif] uppercase tracking-wider break-words">
-              {activeEmbed?.title}
+              {activeEmbed && loc(activeEmbed, 'title', language)}
             </span>
             <span
               className="text-[9px] px-2 py-0.5 bg-[#32527B]/40 border border-[#00DDFF]/60 text-[#00DDFF] font-mono shrink-0 font-bold"
@@ -245,7 +249,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
               {activeEmbed?.category}
             </span>
             <span className="hidden md:inline-block text-[10px] font-mono text-slate-400">
-              • VISOR 100% ESQUINA A ESQUINA SIN SCROLL
+              {es ? '• VISOR 100% ESQUINA A ESQUINA SIN SCROLL' : '• 100% EDGE-TO-EDGE VIEWER, NO SCROLL'}
             </span>
             {activeEmbed?.isCustomUserApp && (
               <span
@@ -268,7 +272,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                   onClick={() => setHeightMode('CINEMATIC')}
                   className={`px-2 py-0.5 transition-colors cursor-pointer ${heightMode === 'CINEMATIC' ? 'bg-[#00DDFF] text-black font-bold' : 'text-slate-400 hover:text-white'}`}
                   style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
-                  title="Modo Cine 16:9"
+                  title={es ? 'Modo Cine 16:9' : '16:9 Cinema Mode'}
                 >
                   16:9
                 </button>
@@ -276,17 +280,17 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                   onClick={() => setHeightMode('STANDARD')}
                   className={`px-2 py-0.5 transition-colors cursor-pointer ${heightMode === 'STANDARD' ? 'bg-[#00DDFF] text-black font-bold' : 'text-slate-400 hover:text-white'}`}
                   style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
-                  title="Modo Estándar"
+                  title={es ? 'Modo Estándar' : 'Standard Mode'}
                 >
-                  ESTÁNDAR
+                  {es ? 'ESTÁNDAR' : 'STANDARD'}
                 </button>
                 <button
                   onClick={() => setHeightMode('EXPANDED')}
                   className={`px-2 py-0.5 transition-colors cursor-pointer ${heightMode === 'EXPANDED' ? 'bg-[#00DDFF] text-black font-bold' : 'text-slate-400 hover:text-white'}`}
                   style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
-                  title="Modo Extendido"
+                  title={es ? 'Modo Extendido' : 'Extended Mode'}
                 >
-                  EXPANDIDO
+                  {es ? 'EXPANDIDO' : 'EXPANDED'}
                 </button>
               </div>
             )}
@@ -295,7 +299,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
               onClick={handleReloadIframe}
               className="p-1.5 bg-[var(--sgx-bg)] hover:bg-[#32527B] text-slate-300 hover:text-white border border-[var(--sgx-secondary)] transition-colors cursor-pointer"
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title="Recargar App Embebida"
+              title={es ? 'Recargar App Embebida' : 'Reload Embedded App'}
             >
               <RefreshCw className="w-3.5 h-3.5" />
             </button>
@@ -304,7 +308,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
               onClick={handleCopyLink}
               className="p-1.5 bg-[var(--sgx-bg)] hover:bg-[#32527B] text-slate-300 hover:text-white border border-[var(--sgx-secondary)] transition-colors relative cursor-pointer"
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title="Copiar Enlace de la App"
+              title={es ? 'Copiar Enlace de la App' : 'Copy App Link'}
             >
               <Share2 className="w-3.5 h-3.5" />
               {copiedToast && (
@@ -312,7 +316,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                   className="absolute -top-7 right-0 bg-[#FDCC0D] text-black text-[9px] font-bold font-mono px-2 py-0.5 whitespace-nowrap shadow-lg"
                   style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                 >
-                  ¡Copiado!
+                  {es ? '¡Copiado!' : 'Copied!'}
                 </span>
               )}
             </button>
@@ -321,10 +325,10 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
               onClick={() => setIsFullscreen(true)}
               className="px-2.5 py-1 bg-[#32527B]/60 hover:bg-[#00DDFF] hover:text-black text-[#00DDFF] border border-[#00DDFF]/60 text-[10px] font-mono font-bold flex items-center gap-1 transition-colors cursor-pointer"
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title="Pantalla Completa Inmersiva"
+              title={es ? 'Pantalla Completa Inmersiva' : 'Immersive Fullscreen'}
             >
               <Maximize2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">PANTALLA COMPLETA</span>
+              <span className="hidden sm:inline">{es ? 'PANTALLA COMPLETA' : 'FULLSCREEN'}</span>
             </button>
 
             {(activeEmbed?.externalUrl || activeEmbed?.embedUrl) && (
@@ -334,7 +338,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 rel="noreferrer"
                 className="sgx-btn-cyan px-2.5 py-1 text-[10px] font-bold font-mono flex items-center space-x-1 shadow-md shadow-[var(--sgx-neon)]/15 shrink-0"
               >
-                <span className="hidden sm:inline">NUEVA PESTAÑA</span>
+                <span className="hidden sm:inline">{es ? 'NUEVA PESTAÑA' : 'NEW TAB'}</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
             )}
@@ -379,8 +383,8 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                   className="w-28 h-28 object-cover border border-[var(--sgx-secondary)] mb-2"
                   style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
                 />
-                <span className="text-base font-bold text-white font-['Orbitron',sans-serif]">{activeEmbed?.title}</span>
-                <p className="text-xs text-slate-400 max-w-md font-mono">{activeEmbed?.description}</p>
+                <span className="text-base font-bold text-white font-['Orbitron',sans-serif]">{activeEmbed && loc(activeEmbed, 'title', language)}</span>
+                <p className="text-xs text-slate-400 max-w-md font-mono">{activeEmbed && loc(activeEmbed, 'description', language)}</p>
                 {activeEmbed?.externalUrl && (
                   <a
                     href={activeEmbed.externalUrl}
@@ -389,7 +393,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                     className="sgx-btn px-5 py-2.5 text-xs font-bold flex items-center space-x-2"
                   >
                     <ExternalLink className="w-4 h-4" />
-                    <span>ABRIR ENLACE EN NUEVA PESTAÑA</span>
+                    <span>{es ? 'ABRIR ENLACE EN NUEVA PESTAÑA' : 'OPEN LINK IN NEW TAB'}</span>
                   </a>
                 )}
               </div>
@@ -400,10 +404,10 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
         {/* Compact Description & Author Footer Bar */}
         <div className="px-4 py-2.5 bg-[#0F0F0F] border-t border-[var(--sgx-secondary)]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300 font-mono">
-            <span className="line-clamp-1">{activeEmbed?.description}</span>
+            <span className="line-clamp-1">{activeEmbed && loc(activeEmbed, 'description', language)}</span>
             <span className="text-slate-500">•</span>
             <span className="text-[11px] text-slate-400">
-              Autor: <strong className="text-[#FDCC0D]">{activeEmbed?.author}</strong>
+              {es ? 'Autor: ' : 'Author: '}<strong className="text-[#FDCC0D]">{activeEmbed?.author}</strong>
             </span>
           </div>
 
@@ -412,10 +416,10 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
               onClick={() => handleOpenEditModal(activeEmbed)}
               className="px-2.5 py-1 bg-[var(--sgx-bg)] hover:bg-[#32527B] text-slate-300 hover:text-white border border-[var(--sgx-secondary)] text-[11px] font-mono flex items-center space-x-1.5 transition-colors cursor-pointer"
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title="Editar Configuración de la App"
+              title={es ? 'Editar Configuración de la App' : 'Edit App Settings'}
             >
               <Edit3 className="w-3 h-3" />
-              <span>CONFIGURAR</span>
+              <span>{es ? 'CONFIGURAR' : 'CONFIGURE'}</span>
             </button>
           </div>
         </div>
@@ -431,11 +435,11 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
             <div className="flex items-center space-x-2.5">
               <Box className="w-5 h-5 text-[#FDCC0D]" />
               <h3 className="text-sm sm:text-base font-extrabold text-white uppercase tracking-wider font-['Orbitron',sans-serif]">
-                HUB DE EXPERIENCIAS EMBEBIDAS, MINIJUEGOS & SANDBOX ({filteredEmbeds.length})
+                {es ? 'HUB DE EXPERIENCIAS EMBEBIDAS, MINIJUEGOS & SANDBOX (' : 'EMBEDDED EXPERIENCES, MINI-GAMES & SANDBOX HUB ('}{filteredEmbeds.length})
               </h3>
             </div>
             <p className="text-xs text-slate-300 mt-1 font-mono">
-              Selecciona cualquier experiencia del catálogo inferior para lanzarla arriba de esquina a esquina, o integra tu propio juego/código WebGL.
+              {es ? 'Selecciona cualquier experiencia del catálogo inferior para lanzarla arriba de esquina a esquina, o integra tu propio juego/código WebGL.' : 'Pick any experience from the catalog below to launch it edge to edge above, or embed your own WebGL game/code.'}
             </p>
           </div>
 
@@ -451,7 +455,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 }`}
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
-                TODOS ({embedList.length})
+                {es ? 'TODOS (' : 'ALL ('}{embedList.length})
               </button>
               <button
                 onClick={() => setSelectedCategory('MINI_GAME')}
@@ -462,7 +466,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 }`}
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
-                MINIJUEGOS
+                {es ? 'MINIJUEGOS' : 'MINI-GAMES'}
               </button>
               <button
                 onClick={() => setSelectedCategory('WEBGL_XR')}
@@ -484,7 +488,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 }`}
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
-                STREAMS EN VIVO
+                {es ? 'STREAMS EN VIVO' : 'LIVE STREAMS'}
               </button>
               <button
                 onClick={() => setSelectedCategory('CUSTOM_CODE')}
@@ -495,7 +499,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 }`}
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
-                SANDBOX / CÓDIGO
+                {es ? 'SANDBOX / CÓDIGO' : 'SANDBOX / CODE'}
               </button>
             </div>
 
@@ -504,7 +508,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
               className="sgx-btn px-4 py-2 text-xs font-bold font-mono flex items-center space-x-1.5 shadow-lg shadow-[var(--sgx-accent)]/20 hover:scale-105 transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>＋ INTEGRAR APP O CÓDIGO</span>
+              <span>{es ? '＋ INTEGRAR APP O CÓDIGO' : '＋ EMBED APP OR CODE'}</span>
             </button>
           </div>
         </div>
@@ -535,14 +539,14 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
                       <span className="text-xs font-bold text-white truncate font-['Orbitron',sans-serif] group-hover:text-[#FDCC0D]">
-                        {emb.title}
+                        {loc(emb, 'title', language)}
                       </span>
                       {emb.featured && (
                         <span
                           className="text-[8px] bg-[#FDCC0D] text-black font-bold px-1.5 py-0.2 uppercase shrink-0"
                           style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
                         >
-                          ACTIVO
+                          {es ? 'ACTIVO' : 'ACTIVE'}
                         </span>
                       )}
                     </div>
@@ -557,7 +561,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                     </div>
 
                     <p className="text-[11px] text-slate-300 line-clamp-2 mt-1 font-mono leading-snug">
-                      {emb.description}
+                      {loc(emb, 'description', language)}
                     </p>
                   </div>
                 </div>
@@ -565,7 +569,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 <div className="flex items-center justify-between pt-2 border-t border-white/10 text-[10px] font-mono">
                   <span className="text-slate-400 truncate">{emb.author}</span>
                   <span className={`font-bold ${isSelected ? 'text-[#FDCC0D]' : 'text-[#00DDFF]'}`}>
-                    {isSelected ? 'EN PANTALLA ARRIBA ▲' : 'CARGAR EN VISOR ▲'}
+                    {isSelected ? (es ? 'EN PANTALLA ARRIBA ▲' : 'ON SCREEN ABOVE ▲') : (es ? 'CARGAR EN VISOR ▲' : 'LOAD IN VIEWER ▲')}
                   </span>
                 </div>
 
@@ -573,7 +577,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                   <button
                     onClick={e => handleDeleteEmbed(emb.id, e)}
                     className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-400 transition-opacity absolute top-2 right-2 cursor-pointer"
-                    title="Eliminar esta app personalizada"
+                    title={es ? 'Eliminar esta app personalizada' : 'Remove this custom app'}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -592,13 +596,13 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
             <div className="flex items-center space-x-3">
               <Box className="w-5 h-5 text-[var(--sgx-neon)]" />
               <span className="text-sm font-bold text-white font-mono uppercase tracking-wider">
-                {activeEmbed?.title}
+                {activeEmbed && loc(activeEmbed, 'title', language)}
               </span>
               <span 
                 className="text-[10px] px-2 py-0.5 bg-[var(--sgx-neon)]/20 border border-[var(--sgx-neon)] text-[var(--sgx-neon)] font-mono"
                 style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
               >
-                PANTALLA COMPLETA
+                {es ? 'PANTALLA COMPLETA' : 'FULLSCREEN'}
               </span>
             </div>
 
@@ -609,7 +613,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
               >
                 <RefreshCw className="w-4 h-4" />
-                <span>RECARGAR</span>
+                <span>{es ? 'RECARGAR' : 'RELOAD'}</span>
               </button>
 
               <button
@@ -617,7 +621,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 className="sgx-btn px-4 py-2 text-xs font-bold font-mono flex items-center space-x-1.5"
               >
                 <Minimize2 className="w-4 h-4" />
-                <span>SALIR DE PANTALLA COMPLETA</span>
+                <span>{es ? 'SALIR DE PANTALLA COMPLETA' : 'EXIT FULLSCREEN'}</span>
               </button>
             </div>
           </div>
@@ -648,7 +652,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-white font-mono">
-                Sin contenido disponible.
+                {es ? 'Sin contenido disponible.' : 'No content available.'}
               </div>
             )}
           </div>
@@ -671,7 +675,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
               <div className="flex items-center space-x-2.5">
                 <Code2 className="w-6 h-6 text-[var(--sgx-neon)]" />
                 <h3 className="text-base sm:text-lg font-bold text-white uppercase font-['Orbitron',sans-serif]">
-                  {editingEmbedId ? 'EDITAR EXPERIENCIA EMBEBIDA' : 'INTEGRAR NUEVA APP O CÓDIGO EMBEBIDO'}
+                  {editingEmbedId ? (es ? 'EDITAR EXPERIENCIA EMBEBIDA' : 'EDIT EMBEDDED EXPERIENCE') : (es ? 'INTEGRAR NUEVA APP O CÓDIGO EMBEBIDO' : 'EMBED A NEW APP OR CODE')}
                 </h3>
               </div>
               <button
@@ -693,7 +697,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 }`}
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
-                ⚙️ CONFIGURACIÓN
+                {es ? '⚙️ CONFIGURACIÓN' : '⚙️ SETTINGS'}
               </button>
               <button
                 type="button"
@@ -703,7 +707,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 }`}
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
-                👁️ VISTA PREVIA EN VIVO
+                {es ? '👁️ VISTA PREVIA EN VIVO' : '👁️ LIVE PREVIEW'}
               </button>
             </div>
 
@@ -713,14 +717,14 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 {/* Title */}
                 <div>
                   <label className="block text-xs font-bold text-white font-mono mb-1">
-                    TÍTULO DE LA APLICACIÓN / EXPERIENCIA *
+                    {es ? 'TÍTULO DE LA APLICACIÓN / EXPERIENCIA *' : 'APP / EXPERIENCE TITLE *'}
                   </label>
                   <input
                     type="text"
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="Ej. Mi Tablero Miro, Escena Spline 3D, Stream YouTube, Juego HTML5..."
+                    placeholder={es ? 'Ej. Mi Tablero Miro, Escena Spline 3D, Stream YouTube, Juego HTML5...' : 'E.g. My Miro Board, Spline 3D Scene, YouTube Stream, HTML5 Game...'}
                     className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[var(--sgx-neon)]"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   />
@@ -730,7 +734,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-white font-mono mb-1">
-                      TIPO DE INTEGRACIÓN
+                      {es ? 'TIPO DE INTEGRACIÓN' : 'INTEGRATION TYPE'}
                     </label>
                     <select
                       value={formData.embedType}
@@ -738,14 +742,14 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                       className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-3 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[var(--sgx-neon)]"
                       style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                     >
-                      <option value="URL">🌐 Enlace Web Directo (URL / Iframe Link)</option>
-                      <option value="CODE">💻 Código HTML / Snippet Iframe / Canvas</option>
+                      <option value="URL">{es ? '🌐 Enlace Web Directo (URL / Iframe Link)' : '🌐 Direct Web Link (URL / Iframe Link)'}</option>
+                      <option value="CODE">{es ? '💻 Código HTML / Snippet Iframe / Canvas' : '💻 HTML Code / Iframe Snippet / Canvas'}</option>
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold text-white font-mono mb-1">
-                      CATEGORÍA
+                      {es ? 'CATEGORÍA' : 'CATEGORY'}
                     </label>
                     <select
                       value={formData.category}
@@ -753,12 +757,12 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                       className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-3 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[var(--sgx-neon)]"
                       style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                     >
-                      <option value="WEBAPP">WebApp / Herramienta</option>
-                      <option value="MINI_GAME">Minijuego 2D/3D</option>
+                      <option value="WEBAPP">{es ? 'WebApp / Herramienta' : 'Web App / Tool'}</option>
+                      <option value="MINI_GAME">{es ? 'Minijuego 2D/3D' : '2D/3D Mini-Game'}</option>
                       <option value="WEBGL_XR">WebGL / WebXR / Spline 3D</option>
                       <option value="STREAM_VIDEO">Stream / Video (YouTube)</option>
-                      <option value="METAVERSE_ROBLOX">Mundo Virtual / Roblox Portal</option>
-                      <option value="CUSTOM_CODE">Sandbox de Código Personalizado</option>
+                      <option value="METAVERSE_ROBLOX">{es ? 'Mundo Virtual / Roblox Portal' : 'Virtual World / Roblox Portal'}</option>
+                      <option value="CUSTOM_CODE">{es ? 'Sandbox de Código Personalizado' : 'Custom Code Sandbox'}</option>
                     </select>
                   </div>
                 </div>
@@ -766,7 +770,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 {/* Source Input: URL or Code */}
                 <div>
                   <label className="block text-xs font-bold text-white font-mono mb-1">
-                    {formData.embedType === 'URL' ? 'ENLACE URL DE LA APP O STREAM *' : 'CÓDIGO HTML / IFRAME SNIPPET *'}
+                    {formData.embedType === 'URL' ? (es ? 'ENLACE URL DE LA APP O STREAM *' : 'APP OR STREAM URL *') : (es ? 'CÓDIGO HTML / IFRAME SNIPPET *' : 'HTML CODE / IFRAME SNIPPET *')}
                   </label>
                   
                   {formData.embedType === 'URL' ? (
@@ -785,28 +789,28 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                       rows={6}
                       value={formData.sourceValue}
                       onChange={(e) => setFormData({ ...formData, sourceValue: e.target.value })}
-                      placeholder="<iframe src='...' width='100%' height='500'></iframe> o <!DOCTYPE html><html>...</html>"
+                      placeholder={es ? '<iframe src=\'...\' width=\'100%\' height=\'500\'></iframe> o <!DOCTYPE html><html>...</html>' : '<iframe src=\'...\' width=\'100%\' height=\'500\'></iframe> or <!DOCTYPE html><html>...</html>'}
                       className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-3 text-xs text-white font-mono focus:outline-none focus:border-[var(--sgx-neon)] font-mono leading-relaxed"
                       style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
                     />
                   )}
                   <p className="text-[10px] text-slate-400 font-mono mt-1">
                     {formData.embedType === 'URL'
-                      ? 'Soporta enlaces directos, YouTube, Vimeo, Spline 3D, Google Docs, Excalidraw, etc. Convertimos automáticamente enlaces para renderizado óptimo.'
-                      : 'Puedes pegar una etiqueta <iframe> completa o un documento HTML/JS interactivo completo. Se ejecuta en un sandbox seguro con scripts habilitados.'}
+                      ? (es ? 'Soporta enlaces directos, YouTube, Vimeo, Spline 3D, Google Docs, Excalidraw, etc. Convertimos automáticamente enlaces para renderizado óptimo.' : 'Supports direct links, YouTube, Vimeo, Spline 3D, Google Docs, Excalidraw, etc. Links are converted automatically for optimal rendering.')
+                      : (es ? 'Puedes pegar una etiqueta <iframe> completa o un documento HTML/JS interactivo completo. Se ejecuta en un sandbox seguro con scripts habilitados.' : 'You can paste a full <iframe> tag or a complete interactive HTML/JS document. It runs in a secure sandbox with scripts enabled.')}
                   </p>
                 </div>
 
                 {/* Description */}
                 <div>
                   <label className="block text-xs font-bold text-white font-mono mb-1">
-                    DESCRIPCIÓN DE LA EXPERIENCIA
+                    {es ? 'DESCRIPCIÓN DE LA EXPERIENCIA' : 'EXPERIENCE DESCRIPTION'}
                   </label>
                   <textarea
                     rows={2}
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Describe qué hace esta app o experiencia para los participantes del Summit..."
+                    placeholder={es ? 'Describe qué hace esta app o experiencia para los participantes del Summit...' : 'Describe what this app or experience does for Summit participants...'}
                     className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-3 text-xs text-white font-mono focus:outline-none focus:border-[var(--sgx-neon)]"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   />
@@ -816,20 +820,20 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-white font-mono mb-1">
-                      AUTOR / ESTUDIO
+                      {es ? 'AUTOR / ESTUDIO' : 'AUTHOR / STUDIO'}
                     </label>
                     <input
                       type="text"
                       value={formData.author}
                       onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                      placeholder="Nombre del creador"
+                      placeholder={es ? 'Nombre del creador' : 'Creator name'}
                       className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-3 py-2 text-xs text-white font-mono"
                       style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-white font-mono mb-1">
-                      TAGS (SEPARADOS POR COMA)
+                      {es ? 'TAGS (SEPARADOS POR COMA)' : 'TAGS (COMMA-SEPARATED)'}
                     </label>
                     <input
                       type="text"
@@ -850,14 +854,14 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                     className="px-4 py-2.5 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] text-slate-300 text-xs font-mono hover:text-white"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   >
-                    CANCELAR
+                    {es ? 'CANCELAR' : 'CANCEL'}
                   </button>
                   <button
                     type="submit"
                     className="sgx-btn-cyan px-6 py-2.5 text-xs font-bold font-mono shadow-lg shadow-[var(--sgx-neon)]/20"
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   >
-                    {editingEmbedId ? 'GUARDAR CAMBIOS' : 'GUARDAR E INTEGRAR APP'}
+                    {editingEmbedId ? (es ? 'GUARDAR CAMBIOS' : 'SAVE CHANGES') : (es ? 'GUARDAR E INTEGRAR APP' : 'SAVE AND EMBED APP')}
                   </button>
                 </div>
 
@@ -891,14 +895,14 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 font-mono text-xs p-4 text-center">
                       <Code2 className="w-8 h-8 mb-2 opacity-50" />
-                      <span>Ingresa un enlace URL o código HTML en la pestaña de configuración para previsualizarlo en vivo.</span>
+                      <span>{es ? 'Ingresa un enlace URL o código HTML en la pestaña de configuración para previsualizarlo en vivo.' : 'Enter a URL or HTML code in the settings tab to preview it live.'}</span>
                     </div>
                   )}
                 </div>
 
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-[10px] text-slate-400 font-mono">
-                    Vista previa renderizada en tiempo real mediante sandbox iframe.
+                    {es ? 'Vista previa renderizada en tiempo real mediante sandbox iframe.' : 'Preview rendered in real time in an iframe sandbox.'}
                   </span>
                   <button
                     type="button"
@@ -906,7 +910,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                     disabled={!formData.title.trim() || !formData.sourceValue.trim()}
                     className="sgx-btn px-5 py-2 text-xs font-bold font-mono disabled:opacity-50"
                   >
-                    GUARDAR APP
+                    {es ? 'GUARDAR APP' : 'SAVE APP'}
                   </button>
                 </div>
               </div>

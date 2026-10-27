@@ -50,6 +50,8 @@ import { SummitRetrospectiveGallery } from './SummitRetrospectiveGallery';
 import { OFFICIAL_BRAND_ASSETS } from '../../lib/summitData';
 import { copyUnifiedLinkToClipboard, syncAppUrl } from '../../lib/summitUrlSync';
 import { SummitSectionKey } from './SummitSectionsDropdown';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 export type PillarId = 'SPARK' | 'STAGE' | 'SHOWCASE' | 'STORY' | 'SYSTEM' | 'SYNTHESIZE';
 
@@ -86,6 +88,8 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
   onOpenSponsorInquiry,
   onOpenNetworkingChat,
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { tenant } = useTenantTheme();
   
   // Hydrate active pillar from URL parameter (?pillar=spark etc.)
@@ -131,253 +135,253 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
     {
       id: 'STORY' as PillarId,
       name: 'SGX.STORY',
-      title: 'Cine Digital, Arte, Música & Proyección Cultural',
-      shortDesc: 'Este pilar transforma narrativas en experiencias. Story reúne cine digital, arte, música, escritura, NFTs y efectos visuales para crear contenido que inspira, educa y proyecta cultura a través de la tecnología.',
+      title: (es ? 'Cine Digital, Arte, Música & Proyección Cultural' : 'Digital Film, Art, Music & Cultural Reach'),
+      shortDesc: (es ? 'Este pilar transforma narrativas en experiencias. Story reúne cine digital, arte, música, escritura, NFTs y efectos visuales para crear contenido que inspira, educa y proyecta cultura a través de la tecnología.' : 'This pillar turns narratives into experiences. Story brings together digital film, art, music, writing, NFTs and visual effects to create content that inspires, educates and projects culture through technology.'),
       icon: BookOpen,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.STORY'],
       accentColor: pillarInk('STORY'),
       bgGradients: 'from-[#32527B]/30 via-[#1a1a1a] to-transparent',
-      tagline: 'Cine Digital, Arte, Música, NFTs & Efectos Visuales',
-      industryScope: 'Cineastas, estudios de cine, creadores independientes, instituciones culturales, museos, historiadores, coleccionistas y casas de moda.',
+      tagline: (es ? 'Cine Digital, Arte, Música, NFTs & Efectos Visuales' : 'Digital Film, Art, Music, NFTs & Visual Effects'),
+      industryScope: (es ? 'Cineastas, estudios de cine, creadores independientes, instituciones culturales, museos, historiadores, coleccionistas y casas de moda.' : 'Filmmakers, film studios, independent creators, cultural institutions, museums, historians, collectors and fashion houses.'),
       features: [
         {
           title: 'Avatar Studio',
-          desc: 'Crea tu identidad de piloto en pixel art o low-poly; queda impresa en tu SGX Pass.',
-          actionLabel: 'Abrir Avatar Studio',
+          desc: (es ? 'Crea tu identidad de piloto en pixel art o low-poly; queda impresa en tu SGX Pass.' : 'Create your pilot identity in pixel art or low-poly; it\'s printed on your SGX Pass.'),
+          actionLabel: (es ? 'Abrir Avatar Studio' : 'Open Avatar Studio'),
           icon: UserCheck,
           onClick: onOpenAvatarGenerator,
-          badge: 'IDENTIDAD'
+          badge: (es ? 'IDENTIDAD' : 'IDENTITY')
         },
         {
-          title: 'Radar social',
-          desc: 'Las historias de la comunidad en vivo con #SpatialgineersSummit.',
-          actionLabel: 'Ver radar social',
+          title: (es ? 'Radar social' : 'Social radar'),
+          desc: (es ? 'Las historias de la comunidad en vivo con #SpatialgineersSummit.' : 'The community\'s stories, live, with #SpatialgineersSummit.'),
+          actionLabel: (es ? 'Ver radar social' : 'View social radar'),
           icon: Sparkles,
           onClick: () => navigateToSection('SOCIAL_STREAM'),
-          badge: 'COMUNIDAD'
+          badge: (es ? 'COMUNIDAD' : 'COMMUNITY')
         },
         {
-          title: 'Sesiones de Narrativa & Cine XR',
-          desc: 'Bloque SGX.Story del Día 1 y conversación de industria del Día 2.',
-          actionLabel: 'Explorar Agenda de Cine XR',
+          title: (es ? 'Sesiones de Narrativa & Cine XR' : 'Narrative & XR Film Sessions'),
+          desc: (es ? 'Bloque SGX.Story del Día 1 y conversación de industria del Día 2.' : 'The Day 1 SGX.Story block and the Day 2 industry conversation.'),
+          actionLabel: (es ? 'Explorar Agenda de Cine XR' : 'Explore the XR Film Agenda'),
           icon: Calendar,
           onClick: onExploreAgenda,
-          badge: 'PANEL CULTURAL'
+          badge: (es ? 'PANEL CULTURAL' : 'CULTURAL PANEL')
         }
       ],
       realDeployments: portfolioOf('STORY'),
-      summitActivation: 'Presentación de colecciones culturales en 3D, paneles dedicados a la identidad boricua en la computación espacial y archivo digital permanente.'
+      summitActivation: (es ? 'Presentación de colecciones culturales en 3D, paneles dedicados a la identidad boricua en la computación espacial y archivo digital permanente.' : 'Presentation of cultural collections in 3D, panels dedicated to Boricua identity in spatial computing and a permanent digital archive.')
     },
     {
       id: 'SHOWCASE' as PillarId,
       name: 'SGX.SHOWCASE',
-      title: 'Presentación Visual, Renders 3D & Entornos XR',
-      shortDesc: 'Este pilar da forma a cómo las ideas se presentan al mundo. Showcase desarrolla renders, animaciones 3D, vídeos, galerías y entornos XR que transforman productos, marcas y conceptos en experiencias visuales memorables.',
+      title: (es ? 'Presentación Visual, Renders 3D & Entornos XR' : 'Visual Presentation, 3D Renders & XR Environments'),
+      shortDesc: (es ? 'Este pilar da forma a cómo las ideas se presentan al mundo. Showcase desarrolla renders, animaciones 3D, vídeos, galerías y entornos XR que transforman productos, marcas y conceptos en experiencias visuales memorables.' : 'This pillar shapes how ideas are presented to the world. Showcase develops renders, 3D animations, videos, galleries and XR environments that turn products, brands and concepts into memorable visual experiences.'),
       icon: Eye,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SHOWCASE'],
       accentColor: pillarInk('SHOWCASE'),
       bgGradients: 'from-[#00DDFF]/30 via-[#1a1a1a] to-transparent',
-      tagline: 'Renders, Animaciones 3D, Galerías & Entornos XR',
-      industryScope: 'Marcas físicas y digitales, tiendas, diseñadores de moda, diseñadores de producto, arquitectos, brokers inmobiliarios y galerías de arte.',
+      tagline: (es ? 'Renders, Animaciones 3D, Galerías & Entornos XR' : 'Renders, 3D Animations, Galleries & XR Environments'),
+      industryScope: (es ? 'Marcas físicas y digitales, tiendas, diseñadores de moda, diseñadores de producto, arquitectos, brokers inmobiliarios y galerías de arte.' : 'Physical and digital brands, stores, fashion designers, product designers, architects, real estate brokers and art galleries.'),
       features: [
         {
-          title: 'Recorrido 360° Chroma Space Studios',
-          desc: 'Exploración 360° de Chroma Space Studios, el venue del Día 3, con hotspots tácticos.',
-          actionLabel: 'Abrir recorrido 360°',
+          title: (es ? 'Recorrido 360° Chroma Space Studios' : 'Chroma Space Studios 360° Tour'),
+          desc: (es ? 'Exploración 360° de Chroma Space Studios, el venue del Día 3, con hotspots tácticos.' : 'A 360° tour of Chroma Space Studios, the Day 3 venue, with tactical hotspots.'),
+          actionLabel: (es ? 'Abrir recorrido 360°' : 'Open the 360° tour'),
           icon: Compass,
           onClick: onOpen360Tour,
           badge: 'VENUE 360°'
         },
         {
-          title: 'Directorio de Patrocinadores & Marcas',
-          desc: 'Stands interactivos, beneficios exclusivos y activaciones comerciales.',
-          actionLabel: 'Ver Marcas Aliadas',
+          title: (es ? 'Directorio de Patrocinadores & Marcas' : 'Sponsors & Brands Directory'),
+          desc: (es ? 'Stands interactivos, beneficios exclusivos y activaciones comerciales.' : 'Interactive booths, exclusive benefits and commercial activations.'),
+          actionLabel: (es ? 'Ver Marcas Aliadas' : 'View Partner Brands'),
           icon: Briefcase,
           onClick: onExploreSponsors,
           badge: 'SPONSORS'
         },
         {
-          title: 'Matriz de Patrocinio & Dossier',
-          desc: '5 Tiers de auspicio con formulario de consulta para marcas.',
-          actionLabel: 'Formulario de Alianzas',
+          title: (es ? 'Matriz de Patrocinio & Dossier' : 'Sponsorship Matrix & Dossier'),
+          desc: (es ? '5 Tiers de auspicio con formulario de consulta para marcas.' : '5 sponsorship Tiers with an inquiry form for brands.'),
+          actionLabel: (es ? 'Formulario de Alianzas' : 'Partnership Form'),
           icon: FileText,
           onClick: onOpenSponsorInquiry,
           badge: 'DOSSIER B2B'
         }
       ],
       realDeployments: portfolioOf('SHOWCASE'),
-      summitActivation: 'Tour virtual 360° por el venue del Día 3 (Chroma Space Studios, San Juan), showrooms de patrocinadores y vitrinas holográficas interactivas.'
+      summitActivation: (es ? 'Tour virtual 360° por el venue del Día 3 (Chroma Space Studios, San Juan), showrooms de patrocinadores y vitrinas holográficas interactivas.' : 'A 360° virtual tour of the Day 3 venue (Chroma Space Studios, San Juan), sponsor showrooms and interactive holographic showcases.')
     },
     {
       id: 'SPARK' as PillarId,
       name: 'SGX.SPARK',
-      title: 'Interacción, Exploración Creativa & Dinámicas Inmersivas',
-      shortDesc: 'Este pilar impulsa la interacción y la exploración creativa. Spark abarca videojuegos, dinámicas inmersivas, simulaciones, activaciones participativas y herramientas de juego educativo que fomentan la conexión entre personas y tecnología.',
+      title: (es ? 'Interacción, Exploración Creativa & Dinámicas Inmersivas' : 'Interaction, Creative Exploration & Immersive Dynamics'),
+      shortDesc: (es ? 'Este pilar impulsa la interacción y la exploración creativa. Spark abarca videojuegos, dinámicas inmersivas, simulaciones, activaciones participativas y herramientas de juego educativo que fomentan la conexión entre personas y tecnología.' : 'This pillar drives interaction and creative exploration. Spark covers video games, immersive dynamics, simulations, participatory activations and educational game tools that foster connection between people and technology.'),
       icon: Gamepad2,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SPARK'],
       accentColor: pillarInk('SPARK'),
       bgGradients: 'from-[#B87000]/30 via-[#1a1a1a] to-transparent',
-      tagline: 'Videojuegos, Simulaciones & Juegos Educativos',
-      industryScope: 'Estudios de videojuegos, educadores, ligas deportivas, comunidades competitivas, herramientas de capacitación y simulaciones interactivas.',
+      tagline: (es ? 'Videojuegos, Simulaciones & Juegos Educativos' : 'Video Games, Simulations & Educational Games'),
+      industryScope: (es ? 'Estudios de videojuegos, educadores, ligas deportivas, comunidades competitivas, herramientas de capacitación y simulaciones interactivas.' : 'Video game studios, educators, sports leagues, competitive communities, training tools and interactive simulations.'),
       features: [
         {
-          title: 'Simulador de Dron 3D',
-          desc: 'Entorno de vuelo táctico WebGL con físicas de gravedad cero y colisiones.',
-          actionLabel: 'Lanzar Simulador de Dron',
+          title: (es ? 'Simulador de Dron 3D' : '3D Drone Simulator'),
+          desc: (es ? 'Entorno de vuelo táctico WebGL con físicas de gravedad cero y colisiones.' : 'Tactical WebGL flight environment with zero-gravity physics and collisions.'),
+          actionLabel: (es ? 'Lanzar Simulador de Dron' : 'Launch the Drone Simulator'),
           icon: Rocket,
           onClick: onOpenDroneSimulator,
-          badge: 'SIMULADOR EN VIVO'
+          badge: (es ? 'SIMULADOR EN VIVO' : 'LIVE SIMULATOR')
         },
         {
-          title: 'Votación en vivo estilo Kahoot',
-          desc: 'Vota durante los bloques del Summit desde tu teléfono (+25 XP por voto).',
-          actionLabel: 'Abrir consola /play',
+          title: (es ? 'Votación en vivo estilo Kahoot' : 'Kahoot-style live voting'),
+          desc: (es ? 'Vota durante los bloques del Summit desde tu teléfono (+25 XP por voto).' : 'Vote during the Summit blocks from your phone (+25 XP per vote).'),
+          actionLabel: (es ? 'Abrir consola /play' : 'Open the /play console'),
           icon: Zap,
           onClick: () => navigateToPage('play'),
-          badge: 'INTERACCIÓN EN VIVO'
+          badge: (es ? 'INTERACCIÓN EN VIVO' : 'LIVE INTERACTION')
         },
         {
-          title: 'Reactor & tienda de premios',
-          desc: 'Misiones por pilar y premios mayormente digitales, con el mismo XP.',
-          actionLabel: 'Abrir Reactor de misiones',
+          title: (es ? 'Reactor & tienda de premios' : 'Reactor & prize store'),
+          desc: (es ? 'Misiones por pilar y premios mayormente digitales, con el mismo XP.' : 'Missions by pillar and mostly digital prizes, with the same XP.'),
+          actionLabel: (es ? 'Abrir Reactor de misiones' : 'Open the mission Reactor'),
           icon: TrophyIcon,
           onClick: onOpenPassportModal,
-          badge: 'GAMIFICACIÓN'
+          badge: (es ? 'GAMIFICACIÓN' : 'GAMIFICATION')
         }
       ],
       realDeployments: portfolioOf('SPARK'),
-      summitActivation: 'Simulador de dron táctico en la plataforma, votación tipo Kahoot con recompensas de XP y bloque SGX.Spark del Día 1.'
+      summitActivation: (es ? 'Simulador de dron táctico en la plataforma, votación tipo Kahoot con recompensas de XP y bloque SGX.Spark del Día 1.' : 'A tactical drone simulator on the platform, Kahoot-style voting with XP rewards and the Day 1 SGX.Spark block.')
     },
     {
       id: 'STAGE' as PillarId,
       name: 'SGX.STAGE',
-      title: 'Expresión en Vivo, Shows Inmersivos & Transmisiones Híbridas',
-      shortDesc: 'Este pilar celebra la expresión en vivo y la energía del presente. Stage incluye conciertos, podcasts, visualizers, performances, transmisiones híbridas y shows inmersivos que convierten la creatividad en espectáculo.',
+      title: (es ? 'Expresión en Vivo, Shows Inmersivos & Transmisiones Híbridas' : 'Live Expression, Immersive Shows & Hybrid Broadcasts'),
+      shortDesc: (es ? 'Este pilar celebra la expresión en vivo y la energía del presente. Stage incluye conciertos, podcasts, visualizers, performances, transmisiones híbridas y shows inmersivos que convierten la creatividad en espectáculo.' : 'This pillar celebrates live expression and the energy of the moment. Stage includes concerts, podcasts, visualizers, performances, hybrid broadcasts and immersive shows that turn creativity into spectacle.'),
       icon: Radio,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.STAGE'],
       accentColor: pillarInk('STAGE'),
       bgGradients: 'from-[#FDCC0D]/30 via-[#1a1a1a] to-transparent',
-      tagline: 'Conciertos, Visualizers, Podcasts & Shows Inmersivos',
-      industryScope: 'Productores de eventos, DJs, artistas musicales, productoras audiovisuales, podcasters, influencers, conferencias y organizadores de ferias.',
+      tagline: (es ? 'Conciertos, Visualizers, Podcasts & Shows Inmersivos' : 'Concerts, Visualizers, Podcasts & Immersive Shows'),
+      industryScope: (es ? 'Productores de eventos, DJs, artistas musicales, productoras audiovisuales, podcasters, influencers, conferencias y organizadores de ferias.' : 'Event producers, DJs, musical artists, audiovisual production companies, podcasters, influencers, conferences and trade show organizers.'),
       features: [
         {
-          title: 'Salas de Broadcast & Canales',
-          desc: 'YouTube Live como canal principal, con LinkedIn Live y Facebook Live.',
-          actionLabel: 'Abrir Salas Broadcast',
+          title: (es ? 'Salas de Broadcast & Canales' : 'Broadcast Rooms & Channels'),
+          desc: (es ? 'YouTube Live como canal principal, con LinkedIn Live y Facebook Live.' : 'YouTube Live as the main channel, with LinkedIn Live and Facebook Live.'),
+          actionLabel: (es ? 'Abrir Salas Broadcast' : 'Open Broadcast Rooms'),
           icon: Tv,
           onClick: onOpenBroadcastRooms,
-          badge: 'STREAMING EN VIVO'
+          badge: (es ? 'STREAMING EN VIVO' : 'LIVE STREAMING')
         },
         {
-          title: 'Artistas Invitados & Roblox',
-          desc: 'Intermedios de artistas invitados (por anunciar) en la transmisión y en Roblox, si se usa.',
-          actionLabel: 'Ver Cronograma de Shows',
+          title: (es ? 'Artistas Invitados & Roblox' : 'Guest Artists & Roblox'),
+          desc: (es ? 'Intermedios de artistas invitados (por anunciar) en la transmisión y en Roblox, si se usa.' : 'Guest artist interludes (TBA) on the broadcast and in Roblox, if used.'),
+          actionLabel: (es ? 'Ver Cronograma de Shows' : 'View the Show Schedule'),
           icon: Radio,
           onClick: onExploreAgenda,
           badge: 'LIVE STAGE'
         },
         {
-          title: 'Directorio de Artistas & Keynotes',
-          desc: 'Artistas y speakers: solo se anuncian los confirmados por escrito.',
-          actionLabel: 'Portal de Artistas',
+          title: (es ? 'Directorio de Artistas & Keynotes' : 'Artists & Keynotes Directory'),
+          desc: (es ? 'Artistas y speakers: solo se anuncian los confirmados por escrito.' : 'Artists and speakers: only those confirmed in writing are announced.'),
+          actionLabel: (es ? 'Portal de Artistas' : 'Artists Portal'),
           icon: Users,
           onClick: onOpenSpeakerPortal,
           badge: 'SPEAKERS'
         }
       ],
       realDeployments: portfolioOf('STAGE'),
-      summitActivation: 'Transmisión de los 3 días por YouTube Live, intermedios de artistas invitados el Día 1 y showcase con avatar y captura facial en tiempo real el Día 3.'
+      summitActivation: (es ? 'Transmisión de los 3 días por YouTube Live, intermedios de artistas invitados el Día 1 y showcase con avatar y captura facial en tiempo real el Día 3.' : 'All 3 days streamed on YouTube Live, guest artist interludes on Day 1 and a showcase with an avatar and real-time facial capture on Day 3.')
     },
     {
       id: 'SYSTEM' as PillarId,
       name: 'SGX.SYSTEM',
-      title: 'Herramientas Digitales, Integraciones AI, WebApps & Robótica',
-      shortDesc: 'Este pilar se enfoca en crear herramientas digitales que hacen la innovación accesible. System desarrolla webapps interactivas, integraciones con AI, manufactura y robótica para apoyar proyectos creativos.',
+      title: (es ? 'Herramientas Digitales, Integraciones AI, WebApps & Robótica' : 'Digital Tools, AI Integrations, Web Apps & Robotics'),
+      shortDesc: (es ? 'Este pilar se enfoca en crear herramientas digitales que hacen la innovación accesible. System desarrolla webapps interactivas, integraciones con AI, manufactura y robótica para apoyar proyectos creativos.' : 'This pillar focuses on building digital tools that make innovation accessible. System develops interactive web apps, AI integrations, manufacturing and robotics to support creative projects.'),
       icon: Cpu,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SYSTEM'],
       accentColor: pillarInk('SYSTEM'),
       bgGradients: 'from-[#888888]/30 via-[#1a1a1a] to-transparent',
-      tagline: 'WebApps Interactivas, AI, Robótica & Manufactura',
-      industryScope: 'Departamentos técnicos, instituciones tecnológicas, empresas de manufactura, logística, startups y makers.',
+      tagline: (es ? 'WebApps Interactivas, AI, Robótica & Manufactura' : 'Interactive Web Apps, AI, Robotics & Manufacturing'),
+      industryScope: (es ? 'Departamentos técnicos, instituciones tecnológicas, empresas de manufactura, logística, startups y makers.' : 'Technical departments, technology institutions, manufacturing companies, logistics, startups and makers.'),
       features: [
         {
           title: 'SGX Pass & Holo Card',
-          desc: 'Registro, Holo Card, credencial y QR en un solo pase.',
-          actionLabel: 'Abrir mi SGX Pass',
+          desc: (es ? 'Registro, Holo Card, credencial y QR en un solo pase.' : 'Registration, Holo Card, credential and QR in a single pass.'),
+          actionLabel: (es ? 'Abrir mi SGX Pass' : 'Open my SGX Pass'),
           icon: Ticket,
           onClick: onOpenTickets,
-          badge: 'IDENTIDAD'
+          badge: (es ? 'IDENTIDAD' : 'IDENTITY')
         },
         {
-          title: 'Radar de visitas',
-          desc: 'Desde dónde nos visitan, en vivo: mapa, contadores y leaderboards.',
-          actionLabel: 'Ver el radar',
+          title: (es ? 'Radar de visitas' : 'Visit radar'),
+          desc: (es ? 'Desde dónde nos visitan, en vivo: mapa, contadores y leaderboards.' : 'Where our visitors come from, live: map, counters and leaderboards.'),
+          actionLabel: (es ? 'Ver el radar' : 'View the radar'),
           icon: Code2,
           onClick: () => navigateToSection('VISITS'),
-          badge: 'TELEMETRÍA'
+          badge: (es ? 'TELEMETRÍA' : 'TELEMETRY')
         },
         {
-          title: 'Escáner de pases & Rolodex',
-          desc: 'Escanea un SGX Pass: quedan en los dos Rolodex.',
-          actionLabel: 'Abrir escáner',
+          title: (es ? 'Escáner de pases & Rolodex' : 'Pass scanner & Rolodex'),
+          desc: (es ? 'Escanea un SGX Pass: quedan en los dos Rolodex.' : 'Scan an SGX Pass: it\'s saved in both Rolodexes.'),
+          actionLabel: (es ? 'Abrir escáner' : 'Open scanner'),
           icon: UserCheck,
           onClick: () => window.dispatchEvent(new CustomEvent('sgx:open_qr_scanner')),
           badge: 'NETWORKING'
         }
       ],
       realDeployments: portfolioOf('SYSTEM'),
-      summitActivation: 'Demostración en vivo en el escenario el Día 3 del rig de captura facial de avatares en tiempo real operado por Danelson y rediseño de UI reactiva.'
+      summitActivation: (es ? 'Demostración en vivo en el escenario el Día 3 del rig de captura facial de avatares en tiempo real operado por Danelson y rediseño de UI reactiva.' : 'A live on-stage demo on Day 3 of the real-time avatar facial-capture rig run by Danelson, plus a reactive UI redesign.')
     },
     {
       id: 'SYNTHESIZE' as PillarId,
       name: 'SGX.SYNTHESIZE',
-      title: 'Integración Holística, Soluciones a la Medida & Alto Impacto',
-      shortDesc: 'Este pilar materializa proyectos que integran múltiples áreas del ecosistema SGX. Synthesize une creatividad, ingeniería, arte y estrategia para desarrollar soluciones a la medida y experiencias de alto impacto.',
+      title: (es ? 'Integración Holística, Soluciones a la Medida & Alto Impacto' : 'Holistic Integration, Custom Solutions & High Impact'),
+      shortDesc: (es ? 'Este pilar materializa proyectos que integran múltiples áreas del ecosistema SGX. Synthesize une creatividad, ingeniería, arte y estrategia para desarrollar soluciones a la medida y experiencias de alto impacto.' : 'This pillar delivers projects that combine several areas of the SGX ecosystem. Synthesize brings together creativity, engineering, art and strategy to develop custom solutions and high-impact experiences.'),
       icon: Boxes,
       iconUrl: OFFICIAL_BRAND_ASSETS.pillarIcons['SGX.SYNTHESIZE'],
       accentColor: pillarInk('SYNTHESIZE'),
       bgGradients: 'from-[#FFFFFF]/30 via-[#1a1a1a] to-transparent',
-      tagline: 'Creatividad, Ingeniería, Arte & Estrategia Integrada',
-      industryScope: 'Empresas privadas, municipios, instituciones educativas, desarrolladores de proyectos y mega-ecosistemas B2B.',
+      tagline: (es ? 'Creatividad, Ingeniería, Arte & Estrategia Integrada' : 'Integrated Creativity, Engineering, Art & Strategy'),
+      industryScope: (es ? 'Empresas privadas, municipios, instituciones educativas, desarrolladores de proyectos y mega-ecosistemas B2B.' : 'Private companies, municipalities, educational institutions, project developers and large B2B ecosystems.'),
       features: [
         {
           title: 'SGX.Match — Speed Pitching',
-          desc: 'Conecta con creadores y marcas de todos los pilares.',
-          actionLabel: 'Lanzar SGX.Match',
+          desc: (es ? 'Conecta con creadores y marcas de todos los pilares.' : 'Connect with creators and brands from every pillar.'),
+          actionLabel: (es ? 'Lanzar SGX.Match' : 'Launch SGX.Match'),
           icon: Flame,
           onClick: onOpenMatchModule,
           badge: 'SGX.MATCH'
         },
         {
-          title: 'Foros de Networking & Red de Asistentes',
-          desc: 'Espacio de conexión para coordinar alianzas y co-creación de proyectos.',
-          actionLabel: 'Abrir Foros de Networking',
+          title: (es ? 'Foros de Networking & Red de Asistentes' : 'Networking Forums & Attendee Network'),
+          desc: (es ? 'Espacio de conexión para coordinar alianzas y co-creación de proyectos.' : 'A connection space to coordinate alliances and project co-creation.'),
+          actionLabel: (es ? 'Abrir Foros de Networking' : 'Open Networking Forums'),
           icon: MessageSquare,
           onClick: onOpenNetworkingChat,
           badge: 'NETWORKING'
         },
         {
           title: 'SGX Guild Initiates',
-          desc: 'Los 8 Initiates activos; los 6 mejores presentan en la Ranked Trials Pitch Session del Día 3.',
-          actionLabel: 'Ver SGX Guild Initiates',
+          desc: (es ? 'Los 8 Initiates activos; los 6 mejores presentan en la Ranked Trials Pitch Session del Día 3.' : 'The 8 active Initiates; the top 6 present at the Day 3 Ranked Trials Pitch Session.'),
+          actionLabel: (es ? 'Ver SGX Guild Initiates' : 'View SGX Guild Initiates'),
           icon: GraduationCap,
           onClick: onExploreGuild,
           badge: 'SGX GUILD'
         }
       ],
       realDeployments: portfolioOf('SYNTHESIZE'),
-      summitActivation: 'El Summit 2026 en su totalidad representa la síntesis máxima: un evento de 3 días que une a líderes empresariales, reclutas e Initiates del SGX Guild y creadores.'
+      summitActivation: (es ? 'El Summit 2026 en su totalidad representa la síntesis máxima: un evento de 3 días que une a líderes empresariales, reclutas e Initiates del SGX Guild y creadores.' : 'The Summit 2026 as a whole is the ultimate synthesis: a 3-day event that brings together business leaders, SGX Guild recruits and Initiates, and creators.')
     }
   ];
 
   const currentPillar = pillarsData.find((p) => p.id === activePillarTab) || pillarsData[0];
 
   const targetNiches = [
-    'Estudios de Videojuegos', 'Marcas Físicas & Digitales', 'Educadores & Escuelas', 'Creadores Independientes',
-    'Ligas Deportivas & Atletas', 'Comunidades Competitivas', 'Productores de Eventos', 'Organizadores de Ferias',
-    'Agencias de Marketing', 'DJs & Artistas Musicales', 'Productoras Audiovisuales', 'Podcasters & Influencers',
-    'Medios Digitales & Conferencias', 'Instituciones Culturales & Museos', 'Tiendas & Ecommerce', 'Diseñadores de Moda',
-    'Diseñadores de Producto', 'Arquitectos & Brokers Inmobiliarios', 'Desarrolladores de Proyectos', 'Empresas de Robótica & AI'
+    (es ? 'Estudios de Videojuegos' : 'Video Game Studios'), (es ? 'Marcas Físicas & Digitales' : 'Physical & Digital Brands'), (es ? 'Educadores & Escuelas' : 'Educators & Schools'), (es ? 'Creadores Independientes' : 'Independent Creators'),
+    (es ? 'Ligas Deportivas & Atletas' : 'Sports Leagues & Athletes'), (es ? 'Comunidades Competitivas' : 'Competitive Communities'), (es ? 'Productores de Eventos' : 'Event Producers'), (es ? 'Organizadores de Ferias' : 'Trade Show Organizers'),
+    (es ? 'Agencias de Marketing' : 'Marketing Agencies'), (es ? 'DJs & Artistas Musicales' : 'DJs & Musical Artists'), (es ? 'Productoras Audiovisuales' : 'Audiovisual Production Companies'), 'Podcasters & Influencers',
+    (es ? 'Medios Digitales & Conferencias' : 'Digital Media & Conferences'), (es ? 'Instituciones Culturales & Museos' : 'Cultural Institutions & Museums'), (es ? 'Tiendas & Ecommerce' : 'Stores & Ecommerce'), (es ? 'Diseñadores de Moda' : 'Fashion Designers'),
+    (es ? 'Diseñadores de Producto' : 'Product Designers'), (es ? 'Arquitectos & Brokers Inmobiliarios' : 'Architects & Real Estate Brokers'), (es ? 'Desarrolladores de Proyectos' : 'Project Developers'), (es ? 'Empresas de Robótica & AI' : 'Robotics & AI Companies')
   ];
 
   return (
@@ -394,17 +398,17 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           <div className="space-y-2 max-w-3xl">
             <div className="flex items-center space-x-2">
               <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-[var(--sgx-primary)]/15 border border-[var(--sgx-primary)] text-[var(--sgx-neon)] uppercase tracking-wider">
-                FRAMEWORK OFICIAL SGX • 6 PILARES
+                {es ? 'FRAMEWORK OFICIAL SGX • 6 PILARES' : 'OFFICIAL SGX FRAMEWORK • 6 PILLARS'}
               </span>
               <span className="text-xs text-slate-400 font-mono">
-                DESARROLLADO EN PUERTO RICO PARA EL MUNDO
+                {es ? 'DESARROLLADO EN PUERTO RICO PARA EL MUNDO' : 'BUILT IN PUERTO RICO FOR THE WORLD'}
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-white uppercase font-['Orbitron',sans-serif] tracking-tight">
-              ¿QUÉ ES EL FRAMEWORK SGX?
+              {es ? '¿QUÉ ES EL FRAMEWORK SGX?' : 'WHAT IS THE SGX FRAMEWORK?'}
             </h1>
             <p className="text-sm text-slate-200 leading-relaxed font-sans">
-              SGX es una <strong>metodología operativa y técnica</strong> creada por Spatialgineers para diseñar, desarrollar y desplegar experiencias inmersivas interconectadas. Integra computación espacial, inteligencia artificial, transmisiones en vivo y economías interactivas en una sola arquitectura accesible.
+              {es ? 'SGX es una ' : 'SGX is an '}<strong>{es ? 'metodología operativa y técnica' : 'operational and technical methodology'}</strong>{es ? ' creada por Spatialgineers para diseñar, desarrollar y desplegar experiencias inmersivas interconectadas. Integra computación espacial, inteligencia artificial, transmisiones en vivo y economías interactivas en una sola arquitectura accesible.' : ' created by Spatialgineers to design, develop and deploy interconnected immersive experiences. It brings together spatial computing, artificial intelligence, live broadcasts and interactive economies in a single accessible architecture.'}
             </p>
           </div>
 
@@ -416,12 +420,12 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             {copiedPillarLink ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400">¡Enlace Copiado!</span>
+                <span className="text-emerald-400">{es ? '¡Enlace Copiado!' : 'Link Copied!'}</span>
               </>
             ) : (
               <>
                 <Share2 className="w-3.5 h-3.5 text-[var(--sgx-neon)]" />
-                <span>Compartir Hub</span>
+                <span>{es ? 'Compartir Hub' : 'Share Hub'}</span>
               </>
             )}
           </button>
@@ -431,10 +435,10 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         <div className="space-y-3 pt-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono font-bold uppercase tracking-wider" style={{ color: 'var(--sgx-neon)' }}>
-              SELECCIONA UN PILAR PARA ABRIR SU HUB OPERATIVO:
+              {es ? 'SELECCIONA UN PILAR PARA ABRIR SU HUB OPERATIVO:' : 'SELECT A PILLAR TO OPEN ITS OPERATIONS HUB:'}
             </span>
             <span className="text-[10px] font-mono text-slate-400 hidden sm:inline">
-              6 VECTORES ACTIVOS
+              {es ? '6 VECTORES ACTIVOS' : '6 ACTIVE VECTORS'}
             </span>
           </div>
 
@@ -464,7 +468,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
                       <IconComp className="w-5 h-5" style={{ color: isSelected ? p.accentColor : '#94A3B8' }} />
                     )}
                     <span className="text-[9px] font-mono font-bold uppercase" style={{ color: isSelected ? p.accentColor : '#767676' }}>
-                      PILAR 0{idx + 1}
+                      {es ? 'PILAR 0' : 'PILLAR 0'}{idx + 1}
                     </span>
                   </div>
                   <div>
@@ -509,7 +513,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
 
           <div className="bg-[#1e1e1e] p-4 border border-slate-700 text-xs font-mono space-y-1.5 lg:w-80 shrink-0">
             <div className="text-[10px] uppercase font-bold" style={{ color: currentPillar.accentColor }}>
-              NICHOS & ALCANCE OPERATIVO:
+              {es ? 'NICHOS & ALCANCE OPERATIVO:' : 'NICHES & OPERATIONAL REACH:'}
             </div>
             <div className="text-slate-200 leading-relaxed font-sans text-xs">
               {currentPillar.industryScope}
@@ -522,10 +526,10 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           <div className="flex items-center justify-between">
             <div className="text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-2" style={{ color: currentPillar.accentColor }}>
               <Zap className="w-4 h-4" style={{ color: currentPillar.accentColor }} />
-              <span>HERRAMIENTAS & ACTIVACIONES INTERACTIVAS DEL PILAR ({currentPillar.features.length})</span>
+              <span>{es ? 'HERRAMIENTAS & ACTIVACIONES INTERACTIVAS DEL PILAR (' : 'THE PILLAR\'S INTERACTIVE TOOLS & ACTIVATIONS ('}{currentPillar.features.length})</span>
             </div>
             <span className="text-[10px] font-mono text-slate-400">
-              CLIC DIRECTO PARA ABRIR EL MÓDULO O MODAL
+              {es ? 'CLIC DIRECTO PARA ABRIR EL MÓDULO O MODAL' : 'CLICK TO OPEN THE MODULE OR MODAL DIRECTLY'}
             </span>
           </div>
 
@@ -600,7 +604,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         <div className="space-y-3 pt-2">
           <div className="text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: currentPillar.accentColor }}>
             <Award className="w-3.5 h-3.5" style={{ color: currentPillar.accentColor }} />
-            <span>PROYECTOS & CASOS REALES DESPLEGADOS</span>
+            <span>{es ? 'PROYECTOS & CASOS REALES DESPLEGADOS' : 'PROJECTS & REAL DEPLOYED CASES'}</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -611,16 +615,16 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
                 style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <div className="font-bold text-white text-xs font-['Orbitron',sans-serif]">{dep.name}</div>
+                  <div className="font-bold text-white text-xs font-['Orbitron',sans-serif]">{loc(dep, 'name', language)}</div>
                   {dep.useCase && (
-                    <span className="shrink-0 px-1.5 py-0.5 text-[8px] font-mono font-bold text-black" style={{ background: currentPillar.accentColor }}>CASO DE USO</span>
+                    <span className="shrink-0 px-1.5 py-0.5 text-[8px] font-mono font-bold text-black" style={{ background: currentPillar.accentColor }}>{es ? 'CASO DE USO' : 'USE CASE'}</span>
                   )}
                 </div>
                 <div className="text-[10px] font-mono font-semibold" style={{ color: currentPillar.accentColor }}>
-                  {dep.metric}
+                  {loc(dep, 'metric', language)}
                 </div>
-                {dep.partners && <div className="text-[10px] font-mono text-slate-400">{dep.partners}</div>}
-                <p className="text-[11px] text-slate-300 leading-relaxed">{dep.desc}</p>
+                {loc(dep, 'partners', language) && <div className="text-[10px] font-mono text-slate-400">{loc(dep, 'partners', language)}</div>}
+                <p className="text-[11px] text-slate-300 leading-relaxed">{loc(dep, 'desc', language)}</p>
               </div>
             ))}
           </div>
@@ -634,7 +638,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           <div className="space-y-0.5">
             <span className="font-bold uppercase flex items-center gap-1.5" style={{ color: currentPillar.accentColor }}>
               <Tv className="w-3.5 h-3.5" style={{ color: currentPillar.accentColor }} />
-              <span>CÓMO SE EXPERIMENTA ESTE PILAR EN EL SUMMIT 2026:</span>
+              <span>{es ? 'CÓMO SE EXPERIMENTA ESTE PILAR EN EL SUMMIT 2026:' : 'HOW YOU EXPERIENCE THIS PILLAR AT SUMMIT 2026:'}</span>
             </span>
             <p className="text-slate-300 font-sans text-xs">{currentPillar.summitActivation}</p>
           </div>
@@ -645,7 +649,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
               className="px-3.5 py-1.5 bg-[#FDCC0D] hover:bg-[#B87000] text-black font-bold text-xs uppercase font-mono flex items-center gap-1 shrink-0 cursor-pointer shadow-md"
               style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
             >
-              <span>VER SESIONES</span>
+              <span>{es ? 'VER SESIONES' : 'VIEW SESSIONS'}</span>
               <ChevronRight className="w-3 h-3 text-black" />
             </button>
           )}
@@ -663,13 +667,13 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         <div className="space-y-1">
           <div className="text-[11px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5" style={{ color: 'var(--sgx-neon)' }}>
             <Briefcase className="w-3.5 h-3.5" style={{ color: 'var(--sgx-neon)' }} />
-            <span>SGX FRAMEWORK • AUDIENCIA & NICHOS DE IMPACTO</span>
+            <span>{es ? 'SGX FRAMEWORK • AUDIENCIA & NICHOS DE IMPACTO' : 'SGX FRAMEWORK • AUDIENCE & IMPACT NICHES'}</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-white uppercase font-['Orbitron',sans-serif]">
-            UN EVENTO PARA CADA INDUSTRIA Y SECTOR
+            {es ? 'UN EVENTO PARA CADA INDUSTRIA Y SECTOR' : 'AN EVENT FOR EVERY INDUSTRY AND SECTOR'}
           </h2>
           <p className="text-xs text-slate-300 font-sans">
-            El Framework SGX está diseñado para ser agnóstico de industria. Conecta a cualquier tipo de organización con experiencias inmersivas e infraestructura 3D.
+            {es ? 'El Framework SGX está diseñado para ser agnóstico de industria. Conecta a cualquier tipo de organización con experiencias inmersivas e infraestructura 3D.' : 'The SGX Framework is designed to be industry-agnostic. It connects any kind of organization with immersive experiences and 3D infrastructure.'}
           </p>
         </div>
 
@@ -698,9 +702,9 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         >
           <div className="flex items-center justify-between">
             <span className="px-2.5 py-1 bg-red-950/60 border border-red-500/50 text-red-400 font-mono font-bold text-xs uppercase">
-              DÍA 1 • DIGITAL (YOUTUBE LIVE)
+              {es ? 'DÍA 1 • DIGITAL (YOUTUBE LIVE)' : 'DAY 1 • DIGITAL (YOUTUBE LIVE)'}
             </span>
-            <span className="text-xs font-mono text-slate-400">VIE 11 DIC</span>
+            <span className="text-xs font-mono text-slate-400">{es ? 'VIE 11 DIC' : 'FRI DEC 11'}</span>
           </div>
 
           <h3 className="text-base font-bold text-white font-['Orbitron',sans-serif]">
@@ -710,19 +714,19 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           <ul className="text-xs text-slate-300 space-y-2 font-sans">
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span>Seis bloques de 25 min en orden oficial: SGX.Story, SGX.Showcase, SGX.Spark, SGX.Stage, SGX.System y SGX.Synthesize, con un artista invitado (por anunciar) antes de cada uno.</span>
+              <span>{es ? 'Seis bloques de 25 min en orden oficial: SGX.Story, SGX.Showcase, SGX.Spark, SGX.Stage, SGX.System y SGX.Synthesize, con un artista invitado (por anunciar) antes de cada uno.' : 'Six 25-min blocks in official order: SGX.Story, SGX.Showcase, SGX.Spark, SGX.Stage, SGX.System and SGX.Synthesize, with a guest artist (TBA) before each one.'}</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span><strong>Portafolios de los Initiates (2:30–4:00 p.m.):</strong> los 8 Initiates activos presentan su portafolio, 8 minutos cada uno.</span>
+              <span><strong>{es ? 'Portafolios de los Initiates (2:30–4:00 p.m.):' : 'Initiate Portfolios (2:30–4:00 p.m.):'}</strong>{es ? ' los 8 Initiates activos presentan su portafolio, 8 minutos cada uno.' : ' the 8 active Initiates present their portfolios, 8 minutes each.'}</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span><strong>Cierre (4:00–4:30 p.m.):</strong> se anuncian los 6 Initiates que presentan el Día 3.</span>
+              <span><strong>{es ? 'Cierre (4:00–4:30 p.m.):' : 'Closing (4:00–4:30 p.m.):'}</strong>{es ? ' se anuncian los 6 Initiates que presentan el Día 3.' : ' the 6 Initiates who present on Day 3 are announced.'}</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span><strong>Horario:</strong> 10:00 a.m. a 4:30 p.m. por YouTube Live, con Roblox activo si se usa.</span>
+              <span><strong>{es ? 'Horario:' : 'Schedule:'}</strong>{es ? ' 10:00 a.m. a 4:30 p.m. por YouTube Live, con Roblox activo si se usa.' : ' 10:00 a.m. to 4:30 p.m. on YouTube Live, with Roblox live if used.'}</span>
             </li>
           </ul>
         </div>
@@ -734,9 +738,9 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         >
           <div className="flex items-center justify-between">
             <span className="px-2.5 py-1 bg-amber-950/60 border border-amber-500/50 text-amber-400 font-mono font-bold text-xs uppercase">
-              DÍA 2 • DIGITAL (YOUTUBE LIVE)
+              {es ? 'DÍA 2 • DIGITAL (YOUTUBE LIVE)' : 'DAY 2 • DIGITAL (YOUTUBE LIVE)'}
             </span>
-            <span className="text-xs font-mono text-slate-400">SÁB 12 DIC</span>
+            <span className="text-xs font-mono text-slate-400">{es ? 'SÁB 12 DIC' : 'SAT DEC 12'}</span>
           </div>
 
           <h3 className="text-base font-bold text-white font-['Orbitron',sans-serif]">
@@ -746,15 +750,15 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           <ul className="text-xs text-slate-300 space-y-2 font-sans">
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span>Seis conversaciones de industria de 45 minutos, una por pilar, con una persona invitada (por anunciar).</span>
+              <span>{es ? 'Seis conversaciones de industria de 45 minutos, una por pilar, con una persona invitada (por anunciar).' : 'Six 45-minute industry conversations, one per pillar, each with a guest (TBA).'}</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span><strong>Pausas de 10 minutos</strong> entre conversaciones.</span>
+              <span><strong>{es ? 'Pausas de 10 minutos' : '10-minute breaks'}</strong>{es ? ' entre conversaciones.' : ' between conversations.'}</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span><strong>Horario:</strong> 10:00 a.m. a 4:00 p.m., 100% digital.</span>
+              <span><strong>{es ? 'Horario:' : 'Schedule:'}</strong>{es ? ' 10:00 a.m. a 4:00 p.m., 100% digital.' : ' 10:00 a.m. to 4:00 p.m., 100% digital.'}</span>
             </li>
           </ul>
         </div>
@@ -766,9 +770,9 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         >
           <div className="flex items-center justify-between">
             <span className="px-2.5 py-1 bg-emerald-950/60 border border-emerald-500/50 text-emerald-400 font-mono font-bold text-xs uppercase">
-              DÍA 3 • SGX SHOWCASE (HÍBRIDO)
+              {es ? 'DÍA 3 • SGX SHOWCASE (HÍBRIDO)' : 'DAY 3 • SGX SHOWCASE (HYBRID)'}
             </span>
-            <span className="text-xs font-mono text-slate-400">DOM 13 DIC</span>
+            <span className="text-xs font-mono text-slate-400">{es ? 'DOM 13 DIC' : 'SUN DEC 13'}</span>
           </div>
 
           <h3 className="text-base font-bold text-white font-['Orbitron',sans-serif]">
@@ -778,15 +782,15 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           <ul className="text-xs text-slate-300 space-y-2 font-sans">
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span><strong>SGX Guild Ranked Trials Pitch Session:</strong> los top 6 Initiates presentan 5 minutos cada uno.</span>
+              <span><strong>{es ? 'SGX Guild Ranked Trials Pitch Session:' : 'SGX Guild Ranked Trials Pitch Session:'}</strong>{es ? ' los top 6 Initiates presentan 5 minutos cada uno.' : ' the top 6 Initiates present for 5 minutes each.'}</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span>Demos en vivo, avatar con captura facial en tiempo real y networking con votación gamificada y canje de premios.</span>
+              <span>{es ? 'Demos en vivo, avatar con captura facial en tiempo real y networking con votación gamificada y canje de premios.' : 'Live demos, an avatar with real-time facial capture and networking with gamified voting and prize redemption.'}</span>
             </li>
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
-              <span>10:00 a.m. a 4:00 p.m. en Chroma Space Studios, San Juan, por invitación y cupo limitado (40 a 60 personas), y por YouTube Live.</span>
+              <span>{es ? '10:00 a.m. a 4:00 p.m. en Chroma Space Studios, San Juan, por invitación y cupo limitado (40 a 60 personas), y por YouTube Live.' : '10:00 a.m. to 4:00 p.m. at Chroma Space Studios, San Juan, by invitation with limited capacity (40 to 60 people), and on YouTube Live.'}</span>
             </li>
           </ul>
         </div>
@@ -801,13 +805,13 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
           <div>
             <div className="flex items-center gap-2 text-xs font-mono font-bold text-[var(--sgx-neon)]">
               <Compass className="w-4 h-4 text-[var(--sgx-neon)]" />
-              <span>ECOSISTEMA SPATIALGINEERS SUMMIT 2026</span>
+              <span>{es ? 'ECOSISTEMA SPATIALGINEERS SUMMIT 2026' : 'SPATIALGINEERS SUMMIT 2026 ECOSYSTEM'}</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-black text-white font-['Orbitron',sans-serif] uppercase mt-1">
-              CONTINÚA TU RECORRIDO POR EL SUMMIT
+              {es ? 'CONTINÚA TU RECORRIDO POR EL SUMMIT' : 'CONTINUE YOUR SUMMIT JOURNEY'}
             </h3>
             <p className="text-xs text-slate-300 font-sans mt-0.5">
-              Accede directamente a cualquier área del evento sin perder tu progreso.
+              {es ? 'Accede directamente a cualquier área del evento sin perder tu progreso.' : 'Jump straight to any area of the event without losing your progress.'}
             </p>
           </div>
         </div>
@@ -815,16 +819,16 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 font-mono">
           {[
             {
-              title: 'Agenda 3 Días',
-              desc: 'Cronograma interactivo minuto a minuto',
+              title: (es ? 'Agenda 3 Días' : '3-Day Agenda'),
+              desc: (es ? 'Cronograma interactivo minuto a minuto' : 'Interactive minute-by-minute schedule'),
               icon: Calendar,
               color: '#FFFFFF',
               badge: 'SGX.STAGE',
               action: onExploreAgenda,
             },
             {
-              title: 'Directorio Speakers',
-              desc: 'Directorio 3D de expertos y artistas',
+              title: (es ? 'Directorio Speakers' : 'Speakers Directory'),
+              desc: (es ? 'Directorio 3D de expertos y artistas' : '3D directory of experts and artists'),
               icon: Users,
               color: '#FFFFFF',
               badge: 'SGX.STAGE',
@@ -832,23 +836,23 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             },
             {
               title: 'SGX.Match',
-              desc: 'Conecta creadores y marcas',
+              desc: (es ? 'Conecta creadores y marcas' : 'Connect creators and brands'),
               icon: Flame,
               color: '#00DDFF',
               badge: 'SGX.SHOWCASE',
               action: onOpenMatchModule,
             },
             {
-              title: 'Recorrido 360° Chroma',
-              desc: 'Exploración virtual de Chroma Space Studios',
+              title: (es ? 'Recorrido 360° Chroma' : 'Chroma 360° Tour'),
+              desc: (es ? 'Exploración virtual de Chroma Space Studios' : 'Virtual tour of Chroma Space Studios'),
               icon: Compass,
               color: '#FFBB00',
               badge: 'SGX.SHOWCASE',
               action: onOpen360Tour,
             },
             {
-              title: 'Salas Broadcast',
-              desc: 'Canales temáticos y streaming multicámara',
+              title: (es ? 'Salas Broadcast' : 'Broadcast Rooms'),
+              desc: (es ? 'Canales temáticos y streaming multicámara' : 'Themed channels and multi-camera streaming'),
               icon: Radio,
               color: '#FFFFFF',
               badge: 'SGX.STAGE',
@@ -856,31 +860,31 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             },
             {
               title: 'SGX Guild Initiates',
-              desc: 'Los 8 Initiates activos',
+              desc: (es ? 'Los 8 Initiates activos' : 'The 8 active Initiates'),
               icon: Award,
               color: '#32527B',
               badge: 'SGX.SYSTEM',
               action: onExploreGuild,
             },
             {
-              title: 'Simulador Dron',
-              desc: 'Vuelo acrobático 3D y retos con XP',
+              title: (es ? 'Simulador Dron' : 'Drone Simulator'),
+              desc: (es ? 'Vuelo acrobático 3D y retos con XP' : '3D aerobatic flight and XP challenges'),
               icon: Rocket,
               color: '#00DDFF',
               badge: 'SGX.SPARK',
               action: onOpenDroneSimulator,
             },
             {
-              title: 'Patrocinadores',
-              desc: 'Stands interactivos y ofertas de sponsors',
+              title: (es ? 'Patrocinadores' : 'Sponsors'),
+              desc: (es ? 'Stands interactivos y ofertas de sponsors' : 'Interactive booths and sponsor offers'),
               icon: Briefcase,
               color: '#FFBB00',
               badge: 'SGX.SHOWCASE',
               action: onExploreSponsors,
             },
             {
-              title: 'Foros de Networking',
-              desc: 'Comunidad y salas de chat temáticas',
+              title: (es ? 'Foros de Networking' : 'Networking Forums'),
+              desc: (es ? 'Comunidad y salas de chat temáticas' : 'Community and themed chat rooms'),
               icon: MessageSquare,
               color: '#00DDFF',
               badge: 'SGX.SYNTHESIZE',
@@ -888,7 +892,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             },
             {
               title: 'Avatar Studio 3D',
-              desc: 'Genera tu avatar y credencial',
+              desc: (es ? 'Genera tu avatar y credencial' : 'Generate your avatar and credential'),
               icon: UserCheck,
               color: '#FDCC0D',
               badge: 'SGX.STORY',
@@ -896,15 +900,15 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             },
             {
               title: 'SGX Pass',
-              desc: 'Acreditación oficial para los 3 días',
+              desc: (es ? 'Acreditación oficial para los 3 días' : 'Official accreditation for all 3 days'),
               icon: Ticket,
               color: '#00DDFF',
               badge: 'SGX.SYNTHESIZE',
               action: onOpenTickets,
             },
             {
-              title: 'Misiones & XP',
-              desc: 'Pase con misiones, sellos y QR',
+              title: (es ? 'Misiones & XP' : 'Missions & XP'),
+              desc: (es ? 'Pase con misiones, sellos y QR' : 'Pass with missions, stamps and QR'),
               icon: Sparkles,
               color: '#FDCC0D',
               badge: 'SGX.STORY',
@@ -957,7 +961,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
                 </div>
 
                 <div className="text-[9px] font-bold text-slate-400 group-hover:text-white pt-1 border-t border-slate-900 flex items-center justify-between">
-                  <span>Acceder</span>
+                  <span>{es ? 'Acceder' : 'Enter'}</span>
                   <ChevronRight className="w-3 h-3 text-[var(--sgx-neon)]" />
                 </div>
               </button>

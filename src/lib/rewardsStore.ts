@@ -1,15 +1,19 @@
 import { GamificationReward, RedeemedPrize, LeaderboardEntry, RewardCategory } from '../types/gamification';
 import { db } from './firebase';
+import { withEnTwins } from './localize';
 import { collection, doc, getDocs, setDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 
 export const INITIAL_REWARDS: GamificationReward[] = [
   {
     id: 'reward_sponsor_discount_coupon',
     title: 'Cupón de Descuento Oficial de Auspiciador',
+    titleEn: 'Official Sponsor Discount Coupon',
     category: 'WEBAPP_SUBSCRIPTION',
     description: 'Cupón digital de descuento cortesía de un auspiciador del Spatialgineers Summit 2026 (depende de que haya auspiciadores), redimible desde el bloque de Networking del Día 3.',
+    descriptionEn: 'Digital discount coupon courtesy of a Spatialgineers Summit 2026 sponsor (depends on sponsors signing on), redeemable from the Day 3 Networking block.',
     xpCost: 250,
     originalValueUsd: 'Beneficio Digital de Auspiciador',
+    originalValueUsdEn: 'Digital Sponsor Benefit',
     inventoryCount: 0, // Depends on a closed sponsor: not redeemable until one is confirmed
     claimedCount: 0,
     badgeIcon: '🎟️',
@@ -22,17 +26,26 @@ export const INITIAL_REWARDS: GamificationReward[] = [
       'Código digital verificable al instante en tu SGX Pass',
       'Válido para asistentes presenciales en San Juan y audiencia digital global'
     ],
+    featuresEn: [
+      'Depends on sponsors: it activates once one is signed',
+      'Digital code verifiable instantly on your SGX Pass',
+      'Valid for in-person attendees in San Juan and the global digital audience',
+    ],
     sponsorName: 'Auspiciadores Oficiales Summit 2026',
+    sponsorNameEn: 'Official Summit 2026 Sponsors',
     createdAt: Date.now() - 86400000 * 5,
     updatedAt: Date.now()
   },
   {
     id: 'reward_sgx_platform_3months',
     title: 'Suscripción de 3 Meses a Nuestras Plataformas',
+    titleEn: '3-Month Subscription to Our Platforms',
     category: 'WEBAPP_SUBSCRIPTION',
     description: 'Suscripción de 3 meses a las plataformas digitales de Spatialgineers.',
+    descriptionEn: 'A 3-month subscription to the Spatialgineers digital platforms.',
     xpCost: 500,
     originalValueUsd: 'Suscripción Digital 3 Meses',
+    originalValueUsdEn: '3-Month Digital Subscription',
     inventoryCount: 40,
     claimedCount: 0,
     badgeIcon: '⚡',
@@ -44,6 +57,7 @@ export const INITIAL_REWARDS: GamificationReward[] = [
       'Suscripción de 3 meses a nuestras plataformas',
       'Activación inmediata mediante código digital'
     ],
+    featuresEn: ['3-month subscription to our platforms', 'Instant activation with a digital code'],
     sponsorName: 'Spatialgineers LLC',
     createdAt: Date.now() - 86400000 * 4,
     updatedAt: Date.now()
@@ -51,10 +65,13 @@ export const INITIAL_REWARDS: GamificationReward[] = [
   {
     id: 'reward_grit_session_chroma',
     title: 'Sesión "Grit" con Artistas (por confirmar)',
+    titleEn: '"Grit" Session with Artists (TBC)',
     category: 'SERVICE_CONSULTING',
     description: 'Experiencia "Grit" con artistas. Por confirmar. Se anuncia cuando esté confirmada; hasta entonces no se puede canjear.',
+    descriptionEn: 'A "Grit" experience with artists. To be confirmed. It\'s announced once confirmed; until then it can\'t be redeemed.',
     xpCost: 1200,
     originalValueUsd: 'Experiencia (por confirmar)',
+    originalValueUsdEn: 'Experience (TBC)',
     inventoryCount: 0, // POR CONFIRMAR: not redeemable until confirmed in writing
     claimedCount: 0,
     badgeIcon: '🔥',
@@ -66,6 +83,7 @@ export const INITIAL_REWARDS: GamificationReward[] = [
       'Sesión "Grit" con artistas: por confirmar',
       'Los detalles se anuncian solo cuando haya confirmación por escrito'
     ],
+    featuresEn: ['"Grit" session with artists: to be confirmed', 'Details are announced only once confirmed in writing'],
     sponsorName: 'Spatialgineers LLC',
     createdAt: Date.now() - 86400000 * 2,
     updatedAt: Date.now()
@@ -73,10 +91,13 @@ export const INITIAL_REWARDS: GamificationReward[] = [
   {
     id: 'reward_grand_prize_activate_event',
     title: 'Premio Mayor: "Spatialgineers Activa Tu Evento"',
+    titleEn: 'Grand Prize: "Spatialgineers Activa Tu Evento" (Spatialgineers Activates Your Event)',
     category: 'SERVICE_CONSULTING',
     description: 'El premio mayor del Spatialgineers Summit 2026: un servicio de Spatialgineers para activar tu próximo evento.',
+    descriptionEn: 'The Spatialgineers Summit 2026 grand prize: a Spatialgineers service to activate your next event.',
     xpCost: 2500,
     originalValueUsd: 'Servicio de Spatialgineers',
+    originalValueUsdEn: 'Spatialgineers Service',
     inventoryCount: 1,
     claimedCount: 0,
     badgeIcon: '👑',
@@ -87,6 +108,10 @@ export const INITIAL_REWARDS: GamificationReward[] = [
     features: [
       'Un servicio de Spatialgineers para activar tu evento',
       'Anunciado oficialmente en el bloque de Cierre del Día 3 (3:30–4:00 p.m.)'
+    ],
+    featuresEn: [
+      'A Spatialgineers service to activate your event',
+      'Officially announced in the Day 3 Closing block (3:30–4:00 p.m.)',
     ],
     sponsorName: 'Spatialgineers LLC',
     createdAt: Date.now() - 86400000 * 1,
@@ -109,7 +134,7 @@ export async function loadAllRewards(): Promise<GamificationReward[]> {
     if (!snap.empty) {
       const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }) as GamificationReward);
       localStorage.setItem(LOCAL_STORAGE_REWARDS_KEY, JSON.stringify(items));
-      return items;
+      return withEnTwins(items, INITIAL_REWARDS);
     }
   } catch (err) {
     console.warn("Firestore rewards load fallback to local storage:", err);
@@ -119,7 +144,7 @@ export async function loadAllRewards(): Promise<GamificationReward[]> {
   try {
     const saved = localStorage.getItem(LOCAL_STORAGE_REWARDS_KEY);
     if (saved) {
-      return JSON.parse(saved);
+      return withEnTwins(JSON.parse(saved), INITIAL_REWARDS);
     }
   } catch {}
 

@@ -99,6 +99,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { language } = useLanguage();
+  const es = language === 'es';
   const lang: 'es' | 'en' = language === 'en' ? 'en' : 'es';
   const { tenant } = useTenantTheme();
   const { playerProfile } = useAuth();
@@ -140,9 +141,9 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     // 1. SGX.STORY — IDENTIDAD & NARRATIVA
     {
       key: 'PILLARS_MANIFESTO',
-      title: 'Manifiesto Oficial & 6 Pilares',
-      shortLabel: 'Manifiesto & Pilares',
-      description: 'Filosofía creadora de Spatialgineers y los 6 pilares de computación espacial.',
+      title: (es ? 'Manifiesto Oficial & 6 Pilares' : 'Official Manifesto & 6 Pillars'),
+      shortLabel: (es ? 'Manifiesto & Pilares' : 'Manifesto & Pillars'),
+      description: (es ? 'Filosofía creadora de Spatialgineers y los 6 pilares de computación espacial.' : 'The Spatialgineers creative philosophy and the 6 pillars of spatial computing.'),
       icon: Boxes,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Story1.png',
       badge: 'SGX.STORY',
@@ -153,9 +154,9 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     // 2. SGX.STAGE — TRANSMISIÓN & ESCENARIO 3D
     {
       key: 'AGENDA',
-      title: 'Run of Show & Agenda de 3 Días',
+      title: (es ? 'Run of Show & Agenda de 3 Días' : 'Run of Show & 3-Day Agenda'),
       shortLabel: 'Run of Show & Agenda',
-      description: 'Línea de tiempo interactiva minuto a minuto y creador de agenda oficial.',
+      description: (es ? 'Línea de tiempo interactiva minuto a minuto y creador de agenda oficial.' : 'Interactive minute-by-minute timeline and official agenda builder.'),
       icon: Calendar,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png',
       badge: 'SGX.STAGE',
@@ -164,9 +165,9 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     },
     {
       key: 'BROADCAST_ROOMS',
-      title: 'Salas de transmisión',
-      shortLabel: 'Salas Broadcast',
-      description: 'Transmisiones simultáneas con canales de audio espacial.',
+      title: (es ? 'Salas de transmisión' : 'Broadcast rooms'),
+      shortLabel: (es ? 'Salas Broadcast' : 'Broadcast Rooms'),
+      description: (es ? 'Transmisiones simultáneas con canales de audio espacial.' : 'Simultaneous streams with spatial audio channels.'),
       icon: Radio,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png',
       badge: 'SGX.STAGE',
@@ -175,9 +176,9 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     },
     {
       key: 'SPEAKERS',
-      title: 'Directorio 3D de Speakers & Artistas',
-      shortLabel: 'Directorio 3D Speakers',
-      description: 'Card deck holográfico con filtros de industria, pilares y roles.',
+      title: (es ? 'Directorio 3D de Speakers & Artistas' : '3D Speakers & Artists Directory'),
+      shortLabel: (es ? 'Directorio 3D Speakers' : '3D Speakers Directory'),
+      description: (es ? 'Card deck holográfico con filtros de industria, pilares y roles.' : 'Holographic card deck with industry, pillar and role filters.'),
       icon: Users,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png',
       badge: 'SGX.STAGE',
@@ -188,9 +189,9 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     // 3. SGX.SPARK — GAMIFICACIÓN & DRONES
     {
       key: 'EMBEDS_GAMES',
-      title: 'Simulador de Drones & Trucos XP',
-      shortLabel: 'Simulador de Drones',
-      description: 'Acrobacias aéreas (Q, E, Z, X) con XP en vivo y entregas de marca.',
+      title: (es ? 'Simulador de Drones & Trucos XP' : 'Drone Simulator & XP Tricks'),
+      shortLabel: (es ? 'Simulador de Drones' : 'Drone Simulator'),
+      description: (es ? 'Acrobacias aéreas (Q, E, Z, X) con XP en vivo y entregas de marca.' : 'Aerial stunts (Q, E, Z, X) with live XP and brand deliveries.'),
       icon: Gamepad2,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png',
       badge: 'SGX.SPARK',
@@ -203,7 +204,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
       key: 'GUILD',
       title: 'SGX Guild Showcase & Initiates',
       shortLabel: 'Guild Initiates',
-      description: 'Los 8 Initiates oficiales de la cohorte 2026 y evaluaciones de Growth Factor.',
+      description: (es ? 'Los 8 Initiates oficiales de la cohorte 2026 y evaluaciones de Growth Factor.' : 'The 8 official Initiates of the 2026 cohort and Growth Factor evaluations.'),
       icon: Award,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Guild/Guild%20color.png',
       badge: 'SGX.SYSTEM',
@@ -216,7 +217,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
       key: 'ENTREPRENEUR_MATCH',
       title: 'SGX.MATCH — Entrepreneur Matchmaking',
       shortLabel: 'Entrepreneur Match',
-      description: 'Conecta con creadores y marcas de todos los pilares.',
+      description: (es ? 'Conecta con creadores y marcas de todos los pilares.' : 'Connect with creators and brands from every pillar.'),
       icon: Zap,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
       badge: 'SGX.SHOWCASE',
@@ -225,9 +226,9 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     },
     {
       key: 'SPONSORS_HUB',
-      title: 'Dossier de Auspicios & Brand Showcases',
-      shortLabel: 'Dossier de Auspicios',
-      description: 'Matriz de los 5 tiers (licencia de 365 días solo en Tiers 4 y 5).',
+      title: (es ? 'Dossier de Auspicios & Brand Showcases' : 'Sponsorship Dossier & Brand Showcases'),
+      shortLabel: (es ? 'Dossier de Auspicios' : 'Sponsorship Dossier'),
+      description: (es ? 'Matriz de los 5 tiers (licencia de 365 días solo en Tiers 4 y 5).' : 'Matrix of the 5 tiers (365-day license only in Tiers 4 and 5).'),
       icon: Building2,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
       badge: 'SGX.SHOWCASE',
@@ -238,7 +239,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
       key: 'CREDENTIAL_GENERATOR',
       title: 'SGX Pass',
       shortLabel: 'SGX Pass',
-      description: 'Tu registro, Holo Card, credencial y QR de networking en un solo pase que evoluciona con cada misión.',
+      description: (es ? 'Tu registro, Holo Card, credencial y QR de networking en un solo pase que evoluciona con cada misión.' : 'Your registration, Holo Card, credential and networking QR in a single pass that evolves with every mission.'),
       icon: Award,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
       badge: 'SGX.SHOWCASE',
@@ -247,9 +248,9 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     },
     {
       key: 'VISITS',
-      title: 'Radar de visitas del Summit',
-      shortLabel: 'Radar de visitas',
-      description: 'Mapa en vivo de Puerto Rico y el mundo: desde dónde nos visitan, contadores y leaderboards.',
+      title: (es ? 'Radar de visitas del Summit' : 'Summit Visit Radar'),
+      shortLabel: (es ? 'Radar de visitas' : 'Visit radar'),
+      description: (es ? 'Mapa en vivo de Puerto Rico y el mundo: desde dónde nos visitan, contadores y leaderboards.' : 'Live map of Puerto Rico and the world: where our visitors come from, counters and leaderboards.'),
       icon: Navigation,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png',
       badge: 'SGX.SYSTEM',
@@ -258,9 +259,9 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     },
     {
       key: 'MAP_360',
-      title: 'Recorrido 360° Chroma Space Studios',
-      shortLabel: 'Mapa 360° Venue',
-      description: 'Exploración virtual interactiva del venue oficial en San Juan.',
+      title: (es ? 'Recorrido 360° Chroma Space Studios' : 'Chroma Space Studios 360° Tour'),
+      shortLabel: (es ? 'Mapa 360° Venue' : '360° Venue Map'),
+      description: (es ? 'Exploración virtual interactiva del venue oficial en San Juan.' : 'Interactive virtual tour of the official venue in San Juan.'),
       icon: Navigation,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
       badge: 'SGX.SHOWCASE',
@@ -269,9 +270,9 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     },
     {
       key: 'SOCIAL_STREAM',
-      title: 'Live Social Stream (Radar Social)',
+      title: (es ? 'Live Social Stream (Radar Social)' : 'Live Social Stream (Social Radar)'),
       shortLabel: 'Live Social Stream',
-      description: 'Muro social en vivo: posts de Instagram, Threads y X proyectados en pantalla.',
+      description: (es ? 'Muro social en vivo: posts de Instagram, Threads y X proyectados en pantalla.' : 'Live social wall: Instagram, Threads and X posts shown on screen.'),
       icon: Instagram,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
       badge: 'SGX.SHOWCASE',
@@ -282,9 +283,9 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     // 6. SGX.SYNTHESIZE — SÍNTESIS & COMUNIDAD
     {
       key: 'OVERVIEW',
-      title: 'Vista Principal (Resumen General)',
-      shortLabel: 'Resumen General',
-      description: 'Panel de control principal, contador en vivo, patrocinadores y accesos rápidos.',
+      title: (es ? 'Vista Principal (Resumen General)' : 'Main View (Overview)'),
+      shortLabel: (es ? 'Resumen General' : 'Overview'),
+      description: (es ? 'Panel de control principal, contador en vivo, patrocinadores y accesos rápidos.' : 'Main control panel, live countdown, sponsors and quick links.'),
       icon: Sparkles,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Synthesize1.png',
       badge: 'SGX.SYNTHESIZE',
@@ -293,9 +294,9 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
     },
     {
       key: 'NETWORKING',
-      title: 'Foro & Chat de Networking en Vivo',
+      title: (es ? 'Foro & Chat de Networking en Vivo' : 'Live Networking Forum & Chat'),
       shortLabel: 'Networking Chat',
-      description: 'Canal de chat con avatares holográficos e hilos por pilar.',
+      description: (es ? 'Canal de chat con avatares holográficos e hilos por pilar.' : 'Chat channel with holographic avatars and threads by pillar.'),
       icon: MessageSquare,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Synthesize1.png',
       badge: 'SGX.SYNTHESIZE',
@@ -347,7 +348,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
           borderColor: tenant.branding.primaryColor,
           boxShadow: `0 0 10px ${tenant.branding.glowShadow}`,
         }}
-        title="Explorar las secciones y contenidos del Summit"
+        title={es ? 'Explorar las secciones y contenidos del Summit' : 'Explore the Summit sections and content'}
       >
         <div className="flex items-center gap-1.5">
           <CurrentIcon 
@@ -356,7 +357,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
           />
           <div className="text-left">
             <span className="text-[8px] text-slate-400 uppercase tracking-wider block leading-none hidden sm:block">
-              SECCIÓN SUMMIT
+              {es ? 'SECCIÓN SUMMIT' : 'SUMMIT SECTION'}
             </span>
             <span className="font-bold text-white text-[10px] sm:text-[11px] tracking-tight truncate max-w-[120px] sm:max-w-[160px] block leading-tight font-['Orbitron',sans-serif]">
               {currentItem.shortLabel}
@@ -372,7 +373,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
             backgroundColor: `${tenant.branding.primaryColor}15`
           }}
         >
-          6 Pilares
+          {es ? '6 Pilares' : '6 Pillars'}
         </span>
 
         <ChevronDown
@@ -424,10 +425,10 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                   </div>
                   <div>
                     <h3 className="font-extrabold text-sm sm:text-base text-white tracking-wider uppercase font-['Orbitron',sans-serif]">
-                      SECCIONES & CONTENIDOS DEL SUMMIT
+                      {es ? 'SECCIONES & CONTENIDOS DEL SUMMIT' : 'SUMMIT SECTIONS & CONTENT'}
                     </h3>
                     <p className="text-[10px] text-slate-400 font-mono">
-                      Menú central de áreas, perfil, pasaporte y herramientas interactivas
+                      {es ? 'Menú central de áreas, perfil, pasaporte y herramientas interactivas' : 'Central menu of areas, profile, passport and interactive tools'}
                     </p>
                   </div>
                 </div>
@@ -437,7 +438,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                   onClick={() => setIsOpen(false)}
                   className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-700 cursor-pointer"
                   style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
-                  title="Cerrar (ESC)"
+                  title={es ? 'Cerrar (ESC)' : 'Close (ESC)'}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -477,7 +478,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                           {group.title}
                         </span>
                         <span className="text-[9px] text-slate-400 font-mono">
-                          {groupItems.length} Secciones
+                          {groupItems.length}{es ? ' Secciones' : ' Sections'}
                         </span>
                       </div>
 
@@ -532,14 +533,14 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                               </div>
 
                               <div className="flex items-center justify-between pt-1 border-t border-[var(--sgx-secondary)]/20 text-[9px]">
-                                <span className="text-slate-500">Área Activa</span>
+                                <span className="text-slate-500">{es ? 'Área Activa' : 'Active Area'}</span>
                                 {isActive ? (
                                   <span className="text-[var(--sgx-neon)] font-bold flex items-center space-x-0.5">
                                     <Check className="w-3 h-3" />
-                                    <span>SELECCIONADA</span>
+                                    <span>{es ? 'SELECCIONADA' : 'SELECTED'}</span>
                                   </span>
                                 ) : (
-                                  <span className="text-slate-400 group-hover:text-white font-bold">VER ÁREA →</span>
+                                  <span className="text-slate-400 group-hover:text-white font-bold">{es ? 'VER ÁREA →' : 'VIEW AREA →'}</span>
                                 )}
                               </div>
                             </div>
@@ -554,7 +555,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                 <div className="p-3 bg-black/60 border border-[var(--sgx-secondary)]/50 flex flex-wrap items-center justify-between gap-2 rounded">
                   <div className="flex items-center space-x-2">
                     <Ticket className="w-4 h-4 text-cyan-400" />
-                    <span className="text-xs text-white font-bold">¿Listo para asistir presencial o virtualmente?</span>
+                    <span className="text-xs text-white font-bold">{es ? '¿Listo para asistir presencial o virtualmente?' : 'Ready to attend in person or online?'}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     {onOpenTickets && (
@@ -568,7 +569,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                         style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                       >
                         <Ticket className="w-3 h-3" />
-                        <span>MI SGX PASS</span>
+                        <span>{es ? 'MI SGX PASS' : 'MY SGX PASS'}</span>
                       </button>
                     )}
                     {onOpenSponsors && (
@@ -582,7 +583,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
                         style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                       >
                         <Building2 className="w-3 h-3" />
-                        <span>SER PATROCINADOR</span>
+                        <span>{es ? 'SER PATROCINADOR' : 'BECOME A SPONSOR'}</span>
                       </button>
                     )}
                   </div>
@@ -592,7 +593,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
               {/* Footer */}
               <div className="p-3 bg-[var(--sgx-card-bg)] border-t border-[var(--sgx-secondary)]/50 flex items-center justify-between text-[10px] text-slate-400 shrink-0">
                 <span>Spatialgineers Summit • San Juan, PR</span>
-                <span className="text-slate-500">Presiona ESC para cerrar</span>
+                <span className="text-slate-500">{es ? 'Presiona ESC para cerrar' : 'Press ESC to close'}</span>
               </div>
             </div>
           </div>,

@@ -13,6 +13,11 @@ export interface GamificationReward {
   description: string;
   xpCost: number;
   originalValueUsd: string; // e.g. "$180 / año", "$250", "$60"
+  titleEn?: string;
+  descriptionEn?: string;
+  originalValueUsdEn?: string;
+  featuresEn?: string[];
+  sponsorNameEn?: string;
   inventoryCount: number; // -1 for unlimited, or integer count
   claimedCount: number;
   badgeIcon: string; // Emoji or Lucide icon key

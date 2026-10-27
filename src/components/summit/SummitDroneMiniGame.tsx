@@ -29,6 +29,8 @@ import { QuickGuideModal, GuideStep } from '../common/QuickGuideModal';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { TransientSponsorSlot } from './TransientSponsorSlot';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 // Exotic Sectors Taxonomy
 export type ExoticSector = 'CYBERPUNK_CHROMA' | 'TROPICAL_ARCHIPELAGO' | 'QUANTUM_TUNNEL';
@@ -36,22 +38,27 @@ export type ExoticSector = 'CYBERPUNK_CHROMA' | 'TROPICAL_ARCHIPELAGO' | 'QUANTU
 interface SectorConfig {
   id: ExoticSector;
   name: string;
+  nameEn?: string;
   code: string;
   subtitle: string;
+  subtitleEn?: string;
   fogColor: number;
   skyColor: number;
   ambientColor: number;
   laneColor: number;
   accentColor: string;
   description: string;
+  descriptionEn?: string;
 }
 
 const EXOTIC_SECTORS: Record<ExoticSector, SectorConfig> = {
   CYBERPUNK_CHROMA: {
     id: 'CYBERPUNK_CHROMA',
     name: 'Sector Alpha • Chroma Cyberpunk 2026',
+    nameEn: 'Sector Alpha • Chroma Cyberpunk 2026',
     code: 'SEC-A // CHROMA_PR',
     subtitle: 'Rascacielos con colisión real Box3, puentes de neón y anillos sobre San Juan',
+    subtitleEn: 'Skyscrapers with real Box3 collision, neon bridges and rings over San Juan',
     fogColor: 0x070b16,
     skyColor: 0x05070e,
     ambientColor: 0x243552,
@@ -59,12 +66,15 @@ const EXOTIC_SECTORS: Record<ExoticSector, SectorConfig> = {
     accentColor: '#00DDFF',
     description:
       'Vuelo urbano de alta precisión entre las torres y puentes aéreos de Chroma Space Studios con colisiones físicas reales.',
+    descriptionEn: 'High-precision urban flight between the towers and skybridges of Chroma Space Studios with real physical collisions.',
   },
   TROPICAL_ARCHIPELAGO: {
     id: 'TROPICAL_ARCHIPELAGO',
     name: 'Sector Beta • Archipiélago Espacial Tropical',
+    nameEn: 'Sector Beta • Tropical Space Archipelago',
     code: 'SEC-B // CARIBBEAN_ORBIT',
     subtitle: 'Islas flotantes macizas, obeliscos de cristal y campos gravitacionales',
+    subtitleEn: 'Massive floating islands, crystal obelisks and gravity fields',
     fogColor: 0x061923,
     skyColor: 0x031018,
     ambientColor: 0x1d4d5e,
@@ -72,12 +82,15 @@ const EXOTIC_SECTORS: Record<ExoticSector, SectorConfig> = {
     accentColor: '#00FFAA',
     description:
       'Esquiva islas flotantes y monolitos bioluminiscentes con rebote físico vectorial en tiempo real.',
+    descriptionEn: 'Dodge floating islands and bioluminescent monoliths with real-time vector physics bounce.',
   },
   QUANTUM_TUNNEL: {
     id: 'QUANTUM_TUNNEL',
     name: 'Sector Gamma • Túnel Hiperespacial Cuántico',
+    nameEn: 'Sector Gamma • Quantum Hyperspace Tunnel',
     code: 'SEC-G // WARP_HEX_CORRIDOR',
     subtitle: 'Corredor hexagonal con compuertas físicas de iris y barreras láser',
+    subtitleEn: 'Hexagonal corridor with physical iris gates and laser barriers',
     fogColor: 0x16002c,
     skyColor: 0x0d001a,
     ambientColor: 0x48116b,
@@ -85,6 +98,7 @@ const EXOTIC_SECTORS: Record<ExoticSector, SectorConfig> = {
     accentColor: '#FF00BB',
     description:
       'Corredor dimensional de aceleración taquiónica con paredes cilíndricas y compuertas de colisión activa.',
+    descriptionEn: 'Dimensional tachyon-acceleration corridor with cylindrical walls and active collision gates.',
   },
 };
 
@@ -161,7 +175,61 @@ const DRONE_GUIDE_STEPS: GuideStep[] = [
   },
 ];
 
+const DRONE_GUIDE_STEPS_EN: GuideStep[] = [
+  {
+    badge: 'GUIDE 1/3 • BOX3 3D COLLISION ENGINE & BARREL ROLL',
+    title: 'Real Collision Physics and Evasive Maneuvers',
+    subtitle: 'Buildings, islands, skybridges and ring edges with physical impact',
+    description:
+      'Every building, skybridge, floating island and metal ring edge has real physical volume (THREE.Box3). If you crash without a shield, your drone bounces back physically with 3D sparks and camera shake. Press "Q" for an evasive Barrel Roll.',
+    icon: Crosshair,
+    keyControls: [
+      { key: 'W / S / ↑ / ↓', action: 'Climb / Descend' },
+      { key: 'A / D / ← / →', action: 'Lateral turn / Aerodynamic roll' },
+      { key: 'Q / Roll Button', action: '360° Evasive Barrel Roll (+40 XP & Evasion)', xpBadge: '+40 XP' },
+      { key: 'V / Cam Button', action: 'Toggle 3D Chase <-> FPV Cockpit' },
+    ],
+    tips: [
+      'Aim for the clean center of the neon rings: grazing the outer metal edge causes a physical bounce.',
+      'Watch the proximity radar at the top: it warns you when a building or island is directly in your path.',
+    ],
+  },
+  {
+    badge: 'GUIDE 2/3 • SUITE OF 6 TACTICAL POWERS',
+    title: 'Photon Weapons, Shield and Time Dilation',
+    subtitle: 'Hyper Turbo, Plasma Shield, EMP Pulse, Bullet Time, Barrel Roll and Laser',
+    description:
+      'Combine your powers to survive the skyscraper corridors and destroy quantum mines before impact.',
+    icon: Wind,
+    keyControls: [
+      { key: 'SPACE / Turbo', action: 'Hyper Turbo Boost (2.6x speed)', xpBadge: '+30 XP' },
+      { key: 'E / Shield', action: 'Plasma Shield (Bounce off buildings/mines unharmed)', xpBadge: '+35 XP' },
+      { key: 'X / EMP', action: 'Quantum EMP Pulse (Vaporizes nearby mines)', xpBadge: '+60 XP' },
+      { key: 'C / Bullet Time', action: 'Time Dilation (Precision slow motion)', xpBadge: '+45 XP' },
+      { key: 'F / Click / Laser', action: 'Twin-Blaster Laser (Destroys obstacles)', xpBadge: '+25 XP' },
+    ],
+    tips: [
+      'Turn on the Plasma Shield (E) before flying through dense building zones or narrow gates.',
+      'Use Bullet Time (C) to line your drone up with the exact center of the rings on tight curves.',
+    ],
+  },
+  {
+    badge: 'GUIDE 3/3 • 3 EXOTIC SECTORS & XP TELEMETRY',
+    title: 'World Exploration & Live Sync',
+    subtitle: 'Chroma Cyberpunk Sector, Tropical Archipelago and Hyperspace Tunnel',
+    description:
+      'Cross the stellar portal at the end of each corridor (-860m) to jump to the next exotic world with a +100 XP bonus.',
+    icon: Trophy,
+    tips: [
+      'Golden sponsor crates instantly restore +25% battery.',
+      'Keep a streak of clean rings with no collisions to multiply your final score.',
+    ],
+  },
+];
+
 export const SummitDroneMiniGame: React.FC = () => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -628,7 +696,7 @@ export const SummitDroneMiniGame: React.FC = () => {
           new THREE.Vector3(w, h, d),
           new THREE.Vector3(x, centerY, z),
           'BUILDING',
-          isInnerObstacle ? 'Torre Central Chroma' : 'Rascacielos San Juan'
+          isInnerObstacle ? (es ? 'Torre Central Chroma' : 'Chroma Central Tower') : (es ? 'Rascacielos San Juan' : 'San Juan Skyscraper')
         );
       }
 
@@ -666,7 +734,7 @@ export const SummitDroneMiniGame: React.FC = () => {
           new THREE.Vector3(bridgeW, bridgeH, bridgeD),
           new THREE.Vector3(0, bridgeY, bridgeZ),
           'SKYBRIDGE',
-          'Puente Aéreo Holográfico'
+          (es ? 'Puente Aéreo Holográfico' : 'Holographic Skybridge')
         );
       }
     } else if (sectorKey === 'TROPICAL_ARCHIPELAGO') {
@@ -704,7 +772,7 @@ export const SummitDroneMiniGame: React.FC = () => {
           new THREE.Vector3(radius * 1.75, radius * 1.35, radius * 1.75),
           island.position.clone(),
           'ISLAND',
-          'Isla Flotante Caribeña'
+          (es ? 'Isla Flotante Caribeña' : 'Floating Caribbean Island')
         );
       }
     } else if (sectorKey === 'QUANTUM_TUNNEL') {
@@ -746,7 +814,7 @@ export const SummitDroneMiniGame: React.FC = () => {
             new THREE.Vector3(gW, gH, gD),
             new THREE.Vector3(gX, gY, z),
             'TUNNEL_GATE',
-            'Compuerta Cuántica de Iris'
+            (es ? 'Compuerta Cuántica de Iris' : 'Quantum Iris Gate')
           );
         }
       }
@@ -775,7 +843,7 @@ export const SummitDroneMiniGame: React.FC = () => {
     }
 
     // Spawn Official Partner Suministro Crates (Canonical Partners Only)
-    const sponsors = ['Spatialgineers SGX', 'Tu Marca Aquí (Tier 2+)', 'Spatialgineers Summit 2026'];
+    const sponsors = ['Spatialgineers SGX', (es ? 'Tu Marca Aquí (Tier 2+)' : 'Your Brand Here (Tier 2+)'), 'Spatialgineers Summit 2026'];
     for (let i = 1; i <= 12; i++) {
       const crateGroup = new THREE.Group();
       const crateGeo = new THREE.BoxGeometry(2.5, 2.5, 2.5);
@@ -861,7 +929,7 @@ export const SummitDroneMiniGame: React.FC = () => {
       if (simRef.current.scene) {
         buildSectorEnvironment(newSector, simRef.current.scene);
         playCyberSfx('warp');
-        addXpToast(`⚡ SALTO AL ${EXOTIC_SECTORS[newSector].name.toUpperCase()}`, EXOTIC_SECTORS[newSector].accentColor);
+        addXpToast((es ? `⚡ SALTO AL ${EXOTIC_SECTORS[newSector].name.toUpperCase()}` : `⚡ JUMP TO ${loc(EXOTIC_SECTORS[newSector], 'name', language).toUpperCase()}`), EXOTIC_SECTORS[newSector].accentColor);
       }
     },
     [addXpToast, playCyberSfx]
@@ -880,7 +948,7 @@ export const SummitDroneMiniGame: React.FC = () => {
     s.reboundVel.x += s.barrelRollDir * -26;
     playCyberSfx('roll');
     recordDroneTrick('barrel_roll');
-    addXpToast('+40 XP • BARREL ROLL EVASIVO 360°!', '#00DDFF');
+    addXpToast((es ? '+40 XP • BARREL ROLL EVASIVO 360°!' : '+40 XP • 360° EVASIVE BARREL ROLL!'), '#00DDFF');
   }, [addXpToast, playCyberSfx, recordDroneTrick]);
 
   const triggerTurbo = useCallback(() => {
@@ -891,7 +959,7 @@ export const SummitDroneMiniGame: React.FC = () => {
     setTurboActive(true);
     playCyberSfx('turbo');
     recordDroneTrick('speed_dash');
-    addXpToast('+30 XP • HYPER TURBO ACTIVADO!', '#FDCC0D');
+    addXpToast((es ? '+30 XP • HYPER TURBO ACTIVADO!' : '+30 XP • HYPER TURBO ON!'), '#FDCC0D');
   }, [addXpToast, playCyberSfx, recordDroneTrick]);
 
   const triggerShield = useCallback(() => {
@@ -905,7 +973,7 @@ export const SummitDroneMiniGame: React.FC = () => {
     }
     playCyberSfx('shield');
     recordActivity('drone_flight', 'Escudo de Plasma Activado', 'Defensa cuántica contra impactos 3D', 35);
-    addXpToast('+35 XP • ESCUDO DE PLASMA!', '#00DDFF');
+    addXpToast((es ? '+35 XP • ESCUDO DE PLASMA!' : '+35 XP • PLASMA SHIELD!'), '#00DDFF');
   }, [addXpToast, playCyberSfx, recordActivity]);
 
   const triggerEmp = useCallback(() => {
@@ -943,7 +1011,7 @@ export const SummitDroneMiniGame: React.FC = () => {
     const xpBonus = 60 + destroyedCount * 15;
     simRef.current.scoreVal += 200 + destroyedCount * 150;
     setScore(simRef.current.scoreVal);
-    addXpToast(`+${xpBonus} XP • PULSO EMP (${destroyedCount} VAPORIZADOS)`, '#00DDFF');
+    addXpToast((es ? `+${xpBonus} XP • PULSO EMP (${destroyedCount} VAPORIZADOS)` : `+${xpBonus} XP • EMP PULSE (${destroyedCount} VAPORIZED)`), '#00DDFF');
   }, [addXpToast, playCyberSfx, recordDroneTrick, spawnImpactSparks]);
 
   const triggerSlowmo = useCallback(() => {
@@ -954,7 +1022,7 @@ export const SummitDroneMiniGame: React.FC = () => {
     setSlowmoActive(true);
     playCyberSfx('laser');
     recordDroneTrick('precision_hover');
-    addXpToast('+45 XP • BULLET TIME (DILATACIÓN TEMPORAL)', '#FF00BB');
+    addXpToast((es ? '+45 XP • BULLET TIME (DILATACIÓN TEMPORAL)' : '+45 XP • BULLET TIME (TIME DILATION)'), '#FF00BB');
   }, [addXpToast, playCyberSfx, recordDroneTrick]);
 
   const triggerLaser = useCallback(() => {
@@ -1155,7 +1223,7 @@ export const SummitDroneMiniGame: React.FC = () => {
           s.cameraShake = Math.max(s.cameraShake, 0.7);
           spawnImpactSparks(s.pos, 0x00ffff);
           playCyberSfx('hit');
-          triggerCollisionBanner('IMPACTO CONTRA SUELO DEL SECTOR • REBOTE ACTIVO');
+          triggerCollisionBanner((es ? 'IMPACTO CONTRA SUELO DEL SECTOR • REBOTE ACTIVO' : 'SECTOR GROUND IMPACT • BOUNCE ACTIVE'));
         } else if (s.pos.y > 42) {
           s.pos.y = 42;
           s.reboundVel.y = -12;
@@ -1173,7 +1241,7 @@ export const SummitDroneMiniGame: React.FC = () => {
             s.cameraShake = 1.1;
             spawnImpactSparks(s.pos, 0xff00bb);
             playCyberSfx('hit');
-            triggerCollisionBanner('REBOTE EN PARED HEXAGONAL DEL TÚNEL');
+            triggerCollisionBanner((es ? 'REBOTE EN PARED HEXAGONAL DEL TÚNEL' : 'BOUNCE OFF THE TUNNEL\'S HEX WALL'));
           }
         } else {
           s.pos.x = THREE.MathUtils.clamp(s.pos.x, -44, 44);
@@ -1193,7 +1261,7 @@ export const SummitDroneMiniGame: React.FC = () => {
 
           // Check ahead proximity radar warning
           if (!detectedAheadWarning && col.box. distanceToPoint(lookAheadBoxPoint) < 5.5) {
-            detectedAheadWarning = `ALERTA DE PROXIMIDAD: ${col.label.toUpperCase()} A <20M`;
+            detectedAheadWarning = (es ? `ALERTA DE PROXIMIDAD: ${col.label.toUpperCase()} A <20M` : `PROXIMITY ALERT: ${col.label.toUpperCase()} AT <20M`);
           }
 
           // Exact Sphere-Box3 Volumetric Collision
@@ -1215,15 +1283,15 @@ export const SummitDroneMiniGame: React.FC = () => {
 
             if (isShield || s.isBarrelRolling) {
               playCyberSfx('shield');
-              addXpToast(`ESCUDO / ROLL DEFLECTÓ ${col.label.toUpperCase()}!`, '#00DDFF');
+              addXpToast((es ? `ESCUDO / ROLL DEFLECTÓ ${col.label.toUpperCase()}!` : `SHIELD / ROLL DEFLECTED ${col.label.toUpperCase()}!`), '#00DDFF');
             } else {
               s.collisionsVal += 1;
               setCollisionsCount(s.collisionsVal);
               s.energyVal = Math.max(0, s.energyVal - 18);
               setEnergy(s.energyVal);
               playCyberSfx('hit');
-              triggerCollisionBanner(`COLISIÓN FÍSICA: ${col.label.toUpperCase()} (-18% BATERÍA)`);
-              addXpToast(`-18% BATERÍA • CHOQUE EN ${col.label.toUpperCase()}`, '#FF3366');
+              triggerCollisionBanner((es ? `COLISIÓN FÍSICA: ${col.label.toUpperCase()} (-18% BATERÍA)` : `PHYSICAL COLLISION: ${col.label.toUpperCase()} (-18% BATTERY)`));
+              addXpToast((es ? `-18% BATERÍA • CHOQUE EN ${col.label.toUpperCase()}` : `-18% BATTERY • CRASH AT ${col.label.toUpperCase()}`), '#FF3366');
 
               if (s.energyVal <= 0) {
                 s.isGameActive = false;
@@ -1289,7 +1357,7 @@ export const SummitDroneMiniGame: React.FC = () => {
               setRingsPassed(s.ringsVal);
               setScore(s.scoreVal);
               playCyberSfx('ring');
-              addXpToast('+25 XP • ANILLO DE VELOCIDAD LIMPIO!', '#00DDFF');
+              addXpToast((es ? '+25 XP • ANILLO DE VELOCIDAD LIMPIO!' : '+25 XP • CLEAN SPEED RING!'), '#00DDFF');
               (ring.mesh.children[0] as THREE.Mesh).scale.set(1.35, 1.35, 1.35);
             } else if (radialDist >= 4.7 && radialDist <= 6.6 && time - ring.rimHitTime > 500) {
               // Clipped the metallic Torus Rim of the ring!
@@ -1303,7 +1371,7 @@ export const SummitDroneMiniGame: React.FC = () => {
               s.cameraShake = 0.95;
               spawnImpactSparks(s.pos, 0xFDCC0D);
               playCyberSfx('hit');
-              triggerCollisionBanner('ROCE FÍSICO EN EL BORDE DEL ANILLO');
+              triggerCollisionBanner((es ? 'ROCE FÍSICO EN EL BORDE DEL ANILLO' : 'PHYSICAL GRAZE ON THE RING EDGE'));
             }
           }
         });
@@ -1322,7 +1390,7 @@ export const SummitDroneMiniGame: React.FC = () => {
               setScore(s.scoreVal);
               setEnergy(s.energyVal);
               playCyberSfx('ring');
-              addXpToast(`+50 XP • SUMINISTRO ${crate.sponsor.toUpperCase()}!`, '#FDCC0D');
+              addXpToast((es ? `+50 XP • SUMINISTRO ${crate.sponsor.toUpperCase()}!` : `+50 XP • SUPPLY ${crate.sponsor.toUpperCase()}!`), '#FDCC0D');
             }
           }
           if (!crate.collected) {
@@ -1345,7 +1413,7 @@ export const SummitDroneMiniGame: React.FC = () => {
 
                 if (isShield || s.isBarrelRolling) {
                   playCyberSfx('shield');
-                  addXpToast('ESCUDO / ROLL DEFLECTÓ MINA!', '#00DDFF');
+                  addXpToast((es ? 'ESCUDO / ROLL DEFLECTÓ MINA!' : 'SHIELD / ROLL DEFLECTED A MINE!'), '#00DDFF');
                 } else {
                   s.collisionsVal += 1;
                   setCollisionsCount(s.collisionsVal);
@@ -1354,7 +1422,7 @@ export const SummitDroneMiniGame: React.FC = () => {
                   s.cameraShake = 1.3;
                   s.reboundVel.set((Math.random() - 0.5) * 28, 12, 26);
                   playCyberSfx('hit');
-                  triggerCollisionBanner('IMPACTO CON MINA CUÁNTICA (-22% BATERÍA)');
+                  triggerCollisionBanner((es ? 'IMPACTO CON MINA CUÁNTICA (-22% BATERÍA)' : 'QUANTUM MINE IMPACT (-22% BATTERY)'));
 
                   if (s.energyVal <= 0) {
                     s.isGameActive = false;
@@ -1383,7 +1451,7 @@ export const SummitDroneMiniGame: React.FC = () => {
               setScore(s.scoreVal);
               spawnImpactSparks(obs.mesh.position, 0xFDCC0D);
               playCyberSfx('hit');
-              addXpToast('+20 XP • MINA VAPORIZADA!', '#FDCC0D');
+              addXpToast((es ? '+20 XP • MINA VAPORIZADA!' : '+20 XP • MINE VAPORIZED!'), '#FDCC0D');
             }
           });
 
@@ -1449,7 +1517,7 @@ export const SummitDroneMiniGame: React.FC = () => {
           changeSector(nextSector);
           s.scoreVal += 1000;
           setScore(s.scoreVal);
-          addXpToast(`+100 XP • SALTO CUÁNTICO A ${nextSector}!`, '#00FFBB');
+          addXpToast((es ? `+100 XP • SALTO CUÁNTICO A ${nextSector}!` : `+100 XP • QUANTUM JUMP TO ${nextSector}!`), '#00FFBB');
         }
 
         // Camera Positioning + Damped Physical Shake
@@ -1547,12 +1615,12 @@ export const SummitDroneMiniGame: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center space-x-2 text-[10px] text-cyan-400 uppercase tracking-widest font-bold">
-              <span>SIMULADOR DE DRON 3D</span>
+              <span>{es ? 'SIMULADOR DE DRON 3D' : '3D DRONE SIMULATOR'}</span>
               <span>•</span>
-              <span className="text-[#FDCC0D]">MOTOR DE COLISIONES BOX3 ACTIVO</span>
+              <span className="text-[#FDCC0D]">{es ? 'MOTOR DE COLISIONES BOX3 ACTIVO' : 'BOX3 COLLISION ENGINE ACTIVE'}</span>
             </div>
             <h2 className="text-sm md:text-base font-bold text-white tracking-wide uppercase">
-              {activeSectorConfig.name}
+              {loc(activeSectorConfig, 'name', language)}
             </h2>
           </div>
         </div>
@@ -1574,8 +1642,8 @@ export const SummitDroneMiniGame: React.FC = () => {
                 {secKey === 'CYBERPUNK_CHROMA'
                   ? 'Chroma'
                   : secKey === 'TROPICAL_ARCHIPELAGO'
-                  ? 'Archipiélago'
-                  : 'Túnel'}
+                  ? (es ? 'Archipiélago' : 'Archipelago')
+                  : (es ? 'Túnel' : 'Tunnel')}
               </button>
             ))}
           </div>
@@ -1593,7 +1661,7 @@ export const SummitDroneMiniGame: React.FC = () => {
             className="px-2.5 py-1.5 bg-slate-900 border border-cyan-400/80 hover:bg-cyan-400 hover:text-black text-cyan-300 text-[10px] font-bold flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <Camera className="w-3.5 h-3.5" />
-            <span>{cameraMode === 'CHASE' ? '3RA PERSONA' : 'COCKPIT FPV'}</span>
+            <span>{cameraMode === 'CHASE' ? (es ? '3RA PERSONA' : '3RD PERSON') : 'COCKPIT FPV'}</span>
           </button>
 
           <button
@@ -1660,16 +1728,16 @@ export const SummitDroneMiniGame: React.FC = () => {
               {/* Left Island: Speed, Altitude, Battery */}
               <div className="bg-black/75 backdrop-blur-md border border-[#32527B] p-2.5 space-y-1.5 min-w-[175px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400 text-[10px]">VELOCIDAD:</span>
+                  <span className="text-slate-400 text-[10px]">{es ? 'VELOCIDAD:' : 'SPEED:'}</span>
                   <span className="text-[#00DDFF] font-bold tabular-nums">{speedKmh} KM/H</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400 text-[10px]">ALTITUD:</span>
+                  <span className="text-slate-400 text-[10px]">{es ? 'ALTITUD:' : 'ALTITUDE:'}</span>
                   <span className="text-[#FDCC0D] font-bold tabular-nums">{altitudeM} M</span>
                 </div>
                 <div className="space-y-0.5">
                   <div className="flex items-center justify-between text-[10px]">
-                    <span className="text-slate-400">INTEGRIDAD / BATERÍA:</span>
+                    <span className="text-slate-400">{es ? 'INTEGRIDAD / BATERÍA:' : 'INTEGRITY / BATTERY:'}</span>
                     <span className={energy > 30 ? 'text-[#00DDFF] font-bold' : 'text-rose-400 font-bold animate-pulse'}>
                       {energy}%
                     </span>
@@ -1686,15 +1754,15 @@ export const SummitDroneMiniGame: React.FC = () => {
               {/* Right Island: Score, Rings, Collisions */}
               <div className="bg-black/75 backdrop-blur-md border border-[#32527B] p-2.5 space-y-1.5 min-w-[175px] text-right">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-slate-400 text-[10px]">PUNTOS:</span>
+                  <span className="text-slate-400 text-[10px]">{es ? 'PUNTOS:' : 'POINTS:'}</span>
                   <span className="text-[#FDCC0D] font-bold text-sm tabular-nums">{score} PTS</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-slate-400 text-[10px]">ANILLOS LIMPIOS:</span>
+                  <span className="text-slate-400 text-[10px]">{es ? 'ANILLOS LIMPIOS:' : 'CLEAN RINGS:'}</span>
                   <span className="text-[#00DDFF] font-bold tabular-nums">{ringsPassed} / 16</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-slate-400 text-[10px]">IMPACTOS 3D:</span>
+                  <span className="text-slate-400 text-[10px]">{es ? 'IMPACTOS 3D:' : '3D IMPACTS:'}</span>
                   <span className="text-rose-400 font-bold tabular-nums">{collisionsCount}</span>
                 </div>
               </div>
@@ -1758,7 +1826,7 @@ export const SummitDroneMiniGame: React.FC = () => {
                 }`}
               >
                 <Shield className="w-4 h-4" />
-                <span className="font-bold">ESCUDO [E]</span>
+                <span className="font-bold">{es ? 'ESCUDO [E]' : 'SHIELD [E]'}</span>
                 {cooldowns.shield > 0 && (
                   <div className="absolute inset-0 bg-black/70 flex items-center justify-center font-bold text-white text-[11px]">
                     {Math.ceil(cooldowns.shield * 12)}s
@@ -1816,7 +1884,7 @@ export const SummitDroneMiniGame: React.FC = () => {
                 className="relative px-2.5 py-2 border bg-slate-900 border-[#FDCC0D]/60 text-[#FDCC0D] hover:bg-[#FDCC0D] hover:text-black flex flex-col items-center gap-1 font-mono text-[10px] transition-all cursor-pointer"
               >
                 <Target className="w-4 h-4" />
-                <span className="font-bold">LÁSER [F]</span>
+                <span className="font-bold">{es ? 'LÁSER [F]' : 'LASER [F]'}</span>
               </button>
             </div>
           </>
@@ -1833,10 +1901,10 @@ export const SummitDroneMiniGame: React.FC = () => {
               SPATIALGINEERS SUMMIT 2026 · SGX.SPARK
             </span>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-wider uppercase mt-0.5 mb-1.5">
-              QUANTUM DRONE 3D · MOTOR DE COLISIONES BOX3
+              {es ? 'QUANTUM DRONE 3D · MOTOR DE COLISIONES BOX3' : 'QUANTUM DRONE 3D · BOX3 COLLISION ENGINE'}
             </h1>
             <p className="text-xs text-slate-300 font-mono max-w-xl mb-4 leading-relaxed">
-              Esquiva rascacielos de San Juan, puentes holográficos, islas flotantes y compuertas cuánticas con colisiones físicas reales (`THREE.Box3`), rebote vectorial, chispas 3D y maniobras Barrel Roll (`Q`).
+              {es ? 'Esquiva rascacielos de San Juan, puentes holográficos, islas flotantes y compuertas cuánticas con colisiones físicas reales (`THREE.Box3`), rebote vectorial, chispas 3D y maniobras Barrel Roll (`Q`).' : 'Dodge San Juan skyscrapers, holographic bridges, floating islands and quantum gates with real physical collisions (`THREE.Box3`), vector bounce, 3D sparks and Barrel Roll maneuvers (`Q`).'}
             </p>
 
             {/* Sector Selector Cards */}
@@ -1857,7 +1925,7 @@ export const SummitDroneMiniGame: React.FC = () => {
                   >
                     <div className="text-[10px] font-mono font-bold text-[#FDCC0D]">{cfg.code}</div>
                     <div className="text-xs font-bold text-white truncate mt-0.5">
-                      {cfg.name.split('•')[1] || cfg.name}
+                      {loc(cfg, 'name', language).split('•')[1] || loc(cfg, 'name', language)}
                     </div>
                   </button>
                 );
@@ -1871,7 +1939,7 @@ export const SummitDroneMiniGame: React.FC = () => {
                 className="px-7 py-3 bg-[#FDCC0D] hover:bg-[#FFE566] text-black font-extrabold text-xs sm:text-sm flex items-center space-x-2 shadow-xl transition-all hover:scale-105 cursor-pointer uppercase tracking-wider"
               >
                 <Play className="w-4 h-4 fill-black" />
-                <span>INICIAR VUELO CON COLISIONES 3D</span>
+                <span>{es ? 'INICIAR VUELO CON COLISIONES 3D' : 'START FLIGHT WITH 3D COLLISIONS'}</span>
               </button>
 
               <button
@@ -1880,7 +1948,7 @@ export const SummitDroneMiniGame: React.FC = () => {
                 className="px-4 py-3 bg-slate-900 hover:bg-[#32527B] border border-[#32527B] text-slate-200 text-xs font-mono font-bold flex items-center space-x-2 transition-all cursor-pointer"
               >
                 <HelpCircle className="w-4 h-4 text-[#00DDFF]" />
-                <span>CONTROLES & FÍSICA</span>
+                <span>{es ? 'CONTROLES & FÍSICA' : 'CONTROLS & PHYSICS'}</span>
               </button>
             </div>
 
@@ -1898,27 +1966,27 @@ export const SummitDroneMiniGame: React.FC = () => {
             </div>
 
             <h2 className="text-2xl font-extrabold text-white uppercase tracking-wider mb-1">
-              INTEGRIDAD AGOTADA • VUELO FINALIZADO
+              {es ? 'INTEGRIDAD AGOTADA • VUELO FINALIZADO' : 'INTEGRITY DEPLETED • FLIGHT OVER'}
             </h2>
             <p className="text-xs text-slate-400 font-mono mb-6">
-              Telemetría de vuelo y colisiones registrada en tu Bitácora de Piloto SGX.
+              {es ? 'Telemetría de vuelo y colisiones registrada en tu Bitácora de Piloto SGX.' : 'Flight and collision telemetry saved to your SGX Pilot Log.'}
             </p>
 
             <div className="grid grid-cols-4 gap-2.5 w-full max-w-md bg-slate-950/80 border border-slate-800 p-4 mb-6 font-mono text-center">
               <div>
-                <span className="text-[10px] text-slate-500 block">PUNTOS</span>
+                <span className="text-[10px] text-slate-500 block">{es ? 'PUNTOS' : 'POINTS'}</span>
                 <span className="text-lg font-bold text-[#FDCC0D] tabular-nums">{score}</span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-500 block">SUMINISTROS</span>
+                <span className="text-[10px] text-slate-500 block">{es ? 'SUMINISTROS' : 'SUPPLIES'}</span>
                 <span className="text-lg font-bold text-emerald-400 tabular-nums">{packagesCollected}</span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-500 block">ANILLOS</span>
+                <span className="text-[10px] text-slate-500 block">{es ? 'ANILLOS' : 'RINGS'}</span>
                 <span className="text-lg font-bold text-cyan-400 tabular-nums">{ringsPassed}</span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-500 block">IMPACTOS</span>
+                <span className="text-[10px] text-slate-500 block">{es ? 'IMPACTOS' : 'IMPACTS'}</span>
                 <span className="text-lg font-bold text-rose-400 tabular-nums">{collisionsCount}</span>
               </div>
             </div>
@@ -1930,7 +1998,7 @@ export const SummitDroneMiniGame: React.FC = () => {
                 className="px-6 py-3 bg-cyan-400 text-black font-extrabold text-xs font-mono flex items-center space-x-2 shadow-lg hover:scale-105 transition-all cursor-pointer uppercase"
               >
                 <RotateCcw className="w-4 h-4" />
-                <span>VOLAR DE NUEVO</span>
+                <span>{es ? 'VOLAR DE NUEVO' : 'FLY AGAIN'}</span>
               </button>
 
               <button
@@ -1939,7 +2007,7 @@ export const SummitDroneMiniGame: React.FC = () => {
                 className="px-5 py-3 bg-slate-900 border border-cyan-400/60 text-cyan-300 text-xs font-mono font-bold flex items-center space-x-2 hover:bg-cyan-950 transition-all cursor-pointer"
               >
                 <Trophy className="w-4 h-4 text-[#FDCC0D]" />
-                <span>VER MI RANKING XP</span>
+                <span>{es ? 'VER MI RANKING XP' : 'VIEW MY XP RANKING'}</span>
               </button>
             </div>
           </div>
@@ -2023,7 +2091,7 @@ export const SummitDroneMiniGame: React.FC = () => {
               type="button"
               onClick={triggerBarrelRoll}
               className="p-3 bg-emerald-950 border border-emerald-500 text-emerald-300 active:bg-emerald-400 active:text-black"
-              title="Barrel Roll Evasivo"
+              title={es ? 'Barrel Roll Evasivo' : 'Evasive Barrel Roll'}
             >
               <RefreshCw className="w-5 h-5" />
             </button>
@@ -2031,7 +2099,7 @@ export const SummitDroneMiniGame: React.FC = () => {
               type="button"
               onClick={triggerLaser}
               className="p-3 bg-rose-950 border border-rose-500 text-rose-300 active:bg-rose-500 active:text-black"
-              title="Disparar Láser"
+              title={es ? 'Disparar Láser' : 'Fire Laser'}
             >
               <Target className="w-5 h-5" />
             </button>
@@ -2051,11 +2119,11 @@ export const SummitDroneMiniGame: React.FC = () => {
       <QuickGuideModal
         isOpen={isGuideOpen}
         onClose={() => setIsGuideOpen(false)}
-        guideTitle="Simulador 3D de Drones • Motor de Colisiones Box3"
-        guideCategory="FÍSICA DE VUELO & PODERES"
-        steps={DRONE_GUIDE_STEPS}
+        guideTitle={es ? 'Simulador 3D de Drones • Motor de Colisiones Box3' : '3D Drone Simulator • Box3 Collision Engine'}
+        guideCategory={es ? 'FÍSICA DE VUELO & PODERES' : 'FLIGHT PHYSICS & POWERS'}
+        steps={language === 'es' ? DRONE_GUIDE_STEPS : DRONE_GUIDE_STEPS_EN}
         onPrimaryAction={startGame}
-        primaryActionLabel="¡Despegar en 3D Ahora!"
+        primaryActionLabel={es ? '¡Despegar en 3D Ahora!' : 'Take Off in 3D Now!'}
       />
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BellRing, X, ExternalLink, Zap, AlertTriangle } from 'lucide-react';
 import { SummitNotification } from '../../types/summit';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface SummitPushAlertToastProps {
   notification: SummitNotification | null;
@@ -13,6 +14,8 @@ export const SummitPushAlertToast: React.FC<SummitPushAlertToastProps> = ({
   onClose,
   onActionClick,
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   useEffect(() => {
     if (!notification) return;
     const timer = setTimeout(() => {
@@ -52,7 +55,7 @@ export const SummitPushAlertToast: React.FC<SummitPushAlertToastProps> = ({
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.2 bg-black/40 border border-white/20">
-              {isUrgent ? '🔴 ALERTA URGENTE DEL SUMMIT' : '⚡ NOTIFICACIÓN EN VIVO'}
+              {isUrgent ? (es ? '🔴 ALERTA URGENTE DEL SUMMIT' : '🔴 URGENT SUMMIT ALERT') : (es ? '⚡ NOTIFICACIÓN EN VIVO' : '⚡ LIVE NOTIFICATION')}
             </span>
             <span className="text-[9px] text-slate-400 font-mono">
               {new Date(notification.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -76,7 +79,7 @@ export const SummitPushAlertToast: React.FC<SummitPushAlertToastProps> = ({
               }}
               className="mt-2 text-[10px] font-bold font-mono text-[var(--sgx-neon)] hover:underline flex items-center space-x-1"
             >
-              <span>{notification.actionLabel || 'Ver detalles de la sesión'}</span>
+              <span>{notification.actionLabel || (es ? 'Ver detalles de la sesión' : 'View session details')}</span>
               <ExternalLink className="w-3 h-3" />
             </button>
           )}

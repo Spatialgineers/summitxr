@@ -16,6 +16,8 @@ import {
   Share2 
 } from 'lucide-react';
 import { ApprovedSponsor } from '../../types/summit';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 interface SummitBrandShowcaseModalProps {
   sponsor: ApprovedSponsor | null;
@@ -26,6 +28,8 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
   sponsor,
   onClose,
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -66,7 +70,7 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
             onClick={onClose}
             className="p-1.5 bg-[#262626] hover:bg-[#FF0055]/30 text-slate-300 hover:text-white border border-[var(--sgx-secondary)]/50 transition-colors"
             style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-            title="Cerrar Showcase"
+            title={es ? 'Cerrar Showcase' : 'Close Showcase'}
           >
             <X className="w-5 h-5" />
           </button>
@@ -76,7 +80,7 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
         <div className="relative h-48 sm:h-64 w-full overflow-hidden bg-gradient-to-r from-[var(--sgx-bg)] to-[#121212] border-b border-[var(--sgx-secondary)]">
           <img 
             src={sponsor.bannerUrl || 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG'} 
-            alt={sponsor.companyName}
+            alt={loc(sponsor, 'companyName', language)}
             className="w-full h-full object-cover opacity-60 mix-blend-luminosity filter hover:filter-none transition-all duration-700"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#151515] via-[#151515]/60 to-transparent" />
@@ -88,14 +92,14 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
             >
               <Award className="w-3.5 h-3.5" />
-              <span>{sponsor.tierName}</span>
+              <span>{loc(sponsor, 'tierName', language)}</span>
             </span>
             <span 
               className="px-3 py-1 bg-amber-500/20 border border-[#FDCC0D] text-[#FDCC0D] text-xs font-mono font-bold flex items-center space-x-1 shadow-lg backdrop-blur-md"
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
             >
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>PARTNER VERIFICADO</span>
+              <span>{es ? 'PARTNER VERIFICADO' : 'VERIFIED PARTNER'}</span>
             </span>
           </div>
         </div>
@@ -109,7 +113,7 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
             >
               <img 
                 src={sponsor.logoUrl} 
-                alt={sponsor.companyName} 
+                alt={loc(sponsor, 'companyName', language)} 
                 className="w-full h-full object-contain"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png';
@@ -118,10 +122,10 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
             </div>
             <div className="pb-1">
               <h2 className="text-xl sm:text-2xl font-extrabold text-white font-['Orbitron',sans-serif] tracking-wide">
-                {sponsor.companyName}
+                {loc(sponsor, 'companyName', language)}
               </h2>
               <p className="text-xs sm:text-sm text-[var(--sgx-neon)] font-mono mt-0.5">
-                {sponsor.tagline}
+                {loc(sponsor, 'tagline', language)}
               </p>
             </div>
           </div>
@@ -134,7 +138,7 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
               className="px-4 py-2.5 bg-gradient-to-r from-[var(--sgx-neon)] to-[#00B0FF] text-black font-bold text-xs uppercase font-mono tracking-wider flex items-center space-x-2 shadow-lg shadow-[var(--sgx-neon)]/20 hover:brightness-110 active:scale-95 transition-all"
               style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
             >
-              <span>{sponsor.ctaButtonText || 'VISITAR WEB OFICIAL'}</span>
+              <span>{loc(sponsor, 'ctaButtonText', language) || (es ? 'VISITAR WEB OFICIAL' : 'VISIT OFFICIAL WEBSITE')}</span>
               <ExternalLink className="w-4 h-4" />
             </a>
           </div>
@@ -145,15 +149,15 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
 
           {/* Quick Info Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {sponsor.boothLocation && (
+            {loc(sponsor, 'boothLocation', language) && (
               <div 
                 className="p-3 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)]/60 flex items-start space-x-3"
                 style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
               >
                 <MapPin className="w-5 h-5 text-[var(--sgx-accent)] shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-[10px] font-mono text-slate-400 uppercase">Ubicación / Stage</div>
-                  <div className="text-xs font-semibold text-white">{sponsor.boothLocation}</div>
+                  <div className="text-[10px] font-mono text-slate-400 uppercase">{es ? 'Ubicación / Stage' : 'Location / Stage'}</div>
+                  <div className="text-xs font-semibold text-white">{loc(sponsor, 'boothLocation', language)}</div>
                 </div>
               </div>
             )}
@@ -163,7 +167,7 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
             >
               <Globe className="w-5 h-5 text-[var(--sgx-neon)] shrink-0 mt-0.5" />
               <div className="min-w-0 flex-1">
-                <div className="text-[10px] font-mono text-slate-400 uppercase">Sitio Web Oficial</div>
+                <div className="text-[10px] font-mono text-slate-400 uppercase">{es ? 'Sitio Web Oficial' : 'Official Website'}</div>
                 <a 
                   href={sponsor.websiteUrl} 
                   target="_blank" 
@@ -181,7 +185,7 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
               >
                 <Mail className="w-5 h-5 text-[#FDCC0D] shrink-0 mt-0.5" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[10px] font-mono text-slate-400 uppercase">Contacto de Alianza</div>
+                  <div className="text-[10px] font-mono text-slate-400 uppercase">{es ? 'Contacto de Alianza' : 'Partnership Contact'}</div>
                   <div className="text-xs font-semibold text-slate-200 break-all">{sponsor.contactEmail}</div>
                 </div>
               </div>
@@ -195,25 +199,25 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
           >
             <h3 className="text-xs font-mono font-bold uppercase text-[var(--sgx-accent)] flex items-center space-x-2 tracking-wider">
               <Sparkles className="w-4 h-4" />
-              <span>Acerca de la Marca y Alianza SGX</span>
+              <span>{es ? 'Acerca de la Marca y Alianza SGX' : 'About the Brand and SGX Partnership'}</span>
             </h3>
             <p className="text-sm text-slate-300 leading-relaxed">
-              {sponsor.description}
+              {loc(sponsor, 'description', language)}
             </p>
           </div>
 
           {/* Key Partnership Highlights */}
-          {sponsor.highlights && sponsor.highlights.length > 0 && (
+          {loc(sponsor, 'highlights', language) && loc(sponsor, 'highlights', language).length > 0 && (
             <div 
               className="p-5 bg-[#121212] border border-[var(--sgx-secondary)]/60 space-y-3"
               style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
             >
               <h3 className="text-xs font-mono font-bold uppercase text-[var(--sgx-neon)] flex items-center space-x-2 tracking-wider">
                 <Zap className="w-4 h-4" />
-                <span>Puntos Destacados en el Summit 2026</span>
+                <span>{es ? 'Puntos Destacados en el Summit 2026' : 'Summit 2026 Highlights'}</span>
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                {sponsor.highlights.map((item, idx) => (
+                {loc(sponsor, 'highlights', language).map((item, idx) => (
                   <div 
                     key={idx} 
                     className="p-3 bg-[var(--sgx-bg)]/80 border border-[var(--sgx-secondary)]/40 flex items-center space-x-3"
@@ -233,7 +237,7 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
           )}
 
           {/* Special Attendee Offer & Coupon Banner */}
-          {(sponsor.specialOfferText || sponsor.specialOfferCode) && (
+          {(loc(sponsor, 'specialOfferText', language) || sponsor.specialOfferCode) && (
             <div 
               className="p-5 bg-gradient-to-r from-[var(--sgx-bg)] via-[#262626] to-[var(--sgx-bg)] border-2 border-[var(--sgx-accent)] relative overflow-hidden shadow-xl shadow-[var(--sgx-accent)]/5"
               style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
@@ -247,10 +251,10 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
                 <div className="space-y-1">
                   <div className="flex items-center space-x-2 text-[var(--sgx-accent)] text-xs font-mono font-bold uppercase tracking-wider">
                     <Tag className="w-4 h-4" />
-                    <span>Beneficio Exclusivo para Asistentes SGX</span>
+                    <span>{es ? 'Beneficio Exclusivo para Asistentes SGX' : 'Exclusive Benefit for SGX Attendees'}</span>
                   </div>
                   <p className="text-xs sm:text-sm text-slate-200">
-                    {sponsor.specialOfferText || 'Utiliza el siguiente código promocional para canjear beneficios especiales de nuestro patrocinador.'}
+                    {loc(sponsor, 'specialOfferText', language) || (es ? 'Utiliza el siguiente código promocional para canjear beneficios especiales de nuestro patrocinador.' : 'Use the following promo code to redeem special benefits from our sponsor.')}
                   </p>
                 </div>
 
@@ -266,10 +270,10 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
                       onClick={handleCopyCode}
                       className="px-3 py-2 bg-[var(--sgx-accent)] hover:bg-[var(--sgx-accent)]/80 text-black font-bold text-xs font-mono flex items-center space-x-1.5 transition-colors"
                       style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                      title="Copiar código"
+                      title={es ? 'Copiar código' : 'Copy code'}
                     >
                       {copiedCode ? <Check className="w-4 h-4 text-black" /> : <Copy className="w-4 h-4" />}
-                      <span>{copiedCode ? 'COPIADO' : 'COPIAR'}</span>
+                      <span>{copiedCode ? (es ? 'COPIADO' : 'COPIED') : (es ? 'COPIAR' : 'COPY')}</span>
                     </button>
                   </div>
                 )}
@@ -280,7 +284,7 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
           {/* Footer Actions */}
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[var(--sgx-secondary)]/60">
             <div className="text-[11px] font-mono text-slate-400">
-              Presencia activa en: {sponsor.activeInVisualizer ? 'Visualizadores 3D' : ''} {sponsor.activeInMiniGame ? '• Drone Mini-Game' : ''} {sponsor.activeInAppTicker ? '• Ticker Global' : ''}
+              {es ? 'Presencia activa en: ' : 'Active presence in: '}{sponsor.activeInVisualizer ? (es ? 'Visualizadores 3D' : '3D Visualizers') : ''} {sponsor.activeInMiniGame ? '• Drone Mini-Game' : ''} {sponsor.activeInAppTicker ? '• Ticker Global' : ''}
             </div>
 
             <div className="flex items-center space-x-3 w-full sm:w-auto">
@@ -290,14 +294,14 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
                 {copiedLink ? <Check className="w-4 h-4 text-[#FDCC0D]" /> : <Share2 className="w-4 h-4" />}
-                <span>{copiedLink ? 'ENLACE COPIADO' : 'COMPARTIR'}</span>
+                <span>{copiedLink ? (es ? 'ENLACE COPIADO' : 'LINK COPIED') : (es ? 'COMPARTIR' : 'SHARE')}</span>
               </button>
               <button
                 onClick={onClose}
                 className="flex-1 sm:flex-none px-5 py-2 bg-[#2A2A2A] hover:bg-[#3A3A3A] text-white text-xs font-mono font-bold uppercase transition-colors"
                 style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
               >
-                CERRAR
+                {es ? 'CERRAR' : 'CLOSE'}
               </button>
             </div>
           </div>

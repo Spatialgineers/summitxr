@@ -23,6 +23,7 @@ import {
 } from './matchData';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useTenantTheme } from '../../context/TenantThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface MyMatchesTabProps {
   myUid: string;
@@ -35,6 +36,8 @@ export const MyMatchesTab: React.FC<MyMatchesTabProps> = ({
   lang = 'es',
   onGoToDeck
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { tenant } = useTenantTheme();
   const strings = MATCH_I18N[lang] || MATCH_I18N.es;
 
@@ -117,10 +120,10 @@ export const MyMatchesTab: React.FC<MyMatchesTabProps> = ({
             <Users className="w-7 h-7" />
           </div>
           <h4 className="font-bold text-base mb-1 font-['Orbitron',sans-serif]">
-            {matches.length === 0 ? strings.mineEmpty : 'No se encontraron resultados.'}
+            {matches.length === 0 ? strings.mineEmpty : (es ? 'No se encontraron resultados.' : 'No results found.')}
           </h4>
           <p className="text-xs text-slate-400 mb-5 font-mono">
-            {matches.length === 0 ? 'Conecta con otros builders en el mazo para formar tu squad.' : 'Prueba buscando con otro término.'}
+            {matches.length === 0 ? (es ? 'Conecta con otros builders en el mazo para formar tu squad.' : 'Connect with other builders in the deck to form your squad.') : (es ? 'Prueba buscando con otro término.' : 'Try searching with another term.')}
           </p>
 
           {matches.length === 0 && (
@@ -132,7 +135,7 @@ export const MyMatchesTab: React.FC<MyMatchesTabProps> = ({
               }}
               className="py-2.5 px-5 rounded-xl text-black font-mono font-bold text-xs shadow-md transition-all cursor-pointer inline-flex items-center gap-1.5 hover:brightness-110"
             >
-              <span>Ir al mazo</span>
+              <span>{es ? 'Ir al mazo' : 'Go to the deck'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           )}
@@ -201,7 +204,7 @@ export const MyMatchesTab: React.FC<MyMatchesTabProps> = ({
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     <button
                       onClick={() => handleOpenNoteEditor(m)}
-                      title="Editar nota privada"
+                      title={es ? 'Editar nota privada' : 'Edit private note'}
                       className={`p-2 rounded-xl border text-xs font-mono transition-colors cursor-pointer ${
                         currentNote 
                           ? 'bg-amber-950/40 border-amber-500/40 text-amber-300' 
@@ -236,7 +239,7 @@ export const MyMatchesTab: React.FC<MyMatchesTabProps> = ({
 
                 {/* Chips */}
                 <div className="flex flex-wrap items-center gap-1.5 mt-2.5 text-[11px] font-mono">
-                  <span className="text-slate-400 text-[10px]">TRAE:</span>
+                  <span className="text-slate-400 text-[10px]">{es ? 'TRAE:' : 'BRINGS:'}</span>
                   {candidate.profile?.brings.slice(0, 3).map((b, i) => (
                     <span key={i} className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300">
                       {b}
@@ -246,7 +249,7 @@ export const MyMatchesTab: React.FC<MyMatchesTabProps> = ({
                     className="text-[10px] ml-2 font-bold"
                     style={{ color: 'var(--sgx-neon)' }}
                   >
-                    BUSCA:
+                    {es ? 'BUSCA:' : 'SEEKS:'}
                   </span>
                   {candidate.profile?.seeking.map((s, i) => (
                     <span 
@@ -283,7 +286,7 @@ export const MyMatchesTab: React.FC<MyMatchesTabProps> = ({
                         }}
                         className="py-1.5 px-3 rounded-xl font-mono font-bold text-xs cursor-pointer hover:brightness-110"
                       >
-                        {savingNoteId === m.id ? '...' : 'Guardar'}
+                        {savingNoteId === m.id ? '...' : (es ? 'Guardar' : 'Save')}
                       </button>
                       <button
                         onClick={() => setActiveNoteMatchId(null)}
@@ -295,12 +298,12 @@ export const MyMatchesTab: React.FC<MyMatchesTabProps> = ({
                   </div>
                 ) : currentNote ? (
                   <div className="mt-2.5 pt-2 border-t border-[var(--sgx-secondary)]/60 flex items-center justify-between text-xs text-amber-300/90 font-mono">
-                    <span className="truncate">📝 Nota: "{currentNote}"</span>
+                    <span className="truncate">{es ? '📝 Nota: "' : '📝 Note: "'}{currentNote}"</span>
                     <button 
                       onClick={() => handleOpenNoteEditor(m)}
                       className="text-[10px] text-slate-400 hover:underline ml-2 flex-shrink-0"
                     >
-                      Editar
+                      {es ? 'Editar' : 'Edit'}
                     </button>
                   </div>
                 ) : null}

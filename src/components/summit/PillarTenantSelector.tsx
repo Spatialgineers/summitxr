@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Tenant } from '../../types/engine';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { Sliders, Sparkles, Zap, Flame, Shield, Layers, Radio, ChevronDown, Check, X, Palette } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface PillarTenantSelectorProps {
   currentTenantId?: string;
@@ -15,6 +16,8 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
   onSelectTenant,
   className = '',
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { tenant: activeTenant, selectTenant, tenants } = useTenantTheme();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -101,7 +104,7 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
           borderColor: activeTenant.branding.primaryColor,
           boxShadow: `0 0 10px ${activeTenant.branding.glowShadow}`
         }}
-        title="Cambiar Tema & Vibe SGX"
+        title={es ? 'Cambiar Tema & Vibe SGX' : 'Change SGX Theme & Vibe'}
       >
         <span className="flex items-center gap-1 sm:gap-1.5">
           {getIconForPillar(activeTenant.pillarId, "w-3.5 h-3.5")}
@@ -161,10 +164,10 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
                 />
                 <div>
                   <h3 className="text-xs sm:text-sm font-bold text-white uppercase font-['Orbitron',sans-serif] tracking-wider">
-                    Temas & Pilares SGX
+                    {es ? 'Temas & Pilares SGX' : 'SGX Themes & Pillars'}
                   </h3>
                   <p className="text-[10px] text-slate-400 font-mono">
-                    Selecciona una paleta de colores y vibra del ecosistema
+                    {es ? 'Selecciona una paleta de colores y vibra del ecosistema' : 'Pick a color palette and vibe from the ecosystem'}
                   </p>
                 </div>
               </div>
@@ -186,7 +189,7 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
                   type="button"
                   onClick={() => setIsOpen(false)}
                   className="p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors cursor-pointer"
-                  title="Cerrar modal"
+                  title={es ? 'Cerrar modal' : 'Close modal'}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -284,11 +287,11 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
                             }}
                           >
                             <Check className="w-3 h-3" />
-                            <span>ACTIVO</span>
+                            <span>{es ? 'ACTIVO' : 'ACTIVE'}</span>
                           </span>
                         ) : (
                           <span className="text-slate-400 group-hover:text-white text-[10px] font-bold">
-                            SELECCIONAR →
+                            {es ? 'SELECCIONAR →' : 'SELECT →'}
                           </span>
                         )}
                       </div>
@@ -301,14 +304,14 @@ export const PillarTenantSelector: React.FC<PillarTenantSelectorProps> = ({
             {/* Footer */}
             <div className="p-2.5 sm:p-3 bg-[#0D0D0D] border-t border-[var(--sgx-secondary)]/40 text-[10px] text-slate-400 flex items-center justify-between shrink-0">
               <span className="font-mono text-[10px] text-slate-400">
-                El tema seleccionado se aplica a toda la interfaz y simulaciones 3D.
+                {es ? 'El tema seleccionado se aplica a toda la interfaz y simulaciones 3D.' : 'The selected theme applies to the whole interface and the 3D simulations.'}
               </span>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
                 className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded font-mono text-[10px] font-bold transition-colors cursor-pointer"
               >
-                Cerrar
+                {es ? 'Cerrar' : 'Close'}
               </button>
             </div>
           </div>

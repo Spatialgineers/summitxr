@@ -39,6 +39,7 @@ import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useAuth } from '../../context/AuthContext';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { TransientSponsorSlot } from './TransientSponsorSlot';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface LiveSocialStreamProps {
   initialHashtag?: string;
@@ -52,6 +53,8 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
   isCompact = false,
   onOpenBroadcastRoom
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { addXp, user } = useAuth();
   const { styles } = useTenantTheme();
 
@@ -207,7 +210,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
     e.preventDefault();
     const cleanUrl = publishSocialUrl.trim();
     if (!cleanUrl) {
-      setPublishError('Por favor ingresa un enlace de publicación válido.');
+      setPublishError((es ? 'Por favor ingresa un enlace de publicación válido.' : 'Please enter a valid post link.'));
       return;
     }
 
@@ -222,11 +225,11 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
       else if (lower.includes('instagram.com')) detectedPlatform = 'instagram';
 
       const newPost = await publishAttendeePost({
-        content: `Publicación en redes: ${cleanUrl}`,
+        content: (es ? `Publicación en redes: ${cleanUrl}` : `Social post: ${cleanUrl}`),
         hashtags: selectedPublishTags,
         platform: detectedPlatform,
         instagramPostUrl: cleanUrl,
-        authorName: user?.displayName || 'Asistente Spatialgineers',
+        authorName: user?.displayName || (es ? 'Asistente Spatialgineers' : 'Spatialgineers Attendee'),
         authorHandle: user?.email ? `@${user.email.split('@')[0]}` : '@asistente_sgx',
         location: 'Spatialgineers Summit 2026'
       });
@@ -238,7 +241,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
       addXp(50, 'Post enlazado en Live Social Stream');
     } catch (err: any) {
       console.error('Error linking post:', err);
-      setPublishError(err?.message || 'Error al guardar el enlace. Intenta nuevamente.');
+      setPublishError(err?.message || (es ? 'Error al guardar el enlace. Intenta nuevamente.' : 'Error saving the link. Please try again.'));
     } finally {
       setIsPublishing(false);
     }
@@ -265,12 +268,12 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-2.5 py-0.5 bg-[var(--sgx-primary)] text-black text-[10px] font-mono font-black uppercase tracking-wider flex items-center gap-1">
                 <Instagram className="w-3 h-3 text-black" />
-                <span>MURAL COMUNITARIO DE REDES SOCIALES</span>
+                <span>{es ? 'MURAL COMUNITARIO DE REDES SOCIALES' : 'COMMUNITY SOCIAL MEDIA WALL'}</span>
               </span>
 
               <span className="px-2.5 py-0.5 bg-[var(--sgx-card-bg)] border border-[var(--sgx-primary)]/70 text-[var(--sgx-primary)] text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-[var(--sgx-primary)]" />
-                <span>COMUNIDAD EN VIVO</span>
+                <span>{es ? 'COMUNIDAD EN VIVO' : 'LIVE COMMUNITY'}</span>
               </span>
             </div>
 
@@ -280,7 +283,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
             </h1>
 
             <p className="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed">
-              Pega el enlace de tus publicaciones de Instagram, X, TikTok o redes sociales del <strong>Spatialgineers Summit</strong>. Se embeberá directamente en el mural en vivo.
+              {es ? 'Pega el enlace de tus publicaciones de Instagram, X, TikTok o redes sociales del ' : 'Paste the link to your Instagram, X, TikTok or social media posts from the '}<strong>Spatialgineers Summit</strong>{es ? '. Se embeberá directamente en el mural en vivo.' : '. It will be embedded directly on the live wall.'}
             </p>
           </div>
 
@@ -296,7 +299,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
               className="sgx-btn py-2 px-4 text-xs font-bold uppercase flex items-center gap-1.5 shadow-lg hover:scale-105 transition-all font-mono cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>ENLAZAR POST (+50 XP)</span>
+              <span>{es ? 'ENLAZAR POST (+50 XP)' : 'LINK POST (+50 XP)'}</span>
             </button>
 
             {/* Bulk CSV Import Button */}
@@ -306,20 +309,20 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
                 setIsBulkImportOpen(true);
               }}
               className="px-3 py-2 bg-[var(--sgx-bg)] hover:bg-[var(--sgx-primary)] hover:text-black border border-[var(--sgx-primary)]/80 text-[var(--sgx-primary)] text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
-              title="Importar múltiples publicaciones o reels de Instagram mediante archivo CSV o lista de URLs"
+              title={es ? 'Importar múltiples publicaciones o reels de Instagram mediante archivo CSV o lista de URLs' : 'Import multiple Instagram posts or reels from a CSV file or a list of URLs'}
             >
               <UploadCloud className="w-4 h-4" />
-              <span>IMPORTAR .CSV</span>
+              <span>{es ? 'IMPORTAR .CSV' : 'IMPORT .CSV'}</span>
             </button>
 
             {/* Copy Hashtags CTA */}
             <button
               onClick={handleCopyHashtags}
               className="px-3 py-2 bg-[var(--sgx-bg)] hover:bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] hover:border-[var(--sgx-primary)] text-slate-200 text-xs font-mono font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
-              title="Copiar hashtags oficiales para Instagram y redes sociales"
+              title={es ? 'Copiar hashtags oficiales para Instagram y redes sociales' : 'Copy the official hashtags for Instagram and social media'}
             >
               {copiedHashtags ? <Check className="w-3.5 h-3.5 text-[var(--sgx-primary)]" /> : <Copy className="w-3.5 h-3.5 text-[var(--sgx-primary)]" />}
-              <span>{copiedHashtags ? '¡COPIADOS!' : 'HASHTAGS'}</span>
+              <span>{copiedHashtags ? (es ? '¡COPIADOS!' : 'COPIED!') : 'HASHTAGS'}</span>
             </button>
 
             {/* Reload button */}
@@ -329,7 +332,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
                 loadPosts();
               }}
               className="p-2 bg-[var(--sgx-bg)] hover:bg-slate-800 border border-[var(--sgx-border)] text-slate-300 transition-colors cursor-pointer"
-              title="Recargar feed ahora"
+              title={es ? 'Recargar feed ahora' : 'Reload feed now'}
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-[var(--sgx-primary)]' : ''}`} />
             </button>
@@ -340,7 +343,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
         <div className="pt-3 mt-4 border-t border-[var(--sgx-secondary)]/50 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
           <div className="flex flex-wrap items-center gap-2 text-slate-400 text-[11px]">
             <TrendingUp className="w-3.5 h-3.5 text-[var(--sgx-primary)]" />
-            <span className="text-slate-200 font-bold">HASHTAGS DEL EVENTO:</span>
+            <span className="text-slate-200 font-bold">{es ? 'HASHTAGS DEL EVENTO:' : 'EVENT HASHTAGS:'}</span>
             <span className="text-[var(--sgx-primary)] font-bold">#SpatialgineersSummit</span>
             <span className="text-slate-600">•</span>
             <span className="text-[var(--sgx-secondary)] font-bold">#SGX2026</span>
@@ -371,11 +374,11 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
             </div>
             <div>
               <h3 className="font-bold text-white text-xs sm:text-sm font-['Orbitron',sans-serif] tracking-wider uppercase flex items-center gap-2">
-                <span>¿CÓMO EMBEBER TUS PUBLICACIONES EN EL MURAL?</span>
+                <span>{es ? '¿CÓMO EMBEBER TUS PUBLICACIONES EN EL MURAL?' : 'HOW DO YOU EMBED YOUR POSTS ON THE WALL?'}</span>
                 <span className="px-2 py-0.5 bg-[var(--sgx-primary)]/20 text-[var(--sgx-primary)] border border-[var(--sgx-primary)]/50 text-[10px] font-mono font-bold">+50 XP</span>
               </h3>
               <p className="text-[11px] text-slate-300 font-sans mt-0.5">
-                Presiona <strong>"ENLAZAR POST (+50 XP)"</strong>, pega la URL pública de tu publicación o Reel en Instagram, 𝕏 (Twitter) o TikTok y selecciona los hashtags. Se sincronizará de inmediato en el mural comunitario en tiempo real.
+                {es ? 'Presiona ' : 'Press '}<strong>{es ? '"ENLAZAR POST (+50 XP)"' : '"LINK POST (+50 XP)"'}</strong>{es ? ', pega la URL pública de tu publicación o Reel en Instagram, 𝕏 (Twitter) o TikTok y selecciona los hashtags. Se sincronizará de inmediato en el mural comunitario en tiempo real.' : ', paste the public URL of your Instagram, 𝕏 (Twitter) or TikTok post or Reel and select the hashtags. It syncs instantly to the real-time community wall.'}
               </p>
             </div>
           </div>
@@ -388,7 +391,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
             }}
             className="sgx-btn py-1.5 px-4 text-[11px] font-bold uppercase font-mono shrink-0 cursor-pointer"
           >
-            ENLAZAR MI POST (+50 XP)
+            {es ? 'ENLAZAR MI POST (+50 XP)' : 'LINK MY POST (+50 XP)'}
           </button>
         </div>
       </div>
@@ -400,7 +403,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs font-mono">
           <span className="text-slate-400 font-bold uppercase whitespace-nowrap text-[11px] flex items-center gap-1">
             <Search className="w-3 h-3 text-[var(--sgx-primary)]" />
-            <span>Filtrar por Hashtag:</span>
+            <span>{es ? 'Filtrar por Hashtag:' : 'Filter by Hashtag:'}</span>
           </span>
 
           <button
@@ -411,7 +414,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
                 : 'bg-[var(--sgx-bg)] border-[var(--sgx-border)] text-slate-300 hover:border-slate-600'
             }`}
           >
-            #Todos los Posts
+            {language === 'es' ? '#Todos los Posts' : '#All Posts'}
           </button>
 
           {OFFICIAL_SUMMIT_HASHTAGS.map((tag) => (
@@ -440,7 +443,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && loadPosts()}
-              placeholder="Buscar por usuario o hashtag..."
+              placeholder={es ? 'Buscar por usuario o hashtag...' : 'Search by user or hashtag...'}
               className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-border)] pl-9 pr-3 py-2 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-[var(--sgx-primary)] font-mono"
             />
           </div>
@@ -448,7 +451,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
           {/* Platform filter */}
           <div className="flex items-center gap-1 border border-[var(--sgx-border)] p-0.5 bg-[var(--sgx-bg)]">
             {[
-              { id: 'all', label: 'Todas' },
+              { id: 'all', label: (es ? 'Todas' : 'All') },
               { id: 'instagram', label: 'Instagram' },
               { id: 'x', label: '𝕏 / Twitter' },
             ].map((p) => (
@@ -469,9 +472,9 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
           {/* Sort selector */}
           <div className="flex items-center gap-1 border border-[var(--sgx-border)] p-0.5 bg-[var(--sgx-bg)]">
             {[
-              { id: 'recent', label: 'Recientes' },
-              { id: 'trending', label: 'Más Populares' },
-              { id: 'stage_featured', label: 'Proyectados LED' },
+              { id: 'recent', label: (es ? 'Recientes' : 'Recent') },
+              { id: 'trending', label: (es ? 'Más Populares' : 'Most Popular') },
+              { id: 'stage_featured', label: (es ? 'Proyectados LED' : 'On the LED Wall') },
             ].map((s) => (
               <button
                 key={s.id}
@@ -495,7 +498,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
         <div className="py-20 text-center space-y-3 bg-[#0f0f0f] border border-slate-800">
           <RefreshCw className="w-8 h-8 text-[#FDCC0D] animate-spin mx-auto" />
           <p className="text-xs font-mono text-slate-400 uppercase tracking-widest">
-            Sincronizando stream en tiempo real con Firestore...
+            {es ? 'Sincronizando stream en tiempo real con Firestore...' : 'Syncing the real-time stream with Firestore...'}
           </p>
         </div>
       ) : posts.length === 0 ? (
@@ -503,10 +506,10 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
           <Instagram className="w-12 h-12 text-slate-600 mx-auto" />
           <div className="space-y-1">
             <h3 className="text-sm font-bold text-slate-200 font-mono uppercase">
-              No hay publicaciones para el filtro seleccionado
+              {es ? 'No hay publicaciones para el filtro seleccionado' : 'No posts for the selected filter'}
             </h3>
             <p className="text-xs text-slate-400 max-w-md mx-auto">
-              Sé el primero en enlazar tu publicación de Instagram/X con los hashtags oficiales.
+              {es ? 'Sé el primero en enlazar tu publicación de Instagram/X con los hashtags oficiales.' : 'Be the first to link your Instagram/X post with the official hashtags.'}
             </p>
           </div>
           <button
@@ -517,7 +520,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
             className="sgx-btn py-2 px-5 text-xs font-bold uppercase inline-flex items-center gap-1.5 font-mono cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>ENLAZAR MI PRIMER POST</span>
+            <span>{es ? 'ENLAZAR MI PRIMER POST' : 'LINK MY FIRST POST'}</span>
           </button>
         </div>
       ) : (
@@ -555,9 +558,9 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
                   <div className="bg-[var(--sgx-gradient)] px-3 py-1 flex items-center justify-between text-[10px] font-mono font-bold text-black uppercase tracking-wider">
                     <span className="flex items-center gap-1">
                       <Tv className="w-3 h-3 text-black" />
-                      <span>PROYECTADO EN MAIN LED STAGE</span>
+                      <span>{es ? 'PROYECTADO EN MAIN LED STAGE' : 'SHOWN ON THE MAIN LED STAGE'}</span>
                     </span>
-                    <span className="bg-black/40 text-white px-1.5 py-0.2 rounded text-[9px]">EN VIVO</span>
+                    <span className="bg-black/40 text-white px-1.5 py-0.2 rounded text-[9px]">{es ? 'EN VIVO' : 'LIVE'}</span>
                   </div>
                 )}
 
@@ -615,7 +618,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
                   >
                     <img
                       src={post.mediaUrl}
-                      alt="Contenido social"
+                      alt={es ? 'Contenido social' : 'Social content'}
                       className="w-full h-full object-cover group-hover/media:scale-105 transition-transform duration-500"
                     />
 
@@ -643,7 +646,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
                       className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[var(--sgx-bg)] hover:bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] text-[var(--sgx-primary)] text-[11px] font-mono font-bold transition-all rounded-xs"
                     >
                       <LinkIcon className="w-3 h-3 text-[var(--sgx-primary)]" />
-                      <span>Ver Publicación en Red Social</span>
+                      <span>{es ? 'Ver Publicación en Red Social' : 'View Post on Social Media'}</span>
                       <ExternalLink className="w-3 h-3 text-slate-400" />
                     </a>
                   )}
@@ -704,10 +707,10 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
                     onClick={() => {
                       navigator.clipboard.writeText(post.instagramPostUrl || window.location.href);
                       playUiChirp(1200);
-                      alert('¡Enlace de publicación copiado!');
+                      alert((es ? '¡Enlace de publicación copiado!' : 'Post link copied!'));
                     }}
                     className="p-1 text-slate-400 hover:text-[var(--sgx-primary)] transition-colors cursor-pointer"
-                    title="Compartir enlace"
+                    title={es ? 'Compartir enlace' : 'Share link'}
                   >
                     <Share2 className="w-4 h-4" />
                   </button>
@@ -743,7 +746,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
 
             <img
               src={activeLightboxPost.mediaUrl}
-              alt="Ampliada"
+              alt={es ? 'Ampliada' : 'Enlarged'}
               className="max-h-[75vh] w-auto mx-auto object-contain"
             />
 
@@ -772,7 +775,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
               <div className="flex items-center gap-2">
                 <MessageCircle className="w-5 h-5 text-[var(--sgx-primary)]" />
                 <h3 className="text-sm font-bold text-white font-mono uppercase">
-                  Comentarios ({activeCommentDrawerPost.commentsCount})
+                  {es ? 'Comentarios (' : 'Comments ('}{activeCommentDrawerPost.commentsCount})
                 </h3>
               </div>
               <button
@@ -787,7 +790,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
             <div className="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-thin">
               {activeCommentDrawerPost.comments.length === 0 ? (
                 <p className="text-xs text-slate-500 font-mono py-8 text-center">
-                  Aún no hay comentarios. Sé el primero en dejar una opinión.
+                  {es ? 'Aún no hay comentarios. Sé el primero en dejar una opinión.' : 'No comments yet. Be the first to share your thoughts.'}
                 </p>
               ) : (
                 activeCommentDrawerPost.comments.map((c) => (
@@ -808,7 +811,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
                 type="text"
                 value={newCommentText}
                 onChange={(e) => setNewCommentText(e.target.value)}
-                placeholder="Escribe un comentario comunitario..."
+                placeholder={es ? 'Escribe un comentario comunitario...' : 'Write a community comment...'}
                 className="flex-1 bg-[var(--sgx-bg)] border border-[var(--sgx-border)] p-2.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--sgx-primary)] font-mono"
               />
               <button
@@ -841,7 +844,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
               <div className="flex items-center gap-2">
                 <Instagram className="w-5 h-5 text-[var(--sgx-primary)]" />
                 <h3 className="text-sm font-bold text-white font-['Orbitron',sans-serif]">
-                  ENLAZAR POST DE REDES SOCIALES
+                  {es ? 'ENLAZAR POST DE REDES SOCIALES' : 'LINK A SOCIAL MEDIA POST'}
                 </h3>
               </div>
               <button
@@ -866,24 +869,24 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
               <div className="space-y-1.5">
                 <label className="text-slate-200 font-bold uppercase flex items-center gap-1.5">
                   <LinkIcon className="w-3.5 h-3.5 text-[var(--sgx-primary)]" />
-                  <span>Enlace / URL de tu Post *</span>
+                  <span>{es ? 'Enlace / URL de tu Post *' : 'Link / URL of your Post *'}</span>
                 </label>
                 <input
                   type="url"
                   required
                   value={publishSocialUrl}
                   onChange={(e) => setPublishSocialUrl(e.target.value)}
-                  placeholder="Ejemplo: https://www.instagram.com/p/... o https://x.com/usuario/status/..."
+                  placeholder={es ? 'Ejemplo: https://www.instagram.com/p/... o https://x.com/usuario/status/...' : 'Example: https://www.instagram.com/p/... or https://x.com/user/status/...'}
                   className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-border)] p-3 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[var(--sgx-primary)] font-mono"
                 />
                 <p className="text-[10px] text-slate-400">
-                  Pega la URL pública de tu publicación o Reel de Instagram, X (Twitter) o TikTok para embeberlo en el mural.
+                  {es ? 'Pega la URL pública de tu publicación o Reel de Instagram, X (Twitter) o TikTok para embeberlo en el mural.' : 'Paste the public URL of your Instagram, X (Twitter) or TikTok post or Reel to embed it on the wall.'}
                 </p>
               </div>
 
               {/* Hashtag checkboxes */}
               <div className="space-y-1">
-                <label className="text-slate-300 font-bold uppercase">Hashtags asociados:</label>
+                <label className="text-slate-300 font-bold uppercase">{es ? 'Hashtags asociados:' : 'Related hashtags:'}</label>
                 <div className="flex flex-wrap gap-1.5">
                   {OFFICIAL_SUMMIT_HASHTAGS.slice(0, 6).map((tag) => {
                     const isChecked = selectedPublishTags.includes(tag);
@@ -912,7 +915,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
               {/* Submit CTA */}
               <div className="pt-3 border-t border-[var(--sgx-border)] flex items-center justify-between">
                 <span className="text-[var(--sgx-primary)] text-[11px] font-bold">
-                  ★ Recompensa: +50 XP
+                  {es ? '★ Recompensa: +50 XP' : '★ Reward: +50 XP'}
                 </span>
 
                 <button
@@ -920,7 +923,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
                   disabled={isPublishing || !publishSocialUrl.trim()}
                   className="sgx-btn py-2 px-6 text-xs font-bold uppercase disabled:opacity-50 cursor-pointer"
                 >
-                  {isPublishing ? 'ENLAZANDO...' : 'EMBEBER POST (+50 XP)'}
+                  {isPublishing ? (es ? 'ENLAZANDO...' : 'LINKING...') : (es ? 'EMBEBER POST (+50 XP)' : 'EMBED POST (+50 XP)')}
                 </button>
               </div>
 

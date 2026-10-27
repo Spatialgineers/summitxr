@@ -104,6 +104,8 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
   onOpenTimeCapsules,
   sponsorCount,
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { tenant, selectPillar } = useTenantTheme();
   const { t } = useLanguage();
   const { setIsProfileModalOpen, recordActivity } = usePilotProfile();
@@ -145,34 +147,34 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
     {
       id: 'STORY',
       name: 'SGX.STORY',
-      title: 'Identidad, Narrativa & Reliquias 3D',
-      subtitle: 'Story opt.glb • Manifiesto • Avatar Studio 3D (+200 XP) • SGX Pass',
+      title: (es ? 'Identidad, Narrativa & Reliquias 3D' : 'Identity, Narrative & 3D Relics'),
+      subtitle: (es ? 'Story opt.glb • Manifiesto • Avatar Studio 3D (+200 XP) • SGX Pass' : 'Story opt.glb • Manifesto • 3D Avatar Studio (+200 XP) • SGX Pass'),
       description:
-        'El origen conceptual de Spatialgineers ("Ingeniando Imaginación, Construyendo Realidades"). Inspecciona la escultura oficial Story opt.glb, construye tu avatar (+200 XP) y desbloquea sellos en tu SGX Pass.',
+        (es ? 'El origen conceptual de Spatialgineers ("Ingeniando Imaginación, Construyendo Realidades"). Inspecciona la escultura oficial Story opt.glb, construye tu avatar (+200 XP) y desbloquea sellos en tu SGX Pass.' : 'The conceptual origin of Spatialgineers ("Engineering Imagination, Building Realities"). Inspect the official Story opt.glb sculpture, build your avatar (+200 XP) and unlock stamps on your SGX Pass.'),
       icon: Boxes,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Story1.png',
       themeColor: pillarInk('STORY'),
-      physicsDescription: 'Física: Brasas Doradas Ascendentes · Audio: Acorde Lydian 432Hz',
+      physicsDescription: (es ? 'Física: Brasas Doradas Ascendentes · Audio: Acorde Lydian 432Hz' : 'Physics: Rising Golden Embers · Audio: 432Hz Lydian Chord'),
       modules: [
         {
           id: 'mod_manifesto',
-          title: 'Manifiesto de los 6 Pilares SGX',
-          subtitle: 'Filosofía Tecnocreativa & Casos Reales',
+          title: (es ? 'Manifiesto de los 6 Pilares SGX' : 'Manifesto of the 6 SGX Pillars'),
+          subtitle: (es ? 'Filosofía Tecnocreativa & Casos Reales' : 'Tech-Creative Philosophy & Real Cases'),
           description:
-            'Explora a fondo la arquitectura conceptual de Spatialgineers, despliegues previos y visión del ecosistema XR.',
+            (es ? 'Explora a fondo la arquitectura conceptual de Spatialgineers, despliegues previos y visión del ecosistema XR.' : 'Dive into the Spatialgineers conceptual architecture, past deployments and the vision for the XR ecosystem.'),
           xpReward: '+75 XP',
-          actionLabel: 'Abrir Manifiesto',
+          actionLabel: (es ? 'Abrir Manifiesto' : 'Open Manifesto'),
           icon: Boxes,
           onLaunch: () => onSelectSection('PILLARS_MANIFESTO'),
         },
         {
           id: 'mod_avatar',
           title: 'Avatar Studio 3D',
-          subtitle: 'Generador Oficial de Identidad de Piloto',
+          subtitle: (es ? 'Generador Oficial de Identidad de Piloto' : 'Official Pilot Identity Generator'),
           description:
-            'Personaliza tu insignia y avatar cibernético para las salas de networking, leaderboard y acreditación oficial del Summit.',
+            (es ? 'Personaliza tu insignia y avatar cibernético para las salas de networking, leaderboard y acreditación oficial del Summit.' : 'Customize your badge and cyber avatar for the networking rooms, the leaderboard and official Summit accreditation.'),
           xpReward: '+200 XP',
-          actionLabel: 'Crear Avatar (+200 XP)',
+          actionLabel: (es ? 'Crear Avatar (+200 XP)' : 'Create Avatar (+200 XP)'),
           icon: User,
           onLaunch: () => {
             if (onOpenAvatarGenerator) onOpenAvatarGenerator();
@@ -181,12 +183,12 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_passport',
-          title: 'Reactor de misiones',
-          subtitle: 'Misiones por pilar & sellos en tu SGX Pass',
+          title: (es ? 'Reactor de misiones' : 'Mission Reactor'),
+          subtitle: (es ? 'Misiones por pilar & sellos en tu SGX Pass' : 'Missions by pillar & stamps on your SGX Pass'),
           description:
-            'Cada pilar tiene 2 o 3 misiones. Complétalas y el pilar queda sellado en tu pase. El XP se gasta en la Tienda del Reactor sin bajar de rango.',
+            (es ? 'Cada pilar tiene 2 o 3 misiones. Complétalas y el pilar queda sellado en tu pase. El XP se gasta en la Tienda del Reactor sin bajar de rango.' : 'Each pillar has 2 or 3 missions. Complete them and the pillar is stamped on your pass. XP is spent in the Reactor Store without lowering your rank.'),
           xpReward: '+60–250 XP',
-          actionLabel: 'Abrir Reactor',
+          actionLabel: (es ? 'Abrir Reactor' : 'Open Reactor'),
           icon: Award,
           onLaunch: () => {
             if (onOpenPassport) onOpenPassport();
@@ -195,12 +197,12 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_pilot_profile',
-          title: 'Bitácora de Piloto & Rango XP',
-          subtitle: 'Estadísticas del Fin de Semana',
+          title: (es ? 'Bitácora de Piloto & Rango XP' : 'Pilot Log & XP Rank'),
+          subtitle: (es ? 'Estadísticas del Fin de Semana' : 'Weekend Stats'),
           description:
-            'Consulta tu nivel actual, historial de interacciones en vivo y desglose de puntos acumulados.',
-          xpReward: 'PERFIL ACTIVO',
-          actionLabel: 'Ver Bitácora',
+            (es ? 'Consulta tu nivel actual, historial de interacciones en vivo y desglose de puntos acumulados.' : 'Check your current level, live interaction history and a breakdown of your points.'),
+          xpReward: (es ? 'PERFIL ACTIVO' : 'ACTIVE PROFILE'),
+          actionLabel: (es ? 'Ver Bitácora' : 'View Log'),
           icon: ShieldCheck,
           onLaunch: () => {
             playUiChirp(620);
@@ -209,12 +211,12 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_relic_studio',
-          title: 'Inspector Holográfico de Reliquias .GLB',
-          subtitle: 'Laboratorio de Materiales PBR & Shaders',
+          title: (es ? 'Inspector Holográfico de Reliquias .GLB' : 'Holographic .GLB Relic Inspector'),
+          subtitle: (es ? 'Laboratorio de Materiales PBR & Shaders' : 'PBR Materials & Shaders Lab'),
           description:
-            'Inspecciona las esculturas 3D oficiales de Spatialgineers sin salir del visor, alternando entre Cristal PBR, Wireframe y Oro Solar.',
+            (es ? 'Inspecciona las esculturas 3D oficiales de Spatialgineers sin salir del visor, alternando entre Cristal PBR, Wireframe y Oro Solar.' : 'Inspect the official Spatialgineers 3D sculptures without leaving the viewer, switching between PBR Crystal, Wireframe and Solar Gold.'),
           xpReward: '+40 XP',
-          actionLabel: 'Activar Inspector 3D',
+          actionLabel: (es ? 'Activar Inspector 3D' : 'Activate 3D Inspector'),
           icon: Eye,
           onLaunch: () => {
             playCyberBurstSound();
@@ -226,56 +228,56 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
     {
       id: 'SHOWCASE',
       name: 'SGX.SHOWCASE',
-      title: 'Exposición 360°, SGX.Match & Alianzas Oficiales',
-      subtitle: 'Showcase opt.glb • Recorrido 360° Chroma • Speed Pitching • QR (+50 XP)',
+      title: (es ? 'Exposición 360°, SGX.Match & Alianzas Oficiales' : '360° Exhibition, SGX.Match & Official Partnerships'),
+      subtitle: (es ? 'Showcase opt.glb • Recorrido 360° Chroma • Speed Pitching • QR (+50 XP)' : 'Showcase opt.glb • Chroma 360° Tour • Speed Pitching • QR (+50 XP)'),
       description:
-        'Donde los proyectos, marcas aliadas y fundadores se conectan con el mundo. Recorre en 360° Chroma Space Studios, la sede del Día 3, haz matchmaking estratégico y escanea códigos QR (+50 XP).',
+        (es ? 'Donde los proyectos, marcas aliadas y fundadores se conectan con el mundo. Recorre en 360° Chroma Space Studios, la sede del Día 3, haz matchmaking estratégico y escanea códigos QR (+50 XP).' : 'Where projects, partner brands and founders connect with the world. Tour Chroma Space Studios, the Day 3 venue, in 360°, do strategic matchmaking and scan QR codes (+50 XP).'),
       icon: Building2,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png',
       themeColor: pillarInk('SHOWCASE'),
-      physicsDescription: 'Física: Galería Holográfica Panorámica · Audio: Resonancia Cristalina Cian',
+      physicsDescription: (es ? 'Física: Galería Holográfica Panorámica · Audio: Resonancia Cristalina Cian' : 'Physics: Panoramic Holographic Gallery · Audio: Cyan Crystal Resonance'),
       modules: [
         {
           id: 'mod_map_360',
-          title: 'Recorrido 360° Chroma Space Studios',
-          subtitle: 'Recorrido Espacial por la Sede Híbrida en San Juan',
+          title: (es ? 'Recorrido 360° Chroma Space Studios' : 'Chroma Space Studios 360° Tour'),
+          subtitle: (es ? 'Recorrido Espacial por la Sede Híbrida en San Juan' : 'Spatial Tour of the Hybrid Venue in San Juan'),
           description:
-            'Explora en 360° los sets de producción virtual, escenario principal y zonas de networking de Chroma Space Studios, la sede del Día 3.',
+            (es ? 'Explora en 360° los sets de producción virtual, escenario principal y zonas de networking de Chroma Space Studios, la sede del Día 3.' : 'Explore in 360° the virtual production sets, main stage and networking areas of Chroma Space Studios, the Day 3 venue.'),
           xpReward: '+90 XP',
-          actionLabel: 'Entrar al recorrido 360°',
+          actionLabel: (es ? 'Entrar al recorrido 360°' : 'Enter the 360° tour'),
           icon: Globe,
           onLaunch: () => onSelectSection('MAP_360'),
         },
         {
           id: 'mod_sgx_match',
-          title: 'SGX.Match — Speed Pitching & Alianzas',
-          subtitle: 'Emparejamiento Inteligente B2B & Creadores',
+          title: (es ? 'SGX.Match — Speed Pitching & Alianzas' : 'SGX.Match — Speed Pitching & Partnerships'),
+          subtitle: (es ? 'Emparejamiento Inteligente B2B & Creadores' : 'Smart B2B & Creator Matchmaking'),
           description:
-            'Conecta con fundadores, estudios XR, inversionistas y líderes técnicos para agendar reuniones durante el Summit.',
+            (es ? 'Conecta con fundadores, estudios XR, inversionistas y líderes técnicos para agendar reuniones durante el Summit.' : 'Connect with founders, XR studios, investors and technical leaders to schedule meetings during the Summit.'),
           xpReward: '+150 XP',
-          actionLabel: 'Abrir SGX.Match',
+          actionLabel: (es ? 'Abrir SGX.Match' : 'Open SGX.Match'),
           icon: Zap,
           onLaunch: () => onSelectSection('ENTREPRENEUR_MATCH'),
         },
         {
           id: 'mod_sponsors_hub',
-          title: `Partners Oficiales & Matriz de Patrocinio (${sponsorCount})`,
-          subtitle: 'Tiers 1–5 • Las marcas viven dentro de la experiencia',
+          title: (es ? `Partners Oficiales & Matriz de Patrocinio (${sponsorCount})` : `Official Partners & Sponsorship Matrix (${sponsorCount})`),
+          subtitle: (es ? 'Tiers 1–5 • Las marcas viven dentro de la experiencia' : 'Tiers 1–5 • Brands live inside the experience'),
           description:
-            'Explora los 5 Tiers de auspicio. Solo se publican marcas confirmadas por escrito.',
+            (es ? 'Explora los 5 Tiers de auspicio. Solo se publican marcas confirmadas por escrito.' : 'Explore the 5 sponsorship Tiers. Only brands confirmed in writing are published.'),
           xpReward: 'PARTNERS',
-          actionLabel: 'Ver Partners & Tiers',
+          actionLabel: (es ? 'Ver Partners & Tiers' : 'View Partners & Tiers'),
           icon: Building2,
           onLaunch: () => onSelectSection('SPONSORS_HUB'),
         },
         {
           id: 'mod_qr_scanner',
-          title: 'Escáner de SGX Pass',
-          subtitle: 'Rolodex mutuo (+50 XP por intercambio)',
+          title: (es ? 'Escáner de SGX Pass' : 'SGX Pass Scanner'),
+          subtitle: (es ? 'Rolodex mutuo (+50 XP por intercambio)' : 'Mutual Rolodex (+50 XP per exchange)'),
           description:
-            'Escanea el SGX Pass de otra persona: tú quedas en su Rolodex y esa persona en el tuyo. En el Día 3 es el bloque de networking.',
+            (es ? 'Escanea el SGX Pass de otra persona: tú quedas en su Rolodex y esa persona en el tuyo. En el Día 3 es el bloque de networking.' : 'Scan another person\'s SGX Pass: you\'re saved in their Rolodex and they\'re saved in yours. On Day 3 it\'s the networking block.'),
           xpReward: '+50 XP',
-          actionLabel: 'Escanear QR (+50 XP)',
+          actionLabel: (es ? 'Escanear QR (+50 XP)' : 'Scan QR (+50 XP)'),
           icon: ScanLine,
           onLaunch: () => {
             if (onOpenQrScanner) onOpenQrScanner();
@@ -285,22 +287,22 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         {
           id: 'mod_social_stream',
           title: 'Live Social Stream & Radar #SGX2026',
-          subtitle: 'Muro en Vivo de Instagram, X & Threads',
+          subtitle: (es ? 'Muro en Vivo de Instagram, X & Threads' : 'Live Instagram, X & Threads Wall'),
           description:
-            'Visualiza el pulso social del evento proyectado en tiempo real en las pantallas LED del venue.',
+            (es ? 'Visualiza el pulso social del evento proyectado en tiempo real en las pantallas LED del venue.' : 'See the event\'s social pulse shown in real time on the venue\'s LED screens.'),
           xpReward: '+50 XP',
-          actionLabel: 'Abrir Social Radar',
+          actionLabel: (es ? 'Abrir Social Radar' : 'Open Social Radar'),
           icon: Instagram,
           onLaunch: () => onSelectSection('SOCIAL_STREAM'),
         },
         {
           id: 'mod_credential_generator',
           title: 'SGX Pass',
-          subtitle: 'Registro + Holo Card + credencial en uno',
+          subtitle: (es ? 'Registro + Holo Card + credencial en uno' : 'Registration + Holo Card + credential in one'),
           description:
-            'Forja tu pase en un minuto: nombre, pilar y piloto. Gana sellos completando las misiones de cada pilar.',
+            (es ? 'Forja tu pase en un minuto: nombre, pilar y piloto. Gana sellos completando las misiones de cada pilar.' : 'Forge your pass in a minute: name, pillar and pilot. Earn stamps by completing each pillar\'s missions.'),
           xpReward: '+120 XP',
-          actionLabel: 'Abrir mi pase',
+          actionLabel: (es ? 'Abrir mi pase' : 'Open my pass'),
           icon: Award,
           onLaunch: () => onSelectSection('CREDENTIAL_GENERATOR'),
         },
@@ -309,34 +311,34 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
     {
       id: 'SPARK',
       name: 'SGX.SPARK',
-      title: 'Simulación de Dron con Colisiones 3D & Gamificación',
-      subtitle: 'Spark Opt.glb • Dron 3D con Física Box3 • Premios XP • Votación Kahoot (+25 XP)',
+      title: (es ? 'Simulación de Dron con Colisiones 3D & Gamificación' : 'Drone Simulation with 3D Collisions & Gamification'),
+      subtitle: (es ? 'Spark Opt.glb • Dron 3D con Física Box3 • Premios XP • Votación Kahoot (+25 XP)' : 'Spark Opt.glb • 3D Drone with Box3 Physics • XP Prizes • Kahoot Voting (+25 XP)'),
       description:
-        'Exploración creativa y dinámicas participativas. Pilotea el dron táctico, participa en las rondas de votación estilo Kahoot (+25 XP) y canjea premios oficiales del Summit.',
+        (es ? 'Exploración creativa y dinámicas participativas. Pilotea el dron táctico, participa en las rondas de votación estilo Kahoot (+25 XP) y canjea premios oficiales del Summit.' : 'Creative exploration and participatory dynamics. Fly the tactical drone, join the Kahoot-style voting rounds (+25 XP) and redeem official Summit prizes.'),
       icon: Zap,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png',
       themeColor: pillarInk('SPARK'),
-      physicsDescription: 'Física: Vórtice Cinético Centrífugo · Audio: Sintetizador Arpegiado Ámbar',
+      physicsDescription: (es ? 'Física: Vórtice Cinético Centrífugo · Audio: Sintetizador Arpegiado Ámbar' : 'Physics: Centrifugal Kinetic Vortex · Audio: Amber Arpeggiated Synth'),
       modules: [
         {
           id: 'mod_drone_sim',
-          title: 'Simulador de Dron 3D (Motor de Colisiones Box3)',
-          subtitle: 'Colisiones contra Edificios, Islas, Túneles & Barrel Roll [Q]',
+          title: (es ? 'Simulador de Dron 3D (Motor de Colisiones Box3)' : '3D Drone Simulator (Box3 Collision Engine)'),
+          subtitle: (es ? 'Colisiones contra Edificios, Islas, Túneles & Barrel Roll [Q]' : 'Collisions with Buildings, Islands, Tunnels & Barrel Roll [Q]'),
           description:
-            'Vuela a través de San Juan Cyberpunk, Archipiélago Tropical y Túnel Cuántico con colisiones físicas reales, rebote vectorial y chispas 3D.',
+            (es ? 'Vuela a través de San Juan Cyberpunk, Archipiélago Tropical y Túnel Cuántico con colisiones físicas reales, rebote vectorial y chispas 3D.' : 'Fly through Cyberpunk San Juan, the Tropical Archipelago and the Quantum Tunnel with real physical collisions, vector bounce and 3D sparks.'),
           xpReward: '+250 XP',
-          actionLabel: 'Volar Dron 3D Ahora',
+          actionLabel: (es ? 'Volar Dron 3D Ahora' : 'Fly the 3D Drone Now'),
           icon: Gamepad2,
           onLaunch: () => onSelectSection('EMBEDS_GAMES'),
         },
         {
           id: 'mod_rewards_store',
-          title: 'Tienda de Premios Oficiales & Canje XP',
-          subtitle: 'Cupones, suscripción 3 meses, sesión Grit y premio mayor',
+          title: (es ? 'Tienda de Premios Oficiales & Canje XP' : 'Official Prize Store & XP Redemption'),
+          subtitle: (es ? 'Cupones, suscripción 3 meses, sesión Grit y premio mayor' : 'Coupons, 3-month subscription, Grit session and the grand prize'),
           description:
-            'Canjea tus XP por cupones de auspiciadores, 3 meses en plataformas SGX, sesión "Grit" con artistas (por confirmar) o el premio mayor "Spatialgineers activa tu evento".',
-          xpReward: 'PREMIOS XP',
-          actionLabel: 'Abrir Tienda de Premios',
+            (es ? 'Canjea tus XP por cupones de auspiciadores, 3 meses en plataformas SGX, sesión "Grit" con artistas (por confirmar) o el premio mayor "Spatialgineers activa tu evento".' : 'Redeem your XP for sponsor coupons, 3 months on SGX platforms, a "Grit" session with artists (TBC) or the grand prize "Spatialgineers activa tu evento" (Spatialgineers activates your event).'),
+          xpReward: (es ? 'PREMIOS XP' : 'XP PRIZES'),
+          actionLabel: (es ? 'Abrir Tienda de Premios' : 'Open Prize Store'),
           icon: Trophy,
           onLaunch: () => {
             if (onOpenRewardsStore) onOpenRewardsStore();
@@ -345,12 +347,12 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_play_vote',
-          title: 'Consola de Votación Estilo Kahoot (/play)',
-          subtitle: 'Rondas en Directo & Trivias (+25 XP por voto)',
+          title: (es ? 'Consola de Votación Estilo Kahoot (/play)' : 'Kahoot-Style Voting Console (/play)'),
+          subtitle: (es ? 'Rondas en Directo & Trivias (+25 XP por voto)' : 'Live Rounds & Trivia (+25 XP per vote)'),
           description:
-            'Vota en tiempo real durante los bloques de pilares, intermedios y conversaciones de industria para sumar +25 XP por voto.',
-          xpReward: '+25 XP / VOTO',
-          actionLabel: 'Abrir Consola /play',
+            (es ? 'Vota en tiempo real durante los bloques de pilares, intermedios y conversaciones de industria para sumar +25 XP por voto.' : 'Vote in real time during the pillar blocks, interludes and industry conversations to earn +25 XP per vote.'),
+          xpReward: (es ? '+25 XP / VOTO' : '+25 XP / VOTE'),
+          actionLabel: (es ? 'Abrir Consola /play' : 'Open /play Console'),
           icon: Zap,
           onLaunch: () => {
             if (onNavigateToPlayVote) onNavigateToPlayVote();
@@ -362,56 +364,56 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
     {
       id: 'STAGE',
       name: 'SGX.STAGE',
-      title: 'Transmisión, escenario & sintetizador en vivo',
-      subtitle: 'Stage opt.glb • Agenda Run of Show • Salas de transmisión • Speakers',
+      title: (es ? 'Transmisión, escenario & sintetizador en vivo' : 'Live broadcast, stage & synthesizer'),
+      subtitle: (es ? 'Stage opt.glb • Agenda Run of Show • Salas de transmisión • Speakers' : 'Stage opt.glb • Run of Show Agenda • Broadcast rooms • Speakers'),
       description:
-        'La energía del espectáculo en tiempo real. Consulta el Run of Show oficial de los 3 días, entra a las salas de transmisión (YouTube Live, con Los Mismos TV transmitiendo junto a nosotros) y dispara frecuencias armónicas en vivo.',
+        (es ? 'La energía del espectáculo en tiempo real. Consulta el Run of Show oficial de los 3 días, entra a las salas de transmisión (YouTube Live, con Los Mismos TV transmitiendo junto a nosotros) y dispara frecuencias armónicas en vivo.' : 'The energy of the show in real time. Check the official 3-day Run of Show, enter the broadcast rooms (YouTube Live, with Los Mismos TV streaming alongside us) and trigger harmonic frequencies live.'),
       icon: Tv,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png',
       themeColor: pillarInk('STAGE'),
-      physicsDescription: 'Física: Ondas Acústicas Rítmicas · Audio: Armónicos de Escenario en Vivo',
+      physicsDescription: (es ? 'Física: Ondas Acústicas Rítmicas · Audio: Armónicos de Escenario en Vivo' : 'Physics: Rhythmic Acoustic Waves · Audio: Live Stage Harmonics'),
       modules: [
         {
           id: 'mod_agenda',
-          title: 'Agenda Oficial Run of Show (3 Días)',
-          subtitle: 'Cronograma Minuto a Minuto v2026.10 & Mi Agenda',
+          title: (es ? 'Agenda Oficial Run of Show (3 Días)' : 'Official Run of Show Agenda (3 Days)'),
+          subtitle: (es ? 'Cronograma Minuto a Minuto v2026.10 & Mi Agenda' : 'Minute-by-Minute Schedule v2026.10 & My Agenda'),
           description:
-            'Explora los bloques de los 6 pilares y 8 Initiates (Día 1), Día de la Industria (Día 2) y el SGX Showcase híbrido (Chroma Space Studios) con los 6 Initiates seleccionados (Día 3).',
+            (es ? 'Explora los bloques de los 6 pilares y 8 Initiates (Día 1), Día de la Industria (Día 2) y el SGX Showcase híbrido (Chroma Space Studios) con los 6 Initiates seleccionados (Día 3).' : 'Explore the blocks for the 6 pillars and 8 Initiates (Day 1), Industry Day (Day 2) and the hybrid SGX Showcase (Chroma Space Studios) with the 6 selected Initiates (Day 3).'),
           xpReward: '+50 XP',
-          actionLabel: 'Explorar Agenda',
+          actionLabel: (es ? 'Explorar Agenda' : 'Explore Agenda'),
           icon: Calendar,
           onLaunch: () => onSelectSection('AGENDA'),
         },
         {
           id: 'mod_broadcast',
-          title: 'Salas de transmisión',
+          title: (es ? 'Salas de transmisión' : 'Broadcast rooms'),
           subtitle: 'YouTube Live • LinkedIn Live • Facebook Live • Los Mismos TV',
           description:
-            'Sintoniza los canales de transmisión en vivo, cámaras multicámara del escenario y cobertura oficial.',
-          xpReward: 'EN VIVO',
-          actionLabel: 'Entrar a las salas',
+            (es ? 'Sintoniza los canales de transmisión en vivo, cámaras multicámara del escenario y cobertura oficial.' : 'Tune in to the live broadcast channels, multi-camera stage feeds and official coverage.'),
+          xpReward: (es ? 'EN VIVO' : 'LIVE'),
+          actionLabel: (es ? 'Entrar a las salas' : 'Enter the rooms'),
           icon: Radio,
           onLaunch: () => onSelectSection('BROADCAST_ROOMS'),
         },
         {
           id: 'mod_speakers',
-          title: 'Directorio 3D de Speakers & Artistas',
-          subtitle: 'Hosts, personas invitadas y artistas confirmados por escrito',
+          title: (es ? 'Directorio 3D de Speakers & Artistas' : '3D Speakers & Artists Directory'),
+          subtitle: (es ? 'Hosts, personas invitadas y artistas confirmados por escrito' : 'Hosts, guests and artists confirmed in writing'),
           description:
-            'Conoce a Danelson ("The Highgineer"), Ricardo ("Lightning Fingers"), personas invitadas de cada pilar, artistas y los 8 Initiates del Guild.',
+            (es ? 'Conoce a Danelson ("The Highgineer"), Ricardo ("Lightning Fingers"), personas invitadas de cada pilar, artistas y los 8 Initiates del Guild.' : 'Meet Danelson ("The Highgineer"), Ricardo ("Lightning Fingers"), each pillar\'s guests, the artists and the Guild\'s 8 Initiates.'),
           xpReward: '+60 XP',
-          actionLabel: 'Ver Speakers 3D',
+          actionLabel: (es ? 'Ver Speakers 3D' : 'View 3D Speakers'),
           icon: Users,
           onLaunch: () => onSelectSection('SPEAKERS'),
         },
         {
           id: 'mod_visualizer_stage',
-          title: 'Escenario 3D Reactivo SGX',
-          subtitle: 'Motor Visual Three.js en Tiempo Real',
+          title: (es ? 'Escenario 3D Reactivo SGX' : 'SGX Reactive 3D Stage'),
+          subtitle: (es ? 'Motor Visual Three.js en Tiempo Real' : 'Real-Time Three.js Visual Engine'),
           description:
-            'Visualizador escénico de pantalla completa sincronizado con la música en vivo y las reacciones de la audiencia.',
+            (es ? 'Visualizador escénico de pantalla completa sincronizado con la música en vivo y las reacciones de la audiencia.' : 'Full-screen stage visualizer synced with the live music and audience reactions.'),
           xpReward: 'THREE.JS LIVE',
-          actionLabel: 'Abrir Escenario 3D',
+          actionLabel: (es ? 'Abrir Escenario 3D' : 'Open 3D Stage'),
           icon: Tv,
           onLaunch: () => {
             if (onNavigateToVisualizer) onNavigateToVisualizer();
@@ -420,12 +422,12 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_stage_synth',
-          title: 'Mesa de Frecuencias & Pulso Acústico 432Hz',
-          subtitle: 'Sintetizador Espacial Web Audio en Directo',
+          title: (es ? 'Mesa de Frecuencias & Pulso Acústico 432Hz' : 'Frequency Desk & 432Hz Acoustic Pulse'),
+          subtitle: (es ? 'Sintetizador Espacial Web Audio en Directo' : 'Live Web Audio Spatial Synthesizer'),
           description:
-            'Modula en tiempo real las ondas armónicas del universo 3D y sincroniza destellos lumínicos con el núcleo SGX.',
+            (es ? 'Modula en tiempo real las ondas armónicas del universo 3D y sincroniza destellos lumínicos con el núcleo SGX.' : 'Modulate the 3D universe\'s harmonic waves in real time and sync light flashes with the SGX core.'),
           xpReward: '+65 XP',
-          actionLabel: 'Abrir Sintetizador',
+          actionLabel: (es ? 'Abrir Sintetizador' : 'Open Synthesizer'),
           icon: Volume2,
           onLaunch: () => {
             playCyberBurstSound();
@@ -437,34 +439,34 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
     {
       id: 'SYSTEM',
       name: 'SGX.SYSTEM',
-      title: 'SGX Guild Ranked Trials, Telemetría & Datos',
-      subtitle: 'System opt.glb • 8 Initiates Activos (Día 1) • 6 Presentan en el Día 3',
+      title: (es ? 'SGX Guild Ranked Trials, Telemetría & Datos' : 'SGX Guild Ranked Trials, Telemetry & Data'),
+      subtitle: (es ? 'System opt.glb • 8 Initiates Activos (Día 1) • 6 Presentan en el Día 3' : 'System opt.glb • 8 Active Initiates (Day 1) • 6 Present on Day 3'),
       description:
-        'La columna vertebral de ingeniería y talento técnico. Audita los portafolios de los 8 Initiates activos del Día 1 (8 min c/u) y sigue la selección de los 6 Initiates que presentan en el Día 3 (5 min c/u).',
+        (es ? 'La columna vertebral de ingeniería y talento técnico. Audita los portafolios de los 8 Initiates activos del Día 1 (8 min c/u) y sigue la selección de los 6 Initiates que presentan en el Día 3 (5 min c/u).' : 'The backbone of engineering and technical talent. Review the portfolios of the 8 active Initiates on Day 1 (8 min each) and follow the selection of the 6 Initiates who present on Day 3 (5 min each).'),
       icon: Activity,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Systems1.png',
       themeColor: pillarInk('SYSTEM'),
-      physicsDescription: 'Física: Retícula Orbital de Precisión · Audio: Pulso Cuántico de Telemetría',
+      physicsDescription: (es ? 'Física: Retícula Orbital de Precisión · Audio: Pulso Cuántico de Telemetría' : 'Physics: Precision Orbital Grid · Audio: Quantum Telemetry Pulse'),
       modules: [
         {
           id: 'mod_guild_trials',
           title: 'SGX Guild Initiates & Ranked Trials',
-          subtitle: '8 Initiates Activos en Día 1 → 6 Seleccionados para el Día 3',
+          subtitle: (es ? '8 Initiates Activos en Día 1 → 6 Seleccionados para el Día 3' : '8 Active Initiates on Day 1 → 6 Selected for Day 3'),
           description:
-            'Inspecciona los perfiles técnicos, portafolios de 8 minutos del Día 1 y el ranking de los 6 Initiates elegidos para presentar el domingo en el SGX Showcase.',
+            (es ? 'Inspecciona los perfiles técnicos, portafolios de 8 minutos del Día 1 y el ranking de los 6 Initiates elegidos para presentar el domingo en el SGX Showcase.' : 'Inspect the technical profiles, the Day 1 8-minute portfolios and the ranking of the 6 Initiates chosen to present on Sunday at the SGX Showcase.'),
           xpReward: '+100 XP',
-          actionLabel: 'Ver Los 8 Initiates',
+          actionLabel: (es ? 'Ver Los 8 Initiates' : 'View the 8 Initiates'),
           icon: Award,
           onLaunch: () => onSelectSection('GUILD'),
         },
         {
           id: 'mod_speaker_portal',
-          title: 'Consola de Registro de Speakers & Artistas',
-          subtitle: 'Autogestión de Ponentes Oficiales',
+          title: (es ? 'Consola de Registro de Speakers & Artistas' : 'Speakers & Artists Registration Console'),
+          subtitle: (es ? 'Autogestión de Ponentes Oficiales' : 'Self-Service for Official Speakers'),
           description:
-            'Portal técnico para que speakers y creadores invitados actualicen su ficha técnica, sesión y enlaces.',
-          xpReward: 'PORTAL OFICIAL',
-          actionLabel: 'Abrir Portal Speaker',
+            (es ? 'Portal técnico para que speakers y creadores invitados actualicen su ficha técnica, sesión y enlaces.' : 'Technical portal for speakers and guest creators to update their technical sheet, session and links.'),
+          xpReward: (es ? 'PORTAL OFICIAL' : 'OFFICIAL PORTAL'),
+          actionLabel: (es ? 'Abrir Portal Speaker' : 'Open Speaker Portal'),
           icon: Users,
           onLaunch: () => {
             if (onOpenSpeakerPortal) onOpenSpeakerPortal();
@@ -473,12 +475,12 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_leaderboard_stats',
-          title: 'Leaderboard & Métricas de Piloto',
-          subtitle: 'Clasificación General de Participación',
+          title: (es ? 'Leaderboard & Métricas de Piloto' : 'Leaderboard & Pilot Metrics'),
+          subtitle: (es ? 'Clasificación General de Participación' : 'Overall Participation Ranking'),
           description:
-            'Verifica tu posición en la tabla de líderes del ecosistema Spatialgineers rumbo a los premios mayores del Día 3.',
+            (es ? 'Verifica tu posición en la tabla de líderes del ecosistema Spatialgineers rumbo a los premios mayores del Día 3.' : 'Check your position on the Spatialgineers ecosystem leaderboard on the road to the Day 3 grand prizes.'),
           xpReward: 'RANKING',
-          actionLabel: 'Ver Mi Rango',
+          actionLabel: (es ? 'Ver Mi Rango' : 'View My Rank'),
           icon: Trophy,
           onLaunch: () => {
             playUiChirp(620);
@@ -487,12 +489,12 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_telemetry_sandbox',
-          title: 'Simulador de Telemetría & Nodos Cuánticos',
-          subtitle: 'Diagnóstico en Vivo del SGX Framework',
+          title: (es ? 'Simulador de Telemetría & Nodos Cuánticos' : 'Telemetry & Quantum Nodes Simulator'),
+          subtitle: (es ? 'Diagnóstico en Vivo del SGX Framework' : 'Live SGX Framework Diagnostics'),
           description:
-            'Ejecuta pruebas de pulso de red, latencia de los 7 nodos GLB y calibración gravitacional en tiempo real.',
+            (es ? 'Ejecuta pruebas de pulso de red, latencia de los 7 nodos GLB y calibración gravitacional en tiempo real.' : 'Run network pulse tests, latency checks on the 7 GLB nodes and real-time gravitational calibration.'),
           xpReward: '+55 XP',
-          actionLabel: 'Abrir Telemetría',
+          actionLabel: (es ? 'Abrir Telemetría' : 'Open Telemetry'),
           icon: Sliders,
           onLaunch: () => {
             playCyberBurstSound();
@@ -504,34 +506,34 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
     {
       id: 'SYNTHESIZE',
       name: 'SGX.SYNTHESIZE',
-      title: 'Convergencia Maestra, Comunidad & Registro',
-      subtitle: 'Synthesize opt.glb • Foros de Networking • SGX Pass',
+      title: (es ? 'Convergencia Maestra, Comunidad & Registro' : 'Master Convergence, Community & Registration'),
+      subtitle: (es ? 'Synthesize opt.glb • Foros de Networking • SGX Pass' : 'Synthesize opt.glb • Networking Forums • SGX Pass'),
       description:
-        'La unión armónica de los 6 Pilares en un solo organismo vivo. Únete a los foros de conversación en tiempo real, descarga tu pase oficial en PDF y sincroniza tu participación.',
+        (es ? 'La unión armónica de los 6 Pilares en un solo organismo vivo. Únete a los foros de conversación en tiempo real, descarga tu pase oficial en PDF y sincroniza tu participación.' : 'The harmonious union of the 6 Pillars in a single living organism. Join the real-time conversation forums, download your official pass as a PDF and sync your participation.'),
       icon: Layers,
       iconUrl: 'https://cdn.spatialgineers.com/Branding/Pilares/Synthesize1.png',
       themeColor: pillarInk('SYNTHESIZE'),
-      physicsDescription: 'Física: Convergencia Dual Cobre/Oro · Audio: Sinfonía Maestra Unificada',
+      physicsDescription: (es ? 'Física: Convergencia Dual Cobre/Oro · Audio: Sinfonía Maestra Unificada' : 'Physics: Dual Copper/Gold Convergence · Audio: Unified Master Symphony'),
       modules: [
         {
           id: 'mod_networking_chat',
-          title: 'Foros del Summit & Chat de Comunidad',
-          subtitle: 'Canales Temáticos en Tiempo Real',
+          title: (es ? 'Foros del Summit & Chat de Comunidad' : 'Summit Forums & Community Chat'),
+          subtitle: (es ? 'Canales Temáticos en Tiempo Real' : 'Real-Time Themed Channels'),
           description:
-            'Debate con otros pilotos, comparte recursos de Roblox/WebXR y coordina colaboraciones en directo.',
+            (es ? 'Debate con otros pilotos, comparte recursos de Roblox/WebXR y coordina colaboraciones en directo.' : 'Talk with other pilots, share Roblox/WebXR resources and coordinate collaborations live.'),
           xpReward: '+80 XP',
-          actionLabel: 'Entrar al Foro Chat',
+          actionLabel: (es ? 'Entrar al Foro Chat' : 'Enter the Forum Chat'),
           icon: MessageSquare,
           onLaunch: () => onSelectSection('NETWORKING'),
         },
         {
           id: 'mod_sponsor_apply',
-          title: 'Postular Marca como Patrocinador',
-          subtitle: 'Convocatoria Abierta Tiers 1 al 5',
+          title: (es ? 'Postular Marca como Patrocinador' : 'Apply Your Brand as a Sponsor'),
+          subtitle: (es ? 'Convocatoria Abierta Tiers 1 al 5' : 'Open Call Tiers 1 to 5'),
           description:
-            'Integra tu marca dentro del ecosistema interactivo del Summit con uno de los 5 Tiers.',
-          xpReward: 'ALIANZA B2B',
-          actionLabel: 'Solicitar Dossier / Tier',
+            (es ? 'Integra tu marca dentro del ecosistema interactivo del Summit con uno de los 5 Tiers.' : 'Bring your brand into the Summit\'s interactive ecosystem with one of the 5 Tiers.'),
+          xpReward: (es ? 'ALIANZA B2B' : 'B2B PARTNERSHIP'),
+          actionLabel: (es ? 'Solicitar Dossier / Tier' : 'Request Dossier / Tier'),
           icon: Building2,
           onLaunch: () => onOpenSponsors('tier_3'),
         },
@@ -559,10 +561,10 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
     const modules = allHubModules.filter((x) => (HUB_MODULE_HOME[x.m.id] || x.from) === st.id).map((x) => x.m);
     const door: PillarModuleItem = {
       id: `mod_station_${def.slug}`,
-      title: `Estación 0${def.index} · ${def.name}`,
-      subtitle: 'Programa de los 3 días, módulos y tu progreso',
+      title: (es ? `Estación 0${def.index} · ${def.name}` : `Station 0${def.index} · ${def.name}`),
+      subtitle: (es ? 'Programa de los 3 días, módulos y tu progreso' : 'The 3-day program, modules and your progress'),
       description: `${def.line.es} ${def.scope.es}`,
-      actionLabel: 'Entrar a la estación',
+      actionLabel: (es ? 'Entrar a la estación' : 'Enter the station'),
       icon: Orbit,
       onLaunch: () => navigateToPillar(def.slug),
     };
@@ -607,7 +609,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         <div className="flex items-center gap-2 text-slate-300">
           <Boxes className="w-3.5 h-3.5 text-[#00DDFF] shrink-0" />
           <span className="text-[11px]">
-            Toca cualquier escultura <strong className="text-[#FDCC0D]">.GLB</strong> en el visor 3D o despliega el catálogo completo bajo demanda:
+            {es ? 'Toca cualquier escultura ' : 'Tap any '}<strong className="text-[#FDCC0D]">.GLB</strong>{es ? ' en el visor 3D o despliega el catálogo completo bajo demanda:' : ' sculpture in the 3D viewer or open the full catalog on demand:'}
           </span>
         </div>
 
@@ -625,8 +627,8 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
             }`}
           >
             {viewMode === 'DOCKED_STATION'
-              ? `Ocultar Estación ${activeStation.id} ▲`
-              : `Tarjetas de ${activeStation.name} (${activeStation.modules.length}) ▼`}
+              ? (es ? `Ocultar Estación ${activeStation.id} ▲` : `Hide Station ${activeStation.id} ▲`)
+              : (es ? `Tarjetas de ${activeStation.name} (${activeStation.modules.length}) ▼` : `${activeStation.name} Cards (${activeStation.modules.length}) ▼`)}
           </button>
 
           <button
@@ -642,8 +644,8 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
             }`}
           >
             {viewMode === 'ALL_PILLARS_MATRIX'
-              ? 'Ocultar Mapa de 6 Pilares ▲'
-              : 'Mapa Completo (27 Módulos) ▼'}
+              ? (es ? 'Ocultar Mapa de 6 Pilares ▲' : 'Hide 6 Pillars Map ▲')
+              : (es ? 'Mapa Completo (27 Módulos) ▼' : 'Full Map (27 Modules) ▼')}
           </button>
         </div>
       </div>
@@ -657,14 +659,14 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
               <Sparkles className="w-5 h-5 text-[#FDCC0D]" />
               <div>
                 <div className="text-[10px] font-mono text-cyan-300 uppercase tracking-wider">
-                  LABORATORIO INTERACTIVO EN VIVO · SIN SALTO DE PÁGINA
+                  {es ? 'LABORATORIO INTERACTIVO EN VIVO · SIN SALTO DE PÁGINA' : 'LIVE INTERACTIVE LAB · NO PAGE JUMP'}
                 </div>
                 <h3 className="text-base sm:text-lg font-black text-white font-['Orbitron',sans-serif]">
                   {activeHoloSandbox === 'HARMONIC_SYNTH_LAB'
-                    ? 'Mesa de Sintetizador Espacial 432Hz & Ondas Armónicas'
+                    ? (es ? 'Mesa de Sintetizador Espacial 432Hz & Ondas Armónicas' : '432Hz Spatial Synth Desk & Harmonic Waves')
                     : activeHoloSandbox === 'TELEMETRY_MATRIX'
-                    ? 'Diagnóstico Cuántico de Nodos .GLB & Telemetría SGX'
-                    : 'Estudio Holográfico de Reliquias 3D (.GLB)'}
+                    ? (es ? 'Diagnóstico Cuántico de Nodos .GLB & Telemetría SGX' : 'Quantum .GLB Node Diagnostics & SGX Telemetry')
+                    : (es ? 'Estudio Holográfico de Reliquias 3D (.GLB)' : 'Holographic 3D Relics Studio (.GLB)')}
                 </h3>
               </div>
             </div>
@@ -673,17 +675,17 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
               onClick={() => setActiveHoloSandbox('NONE')}
               className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-white/20 text-xs font-mono text-slate-200 cursor-pointer"
             >
-              Cerrar Laboratorio ✕
+              {es ? 'Cerrar Laboratorio ✕' : 'Close Lab ✕'}
             </button>
           </div>
 
           {activeHoloSandbox === 'HARMONIC_SYNTH_LAB' && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
               {[
-                { hz: 288, name: 'Raíz Cósmica (D4)', desc: 'Sub-bajo gravitacional' },
-                { hz: 432, name: 'Armónico Solar (A4)', desc: 'Sintonía base SGX.STORY' },
-                { hz: 528, name: 'Resonancia Cian (C5)', desc: 'Pulso cristalino SHOWCASE' },
-                { hz: 648, name: 'Quinta Orbital (E5)', desc: 'Expansión de anillos 3D' },
+                { hz: 288, name: (es ? 'Raíz Cósmica (D4)' : 'Cosmic Root (D4)'), desc: (es ? 'Sub-bajo gravitacional' : 'Gravitational sub-bass') },
+                { hz: 432, name: (es ? 'Armónico Solar (A4)' : 'Solar Harmonic (A4)'), desc: (es ? 'Sintonía base SGX.STORY' : 'SGX.STORY base tuning') },
+                { hz: 528, name: (es ? 'Resonancia Cian (C5)' : 'Cyan Resonance (C5)'), desc: (es ? 'Pulso cristalino SHOWCASE' : 'SHOWCASE crystal pulse') },
+                { hz: 648, name: (es ? 'Quinta Orbital (E5)' : 'Orbital Fifth (E5)'), desc: (es ? 'Expansión de anillos 3D' : '3D ring expansion') },
               ].map(pad => (
                 <button
                   key={pad.hz}
@@ -707,8 +709,8 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
             <div className="space-y-5">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs p-3.5 bg-black/50 border border-cyan-500/30">
                 <div className="space-y-1 text-slate-300">
-                  <div>Estado de los 7 Nodos .GLB: <strong className="text-[#00DDFF]">SINCRONIZADOS (60 FPS)</strong></div>
-                  <div>Pulsos de Calibración Emitidos: <strong className="text-[#FDCC0D] tabular-nums">{telemetryPulseCount}</strong></div>
+                  <div>{es ? 'Estado de los 7 Nodos .GLB: ' : 'Status of the 7 .GLB Nodes: '}<strong className="text-[#00DDFF]">{es ? 'SINCRONIZADOS (60 FPS)' : 'SYNCED (60 FPS)'}</strong></div>
+                  <div>{es ? 'Pulsos de Calibración Emitidos: ' : 'Calibration Pulses Sent: '}<strong className="text-[#FDCC0D] tabular-nums">{telemetryPulseCount}</strong></div>
                 </div>
                 <button
                   type="button"
@@ -719,7 +721,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
                   }}
                   className="px-4 py-2.5 bg-[#FDCC0D] text-black font-extrabold cursor-pointer hover:brightness-110 transition-all"
                 >
-                  Emitir Pulso de Diagnóstico (+30 XP)
+                  {es ? 'Emitir Pulso de Diagnóstico (+30 XP)' : 'Send Diagnostic Pulse (+30 XP)'}
                 </button>
               </div>
 
@@ -730,7 +732,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
 
           {activeHoloSandbox === 'RELIC_INSPECTOR' && (
             <div className="text-xs font-mono text-slate-300 leading-relaxed">
-              Usa la pestaña <strong className="text-[#FDCC0D]">Laboratorio 3D</strong> dentro del Panel Holográfico derecho del visor 3D superior para explorar los 7 archivos <code className="text-cyan-300">.glb</code> en su color e iluminación original.
+              {es ? 'Usa la pestaña ' : 'Use the '}<strong className="text-[#FDCC0D]">{es ? 'Laboratorio 3D' : '3D Lab'}</strong>{es ? ' dentro del Panel Holográfico derecho del visor 3D superior para explorar los 7 archivos ' : ' tab inside the right Holographic Panel of the 3D viewer above to explore the 7 files '}<code className="text-cyan-300">.glb</code>{es ? ' en su color e iluminación original.' : ' in their original color and lighting.'}
             </div>
           )}
         </div>
@@ -767,7 +769,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2 text-xs font-mono">
                   <span className="font-extrabold tracking-wider" style={{ color: activeStation.themeColor }}>
-                    ESTACIÓN ACOPLADA: {activeStation.name}
+                    {es ? 'ESTACIÓN ACOPLADA: ' : 'DOCKED STATION: '}{activeStation.name}
                   </span>
                   <span aria-hidden="true" className="text-slate-500">·</span>
                   <span className="text-slate-300">{activeStation.physicsDescription}</span>
@@ -793,7 +795,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
                 className="px-4 py-2.5 bg-slate-900/90 hover:bg-slate-800 border border-white/20 text-white font-bold flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap shrink-0"
                 style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
               >
-                <span>Siguiente Pilar Orbital</span>
+                <span>{es ? 'Siguiente Pilar Orbital' : 'Next Orbital Pillar'}</span>
                 <ArrowRight className="w-3.5 h-3.5 text-[#FDCC0D]" />
               </button>
               <button
@@ -856,7 +858,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
 
                         {isMaintenance ? (
                           <span className="px-2 py-0.5 bg-[#FDCC0D]/15 border border-[#FDCC0D] text-[#FDCC0D] text-[10px] font-mono font-bold uppercase shrink-0">
-                            ⏳ PRÓXIMAMENTE
+                            {es ? '⏳ PRÓXIMAMENTE' : '⏳ COMING SOON'}
                           </span>
                         ) : (
                           mod.xpReward && (
@@ -879,7 +881,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
                       <span className="text-slate-400 truncate">{mod.subtitle}</span>
                       {isMaintenance ? (
                         <span className="font-bold text-[#FDCC0D] whitespace-nowrap shrink-0">
-                          En Calibración
+                          {es ? 'En Calibración' : 'Calibrating'}
                         </span>
                       ) : (
                         <span
@@ -944,7 +946,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
                   {/* Clickable Module List inside each Pillar */}
                   <div className="space-y-1.5 pt-2">
                     <div className="text-[11px] font-mono text-slate-400 font-bold">
-                      Módulos Activos ({visibleModules.length}):
+                      {es ? 'Módulos Activos (' : 'Active Modules ('}{visibleModules.length}):
                     </div>
                     {visibleModules.map((m) => {
                       const MIcon = m.icon;
@@ -971,7 +973,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
                             <span className="truncate">{m.title}</span>
                           </div>
                           {isMaint ? (
-                            <span className="text-[9px] text-[#FDCC0D] font-bold shrink-0">PRÓX.</span>
+                            <span className="text-[9px] text-[#FDCC0D] font-bold shrink-0">{es ? 'PRÓX.' : 'SOON'}</span>
                           ) : (
                             <ArrowRight className="w-3 h-3 shrink-0 text-slate-400" />
                           )}
@@ -994,7 +996,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
                       clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
                     }}
                   >
-                    <span>Acoplar Estación {station.name}</span>
+                    <span>{es ? 'Acoplar Estación ' : 'Dock Station '}{station.name}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>

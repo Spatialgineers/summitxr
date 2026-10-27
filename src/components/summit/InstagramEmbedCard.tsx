@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Instagram, ExternalLink, ShieldCheck, RefreshCw } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface InstagramEmbedCardProps {
   postUrl?: string;
@@ -22,6 +23,8 @@ export const InstagramEmbedCard: React.FC<InstagramEmbedCardProps> = ({
   likes,
   className = '',
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const effectiveUrl = postUrl || url || '';
   const [isIframeLoaded, setIsIframeLoaded] = useState<boolean>(false);
 
@@ -54,7 +57,7 @@ export const InstagramEmbedCard: React.FC<InstagramEmbedCardProps> = ({
           rel="noopener noreferrer"
           className="flex items-center gap-1 text-[9px] bg-black/80 hover:bg-black text-white px-2 py-0.5 rounded font-mono transition-colors"
         >
-          <span>ABRIR EN IG</span>
+          <span>{es ? 'ABRIR EN IG' : 'OPEN IN IG'}</span>
           <ExternalLink className="w-2.5 h-2.5" />
         </a>
       </div>
@@ -66,7 +69,7 @@ export const InstagramEmbedCard: React.FC<InstagramEmbedCardProps> = ({
             {!isIframeLoaded && (
               <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-2 bg-[var(--sgx-bg)] text-slate-400 font-mono text-xs z-10">
                 <RefreshCw className="w-6 h-6 text-[var(--sgx-primary)] animate-spin" />
-                <p>Cargando publicación oficial de Instagram...</p>
+                <p>{es ? 'Cargando publicación oficial de Instagram...' : 'Loading the official Instagram post...'}</p>
                 <span className="text-[10px] text-slate-500">ID: {shortcode}</span>
               </div>
             )}
@@ -86,7 +89,7 @@ export const InstagramEmbedCard: React.FC<InstagramEmbedCardProps> = ({
         ) : (
           <div className="p-6 text-center space-y-3 font-mono text-xs text-slate-400">
             <Instagram className="w-8 h-8 text-[var(--sgx-primary)] mx-auto" />
-            <p className="text-white font-bold">Publicación de Instagram</p>
+            <p className="text-white font-bold">{es ? 'Publicación de Instagram' : 'Instagram post'}</p>
             {caption && <p className="text-slate-300 text-[11px] line-clamp-3">{caption}</p>}
             <a
               href={canonicalUrl || 'https://instagram.com/spatialgineers'}
@@ -94,7 +97,7 @@ export const InstagramEmbedCard: React.FC<InstagramEmbedCardProps> = ({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 sgx-btn text-[10px] font-bold"
             >
-              <span>VER EN INSTAGRAM</span>
+              <span>{es ? 'VER EN INSTAGRAM' : 'VIEW ON INSTAGRAM'}</span>
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>

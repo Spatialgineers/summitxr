@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { SponsorshipTier } from '../../types/summit';
 import { SPONSORSHIP_TIERS } from '../../lib/summitData';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 interface SummitSponsorshipMatrixProps {
   tiers?: SponsorshipTier[];
@@ -27,69 +29,71 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
   tiers = SPONSORSHIP_TIERS,
   onOpenInquiryModal,
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const [selectedTierId, setSelectedTierId] = useState<string>('tier_4');
   const [viewMode, setViewMode] = useState<'CARDS' | 'TABLE'>('CARDS');
 
   // Key comparison features across tiers
   const comparisonMatrix = [
     {
-      feature: 'Logo en WebApp oficial del Summit (Días 1–3)',
+      feature: (es ? 'Logo en WebApp oficial del Summit (Días 1–3)' : 'Logo on the official Summit web app (Days 1–3)'),
       t1: true, t2: true, t3: true, t4: true, t5: true,
       category: 'Digital'
     },
     {
-      feature: 'Overlays en transmisión global YouTube Live',
+      feature: (es ? 'Overlays en transmisión global YouTube Live' : 'Overlays on the global YouTube Live broadcast'),
       t1: true, t2: true, t3: true, t4: true, t5: true,
       category: 'Broadcast'
     },
     {
-      feature: 'Logo en minijuego de drones (cajas de entrega)',
+      feature: (es ? 'Logo en minijuego de drones (cajas de entrega)' : 'Logo in the drone mini-game (delivery crates)'),
       t1: false, t2: true, t3: true, t4: true, t5: true,
       category: 'Gamificación'
     },
     {
-      feature: 'Pregunta de desafío/trivia dedicada (+25 XP)',
+      feature: (es ? 'Pregunta de desafío/trivia dedicada (+25 XP)' : 'Dedicated challenge/trivia question (+25 XP)'),
       t1: false, t2: true, t3: true, t4: true, t5: true,
       category: 'Gamificación'
     },
     {
-      feature: 'Nombramiento oficial de segmento ("The [Brand] Showcase")',
+      feature: (es ? 'Nombramiento oficial de segmento ("The [Brand] Showcase")' : 'Official segment naming ("The [Brand] Showcase")'),
       t1: false, t2: false, t3: true, t4: true, t5: true,
       category: 'Naming'
     },
     {
-      feature: 'Video comercial de marca (30–60 seg) en stream',
+      feature: (es ? 'Video comercial de marca (30–60 seg) en stream' : 'Brand commercial video (30–60 sec) on the stream'),
       t1: false, t2: false, t3: true, t4: true, t5: true,
       category: 'Broadcast'
     },
     {
-      feature: 'Integración de marca en minijuegos, visualizador y sistema de votación',
+      feature: (es ? 'Integración de marca en minijuegos, visualizador y sistema de votación' : 'Brand integration in the mini-games, visualizer and voting system'),
       t1: false, t2: false, t3: false, t4: true, t5: true,
       category: 'Integración'
     },
     {
-      feature: 'Exclusividad por categoría (una sola marca de su sector)',
+      feature: (es ? 'Exclusividad por categoría (una sola marca de su sector)' : 'Category exclusivity (only one brand from your sector)'),
       t1: false, t2: false, t3: false, t4: true, t5: true,
       category: 'Exclusividad'
     },
     {
-      feature: 'Documental y minijuego a medida (el minijuego se cotiza aparte)',
+      feature: (es ? 'Documental y minijuego a medida (el minijuego se cotiza aparte)' : 'Documentary and custom mini-game (the mini-game is quoted separately)'),
       t1: false, t2: false, t3: false, t4: true, t5: true,
       category: 'Contenido'
     },
     {
-      feature: 'Reporte final a los 30 días (vistas, asistencia, clics y participación, sin datos personales)',
+      feature: (es ? 'Reporte final a los 30 días (vistas, asistencia, clics y participación, sin datos personales)' : 'Final report at 30 days (views, attendance, clicks and participation, no personal data)'),
       t1: false, t2: false, t3: false, t4: true, t5: true,
       category: 'Reporte'
     },
     {
-      feature: 'Licencia de acceso a la webapp por 365 días desde noviembre (sin transferencia de código)',
+      feature: (es ? 'Licencia de acceso a la webapp por 365 días desde noviembre (sin transferencia de código)' : '365-day web app access license starting in November (no code transfer)'),
       t1: false, t2: false, t3: false, t4: true, t5: true,
       category: 'Permanencia 365D',
       highlight: true
     },
     {
-      feature: 'Aporte de servicios esenciales (venue, internet, comida u otros), a convenir',
+      feature: (es ? 'Aporte de servicios esenciales (venue, internet, comida u otros), a convenir' : 'Essential services contribution (venue, internet, food or others), to be agreed'),
       t1: false, t2: false, t3: false, t4: false, t5: true,
       category: 'Alianza'
     }
@@ -106,7 +110,7 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
       case 4:
         return { label: 'TIER 4 • SIGNATURE 365D', color: '#FDCC0D', border: 'border-[#FDCC0D]' };
       case 5:
-        return { label: 'TIER 5 • SERVICIOS ESENCIALES', color: '#FFFFFF', border: 'border-white' };
+        return { label: (es ? 'TIER 5 • SERVICIOS ESENCIALES' : 'TIER 5 • ESSENTIAL SERVICES'), color: '#FFFFFF', border: 'border-white' };
       default:
         return { label: 'SPONSOR', color: '#FDCC0D', border: 'border-[#FDCC0D]' };
     }
@@ -123,18 +127,17 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-widest uppercase bg-[#FDCC0D]/10 text-[#FDCC0D] border border-[#FDCC0D]/30">
-                DOSSIER DE AUSPICIO OFICIAL
+                {es ? 'DOSSIER DE AUSPICIO OFICIAL' : 'OFFICIAL SPONSORSHIP DOSSIER'}
               </span>
               <span className="px-2.5 py-0.5 rounded text-[10px] font-mono text-slate-400 bg-slate-800/60 border border-slate-700">
-                Tiers 1 al 5 · Pago total antes del 14 de nov. · Materiales hasta el 30 de nov.
+                {es ? 'Tiers 1 al 5 · Pago total antes del 14 de nov. · Materiales hasta el 30 de nov.' : 'Tiers 1 to 5 · Full payment by Nov 14 · Materials by Nov 30'}
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider font-['Orbitron',sans-serif]">
-              Matriz Comparativa de Patrocinios
+              {es ? 'Matriz Comparativa de Patrocinios' : 'Sponsorship Comparison Matrix'}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl mt-1">
-              Conecta tu marca con el Spatialgineers Summit 2026, el regreso de nuestro evento de spatial computing. 
-              Los Tiers 4 y 5 incluyen una <strong className="text-[#FDCC0D]">licencia de acceso de 365 días desde noviembre</strong> a la webapp y sus espacios de promoción. El precio exacto dentro de cada rango se acuerda según el presupuesto del sponsor.
+              {es ? 'Conecta tu marca con el Spatialgineers Summit 2026, el regreso de nuestro evento de spatial computing. Los Tiers 4 y 5 incluyen una ' : 'Connect your brand with the Spatialgineers Summit 2026, the return of our spatial computing event. Tiers 4 and 5 include a '}<strong className="text-[#FDCC0D]">{es ? 'licencia de acceso de 365 días desde noviembre' : '365-day access license starting in November'}</strong>{es ? ' a la webapp y sus espacios de promoción. El precio exacto dentro de cada rango se acuerda según el presupuesto del sponsor.' : ' to the web app and its promotion spaces. The exact price within each range is agreed based on the sponsor\'s budget.'}
             </p>
           </div>
 
@@ -147,8 +150,8 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
                   detail: {
                     self: true,
                     role: 'SPONSOR',
-                    name: 'Tu Marca / Empresa',
-                    title: 'Patrocinador Oficial',
+                    name: (es ? 'Tu Marca / Empresa' : 'Your Brand / Company'),
+                    title: (es ? 'Patrocinador Oficial' : 'Official Sponsor'),
                     org: 'Spatialgineers Summit 2026',
                     tier: 'SPONSOR'
                   }
@@ -157,19 +160,19 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
               className="px-3.5 py-2 rounded-lg border border-cyan-400 bg-cyan-500/20 text-xs font-mono font-bold text-cyan-300 hover:bg-cyan-500 hover:text-black transition-all flex items-center gap-1.5 cursor-pointer shadow-lg shadow-cyan-500/10"
             >
               <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
-              <span>Holo Card de sponsor</span>
+              <span>{es ? 'Holo Card de sponsor' : 'Sponsor Holo Card'}</span>
             </button>
             <button
               onClick={() => setViewMode(viewMode === 'CARDS' ? 'TABLE' : 'CARDS')}
               className="px-3.5 py-2 rounded-lg border border-slate-700 bg-slate-900 text-xs font-mono text-slate-300 hover:text-white transition-colors cursor-pointer"
             >
-              {viewMode === 'CARDS' ? 'Ver Tabla Comparativa' : 'Ver Tarjetas de Tiers'}
+              {viewMode === 'CARDS' ? (es ? 'Ver Tabla Comparativa' : 'View Comparison Table') : (es ? 'Ver Tarjetas de Tiers' : 'View Tier Cards')}
             </button>
             <button
               onClick={() => onOpenInquiryModal && onOpenInquiryModal(selectedTierId)}
               className="px-4 py-2 rounded-lg bg-[#FDCC0D] hover:bg-[#ffe066] text-black font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(253,204,13,0.3)] flex items-center gap-1.5 cursor-pointer"
             >
-              <span>Solicitar Auspicio</span>
+              <span>{es ? 'Solicitar Auspicio' : 'Request Sponsorship'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -179,8 +182,7 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
         <div className="mt-5 p-3.5 rounded-lg border border-[#FDCC0D]/30 bg-[#FDCC0D]/5 flex items-start sm:items-center gap-3">
           <Zap className="w-5 h-5 text-[#FDCC0D] shrink-0 mt-0.5 sm:mt-0" />
           <div className="text-xs text-slate-200">
-            <strong className="text-[#FDCC0D]">Valor Diferencial SGX:</strong> A diferencia de eventos tradicionales de un solo fin de semana, 
-            los patrocinadores de los Tiers 4 y 5 mantienen su acceso a la webapp y a sus espacios de promoción <span className="font-bold underline">por 365 días desde noviembre</span>, y reciben un reporte final a los 30 días. Spatialgineers no garantiza un número de vistas, asistentes ni clics.
+            <strong className="text-[#FDCC0D]">{es ? 'Valor Diferencial SGX:' : 'The SGX Difference:'}</strong>{es ? ' A diferencia de eventos tradicionales de un solo fin de semana, los patrocinadores de los Tiers 4 y 5 mantienen su acceso a la webapp y a sus espacios de promoción ' : ' Unlike traditional one-weekend events, Tier 4 and 5 sponsors keep their access to the web app and its promotion spaces '}<span className="font-bold underline">{es ? 'por 365 días desde noviembre' : 'for 365 days starting in November'}</span>{es ? ', y reciben un reporte final a los 30 días. Spatialgineers no garantiza un número de vistas, asistentes ni clics.' : ', and receive a final report at 30 days. Spatialgineers does not guarantee a number of views, attendees or clicks.'}
           </div>
         </div>
       </div>
@@ -205,7 +207,7 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
                 {/* 365 Days Flag for Tier 4 and 5 */}
                 {tier.yearLongLicense && (
                   <div className="absolute -top-2.5 right-3 px-2 py-0.5 rounded-full bg-[#FDCC0D] text-black font-mono font-black text-[9px] uppercase tracking-wider shadow-md">
-                    ★ 365 DÍAS WEBAPP
+                    {es ? '★ 365 DÍAS WEBAPP' : '★ 365-DAY WEB APP'}
                   </div>
                 )}
 
@@ -220,20 +222,20 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
                   </div>
 
                   <h3 className="text-base font-bold text-white mt-1">
-                    {tier.name}
+                    {loc(tier, 'name', language)}
                   </h3>
 
                   <div className="text-lg font-black font-mono text-white mt-2">
-                    {tier.priceRange}
+                    {loc(tier, 'priceRange', language)}
                   </div>
 
                   <p className="text-xs text-slate-300 mt-2 font-medium leading-snug">
-                    {tier.keyBenefit}
+                    {loc(tier, 'keyBenefit', language)}
                   </p>
 
                   {/* Feature Bullets */}
                   <div className="mt-4 pt-3 border-t border-slate-800/80 space-y-2">
-                    {tier.features.map((feat, i) => (
+                    {loc(tier, 'features', language).map((feat, i) => (
                       <div key={i} className="flex items-start gap-2 text-[11px] text-slate-400">
                         <Check className="w-3.5 h-3.5 text-[#00DDFF] shrink-0 mt-0.5" />
                         <span className="leading-tight">{feat}</span>
@@ -255,7 +257,7 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
                         : 'bg-slate-900 border border-slate-700 text-slate-200 hover:border-[#FDCC0D] hover:text-white'
                     }`}
                   >
-                    <span>Postular a {tier.name}</span>
+                    <span>{es ? 'Postular a ' : 'Apply for '}{loc(tier, 'name', language)}</span>
                   </button>
                 </div>
               </div>
@@ -269,12 +271,12 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-900/90 text-slate-400 font-mono uppercase text-[10px] tracking-wider border-b border-slate-800">
                 <tr>
-                  <th className="p-3.5 w-1/3">Beneficio / Feature</th>
+                  <th className="p-3.5 w-1/3">{es ? 'Beneficio / Feature' : 'Benefit / Feature'}</th>
                   <th className="p-3.5 text-center text-[#00DDFF]">Tier 1 ($50–$100)</th>
                   <th className="p-3.5 text-center text-[#FDCC0D]">Tier 2 ($250–$500)</th>
                   <th className="p-3.5 text-center text-[#FFBB00]">Tier 3 ($750–$1K)</th>
                   <th className="p-3.5 text-center text-[#FDCC0D] bg-[#FDCC0D]/5">Tier 4 ($1.5K–$2.5K)</th>
-                  <th className="p-3.5 text-center text-white bg-slate-800/50">Tier 5 (A convenir)</th>
+                  <th className="p-3.5 text-center text-white bg-slate-800/50">{es ? 'Tier 5 (A convenir)' : 'Tier 5 (To be agreed)'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/80">
@@ -322,13 +324,13 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
       <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-400">
         <div className="flex items-center gap-2">
           <Info className="w-4 h-4 text-[#00DDFF]" />
-          <span>¿Necesitas una propuesta formal personalizada o el Media Kit completo en PDF?</span>
+          <span>{es ? '¿Necesitas una propuesta formal personalizada o el Media Kit completo en PDF?' : 'Need a formal custom proposal or the full Media Kit as a PDF?'}</span>
         </div>
         <button
           onClick={() => onOpenInquiryModal && onOpenInquiryModal()}
           className="text-xs font-mono font-bold text-[#FDCC0D] hover:underline flex items-center gap-1 shrink-0"
         >
-          <span>Escríbenos a info@spatialgineers.com</span>
+          <span>{es ? 'Escríbenos a info@spatialgineers.com' : 'Email us at info@spatialgineers.com'}</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>

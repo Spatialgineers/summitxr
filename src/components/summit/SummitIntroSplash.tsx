@@ -4,6 +4,7 @@ import { ApprovedSponsor, SponsorshipTier } from '../../types/summit';
 import { loadAllApprovedSponsors, SPONSORSHIP_TIERS } from '../../lib/summitData';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 export interface SummitIntroSplashProps {
   onComplete: () => void;
@@ -19,13 +20,18 @@ const TIER_3_PLUS_FALLBACKS: ApprovedSponsor[] = [
     brandSlug: 'chroma-space-studios',
     tierId: 'tier_5',
     tierName: 'Tier 5 · Venue del Día 3',
+    tierNameEn: 'Tier 5 · Day 3 Venue',
     tagline: 'Venue del Día 3 (SGX Showcase) • San Juan, Puerto Rico',
+    taglineEn: 'Day 3 venue (SGX Showcase) • San Juan, Puerto Rico',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
     websiteUrl: '',
     description: 'Estudio de producción en San Juan, venue del Día 3.',
+    descriptionEn: 'Production studio in San Juan, the Day 3 venue.',
     highlights: ['Venue del Día 3', 'Estudio de producción en San Juan'],
+    highlightsEn: ['Day 3 venue', 'Production studio in San Juan'],
     ctaButtonText: 'CONOCE MÁS',
+    ctaButtonTextEn: 'LEARN MORE',
     activeInVisualizer: true,
     activeInMiniGame: true,
     activeInAppTicker: true,
@@ -38,13 +44,18 @@ const TIER_3_PLUS_FALLBACKS: ApprovedSponsor[] = [
     brandSlug: 'los-mismos-tv',
     tierId: 'media_partner',
     tierName: 'Transmite junto a nosotros',
+    tierNameEn: 'Streams alongside us',
     tagline: 'Transmite el Summit desde su canal, junto al de Spatialgineers',
+    taglineEn: 'Streams the Summit from its channel, alongside the Spatialgineers channel',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
     websiteUrl: '',
     description: 'Los Mismos TV transmite junto a nosotros desde su canal.',
+    descriptionEn: 'Los Mismos TV streams alongside us from its channel.',
     highlights: ['Transmite junto a nosotros', 'YouTube Live'],
+    highlightsEn: ['Streams alongside us', 'YouTube Live'],
     ctaButtonText: 'CONOCE MÁS',
+    ctaButtonTextEn: 'LEARN MORE',
     activeInVisualizer: true,
     activeInMiniGame: false,
     activeInAppTicker: true,
@@ -54,16 +65,21 @@ const TIER_3_PLUS_FALLBACKS: ApprovedSponsor[] = [
   {
     id: 'sp_splash_induction_1',
     companyName: 'Tu Marca Aquí (Tier 3)',
+    companyNameEn: 'Your Brand Here (Tier 3)',
     brandSlug: 'tu-marca-tier-3',
     tierId: 'tier_3',
     tierName: 'Experience (Tier 3)',
     tagline: 'Presencia destacada en streaming y escenario virtual',
+    taglineEn: 'Featured presence on the stream and the virtual stage',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
     websiteUrl: 'https://summit.spatialgineers.com',
     description: 'Espacio disponible para empresas y patrocinadores del Summit.',
+    descriptionEn: 'Space available for Summit companies and sponsors.',
     highlights: ['Menciones en vivo', 'Presencia interactiva'],
+    highlightsEn: ['Live mentions', 'Interactive presence'],
     ctaButtonText: 'POSTULAR MARCA',
+    ctaButtonTextEn: 'APPLY YOUR BRAND',
     activeInVisualizer: true,
     activeInMiniGame: true,
     activeInAppTicker: true,
@@ -73,16 +89,21 @@ const TIER_3_PLUS_FALLBACKS: ApprovedSponsor[] = [
   {
     id: 'sp_splash_induction_2',
     companyName: 'Tu Marca Aquí (Tier 4)',
+    companyNameEn: 'Your Brand Here (Tier 4)',
     brandSlug: 'tu-marca-tier-4',
     tierId: 'tier_4',
     tierName: 'Signature Experience (Tier 4)',
     tagline: 'Patrocinio titular de segmento y activación inmersiva',
+    taglineEn: 'Title sponsorship of a segment and an immersive activation',
     logoUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
     bannerUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
     websiteUrl: 'https://summit.spatialgineers.com',
     description: 'Espacio de patrocinio Signature Experience (3 cupos).',
+    descriptionEn: 'Signature Experience sponsorship space (3 slots).',
     highlights: ['"Experience by [Marca]"', 'Licencia de 365 días desde noviembre'],
+    highlightsEn: ['"Experience by [Brand]"', '365-day license starting in November'],
     ctaButtonText: 'POSTULAR MARCA',
+    ctaButtonTextEn: 'APPLY YOUR BRAND',
     activeInVisualizer: true,
     activeInMiniGame: true,
     activeInAppTicker: true,
@@ -97,6 +118,7 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
   forceShow = false
 }) => {
   const { language } = useLanguage();
+  const es = language === 'es';
   const [progress, setProgress] = useState<number>(0);
   const [isFadingOut, setIsFadingOut] = useState<boolean>(false);
   const startTimeRef = useRef<number>(Date.now());
@@ -249,7 +271,7 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
           onClick={handleFinish}
           className="flex items-center space-x-1.5 px-3 py-1 bg-slate-900/80 hover:bg-cyan-500 hover:text-black border border-cyan-500/40 text-cyan-300 rounded font-mono text-[11px] font-bold transition-all cursor-pointer shadow-lg"
         >
-          <span>SALTAR INTRO</span>
+          <span>{es ? 'SALTAR INTRO' : 'SKIP INTRO'}</span>
           <span className="text-[9px] opacity-70">[ESC]</span>
           <ArrowRight className="w-3 h-3" />
         </button>
@@ -274,7 +296,7 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
 
         {/* 1. Spatialgineers LLC presenta: */}
         <p className="text-xs sm:text-sm md:text-base font-mono font-bold tracking-[0.25em] sm:tracking-[0.35em] text-cyan-300 uppercase drop-shadow-[0_0_8px_rgba(0, 221, 255,0.4)]">
-          Spatialgineers LLC presenta:
+          {es ? 'Spatialgineers LLC presenta:' : 'Spatialgineers LLC presents:'}
         </p>
 
         {/* 2. Spatialgineers Summit 2026 */}
@@ -284,13 +306,13 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
 
         {/* 3. El futuro, hoy. */}
         <p className="text-sm sm:text-lg md:text-xl font-['Rajdhani',sans-serif] font-bold italic tracking-wide text-cyan-200 max-w-xl">
-          “El futuro, hoy.”
+          {es ? '“El futuro, hoy.”' : '“The future, today.”'}
         </p>
 
         {/* 2-Second Cybernetic Progress Bar */}
         <div className="w-full max-w-md pt-2 sm:pt-4 space-y-2">
           <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
-            <span className="text-cyan-400 font-bold">SINCRONIZANDO EXPERIENCIA...</span>
+            <span className="text-cyan-400 font-bold">{es ? 'SINCRONIZANDO EXPERIENCIA...' : 'SYNCING EXPERIENCE...'}</span>
             <span className="text-yellow-400 font-bold">{progress}%</span>
           </div>
 
@@ -302,8 +324,8 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
           </div>
 
           <div className="flex items-center justify-between text-[9px] font-mono text-slate-500">
-            <span>DICIEMBRE 11–13, 2026</span>
-            <span>DÍAS 1–2 DIGITAL · DÍA 3 SAN JUAN</span>
+            <span>{es ? 'DICIEMBRE 11–13, 2026' : 'DECEMBER 11–13, 2026'}</span>
+            <span>{es ? 'DÍAS 1–2 DIGITAL · DÍA 3 SAN JUAN' : 'DAYS 1–2 DIGITAL · DAY 3 SAN JUAN'}</span>
           </div>
         </div>
       </div>
@@ -316,11 +338,11 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
             <div className="flex items-center space-x-2 text-slate-300">
               <Zap className="w-3.5 h-3.5 text-[#FDCC0D]" />
               <span className="font-bold text-white tracking-wider uppercase text-[10px] sm:text-xs">
-                PATROCINADORES Y ALIADOS OFICIALES (TIER 3+)
+                {es ? 'PATROCINADORES Y ALIADOS OFICIALES (TIER 3+)' : 'OFFICIAL SPONSORS AND PARTNERS (TIER 3+)'}
               </span>
             </div>
             <span className="text-[10px] text-cyan-400 hidden sm:inline">
-              EXPOSICIÓN DESTACADA EN VIVO
+              {es ? 'EXPOSICIÓN DESTACADA EN VIVO' : 'FEATURED LIVE EXPOSURE'}
             </span>
           </div>
 
@@ -336,7 +358,7 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
                   <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-black/90 border border-slate-700 group-hover:border-cyan-400 p-1 flex items-center justify-center shrink-0 overflow-hidden transition-colors">
                     <img
                       src={sp.logoUrl}
-                      alt={sp.companyName}
+                      alt={loc(sp, 'companyName', language)}
                       className="w-full h-full object-contain"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png';
@@ -345,10 +367,10 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
                   </div>
                   <div className="min-w-0 flex-1">
                     <span className="text-[8px] sm:text-[9px] font-mono px-1 py-0.2 bg-cyan-950 text-cyan-300 border border-cyan-800 rounded block truncate w-fit">
-                      {sp.tierName.split('(')[0].trim()}
+                      {loc(sp, 'tierName', language).split('(')[0].trim()}
                     </span>
                     <h4 className="text-[11px] sm:text-xs font-bold text-white truncate font-['Orbitron',sans-serif] mt-0.5">
-                      {sp.companyName}
+                      {loc(sp, 'companyName', language)}
                     </h4>
                   </div>
                 </div>
@@ -357,7 +379,7 @@ export const SummitIntroSplash: React.FC<SummitIntroSplashProps> = ({
                 <button
                   onClick={(e) => handleSponsorHyperlinkClick(e, sp.tierId)}
                   className="text-[9px] sm:text-[10px] font-mono font-bold text-[#FDCC0D] hover:text-white underline decoration-dotted hover:decoration-solid transition-colors text-left flex items-center gap-1 group/btn cursor-pointer mt-1 pt-1 border-t border-slate-800/80"
-                  title="Haz clic para registrar tu marca en esta posición de patrocinio"
+                  title={es ? 'Haz clic para registrar tu marca en esta posición de patrocinio' : 'Click to register your brand in this sponsorship spot'}
                 >
                   <Sparkles className="w-2.5 h-2.5 text-[#FDCC0D] group-hover/btn:rotate-12 transition-transform" />
                   <span className="truncate">{subtitlePrompt}</span>

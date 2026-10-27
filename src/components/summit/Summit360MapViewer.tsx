@@ -21,6 +21,8 @@ import {
 import { Map360Node, Map360Hotspot } from '../../types/summit';
 import { usePilotProfile } from '../../context/PilotProfileContext';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 interface Summit360MapViewerProps {
   nodes: Map360Node[];
@@ -35,6 +37,8 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
   onSelectNode,
   onOpenSessionDetails,
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { recordActivity } = usePilotProfile();
   const [activeNodeId, setActiveNodeId] = useState<string>(selectedNodeId || nodes[0]?.id || 'node_chroma_studios');
   const [viewMode, setViewMode] = useState<'360_PANORAMA' | 'TACTICAL_2D'>('360_PANORAMA');
@@ -125,16 +129,16 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
         if (permissionState === 'granted') {
           setIsGyroActive(true);
         } else {
-          alert('Permiso de giroscopio denegado por el navegador.');
+          alert((es ? 'Permiso de giroscopio denegado por el navegador.' : 'Gyroscope permission denied by the browser.'));
         }
       } catch (err) {
         console.warn('Error al solicitar giroscopio:', err);
-        alert('No se pudo acceder al giroscopio en este dispositivo.');
+        alert((es ? 'No se pudo acceder al giroscopio en este dispositivo.' : 'Could not access the gyroscope on this device.'));
       }
     } else if ('DeviceOrientationEvent' in window) {
       setIsGyroActive(true);
     } else {
-      alert('El giroscopio no está soportado en este navegador o dispositivo.');
+      alert((es ? 'El giroscopio no está soportado en este navegador o dispositivo.' : 'The gyroscope is not supported on this browser or device.'));
     }
   };
 
@@ -196,7 +200,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
       for (let i = 0; i < 6; i++) ctx.fillText('CHROMA SPACE STUDIOS · SAN JUAN', (i + 0.5) * (W / 6), horizon - 16);
       ctx.fillStyle = 'rgba(0, 221, 255, 0.7)';
       ctx.font = '500 12px monospace';
-      for (let i = 0; i < 6; i++) ctx.fillText('SGX SHOWCASE · DÍA 3 · 13 DIC 2026', (i + 0.5) * (W / 6), horizon + 26);
+      for (let i = 0; i < 6; i++) ctx.fillText((es ? 'SGX SHOWCASE · DÍA 3 · 13 DIC 2026' : 'SGX SHOWCASE · DAY 3 · DEC 13, 2026'), (i + 0.5) * (W / 6), horizon + 26);
     }
     const defaultTex = new THREE.CanvasTexture(canvas);
     const material = new THREE.MeshBasicMaterial({ map: defaultTex });
@@ -396,7 +400,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
           <div>
             <div className="flex items-center space-x-2">
               <span className="text-xs font-bold text-white uppercase tracking-wider font-['Orbitron',sans-serif]">
-                {activeNode?.title}
+                {activeNode && loc(activeNode, 'title', language)}
               </span>
               <span className="text-[9px] px-1.5 py-0.5 bg-[var(--sgx-neon)]/20 border border-[var(--sgx-neon)]/60 text-[var(--sgx-neon)] font-mono uppercase font-bold">
                 {activeNode?.liveStatus === 'HYBRID_LIVE' ? '🔴 HYBRID LIVE' : '🟢 360° ACTIVE'}
@@ -430,7 +434,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              Mapa Táctico 2D
+              {es ? 'Mapa Táctico 2D' : '2D Tactical Map'}
             </button>
           </div>
 
@@ -443,7 +447,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
                   ? 'bg-[var(--sgx-neon)]/20 border-[var(--sgx-neon)] text-[var(--sgx-neon)]'
                   : 'bg-slate-900 border-slate-700 text-slate-400'
               }`}
-              title="Giro automático continuo"
+              title={es ? 'Giro automático continuo' : 'Continuous auto-rotate'}
             >
               <RotateCcw className="w-3 h-3 inline mr-1" />
               Auto-Giro
@@ -459,10 +463,10 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
                   ? 'bg-amber-500/20 border-amber-400 text-amber-300'
                   : 'bg-slate-900 border-slate-700 text-slate-400'
               }`}
-              title="Activar sensor de movimiento en móviles"
+              title={es ? 'Activar sensor de movimiento en móviles' : 'Enable the motion sensor on phones'}
             >
               <Smartphone className="w-3 h-3 inline mr-1" />
-              Giroscopio
+              {es ? 'Giroscopio' : 'Gyroscope'}
             </button>
           )}
 
@@ -470,7 +474,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
           <button
             onClick={toggleFullscreen}
             className="p-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white transition-all cursor-pointer"
-            title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
+            title={isFullscreen ? (es ? 'Salir de pantalla completa' : 'Exit fullscreen') : (es ? 'Pantalla completa' : 'Fullscreen')}
           >
             {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
           </button>
@@ -494,10 +498,10 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                 <span className="text-xs font-mono text-[var(--sgx-neon)] font-bold uppercase tracking-wider">
-                  DISTRIBUCIÓN ESPACIAL — CHROMA SPACE STUDIOS
+                  {es ? 'DISTRIBUCIÓN ESPACIAL — CHROMA SPACE STUDIOS' : 'SPATIAL LAYOUT — CHROMA SPACE STUDIOS'}
                 </span>
                 <span className="text-[10px] font-mono text-slate-400">
-                  SAN JUAN, PUERTO RICO • VENUE PRINCIPAL
+                  {es ? 'SAN JUAN, PUERTO RICO • VENUE PRINCIPAL' : 'SAN JUAN, PUERTO RICO • MAIN VENUE'}
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -514,14 +518,14 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-bold text-white font-['Orbitron',sans-serif]">
-                          {node.title}
+                          {loc(node, 'title', language)}
                         </span>
                         <span className="text-[9px] font-mono text-[var(--sgx-neon)]">
                           {node.spatialCoords}
                         </span>
                       </div>
                       <p className="text-[11px] text-slate-400 font-mono line-clamp-2">
-                        {node.description}
+                        {loc(node, 'description', language)}
                       </p>
                     </div>
                     <button
@@ -533,7 +537,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
                       className="mt-2.5 py-1 px-2 text-[10px] font-mono font-bold bg-[var(--sgx-primary)]/15 border border-[var(--sgx-primary)] text-[var(--sgx-primary)] hover:bg-[var(--sgx-primary)] hover:text-black transition-all flex items-center justify-center space-x-1"
                     >
                       <Eye className="w-3 h-3" />
-                      <span>Ver en 360°</span>
+                      <span>{es ? 'Ver en 360°' : 'View in 360°'}</span>
                     </button>
                   </div>
                 ))}
@@ -544,8 +548,8 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
 
         {textureFailed && viewMode === '360_PANORAMA' && (
           <div className="absolute top-3 left-3 z-20 sgx-alert" role="status">
-            <span className="sgx-alert__tag">VISTA HOLOGRÁFICA</span>
-            <span className="sgx-alert__msg">La foto 360° de este nodo no cargó. Puedes seguir recorriendo los nodos o usar la vista táctica 2D.</span>
+            <span className="sgx-alert__tag">{es ? 'VISTA HOLOGRÁFICA' : 'HOLOGRAPHIC VIEW'}</span>
+            <span className="sgx-alert__msg">{es ? 'La foto 360° de este nodo no cargó. Puedes seguir recorriendo los nodos o usar la vista táctica 2D.' : 'This node\'s 360° photo didn\'t load. You can keep touring the nodes or use the 2D tactical view.'}</span>
           </div>
         )}
 
@@ -558,10 +562,10 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
               <Compass className="w-5 h-5 text-[var(--sgx-neon)]" />
             </div>
             <p className="text-xs font-mono font-bold text-white uppercase tracking-wider">
-              Calibrando Nodo Espacial 360°...
+              {es ? 'Calibrando Nodo Espacial 360°...' : 'Calibrating 360° Spatial Node...'}
             </p>
             <span className="text-[10px] font-mono text-[var(--sgx-neon)] mt-1">
-              {activeNode?.title}
+              {activeNode && loc(activeNode, 'title', language)}
             </span>
           </div>
         )}
@@ -583,7 +587,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
                   }`}
                 >
                   <MapPin className={`w-3 h-3 ${isSel ? 'text-black' : 'text-[var(--sgx-neon)]'}`} />
-                  <span>{node.title}</span>
+                  <span>{loc(node, 'title', language)}</span>
                 </button>
               );
             })}
@@ -596,7 +600,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
               className="pointer-events-auto shrink-0 px-3 py-1.5 bg-[var(--sgx-primary)] text-black text-xs font-mono font-bold hover:brightness-110 transition-all flex items-center space-x-1.5 shadow-lg cursor-pointer"
             >
               <Tv className="w-3.5 h-3.5" />
-              <span>Ver Sesión en Vivo</span>
+              <span>{es ? 'Ver Sesión en Vivo' : 'View Live Session'}</span>
             </button>
           )}
         </div>

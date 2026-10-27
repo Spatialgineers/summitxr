@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { SummitSession, SummitSpeaker, SummitPillarId } from '../../types/summit';
 import { downloadICS, getGoogleCalendarUrl, SUMMIT_PILLARS } from '../../lib/summitData';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 interface SummitRunOfShowTimelineProps {
   sessions: SummitSession[];
@@ -37,6 +39,8 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
   initialDay,
   onDayChange,
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const [selectedDay, setSelectedDay] = useState<1 | 2 | 3>(() => {
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search).get('day');
@@ -63,31 +67,31 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
   // Day meta configuration based on Official Run of Show v2026.10.1
   const dayMeta = {
     1: {
-      title: 'Día 1 — Viernes 11 de Diciembre',
-      badge: '100% DIGITAL • YOUTUBE LIVE (PRINCIPAL) + LINKEDIN + FACEBOOK LIVE',
+      title: (es ? 'Día 1 — Viernes 11 de Diciembre' : 'Day 1 — Friday, December 11'),
+      badge: (es ? '100% DIGITAL • YOUTUBE LIVE (PRINCIPAL) + LINKEDIN + FACEBOOK LIVE' : '100% DIGITAL • YOUTUBE LIVE (MAIN) + LINKEDIN + FACEBOOK LIVE'),
       hours: '10:00 AM – 4:30 PM AST (6h 30m)',
-      focus: 'Apertura (30 min), un artista invitado de 15 min antes de cada pilar, 6 bloques de pilares de 25 min (SGX.Story → SGX.Showcase → SGX.Spark → SGX.Stage → SGX.System → SGX.Synthesize) y los portafolios de los 8 Initiates activos (2:30–4:00 p.m., 8 min c/u).',
-      highlight: 'Al cierre (4:00–4:30 p.m.) se anuncian los 6 Initiates que presentan en el Día 3.',
+      focus: (es ? 'Apertura (30 min), un artista invitado de 15 min antes de cada pilar, 6 bloques de pilares de 25 min (SGX.Story → SGX.Showcase → SGX.Spark → SGX.Stage → SGX.System → SGX.Synthesize) y los portafolios de los 8 Initiates activos (2:30–4:00 p.m., 8 min c/u).' : 'Opening (30 min), a 15-min guest artist before each pillar, 6 pillar blocks of 25 min (SGX.Story → SGX.Showcase → SGX.Spark → SGX.Stage → SGX.System → SGX.Synthesize) and the portfolios of the 8 active Initiates (2:30–4:00 p.m., 8 min each).'),
+      highlight: (es ? 'Al cierre (4:00–4:30 p.m.) se anuncian los 6 Initiates que presentan en el Día 3.' : 'At the closing (4:00–4:30 p.m.) the 6 Initiates who present on Day 3 are announced.'),
       themeColor: '#FDCC0D',
-      streamNotice: 'Transmisión en YouTube Live con el espacio de Roblox activo desde la apertura (embed opcional, si se usa). Artistas por anunciar: solo se publican los confirmados por escrito.',
+      streamNotice: (es ? 'Transmisión en YouTube Live con el espacio de Roblox activo desde la apertura (embed opcional, si se usa). Artistas por anunciar: solo se publican los confirmados por escrito.' : 'Streamed on YouTube Live with the Roblox space live from the opening (optional embed, if used). Artists TBA: only those confirmed in writing are published.'),
     },
     2: {
-      title: 'Día 2 — Sábado 12 de Diciembre (Día de la Industria)',
-      badge: '100% DIGITAL • YOUTUBE LIVE (PRINCIPAL) + LINKEDIN + FACEBOOK LIVE',
-      hours: '10:00 AM – 4:00 PM AST (6h exactas)',
-      focus: 'Introducción (30 min) con resumen del Día 1 y recordatorio de los 6 Initiates, 6 conversaciones de industria de 45 min (una por pilar, persona invitada por anunciar) con pausas de 10 min y cierre de 3:50 a 4:00 p.m.',
-      highlight: 'Orden oficial de conversaciones: SGX.Story, SGX.Showcase, SGX.Spark, SGX.Stage, SGX.System y SGX.Synthesize.',
+      title: (es ? 'Día 2 — Sábado 12 de Diciembre (Día de la Industria)' : 'Day 2 — Saturday, December 12 (Industry Day)'),
+      badge: (es ? '100% DIGITAL • YOUTUBE LIVE (PRINCIPAL) + LINKEDIN + FACEBOOK LIVE' : '100% DIGITAL • YOUTUBE LIVE (MAIN) + LINKEDIN + FACEBOOK LIVE'),
+      hours: (es ? '10:00 AM – 4:00 PM AST (6h exactas)' : '10:00 AM – 4:00 PM AST (exactly 6h)'),
+      focus: (es ? 'Introducción (30 min) con resumen del Día 1 y recordatorio de los 6 Initiates, 6 conversaciones de industria de 45 min (una por pilar, persona invitada por anunciar) con pausas de 10 min y cierre de 3:50 a 4:00 p.m.' : 'Introduction (30 min) with a Day 1 recap and a reminder of the 6 Initiates, 6 45-min industry conversations (one per pillar, guest TBA) with 10-min breaks, and the closing from 3:50 to 4:00 p.m.'),
+      highlight: (es ? 'Orden oficial de conversaciones: SGX.Story, SGX.Showcase, SGX.Spark, SGX.Stage, SGX.System y SGX.Synthesize.' : 'Official order of the conversations: SGX.Story, SGX.Showcase, SGX.Spark, SGX.Stage, SGX.System and SGX.Synthesize.'),
       themeColor: '#00DDFF',
-      streamNotice: '6 conversaciones profundas de industria y rondas de votación estilo Kahoot (+25 XP).',
+      streamNotice: (es ? '6 conversaciones profundas de industria y rondas de votación estilo Kahoot (+25 XP).' : '6 in-depth industry conversations and Kahoot-style voting rounds (+25 XP).'),
     },
     3: {
-      title: 'Día 3 — Domingo 13 de Diciembre (SGX Showcase)',
-      badge: 'HÍBRIDO • CHROMA SPACE STUDIOS (SAN JUAN) • POR INVITACIÓN, 40–60 PERSONAS + YOUTUBE LIVE',
+      title: (es ? 'Día 3 — Domingo 13 de Diciembre (SGX Showcase)' : 'Day 3 — Sunday, December 13 (SGX Showcase)'),
+      badge: (es ? 'HÍBRIDO • CHROMA SPACE STUDIOS (SAN JUAN) • POR INVITACIÓN, 40–60 PERSONAS + YOUTUBE LIVE' : 'HYBRID • CHROMA SPACE STUDIOS (SAN JUAN) • BY INVITATION, 40–60 PEOPLE + YOUTUBE LIVE'),
       hours: '10:00 AM – 4:00 PM AST (6h)',
-      focus: 'Ricardo marca el ambiente; Danelson con su avatar y captura facial en tiempo real; dos artistas invitados (por confirmar), uno con los visualizadores de SGX; y la SGX Guild Ranked Trials Pitch Session con los top 6 Initiates (5 min c/u).',
-      highlight: 'Networking con votación gamificada y canje de premios, interacción libre y cierre con el Premio Mayor "Spatialgineers activa tu evento". Sesión "Grit" con artistas: por confirmar.',
+      focus: (es ? 'Ricardo marca el ambiente; Danelson con su avatar y captura facial en tiempo real; dos artistas invitados (por confirmar), uno con los visualizadores de SGX; y la SGX Guild Ranked Trials Pitch Session con los top 6 Initiates (5 min c/u).' : 'Ricardo sets the mood; Danelson with his avatar and real-time facial capture; two guest artists (TBC), one with the SGX visualizers; and the SGX Guild Ranked Trials Pitch Session with the top 6 Initiates (5 min each).'),
+      highlight: (es ? 'Networking con votación gamificada y canje de premios, interacción libre y cierre con el Premio Mayor "Spatialgineers activa tu evento". Sesión "Grit" con artistas: por confirmar.' : 'Networking with gamified voting and prize redemption, open interaction and a closing with the Grand Prize "Spatialgineers activa tu evento" (Spatialgineers activates your event). "Grit" session with artists: TBC.'),
       themeColor: '#FFFFFF',
-      streamNotice: 'Presencial en Chroma Space Studios (San Juan, por invitación y cupo limitado) y en vivo por YouTube, LinkedIn y Facebook Live.',
+      streamNotice: (es ? 'Presencial en Chroma Space Studios (San Juan, por invitación y cupo limitado) y en vivo por YouTube, LinkedIn y Facebook Live.' : 'In person at Chroma Space Studios (San Juan, by invitation, limited capacity) and live on YouTube, LinkedIn and Facebook Live.'),
     },
   };
 
@@ -126,13 +130,13 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
       case 'PHYSICAL':
         return (
           <span className="px-2 py-0.5 text-[10px] font-mono uppercase bg-amber-950/60 border border-[#FDCC0D]/40 text-[#FDCC0D] rounded">
-            Presencial San Juan
+            {es ? 'Presencial San Juan' : 'In person, San Juan'}
           </span>
         );
       case 'HYBRID':
         return (
           <span className="px-2 py-0.5 text-[10px] font-mono uppercase bg-slate-900 border border-white/60 text-white rounded">
-            Híbrido (Estudio + Stream)
+            {es ? 'Híbrido (Estudio + Stream)' : 'Hybrid (Studio + Stream)'}
           </span>
         );
       default:
@@ -157,30 +161,29 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-widest uppercase bg-[#FDCC0D]/20 text-[#FDCC0D] border border-[#FDCC0D]/40">
-                OFFICIAL RUN OF SHOW • 3 DÍAS
+                {es ? 'OFFICIAL RUN OF SHOW • 3 DÍAS' : 'OFFICIAL RUN OF SHOW • 3 DAYS'}
               </span>
               <span className="px-2 py-0.5 rounded text-[10px] font-mono text-slate-400 bg-slate-800/60 border border-slate-700">
                 Ground Truth Canon
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-wider font-['Orbitron',sans-serif]">
-              Línea de Tiempo & Minuto a Minuto del Summit
+              {es ? 'Línea de Tiempo & Minuto a Minuto del Summit' : 'Summit Timeline & Minute by Minute'}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl mt-1">
-              Estructura cronológica oficial basada en el <strong className="text-[#FDCC0D]">Run of Show v2026.10.1</strong>. 
-              Navega cada bloque: pilares e Initiates (Día 1), Día de la Industria (Día 2) y el SGX Showcase (Día 3). Artistas y speakers se anuncian solo cuando estén confirmados por escrito.
+              {es ? 'Estructura cronológica oficial basada en el ' : 'Official chronological structure based on the '}<strong className="text-[#FDCC0D]">Run of Show v2026.10.1</strong>{es ? '. Navega cada bloque: pilares e Initiates (Día 1), Día de la Industria (Día 2) y el SGX Showcase (Día 3). Artistas y speakers se anuncian solo cuando estén confirmados por escrito.' : '. Browse each block: pillars and Initiates (Day 1), Industry Day (Day 2) and the SGX Showcase (Day 3). Artists and speakers are announced only once confirmed in writing.'}
             </p>
           </div>
 
           {/* Quick Action Badges */}
           <div className="flex flex-wrap items-center gap-2">
             <div className="p-2.5 rounded-lg border border-slate-800 bg-slate-900/80 text-left">
-              <div className="text-[10px] font-mono text-slate-400 uppercase">Total Bloques</div>
-              <div className="text-lg font-bold text-white font-mono">{sessions.length} Sesiones</div>
+              <div className="text-[10px] font-mono text-slate-400 uppercase">{es ? 'Total Bloques' : 'Total Blocks'}</div>
+              <div className="text-lg font-bold text-white font-mono">{sessions.length}{es ? ' Sesiones' : ' Sessions'}</div>
             </div>
             <div className="p-2.5 rounded-lg border border-slate-800 bg-slate-900/80 text-left">
               <div className="text-[10px] font-mono text-slate-400 uppercase">Speakers & Initiates</div>
-              <div className="text-lg font-bold text-[#00DDFF] font-mono">{speakers.length} Creadores</div>
+              <div className="text-lg font-bold text-[#00DDFF] font-mono">{speakers.length}{es ? ' Creadores' : ' Creators'}</div>
             </div>
           </div>
         </div>
@@ -203,14 +206,14 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-mono font-bold uppercase tracking-wider text-[var(--sgx-primary)]">
-                    DÍA {dayNum}
+                    {es ? 'DÍA ' : 'DAY '}{dayNum}
                   </span>
                   <span className="text-[10px] font-mono text-slate-400">
-                    {dayNum === 1 ? '11 DIC' : dayNum === 2 ? '12 DIC' : '13 DIC'}
+                    {dayNum === 1 ? (es ? '11 DIC' : 'DEC 11') : dayNum === 2 ? (es ? '12 DIC' : 'DEC 12') : (es ? '13 DIC' : 'DEC 13')}
                   </span>
                 </div>
                 <div className="text-sm font-bold text-white mt-1">
-                  {dayNum === 1 ? 'Pilares & Initiates' : dayNum === 2 ? 'Día de la Industria' : 'SGX Showcase'}
+                  {dayNum === 1 ? (es ? 'Pilares & Initiates' : 'Pillars & Initiates') : dayNum === 2 ? (es ? 'Día de la Industria' : 'Industry Day') : 'SGX Showcase'}
                 </div>
                 <div className="text-[11px] text-slate-400 mt-1 line-clamp-1 font-mono">
                   {meta.badge}
@@ -263,7 +266,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
             className="text-xs font-mono bg-slate-900 border border-slate-700 text-slate-200 px-2.5 py-1.5 focus:border-[#FDCC0D] focus:outline-none cursor-pointer"
             style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
           >
-            <option value="ALL">Todos los Pilares</option>
+            <option value="ALL">{es ? 'Todos los Pilares' : 'All Pillars'}</option>
             {SUMMIT_PILLARS.map(p => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
@@ -275,10 +278,10 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
             className="text-xs font-mono bg-slate-900 border border-slate-700 text-slate-200 px-2.5 py-1.5 focus:border-[#FDCC0D] focus:outline-none cursor-pointer"
             style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
           >
-            <option value="ALL">Cualquier Formato</option>
-            <option value="DIGITAL">Solo Digital</option>
-            <option value="PHYSICAL">Presencial San Juan</option>
-            <option value="HYBRID">Híbrido</option>
+            <option value="ALL">{es ? 'Cualquier Formato' : 'Any Format'}</option>
+            <option value="DIGITAL">{es ? 'Solo Digital' : 'Digital Only'}</option>
+            <option value="PHYSICAL">{es ? 'Presencial San Juan' : 'In person, San Juan'}</option>
+            <option value="HYBRID">{es ? 'Híbrido' : 'Hybrid'}</option>
           </select>
         </div>
       </div>
@@ -291,7 +294,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
             style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
           >
             <Info className="w-8 h-8 text-slate-500 mx-auto mb-2" />
-            <p className="text-sm text-slate-400 font-mono">No se encontraron sesiones para los filtros seleccionados.</p>
+            <p className="text-sm text-slate-400 font-mono">{es ? 'No se encontraron sesiones para los filtros seleccionados.' : 'No sessions found for the selected filters.'}</p>
           </div>
         ) : (
           daySessions.map((session, index) => {
@@ -341,7 +344,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                         href={googleCalUrl}
                         target="_blank"
                         rel="noreferrer"
-                        title="Añadir a Google Calendar"
+                        title={es ? 'Añadir a Google Calendar' : 'Add to Google Calendar'}
                         className="p-1.5 border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-[#FDCC0D] hover:border-[#FDCC0D]/40 transition-colors"
                         style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                       >
@@ -349,7 +352,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                       </a>
                       <button
                         onClick={() => downloadICS(session)}
-                        title="Descargar archivo .ics"
+                        title={es ? 'Descargar archivo .ics' : 'Download .ics file'}
                         className="p-1.5 border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-[#00DDFF] hover:border-[#00DDFF]/40 transition-colors cursor-pointer"
                         style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                       >
@@ -361,7 +364,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                           className="px-2.5 py-1 border border-slate-700 bg-slate-800 text-[11px] font-mono text-white hover:bg-slate-700 transition-colors flex items-center gap-1 cursor-pointer"
                           style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                         >
-                          <span>Detalles</span>
+                          <span>{es ? 'Detalles' : 'Details'}</span>
                           <ChevronRight className="w-3 h-3" />
                         </button>
                       )}
@@ -371,16 +374,16 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                   {/* Title & Subtitle */}
                   <div className="mt-3 cursor-pointer" onClick={() => setExpandedSessionId(isExpanded ? null : session.id)}>
                     <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-[#FDCC0D] transition-colors">
-                      {session.title}
+                      {loc(session, 'title', language)}
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-300 mt-1 font-medium">
-                      {session.subtitle}
+                      {loc(session, 'subtitle', language)}
                     </p>
                   </div>
 
                   {/* Description preview / full */}
                   <p className={`text-xs text-slate-400 mt-2 leading-relaxed ${isExpanded ? '' : 'line-clamp-2'}`}>
-                    {session.description}
+                    {loc(session, 'description', language)}
                   </p>
 
                   {/* Speakers and Facilitators */}
@@ -388,7 +391,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                     <div className="mt-3.5 pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-3">
                       <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider flex items-center gap-1">
                         <Users className="w-3 h-3 text-[#FDCC0D]" />
-                        <span>Ponente(s):</span>
+                        <span>{es ? 'Ponente(s):' : 'Speaker(s):'}</span>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
                         {sessionSpeakers.map(spk => (
@@ -404,7 +407,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                               </span>
                             )}
                             <span className="font-medium text-slate-100">{spk.name}</span>
-                            <span className="text-[10px] font-mono text-slate-400">({spk.role})</span>
+                            <span className="text-[10px] font-mono text-slate-400">({loc(spk, 'role', language)})</span>
                           </div>
                         ))}
                       </div>
@@ -415,19 +418,19 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/60">
                     <div className="flex items-center gap-1.5 text-xs text-slate-400">
                       <MapPin className="w-3.5 h-3.5 text-[#00DDFF]" />
-                      <span className="font-mono text-[11px] text-slate-300">{session.venueLocation}</span>
+                      <span className="font-mono text-[11px] text-slate-300">{loc(session, 'venueLocation', language)}</span>
                       {session.mapNodeId && onNavigateToNode && (
                         <button
                           onClick={() => onNavigateToNode(session.mapNodeId!)}
                           className="ml-1 text-[10px] text-[#00DDFF] underline hover:text-[#FDCC0D]"
                         >
-                          Ver en Mapa 360°
+                          {es ? 'Ver en Mapa 360°' : 'View on 360° Map'}
                         </button>
                       )}
                     </div>
 
                     <div className="flex flex-wrap items-center gap-1">
-                      {session.tags.slice(0, 4).map(tag => (
+                      {loc(session, 'tags', language).slice(0, 4).map(tag => (
                         <span key={tag} className="text-[9px] font-mono text-slate-400 px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800">
                           #{tag}
                         </span>

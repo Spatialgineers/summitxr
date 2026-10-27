@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Award, UserCheck, Target } from 'lucide-react';
 import { useTenantTheme } from '../../context/TenantThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 export const OFFICIAL_INITIATES = [
   {
@@ -10,6 +12,7 @@ export const OFFICIAL_INITIATES = [
     role: 'Spatial Architect',
     pillar: 'SGX.SPARK',
     specialty: 'WebGL Pavilions & Arquitectura Espacial 3D',
+    specialtyEn: 'WebGL Pavilions & 3D Spatial Architecture',
   },
   {
     id: 'init_2',
@@ -18,6 +21,7 @@ export const OFFICIAL_INITIATES = [
     role: 'Transmedia Lead',
     pillar: 'SGX.STAGE',
     specialty: 'Dirección Transmedia & Entornos Virtuales',
+    specialtyEn: 'Transmedia Direction & Virtual Environments',
   },
   {
     id: 'init_3',
@@ -26,6 +30,7 @@ export const OFFICIAL_INITIATES = [
     role: 'Shader Artisan',
     pillar: 'SGX.STORY',
     specialty: 'GLSL Shader Art & Iluminación Procedural',
+    specialtyEn: 'GLSL Shader Art & Procedural Lighting',
   },
   {
     id: 'init_4',
@@ -34,6 +39,7 @@ export const OFFICIAL_INITIATES = [
     role: 'Stage MoCap Engineer',
     pillar: 'SGX.STAGE',
     specialty: 'Captura de Movimiento & Rigging Reactivo',
+    specialtyEn: 'Motion Capture & Reactive Rigging',
   },
   {
     id: 'init_5',
@@ -42,6 +48,7 @@ export const OFFICIAL_INITIATES = [
     role: 'Systems Logic Engineer',
     pillar: 'SGX.SYSTEM',
     specialty: 'Gamificación, WebSockets & Real-Time Sync',
+    specialtyEn: 'Gamification, WebSockets & Real-Time Sync',
   },
   {
     id: 'init_6',
@@ -50,6 +57,7 @@ export const OFFICIAL_INITIATES = [
     role: 'Worldbuilder & Environment Artist',
     pillar: 'SGX.SHOWCASE',
     specialty: 'Modelado Espacial & Narrativa Ambiental',
+    specialtyEn: 'Spatial Modeling & Environmental Storytelling',
   },
   {
     id: 'init_7',
@@ -58,6 +66,7 @@ export const OFFICIAL_INITIATES = [
     role: 'Mechanics & Gamification Dev',
     pillar: 'SGX.SPARK',
     specialty: 'Mecánicas de Interacción & Recompensas',
+    specialtyEn: 'Interaction Mechanics & Rewards',
   },
   {
     id: 'init_8',
@@ -66,6 +75,7 @@ export const OFFICIAL_INITIATES = [
     role: 'Full-Stack AI & WebXR Pipeline',
     pillar: 'SGX.SYNTHESIZE',
     specialty: 'Pipelines WebXR Autónomos con IA',
+    specialtyEn: 'AI-Driven Autonomous WebXR Pipelines',
   },
 ];
 
@@ -76,7 +86,15 @@ export const GUILD_MINDSET_QUOTES = [
   "No medimos de dónde vienes, medimos a qué velocidad evolucionas.",
 ];
 
+export const GUILD_MINDSET_QUOTES_EN = [
+  "From passive spectators to creative engineers of the spatial future.",
+  "The promise isn't an easy job; the promise is an education that sets you apart.",
+  "Talent that isn't shown doesn't exist. We build in public.",
+  "We don't measure where you come from; we measure how fast you evolve.",
+];
+
 export const SgxGuildShowcaseSection: React.FC = () => {
+  const { language } = useLanguage();
   const [activeQuoteIdx, setActiveQuoteIdx] = useState(0);
   const { tenant, styles } = useTenantTheme();
 
@@ -111,7 +129,7 @@ export const SgxGuildShowcaseSection: React.FC = () => {
           </h2>
 
           <p className="text-slate-300 text-sm leading-relaxed font-sans">
-            El SGX Guild es público y gratis para estudiantes universitarios (18 años o más). Los SGX Ranked Trials comenzaron el 4 de octubre de 2026. En el Summit, los 8 Initiates activos presentan su portafolio el Día 1 (8 min c/u) y los top 6 presentan en la SGX Guild Ranked Trials Pitch Session del Día 3 (5 min c/u).
+            {language === 'es' ? 'El SGX Guild es público y gratis para estudiantes universitarios (18 años o más). Los SGX Ranked Trials comenzaron el 4 de octubre de 2026. En el Summit, los 8 Initiates activos presentan su portafolio el Día 1 (8 min c/u) y los top 6 presentan en la SGX Guild Ranked Trials Pitch Session del Día 3 (5 min c/u).' : 'The SGX Guild is public and free for university students (18 and older). The SGX Ranked Trials began on October 4, 2026. At the Summit, the 8 active Initiates present their portfolios on Day 1 (8 min each) and the top 6 present at the Day 3 SGX Guild Ranked Trials Pitch Session (5 min each).'}
           </p>
         </div>
 
@@ -120,21 +138,21 @@ export const SgxGuildShowcaseSection: React.FC = () => {
           <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: tenant.branding.borderColor }}>
             <h3 className="text-lg font-extrabold text-white uppercase tracking-wider font-['Orbitron',sans-serif] flex items-center gap-2">
               <UserCheck className="w-5 h-5" style={{ color: tenant.branding.primaryColor }} />
-              Initiates Oficiales del SGX Guild
+              {language === 'es' ? 'Initiates Oficiales del SGX Guild' : 'Official SGX Guild Initiates'}
             </h3>
             <div className="flex items-center gap-3">
               <span className="text-xs font-mono font-bold" style={{ color: tenant.branding.neonHighlightColor }}>
-                8 Initiates activos
+                {language === 'es' ? '8 Initiates activos' : '8 active Initiates'}
               </span>
               {/* Initiates make their own card from their SGX Pass (same name, photo and code). */}
               <button
                 type="button"
                 onClick={() => window.dispatchEvent(new CustomEvent('sgx:open_holo_card', {
-                  detail: { self: true, role: 'INITIATE', title: 'INICIADO OFICIAL · SGX GUILD', org: 'SGX Guild Program 2026', tier: 'INITIATE' }
+                  detail: { self: true, role: 'INITIATE', title: (language === 'es' ? 'INICIADO OFICIAL · SGX GUILD' : 'OFFICIAL INITIATE · SGX GUILD'), org: 'SGX Guild Program 2026', tier: 'INITIATE' }
                 }))}
                 className="sgx-btn sgx-btn--sm"
               >
-                Soy Initiate · mi Holo Card
+                {language === 'es' ? 'Soy Initiate · mi Holo Card' : 'I\'m an Initiate · my Holo Card'}
               </button>
             </div>
           </div>
@@ -179,11 +197,11 @@ export const SgxGuildShowcaseSection: React.FC = () => {
 
                 <div className="pt-2 border-t border-slate-800/80 space-y-1">
                   <p className="text-xs font-bold" style={{ color: tenant.branding.primaryColor }}>{init.role}</p>
-                  <p className="text-[11px] text-slate-300">{init.specialty}</p>
+                  <p className="text-[11px] text-slate-300">{loc(init, 'specialty', language)}</p>
                 </div>
                 <div className="pt-2 border-t border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">
                   {/* Initiates run individually in this phase (no teams). */}
-                  <span>Pilar: <strong className="text-white">{init.pillar}</strong></span>
+                  <span>{language === 'es' ? 'Pilar: ' : 'Pillar: '}<strong className="text-white">{init.pillar}</strong></span>
                   <button
                     type="button"
                     onClick={() => {
@@ -194,7 +212,7 @@ export const SgxGuildShowcaseSection: React.FC = () => {
                           handle: init.handle,
                           title: init.role,
                           org: 'SGX Guild Program 2026',
-                          bio: init.specialty,
+                          bio: loc(init, 'specialty', language),
                           tier: 'INITIATE'
                         }
                       }));
@@ -220,11 +238,11 @@ export const SgxGuildShowcaseSection: React.FC = () => {
           <div className="flex items-center gap-2">
             <Target className="w-5 h-5" style={{ color: tenant.branding.primaryColor }} />
             <h3 className="text-base font-bold text-white uppercase font-['Orbitron',sans-serif]">
-              La Métrica Growth Factor de SGX Guild
+              {language === 'es' ? 'La Métrica Growth Factor de SGX Guild' : 'The SGX Guild Growth Factor Metric'}
             </h3>
           </div>
           <p className="text-xs text-slate-300 leading-relaxed">
-            A diferencia de los programas educativos tradicionales, el desarrollo en los SGX Ranked Trials no depende de exámenes escritos, sino de la evaluación objetiva mediante tres vectores fundamentales:
+            {language === 'es' ? 'A diferencia de los programas educativos tradicionales, el desarrollo en los SGX Ranked Trials no depende de exámenes escritos, sino de la evaluación objetiva mediante tres vectores fundamentales:' : 'Unlike traditional education programs, progress in the SGX Ranked Trials doesn\'t depend on written exams but on objective evaluation along three core vectors:'}
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
@@ -232,27 +250,27 @@ export const SgxGuildShowcaseSection: React.FC = () => {
               className="p-3 bg-[#232323]/80 border border-slate-700 space-y-1 transition-all hover:border-cyan-400"
               style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
             >
-              <span className="font-bold block" style={{ color: tenant.branding.primaryColor }}>1. Comunicación & Autonomía</span>
+              <span className="font-bold block" style={{ color: tenant.branding.primaryColor }}>{language === 'es' ? '1. Comunicación & Autonomía' : '1. Communication & Autonomy'}</span>
               <p className="text-slate-400 text-[11px]">
-                Respeto profesional, capacidad de iteración sin fricción y trabajo autónomo en equipo.
+                {language === 'es' ? 'Respeto profesional, capacidad de iteración sin fricción y trabajo autónomo en equipo.' : 'Professional respect, frictionless iteration and autonomous teamwork.'}
               </p>
             </div>
             <div 
               className="p-3 bg-[#232323]/80 border border-slate-700 space-y-1 transition-all hover:border-amber-400"
               style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
             >
-              <span className="font-bold block" style={{ color: tenant.branding.secondaryColor }}>2. Rigor de Ingeniería</span>
+              <span className="font-bold block" style={{ color: tenant.branding.secondaryColor }}>{language === 'es' ? '2. Rigor de Ingeniería' : '2. Engineering Rigor'}</span>
               <p className="text-slate-400 text-[11px]">
-                Calidad de código Shader/WebGL, optimización de frames por segundo y destreza técnica.
+                {language === 'es' ? 'Calidad de código Shader/WebGL, optimización de frames por segundo y destreza técnica.' : 'Shader/WebGL code quality, frames-per-second optimization and technical skill.'}
               </p>
             </div>
             <div 
               className="p-3 bg-[#232323]/80 border border-slate-700 space-y-1 transition-all hover:border-cyan-400"
               style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
             >
-              <span className="font-bold block" style={{ color: tenant.branding.accentColor }}>3. Visión & Consistencia</span>
+              <span className="font-bold block" style={{ color: tenant.branding.accentColor }}>{language === 'es' ? '3. Visión & Consistencia' : '3. Vision & Consistency'}</span>
               <p className="text-slate-400 text-[11px]">
-                Coherencia temática del entregable espacial y presentación interactiva impecable.
+                {language === 'es' ? 'Coherencia temática del entregable espacial y presentación interactiva impecable.' : 'Thematic coherence of the spatial deliverable and a flawless interactive presentation.'}
               </p>
             </div>
           </div>
@@ -266,9 +284,9 @@ export const SgxGuildShowcaseSection: React.FC = () => {
             ...styles.glowBorderStyle
           }}
         >
-          <span className="text-[10px] font-mono tracking-widest uppercase text-slate-400">MANIFESTO DEL GUILD</span>
+          <span className="text-[10px] font-mono tracking-widest uppercase text-slate-400">{language === 'es' ? 'MANIFESTO DEL GUILD' : 'GUILD MANIFESTO'}</span>
           <p className="text-base sm:text-lg italic font-mono text-white max-w-2xl mx-auto">
-            "{GUILD_MINDSET_QUOTES[activeQuoteIdx]}"
+            "{(language === 'es' ? GUILD_MINDSET_QUOTES : GUILD_MINDSET_QUOTES_EN)[activeQuoteIdx]}"
           </p>
           <div className="flex justify-center gap-2 pt-2">
             {GUILD_MINDSET_QUOTES.map((_, i) => (

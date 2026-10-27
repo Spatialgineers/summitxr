@@ -35,6 +35,8 @@ import { db } from '../../lib/firebase';
 import { collection, addDoc, onSnapshot, query, orderBy, limit, doc, updateDoc, increment } from 'firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
 import { useTenantTheme } from '../../context/TenantThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
 
 export interface ForumChannel {
   id: string;
@@ -44,6 +46,10 @@ export interface ForumChannel {
   icon: React.ElementType;
   color: string;
   badge: string;
+  nameEn?: string;
+  topicEn?: string;
+  descEn?: string;
+  badgeEn?: string;
   pillar?: SummitPillarId;
   readOnly?: boolean;
 }
@@ -51,72 +57,99 @@ export interface ForumChannel {
 const PUBLIC_FORUM_CHANNELS: ForumChannel[] = [
   { 
     id: '#general', 
-    name: 'Debate General del Summit', 
-    topic: 'Conversación global y bienvenida a todos los participantes', 
+    name: 'Debate General del Summit',
+    nameEn: 'General Summit Discussion', 
+    topic: 'Conversación global y bienvenida a todos los participantes',
+    topicEn: 'Global conversation and a welcome to every participant', 
     desc: 'Espacio abierto para comentar impresiones, expectativas y reflexiones generales sobre el Spatialgineers Summit 2026.',
+    descEn: 'An open space to share impressions, expectations and general thoughts about the Spatialgineers Summit 2026.',
     icon: Hash, 
     color: 'text-[var(--sgx-neon)]',
-    badge: 'PRINCIPAL'
+    badge: 'PRINCIPAL',
+    badgeEn: 'MAIN',
   },
   { 
     id: '#anuncios-oficiales', 
-    name: 'Anuncios Oficiales & Producción', 
-    topic: 'Avisos oficiales de horarios, links de transmisión y dinámicas de los directores', 
+    name: 'Anuncios Oficiales & Producción',
+    nameEn: 'Official Announcements & Production', 
+    topic: 'Avisos oficiales de horarios, links de transmisión y dinámicas de los directores',
+    topicEn: 'Official notices on schedules, stream links and the directors\' activities', 
     desc: 'Canal de comunicados emitidos por el equipo organizador de Spatialgineers, directores de producción y speakers.',
+    descEn: 'Channel for announcements from the Spatialgineers organizing team, production directors and speakers.',
     icon: ShieldCheck, 
     color: 'text-amber-400',
-    badge: 'OFICIAL'
+    badge: 'OFICIAL',
+    badgeEn: 'OFFICIAL',
   },
   { 
     id: '#stage-live', 
-    name: 'Escenario & Transmisión en Vivo', 
-    topic: 'Reacciones a la transmisión de YouTube Live y a los artistas invitados', 
+    name: 'Escenario & Transmisión en Vivo',
+    nameEn: 'Stage & Live Broadcast', 
+    topic: 'Reacciones a la transmisión de YouTube Live y a los artistas invitados',
+    topicEn: 'Reactions to the YouTube Live stream and the guest artists', 
     desc: 'Comenta en directo lo que está ocurriendo en el escenario principal, las transiciones visuales y los sets de los artistas.',
+    descEn: 'Comment live on what\'s happening on the main stage, the visual transitions and the artists\' sets.',
     icon: Radio, 
     color: 'text-rose-400',
-    badge: 'EN VIVO'
+    badge: 'EN VIVO',
+    badgeEn: 'LIVE',
   },
   { 
     id: '#preguntas-a-speakers', 
-    name: 'Preguntas & Respuestas (Q&A)', 
-    topic: 'Preguntas de la audiencia para los paneles y keynotes de los 6 pilares', 
+    name: 'Preguntas & Respuestas (Q&A)',
+    nameEn: 'Questions & Answers (Q&A)', 
+    topic: 'Preguntas de la audiencia para los paneles y keynotes de los 6 pilares',
+    topicEn: 'Audience questions for the panels and keynotes of the 6 pillars', 
     desc: 'Publica tus dudas para que los moderadores las seleccionen durante las rondas de Q&A en vivo de cada charla.',
+    descEn: 'Post your questions so the moderators can pick them during each talk\'s live Q&A rounds.',
     icon: HelpCircle, 
     color: 'text-[#FDCC0D]',
     badge: 'Q&A'
   },
   { 
     id: '#sgx-guild-trials', 
-    name: 'SGX Guild Trials & Proyectos', 
-    topic: 'Portafolios de los 8 Initiates (Día 1) y SGX Guild Ranked Trials Pitch Session (Día 3)', 
+    name: 'SGX Guild Trials & Proyectos',
+    nameEn: 'SGX Guild Trials & Projects', 
+    topic: 'Portafolios de los 8 Initiates (Día 1) y SGX Guild Ranked Trials Pitch Session (Día 3)',
+    topicEn: 'Portfolios of the 8 Initiates (Day 1) and the SGX Guild Ranked Trials Pitch Session (Day 3)', 
     desc: 'Espacio dedicado a comentar los portafolios de los Initiates y compartir feedback sobre sus presentaciones en vivo.',
+    descEn: 'A space to comment on the Initiates\' portfolios and share feedback on their live presentations.',
     icon: Award, 
     color: 'text-[#FDCC0D]',
     badge: 'GUILD'
   },
   { 
     id: '#workshops-y-codigo', 
-    name: 'Workshops, WebGL & Código', 
-    topic: 'Dudas técnicas, Three.js, shaders GLSL, WebXR y arquitectura en la nube', 
+    name: 'Workshops, WebGL & Código',
+    nameEn: 'Workshops, WebGL & Code', 
+    topic: 'Dudas técnicas, Three.js, shaders GLSL, WebXR y arquitectura en la nube',
+    topicEn: 'Technical questions, Three.js, GLSL shaders, WebXR and cloud architecture', 
     desc: 'Comparte snippets, recursos y resuelve dudas técnicas de los workshops y demostraciones prácticas del evento.',
+    descEn: 'Share snippets and resources and solve technical questions from the event\'s workshops and hands-on demos.',
     icon: Code, 
     color: 'text-cyan-400',
     badge: 'TECH'
   },
   { 
     id: '#matchmaking-proyectos', 
-    name: 'Colaboración & Matchmaking', 
-    topic: 'Búsqueda de colaboradores, ofertas y alianzas para proyectos de computación espacial', 
+    name: 'Colaboración & Matchmaking',
+    nameEn: 'Collaboration & Matchmaking', 
+    topic: 'Búsqueda de colaboradores, ofertas y alianzas para proyectos de computación espacial',
+    topicEn: 'Looking for collaborators, offers and alliances for spatial computing projects', 
     desc: 'Preséntate, muestra tu portafolio y conecta con otros desarrolladores, diseñadores o marcas para futuros proyectos.',
+    descEn: 'Introduce yourself, show your portfolio and connect with other developers, designers or brands for future projects.',
     icon: Users, 
     color: 'text-[#FDCC0D]',
     badge: 'NETWORKING'
   },
   { 
     id: '#venue-san-juan', 
-    name: 'SGX Showcase · Día 3 (San Juan, PR)', 
-    topic: 'Logística del Día 3 en Chroma Space Studios (por invitación)', 
+    name: 'SGX Showcase · Día 3 (San Juan, PR)',
+    nameEn: 'SGX Showcase · Day 3 (San Juan, PR)', 
+    topic: 'Logística del Día 3 en Chroma Space Studios (por invitación)',
+    topicEn: 'Day 3 logistics at Chroma Space Studios (by invitation)', 
     desc: 'Foro para las personas invitadas al SGX Showcase del Día 3 en San Juan: puntos de encuentro, transporte y agenda presencial.',
+    descEn: 'Forum for guests invited to the Day 3 SGX Showcase in San Juan: meeting points, transportation and the in-person agenda.',
     icon: MapPin, 
     color: 'text-[#FDCC0D]',
     badge: 'SAN JUAN'
@@ -135,12 +168,14 @@ interface SummitNetworkingChatProps {
 export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
   currentUser: propUser
 }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { user: authUser } = useAuth();
   const { tenant } = useTenantTheme();
 
   const currentUser = {
     id: propUser?.id || authUser?.uid || 'user_attendee_live',
-    name: propUser?.name || authUser?.displayName || authUser?.email?.split('@')[0] || 'Asistente Spatialgineer',
+    name: propUser?.name || authUser?.displayName || authUser?.email?.split('@')[0] || (es ? 'Asistente Spatialgineer' : 'Spatialgineer Attendee'),
     avatar: propUser?.avatar || authUser?.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
     role: propUser?.role || 'ATTENDEE'
   };
@@ -189,7 +224,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                 id: docSnap.id,
                 channelId: data.channelId || '#general',
                 senderId: data.senderId || 'anon',
-                senderName: data.senderName || 'Asistente',
+                senderName: data.senderName || (es ? 'Asistente' : 'Attendee'),
                 senderAvatar: data.senderAvatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
                 senderRole: data.senderRole || 'ATTENDEE',
                 text: data.text || '',
@@ -352,9 +387,9 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
           <div className="flex items-center space-x-2">
             <CurrentChannelIcon className={`w-4 h-4 ${currentChannel.color}`} />
             <div className="text-left">
-              <span className="text-[9px] text-slate-400 block font-mono">FORO PÚBLICO</span>
+              <span className="text-[9px] text-slate-400 block font-mono">{es ? 'FORO PÚBLICO' : 'PUBLIC FORUM'}</span>
               <span className="text-xs font-bold text-white font-mono uppercase truncate max-w-[170px] block leading-none">
-                {activeTab === 'COMMUNITY_ROSTER' ? 'DIRECTORIO COMUNIDAD' : currentChannel.name}
+                {activeTab === 'COMMUNITY_ROSTER' ? (es ? 'DIRECTORIO COMUNIDAD' : 'COMMUNITY DIRECTORY') : loc(currentChannel, 'name', language)}
               </span>
             </div>
           </div>
@@ -363,7 +398,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
             <button
               onClick={() => setSoundEnabled(prev => !prev)}
               className={`p-1.5 border text-xs ${soundEnabled ? 'text-[var(--sgx-neon)] border-[var(--sgx-neon)]/50' : 'text-slate-500 border-slate-700'}`}
-              title={soundEnabled ? 'Sonido activado' : 'Sonido silenciado'}
+              title={soundEnabled ? (es ? 'Sonido activado' : 'Sound on') : (es ? 'Sonido silenciado' : 'Sound muted')}
             >
               {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
             </button>
@@ -377,7 +412,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
               }`}
               style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
             >
-              {activeTab === 'COMMUNITY_ROSTER' ? '💬 VER FOROS' : `👥 COMUNIDAD (${attendees.length})`}
+              {activeTab === 'COMMUNITY_ROSTER' ? (es ? '💬 VER FOROS' : '💬 VIEW FORUMS') : (es ? `👥 COMUNIDAD (${attendees.length})` : `👥 COMMUNITY (${attendees.length})`)}
             </button>
           </div>
         </div>
@@ -421,16 +456,16 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
               <MessageSquare className="w-4 h-4 text-[var(--sgx-neon)]" />
               <div>
                 <h3 className="font-extrabold text-xs text-white font-['Orbitron',sans-serif] uppercase">
-                  FOROS DEL SUMMIT
+                  {es ? 'FOROS DEL SUMMIT' : 'SUMMIT FORUMS'}
                 </h3>
-                <span className="text-[9px] text-slate-400 font-mono">Discusión 100% Pública</span>
+                <span className="text-[9px] text-slate-400 font-mono">{es ? 'Discusión 100% Pública' : '100% Public Discussion'}</span>
               </div>
             </div>
 
             <button
               onClick={() => setSoundEnabled(prev => !prev)}
               className={`p-1 border text-xs transition-colors ${soundEnabled ? 'text-[var(--sgx-neon)] border-[var(--sgx-neon)]/50' : 'text-slate-500 border-slate-700'}`}
-              title={soundEnabled ? 'Silenciar sonidos' : 'Activar sonido'}
+              title={soundEnabled ? (es ? 'Silenciar sonidos' : 'Mute sounds') : (es ? 'Activar sonido' : 'Turn sound on')}
             >
               {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
             </button>
@@ -444,7 +479,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
               }`}
               style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
             >
-              CANALES ({PUBLIC_FORUM_CHANNELS.length})
+              {es ? 'CANALES (' : 'CHANNELS ('}{PUBLIC_FORUM_CHANNELS.length})
             </button>
             <button
               onClick={() => setActiveTab('COMMUNITY_ROSTER')}
@@ -453,7 +488,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
               }`}
               style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
             >
-              ASISTENTES ({attendees.length})
+              {es ? 'ASISTENTES (' : 'ATTENDEES ('}{attendees.length})
             </button>
           </div>
         </div>
@@ -485,12 +520,12 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                   </div>
                   <div className="truncate flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="truncate text-white font-semibold text-xs">{ch.name}</span>
+                      <span className="truncate text-white font-semibold text-xs">{loc(ch, 'name', language)}</span>
                       <span className={`text-[8px] font-mono px-1 py-0.2 border rounded ml-1 ${isActive ? 'bg-black/80 text-[var(--sgx-neon)] border-[var(--sgx-neon)]/60' : 'bg-black/40 text-slate-400 border-[var(--sgx-secondary)]/40'}`}>
-                        {ch.badge}
+                        {loc(ch, 'badge', language)}
                       </span>
                     </div>
-                    <div className="text-[10px] text-slate-400 font-mono truncate mt-0.5">{ch.topic}</div>
+                    <div className="text-[10px] text-slate-400 font-mono truncate mt-0.5">{loc(ch, 'topic', language)}</div>
                   </div>
                 </button>
               );
@@ -499,7 +534,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
             /* Community Roster list */
             <div className="space-y-1.5 p-1">
               <span className="text-[10px] text-slate-400 uppercase font-mono px-1 block font-bold">
-                Participantes Registrados:
+                {es ? 'Participantes Registrados:' : 'Registered Participants:'}
               </span>
               {attendees.map((att) => (
                 <div
@@ -539,7 +574,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
             <span className="text-xs font-bold text-white block truncate">{currentUser.name}</span>
             <span className="text-[10px] text-[#FDCC0D] font-mono flex items-center space-x-1">
               <span className="w-1.5 h-1.5 bg-[#FDCC0D] animate-pulse rounded-full" />
-              <span>Conectado al Foro Público</span>
+              <span>{es ? 'Conectado al Foro Público' : 'Connected to the Public Forum'}</span>
             </span>
           </div>
         </div>
@@ -555,10 +590,10 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--sgx-secondary)]/60 pb-4">
               <div>
                 <h3 className="text-sm sm:text-base font-bold text-white uppercase font-['Orbitron',sans-serif]">
-                  DIRECTORIO PÚBLICO DE ASISTENTES & CREADORES
+                  {es ? 'DIRECTORIO PÚBLICO DE ASISTENTES & CREADORES' : 'PUBLIC DIRECTORY OF ATTENDEES & CREATORS'}
                 </h3>
                 <p className="text-xs text-slate-400 font-mono mt-0.5">
-                  Conoce a los creadores, ponentes e ingenieros espaciales que participan en los foros del Summit 2026.
+                  {es ? 'Conoce a los creadores, ponentes e ingenieros espaciales que participan en los foros del Summit 2026.' : 'Meet the creators, speakers and spatial engineers taking part in the Summit 2026 forums.'}
                 </p>
               </div>
 
@@ -570,7 +605,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                   className="bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-3 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-[var(--sgx-neon)]"
                   style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                 >
-                  <option value="ALL">TODOS LOS PILARES</option>
+                  <option value="ALL">{es ? 'TODOS LOS PILARES' : 'ALL PILLARS'}</option>
                   <option value="SGX.STORY">SGX.STORY</option>
                   <option value="SGX.SHOWCASE">SGX.SHOWCASE</option>
                   <option value="SGX.SPARK">SGX.SPARK</option>
@@ -633,10 +668,10 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                       }}
                       className="px-3 py-1.5 bg-[var(--sgx-bg)] hover:bg-[var(--sgx-neon)] hover:text-black border border-[var(--sgx-secondary)] text-xs font-mono font-bold text-slate-200 transition-colors flex items-center space-x-1.5"
                       style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                      title="Mencionar en el foro público de matchmaking"
+                      title={es ? 'Mencionar en el foro público de matchmaking' : 'Mention in the public matchmaking forum'}
                     >
                       <Share2 className="w-3.5 h-3.5" />
-                      <span>MENCIONAR EN FORO</span>
+                      <span>{es ? 'MENCIONAR EN FORO' : 'MENTION IN FORUM'}</span>
                     </button>
                   </div>
                 </div>
@@ -659,14 +694,14 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                   <div>
                     <div className="flex items-center space-x-2">
                       <span className="text-sm font-bold text-white font-['Orbitron',sans-serif] uppercase tracking-wide">
-                        {currentChannel.name}
+                        {loc(currentChannel, 'name', language)}
                       </span>
                       <span className="text-[9px] font-mono px-1.5 py-0.2 border border-[var(--sgx-secondary)] text-[var(--sgx-neon)] bg-black/50 rounded">
                         {currentChannel.id}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-300 font-mono hidden sm:block">
-                      {currentChannel.desc}
+                      {loc(currentChannel, 'desc', language)}
                     </p>
                   </div>
                 </div>
@@ -678,9 +713,9 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                     style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
                   >
                     <span className="w-2 h-2 bg-[#FDCC0D] animate-pulse rounded-full" />
-                    <span className="font-bold">{isLiveConnected ? 'EN VIVO' : 'SIN CONEXIÓN · GUARDADO LOCAL'}</span>
+                    <span className="font-bold">{isLiveConnected ? (es ? 'EN VIVO' : 'LIVE') : (es ? 'SIN CONEXIÓN · GUARDADO LOCAL' : 'OFFLINE · SAVED LOCALLY')}</span>
                   </div>
-                  <span className="hidden lg:inline">{displayedMessages.length} MENSAJES</span>
+                  <span className="hidden lg:inline">{displayedMessages.length}{es ? ' MENSAJES' : ' MESSAGES'}</span>
                 </div>
               </div>
 
@@ -688,10 +723,10 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
               <div className="px-3 py-1.5 bg-black/50 border border-[var(--sgx-secondary)]/60 text-[10px] text-slate-400 font-mono flex items-center justify-between gap-2 rounded">
                 <div className="flex items-center space-x-1.5 truncate">
                   <Sparkles className="w-3.5 h-3.5 text-[#FDCC0D] shrink-0" />
-                  <span className="text-slate-300 font-bold truncate">Regla del Foro:</span>
-                  <span className="truncate">Todos los mensajes son públicos y visibles para todos los asistentes y conferencistas.</span>
+                  <span className="text-slate-300 font-bold truncate">{es ? 'Regla del Foro:' : 'Forum Rule:'}</span>
+                  <span className="truncate">{es ? 'Todos los mensajes son públicos y visibles para todos los asistentes y conferencistas.' : 'All messages are public and visible to every attendee and speaker.'}</span>
                 </div>
-                <span className="text-[#FDCC0D] shrink-0 font-bold hidden sm:inline">100% Moderado</span>
+                <span className="text-[#FDCC0D] shrink-0 font-bold hidden sm:inline">{es ? '100% Moderado' : '100% Moderated'}</span>
               </div>
             </div>
 
@@ -700,9 +735,9 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
               {displayedMessages.length === 0 ? (
                 <div className="text-center py-16 text-slate-500 font-mono text-xs max-w-sm mx-auto space-y-2">
                   <MessageSquare className="w-10 h-10 mx-auto text-slate-600 opacity-60" />
-                  <p className="text-slate-300 font-bold text-sm font-['Orbitron',sans-serif]">FORO PÚBLICO DISPONIBLE</p>
+                  <p className="text-slate-300 font-bold text-sm font-['Orbitron',sans-serif]">{es ? 'FORO PÚBLICO DISPONIBLE' : 'PUBLIC FORUM AVAILABLE'}</p>
                   <p className="text-[11px] text-slate-400 leading-relaxed">
-                    Sé el primero en iniciar la conversación en el canal <span className="text-[var(--sgx-neon)] font-bold">{currentChannel.id}</span>. Tu mensaje será visible para todos los asistentes del Summit.
+                    {es ? 'Sé el primero en iniciar la conversación en el canal ' : 'Be the first to start the conversation in '}<span className="text-[var(--sgx-neon)] font-bold">{currentChannel.id}</span>{es ? '. Tu mensaje será visible para todos los asistentes del Summit.' : '. Your message will be visible to every Summit attendee.'}
                   </p>
                 </div>
               ) : (
@@ -747,7 +782,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                           {msg.isPinned && (
                             <span className="flex items-center space-x-0.5 text-amber-400 text-[9px] font-bold">
                               <Pin className="w-3 h-3 rotate-45" />
-                              <span>FIJADO</span>
+                              <span>{es ? 'FIJADO' : 'PINNED'}</span>
                             </span>
                           )}
 
@@ -767,7 +802,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                           }`}
                           style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
                         >
-                          {msg.text}
+                          {loc(msg, 'text', language)}
                         </div>
 
                         {/* Public Reactions Bar */}
@@ -788,28 +823,28 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                           <button
                             onClick={() => handleAddReaction(msg.id, '🔥')}
                             className="px-1.5 py-1 text-slate-400 hover:text-white hover:bg-[var(--sgx-bg)] text-xs transition-colors"
-                            title="Reaccionar con 🔥"
+                            title={es ? 'Reaccionar con 🔥' : 'React with 🔥'}
                           >
                             🔥
                           </button>
                           <button
                             onClick={() => handleAddReaction(msg.id, '🚀')}
                             className="px-1.5 py-1 text-slate-400 hover:text-white hover:bg-[var(--sgx-bg)] text-xs transition-colors"
-                            title="Reaccionar con 🚀"
+                            title={es ? 'Reaccionar con 🚀' : 'React with 🚀'}
                           >
                             🚀
                           </button>
                           <button
                             onClick={() => handleAddReaction(msg.id, '💎')}
                             className="px-1.5 py-1 text-slate-400 hover:text-white hover:bg-[var(--sgx-bg)] text-xs transition-colors"
-                            title="Reaccionar con 💎"
+                            title={es ? 'Reaccionar con 💎' : 'React with 💎'}
                           >
                             💎
                           </button>
                           <button
                             onClick={() => handleAddReaction(msg.id, '👏')}
                             className="px-1.5 py-1 text-slate-400 hover:text-white hover:bg-[var(--sgx-bg)] text-xs transition-colors"
-                            title="Reaccionar con 👏"
+                            title={es ? 'Reaccionar con 👏' : 'React with 👏'}
                           >
                             👏
                           </button>
@@ -829,7 +864,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder={`Comenta públicamente en ${currentChannel.id}...`}
+                placeholder={(es ? `Comenta públicamente en ${currentChannel.id}...` : `Comment publicly in ${currentChannel.id}...`)}
                 className="flex-1 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-4 py-3 sm:py-2.5 min-h-[46px] text-xs sm:text-xs text-white placeholder-slate-500 font-mono focus:outline-none focus:border-[var(--sgx-neon)] shadow-inner"
                 style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
               />
@@ -840,7 +875,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                 style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
               >
                 <Send className="w-4 h-4" />
-                <span className="hidden sm:inline">PUBLICAR</span>
+                <span className="hidden sm:inline">{es ? 'PUBLICAR' : 'POST'}</span>
               </button>
             </form>
           </>
@@ -886,7 +921,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
             </p>
 
             <div className="space-y-1 pt-2 border-t border-[var(--sgx-secondary)]/60">
-              <span className="text-[10px] text-slate-400 uppercase font-bold">Pilares de Interés:</span>
+              <span className="text-[10px] text-slate-400 uppercase font-bold">{es ? 'Pilares de Interés:' : 'Pillars of Interest:'}</span>
               <div className="flex flex-wrap gap-1.5 pt-1">
                 {selectedAttendeeProfile.pillars.map(p => (
                   <span key={p} className="px-2 py-0.5 bg-black border border-[var(--sgx-secondary)] text-[var(--sgx-neon)] text-[10px] font-bold">
@@ -899,7 +934,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
             <div className="pt-3 border-t border-[var(--sgx-secondary)]/60 flex items-center justify-between">
               <span className="text-[#FDCC0D] flex items-center space-x-1 text-[10px]">
                 <CheckCircle2 className="w-3.5 h-3.5 text-[#FDCC0D]" />
-                <span>Pase {selectedAttendeeProfile.ticketType.replace('_', ' ')}</span>
+                <span>{es ? 'Pase ' : 'Pass '}{selectedAttendeeProfile.ticketType.replace('_', ' ')}</span>
               </span>
               <button
                 onClick={() => {
@@ -912,7 +947,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                 className="px-3 py-1.5 bg-[var(--sgx-neon)] text-black font-extrabold text-xs flex items-center space-x-1"
                 style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
               >
-                <span>MENCIONAR EN FORO</span>
+                <span>{es ? 'MENCIONAR EN FORO' : 'MENTION IN FORUM'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>

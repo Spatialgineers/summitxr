@@ -88,10 +88,16 @@
   .sgx-sechud__crumb .sgx-sechud__name, .sgx-sechud__meter { display: none; }
 }
 @media (max-width: 640px) {
-  .sgx-sechud__inner { flex-wrap: wrap; gap: 8px; padding: 6px 10px; }
+  .sgx-sechud__inner { flex-wrap: wrap; gap: 4px 8px; padding: 4px 10px; }
   .sgx-sechud__crumb { flex: 1; min-width: 0; overflow: hidden; }
   .sgx-sechud__crumb img, .sgx-sechud__sep { display: none; }
-  .sgx-sechud__strip { order: 3; flex-basis: 100%; }
+  .sgx-sechud__strip { order: 3; flex-basis: 100%; padding: 0; }
+  /* 40px touch targets in the HUD. */
+  .sgx-sechud__back, .sgx-sechud__group, .sgx-sechud__tab, .sgx-sechud__tools .sgx-btn { min-height: 40px; }
+  .sgx-sechud__tools .sgx-btn { min-width: 40px; justify-content: center; }
+  .sgx-sechud__group { font-size: 0.75rem; }
+  .sgx-sechud__crumb { gap: 6px; }
+  .sgx-sechud__pillar { letter-spacing: 0.06em; }
 }
 
 /* ---------- Cinematic section hero ---------- */
@@ -162,6 +168,32 @@
 @media (max-width: 767px) {
   .sgx-hero__layout { grid-template-columns: auto 1fr; }
   .sgx-hero__actions { grid-column: 1 / -1; justify-content: flex-start; }
+}
+/* Phones: a compact hero so the section's real content starts on the first screen.
+   One grid: telemetry + share/copy icons on row 1, title, a two-line description,
+   then any section controls (e.g. the agenda view switcher) full width. */
+@media (max-width: 640px) {
+  .sgx-hero { padding: 12px 14px; margin-bottom: 14px; }
+  .sgx-hero__index, .sgx-hero__corner, .sgx-hero__emblem { display: none; }
+  .sgx-hero__layout { grid-template-columns: minmax(0, 1fr) auto auto; column-gap: 6px; row-gap: 6px; align-items: center; }
+  .sgx-hero__copy, .sgx-hero__actions { display: contents; }
+  .sgx-hero__telemetry { grid-column: 1; grid-row: 1; flex-wrap: nowrap; gap: 8px; min-width: 0; }
+  .sgx-hero__badge { flex: none; font-size: 0.6875rem; }
+  .sgx-hero__path { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.6875rem; }
+  .sgx-hero__actions > .sgx-btn { grid-column: 2; grid-row: 1; }
+  .sgx-hero__actions > .sgx-glow { grid-column: 3; grid-row: 1; }
+  .sgx-hero__actions > .sgx-btn, .sgx-hero__actions > .sgx-glow > .sgx-btn {
+    min-width: 40px; min-height: 40px; padding: 0 10px; justify-content: center;
+  }
+  /* Icon-only copy button; the title attribute stays as its accessible name. */
+  .sgx-hero__actions > .sgx-glow > .sgx-btn > span { display: none; }
+  .sgx-hero__title { grid-column: 1 / -1; max-width: none; font-size: clamp(1.05rem, 4.6vw, 1.25rem); line-height: 1.15; }
+  .sgx-hero__subtitle {
+    grid-column: 1 / -1; font-size: 0.875rem; line-height: 1.4;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
+  }
+  .sgx-hero__actions > :not(.sgx-btn):not(.sgx-glow) { grid-column: 1 / -1; margin-top: 4px; width: 100%; }
+  .sgx-hero__actions > div:not(.sgx-btn) > button { flex: 1 1 0; min-width: 0; white-space: normal; line-height: 1.2; }
 }
 
 /* ---------- Holodeck floor behind every page ---------- */

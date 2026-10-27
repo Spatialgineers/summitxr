@@ -385,5 +385,14 @@ body:has([aria-modal="true"], .sgx-hangar, .sgx-forge, .sgx-terminal-backdrop, .
 @media (max-width: 639px) {
   body:has([aria-modal="true"], .sgx-hangar, .sgx-forge, .sgx-terminal-backdrop) .sgx-dock { display: none; }
 }
-@media (max-width: 639px) { .sgx-pulse-widget { bottom: 88px !important; } }
+/* Phones: the collapsed Keynote Pulse button docks into the bottom band, to the
+   right of the dock, so it never floats over content. The dock gives it room;
+   the open console still rises above the dock. */
+@media (max-width: 639px) {
+  .sgx-dock { right: 66px; min-height: 56px; }
+  .sgx-dock__item { min-height: 48px; justify-content: center; font-size: 0.6875rem; letter-spacing: 0.02em; }
+  .sgx-pulse-widget { bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important; right: 8px !important; z-index: 61; }
+  .sgx-pulse-widget > .flex > button { width: 52px; height: 56px; justify-content: center; }
+  .sgx-pulse-widget:has(> .w-96) { bottom: 88px !important; }
+}
 @media (max-width: 639px) { .sgx-ticker-wrap { display: none; } }

@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { playCyberBurstSound, playUiChirp } from '../../lib/cyberAudioEngine';
 import { useAuth } from '../../context/AuthContext';
+import { collection, doc, onSnapshot, query, serverTimestamp, setDoc, where, limit } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 
 export interface KeynotePollOption {
   id: string;
@@ -86,13 +88,13 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
   onAwardXp,
   className = ''
 }) => {
-  const { playerProfile, savePlayerProfile } = useAuth();
+  const { playerProfile, savePlayerProfile, user } = useAuth();
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'REACTIONS' | 'POLL'>('REACTIONS');
   const [selectedPollIndex, setSelectedPollIndex] = useState<number>(0);
   const [polls, setPolls] = useState<KeynotePoll[]>(DEFAULT_POLLS);
   const [userVotedPolls, setUserVotedPolls] = useState<Record<string, string>>({});
-  const [pulseEnergy, setPulseEnergy] = useState<number>(98.4);
+  const [voteError, setVoteError] = useState<string | null>(null);
   const [totalReactionsCount, setTotalReactionsCount] = useState<number>(0);
   const [floatingParticles, setFloatingParticles] = useState<FloatingReactionParticle[]>([]);
   const [justEarnedXp, setJustEarnedXp] = useState<string | null>(null);
@@ -107,16 +109,30 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
     } catch {}
   }, []);
 
-  // Animate pulse energy fluctuations naturally
+  // Live counts: one Firestore doc per pilot per poll (`summit_poll_votes`), shared by everyone.
   useEffect(() => {
-    const interval = setInterval(() => {
-      setPulseEnergy(prev => {
-        const drift = (Math.random() - 0.48) * 0.4;
-        return Math.min(100, Math.max(88, Number((prev + drift).toFixed(1))));
-      });
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+    const pollIds = DEFAULT_POLLS.map((p) => p.id);
+    try {
+      const q = query(collection(db, 'summit_poll_votes'), where('pollId', 'in', pollIds), limit(5000));
+      return onSnapshot(q, (snap) => {
+        const counts: Record<string, Record<string, number>> = {};
+        const mine: Record<string, string> = {};
+        snap.forEach((d) => {
+          const v = d.data() as { pollId: string; optionId: string; uid: string };
+          counts[v.pollId] = counts[v.pollId] || {};
+          counts[v.pollId][v.optionId] = (counts[v.pollId][v.optionId] || 0) + 1;
+          if (user?.uid && v.uid === user.uid) mine[v.pollId] = v.optionId;
+        });
+        setPolls(DEFAULT_POLLS.map((p) => ({
+          ...p,
+          options: p.options.map((o) => ({ ...o, votes: counts[p.id]?.[o.id] || 0 })),
+        })));
+        if (Object.keys(mine).length) setUserVotedPolls((prev) => ({ ...prev, ...mine }));
+      }, () => { /* offline: local view only */ });
+    } catch {
+      return undefined;
+    }
+  }, [user?.uid]);
 
   // Clean up floating particles
   useEffect(() => {
@@ -144,7 +160,6 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
     emoji: string
   ) => {
     setTotalReactionsCount(prev => prev + 1);
-    setPulseEnergy(prev => Math.min(100, Number((prev + 0.3).toFixed(1))));
 
     // Trigger audio
     if (type === 'FIREWORKS') {
@@ -217,28 +232,31 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
     }
   };
 
-  const handleVotePoll = (pollId: string, optionId: string) => {
+  const handleVotePoll = async (pollId: string, optionId: string) => {
     if (userVotedPolls[pollId]) return;
+    if (!user?.uid) {
+      setVoteError('Conectando tu pase… inténtalo en unos segundos.');
+      return;
+    }
+    setVoteError(null);
 
-    // Register vote
+    // Optimistic: mark it voted; the live counts arrive from Firestore.
     const updatedUserVotes = { ...userVotedPolls, [pollId]: optionId };
     setUserVotedPolls(updatedUserVotes);
     try {
       localStorage.setItem('sgx_keynote_poll_votes', JSON.stringify(updatedUserVotes));
     } catch {}
-
-    // Increment option votes
-    setPolls(prevPolls =>
-      prevPolls.map(p => {
-        if (p.id !== pollId) return p;
-        return {
-          ...p,
-          options: p.options.map(opt =>
-            opt.id === optionId ? { ...opt, votes: opt.votes + 1 } : opt
-          )
-        };
-      })
-    );
+    try {
+      await setDoc(doc(db, 'summit_poll_votes', `${pollId}_${user.uid}`), { pollId, optionId, uid: user.uid, at: serverTimestamp() });
+    } catch (err) {
+      console.warn('[Keynote Poll] vote not recorded:', err);
+      const reverted = { ...updatedUserVotes };
+      delete reverted[pollId];
+      setUserVotedPolls(reverted);
+      try { localStorage.setItem('sgx_keynote_poll_votes', JSON.stringify(reverted)); } catch {}
+      setVoteError('No se pudo registrar tu voto. Revisa tu conexión e inténtalo de nuevo.');
+      return;
+    }
 
     // Audio & Confetti burst
     playCyberBurstSound('kudos');
@@ -267,6 +285,9 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
 
   const currentPoll = polls[selectedPollIndex] || polls[0];
   const totalPollVotes = currentPoll.options.reduce((acc, o) => acc + o.votes, 0);
+  const allPollVotes = polls.reduce((acc, p) => acc + p.options.reduce((a, o) => a + o.votes, 0), 0);
+  // The bar shows how far ahead the leading option of the current poll is (real votes only).
+  const leadingShare = totalPollVotes ? Math.round((Math.max(...currentPoll.options.map((o) => o.votes)) / totalPollVotes) * 100) : 0;
   const userVoteForCurrent = userVotedPolls[currentPoll.id];
 
   return (
@@ -315,7 +336,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                 </span>
               </div>
               <span className="hidden 2xl:inline px-1.5 py-0.5 bg-cyan-950 text-cyan-400 border border-cyan-800 text-[10px] font-mono">
-                {pulseEnergy}%
+                {allPollVotes.toLocaleString()} votos
               </span>
             </button>
           </div>
@@ -354,16 +375,16 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
               <div className="flex items-center justify-between text-[11px] mb-1.5">
                 <span className="text-slate-400 flex items-center space-x-1">
                   <Zap className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Energía Colectiva:</span>
+                  <span>Audiencia en vivo:</span>
                 </span>
                 <span className="font-bold text-cyan-300">
-                  {pulseEnergy}% • {totalReactionsCount.toLocaleString()} pulsos
+                  {allPollVotes.toLocaleString()} votos • {totalReactionsCount.toLocaleString()} {totalReactionsCount === 1 ? 'pulso tuyo' : 'pulsos tuyos'}
                 </span>
               </div>
               <div className="w-full bg-slate-900 h-2 border border-slate-700 overflow-hidden relative">
                 <div 
                   className="h-full bg-gradient-to-r from-cyan-500 via-amber-400 to-rose-500 transition-all duration-500"
-                  style={{ width: `${pulseEnergy}%` }}
+                  style={{ width: `${leadingShare}%` }}
                 />
               </div>
 
@@ -483,10 +504,9 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                 </div>
 
                 <div className="p-2 bg-slate-900/60 border border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">
-                  <span>Todas las reacciones se sincronizan con la pantalla principal.</span>
+                  <span>Tus reacciones se ven en tu pantalla. Los votos de la encuesta se suman en vivo para toda la audiencia.</span>
                   <button
                     onClick={() => {
-                      setPulseEnergy(100);
                       handleTriggerReaction('FIREWORKS', 'Máximo Pulso', '🎆');
                     }}
                     className="text-cyan-400 hover:underline font-bold"
@@ -583,6 +603,10 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                     );
                   })}
                 </div>
+
+                {voteError && (
+                  <p role="alert" className="p-2 text-[11px] text-red-300 border border-red-500/50 bg-red-950/40">{voteError}</p>
+                )}
 
                 {/* Voting Status / Reward Note */}
                 <div className="p-2 bg-[#161616] border border-[var(--sgx-secondary)] text-[10px] flex items-center justify-between">

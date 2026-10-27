@@ -17,6 +17,7 @@ import { AdminRewardsManager } from "./AdminRewardsManager";
 import { PRIZE_TIERS } from '../../lib/gamification';
 import { INITIAL_TENANTS } from '../../lib/schemas';
 import { TenantRoomManager } from './TenantRoomManager';
+import { SummitRegistrationsPanel } from './SummitRegistrationsPanel';
 import { AdminThemeStudio } from './AdminThemeStudio';
 import { useAuth, AUTHORIZED_SUPER_ADMIN_EMAIL } from '../../context/AuthContext';
 import { telemetry } from '../../lib/telemetry';
@@ -99,7 +100,9 @@ import {
   saveAllSponsorshipTiers,
   approveSponsorInquiryAndCreateShowcase,
   deleteApprovedSponsor,
-  playNotificationChime
+  playNotificationChime,
+  fetchSponsorInquiriesRemote,
+  deleteSponsorInquiryRemote,
 } from '../../lib/summitData';
 
 interface AdminDashboardProps {
@@ -123,6 +126,7 @@ interface AdminDashboardProps {
 }
 
 export type AdminSubpage = 
+  | 'REGISTRATIONS'
   | 'DIRECTOR' 
   | 'CYOA_SCENARIOS' 
   | 'PRESETS_LAB' 
@@ -219,6 +223,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     if (activeSubpage === 'AUDIENCE_LEADS') {
       fetchLeads();
     }
+    if (activeSubpage === 'SPONSORS_CRM') {
+      fetchSponsorInquiriesRemote().then(setSponsorInquiries);
+    }
   }, [activeSubpage]);
 
   const showCrmStatus = (msg: string) => {
@@ -240,6 +247,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     const updated = sponsorInquiries.filter(i => i.id !== id);
     setSponsorInquiries(updated);
     saveAllSponsorInquiries(updated);
+    deleteSponsorInquiryRemote(id);
     showCrmStatus('Solicitud eliminada.');
   };
 
@@ -347,10 +355,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   // Push notification handler for CMS
+  // The CMS publishes the announcement itself; this only echoes it here.
   const handleCMSPushAlert = (notif: SummitNotification) => {
-    playNotificationChime();
-    showCrmStatus(`¡Alerta Push emitida a todos los asistentes: "${notif.title}"!`);
+    showCrmStatus(`Anuncio "${notif.title}" en camino a todos los asistentes conectados.`);
   };
+
 
   // If not admin, show secure lock
   if (!isAdmin) {
@@ -535,6 +544,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {/* Subpage Navigation Tabs (Unified Single-Login Menu) */}
           <div className="flex items-center space-x-2 border-b border-[var(--sgx-secondary)] pb-2 overflow-x-auto">
             {[
+              { id: 'REGISTRATIONS', label: '0. INSCRITOS & DÍA 3', icon: Users },
               { id: 'DIRECTOR', label: '1. DIRECTOR CONSOLE', icon: Radio },
               { id: 'CYOA_SCENARIOS', label: '2. CYOA SCENARIOS', icon: GitBranch },
               { id: 'PRESETS_LAB', label: '3. FX PRESETS & UBERSHADERS', icon: Sparkles },
@@ -572,6 +582,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
 
           {/* SUBPAGE 1: DIRECTOR CONSOLE */}
+          {activeSubpage === 'REGISTRATIONS' && <SummitRegistrationsPanel />}
+
           {activeSubpage === 'DIRECTOR' && (
             <div className="space-y-4">
               

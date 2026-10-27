@@ -25,6 +25,7 @@ import { SAMPLE_QUESTIONS, INITIAL_TENANTS } from './lib/schemas';
 import { DEFAULT_PRESET, VISUALIZER_PRESETS, getAllPresets } from './lib/presets';
 import { preloadAllPresetAssets } from './lib/assetCache';
 import { useAuth } from './context/AuthContext';
+import { auth } from './lib/firebase';
 import { telemetry } from './lib/telemetry';
 
 import { getAppRouteAndSectionFromUrl, syncAppUrl } from './lib/summitUrlSync';
@@ -35,7 +36,7 @@ import { SgxBootSequence } from './immersion/SgxBootSequence';
 import { recordVisit } from './lib/visitTracker';
 
 export default function App() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, user: authUser } = useAuth();
   const [showSplash, setShowSplash] = useState<boolean>(() => {
     try {
       return !sessionStorage.getItem('sgx_splash_shown');
@@ -96,10 +97,22 @@ export default function App() {
 
   // Local User Profile for Audience PWA
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
-    const savedId = `user_${Math.random().toString(36).substring(2, 9)}`;
+    // One stable voter per browser, named after the SGX Pass when there is one.
+    let savedId = '';
+    let nickname = '';
+    try {
+      savedId = localStorage.getItem('sgx_voter_id_v1') || '';
+      if (!/^[A-Za-z0-9_-]{6,64}$/.test(savedId)) {
+        savedId = `user_${Math.random().toString(36).substring(2, 11)}`;
+        localStorage.setItem('sgx_voter_id_v1', savedId);
+      }
+      const pass = JSON.parse(localStorage.getItem('sgx_identity_v1') || 'null')?.pass;
+      nickname = (pass?.callsign || pass?.fullName || '').toString().slice(0, 40);
+    } catch {}
+    if (!savedId) savedId = `user_${Math.random().toString(36).substring(2, 11)}`;
     return {
       id: savedId,
-      nickname: `CyberFan_${Math.floor(Math.random() * 899 + 100)}`,
+      nickname: nickname || `Piloto_${savedId.slice(-4).toUpperCase()}`,
       avatar: '🚀',
       avatarSeed: savedId,
       tenantId: 'tenant_spatialgineers',
@@ -181,6 +194,15 @@ export default function App() {
     syncAppUrl({ page: currentPage, theme: tenantId, replace: false });
   };
 
+  /** Director REST calls carry the admin's Firebase ID token. */
+  const adminFetch = async (url: string, init: RequestInit) => {
+    const token = await auth.currentUser?.getIdToken().catch(() => null);
+    return fetch(url, {
+      ...init,
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    });
+  };
+
   // Fetch initial state via REST API
   const fetchInitialState = async () => {
     try {
@@ -205,8 +227,14 @@ export default function App() {
     }
   };
 
+  // The live engine (votes, presets, stage) only runs on the pages that use it.
+  const needsLiveEngine = currentPage === 'admin' || currentPage === 'play' || currentPage === 'stage' || currentPage === 'multiview';
+  const isAdminRef = useRef(isAdmin);
+  isAdminRef.current = isAdmin;
+
   // Setup WebSocket Connection & Ecosystem Asset Preloading
   useEffect(() => {
+    if (!needsLiveEngine) return;
     fetchInitialState();
     
     // Global suppressor for benign WebSocket closing / Vite HMR unhandled rejections
@@ -243,7 +271,14 @@ export default function App() {
         wsRef.current = ws;
 
         ws.onopen = () => {
-          if (!isDisposed) setIsConnected(true);
+          if (isDisposed) return;
+          setIsConnected(true);
+          // Directors prove who they are with their Firebase ID token.
+          if (isAdminRef.current && auth.currentUser) {
+            auth.currentUser.getIdToken()
+              .then((token) => { if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'AUTH', payload: { token } })); })
+              .catch(() => {});
+          }
         };
 
         ws.onmessage = (evt) => {
@@ -299,7 +334,7 @@ export default function App() {
         wsRef.current = null;
       }
     };
-  }, [selectedTenantId, selectedEventId]);
+  }, [selectedTenantId, selectedEventId, needsLiveEngine, isAdmin, authUser?.uid]);
 
   const handleIncomingWSMessage = (msg: WSMessage) => {
     switch (msg.type) {
@@ -482,9 +517,8 @@ export default function App() {
     });
 
     // 3. REST Action Sync
-    fetch('/api/action/broadcast-question', {
+    adminFetch('/api/action/broadcast-question', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         tenantId: selectedTenantId,
         eventId: selectedEventId,
@@ -506,9 +540,8 @@ export default function App() {
       eventId: selectedEventId,
     });
 
-    fetch('/api/action/close-voting', {
+    adminFetch('/api/action/close-voting', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         tenantId: selectedTenantId,
         eventId: selectedEventId,
@@ -529,9 +562,8 @@ export default function App() {
       eventId: selectedEventId,
     });
 
-    fetch('/api/action/trigger-preset', {
+    adminFetch('/api/action/trigger-preset', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         tenantId: selectedTenantId,
         eventId: selectedEventId,

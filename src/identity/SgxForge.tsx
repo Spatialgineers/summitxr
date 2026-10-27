@@ -39,6 +39,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
   const [affinity, setAffinity] = useState<PillarKey | null>(identity.affinity);
   const [options, setOptions] = useState<string[]>(() => [identity.avatar.seed, ...seeds().slice(0, 2)]);
   const [seed, setSeed] = useState(identity.avatar.seed);
+  const [imageConsent, setImageConsent] = useState<boolean>(identity.pass?.imageConsent === true);
   const [error, setError] = useState('');
   const nameRef = useRef<HTMLInputElement>(null);
   const accent = affinity ? PILLAR_ACCENT[affinity] : '#FDCC0D';
@@ -62,6 +63,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
     e.preventDefault();
     if (fullName.trim().length < 2) { setError(es ? 'Escribe tu nombre.' : 'Type your name.'); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError(es ? 'Escribe un correo válido.' : 'Type a valid email.'); return; }
+    if (!imageConsent) { setError(es ? 'Para registrarte, acepta el consentimiento de imagen.' : 'To register, accept the image consent.'); return; }
     setError('');
     go('pillar');
   };
@@ -70,7 +72,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
     if (!affinity) return;
     setStep('print');
     playCyberBurstSound('kudos');
-    forge({ fullName, email, tier, affinity, roleTitle, organization, avatarSeed: seed });
+    forge({ fullName, email, tier, affinity, roleTitle, organization, avatarSeed: seed, imageConsent });
     window.setTimeout(() => {
       playScanSuccessSound();
       try {
@@ -157,6 +159,12 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
                 <span>{es ? 'Chroma Space Studios, San Juan. Por invitación y cupo limitado: recibes la invitación por correo. Último llamado: 1 de diciembre.' : 'Chroma Space Studios, San Juan. By invitation, limited capacity: invitations arrive by email. Last call: December 1.'}</span>
               </label>
             </fieldset>
+            <label className="sgx-forge__consent">
+              <input type="checkbox" checked={imageConsent} onChange={(e) => setImageConsent(e.target.checked)} required />
+              <span>{es
+                ? 'Acepto que Spatialgineers use fotos y video en los que aparezca durante el Summit (transmisión, redes y materiales del evento).'
+                : 'I agree that Spatialgineers may use photos and video in which I appear during the Summit (broadcast, social media and event materials).'}</span>
+            </label>
             {error && <p className="sgx-forge__error" role="alert">{error}</p>}
             <p className="sgx-forge__fine">{es ? 'Usamos tu nombre y correo solo para el Summit. Tu correo no aparece en el QR.' : 'We use your name and email only for the Summit. Your email is not in the QR.'}</p>
             <div className="sgx-forge__actions">

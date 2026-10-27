@@ -27,16 +27,28 @@ import {
   ShoppingBag
 } from 'lucide-react';
 import { GamificationReward, RedeemedPrize, LeaderboardEntry, RewardCategory } from '../../types/gamification';
-import { 
-  loadAllRewards, 
-  loadUserRedeemedPrizes, 
-  loadLeaderboard, 
-  redeemPrize,
-  syncUserScoreToLeaderboard
+import {
+  loadAllRewards,
+  loadUserRedeemedPrizes,
+  redeemPrize
 } from '../../lib/rewardsStore';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useAuth } from '../../context/AuthContext';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
+import { usePilotProfile } from '../../context/PilotProfileContext';
+import { SgxPilotGlyph } from '../../identity/SgxPilotGlyph';
+
+/** Podium avatar: the in-house pilot glyph (no stock photos). */
+const PodiumAvatar: React.FC<{ seed: string; color?: string; size: number; ring: string }> = ({ seed, color, size, ring }) => (
+  <div
+    className={`rounded-full border-2 ${ring} bg-black overflow-hidden flex items-center justify-center mt-3 shadow-md`}
+    style={{ width: size, height: size }}
+  >
+    <SgxPilotGlyph seed={seed} accent={color || '#00DDFF'} size={size * 0.8} />
+  </div>
+);
+
+type StoreLeaderRow = LeaderboardEntry & { avatarSeed: string; avatarColor?: string };
 
 interface SummitRewardsStoreModalProps {
   onClose: () => void;
@@ -59,8 +71,23 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
   
   const [rewards, setRewards] = useState<GamificationReward[]>([]);
   const [redeemedPrizes, setRedeemedPrizes] = useState<RedeemedPrize[]>([]);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  // The one real leaderboard: pilot_leaderboard (live, from PilotProfileContext).
+  const { leaderboard: pilotLeaderboard } = usePilotProfile();
+  const leaderboard: StoreLeaderRow[] = pilotLeaderboard.map(p => ({
+    id: p.uid,
+    userId: p.uid,
+    username: p.nickname,
+    totalXp: p.totalXp,
+    votesCount: p.votesCount || 0,
+    questsCount: p.connectionsCount || 0,
+    droneHighScore: p.droneHighScore || 0,
+    rankTitle: p.rankTitle,
+    streak: 0,
+    lastActivity: p.updatedAt,
+    avatarSeed: p.avatarSeed || p.uid,
+    avatarColor: p.avatarColor,
+  }));
+const [loading, setLoading] = useState<boolean>(true);
   
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -78,26 +105,12 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [rewardsData, redeemedData, lbData] = await Promise.all([
+        const [rewardsData, redeemedData] = await Promise.all([
           loadAllRewards(),
-          loadUserRedeemedPrizes(user?.uid),
-          loadLeaderboard()
+          loadUserRedeemedPrizes(user?.uid)
         ]);
         setRewards(rewardsData.filter(r => r.active));
         setRedeemedPrizes(redeemedData);
-        setLeaderboard(lbData);
-
-        // Sync current user to leaderboard
-        const currentUid = user?.uid || 'guest_user_' + (localStorage.getItem('sgx_guest_id') || 'local');
-        const currentName = user?.displayName || user?.email?.split('@')[0] || 'Tú (Asistente Summit)';
-        syncUserScoreToLeaderboard({
-          userId: currentUid,
-          username: currentName,
-          totalXp: userXp,
-          votesCount: 8,
-          questsCount: 4,
-          rankTitle: userXp >= 1500 ? 'Gran Maestro' : userXp >= 800 ? 'Ingeniero Táctico' : 'Iniciado'
-        });
       } catch (err) {
         console.error("Error loading store data", err);
       } finally {
@@ -122,9 +135,13 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
       return;
     }
 
+    if (!user?.uid) {
+      setRedeemError('Conectando tu pase… intenta de nuevo en unos segundos.');
+      return;
+    }
     setRedeemError(null);
     const currentUserObj = {
-      uid: user?.uid || 'guest_' + Date.now(),
+      uid: user.uid,
       email: user?.email || 'asistente@spatialgineers.com',
       displayName: user?.displayName || 'Asistente Summit'
     };
@@ -493,11 +510,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
                     <div className="w-10 h-10 rounded-full bg-slate-400 text-black font-black font-mono text-lg flex items-center justify-center -mt-8 shadow-lg border-2 border-white">
                       2
                     </div>
-                    <img
-                      src={leaderboard[1].avatarUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'}
-                      alt={leaderboard[1].username}
-                      className="w-16 h-16 rounded-full border-2 border-slate-400 object-cover mt-3 shadow-md"
-                    />
+                    <PodiumAvatar seed={leaderboard[1].avatarSeed} color={leaderboard[1].avatarColor} size={64} ring="border-slate-400" />
                     <h4 className="text-sm font-bold text-white mt-2 truncate w-full">{leaderboard[1].username}</h4>
                     <span className="text-[11px] font-mono text-slate-400">{leaderboard[1].rankTitle}</span>
                     <div className="mt-3 px-3 py-1 bg-black/60 border border-slate-400/50 text-slate-200 font-mono font-extrabold text-sm">
@@ -505,7 +518,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
                     </div>
                     <div className="text-[10px] text-slate-500 font-mono mt-2 flex items-center space-x-2">
                       <span>🗳️ {leaderboard[1].votesCount} Votos</span>
-                      <span>🎯 {leaderboard[1].questsCount} Misiones</span>
+                      <span>🎯 {leaderboard[1].questsCount} Conexiones</span>
                     </div>
                   </div>
                 )}
@@ -519,11 +532,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
                     <div className="w-12 h-12 rounded-full bg-[#FDCC0D] text-black font-black font-mono text-xl flex items-center justify-center -mt-10 shadow-xl border-2 border-white animate-bounce">
                       👑 1
                     </div>
-                    <img
-                      src={leaderboard[0].avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
-                      alt={leaderboard[0].username}
-                      className="w-20 h-20 rounded-full border-4 border-[#FDCC0D] object-cover mt-2 shadow-lg"
-                    />
+                    <PodiumAvatar seed={leaderboard[0].avatarSeed} color={leaderboard[0].avatarColor} size={80} ring="border-[#FDCC0D]" />
                     <h4 className="text-base font-black text-white mt-2 truncate w-full">{leaderboard[0].username}</h4>
                     <span className="text-xs font-mono text-[#FDCC0D] font-bold">{leaderboard[0].rankTitle}</span>
                     <div className="mt-3 px-4 py-1.5 bg-[#FDCC0D] text-black font-mono font-black text-base shadow-lg">
@@ -531,8 +540,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
                     </div>
                     <div className="text-[11px] text-amber-200 font-mono mt-2 flex items-center space-x-3">
                       <span>🗳️ {leaderboard[0].votesCount} Votos</span>
-                      <span>🎯 {leaderboard[0].questsCount} Misiones</span>
-                      <span>🔥 {leaderboard[0].streak}x Racha</span>
+                      <span>🎯 {leaderboard[0].questsCount} Conexiones</span>
                     </div>
                   </div>
                 )}
@@ -546,11 +554,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
                     <div className="w-10 h-10 rounded-full bg-amber-700 text-white font-black font-mono text-lg flex items-center justify-center -mt-8 shadow-lg border-2 border-white">
                       3
                     </div>
-                    <img
-                      src={leaderboard[2].avatarUrl || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150'}
-                      alt={leaderboard[2].username}
-                      className="w-16 h-16 rounded-full border-2 border-amber-700 object-cover mt-3 shadow-md"
-                    />
+                    <PodiumAvatar seed={leaderboard[2].avatarSeed} color={leaderboard[2].avatarColor} size={64} ring="border-amber-700" />
                     <h4 className="text-sm font-bold text-white mt-2 truncate w-full">{leaderboard[2].username}</h4>
                     <span className="text-[11px] font-mono text-amber-400">{leaderboard[2].rankTitle}</span>
                     <div className="mt-3 px-3 py-1 bg-black/60 border border-amber-700/50 text-amber-200 font-mono font-extrabold text-sm">
@@ -558,7 +562,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
                     </div>
                     <div className="text-[10px] text-slate-500 font-mono mt-2 flex items-center space-x-2">
                       <span>🗳️ {leaderboard[2].votesCount} Votos</span>
-                      <span>🎯 {leaderboard[2].questsCount} Misiones</span>
+                      <span>🎯 {leaderboard[2].questsCount} Conexiones</span>
                     </div>
                   </div>
                 )}
@@ -599,7 +603,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
                               )}
                             </div>
                             <div className="text-[11px] text-slate-400 mt-0.5">
-                              {entry.rankTitle} • {entry.votesCount} votos • {entry.questsCount} misiones
+                              {entry.rankTitle} • {entry.votesCount} votos • {entry.questsCount} conexiones
                             </div>
                           </div>
                         </div>

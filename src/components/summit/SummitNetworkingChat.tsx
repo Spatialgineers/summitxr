@@ -35,6 +35,25 @@ import { db } from '../../lib/firebase';
 import { collection, addDoc, onSnapshot, query, orderBy, limit, doc, updateDoc, increment } from 'firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
 import { useTenantTheme } from '../../context/TenantThemeContext';
+import { SgxPilotGlyph } from '../../identity/SgxPilotGlyph';
+
+/** Only small, remote avatars travel in chat docs (rules cap ~150 KB). */
+const isShareableAvatar = (src?: string) =>
+  !!src && /^https:\/\//.test(src) && src.length <= 1000 && !/images\.unsplash\.com/.test(src);
+
+/** A real photo when there is one, otherwise the in-house pilot glyph. */
+const ChatAvatar: React.FC<{ src?: string; seed: string; alt: string; className: string; style?: React.CSSProperties }> = ({ src, seed, alt, className, style }) => {
+  const [broken, setBroken] = useState(false);
+  const usable = !!src && !broken && !/images\.unsplash\.com/.test(src) && (/^https:\/\//.test(src) || /^data:image\//.test(src));
+  if (usable) {
+    return <img src={src} alt={alt} className={className} style={style} onError={() => setBroken(true)} />;
+  }
+  return (
+    <div className={`${className} bg-black flex items-center justify-center overflow-hidden`} style={style} role="img" aria-label={alt}>
+      <SgxPilotGlyph seed={seed || 'sgx'} accent="#00DDFF" size={28} />
+    </div>
+  );
+};
 
 export interface ForumChannel {
   id: string;
@@ -141,7 +160,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
   const currentUser = {
     id: propUser?.id || authUser?.uid || 'user_attendee_live',
     name: propUser?.name || authUser?.displayName || authUser?.email?.split('@')[0] || 'Asistente Spatialgineer',
-    avatar: propUser?.avatar || authUser?.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
+    avatar: propUser?.avatar || authUser?.photoURL || '',
     role: propUser?.role || 'ATTENDEE'
   };
 
@@ -176,7 +195,8 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
   useEffect(() => {
     try {
       const chatRef = collection(db, 'chat_messages');
-      const q = query(chatRef, orderBy('timestamp', 'asc'), limit(300));
+      // Newest 300 (desc + limit), shown oldest→newest below.
+      const q = query(chatRef, orderBy('timestamp', 'desc'), limit(300));
 
       const unsubscribe = onSnapshot(
         q,
@@ -190,14 +210,14 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                 channelId: data.channelId || '#general',
                 senderId: data.senderId || 'anon',
                 senderName: data.senderName || 'Asistente',
-                senderAvatar: data.senderAvatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
+                senderAvatar: data.senderAvatar || '',
                 senderRole: data.senderRole || 'ATTENDEE',
                 text: data.text || '',
                 timestamp: data.timestamp || Date.now(),
                 reactions: data.reactions || {},
                 isPinned: Boolean(data.isPinned)
               };
-            });
+            }).reverse();
 
             // Merge with default seed messages so all forums start lively
             const seenIds = new Set<string>();
@@ -285,15 +305,18 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
       playNotificationChime();
     }
 
-    // Push to Firestore live collection
+    // Push to Firestore live collection (rules: signed in, authorUid == auth uid,
+    // only ATTENDEE role for non-admins, small avatar URL or none).
+    if (!authUser?.uid) return;
     try {
       await addDoc(collection(db, 'chat_messages'), {
         channelId: activeChannelId,
-        senderId: currentUser.id,
-        senderName: currentUser.name,
-        senderAvatar: currentUser.avatar,
-        senderRole: (currentUser.role as any) || 'ATTENDEE',
-        text: trimmedText,
+        senderId: authUser.uid,
+        authorUid: authUser.uid,
+        senderName: currentUser.name.slice(0, 100),
+        ...(isShareableAvatar(currentUser.avatar) ? { senderAvatar: currentUser.avatar } : {}),
+        senderRole: 'ATTENDEE',
+        text: trimmedText.slice(0, 1000),
         timestamp: Date.now(),
         reactions: {}
       });
@@ -529,8 +552,9 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
 
         {/* Current User Info Footer */}
         <div className="p-3 bg-[var(--sgx-card-bg)] border-t border-[var(--sgx-secondary)]/60 flex items-center space-x-3">
-          <img 
+          <ChatAvatar 
             src={currentUser.avatar} 
+            seed={currentUser.id} 
             alt={currentUser.name} 
             className="w-8 h-8 object-cover border border-[var(--sgx-neon)] shrink-0" 
             style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
@@ -716,8 +740,9 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                       className={`flex items-start space-x-3 sm:space-x-3.5 ${isMe ? 'flex-row-reverse space-x-reverse' : ''}`}
                     >
                       {/* Avatar */}
-                      <img 
+                      <ChatAvatar 
                         src={msg.senderAvatar} 
+                        seed={msg.senderId} 
                         alt={msg.senderName} 
                         className={`w-8 h-8 sm:w-9 sm:h-9 object-cover border shrink-0 mt-1 shadow-md ${
                           isOfficial ? 'border-amber-400' : 'border-[var(--sgx-secondary)]'

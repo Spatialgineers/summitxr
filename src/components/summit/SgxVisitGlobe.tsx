@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import type { GlobeInstance } from 'globe.gl';
 import { useLanguage } from '../../context/LanguageContext';
-import type { VisitRegion } from '../../lib/visitTracker';
+import { escapeHtml, type VisitRegion } from '../../lib/visitTracker';
 
 /*
  * SGX Radar Global: a 3D globe where every region that visits the Summit
@@ -129,7 +129,7 @@ export const SgxVisitGlobe: React.FC<Props> = ({ regions, mineId }) => {
       .arcDashGap(0.25)
       .arcDashInitialGap(() => Math.random())
       .arcDashAnimateTime(reduceMotion ? 0 : 2400)
-      .arcLabel((a: any) => `<div class="sgx-globe-tip"><strong>${a.name}</strong><br/>${a.visits.toLocaleString('es-PR')} ${es ? 'visitas' : 'visits'} → San Juan</div>`);
+      .arcLabel((a: any) => `<div class="sgx-globe-tip"><strong>${escapeHtml(a.name)}</strong><br/>${a.visits.toLocaleString('es-PR')} ${es ? 'visitas' : 'visits'} → San Juan</div>`);
 
     g.pointsData(located)
       .pointLat('lat')
@@ -138,7 +138,7 @@ export const SgxVisitGlobe: React.FC<Props> = ({ regions, mineId }) => {
       .pointAltitude((r: any) => 0.01 + 0.22 * Math.sqrt(r.totalVisits / maxVisits))
       .pointRadius((r: any) => (r.country === 'PR' ? 0.12 : 0.32))
       .pointsMerge(false)
-      .pointLabel((r: any) => `<div class="sgx-globe-tip"><strong>${r.name}</strong><br/>${r.totalVisits.toLocaleString('es-PR')} ${es ? 'visitas' : 'visits'} · ${r.uniqueVisitors.toLocaleString('es-PR')} ${es ? 'únicas' : 'unique'}</div>`);
+      .pointLabel((r: any) => `<div class="sgx-globe-tip"><strong>${escapeHtml(r.name)}</strong><br/>${r.totalVisits.toLocaleString('es-PR')} ${es ? 'visitas' : 'visits'} · ${r.uniqueVisitors.toLocaleString('es-PR')} ${es ? 'únicas' : 'unique'}</div>`);
 
     const recent = located.filter((r) => r.lastVisitAt && now - r.lastVisitAt < RECENT_MS);
     g.ringsData([{ lat: HQ.lat, lon: HQ.lng, hq: true }, ...recent])

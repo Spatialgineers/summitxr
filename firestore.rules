@@ -7,17 +7,28 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Global Helper Primitives
+    // ---------------------------------------------------------------------
+    // Helpers
+    // ---------------------------------------------------------------------
     function isSignedIn() {
       return request.auth != null;
     }
 
-    function isVerifiedUser() {
-      return isSignedIn() && (request.auth.token.email_verified == true || request.auth.token.firebase.sign_in_provider == 'google.com');
+    function me() {
+      return request.auth.uid;
     }
 
+    // Super admins: the two team accounts, with a verified address or a
+    // Google sign-in. An unverified account typed with the same email is not one.
     function isSuperAdmin() {
-      return isSignedIn() && request.auth.token.email == 'info@spatialgineers.com';
+      return isSignedIn() &&
+             request.auth.token.email in ['info@spatialgineers.com', 'support@spatialgineers.com'] &&
+             (request.auth.token.email_verified == true || request.auth.token.firebase.sign_in_provider == 'google.com');
+    }
+
+    function isAdmin() {
+      return isSuperAdmin() ||
+             (isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
     }
 
     function isValidId(id) {
@@ -32,36 +43,205 @@ service cloud.firestore {
       return resource.data;
     }
 
-    // Validations
+    function changed() {
+      return incoming().diff(existing()).affectedKeys();
+    }
+
+    function isShortString(v, max) {
+      return v is string && v.size() <= max;
+    }
+
+    function optString(data, key, max) {
+      return !(key in data) || data[key] == null || isShortString(data[key], max);
+    }
+
+    function isBoundedInt(v, lo, hi) {
+      return v is int && v >= lo && v <= hi;
+    }
+
+    function optBoundedNumber(data, key, lo, hi) {
+      return !(key in data) || ((data[key] is int || data[key] is float) && data[key] >= lo && data[key] <= hi);
+    }
+
+    // ---------------------------------------------------------------------
+    // Admins & catalogs (read by everyone, written only by admins)
+    // ---------------------------------------------------------------------
     function isValidAdmin(data) {
       return data.keys().hasAll(['email', 'role']) &&
              data.email is string && data.email.size() <= 100 &&
              data.role is string && (data.role in ['SUPER_ADMIN', 'DIRECTOR', 'OPERATOR']);
     }
 
-    function isValidTenant(data) {
-      return data.keys().hasAll(['name', 'slug']) &&
-             data.name is string && data.name.size() <= 100 &&
-             data.slug is string && data.slug.size() <= 100 && data.slug.matches('^[a-zA-Z0-9_-]+$');
+    match /admins/{adminId} {
+      // A signed-in user may check whether they themselves are an admin.
+      allow get: if isSuperAdmin() || (isSignedIn() && adminId == me());
+      allow list: if isSuperAdmin();
+      allow create, update: if isSuperAdmin() && isValidId(adminId) && isValidAdmin(incoming());
+      allow delete: if isSuperAdmin();
     }
 
-    function isValidQuestion(data) {
-      return data.keys().hasAll(['tenantId', 'eventId', 'prompt', 'category', 'answerType']) &&
-             data.tenantId is string && data.tenantId.size() <= 100 &&
-             data.eventId is string && data.eventId.size() <= 100 &&
-             data.prompt is string && data.prompt.size() <= 500 &&
-             data.category is string && data.category.size() <= 100 &&
-             data.answerType is string && (data.answerType in ['KNOWLEDGE', 'OPINION_CYOA']);
+    match /tenants/{tenantId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin() && isValidId(tenantId);
     }
 
-    function isValidSession(data) {
-      return data.keys().hasAll(['tenantId', 'eventId', 'status', 'activePresetId']) &&
-             data.tenantId is string && data.tenantId.size() <= 100 &&
-             data.eventId is string && data.eventId.size() <= 100 &&
-             data.status is string && (data.status in ['IDLE', 'VOTING_ACTIVE', 'VOTING_CLOSED', 'RESULT_REVEALED', 'EVENT_ENDED']) &&
-             data.activePresetId is string && data.activePresetId.size() <= 100;
+    match /questions/{questionId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin() && isValidId(questionId);
     }
 
+    match /sessions/{sessionId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin() && isValidId(sessionId);
+    }
+
+    // Live CMS content (speakers, sessions, sponsors, embeds, map, tiers).
+    match /summit_content/{key} {
+      allow get, list: if true;
+      allow create, update: if isAdmin() && isValidId(key) &&
+        incoming().keys().hasOnly(['items', 'updatedAt']) &&
+        incoming().items is list && incoming().items.size() <= 500;
+      allow delete: if isAdmin();
+    }
+
+    match /summit_speakers/{speakerId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin() && isValidId(speakerId);
+    }
+
+    match /summit_sessions/{sessionId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin() && isValidId(sessionId);
+    }
+
+    match /approved_sponsors/{sponsorId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin() && isValidId(sponsorId);
+    }
+
+    match /gamification_tiers/{tierId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin() && isValidId(tierId);
+    }
+
+    match /leaderboard_scores/{scoreId} {
+      // Retired (the only leaderboard is pilot_leaderboard).
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Site config: feature toggles and the CMS announcement. Admin writes only.
+    match /site_config/{configId} {
+      allow get, list: if true;
+      allow create, update: if isAdmin() && isValidId(configId) &&
+        (configId != 'announcement' || (
+          incoming().keys().hasOnly(['id', 'title', 'message', 'priority', 'actionUrl', 'actionLabel', 'at']) &&
+          isShortString(incoming().id, 64) &&
+          isShortString(incoming().title, 120) &&
+          isShortString(incoming().message, 600) &&
+          incoming().priority in ['LOW', 'NORMAL', 'HIGH', 'CRITICAL'] &&
+          optString(incoming(), 'actionUrl', 300) &&
+          optString(incoming(), 'actionLabel', 40) &&
+          incoming().at == request.time));
+      allow delete: if isAdmin();
+    }
+
+    // Admin-only private config (e.g. the Day 3 check-in code). Rules can
+    // still read it with get(), which is how check-ins are validated.
+    match /summit_private/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /telemetry_events/{eventId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /telemetry_aggregates/{aggId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------------
+    // Registrations & inquiries (visitors create, the team reads)
+    // ---------------------------------------------------------------------
+    function isValidTicketInquiry(data) {
+      return data.keys().hasOnly(['email', 'ticketType', 'fullName', 'roleTitle', 'organization', 'referenceCode',
+                                  'status', 'userId', 'timestamp', 'imageConsent', 'consentAt']) &&
+             data.keys().hasAll(['email', 'ticketType']) &&
+             isShortString(data.email, 150) && data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$') &&
+             data.ticketType in ['DIGITAL', 'SHOWCASE_PHYSICAL'] &&
+             optString(data, 'fullName', 100) &&
+             optString(data, 'roleTitle', 100) &&
+             optString(data, 'organization', 150) &&
+             optString(data, 'referenceCode', 100) &&
+             (!('status' in data) || data.status == 'PENDING') &&
+             (!('userId' in data) || data.userId == null || (isSignedIn() && data.userId == me())) &&
+             (!('imageConsent' in data) || data.imageConsent is bool) &&
+             (!('consentAt' in data) || data.consentAt is int) &&
+             (!('timestamp' in data) || data.timestamp == request.time);
+    }
+
+    match /ticket_inquiries/{inquiryId} {
+      allow get: if isAdmin() || (isSignedIn() && resource.data.userId == me());
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == me());
+      allow create: if isValidTicketInquiry(incoming());
+      allow update: if isAdmin() &&
+        changed().hasOnly(['status', 'invitedAt', 'notes']) &&
+        incoming().status in ['PENDING', 'INVITED', 'CONFIRMED', 'DECLINED'] &&
+        optString(incoming(), 'notes', 500);
+      allow delete: if isAdmin();
+    }
+
+    function isValidSponsorInquiry(id, data) {
+      return data.keys().hasOnly(['id', 'companyName', 'contactName', 'roleTitle', 'email', 'phone', 'websiteUrl',
+                                  'selectedTierId', 'selectedTierName', 'estimatedBudget', 'goals', 'customMessage',
+                                  'submittedAt', 'status', 'referenceCode']) &&
+             data.keys().hasAll(['id', 'companyName', 'contactName', 'email', 'selectedTierId']) &&
+             data.id == id &&
+             isShortString(data.companyName, 120) && data.companyName.size() > 0 &&
+             isShortString(data.contactName, 100) && data.contactName.size() > 0 &&
+             isShortString(data.email, 150) &&
+             isShortString(data.selectedTierId, 50) &&
+             optString(data, 'roleTitle', 100) &&
+             optString(data, 'phone', 40) &&
+             optString(data, 'websiteUrl', 300) &&
+             optString(data, 'selectedTierName', 150) &&
+             optString(data, 'estimatedBudget', 60) &&
+             optString(data, 'customMessage', 2000) &&
+             optString(data, 'referenceCode', 60) &&
+             (!('goals' in data) || (data.goals is list && data.goals.size() <= 12)) &&
+             (!('submittedAt' in data) || data.submittedAt is int) &&
+             (!('status' in data) || data.status == 'PENDING_REVIEW');
+    }
+
+    match /sponsor_inquiries/{inquiryId} {
+      allow get, list: if isAdmin();
+      allow create: if isValidId(inquiryId) && isValidSponsorInquiry(inquiryId, incoming());
+      allow update, delete: if isAdmin();
+    }
+
+    // Speaker portal self-registrations: the team reviews and publishes them.
+    match /speaker_submissions/{speakerId} {
+      allow get, list: if isAdmin();
+      allow create: if isValidId(speakerId) &&
+        incoming().keys().hasOnly(['id', 'name', 'handle', 'role', 'organization', 'avatarUrl', 'bio', 'pillarId', 'day',
+                                   'isKeynote', 'isAwakenInitiate', 'awakenRank', 'socialLinks', 'submittedAt', 'submittedBy']) &&
+        isShortString(incoming().name, 100) && incoming().name.size() > 0 &&
+        optString(incoming(), 'role', 100) &&
+        optString(incoming(), 'organization', 150) &&
+        optString(incoming(), 'handle', 60) &&
+        optString(incoming(), 'bio', 3000) &&
+        optString(incoming(), 'avatarUrl', 900000) &&
+        (!('day' in incoming()) || (incoming().day is int && incoming().day >= 1 && incoming().day <= 3)) &&
+        (!('isKeynote' in incoming()) || incoming().isKeynote == false) &&
+        (!('socialLinks' in incoming()) || incoming().socialLinks is map) &&
+        incoming().submittedAt == request.time &&
+        (incoming().submittedBy == null || (isSignedIn() && incoming().submittedBy == me()));
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------------
+    // Players & pilots (each person writes only their own document)
+    // ---------------------------------------------------------------------
     function isValidPlayer(data) {
       return data.keys().hasAll(['uid', 'username', 'tenantId', 'eventId']) &&
              data.uid is string && data.uid.size() <= 128 &&
@@ -71,254 +251,227 @@ service cloud.firestore {
              (!('email' in data) || (data.email is string && data.email.size() <= 150));
     }
 
-    function isValidTicketInquiry(data) {
-      return data.keys().hasAll(['email', 'ticketType']) &&
-             data.email is string && data.email.size() <= 150 &&
-             data.ticketType is string && (data.ticketType in ['DIGITAL', 'SHOWCASE_PHYSICAL', 'VIP', 'CREATOR']) &&
-             (!('fullName' in data) || (data.fullName is string && data.fullName.size() <= 100)) &&
-             (!('roleTitle' in data) || (data.roleTitle is string && data.roleTitle.size() <= 100)) &&
-             (!('organization' in data) || (data.organization is string && data.organization.size() <= 150)) &&
-             (!('referenceCode' in data) || (data.referenceCode is string && data.referenceCode.size() <= 100)) &&
-             (!('status' in data) || (data.status is string && data.status.size() <= 50)) &&
-             (!('userId' in data) || data.userId == null || (data.userId is string && data.userId.size() <= 128));
-    }
-
-    function isValidSponsorInquiry(data) {
-      return data.keys().hasAll(['companyName', 'contactName', 'email', 'selectedTierId']) &&
-             data.companyName is string && data.companyName.size() <= 120 &&
-             data.contactName is string && data.contactName.size() <= 100 &&
-             data.email is string && data.email.size() <= 150 &&
-             data.selectedTierId is string && data.selectedTierId.size() <= 50;
-    }
-
-    function isValidChatMessage(data) {
-      return data.keys().hasAll(['channelId', 'senderId', 'senderName', 'text']) &&
-             data.channelId is string && data.channelId.size() <= 60 &&
-             data.senderId is string && data.senderId.size() <= 128 &&
-             data.senderName is string && data.senderName.size() <= 100 &&
-             data.text is string && data.text.size() <= 1000 &&
-             (!('senderAvatar' in data) || (data.senderAvatar is string && data.senderAvatar.size() <= 1500000)) &&
-             (!('senderRole' in data) || (data.senderRole is string && data.senderRole.size() <= 50)) &&
-             (!('senderPillar' in data) || (data.senderPillar is string && data.senderPillar.size() <= 50)) &&
-             (!('timestamp' in data) || data.timestamp is number);
-    }
-
-    function isValidSpeaker(data) {
-      return data.keys().hasAll(['name', 'role', 'organization', 'bio', 'avatarUrl', 'day']) &&
-             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
-             data.role is string && data.role.size() > 0 && data.role.size() <= 100 &&
-             data.organization is string && data.organization.size() <= 150 &&
-             data.bio is string && data.bio.size() <= 3000 &&
-             data.avatarUrl is string && data.avatarUrl.size() <= 1500000 &&
-             data.day is number && data.day >= 1 && data.day <= 3 &&
-             (!('handle' in data) || (data.handle is string && data.handle.size() <= 50)) &&
-             (!('pillarId' in data) || (data.pillarId is string && data.pillarId.size() <= 50)) &&
-             (!('userId' in data) || data.userId == null || (data.userId is string && data.userId.size() <= 128));
-    }
-
-    function isValidSummitSession(data) {
-      return data.keys().hasAll(['title', 'day', 'startTime', 'endTime', 'venueLocation', 'format', 'description']) &&
-             data.title is string && data.title.size() > 0 && data.title.size() <= 150 &&
-             data.day is number && data.day >= 1 && data.day <= 3 &&
-             data.startTime is string && data.startTime.size() <= 30 &&
-             data.endTime is string && data.endTime.size() <= 30 &&
-             data.venueLocation is string && data.venueLocation.size() <= 200 &&
-             data.format is string && (data.format in ['DIGITAL', 'HYBRID', 'PHYSICAL', 'ROBLOX_STREAM']) &&
-             data.description is string && data.description.size() <= 3000 &&
-             (!('pillarId' in data) || (data.pillarId is string && data.pillarId.size() <= 50)) &&
-             (!('speakerIds' in data) || (data.speakerIds is list && data.speakerIds.size() <= 50));
-    }
-
-    function isValidSocialPost(data) {
-      return data.keys().hasAll(['content', 'createdAt', 'platform']) &&
-             data.content is string && data.content.size() <= 2000 &&
-             data.platform is string &&
-             data.createdAt is number;
-    }
-
-    // Collection: /admins/{adminId}
-    match /admins/{adminId} {
-      allow get: if isSuperAdmin() && isValidId(adminId);
-      allow list: if isSuperAdmin();
-      allow create, update, delete: if isSuperAdmin() && isValidId(adminId) && isValidAdmin(incoming());
-    }
-
-    // Collection: /tenants/{tenantId}
-    match /tenants/{tenantId} {
-      allow get: if isValidId(tenantId);
-      allow list: if true;
-      allow create, update, delete: if isSuperAdmin() && isValidId(tenantId) && isValidTenant(incoming());
-    }
-
-    // Collection: /questions/{questionId}
-    match /questions/{questionId} {
-      allow get: if isValidId(questionId);
-      allow list: if true;
-      allow create, update, delete: if isSuperAdmin() && isValidId(questionId) && isValidQuestion(incoming());
-    }
-
-    // Collection: /sessions/{sessionId}
-    match /sessions/{sessionId} {
-      allow get: if isValidId(sessionId);
-      allow list: if true;
-      allow create, update: if isSuperAdmin() && isValidId(sessionId) && isValidSession(incoming());
-      allow delete: if isSuperAdmin() && isValidId(sessionId);
-    }
-
-    // Collection: /players/{playerId}
     match /players/{playerId} {
-      allow get: if (isSignedIn() && request.auth.uid == playerId) || isSuperAdmin();
-      allow list: if isSuperAdmin();
-      allow create, update: if (isSignedIn() && request.auth.uid == playerId && isValidId(playerId) && isValidPlayer(incoming())) || isSuperAdmin();
-      allow delete: if isSuperAdmin();
+      // Holds emails: owner and admins only.
+      allow get: if (isSignedIn() && playerId == me()) || isAdmin();
+      allow list: if isAdmin();
+      allow create, update: if (isSignedIn() && playerId == me() && isValidId(playerId) &&
+                                incoming().uid == playerId && isValidPlayer(incoming())) || isAdmin();
+      allow delete: if isAdmin();
     }
 
-    // Collection: /ticket_inquiries/{inquiryId}
-    match /ticket_inquiries/{inquiryId} {
-      allow get: if isSuperAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid) || isValidId(inquiryId);
-      allow list: if isSuperAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-      allow create: if isValidTicketInquiry(incoming());
-      allow update, delete: if isSuperAdmin();
-    }
-
-    // Collection: /sponsor_inquiries/{inquiryId}
-    match /sponsor_inquiries/{inquiryId} {
-      allow get: if isSuperAdmin();
-      allow list: if isSuperAdmin();
-      allow create: if isValidSponsorInquiry(incoming());
-      allow update, delete: if isSuperAdmin();
-    }
-
-    // Collection: /chat_messages/{messageId}
-    match /chat_messages/{messageId} {
-      allow get, list: if true;
-      allow create: if isValidChatMessage(incoming());
-      allow update: if true;
-      allow delete: if isSuperAdmin();
-    }
-
-    // Collection: /summit_speakers/{speakerId}
-    match /summit_speakers/{speakerId} {
-      allow get, list: if true;
-      allow create: if isValidId(speakerId) && isValidSpeaker(incoming());
-      allow update: if isValidId(speakerId) && (isSuperAdmin() || isValidSpeaker(incoming()));
-      allow delete: if isValidId(speakerId) && (isSuperAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid));
-    }
-
-    // Collection: /summit_sessions/{sessionId}
-    match /summit_sessions/{sessionId} {
-      allow get, list: if true;
-      allow create, update: if isValidId(sessionId) && (isSuperAdmin() || isValidSummitSession(incoming()));
-      allow delete: if isValidId(sessionId);
-    }
-
-    // Collection: /approved_sponsors/{sponsorId}
-    match /approved_sponsors/{sponsorId} {
-      allow get, list: if true;
-      allow create, update, delete: if isSuperAdmin() || isValidId(sponsorId);
-    }
-
-    // Collection: /gamification_rewards/{rewardId}
-    match /gamification_rewards/{rewardId} {
-      allow get, list: if true;
-      allow create, update, delete: if isSuperAdmin() || isValidId(rewardId);
-    }
-
-    // Collection: /redeemed_prizes/{redemptionId}
-    match /redeemed_prizes/{redemptionId} {
-      allow get, list: if true;
-      allow create: if isValidId(redemptionId);
-      allow update, delete: if isSuperAdmin();
-    }
-
-    // Collection: /leaderboard_scores/{scoreId}
-    match /leaderboard_scores/{scoreId} {
-      allow get, list: if true;
-      allow create, update: if isValidId(scoreId);
-      allow delete: if isSuperAdmin();
-    }
-
-    // Collection: /gamification_tiers/{tierId}
-    match /gamification_tiers/{tierId} {
-      allow get, list: if true;
-      allow create, update, delete: if isSuperAdmin() || isValidId(tierId);
-    }
-
-    // Collection: /social_posts/{postId}
-    match /social_posts/{postId} {
-      allow get, list: if true;
-      allow create: if isValidId(postId) && isValidSocialPost(incoming());
-      allow update: if isValidId(postId) && (isSuperAdmin() || incoming().diff(existing()).affectedKeys().hasOnly(['likes', 'userLiked', 'comments', 'commentsCount', 'sharesCount', 'isFeaturedOnStage']));
-      allow delete: if isSuperAdmin();
-    }
-
-    // Collection: /match_profiles/{profileId}
-    match /match_profiles/{profileId} {
-      allow get, list: if true;
-      allow create, update: if isValidId(profileId);
-      allow delete: if isSuperAdmin();
-    }
-
-    // Collection: /match_intents/{intentId}
-    match /match_intents/{intentId} {
-      allow get, list: if true;
-      allow create, update: if isValidId(intentId);
-      allow delete: if isSuperAdmin();
-    }
-
-    // Collection: /matches/{matchId}
-    match /matches/{matchId} {
-      allow get, list: if true;
-      allow create, update: if isValidId(matchId);
-      allow delete: if isSuperAdmin();
-    }
-
-    // Collection: /match_passes/{passId}
-    match /match_passes/{passId} {
-      allow get, list: if true;
-      allow create: if isValidId(passId);
-      allow delete: if isSuperAdmin();
-    }
-
-    // Collection: /match_reports/{reportId}
-    match /match_reports/{reportId} {
-      allow create: if isValidId(reportId);
-      allow get, list, delete: if isSuperAdmin();
-    }
-
-    // Collection: /pilot_profiles/{profileId}
     match /pilot_profiles/{profileId} {
       allow get, list: if true;
-      allow create, update: if isValidId(profileId);
-      allow delete: if isSuperAdmin();
+      allow create, update: if isSignedIn() && profileId == me() &&
+        incoming().keys().hasOnly(['uid', 'nickname', 'callsign', 'avatarSeed', 'avatarColor', 'level', 'totalXp', 'rankTitle',
+                                   'createdAt', 'lastActive', 'weekendStats', 'weekendActivity', 'droneStats', 'achievements',
+                                   'selectedRole', 'unlockedCapsules', 'matchBio', 'matchRoles', 'matchIndustries', 'updatedAt']) &&
+        incoming().uid == me() &&
+        isShortString(incoming().nickname, 60) &&
+        optString(incoming(), 'callsign', 30) &&
+        optString(incoming(), 'avatarSeed', 80) &&
+        optString(incoming(), 'avatarColor', 20) &&
+        optString(incoming(), 'rankTitle', 60) &&
+        optString(incoming(), 'matchBio', 500) &&
+        isBoundedInt(incoming().totalXp, 0, 100000) &&
+        isBoundedInt(incoming().level, 0, 1000) &&
+        (!('weekendActivity' in incoming()) || (incoming().weekendActivity is list && incoming().weekendActivity.size() <= 50)) &&
+        (!('achievements' in incoming()) || (incoming().achievements is list && incoming().achievements.size() <= 40));
+      allow delete: if isAdmin() || (isSignedIn() && profileId == me());
     }
 
-    // Collection: /pilot_leaderboard/{pilotId}
     match /pilot_leaderboard/{pilotId} {
       allow get, list: if true;
-      allow create, update: if isValidId(pilotId);
-      allow delete: if isSuperAdmin();
+      allow create, update: if isSignedIn() && pilotId == me() &&
+        incoming().keys().hasOnly(['uid', 'nickname', 'avatarSeed', 'avatarColor', 'rankTitle', 'level', 'totalXp',
+                                   'droneHighScore', 'totalTricks', 'connectionsCount', 'votesCount', 'updatedAt']) &&
+        incoming().uid == me() &&
+        isShortString(incoming().nickname, 60) &&
+        optString(incoming(), 'avatarSeed', 80) &&
+        optString(incoming(), 'avatarColor', 20) &&
+        optString(incoming(), 'rankTitle', 60) &&
+        isBoundedInt(incoming().totalXp, 0, 100000) &&
+        isBoundedInt(incoming().level, 0, 1000) &&
+        optBoundedNumber(incoming(), 'droneHighScore', 0, 10000000) &&
+        optBoundedNumber(incoming(), 'totalTricks', 0, 100000) &&
+        optBoundedNumber(incoming(), 'connectionsCount', 0, 5000) &&
+        optBoundedNumber(incoming(), 'votesCount', 0, 5000);
+      allow delete: if isAdmin() || (isSignedIn() && pilotId == me());
     }
 
-    // Collection: /telemetry_events/{eventId}
-    match /telemetry_events/{eventId} {
+    // ---------------------------------------------------------------------
+    // Rewards: catalog by admins; a pilot's voucher and the inventory step
+    // must be written together in one batch.
+    // ---------------------------------------------------------------------
+    match /gamification_rewards/{rewardId} {
       allow get, list: if true;
-      allow create, update: if isValidId(eventId);
-      allow delete: if isSuperAdmin();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (
+        isSignedIn() &&
+        changed().hasOnly(['claimedCount', 'inventoryCount', 'lastClaimId', 'updatedAt']) &&
+        incoming().claimedCount == existing().claimedCount + 1 &&
+        (incoming().inventoryCount == existing().inventoryCount ||
+          (existing().inventoryCount > 0 && incoming().inventoryCount == existing().inventoryCount - 1)) &&
+        incoming().lastClaimId == rewardId + '_' + me() &&
+        !exists(/databases/$(database)/documents/redeemed_prizes/$(rewardId + '_' + me())) &&
+        existsAfter(/databases/$(database)/documents/redeemed_prizes/$(rewardId + '_' + me())));
     }
 
-    // Collection: /telemetry_aggregates/{aggId}
-    match /telemetry_aggregates/{aggId} {
-      allow get, list: if true;
-      allow create, update: if isValidId(aggId);
-      allow delete: if isSuperAdmin();
+    match /redeemed_prizes/{redemptionId} {
+      // Vouchers carry the pilot's name and email: owner and admins only.
+      allow get, list: if isAdmin() || (isSignedIn() && resource.data.userId == me());
+      allow create: if isSignedIn() &&
+        incoming().keys().hasOnly(['id', 'rewardId', 'rewardTitle', 'category', 'userId', 'userEmail', 'userName',
+                                   'voucherCode', 'xpSpent', 'claimedAt', 'accessUrl', 'qrPayload', 'status']) &&
+        incoming().userId == me() &&
+        incoming().id == redemptionId &&
+        redemptionId == incoming().rewardId + '_' + me() &&
+        incoming().status == 'ACTIVE' &&
+        isShortString(incoming().voucherCode, 60) &&
+        optString(incoming(), 'userEmail', 150) &&
+        optString(incoming(), 'userName', 100) &&
+        optString(incoming(), 'rewardTitle', 200) &&
+        optString(incoming(), 'accessUrl', 500) &&
+        optString(incoming(), 'qrPayload', 1000) &&
+        getAfter(/databases/$(database)/documents/gamification_rewards/$(incoming().rewardId)).data.lastClaimId == redemptionId;
+      allow update, delete: if isAdmin();
     }
 
-    // Collection: /site_config/{configId}
-    match /site_config/{configId} {
+    // ---------------------------------------------------------------------
+    // Chat & social wall
+    // ---------------------------------------------------------------------
+    match /chat_messages/{messageId} {
       allow get, list: if true;
-      allow create, update: if isValidId(configId);
-      allow delete: if isSuperAdmin();
+      allow create: if isSignedIn() &&
+        incoming().keys().hasOnly(['channelId', 'senderId', 'authorUid', 'senderName', 'senderAvatar', 'senderRole',
+                                   'senderPillar', 'text', 'timestamp', 'reactions', 'isPinned']) &&
+        incoming().authorUid == me() &&
+        incoming().senderId == me() &&
+        isShortString(incoming().channelId, 60) &&
+        isShortString(incoming().senderName, 100) && incoming().senderName.size() > 0 &&
+        isShortString(incoming().text, 1000) && incoming().text.size() > 0 &&
+        (!('senderAvatar' in incoming()) || (isShortString(incoming().senderAvatar, 1000) && incoming().senderAvatar.matches('^https://.*'))) &&
+        (!('senderRole' in incoming()) || incoming().senderRole == 'ATTENDEE' || isAdmin()) &&
+        optString(incoming(), 'senderPillar', 50) &&
+        (!('timestamp' in incoming()) || incoming().timestamp is int) &&
+        (!('reactions' in incoming()) || (incoming().reactions is map && incoming().reactions.size() == 0)) &&
+        (!('isPinned' in incoming()) || incoming().isPinned == false || isAdmin());
+      // Anyone signed in can add a reaction; only admins pin or moderate.
+      allow update: if isAdmin() || (
+        isSignedIn() &&
+        changed().hasOnly(['reactions']) &&
+        incoming().reactions is map && incoming().reactions.size() <= 12);
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.authorUid == me());
+    }
+
+    match /social_posts/{postId} {
+      allow get, list: if true;
+      allow create: if isValidId(postId) && isSignedIn() && (isAdmin() || (
+        incoming().content is string && incoming().content.size() > 0 && incoming().content.size() <= 2000 &&
+        incoming().createdAt is int &&
+        incoming().platform is string && incoming().platform.size() <= 30 &&
+        incoming().authorUid == me() &&
+        incoming().author is map &&
+        incoming().author.verified == false &&
+        incoming().likes == 0 && incoming().commentsCount == 0 && incoming().sharesCount == 0 &&
+        incoming().comments is list && incoming().comments.size() == 0 &&
+        incoming().isFeaturedOnStage == false));
+      allow update: if isAdmin() || (
+        isSignedIn() && (
+          (changed().hasOnly(['likes']) && incoming().likes == existing().likes + 1) ||
+          (changed().hasOnly(['comments', 'commentsCount']) &&
+            incoming().commentsCount == existing().commentsCount + 1 &&
+            incoming().comments is list &&
+            incoming().comments.size() == existing().comments.size() + 1 &&
+            incoming().comments.size() <= 300)));
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.authorUid == me());
+    }
+
+    // ---------------------------------------------------------------------
+    // SGX.Match: public, email-free cards; intents and matches are private
+    // to the two people involved.
+    // ---------------------------------------------------------------------
+    match /match_profiles/{profileId} {
+      allow get, list: if true;
+      allow create, update: if isAdmin() || (
+        isSignedIn() && profileId == me() &&
+        incoming().keys().hasOnly(['uid', 'displayName', 'organization', 'roleTitle', 'avatarSeed', 'profile', 'updatedAt']) &&
+        incoming().uid == me() &&
+        isShortString(incoming().displayName, 80) &&
+        optString(incoming(), 'organization', 120) &&
+        optString(incoming(), 'roleTitle', 80) &&
+        optString(incoming(), 'avatarSeed', 80) &&
+        incoming().profile is map &&
+        isShortString(incoming().profile.pitch, 120));
+      allow delete: if isAdmin() || (isSignedIn() && profileId == me());
+    }
+
+    match /match_intents/{intentId} {
+      // Missing docs read as "no intent" so the reciprocity check works.
+      allow get: if isSignedIn() && (resource == null || resource.data.fromUid == me() || resource.data.toUid == me());
+      allow list: if isAdmin();
+      allow create: if isSignedIn() &&
+        incoming().keys().hasOnly(['id', 'fromUid', 'toUid', 'createdAt']) &&
+        incoming().fromUid == me() &&
+        isValidId(incoming().toUid) && incoming().toUid != me() &&
+        intentId == me() + '_' + incoming().toUid &&
+        incoming().id == intentId;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    function isMatchMember(data) {
+      return isSignedIn() && (data.userA == me() || data.userB == me());
+    }
+
+    match /matches/{matchId} {
+      allow get: if isAdmin() || (resource != null && isMatchMember(resource.data));
+      allow list: if isAdmin();
+      // A match exists only when both people sent an intent.
+      allow create: if isMatchMember(incoming()) &&
+        incoming().keys().hasOnly(['id', 'userA', 'userB', 'createdAt', 'xpAwarded', 'notes']) &&
+        incoming().userA < incoming().userB &&
+        matchId == incoming().userA + '__' + incoming().userB &&
+        incoming().id == matchId &&
+        exists(/databases/$(database)/documents/match_intents/$(incoming().userA + '_' + incoming().userB)) &&
+        exists(/databases/$(database)/documents/match_intents/$(incoming().userB + '_' + incoming().userA));
+      allow update: if isAdmin() || (isMatchMember(existing()) && changed().hasOnly(['createdAt', 'xpAwarded']));
+      allow delete: if isAdmin();
+    }
+
+    match /match_passes/{passId} {
+      allow get: if isAdmin() || (isSignedIn() && resource != null && resource.data.fromUid == me());
+      allow list: if isAdmin();
+      allow create: if isSignedIn() &&
+        incoming().keys().hasOnly(['id', 'fromUid', 'toUid', 'createdAt']) &&
+        incoming().fromUid == me() &&
+        passId == me() + '_' + incoming().toUid &&
+        incoming().id == passId;
+      allow delete: if isAdmin();
+    }
+
+    match /match_reports/{reportId} {
+      allow create: if isSignedIn() && isValidId(reportId) &&
+        incoming().keys().hasOnly(['id', 'fromUid', 'targetUid', 'reason', 'createdAt']) &&
+        incoming().fromUid == me() &&
+        isShortString(incoming().reason, 500);
+      allow get, list, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------------
+    // Keynote polls: one vote per pilot per poll, counts are public.
+    // ---------------------------------------------------------------------
+    match /summit_poll_votes/{voteId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() &&
+        incoming().keys().hasOnly(['pollId', 'optionId', 'uid', 'at']) &&
+        isShortString(incoming().pollId, 64) && incoming().pollId.matches('^[a-z0-9_]+$') &&
+        isShortString(incoming().optionId, 64) && incoming().optionId.size() > 0 &&
+        incoming().uid == me() &&
+        voteId == incoming().pollId + '_' + me() &&
+        incoming().at == request.time;
+      allow update: if false;
+      allow delete: if isAdmin();
     }
 
     // ---------------------------------------------------------------------
@@ -339,64 +492,60 @@ service cloud.firestore {
              isCountStep('uniqueVisitors');
     }
 
-    // Collection: /summit_visit_stats/{statId}
     match /summit_visit_stats/{statId} {
       allow get, list: if true;
       allow create, update: if statId == 'global' &&
         incoming().keys().hasOnly(['totalVisits', 'uniqueVisitors', 'updatedAt']) &&
         incoming().updatedAt == request.time &&
         isVisitStep();
-      allow delete: if isSuperAdmin();
+      allow delete: if isAdmin();
     }
 
-    // Collection: /summit_visit_regions/{regionId}
     match /summit_visit_regions/{regionId} {
       allow get, list: if true;
+      // Region names are plain place names: letters (accents included), digits,
+      // spaces and . , ' - ( ). No markup can get in.
       allow create: if isValidId(regionId) && regionId.size() <= 64 &&
         incoming().keys().hasOnly(['name', 'kind', 'country', 'lat', 'lon', 'totalVisits', 'uniqueVisitors', 'lastVisitAt']) &&
-        incoming().name is string && incoming().name.size() <= 80 &&
+        incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 80 &&
+        incoming().name.matches("^[A-Za-z0-9À-ÿ .,'()\\-]+$") &&
         incoming().kind in ['municipio', 'state', 'country', 'unknown'] &&
-        incoming().country is string && incoming().country.size() <= 4 &&
+        incoming().country is string && incoming().country.size() <= 4 && incoming().country.matches('^[A-Za-z]*$') &&
         (incoming().lat == null || incoming().lat is number) &&
         (incoming().lon == null || incoming().lon is number) &&
         incoming().lastVisitAt == request.time &&
         isVisitStep();
       allow update: if isValidId(regionId) &&
-        incoming().diff(existing()).affectedKeys().hasOnly(['totalVisits', 'uniqueVisitors', 'lastVisitAt']) &&
+        changed().hasOnly(['totalVisits', 'uniqueVisitors', 'lastVisitAt']) &&
         incoming().lastVisitAt == request.time &&
         isVisitStep();
-      allow delete: if isSuperAdmin();
+      allow delete: if isAdmin();
     }
 
-    // Collection: /summit_visitors/{visitorId} (one doc per device, makes "unique" unique)
     match /summit_visitors/{visitorId} {
       allow get: if isValidId(visitorId);
-      allow list: if isSuperAdmin();
+      allow list: if isAdmin();
       allow create: if isValidId(visitorId) &&
         incoming().keys().hasOnly(['regionId', 'createdAt']) &&
         incoming().regionId is string && incoming().regionId.size() <= 64 &&
         incoming().createdAt == request.time;
       allow update: if false;
-      allow delete: if isSuperAdmin();
+      allow delete: if isAdmin();
     }
+
     // ---------------------------------------------------------------------
     // SGX Pass. Mutual Rolodex: whoever scans a pass drops their own card in
     // the owner's inbox (one doc per pair, create-only). Only the owner can
     // read their inbox. No emails travel here, only what the pass QR shows.
     // ---------------------------------------------------------------------
-    function isShortString(v, max) {
-      return v is string && v.size() <= max;
-    }
-
-    // Collection: /summit_pass_exchanges/{pairId}   pairId = toUid_fromUid
     match /summit_pass_exchanges/{pairId} {
-      allow get, list: if isSignedIn() && resource.data.toUid == request.auth.uid;
+      allow get, list: if isSignedIn() && resource.data.toUid == me();
       allow create: if isSignedIn() &&
         incoming().keys().hasOnly(['toUid', 'fromUid', 'card', 'at']) &&
-        incoming().fromUid == request.auth.uid &&
+        incoming().fromUid == me() &&
         isValidId(incoming().toUid) &&
-        incoming().toUid != request.auth.uid &&
-        pairId == incoming().toUid + '_' + request.auth.uid &&
+        incoming().toUid != me() &&
+        pairId == incoming().toUid + '_' + me() &&
         incoming().at == request.time &&
         incoming().card is map &&
         incoming().card.keys().hasOnly(['c', 'n', 's', 'p', 'r', 'o']) &&
@@ -407,14 +556,13 @@ service cloud.firestore {
         isShortString(incoming().card.r, 80) &&
         isShortString(incoming().card.o, 80);
       allow update: if false;
-      allow delete: if isSuperAdmin() || (isSignedIn() && resource.data.toUid == request.auth.uid);
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.toUid == me());
     }
 
-    // Collection: /summit_constellations/{uid}  Public networking board:
-    // only counts (stars, pillars linked), never who the contacts are.
+    // Public networking board: only counts (stars, pillars linked), never who the contacts are.
     match /summit_constellations/{uid} {
       allow get, list: if true;
-      allow create, update: if isSignedIn() && uid == request.auth.uid &&
+      allow create, update: if isSignedIn() && uid == me() &&
         incoming().keys().hasOnly(['callsign', 'name', 'affinity', 'stars', 'pillars', 'updatedAt']) &&
         isShortString(incoming().callsign, 20) &&
         isShortString(incoming().name, 40) &&
@@ -423,23 +571,38 @@ service cloud.firestore {
         incoming().pillars is list && incoming().pillars.size() <= 6 &&
         incoming().pillars.hasOnly(['STORY', 'SHOWCASE', 'SPARK', 'STAGE', 'SYSTEM', 'SYNTHESIZE']) &&
         incoming().updatedAt == request.time;
-      allow delete: if isSuperAdmin() || (isSignedIn() && uid == request.auth.uid);
+      allow delete: if isAdmin() || (isSignedIn() && uid == me());
     }
 
-    // Collection: /summit_checkins/{uid}  Day 3 entrance at Chroma Space
-    // Studios. Public (coarse region only) so the radar can light municipios;
-    // one per device, only during Day 3 (Dec 13 2026, Puerto Rico time).
+    // Day 3 entrance at Chroma Space Studios (Dec 13 2026, Puerto Rico time).
+    // The door code travels in a private proof written in the same batch and
+    // must match summit_private/checkin, which no visitor can read.
+    function isDay3Window() {
+      return request.time >= timestamp.value('2026-12-13T04:00:00Z') &&
+             request.time <= timestamp.value('2026-12-14T10:00:00Z');
+    }
+
+    match /summit_checkin_proofs/{uid} {
+      allow get, list: if isAdmin();
+      allow create: if isSignedIn() && uid == me() && isDay3Window() &&
+        incoming().keys().hasOnly(['code', 'at']) &&
+        incoming().at == request.time &&
+        incoming().code == get(/databases/$(database)/documents/summit_private/checkin).data.code;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // Public (coarse region only) so the radar can light municipios; one per device.
     match /summit_checkins/{uid} {
       allow get, list: if true;
-      allow create: if isSignedIn() && uid == request.auth.uid &&
+      allow create: if isSignedIn() && uid == me() && isDay3Window() &&
         incoming().keys().hasOnly(['regionId', 'regionName', 'at']) &&
         isShortString(incoming().regionId, 64) &&
         isShortString(incoming().regionName, 80) &&
         incoming().at == request.time &&
-        request.time >= timestamp.value('2026-12-13T04:00:00Z') &&
-        request.time <= timestamp.value('2026-12-14T10:00:00Z');
+        existsAfter(/databases/$(database)/documents/summit_checkin_proofs/$(me()));
       allow update: if false;
-      allow delete: if isSuperAdmin();
+      allow delete: if isAdmin();
     }
   }
 }

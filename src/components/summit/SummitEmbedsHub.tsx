@@ -81,6 +81,16 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
     return initialEmbedsProp && initialEmbedsProp.length > 0 ? initialEmbedsProp : [];
   });
 
+  // Published CMS changes arrive through the shared 'storage' refresh.
+  useEffect(() => {
+    const onStorage = () => {
+      const saved = loadAllEmbedWidgets();
+      if (saved && saved.length > 0) setEmbedList(saved);
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
   const [selectedEmbedId, setSelectedEmbedId] = useState<string>(() => embedList[0]?.id || 'embed_drone_game');
   const [selectedCategory, setSelectedCategory] = useState<EmbedCategory | 'ALL'>('ALL');
   const [iframeKey, setIframeKey] = useState<number>(0);

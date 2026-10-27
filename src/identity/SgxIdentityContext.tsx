@@ -26,9 +26,13 @@ export interface ForgeInput {
   organization?: string;
   avatarSeed: string;
   avatarPng?: string;
+  imageConsent: boolean;
 }
 
-export type CheckinResult = 'ok' | 'already' | 'closed' | 'no_pass';
+export type CheckinResult = 'ok' | 'already' | 'closed' | 'no_pass' | 'need_code' | 'invalid';
+
+/** The code from the entrance QR (?checkin=…), kept for this browser session. */
+export const CHECKIN_CODE_KEY = 'sgx_checkin_code';
 
 interface SgxIdentityValue {
   identity: SgxIdentity;
@@ -70,8 +74,11 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
   langRef.current = language;
   const myUid = user?.uid || null;
 
-  const missions = useMemo(() => [...REACTOR_MISSIONS, ...sponsorMissions(loadAllApprovedSponsors())], []);
+  // Sponsor missions follow the published sponsor list.
+  const [sponsorRev, setSponsorRev] = useState(0);
+  const missions = useMemo(() => [...REACTOR_MISSIONS, ...sponsorMissions(loadAllApprovedSponsors())], [sponsorRev]);
   const missionsRef = useRef(missions);
+  missionsRef.current = missions;
 
   const commit = useCallback((mutate: (draft: SgxIdentity) => void) => {
     const next: SgxIdentity = JSON.parse(JSON.stringify(idRef.current));
@@ -85,6 +92,7 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === IDENTITY_KEY) setIdentity(loadIdentity());
+      if (!e.key) setSponsorRev((r) => r + 1);
     };
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
@@ -272,6 +280,8 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
       roleTitle: input.roleTitle?.trim() || undefined,
       organization: input.organization?.trim() || undefined,
       forgedAt: Date.now(),
+      imageConsent: input.imageConsent === true,
+      consentAt: input.imageConsent ? Date.now() : undefined,
     };
     commit((d) => {
       d.pass = pass;
@@ -328,9 +338,16 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     if (!mine.pass) return 'no_pass';
     if (mine.stamps['chroma:checkin']) return 'already';
     if (!isDay3Open(Date.now(), rehearsal)) return 'closed';
+    // Rehearsals stamp locally only; the real day needs the door code and the server's OK.
+    if (!rehearsal) {
+      let code = '';
+      try { code = sessionStorage.getItem(CHECKIN_CODE_KEY) || ''; } catch { /* ignore */ }
+      if (!code) return 'need_code';
+      if (!myUid) return 'invalid';
+      const accepted = await recordCheckin(myUid, getMyRegion(), code);
+      if (!accepted) return 'invalid';
+    }
     commit((d) => { d.stamps['chroma:checkin'] = Date.now(); });
-    // Rehearsals stamp locally only; the radar counts the real day.
-    if (myUid && !rehearsal) recordCheckin(myUid, getMyRegion());
     flag('checkin');
     return 'ok';
   }, [commit, flag, myUid]);

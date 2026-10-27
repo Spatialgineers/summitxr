@@ -241,6 +241,36 @@ export async function saveUserMatchProfile(
     localStorage.setItem(STORAGE_KEYS.MY_PROFILE, JSON.stringify(profile));
   } catch {}
 
+  // Public, email-free directory card that other attendees can see in the deck.
+  try {
+    if (db && uid && uid !== 'local_player') {
+      let pass: any = null;
+      try { pass = JSON.parse(localStorage.getItem('sgx_identity_v1') || 'null')?.pass || null; } catch {}
+      await setDoc(doc(db, 'match_profiles', uid), {
+        uid,
+        displayName: String(pass?.fullName || pass?.callsign || 'Piloto SGX').slice(0, 80),
+        organization: String(pass?.organization || '').slice(0, 120),
+        roleTitle: String(pass?.roleTitle || '').slice(0, 80),
+        avatarSeed: String(pass?.avatarSeed || uid).slice(0, 80),
+        profile: {
+          pitch: String(profile.pitch || '').slice(0, 120),
+          brings: (profile.brings || []).slice(0, 8).map((b) => String(b).slice(0, 40)),
+          seeking: (profile.seeking || []).slice(0, 5),
+          pillar: profile.pillar,
+          openTo: (profile.openTo || []).slice(0, 6),
+          visible: profile.visible !== false,
+          customBringsText: String(profile.customBringsText || '').slice(0, 60),
+          createdAt: profile.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          receivedIntentCount: 0,
+        },
+        updatedAt: Date.now(),
+      });
+    }
+  } catch (err) {
+    console.warn('Firestore match card note:', err);
+  }
+
   // Save to Firestore
   try {
     if (db && uid) {
@@ -363,11 +393,6 @@ export async function sendMatchConnectIntent(
     console.warn('Firestore reciprocity check note:', err);
   }
 
-  // Fallback / Instant demo reciprocity for seed profiles:
-  // Maya Lin, Carlos Rivera, and Sofia Chen are responsive co-founders who match back!
-  if (!isReciprocal && ['candidate_maya_lin', 'candidate_carlos_rivera', 'candidate_sofia_chen'].includes(toUid)) {
-    isReciprocal = true;
-  }
 
   if (isReciprocal) {
     // Generate deterministic sorted pair ID
@@ -441,31 +466,25 @@ export async function fetchCandidatesDeck(
 
   const excluded = new Set([myUid, ...passedUids, ...sentIntents, ...matchedUids]);
 
-  // Combine initial seed profiles with any created in Firestore
-  const pool: MatchCandidate[] = [...INITIAL_MATCH_CANDIDATES];
-
-  // Try reading active players with matchProfile from Firestore
+  // Real attendees only: the public, email-free cards in `match_profiles`.
+  // (The seed profiles above are kept for the admin preview, never shown in the deck.)
+  const pool: MatchCandidate[] = [];
   try {
     if (db) {
-      const q = query(collection(db, 'players'), limit(50));
-      const snap = await getDocs(q);
+      const snap = await getDocs(query(collection(db, 'match_profiles'), limit(300)));
       snap.forEach(d => {
-        const data = d.data();
-        if (data.matchProfile && data.matchProfile.visible !== false && d.id !== myUid) {
-          if (!pool.some(p => p.uid === d.id)) {
-            pool.push({
-              uid: d.id,
-              displayName: data.username || data.nickname || `Founder_${d.id.slice(0, 4)}`,
-              email: data.email || '',
-              organization: data.organization || 'Spatialgineer Attendee',
-              roleTitle: data.roleTitle || 'Builder',
-              avatarUrl: data.avatar || '',
-              avatarSeed: data.avatarSeed || d.id,
-              xp: data.totalScore || 200,
-              profile: data.matchProfile
-            });
-          }
-        }
+        const data = d.data() as any;
+        if (!data?.profile || data.profile.visible === false || d.id === myUid) return;
+        pool.push({
+          uid: d.id,
+          displayName: data.displayName || 'Piloto SGX',
+          organization: data.organization || '',
+          roleTitle: data.roleTitle || '',
+          avatarUrl: '',
+          avatarSeed: data.avatarSeed || d.id,
+          xp: 0,
+          profile: data.profile as MatchProfile,
+        });
       });
     }
   } catch (err) {
@@ -495,18 +514,7 @@ export async function saveMatchPrivateNote(
     }
   } catch {}
 
-  // 2. Update Firestore
-  try {
-    if (db) {
-      await setDoc(doc(db, 'matches', matchId), {
-        notes: {
-          [myUid]: note
-        }
-      }, { merge: true });
-    }
-  } catch (err) {
-    console.warn('Firestore saveMatchPrivateNote note:', err);
-  }
+  // Private notes stay on this device: the other person can never read them.
 }
 
 /**
@@ -596,6 +604,7 @@ export async function toggleProfileVisibilityAdmin(uid: string, visible: boolean
       await setDoc(doc(db, 'players', uid), {
         matchProfile: { visible }
       }, { merge: true });
+      await setDoc(doc(db, 'match_profiles', uid), { profile: { visible } }, { merge: true }).catch(() => {});
     }
   } catch (err) {
     console.warn('Firestore toggleProfileVisibilityAdmin note:', err);
@@ -616,6 +625,7 @@ export async function deleteProfileAdmin(uid: string): Promise<void> {
       await setDoc(doc(db, 'players', uid), {
         matchProfile: null
       }, { merge: true });
+      await deleteDoc(doc(db, 'match_profiles', uid)).catch(() => {});
     }
   } catch (err) {
     console.warn('Firestore deleteProfileAdmin note:', err);

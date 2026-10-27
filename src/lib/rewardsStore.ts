@@ -1,6 +1,6 @@
 import { GamificationReward, RedeemedPrize, LeaderboardEntry, RewardCategory } from '../types/gamification';
 import { db } from './firebase';
-import { collection, doc, getDocs, setDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, getDocs, setDoc, deleteDoc, query, where, writeBatch, increment } from 'firebase/firestore';
 
 export const INITIAL_REWARDS: GamificationReward[] = [
   {
@@ -189,35 +189,33 @@ export async function resetDefaultRewards(): Promise<GamificationReward[]> {
   return INITIAL_REWARDS;
 }
 
+function readLocalRedeemed(): RedeemedPrize[] {
+  try {
+    const saved = localStorage.getItem(LOCAL_STORAGE_REDEEMED_KEY);
+    if (saved) return JSON.parse(saved) as RedeemedPrize[];
+  } catch {}
+  return [];
+}
+
 /**
- * Load user's redeemed prizes
+ * Load user's redeemed prizes.
+ * With a userId: only that user's vouchers (`where userId == uid`), which is
+ * all the rules let a non-admin read. Without one: the whole collection,
+ * readable by admins only.
  */
 export async function loadUserRedeemedPrizes(userId?: string): Promise<RedeemedPrize[]> {
+  const local = readLocalRedeemed().filter(p => !userId || p.userId === userId);
   try {
-    const snap = await getDocs(collection(db, 'redeemed_prizes'));
-    if (!snap.empty) {
-      const items = snap.docs.map(d => ({ id: d.id, ...d.data() }) as RedeemedPrize);
-      if (userId) {
-        return items.filter(p => p.userId === userId);
-      }
-      return items;
-    }
+    const ref = collection(db, 'redeemed_prizes');
+    const snap = await getDocs(userId ? query(ref, where('userId', '==', userId)) : ref);
+    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }) as RedeemedPrize);
+    // Keep any local-only voucher (e.g. issued while offline) next to the cloud ones.
+    const ids = new Set(items.map(i => i.id));
+    return [...items, ...local.filter(l => !ids.has(l.id))].sort((a, b) => (b.claimedAt || 0) - (a.claimedAt || 0));
   } catch (err) {
     console.warn("Firestore redeemed load fallback:", err);
   }
-
-  try {
-    const saved = localStorage.getItem(LOCAL_STORAGE_REDEEMED_KEY);
-    if (saved) {
-      const items = JSON.parse(saved) as RedeemedPrize[];
-      if (userId) {
-        return items.filter(p => p.userId === userId);
-      }
-      return items;
-    }
-  } catch {}
-
-  return [];
+  return local;
 }
 
 /**
@@ -244,8 +242,13 @@ export async function redeemPrize(
     return { success: false, error: 'Premio agotado por el momento en este Summit.' };
   }
 
+  // One voucher per pilot per reward: the id is deterministic, and the rules
+  // only allow creating `${rewardId}_${uid}` for your own uid.
+  const redemptionId = `${reward.id}_${user.uid}`;
+  if (readLocalRedeemed().some(p => p.id === redemptionId)) {
+    return { success: false, error: 'Ya canjeaste este premio con tu SGX Pass.' };
+  }
   const voucherCode = generateVoucherCode(reward.accessCodePrefix || 'SGX-REWARD-');
-  const redemptionId = `claim_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
   const redeemedItem: RedeemedPrize = {
     id: redemptionId,
@@ -253,7 +256,7 @@ export async function redeemPrize(
     rewardTitle: reward.title,
     category: reward.category,
     userId: user.uid,
-    userEmail: user.email || 'attendee@spatialgineers.com',
+    userEmail: user.email || '',
     userName: user.displayName || user.email?.split('@')[0] || 'Asistente Summit',
     voucherCode,
     xpSpent: reward.xpCost,
@@ -268,80 +271,41 @@ export async function redeemPrize(
     status: 'ACTIVE'
   };
 
-  // Update Reward claimed count & inventory
-  const updatedReward: GamificationReward = {
-    ...reward,
-    claimedCount: reward.claimedCount + 1,
-    inventoryCount: reward.inventoryCount > 0 ? reward.inventoryCount - 1 : reward.inventoryCount
-  };
-  await saveReward(updatedReward);
-
-  // Save Redeemed Voucher in LocalStorage
+  // Voucher + inventory step in ONE batch: the rules accept the reward's
+  // claimedCount +1 / inventoryCount -1 only together with the creation of
+  // this pilot's own voucher (and vice versa).
   try {
-    const current = await loadUserRedeemedPrizes();
-    const updated = [redeemedItem, ...current];
+    const batch = writeBatch(db);
+    batch.set(doc(db, 'redeemed_prizes', redemptionId), JSON.parse(JSON.stringify(redeemedItem)));
+    batch.update(doc(db, 'gamification_rewards', reward.id), {
+      claimedCount: increment(1),
+      ...(reward.inventoryCount > 0 ? { inventoryCount: increment(-1) } : {}),
+      lastClaimId: redemptionId,
+      updatedAt: Date.now(),
+    });
+    await batch.commit();
+  } catch (err: any) {
+    console.warn("Firestore save redeemed prize fallback:", err);
+    if (err?.code === 'permission-denied') {
+      // Already claimed in the cloud, sold out, or reward not active.
+      const mine = await loadUserRedeemedPrizes(user.uid);
+      if (mine.some(p => p.id === redemptionId)) {
+        return { success: false, error: 'Ya canjeaste este premio con tu SGX Pass.' };
+      }
+      return { success: false, error: 'No se pudo canjear este premio ahora mismo (agotado o no disponible).' };
+    }
+    // Offline or other transient error: keep the voucher locally.
+  }
+
+  // Keep a local copy of the voucher (offline view of "Mis premios")
+  try {
+    const updated = [redeemedItem, ...readLocalRedeemed().filter(p => p.id !== redemptionId)];
     localStorage.setItem(LOCAL_STORAGE_REDEEMED_KEY, JSON.stringify(updated));
   } catch {}
-
-  // Save to Firestore
-  try {
-    await setDoc(doc(db, 'redeemed_prizes', redemptionId), redeemedItem);
-  } catch (err) {
-    console.warn("Firestore save redeemed prize fallback:", err);
-  }
 
   return { success: true, voucher: redeemedItem };
 }
 
-/**
- * Load Leaderboard (aggregates live scores and participants)
- */
-export async function loadLeaderboard(): Promise<LeaderboardEntry[]> {
-  try {
-    const snap = await getDocs(collection(db, 'leaderboard_scores'));
-    if (!snap.empty) {
-      const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }) as LeaderboardEntry);
-      return items.sort((a, b) => b.totalXp - a.totalXp);
-    }
-  } catch (err) {
-    console.warn("Firestore leaderboard load fallback:", err);
-  }
-
-  return INITIAL_LEADERBOARD.sort((a, b) => b.totalXp - a.totalXp);
-}
-
-/**
- * Sync current user's score to the global leaderboard
- */
-export async function syncUserScoreToLeaderboard(entry: {
-  userId: string;
-  username: string;
-  totalXp: number;
-  votesCount: number;
-  questsCount: number;
-  droneHighScore?: number;
-  rankTitle?: string;
-  streak?: number;
-  pillar?: string;
-}): Promise<void> {
-  const docId = `score_${entry.userId.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
-  const record: LeaderboardEntry = {
-    id: docId,
-    userId: entry.userId,
-    username: entry.username,
-    totalXp: entry.totalXp,
-    votesCount: entry.votesCount || 0,
-    questsCount: entry.questsCount || 0,
-    droneHighScore: entry.droneHighScore || 0,
-    rankTitle: entry.rankTitle || 'Iniciado del Summit',
-    streak: entry.streak || 1,
-    pillar: entry.pillar || 'SGX.SYNTHESIZE',
-    lastActivity: Date.now()
-  };
-
-  try {
-    await setDoc(doc(db, 'leaderboard_scores', docId), record);
-  } catch (err) {
-    console.warn("Could not sync leaderboard to Firestore:", err);
-  }
-}
+// The legacy `leaderboard_scores` collection is retired (it held hard-coded
+// votes/quests and one shared guest row). The only leaderboard is
+// `pilot_leaderboard`, written per pilot by PilotProfileContext.

@@ -84,6 +84,8 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
       already: es ? 'Ya hiciste check-in hoy.' : 'You already checked in today.',
       closed: es ? 'El check-in abre el Día 3 (13 de diciembre) en la entrada de Chroma Space Studios.' : 'Check-in opens on Day 3 (December 13) at the Chroma Space Studios entrance.',
       no_pass: es ? 'Primero forja tu SGX Pass.' : 'Forge your SGX Pass first.',
+      need_code: es ? 'Escanea el QR de la entrada de Chroma Space Studios para hacer check-in.' : 'Scan the QR code at the Chroma Space Studios entrance to check in.',
+      invalid: es ? 'No pudimos confirmar el check-in. Vuelve a escanear el QR de la entrada o pide ayuda al equipo.' : 'We could not confirm your check-in. Scan the entrance QR again or ask the team for help.',
     }[r]);
   };
 

@@ -4,7 +4,7 @@ import { usePilotProfile } from '../context/PilotProfileContext';
 import { PILLAR_BY_KEY } from '../lib/sgxPillars';
 import { playScanSuccessSound } from '../lib/cyberAudioEngine';
 import { parsePassQr, PILLAR_ACCENT, type PassQrPayload, type PassTier } from './sgxIdentity';
-import { useSgxIdentity } from './SgxIdentityContext';
+import { CHECKIN_CODE_KEY, useSgxIdentity } from './SgxIdentityContext';
 import { SgxForge } from './SgxForge';
 import { SgxHangar, type HangarTab } from './SgxHangar';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
@@ -16,9 +16,8 @@ import { SgxHoloCardGeneratorModal, type HoloCardProfile } from '../components/s
    passport, profile, drawer, tours, credential generator, role selector)
    lands here and becomes either the Forge or the Hangar. Also handles the
    two links the pass QR world produces: ?pase=… (someone's pass) and
-   ?checkin=chroma26 (the Day 3 entrance poster). */
+   ?checkin=<code> (the Day 3 entrance poster; the code is set in the admin). */
 
-export const CHECKIN_CODE = 'chroma26';
 const FORGE_DISMISSED = 'sgx_forge_dismissed';
 /** Generic CTA values ("make your own card") that the pass replaces. */
 const PLACEHOLDER_NAMES = ['Speaker SGX', 'Tu Marca / Empresa', 'Speaker / Creador', 'Spatialgineers Summit 2026'];
@@ -119,8 +118,10 @@ export const SgxPassHost: React.FC = () => {
       stripParam('pase');
       if (payload) setIncoming(payload);
     }
-    if ((params.get('checkin') || '').toLowerCase() === CHECKIN_CODE) {
+    const doorCode = (params.get('checkin') || '').trim().toLowerCase();
+    if (/^[a-z0-9_-]{6,40}$/.test(doorCode)) {
       rehearsalRef.current = params.get('checkinTest') === '1';
+      try { sessionStorage.setItem(CHECKIN_CODE_KEY, doorCode); } catch { /* ignore */ }
       stripParam('checkin');
       if (forgedRef.current) {
         setHangar('day3');

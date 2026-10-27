@@ -1,5 +1,5 @@
 import {
-  addDoc, collection, doc, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, where,
+  addDoc, collection, doc, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, where, writeBatch,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { PassQrPayload, SgxPass } from './sgxIdentity';
@@ -19,7 +19,9 @@ export async function registerPass(pass: SgxPass, uid: string | null): Promise<v
       referenceCode: pass.code,
       roleTitle: pass.roleTitle || '',
       organization: pass.organization || '',
-      status: pass.status,
+      status: 'PENDING',
+      imageConsent: pass.imageConsent === true,
+      ...(pass.consentAt ? { consentAt: pass.consentAt } : {}),
       userId: uid,
       timestamp: serverTimestamp(),
     });
@@ -78,17 +80,25 @@ export interface ChromaCheckin {
   at: number;
 }
 
-/** Day 3 entrance: one check-in per device, only inside the Day 3 window (enforced by the rules). */
-export async function recordCheckin(uid: string, region: { id: string; name: string } | null): Promise<boolean> {
+/**
+ * Day 3 entrance: one check-in per device, only inside the Day 3 window and
+ * only with the code printed at the door (enforced by the rules: the code is
+ * compared against `summit_private/checkin`, which no visitor can read). The
+ * code goes in a private proof doc; the public check-in only carries the region.
+ */
+export async function recordCheckin(uid: string, region: { id: string; name: string } | null, code: string): Promise<boolean> {
   try {
-    await setDoc(doc(db, 'summit_checkins', uid), {
+    const batch = writeBatch(db);
+    batch.set(doc(db, 'summit_checkin_proofs', uid), { code: code.slice(0, 40), at: serverTimestamp() });
+    batch.set(doc(db, 'summit_checkins', uid), {
       regionId: (region?.id || 'desconocido').slice(0, 64),
       regionName: (region?.name || 'Ubicación desconocida').slice(0, 80),
       at: serverTimestamp(),
     });
+    await batch.commit();
     return true;
   } catch (err) {
-    console.warn('[SGX Pass] check-in kept local:', err instanceof Error ? err.message : err);
+    console.warn('[SGX Pass] check-in refused:', err instanceof Error ? err.message : err);
     return false;
   }
 }

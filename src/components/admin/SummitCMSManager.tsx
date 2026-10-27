@@ -66,7 +66,11 @@ import {
   INITIAL_MAP_360_NODES,
   INITIAL_EMBED_WIDGETS,
   SPONSORSHIP_TIERS,
-  SUMMIT_PILLARS
+  SUMMIT_PILLARS,
+  fetchSponsorInquiriesRemote,
+  publishAnnouncement,
+  updateSponsorInquiryRemote,
+  deleteSponsorInquiryRemote,
 } from '../../lib/summitData';
 import { SummitBrandShowcaseModal } from '../summit/SummitBrandShowcaseModal';
 import { SummitSpeakerPortalModal } from '../summit/SummitSpeakerPortalModal';
@@ -108,6 +112,9 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
   // Inquiries & Approved Sponsors States
   const [inquiries, setInquiries] = useState<SponsorInquiry[]>(() => loadAllSponsorInquiries());
   const [approvedSponsors, setApprovedSponsors] = useState<ApprovedSponsor[]>(() => loadAllApprovedSponsors());
+  useEffect(() => {
+    fetchSponsorInquiriesRemote().then(setInquiries);
+  }, []);
   const [previewShowcaseModal, setPreviewShowcaseModal] = useState<ApprovedSponsor | null>(null);
   const [editingApprovedSponsor, setEditingApprovedSponsor] = useState<ApprovedSponsor | null>(null);
 
@@ -155,6 +162,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
     const updated = inquiries.map(inq => inq.id === id ? { ...inq, status: newStatus } : inq);
     setInquiries(updated);
     saveAllSponsorInquiries(updated);
+    updateSponsorInquiryRemote(id, { status: newStatus });
     showStatus(`Estado de solicitud actualizado a: ${newStatus}`);
   };
 
@@ -162,6 +170,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
     const updated = inquiries.filter(inq => inq.id !== id);
     setInquiries(updated);
     saveAllSponsorInquiries(updated);
+    deleteSponsorInquiryRemote(id);
     showStatus('Solicitud eliminada.');
   };
 
@@ -384,8 +393,14 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
     };
 
     onBroadcastPushNotification(notif);
-    playNotificationChime();
-    showStatus('¡Notificación Push enviada a todos los asistentes en vivo!');
+    publishAnnouncement(notif).then((sent) => {
+      if (sent) {
+        playNotificationChime();
+        showStatus('Anuncio enviado: aparece ahora en todas las páginas abiertas del Summit.');
+      } else {
+        showStatus('No se pudo enviar el anuncio. Entra con la cuenta de admin (Google) y revisa la conexión.');
+      }
+    });
   };
 
   // --- RESET ALL DATA TO DEFAULTS ---

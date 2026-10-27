@@ -733,6 +733,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
                   <span>MI HANGAR</span>
                 </button>
+                {isAdmin && (
                 <button
                   type="button"
                   onClick={() => {
@@ -745,6 +746,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   <Sliders className="w-3.5 h-3.5 text-[#FDCC0D]" />
                   <span>GESTOR DE MÓDULOS</span>
                 </button>
+                )}
               </div>
 
               <div className="text-slate-500 text-[11px]">

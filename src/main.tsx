@@ -8,7 +8,11 @@ import { PilotProfileProvider } from './context/PilotProfileContext.tsx';
 import { SummitFeatureProvider } from './context/SummitFeatureContext.tsx';
 import { ImmersionProvider } from './immersion/ImmersionContext.tsx';
 import { SgxIdentityProvider } from './identity/SgxIdentityContext.tsx';
+import { startLiveContentSync } from './lib/summitData';
 import './index.css';
+
+// Published CMS content (speakers, sessions, sponsors…) reaches every visitor live.
+startLiveContentSync();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

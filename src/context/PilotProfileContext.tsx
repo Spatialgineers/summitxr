@@ -10,6 +10,7 @@ import {
 } from '../types/pilot';
 import { db, auth } from '../lib/firebase';
 import { doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, limit } from 'firebase/firestore';
+import { useAuth } from './AuthContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import { recordEvent } from '../lib/telemetry';
 
@@ -76,6 +77,47 @@ const DEFAULT_ACHIEVEMENTS: PilotAchievement[] = [
     badgeColor: '#32527B',
   },
 ];
+
+// ---------------------------------------------------------------------------
+// Firestore write shapes. firestore.rules only accept these keys (owner-only,
+// bounded numbers, capped strings), so we never send stale localStorage keys.
+// ---------------------------------------------------------------------------
+const MAX_XP = 100000;
+const clampNum = (v: unknown, max = MAX_XP) => {
+  const n = typeof v === 'number' && isFinite(v) ? Math.floor(v) : 0;
+  return Math.max(0, Math.min(max, n));
+};
+const capStr = (v: unknown, max: number) => (typeof v === 'string' ? v.slice(0, max) : '');
+
+const PROFILE_KEYS = [
+  'uid', 'nickname', 'callsign', 'avatarSeed', 'avatarColor', 'level', 'totalXp', 'rankTitle',
+  'createdAt', 'lastActive', 'weekendStats', 'weekendActivity', 'droneStats', 'achievements',
+  'selectedRole', 'unlockedCapsules', 'matchBio', 'matchRoles', 'matchIndustries',
+] as const;
+
+function toCloudProfile(prof: PilotProfile, uid: string): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const k of PROFILE_KEYS) {
+    const v = (prof as any)[k];
+    if (v !== undefined) out[k] = v;
+  }
+  out.uid = uid;
+  out.nickname = capStr(prof.nickname, 60) || 'Piloto';
+  if (prof.callsign !== undefined) out.callsign = capStr(prof.callsign, 30);
+  out.avatarSeed = capStr(prof.avatarSeed, 80);
+  out.avatarColor = capStr(prof.avatarColor, 20);
+  out.rankTitle = capStr(prof.rankTitle, 60);
+  out.totalXp = clampNum(prof.totalXp);
+  out.level = clampNum(prof.level, 1000);
+  out.weekendActivity = (prof.weekendActivity || []).slice(0, 50);
+  out.achievements = (prof.achievements || []).slice(0, 40);
+  if (prof.unlockedCapsules) out.unlockedCapsules = prof.unlockedCapsules.slice(0, 50);
+  if (prof.matchBio !== undefined) out.matchBio = capStr(prof.matchBio, 500);
+  if (prof.matchRoles) out.matchRoles = prof.matchRoles.slice(0, 20);
+  if (prof.matchIndustries) out.matchIndustries = prof.matchIndustries.slice(0, 20);
+  out.updatedAt = Date.now();
+  return out;
+}
 
 // Calculate Level and Rank from XP
 export function calculateRankAndLevel(xp: number): { level: number; rankTitle: string; nextLevelXp: number; currentLevelBaseXp: number } {
@@ -233,14 +275,18 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }, [profile]);
 
-  // Firestore Sync & Auth Linking
+  // Firestore Sync & Auth Linking. The cloud doc is keyed by the Firebase
+  // auth uid (rules: owner-only), so wait until auth (anonymous or Google)
+  // has a user before touching Firestore.
+  const { user: authUser } = useAuth();
+  const authUid = authUser?.uid || null;
   useEffect(() => {
     let unsubscribeUser: (() => void) | undefined;
+    if (!authUid) return;
 
     const initFirebaseProfile = async () => {
       try {
-        const currentAuthUser = auth.currentUser;
-        const targetUid = currentAuthUser ? currentAuthUser.uid : profile.uid;
+        const targetUid = authUid;
 
         // Listen or Fetch from Firestore
         const userDocRef = doc(db, 'pilot_profiles', targetUid);
@@ -254,12 +300,9 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
             uid: targetUid,
           }));
         } else {
-          // Push initial profile to Firestore
-          await setDoc(userDocRef, {
-            ...profile,
-            uid: targetUid,
-            updatedAt: Date.now(),
-          }, { merge: true });
+          // Push initial profile to Firestore (local progress carries over)
+          setProfile(prev => ({ ...prev, uid: targetUid }));
+          await setDoc(userDocRef, toCloudProfile(profile, targetUid));
         }
 
         // Realtime sync
@@ -284,7 +327,8 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return () => {
       if (unsubscribeUser) unsubscribeUser();
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUid]);
 
   // Leaderboard listener
   useEffect(() => {
@@ -320,21 +364,24 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // Sync profile to global leaderboard (throttled & silent fallback)
   const pushToLeaderboard = useCallback(async (prof: PilotProfile) => {
     try {
+      // Only your own row (rules: doc id == auth uid), real counters only.
+      const uid = auth.currentUser?.uid;
+      if (!uid) return;
       const entry: LeaderboardEntry = {
-        uid: prof.uid,
-        nickname: prof.nickname,
-        avatarSeed: prof.avatarSeed,
-        avatarColor: prof.avatarColor,
-        rankTitle: prof.rankTitle,
-        level: prof.level,
-        totalXp: prof.totalXp,
-        droneHighScore: prof.droneStats.highScore,
-        totalTricks: prof.droneStats.totalTricks,
-        connectionsCount: prof.weekendStats.connectionsMade,
-        votesCount: prof.weekendStats.votesSubmitted,
+        uid,
+        nickname: capStr(prof.nickname, 60) || 'Piloto',
+        avatarSeed: capStr(prof.avatarSeed, 80),
+        avatarColor: capStr(prof.avatarColor, 20),
+        rankTitle: capStr(prof.rankTitle, 60),
+        level: clampNum(prof.level, 1000),
+        totalXp: clampNum(prof.totalXp),
+        droneHighScore: clampNum(prof.droneStats?.highScore),
+        totalTricks: clampNum(prof.droneStats?.totalTricks),
+        connectionsCount: clampNum(prof.weekendStats?.connectionsMade),
+        votesCount: clampNum(prof.weekendStats?.votesSubmitted),
         updatedAt: Date.now(),
       };
-      await setDoc(doc(db, 'pilot_leaderboard', prof.uid), entry, { merge: true });
+      await setDoc(doc(db, 'pilot_leaderboard', uid), entry);
     } catch {
       // Gracefully keep local state if Firestore write is offline or restricted
     }

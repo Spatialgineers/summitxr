@@ -13,14 +13,16 @@ import {
   SummitAnalyticsMetrics, 
   LanguageCode 
 } from '../types/summit';
-import { db } from './firebase';
+import { auth, db } from './firebase';
 import { 
   collection, 
   doc, 
   setDoc, 
   deleteDoc, 
   getDocs, 
-  onSnapshot 
+  updateDoc,
+  onSnapshot,
+  serverTimestamp
 } from 'firebase/firestore';
 
 // Official Canonical Brand Assets & CDN Resources
@@ -1811,6 +1813,7 @@ export function loadAllSessions(): SummitSession[] {
 export function saveAllSessions(sessions: SummitSession[]): void {
   try {
     localStorage.setItem(STORAGE_KEY_CUSTOM_SESSIONS, JSON.stringify(sessions));
+    publishContent('sessions', sessions);
     window.dispatchEvent(new Event('storage'));
   } catch (e) {
     console.warn('Could not save sessions data locally', e);
@@ -1873,6 +1876,7 @@ export function saveAllSpeakers(speakers: SummitSpeaker[]): void {
     });
     const unique = Array.from(map.values());
     localStorage.setItem(STORAGE_KEY_CUSTOM_SPEAKERS, JSON.stringify(unique));
+    publishContent('speakers', unique);
     window.dispatchEvent(new Event('storage'));
   } catch (e) {
     console.warn('Could not save speakers data locally', e);
@@ -1905,7 +1909,16 @@ export async function registerSpeakerProfile(speaker: SummitSpeaker): Promise<Su
   const updated = Array.from(map.values());
 
   saveAllSpeakers(updated);
-  await saveSpeakerToFirestore(speaker);
+  // Self-registered speakers land in the team's inbox; an admin publishes them.
+  try {
+    await setDoc(doc(db, 'speaker_submissions', speaker.id), {
+      ...stripUndefined(speaker),
+      submittedAt: serverTimestamp(),
+      submittedBy: auth.currentUser?.uid || null,
+    });
+  } catch (err) {
+    console.warn('[SGX Speakers] submission kept on this device only:', err);
+  }
   return speaker;
 }
 
@@ -1923,6 +1936,8 @@ export function loadAllMapNodes(): Map360Node[] {
 export function saveAllMapNodes(nodes: Map360Node[]): void {
   try {
     localStorage.setItem(STORAGE_KEY_CUSTOM_MAP, JSON.stringify(nodes));
+    publishContent('map_nodes', nodes);
+    window.dispatchEvent(new Event('storage'));
   } catch (e) {
     console.warn('Could not save map nodes data locally', e);
   }
@@ -1942,6 +1957,8 @@ export function loadAllEmbedWidgets(): EmbedWidget[] {
 export function saveAllEmbedWidgets(widgets: EmbedWidget[]): void {
   try {
     localStorage.setItem(STORAGE_KEY_CUSTOM_EMBEDS, JSON.stringify(widgets));
+    publishContent('embeds', widgets);
+    window.dispatchEvent(new Event('storage'));
   } catch (e) {
     console.warn('Could not save embed widgets locally', e);
   }
@@ -1961,6 +1978,8 @@ export function loadAllSponsorshipTiers(): SponsorshipTier[] {
 export function saveAllSponsorshipTiers(tiers: SponsorshipTier[]): void {
   try {
     localStorage.setItem(STORAGE_KEY_CUSTOM_SPONSORS, JSON.stringify(tiers));
+    publishContent('sponsorship_tiers', tiers);
+    window.dispatchEvent(new Event('storage'));
   } catch (e) {
     console.warn('Could not save sponsors data locally', e);
   }
@@ -2004,6 +2023,50 @@ export function saveSingleSponsorInquiry(inquiry: SponsorInquiry): SponsorInquir
   }
   saveAllSponsorInquiries(updated);
   return updated;
+}
+
+/* Sponsor inquiries reach the team through Firestore (`sponsor_inquiries`,
+   create-only for visitors, admin read). The local copy is only a receipt. */
+function stripUndefined<T extends object>(o: T): T {
+  return JSON.parse(JSON.stringify(o));
+}
+
+export async function submitSponsorInquiry(inquiry: SponsorInquiry): Promise<boolean> {
+  saveSingleSponsorInquiry(inquiry);
+  try {
+    await setDoc(doc(db, 'sponsor_inquiries', inquiry.id), stripUndefined(inquiry));
+    return true;
+  } catch (err) {
+    console.warn('[SGX Sponsors] inquiry could not be sent:', err);
+    return false;
+  }
+}
+
+/** Admin: pull every inquiry from Firestore and merge it into the local list. */
+export async function fetchSponsorInquiriesRemote(): Promise<SponsorInquiry[]> {
+  const local = loadAllSponsorInquiries();
+  try {
+    const snap = await getDocs(collection(db, 'sponsor_inquiries'));
+    const map = new Map<string, SponsorInquiry>();
+    local.forEach((i) => map.set(i.id, i));
+    snap.docs.forEach((d) => map.set(d.id, { ...(d.data() as SponsorInquiry), id: d.id }));
+    const merged = Array.from(map.values()).sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0));
+    saveAllSponsorInquiries(merged);
+    return merged;
+  } catch (err) {
+    console.warn('[SGX Sponsors] could not load inquiries from Firestore:', err);
+    return local;
+  }
+}
+
+export function updateSponsorInquiryRemote(id: string, patch: Partial<SponsorInquiry>): void {
+  updateDoc(doc(db, 'sponsor_inquiries', id), stripUndefined(patch) as any)
+    .catch((err) => console.warn('[SGX Sponsors] status kept on this device only:', err));
+}
+
+export function deleteSponsorInquiryRemote(id: string): void {
+  deleteDoc(doc(db, 'sponsor_inquiries', id))
+    .catch((err) => console.warn('[SGX Sponsors] delete kept on this device only:', err));
 }
 
 export const STORAGE_KEY_APPROVED_SPONSORS = 'sgx_summit_approved_sponsors_v2026_10_1';
@@ -2089,6 +2152,8 @@ export function loadAllApprovedSponsors(): ApprovedSponsor[] {
 export function saveAllApprovedSponsors(sponsors: ApprovedSponsor[]): void {
   try {
     localStorage.setItem(STORAGE_KEY_APPROVED_SPONSORS, JSON.stringify(sponsors));
+    publishContent('approved_sponsors', sponsors);
+    window.dispatchEvent(new Event('storage'));
   } catch (e) {
     console.warn('Could not save approved sponsors locally', e);
   }
@@ -2105,6 +2170,7 @@ export function approveSponsorInquiryAndCreateShowcase(inquiry: SponsorInquiry):
     inq.id === inquiry.id ? { ...inq, status: 'APPROVED' as const } : inq
   );
   saveAllSponsorInquiries(updatedInquiries);
+  updateSponsorInquiryRemote(inquiry.id, { status: 'APPROVED' });
 
   // 2. Create or Update Approved Sponsor Showcase
   const currentApproved = loadAllApprovedSponsors();
@@ -2273,3 +2339,153 @@ export function playNotificationChime(): void {
   }
 }
 
+
+
+/* =========================================================================
+   LIVE CONTENT: the CMS publishes each content set to `summit_content/{key}`
+   (admin-only writes) and every visitor subscribes to it. Incoming sets are
+   written into the same localStorage keys the loaders above already read, so
+   the whole UI picks them up through the existing 'storage' listeners. With
+   no published doc, visitors keep the bundled defaults.
+   ========================================================================= */
+
+const LIVE_CONTENT_KEYS: Record<string, string> = {
+  sessions: STORAGE_KEY_CUSTOM_SESSIONS,
+  speakers: STORAGE_KEY_CUSTOM_SPEAKERS,
+  map_nodes: STORAGE_KEY_CUSTOM_MAP,
+  embeds: STORAGE_KEY_CUSTOM_EMBEDS,
+  sponsorship_tiers: STORAGE_KEY_CUSTOM_SPONSORS,
+  approved_sponsors: STORAGE_KEY_APPROVED_SPONSORS,
+};
+
+let applyingRemoteContent = false;
+
+/** Admin edits go live for everyone. Visitors (anonymous) never publish. */
+export function publishContent(key: keyof typeof LIVE_CONTENT_KEYS | string, items: unknown[]): void {
+  if (applyingRemoteContent) return;
+  const user = auth.currentUser;
+  if (!user || user.isAnonymous) return;
+  const payload = JSON.parse(JSON.stringify(items));
+  if (JSON.stringify(payload).length > 900_000) {
+    console.warn(`[SGX CMS] "${key}" is too large to publish (Firestore 1 MB limit). Use image URLs instead of embedded images.`);
+    return;
+  }
+  setDoc(doc(db, 'summit_content', key), { items: payload, updatedAt: serverTimestamp() })
+    .then(() => window.dispatchEvent(new CustomEvent('sgx:cms_published', { detail: { key } })))
+    .catch((err) => {
+      console.warn(`[SGX CMS] "${key}" saved on this device only:`, err?.message || err);
+      window.dispatchEvent(new CustomEvent('sgx:cms_publish_failed', { detail: { key, message: String(err?.message || err) } }));
+    });
+}
+
+let liveContentStarted = false;
+
+/** Subscribe once per page to the published content and the CSV-import refresh event. */
+export function startLiveContentSync(): void {
+  if (liveContentStarted || typeof window === 'undefined') return;
+  liveContentStarted = true;
+  window.addEventListener('sgx:cms_data_updated', () => window.dispatchEvent(new Event('storage')));
+  try {
+    onSnapshot(collection(db, 'summit_content'), (snap) => {
+      let changed = false;
+      snap.docChanges().forEach((change) => {
+        const storageKey = LIVE_CONTENT_KEYS[change.doc.id];
+        if (!storageKey) return;
+        try {
+          if (change.type === 'removed') {
+            localStorage.removeItem(storageKey);
+            changed = true;
+            return;
+          }
+          const items = change.doc.data()?.items;
+          if (!Array.isArray(items)) return;
+          const next = JSON.stringify(items);
+          if (localStorage.getItem(storageKey) !== next) {
+            localStorage.setItem(storageKey, next);
+            changed = true;
+          }
+        } catch (err) {
+          console.warn('[SGX CMS] could not apply live content:', err);
+        }
+      });
+      if (changed) {
+        applyingRemoteContent = true;
+        try { window.dispatchEvent(new Event('storage')); } finally { applyingRemoteContent = false; }
+      }
+    }, () => { /* offline or rules not deployed: bundled content stays */ });
+  } catch { /* Firestore unavailable */ }
+}
+
+
+/* =========================================================================
+   ANNOUNCEMENTS: the CMS "push" writes `site_config/announcement` (admin-only)
+   and every open page shows it as a toast. A visitor sees each one once, and
+   only while it is fresh.
+   ========================================================================= */
+
+const SEEN_ANNOUNCEMENT_KEY = 'sgx_seen_announcement_v1';
+const ANNOUNCEMENT_TTL_MS = 2 * 60 * 60 * 1000;
+
+export async function publishAnnouncement(n: SummitNotification): Promise<boolean> {
+  try {
+    await setDoc(doc(db, 'site_config', 'announcement'), stripUndefined({
+      id: n.id.slice(0, 64),
+      title: n.title.slice(0, 120),
+      message: n.message.slice(0, 600),
+      priority: n.priority === 'URGENT' ? 'CRITICAL' : n.priority,
+      actionUrl: n.actionUrl ? n.actionUrl.slice(0, 300) : undefined,
+      actionLabel: n.actionLabel ? n.actionLabel.slice(0, 40) : undefined,
+      at: serverTimestamp(),
+    }));
+    return true;
+  } catch (err) {
+    console.warn('[SGX Push] announcement not sent:', err);
+    return false;
+  }
+}
+
+export function subscribeAnnouncement(onAnnouncement: (n: SummitNotification) => void): () => void {
+  try {
+    return onSnapshot(doc(db, 'site_config', 'announcement'), (snap) => {
+      if (!snap.exists() || snap.metadata.hasPendingWrites) return;
+      const d = snap.data() as any;
+      const at = typeof d.at?.toMillis === 'function' ? d.at.toMillis() : 0;
+      if (!d.id || !d.title || !at || Date.now() - at > ANNOUNCEMENT_TTL_MS) return;
+      try {
+        if (localStorage.getItem(SEEN_ANNOUNCEMENT_KEY) === d.id) return;
+        localStorage.setItem(SEEN_ANNOUNCEMENT_KEY, d.id);
+      } catch {}
+      onAnnouncement({
+        id: d.id,
+        title: d.title,
+        message: d.message || '',
+        timestamp: at,
+        type: 'SYSTEM_ANNOUNCEMENT',
+        priority: d.priority === 'CRITICAL' ? 'URGENT' : d.priority === 'HIGH' ? 'HIGH' : 'NORMAL',
+        actionUrl: d.actionUrl || undefined,
+        actionLabel: d.actionLabel || undefined,
+      });
+    }, () => {});
+  } catch {
+    return () => {};
+  }
+}
+
+
+/** Admin: speaker self-registrations waiting for review. */
+export async function fetchSpeakerSubmissions(): Promise<SummitSpeaker[]> {
+  const snap = await getDocs(collection(db, 'speaker_submissions'));
+  return snap.docs.map((d) => ({ ...(d.data() as SummitSpeaker), id: d.id }));
+}
+
+/** Admin: publish a submission to the live directory, then clear it from the inbox. */
+export async function approveSpeakerSubmission(speaker: SummitSpeaker): Promise<void> {
+  const { submittedAt, submittedBy, ...clean } = speaker as any;
+  const current = loadAllSpeakers().filter((s) => s.id !== speaker.id);
+  saveAllSpeakers([...current, clean as SummitSpeaker]);
+  await deleteDoc(doc(db, 'speaker_submissions', speaker.id));
+}
+
+export async function rejectSpeakerSubmission(id: string): Promise<void> {
+  await deleteDoc(doc(db, 'speaker_submissions', id));
+}

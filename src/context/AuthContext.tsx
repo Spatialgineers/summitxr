@@ -7,14 +7,28 @@ import {
   GoogleAuthProvider,
   signOut,
   signInAnonymously,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
+  signInWithEmailAndPassword
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, googleProvider, db, firebaseConfig, handleFirestoreError, OperationType } from '../lib/firebase';
 import { UserProfile } from '../types/engine';
 
 export const AUTHORIZED_SUPER_ADMIN_EMAIL = 'info@spatialgineers.com';
+/** Same list as isSuperAdmin() in firestore.rules and SGX_ADMIN_EMAILS on the server. */
+export const AUTHORIZED_SUPER_ADMIN_EMAILS = ['info@spatialgineers.com', 'support@spatialgineers.com'];
+
+/**
+ * Mirrors isSuperAdmin() in firestore.rules: the owner email AND a verified
+ * address (or a Google sign-in, which Google has verified). An unverified
+ * email/password account typed with the owner address is NOT an admin.
+ */
+export const isVerifiedSuperAdminUser = (u: User | null | undefined): boolean => {
+  if (!u || u.isAnonymous) return false;
+  const emailLower = u.email?.toLowerCase().trim() || '';
+  if (!AUTHORIZED_SUPER_ADMIN_EMAILS.includes(emailLower)) return false;
+  const viaGoogle = (u.providerData || []).some(p => p?.providerId === 'google.com');
+  return u.emailVerified === true || viaGoogle;
+};
 
 interface AuthContextType {
   user: User | null;
@@ -29,7 +43,6 @@ interface AuthContextType {
   signInWithGoogleCredential: (idToken: string) => Promise<void>;
   signInAnonymouslyUser: () => Promise<void>;
   signInWithEmail: (email: string, pass: string) => Promise<void>;
-  signUpWithEmail: (email: string, pass: string) => Promise<void>;
   clearAuthError: () => void;
   savePlayerProfile: (profile: Partial<UserProfile>) => Promise<void>;
   logout: () => Promise<void>;
@@ -139,11 +152,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(currentUser);
         await upsertPlayerProfile(currentUser);
 
-        // Check if director / admin role - Strictly info@spatialgineers.com
+        // Admin = verified super admin, or a uid listed in admins/{uid}
+        // (same definition as isAdmin() in firestore.rules).
         if (!currentUser.isAnonymous) {
-          const emailLower = currentUser.email?.toLowerCase().trim() || '';
-          const isMaster = emailLower === AUTHORIZED_SUPER_ADMIN_EMAIL.toLowerCase();
-          setIsAdmin(isMaster);
+          let admin = isVerifiedSuperAdminUser(currentUser);
+          if (!admin) {
+            try {
+              const adminSnap = await getDoc(doc(db, 'admins', currentUser.uid));
+              admin = adminSnap.exists();
+            } catch {
+              admin = false; // rules deny the read to non-admins
+            }
+          }
+          setIsAdmin(admin);
         } else {
           setIsAdmin(false);
         }
@@ -239,23 +260,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUpWithEmail = async (email: string, pass: string) => {
-    try {
-      setAuthError(null);
-      await createUserWithEmailAndPassword(auth, email.trim(), pass);
-    } catch (err: any) {
-      console.error('Email sign-up error:', err);
-      const code = err?.code || '';
-      if (code === 'auth/email-already-in-use') {
-        setAuthError('Este correo electrónico ya está registrado. Intenta iniciar sesión.');
-      } else if (code === 'auth/weak-password') {
-        setAuthError('La contraseña debe tener al menos 6 caracteres.');
-      } else {
-        setAuthError(err?.message || 'Error al crear cuenta con correo y contraseña.');
-      }
-    }
-  };
-
   const savePlayerProfile = async (updates: Partial<UserProfile>) => {
     if (!user) return;
     try {
@@ -318,7 +322,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const isSuperAdmin = user?.email?.toLowerCase() === AUTHORIZED_SUPER_ADMIN_EMAIL.toLowerCase();
+  const isSuperAdmin = isVerifiedSuperAdminUser(user);
 
   return (
     <AuthContext.Provider
@@ -335,7 +339,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInWithGoogleCredential,
         signInAnonymouslyUser,
         signInWithEmail,
-        signUpWithEmail,
         clearAuthError,
         savePlayerProfile,
         logout,

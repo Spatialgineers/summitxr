@@ -37,6 +37,11 @@ export interface VisitStats {
   uniqueVisitors: number;
 }
 
+/** HTML-escape a value before it goes into a map/globe tooltip (names come from Firestore). */
+export function escapeHtml(v: unknown): string {
+  return String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+}
+
 const VISITOR_KEY = 'sgx_visitor_id_v1';
 const SESSION_KEY = 'sgx_visit_counted_v1';
 const MY_REGION_KEY = 'sgx_visit_region_v1';

@@ -20,7 +20,7 @@ import {
   Check
 } from 'lucide-react';
 import { SponsorshipTier, SponsorInquiry } from '../../types/summit';
-import { saveSingleSponsorInquiry, SPONSORSHIP_TIERS } from '../../lib/summitData';
+import { submitSponsorInquiry, SPONSORSHIP_TIERS } from '../../lib/summitData';
 
 interface SummitSponsorInquiryFormProps {
   initialTierId?: string;
@@ -60,6 +60,7 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
   ]);
   const [customMessage, setCustomMessage] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [sendError, setSendError] = useState<string | null>(null);
   const [submittedInquiry, setSubmittedInquiry] = useState<SponsorInquiry | null>(null);
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -86,7 +87,7 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
@@ -114,14 +115,16 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
       referenceCode: `SGX-SPONSOR-2026-${refNum}`
     };
 
-    // Save locally
-    saveSingleSponsorInquiry(newInquiry);
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmittedInquiry(newInquiry);
-      if (onSuccess) onSuccess(newInquiry);
-    }, 600);
+    // Lands in the team's Firestore inbox; the local copy is the visitor's receipt.
+    setSendError(null);
+    const sent = await submitSponsorInquiry(newInquiry);
+    setIsSubmitting(false);
+    if (!sent) {
+      setSendError('No pudimos enviar tu solicitud en este momento. Revisa tu conexión e inténtalo de nuevo, o escríbenos a info@spatialgineers.com.');
+      return;
+    }
+    setSubmittedInquiry(newInquiry);
+    if (onSuccess) onSuccess(newInquiry);
   };
 
   const handleCopyCode = () => {
@@ -587,6 +590,10 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
                 </div>
               </div>
             </div>
+
+            {sendError && (
+              <p role="alert" className="text-xs text-red-300 border border-red-500/50 bg-red-950/40 p-2">{sendError}</p>
+            )}
 
             {/* Submit Bar */}
             <div className="pt-4 border-t border-[var(--sgx-secondary)]/60 flex flex-col sm:flex-row items-center justify-between gap-4">

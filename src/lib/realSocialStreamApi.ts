@@ -12,7 +12,10 @@ import {
   increment,
   where
 } from 'firebase/firestore';
-import { db } from './firebase';
+import { auth, db } from './firebase';
+
+/** In-house avatar for posts and comments without a photo (no stock faces). */
+const SGX_DEFAULT_AVATAR = '/brand/sgx-bolt.svg';
 
 export type SocialPlatform = 'instagram' | 'x' | 'threads' | 'tiktok';
 
@@ -84,7 +87,7 @@ function mapDocToPost(id: string, data: any): SocialPost {
     author: data.author || {
       name: data.authorName || 'Asistente Spatialgineer',
       handle: data.authorHandle || '@asistente',
-      avatar: data.authorAvatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80',
+      avatar: data.authorAvatar || SGX_DEFAULT_AVATAR,
       badge: data.authorBadge,
       verified: !!data.authorVerified,
     },
@@ -214,9 +217,9 @@ export async function publishAttendeePost(post: {
   const author: SocialAuthor = {
     name: post.authorName || 'Asistente Spatialgineers',
     handle: post.authorHandle || '@asistente_sgx',
-    avatar: post.authorAvatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80',
-    badge: 'Attendee Verificado',
-    verified: true,
+    avatar: post.authorAvatar && /^https:\/\//.test(post.authorAvatar) && post.authorAvatar.length <= 1000 ? post.authorAvatar : SGX_DEFAULT_AVATAR,
+    badge: 'Asistente',
+    verified: false,
   };
 
   const newPostData = {
@@ -236,6 +239,7 @@ export async function publishAttendeePost(post: {
     sharesCount: 0,
     isFeaturedOnStage: false,
     comments: [],
+    authorUid: auth.currentUser?.uid || null,
   };
 
   // Save to Firestore
@@ -273,8 +277,8 @@ export async function importInstagramPost(
     author: {
       name: extra?.authorHandle || 'Instagram Oficial',
       handle: extra?.authorHandle ? (extra.authorHandle.startsWith('@') ? extra.authorHandle : `@${extra.authorHandle}`) : '@spatialgineers',
-      avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80',
-      badge: 'Meta Verificado',
+      avatar: '/brand/sgx-bolt.svg',
+      badge: 'Instagram',
       verified: true,
     },
     content: extra?.caption || 'Publicación verificada en Instagram oficial.',
@@ -288,6 +292,7 @@ export async function importInstagramPost(
     sharesCount: 0,
     isFeaturedOnStage: true,
     comments: [],
+    authorUid: auth.currentUser?.uid || null,
   };
 
   await setDoc(doc(db, 'social_posts', postId), postData);
@@ -359,7 +364,7 @@ export async function bulkImportInstagramPosts(
       author: {
         name: authorName,
         handle: authorHandle,
-        avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80',
+        avatar: SGX_DEFAULT_AVATAR,
         badge: 'Meta Verificado',
         verified: true,
       },
@@ -429,7 +434,7 @@ export async function addCommentToPost(
     id: `c_${Date.now()}`,
     author: authorName,
     handle,
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
+    avatar: SGX_DEFAULT_AVATAR,
     text,
     timestamp: 'Justo ahora',
   };

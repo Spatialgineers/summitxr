@@ -2,7 +2,11 @@ import { Router } from 'express';
 import { INITIAL_TENANTS } from '../../lib/schemas';
 import { VISUALIZER_PRESETS, DEFAULT_PRESET } from '../../lib/presets';
 import { VisualizerPresetId } from '../../types/engine';
-import { getOrCreateRoom } from '../engine/roomManager';
+import { resolveRoom, RoomState } from '../engine/roomManager';
+import { requireAdmin } from '../security/adminAuth';
+import { ipRateLimit } from '../security/rateLimit';
+import { isValidId, LIMITS, validateQuestionList } from '../security/validation';
+import type { Request, Response } from 'express';
 import { 
   computeVoteSummary, 
   startQuestionVoting, 
@@ -15,6 +19,20 @@ import { triggerPresetOverride, processAudienceReaction } from '../engine/visual
 
 export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
   const router = Router();
+  // Generous per-IP budget: a whole venue may share one Wi-Fi address.
+  router.use(ipRateLimit({ capacity: 120, refillPerSec: 40 }));
+
+  /** Validated room for client-supplied ids; replies 400/503 itself when invalid. */
+  const roomFrom = (req: Request, res: Response): RoomState | null => {
+    const src = req.method === 'GET' ? req.query : (req.body || {});
+    const r = resolveRoom((src as any).tenantId, (src as any).eventId);
+    if (r.ok === false) {
+      const bad = r as { status: 400 | 503; error: string };
+      res.status(bad.status).json({ error: bad.error });
+      return null;
+    }
+    return r.room;
+  };
 
   // Health check
   router.get('/health', (req, res) => {
@@ -38,9 +56,8 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
 
   // State snapshot
   router.get('/state', (req, res) => {
-    const tenantId = (req.query.tenantId as string) || 'tenant_spatialgineers';
-    const eventId = (req.query.eventId as string) || 'event_live_main';
-    const room = getOrCreateRoom(tenantId, eventId);
+    const room = roomFrom(req, res);
+    if (!room) return;
     const currentQ = room.questions[room.currentQuestionIndex];
     const summary = currentQ ? computeVoteSummary(room, currentQ) : null;
 
@@ -52,41 +69,34 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
       voteSummary: summary,
       connectedAudienceCount: room.users.size + 1,
       activePreset: VISUALIZER_PRESETS[room.session.activePresetId] || DEFAULT_PRESET,
-      users: Array.from(room.users.values()),
+      users: Array.from(room.users.values()).slice(0, 200),
     });
   });
 
   // Questions
   router.get('/questions', (req, res) => {
-    const tenantId = (req.query.tenantId as string) || 'tenant_spatialgineers';
-    const eventId = (req.query.eventId as string) || 'event_live_main';
-    const room = getOrCreateRoom(tenantId, eventId);
+    const room = roomFrom(req, res);
+    if (!room) return;
     res.json({ questions: room.questions });
   });
 
-  router.post('/questions', (req, res) => {
-    const tenantId = req.body.tenantId || 'tenant_spatialgineers';
-    const eventId = req.body.eventId || 'event_live_main';
-    const room = getOrCreateRoom(tenantId, eventId);
-    const newQ = {
-      ...req.body,
-      id: `q_${Date.now()}`,
-      tenantId,
-      eventId,
-      order: room.questions.length + 1,
-    };
+  router.post('/questions', requireAdmin, (req, res) => {
+    const room = roomFrom(req, res);
+    if (!room) return;
+    const v = validateQuestionList([req.body], Math.max(0, LIMITS.MAX_QUESTIONS - room.questions.length), `q_${Date.now()}`);
+    if (v.ok === false) return res.status(400).json({ error: (v as any).error });
+    const newQ = { ...v.value[0], tenantId: room.tenantId, eventId: room.eventId, order: room.questions.length + 1 };
     room.questions.push(newQ);
     res.json({ success: true, question: newQ });
   });
 
   // Director Action: Broadcast Question
-  router.post('/action/broadcast-question', (req, res) => {
-    const tenantId = req.body.tenantId || 'tenant_spatialgineers';
-    const eventId = req.body.eventId || 'event_live_main';
+  router.post('/action/broadcast-question', requireAdmin, (req, res) => {
     const questionIndex = req.body.questionIndex ?? req.body.index ?? 0;
-    const room = getOrCreateRoom(tenantId, eventId);
+    const room = roomFrom(req, res);
+    if (!room) return;
 
-    const question = startQuestionVoting(room, questionIndex, broadcastToRoom);
+    const question = Number.isInteger(Number(questionIndex)) ? startQuestionVoting(room, Number(questionIndex), broadcastToRoom) : null;
     if (!question) {
       return res.status(400).json({ error: 'Question not found' });
     }
@@ -96,30 +106,31 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
 
   // Audience Vote Submission (REST Fallback)
   router.post('/vote', (req, res) => {
-    const { tenantId = 'tenant_spatialgineers', eventId = 'event_live_main' } = req.body;
-    const room = getOrCreateRoom(tenantId, eventId);
+    const room = roomFrom(req, res);
+    if (!room) return;
+    const voterId = req.body?.userId;
+    if (!isValidId(voterId)) return res.status(400).json({ error: 'INVALID_USER_ID' });
 
-    const result = processVoteSubmission(room, req.body, broadcastToRoom);
-    if (!result) {
-      return res.status(400).json({ error: 'Voting is not active' });
+    const result = processVoteSubmission(room, voterId, req.body || {}, broadcastToRoom);
+    if (result.status !== 'ACCEPTED') {
+      return res.status(result.status === 'DUPLICATE' ? 409 : 400).json({ error: result.status });
     }
-
-    res.json({ success: true, calculation: result.calc, summary: result.summary, user: result.user });
+    const ok = result as Extract<typeof result, { status: 'ACCEPTED' }>;
+    res.json({ success: true, calculation: ok.calc, summary: ok.summary, user: ok.user });
   });
 
   // Audience Reaction (REST Fallback)
   router.post('/reaction', (req, res) => {
-    const { tenantId = 'tenant_spatialgineers', eventId = 'event_live_main' } = req.body;
-    const room = getOrCreateRoom(tenantId, eventId);
-    const reaction = processAudienceReaction(room, req.body, broadcastToRoom);
+    const room = roomFrom(req, res);
+    if (!room) return;
+    const reaction = processAudienceReaction(room, { emoji: req.body?.emoji, color: req.body?.color, userId: isValidId(req.body?.userId) ? req.body.userId : 'anon' }, broadcastToRoom);
     res.json({ success: true, reaction });
   });
 
   // Director Action: Force Close Voting
-  router.post('/action/close-voting', (req, res) => {
-    const tenantId = req.body.tenantId || 'tenant_spatialgineers';
-    const eventId = req.body.eventId || 'event_live_main';
-    const room = getOrCreateRoom(tenantId, eventId);
+  router.post('/action/close-voting', requireAdmin, (req, res) => {
+    const room = roomFrom(req, res);
+    if (!room) return;
     const question = room.questions[room.currentQuestionIndex];
     if (question) {
       endVotingAndReveal(room, question, broadcastToRoom);
@@ -128,10 +139,11 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
   });
 
   // Director Action: Trigger Visualizer Preset Override
-  router.post('/action/trigger-preset', (req, res) => {
-    const { tenantId = 'tenant_spatialgineers', eventId = 'event_live_main', presetId } = req.body;
-    const room = getOrCreateRoom(tenantId, eventId);
-    const success = triggerPresetOverride(room, presetId as VisualizerPresetId, 'MANUAL_DIRECTOR', broadcastToRoom);
+  router.post('/action/trigger-preset', requireAdmin, (req, res) => {
+    const { presetId } = req.body || {};
+    const room = roomFrom(req, res);
+    if (!room) return;
+    const success = typeof presetId === 'string' && !!VISUALIZER_PRESETS[presetId as VisualizerPresetId] && triggerPresetOverride(room, presetId as VisualizerPresetId, 'MANUAL_DIRECTOR', broadcastToRoom);
     if (success) {
       res.json({ success: true, activePresetId: presetId });
     } else {
@@ -140,21 +152,22 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
   });
 
   // Director Tool: Simulate Audience Crowd Votes
-  router.post('/action/simulate-votes', (req, res) => {
-    const { tenantId = 'tenant_spatialgineers', eventId = 'event_live_main', count = 100 } = req.body;
-    const room = getOrCreateRoom(tenantId, eventId);
-    const updatedSummary = simulateAudienceVotes(room, count, broadcastToRoom);
+  router.post('/action/simulate-votes', requireAdmin, (req, res) => {
+    const { count = 100 } = req.body || {};
+    const room = roomFrom(req, res);
+    if (!room) return;
+    const simCount = Math.min(LIMITS.SIMULATE_MAX, Math.max(1, Math.floor(Number(count) || 0)));
+    const updatedSummary = simulateAudienceVotes(room, simCount, broadcastToRoom);
     if (!updatedSummary) {
       return res.status(400).json({ error: 'No active question' });
     }
-    res.json({ success: true, simulatedCount: count, totalVotes: room.votes.size, summary: updatedSummary });
+    res.json({ success: true, simulatedCount: simCount, totalVotes: room.votes.size, summary: updatedSummary });
   });
 
   // Analytics
-  router.get('/analytics', (req, res) => {
-    const tenantId = (req.query.tenantId as string) || 'tenant_spatialgineers';
-    const eventId = (req.query.eventId as string) || 'event_live_main';
-    const room = getOrCreateRoom(tenantId, eventId);
+  router.get('/analytics', requireAdmin, (req, res) => {
+    const room = roomFrom(req, res);
+    if (!room) return;
 
     const userList = Array.from(room.users.values()).sort((a, b) => b.totalScore - a.totalScore);
     const topLeaderboard = userList.slice(0, 20);

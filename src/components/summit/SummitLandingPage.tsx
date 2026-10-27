@@ -1,7 +1,8 @@
 import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { SgxStandby } from '../../immersion/SgxStandby';
 import { SgxPassSection, SgxHoloStudioPanel } from '../../identity/SgxPassSection';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import { LazyFallback } from '../common/LazyFallback';
 import { SpatialTiltCard } from '../common/SpatialTiltCard';
 import { SummitAnalyticsView } from '../analytics/SummitAnalyticsView';
 import { 
@@ -84,25 +85,21 @@ import { useAuth } from '../../context/AuthContext';
 import { Summit360MapViewer } from './Summit360MapViewer';
 import { SummitAgendaBuilder } from './SummitAgendaBuilder';
 import { SummitNetworkingChat } from './SummitNetworkingChat';
-import { SummitEmbedsHub } from './SummitEmbedsHub';
 import { SummitPushAlertToast } from './SummitPushAlertToast';
+import { subscribeAnnouncement } from '../../lib/summitData';
 import { SummitSponsorInquiryForm } from './SummitSponsorInquiryForm';
 import { SummitCountdownVisualizer } from './SummitCountdownVisualizer';
 import { SummitSponsorTicker } from './SummitSponsorTicker';
 import { PillarTenantSelector } from './PillarTenantSelector';
 import { SgxGuildShowcaseSection } from './SgxGuildShowcaseSection';
 import { SummitBrandShowcaseModal } from './SummitBrandShowcaseModal';
-import { SummitSpeakerPortalModal } from './SummitSpeakerPortalModal';
 import { SummitSectionsDropdown, SummitSectionKey } from './SummitSectionsDropdown';
 import { SummitExperienceHub } from './SummitExperienceHub';
 import { SummitRewardsStoreModal } from './SummitRewardsStoreModal';
 import { KeynotePulseReactions } from './KeynotePulseReactions';
-import { AttendeeAvatarGenerator } from './AttendeeAvatarGenerator';
-import { NetworkingQrScannerModal } from './NetworkingQrScannerModal';
-import { SgxHoloCardGeneratorModal, HoloCardProfile } from './SgxHoloCardGeneratorModal';
+import type { HoloCardProfile } from './SgxHoloCardGeneratorModal';
 import { SgxSectionHudBar, HudSectionChip } from './SgxSectionHudBar';
 import { SgxPillarStation } from './SgxPillarStation';
-import { SummitVisitRadar } from './SummitVisitRadar';
 import { SGX_PILLARS, pillarOfSection, findPillar } from '../../lib/sgxPillars';
 import { SummitPrivacyPolicyModal } from './SummitPrivacyPolicyModal';
 import { LiveSocialStream } from './LiveSocialStream';
@@ -113,7 +110,6 @@ import { SummitSponsorshipMatrix } from './SummitSponsorshipMatrix';
 import { SummitSectionBanner } from './SummitSectionBanner';
 import { TransientSponsorSlot } from './TransientSponsorSlot';
 import { getAppRouteAndSectionFromUrl, getSectionFromUrl, syncAppUrl, syncSectionToUrl, scrollToSectionContainer, SECTION_TO_SLUG } from '../../lib/summitUrlSync';
-import { MatchModule } from '../../modules/match/MatchModule';
 import { toggleCyberAmbiance, getIsCyberAmbiancePlaying, playUiChirp, playPillarDockSound, playScanSuccessSound } from '../../lib/cyberAudioEngine';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -121,6 +117,14 @@ import { usePilotProfile } from '../../context/PilotProfileContext';
 import { useSummitFeatures } from '../../context/SummitFeatureContext';
 import { SummitContentAuditModal } from './SummitContentAuditModal';
 import { SummitWeeklyCapsules } from './SummitWeeklyCapsules';
+
+// Heavy, on-demand modules (Leaflet radar, jsQR scanner, drone game, Match, avatar studio).
+const SummitVisitRadar = lazy(() => import('./SummitVisitRadar').then((m) => ({ default: m.SummitVisitRadar })));
+const SummitEmbedsHub = lazy(() => import('./SummitEmbedsHub').then((m) => ({ default: m.SummitEmbedsHub })));
+const MatchModule = lazy(() => import('../../modules/match/MatchModule').then((m) => ({ default: m.MatchModule })));
+const AttendeeAvatarGenerator = lazy(() => import('./AttendeeAvatarGenerator').then((m) => ({ default: m.AttendeeAvatarGenerator })));
+const NetworkingQrScannerModal = lazy(() => import('./NetworkingQrScannerModal').then((m) => ({ default: m.NetworkingQrScannerModal })));
+const SummitSpeakerPortalModal = lazy(() => import('./SummitSpeakerPortalModal').then((m) => ({ default: m.SummitSpeakerPortalModal })));
 
 // Every section's home pillar, chips and icons come from the single six-pillar source (lib/sgxPillars).
 const HUD_SECTION_CHIPS: HudSectionChip[] = SGX_PILLARS.flatMap((p) =>
@@ -510,6 +514,9 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     setActiveToastNotif(notif);
   };
 
+  // Announcements sent from the CMS reach every open page.
+  useEffect(() => subscribeAnnouncement(setActiveToastNotif), []);
+
   const handleSessionNotification = (session: SummitSession) => {
     const notif: SummitNotification = {
       id: `alert_${session.id}_${Date.now()}`,
@@ -598,7 +605,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               Esta Estación del Summit se Activará Próximamente
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 font-mono leading-relaxed">
-              Nuestro equipo de ingeniería espacial está finalizando los últimos detalles de este módulo para el Spatialgineers Summit 2026. Mientras tanto, explora el Núcleo Orbital 3D o gestiona la visibilidad de módulos.
+              Nuestro equipo de ingeniería espacial está finalizando los últimos detalles de este módulo para el Spatialgineers Summit 2026. Mientras tanto, explora el Núcleo Orbital 3D.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <button
@@ -608,6 +615,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               >
                 ← Volver al Núcleo 3D Principal
               </button>
+              {isAdmin && (
               <button
                 type="button"
                 onClick={() => setAuditModalOpen(true)}
@@ -616,6 +624,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 <Sliders className="w-3.5 h-3.5" />
                 <span>Gestionar Visibilidad de Módulos</span>
               </button>
+              )}
             </div>
           </div>
         )}
@@ -1139,7 +1148,9 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               subtitle="Desde dónde nos visitan, en vivo. Cada visita enciende su municipio en el mapa de Puerto Rico."
               pillarBadge="SGX.SYSTEM"
             />
-            <SummitVisitRadar />
+            <Suspense fallback={<LazyFallback />}>
+              <SummitVisitRadar />
+            </Suspense>
           </div>
         )}
 
@@ -1454,10 +1465,12 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               pillarBadge="SGX.SHOWCASE"
               pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Showcase1.png"
             />
-            <MatchModule
-              onOpenPassport={() => window.dispatchEvent(new CustomEvent('sgx:open_passport'))}
-              onOpenAvatarGenerator={() => setAvatarGeneratorModalOpen(true)}
-            />
+            <Suspense fallback={<LazyFallback />}>
+              <MatchModule
+                onOpenPassport={() => window.dispatchEvent(new CustomEvent('sgx:open_passport'))}
+                onOpenAvatarGenerator={() => setAvatarGeneratorModalOpen(true)}
+              />
+            </Suspense>
           </div>
         )}
 
@@ -1471,7 +1484,9 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               pillarBadge="SGX.SPARK"
               pillarIconUrl="https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png"
             />
-            <SummitEmbedsHub embeds={embeds} />
+            <Suspense fallback={<LazyFallback />}>
+              <SummitEmbedsHub embeds={embeds} />
+            </Suspense>
           </div>
         )}
 
@@ -1714,16 +1729,20 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
       {/* 10. Avatar Studio Generator Modal */}
       {avatarGeneratorModalOpen && (
-        <AttendeeAvatarGenerator
-          onClose={() => setAvatarGeneratorModalOpen(false)}
-        />
+        <Suspense fallback={<LazyFallback overlay />}>
+          <AttendeeAvatarGenerator
+            onClose={() => setAvatarGeneratorModalOpen(false)}
+          />
+        </Suspense>
       )}
 
       {/* 11. WebXR QR Networking Scanner & Rolodex Modal */}
       {qrScannerModalOpen && (
-        <NetworkingQrScannerModal
-          onClose={() => setQrScannerModalOpen(false)}
-        />
+        <Suspense fallback={<LazyFallback overlay />}>
+          <NetworkingQrScannerModal
+            onClose={() => setQrScannerModalOpen(false)}
+          />
+        </Suspense>
       )}
 
       {/* 12. Floating Live Pulse Reactions & Keynote Polls Widget */}
@@ -1768,6 +1787,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       />
 
       {/* 12. Speaker & Artist Self-Service Portal Modal */}
+      {speakerPortalOpen && (
+        <Suspense fallback={<LazyFallback overlay />}>
       <SummitSpeakerPortalModal
         isOpen={speakerPortalOpen}
         onClose={() => setSpeakerPortalOpen(false)}
@@ -1775,14 +1796,16 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           setSpeakers(loadPersistedSpeakers());
           setActiveToastNotif({
             id: `toast_speaker_${Date.now()}`,
-            title: '¡Perfil de Speaker Registrado!',
-            message: `Bienvenido(a) ${newSpeaker.name}. Tu perfil ha sido sincronizado en Firestore y añadido al directorio.`,
+            title: 'Perfil recibido',
+            message: `Gracias, ${newSpeaker.name}. El equipo revisa tu perfil y lo publica en el directorio cuando esté confirmado por escrito.`,
             actionUrl: '/summit',
             priority: 'HIGH',
             timestamp: Date.now()
           });
         }}
       />
+        </Suspense>
+      )}
 
       {/* Live Summit Analytics & Telemetry Full-Width Modal */}
       {analyticsModalOpen && (
@@ -1873,7 +1896,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
       {/* Module Visibility & Content Audit Control Modal */}
       <SummitContentAuditModal
-        isOpen={isAuditModalOpen}
+        isOpen={isAdmin && isAuditModalOpen}
         onClose={() => setAuditModalOpen(false)}
       />
 

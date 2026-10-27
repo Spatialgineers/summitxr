@@ -2,15 +2,26 @@ import { Question, VoteSummary, WSMessage, UserProfile } from '../../types/engin
 import { VISUALIZER_PRESETS, DEFAULT_PRESET } from '../../lib/presets';
 import { calculatePoints } from '../../lib/gamification';
 import { RoomState } from './roomManager';
+import { cleanAvatar, cleanNickname, LIMITS } from '../security/validation';
 
 export type BroadcastFn = (tenantId: string, eventId: string, message: WSMessage) => void;
 
-export function computeVoteSummary(room: RoomState, question: Question): VoteSummary {
+/** Live vote broadcasts are coalesced to at most one per room per interval. */
+const VOTE_BROADCAST_INTERVAL_MS = 500;
+/** Per-vote STATE_SYNC carries only the top of the leaderboard (full list on reveal / init). */
+const LIVE_USERS_LIMIT = 50;
+
+export type VoteResult =
+  | { status: 'ACCEPTED'; calc: ReturnType<typeof calculatePoints>; user: UserProfile; summary: VoteSummary }
+  | { status: 'DUPLICATE' | 'INVALID_OPTION' | 'NOT_ACTIVE' };
+
+export function computeVoteSummary(room: RoomState, question: Question | null | undefined): VoteSummary {
+  const options = Array.isArray(question?.options) ? question!.options.filter((o) => o && typeof o.id === 'string') : [];
   const totalVotes = room.votes.size;
   const optionCounts: Record<string, number> = {};
   const optionPercentages: Record<string, number> = {};
 
-  question.options.forEach((opt) => {
+  options.forEach((opt) => {
     optionCounts[opt.id] = 0;
     optionPercentages[opt.id] = 0;
   });
@@ -22,23 +33,23 @@ export function computeVoteSummary(room: RoomState, question: Question): VoteSum
   });
 
   let highestCount = -1;
-  let winningOptionId = question.options[0]?.id || '';
-  let winningPresetId = question.options[0]?.presetId || DEFAULT_PRESET.id;
+  let winningOptionId = options[0]?.id || '';
+  let winningPresetId = options[0]?.presetId || DEFAULT_PRESET.id;
 
-  question.options.forEach((opt) => {
+  options.forEach((opt) => {
     const count = optionCounts[opt.id] || 0;
     optionPercentages[opt.id] = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
     if (count > highestCount) {
       highestCount = count;
       winningOptionId = opt.id;
-      winningPresetId = opt.presetId;
+      winningPresetId = opt.presetId || DEFAULT_PRESET.id;
     }
   });
 
-  const correctOption = question.options.find((o) => o.isCorrect);
+  const correctOption = options.find((o) => o.isCorrect);
 
   return {
-    questionId: question.id,
+    questionId: question?.id || '',
     totalVotes,
     optionCounts,
     optionPercentages,
@@ -57,6 +68,7 @@ export function endVotingAndReveal(
     clearInterval(room.timerInterval);
     room.timerInterval = undefined;
   }
+  cancelVoteBroadcast(room);
 
   const summary = computeVoteSummary(room, question);
   room.session.status = 'RESULT_REVEALED';
@@ -140,6 +152,7 @@ export function startQuestionVoting(
   if (room.timerInterval) {
     clearInterval(room.timerInterval);
   }
+  cancelVoteBroadcast(room);
 
   const initialSummary = computeVoteSummary(room, question);
 
@@ -173,6 +186,7 @@ export function startQuestionVoting(
   });
 
   room.timerInterval = setInterval(() => {
+   try {
     const now = Date.now();
     const remainingMs = Math.max(0, endTime - now);
     const remainingSec = Math.ceil(remainingMs / 1000);
@@ -205,38 +219,100 @@ export function startQuestionVoting(
     if (remainingSec <= 0) {
       endVotingAndReveal(room, question, broadcast);
     }
+   } catch (err) {
+    // Never let a timer tick take the process down.
+    console.error('[Voting Engine] timer tick error:', err);
+    if (room.timerInterval) clearInterval(room.timerInterval);
+    room.timerInterval = undefined;
+   }
   }, 1000);
 
   return question;
 }
 
+function cancelVoteBroadcast(room: RoomState) {
+  if (room.voteBroadcastTimer) {
+    clearTimeout(room.voteBroadcastTimer);
+    room.voteBroadcastTimer = undefined;
+  }
+}
+
+function topUsers(room: RoomState): UserProfile[] {
+  return Array.from(room.users.values())
+    .sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0))
+    .slice(0, LIVE_USERS_LIMIT);
+}
+
+/** Coalesces live vote updates: one VOTE_UPDATE + STATE_SYNC per room per interval. */
+function scheduleVoteBroadcast(room: RoomState, broadcast: BroadcastFn) {
+  if (room.voteBroadcastTimer) return;
+  room.voteBroadcastTimer = setTimeout(() => {
+    room.voteBroadcastTimer = undefined;
+    try {
+      const currentQ = room.questions[room.currentQuestionIndex];
+      if (!currentQ) return;
+      const liveSummary = computeVoteSummary(room, currentQ);
+      broadcast(room.tenantId, room.eventId, {
+        type: 'VOTE_UPDATE',
+        tenantId: room.tenantId,
+        eventId: room.eventId,
+        timestamp: Date.now(),
+        payload: liveSummary,
+      });
+      broadcast(room.tenantId, room.eventId, {
+        type: 'STATE_SYNC',
+        tenantId: room.tenantId,
+        eventId: room.eventId,
+        timestamp: Date.now(),
+        payload: {
+          voteSummary: liveSummary,
+          totalVotes: room.votes.size,
+          users: topUsers(room),
+        }
+      });
+    } catch (err) {
+      console.error('[Voting Engine] vote broadcast error:', err);
+    }
+  }, VOTE_BROADCAST_INTERVAL_MS);
+}
+
+/**
+ * Records one vote. `voterId` must come from the server (socket binding or a
+ * validated REST id), never from the vote payload. One vote per voter per
+ * question; repeats are ignored. Response time is measured server-side.
+ */
 export function processVoteSubmission(
   room: RoomState,
+  voterId: string,
   payload: {
-    userId: string;
-    optionId?: string;
-    optionCode?: number;
-    responseTimeMs?: number;
-    nickname?: string;
-    avatar?: string;
+    optionId?: unknown;
+    optionCode?: unknown;
+    nickname?: unknown;
+    avatar?: unknown;
   },
   broadcast: BroadcastFn
-) {
+): VoteResult {
   const currentQ = room.questions[room.currentQuestionIndex];
-  if (!currentQ || room.session.status !== 'VOTING_ACTIVE') return null;
+  if (!currentQ || room.session.status !== 'VOTING_ACTIVE' || !Array.isArray(currentQ.options)) {
+    return { status: 'NOT_ACTIVE' };
+  }
+  if (room.votes.has(voterId)) return { status: 'DUPLICATE' };
 
-  const voterId = payload.userId;
-  const optionId = payload.optionId || (currentQ.options.find(o => o.code === payload.optionCode)?.id) || currentQ.options[0].id;
-  const opt = currentQ.options.find(o => o.id === optionId) || currentQ.options[0];
-  const isCorrect = currentQ.answerType === 'OPINION_CYOA' ? true : (opt?.isCorrect ?? false);
-  const responseTimeMs = payload.responseTimeMs || 2000;
+  const opt = (typeof payload.optionId === 'string' && currentQ.options.find(o => o.id === payload.optionId))
+    || (typeof payload.optionCode === 'number' && currentQ.options.find(o => o.code === payload.optionCode))
+    || null;
+  if (!opt) return { status: 'INVALID_OPTION' };
+
+  const durationMs = (currentQ.durationSeconds || 30) * 1000;
+  const elapsed = room.session.startedAt ? Date.now() - room.session.startedAt : 2000;
+  const responseTimeMs = Math.min(durationMs, Math.max(250, elapsed));
 
   let user = room.users.get(voterId);
   if (!user) {
     user = {
       id: voterId,
-      nickname: payload.nickname || `User #${voterId.slice(-4)}`,
-      avatar: payload.avatar || '🚀',
+      nickname: cleanNickname(payload.nickname) || `User #${voterId.slice(-4)}`,
+      avatar: cleanAvatar(payload.avatar) || '🚀',
       avatarSeed: voterId,
       tenantId: room.tenantId,
       eventId: room.eventId,
@@ -254,13 +330,16 @@ export function processVoteSubmission(
       choiceHistory: [],
     };
     room.users.set(voterId, user);
+  } else {
+    const nick = cleanNickname(payload.nickname);
+    if (nick) user.nickname = nick;
   }
 
   const calc = calculatePoints(
     currentQ.answerType,
-    opt?.isCorrect ?? false,
+    opt.isCorrect ?? false,
     responseTimeMs,
-    (currentQ.durationSeconds || 30) * 1000,
+    durationMs,
     currentQ.basePoints,
     currentQ.maxSpeedBonus,
     currentQ.participationWeight,
@@ -282,38 +361,20 @@ export function processVoteSubmission(
     responseTimeMs,
     timestamp: Date.now(),
   });
+  if (user.choiceHistory.length > LIMITS.MAX_QUESTIONS) user.choiceHistory.shift();
 
   room.votes.set(voterId, {
     optionId: opt.id,
-    optionCode: opt.code || payload.optionCode || 1,
+    optionCode: opt.code || 1,
     responseTimeMs,
     isCorrect: calc.isCorrect,
     points: calc.totalPointsEarned,
   });
 
   const liveSummary = computeVoteSummary(room, currentQ);
+  scheduleVoteBroadcast(room, broadcast);
 
-  broadcast(room.tenantId, room.eventId, {
-    type: 'VOTE_UPDATE',
-    tenantId: room.tenantId,
-    eventId: room.eventId,
-    timestamp: Date.now(),
-    payload: liveSummary,
-  });
-
-  broadcast(room.tenantId, room.eventId, {
-    type: 'STATE_SYNC',
-    tenantId: room.tenantId,
-    eventId: room.eventId,
-    timestamp: Date.now(),
-    payload: {
-      voteSummary: liveSummary,
-      totalVotes: room.votes.size,
-      users: Array.from(room.users.values()),
-    }
-  });
-
-  return { calc, user, summary: liveSummary };
+  return { status: 'ACCEPTED', calc, user, summary: liveSummary };
 }
 
 export function simulateAudienceVotes(
@@ -322,7 +383,8 @@ export function simulateAudienceVotes(
   broadcast: BroadcastFn
 ) {
   const currentQ = room.questions[room.currentQuestionIndex];
-  if (!currentQ) return null;
+  if (!currentQ || !Array.isArray(currentQ.options) || currentQ.options.length === 0) return null;
+  count = Math.min(LIMITS.SIMULATE_MAX, Math.max(1, Math.floor(Number(count) || 0)));
 
   const firstNames = ['Kai', 'Nova', 'Zephyr', 'Echo', 'Alex', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Avery', 'Sam', 'Cameron', 'Dakota', 'Skylar', 'Quinn', 'Harper', 'Rowan'];
 
@@ -400,7 +462,7 @@ export function simulateAudienceVotes(
       voteSummary: updatedSummary,
       totalVotes: room.votes.size,
       connectedAudienceCount: room.users.size + 1,
-      users: Array.from(room.users.values()),
+      users: topUsers(room),
     }
   });
 

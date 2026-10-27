@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import { Globe2, MapPin } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { PR_GEOJSON_URL, PR_MUNICIPIOS } from '../../lib/prMunicipios';
-import { getMyRegion, VisitRegion } from '../../lib/visitTracker';
+import { escapeHtml, getMyRegion, VisitRegion } from '../../lib/visitTracker';
 import { formatCount, useChromaCheckins, useVisitRegions, useVisitStats } from './visitRadarStore';
 
 // globe.gl ships in its own chunk, loaded only when the 3D view opens.
@@ -127,7 +127,7 @@ export const SummitVisitRadar: React.FC = () => {
         const v = r?.totalVisits || 0;
         const present = presentByRegion.get(`pr_${f.properties.id}`) || 0;
         layer.bindTooltip(
-          `<strong>${f.properties.name}</strong><br/>${v.toLocaleString('es-PR')} ${es ? 'visitas' : 'visits'} · ${(r?.uniqueVisitors || 0).toLocaleString('es-PR')} ${es ? 'únicas' : 'unique'}${present ? `<br/>◆ ${present} ${es ? 'presentes en Chroma' : 'present at Chroma'}` : ''}`,
+          `<strong>${escapeHtml(f.properties.name)}</strong><br/>${v.toLocaleString('es-PR')} ${es ? 'visitas' : 'visits'} · ${(r?.uniqueVisitors || 0).toLocaleString('es-PR')} ${es ? 'únicas' : 'unique'}${present ? `<br/>◆ ${present} ${es ? 'presentes en Chroma' : 'present at Chroma'}` : ''}`,
           { sticky: true, className: 'sgx-map-tip' },
         );
         layer.on('mouseover', () => (layer as L.Path).setStyle({ weight: 2, color: '#FDCC0D' }));
@@ -147,7 +147,7 @@ export const SummitVisitRadar: React.FC = () => {
       L.circleMarker([r.lat, r.lon], {
         radius: 4 + 14 * heat(r.totalVisits, maxOut),
         color: '#00DDFF', weight: 1, fillColor: '#00DDFF', fillOpacity: 0.35,
-      }).bindTooltip(`<strong>${r.name}</strong><br/>${r.totalVisits.toLocaleString('es-PR')} ${es ? 'visitas' : 'visits'}`, { className: 'sgx-map-tip' }).addTo(group);
+      }).bindTooltip(`<strong>${escapeHtml(r.name)}</strong><br/>${r.totalVisits.toLocaleString('es-PR')} ${es ? 'visitas' : 'visits'}`, { className: 'sgx-map-tip' }).addTo(group);
     });
     const now = Date.now();
     (regions || []).forEach((r) => {

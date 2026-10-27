@@ -2,6 +2,7 @@ import { VisualizerPresetId, ReactionBurst } from '../../types/engine';
 import { VISUALIZER_PRESETS } from '../../lib/presets';
 import { RoomState } from './roomManager';
 import { BroadcastFn } from './votingEngine';
+import { cleanColor, cleanText } from '../security/validation';
 
 export function triggerPresetOverride(
   room: RoomState,
@@ -41,15 +42,15 @@ export function triggerPresetOverride(
 
 export function processAudienceReaction(
   room: RoomState,
-  reaction: { emoji?: string; color?: string; userId?: string },
+  reaction: { emoji?: unknown; color?: unknown; userId?: string },
   broadcast: BroadcastFn
 ): ReactionBurst {
   const burst: ReactionBurst = {
     id: `rx_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-    emoji: reaction.emoji || '🔥',
-    userId: reaction.userId || 'anon',
+    emoji: cleanText(reaction.emoji, 8) || '🔥',
+    userId: cleanText(reaction.userId, 64) || 'anon',
     timestamp: Date.now(),
-    color: reaction.color || '#00ddff',
+    color: cleanColor(reaction.color) || '#00ddff',
   };
 
   room.recentReactions.push(burst);

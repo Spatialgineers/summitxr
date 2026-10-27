@@ -33,6 +33,9 @@ export interface SgxPass {
   roleTitle?: string;
   organization?: string;
   forgedAt: number;
+  /** Image consent from the registration (Ground Truth: inside the registration). */
+  imageConsent?: boolean;
+  consentAt?: number;
 }
 
 export interface PassContact {

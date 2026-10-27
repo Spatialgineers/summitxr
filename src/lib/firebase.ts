@@ -79,7 +79,7 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   throw new Error(JSON.stringify(errInfo));
 }
 
-// Test Connection on boot as required by Firebase skill
+// Connectivity check, available for diagnostics (no longer run on every visitor's boot).
 export async function testFirestoreConnection() {
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
@@ -90,6 +90,5 @@ export async function testFirestoreConnection() {
   }
 }
 
-testFirestoreConnection();
 
 export { signInWithPopup, signInWithCredential, signOut, signInAnonymously };

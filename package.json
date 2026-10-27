@@ -1,5 +1,5 @@
 {
-  "name": "react-example",
+  "name": "sgx-summit-2026",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,7 +11,6 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.1.14",
     "@types/animejs": "^3.1.13",
     "@types/canvas-confetti": "^1.9.0",
@@ -20,7 +19,6 @@
     "@vitejs/plugin-react": "^5.0.4",
     "animejs": "^4.5.0",
     "canvas-confetti": "^1.9.4",
-    "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "firebase": "^12.18.0",
     "globe.gl": "2.46.1",
@@ -28,7 +26,6 @@
     "jsqr": "^1.4.0",
     "leaflet": "1.9.4",
     "lucide-react": "^0.546.0",
-    "motion": "^12.23.24",
     "qrcode": "^1.5.4",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",

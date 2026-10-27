@@ -116,9 +116,12 @@ function readJson<T>(key: string): T | null {
   }
 }
 
-function write(key: string, value: string) {
-  try { localStorage.setItem(key, value); } catch { /* storage full or blocked */ }
+function write(key: string, value: string): boolean {
+  try { localStorage.setItem(key, value); return true; } catch { return false; /* storage full or blocked */ }
 }
+
+/** Fired once per page when the browser refuses to store the pass (storage full). */
+export const STORAGE_FULL_EVENT = 'sgx:storage_full';
 
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
@@ -204,8 +207,23 @@ export function loadIdentity(): SgxIdentity {
 }
 
 /** Persist, mirror the pass for legacy readers, and tell every listener. */
+let warnedFull = false;
+
 export function saveIdentity(id: SgxIdentity) {
-  write(IDENTITY_KEY, JSON.stringify(id));
+  if (!write(IDENTITY_KEY, JSON.stringify(id))) {
+    // Storage full: free the big optional blobs (legacy avatar copy, Holo Card image) and retry,
+    // so the pass itself never silently stops saving.
+    try { localStorage.removeItem('sgx_attendee_avatar_png'); localStorage.removeItem('sgx_player_profile'); } catch { /* ignore */ }
+    let saved = write(IDENTITY_KEY, JSON.stringify(id));
+    if (!saved && id.holo?.image) {
+      const slim: SgxIdentity = { ...id, holo: { ...id.holo, image: '' } as any };
+      saved = write(IDENTITY_KEY, JSON.stringify(slim));
+    }
+    if (!warnedFull) {
+      warnedFull = true;
+      try { window.dispatchEvent(new CustomEvent(STORAGE_FULL_EVENT, { detail: { saved } })); } catch { /* SSR */ }
+    }
+  }
   if (id.pass) {
     write('sgx_summit_registered_pass', JSON.stringify({
       id: `pass_${id.pass.code}`,
@@ -218,9 +236,6 @@ export function saveIdentity(id: SgxIdentity) {
       registeredAt: id.pass.forgedAt,
       status: id.pass.status,
     }));
-    write('sgx_summit_pass_registered', 'true');
-    // Whoever forged a pass already had the welcome; the old tours never auto-open again.
-    write('sgx_onboarding_completed', 'true');
   }
   if (id.avatar.png) write('sgx_attendee_avatar_png', id.avatar.png);
   try { window.dispatchEvent(new CustomEvent(IDENTITY_EVENT)); } catch { /* SSR */ }

@@ -9,7 +9,7 @@ import { loadAllApprovedSponsors } from '../lib/summitData';
 import { getMyRegion } from '../lib/visitTracker';
 import {
   callsignFromName, IDENTITY_EVENT, IDENTITY_KEY, loadIdentity, newPassCode, PILLAR_ACCENT, saveIdentity,
-  serialFromCode, type PassContact, type PassQrPayload, type PassTier, type Redemption, type SgxIdentity,
+  serialFromCode, STORAGE_FULL_EVENT, type PassContact, type PassQrPayload, type PassTier, type Redemption, type SgxIdentity,
 } from './sgxIdentity';
 import {
   REACTOR_MISSIONS, sponsorMissions, isPillarComplete, isDay3Open, type IdentityFlag, type ReactorMission,
@@ -97,6 +97,21 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
+
+  // Browser storage full: tell the pilot once instead of losing progress silently.
+  useEffect(() => {
+    const onFull = () => {
+      const es = langRef.current === 'es';
+      pushToast({
+        tag: es ? 'ALMACENAMIENTO' : 'STORAGE',
+        title: es ? 'Tu navegador está sin espacio' : 'Your browser is out of space',
+        detail: es ? 'Guardamos tu pase sin la imagen de la Holo Card. Libera espacio o expórtala de nuevo.' : 'We saved your pass without the Holo Card image. Free some space or export it again.',
+        tone: 'telemetry',
+      });
+    };
+    window.addEventListener(STORAGE_FULL_EVENT, onFull);
+    return () => window.removeEventListener(STORAGE_FULL_EVENT, onFull);
+  }, [pushToast]);
 
   /** Pays a mission once, then stamps its pillar when the pillar is complete. */
   const completeMission = useCallback((m: ReactorMission) => {

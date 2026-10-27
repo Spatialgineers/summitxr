@@ -9,7 +9,6 @@ import { PILLAR_ACCENT } from './sgxIdentity';
 import { useSgxIdentity } from './SgxIdentityContext';
 import { isDay3Open, missionsOfPillar, type ReactorMission } from './reactor';
 import { SgxPassCard, usePassQr } from './SgxPassCard';
-import { exportPassPdf } from './passPdf';
 import { SgxConstellation } from './SgxConstellation';
 
 /* HANGAR DEL PILOTO: the one screen for "me". It replaces the profile modal,
@@ -54,8 +53,10 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
     goToMission(m);
   };
 
-  const downloadPdf = () => {
+  // jsPDF loads only when someone asks for the PDF.
+  const downloadPdf = async () => {
     const svg = cardRef.current?.querySelector('.sgx-pass__portrait svg') as SVGSVGElement | null;
+    const { exportPassPdf } = await import('./passPdf');
     exportPassPdf(identity, qr, `${profile.rankTitle} · LV ${profile.level}`, svg);
   };
 

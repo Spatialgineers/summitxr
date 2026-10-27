@@ -48,50 +48,6 @@ export interface SummitContact {
   tags?: string[];
 }
 
-const DEMO_CONTACTS_POOL: SummitContact[] = [
-  {
-    id: 'sgx_user_elena_vega',
-    name: 'Elena Vega',
-    role: 'Lead Spatial Architect',
-    company: 'Demo Studio (datos simulados)',
-    pillar: 'SGX.SYNTHESIZE',
-    email: 'elena@demo.example',
-    linkedin: 'linkedin.com/in/elenavega-spatial',
-    twitter: '@elenaspatial',
-    bio: 'Pionera en pipelines WebGPU y shaders reactivos para eventos masivos en San Juan.',
-    scannedAt: new Date().toLocaleDateString('es-ES'),
-    notes: 'Nos conocimos en el keynote de apertura. Interesada en colaborar en shaders WebGL.',
-    tags: ['Speaker', 'WebGPU', 'Colaboración']
-  },
-  {
-    id: 'sgx_user_carlos_mendez',
-    name: 'Carlos Méndez',
-    role: 'Co-Fundador & CTO',
-    company: 'Vortex HoloTech PR',
-    pillar: 'SGX.STAGE',
-    email: 'carlos@vortexholo.pr',
-    linkedin: 'linkedin.com/in/carlosmendez-xr',
-    twitter: '@carlos_xr_pr',
-    bio: 'Desarrollador Unreal Engine 5.5 y WebXR Live Broadcast multijugador.',
-    scannedAt: new Date().toLocaleDateString('es-ES'),
-    notes: 'Presentará demo de tracking de cámara en vivo en el Stage C.',
-    tags: ['Founder', 'Unreal', 'San Juan']
-  },
-  {
-    id: 'sgx_user_maya_lin',
-    name: 'Maya Lin',
-    role: 'Directora de Inversión WebXR',
-    company: 'Caribbean Cyber Ventures',
-    pillar: 'SGX.SHOWCASE',
-    email: 'maya@caribbeancyber.vc',
-    linkedin: 'linkedin.com/in/mayalinvc',
-    twitter: '@mayalin_vc',
-    bio: 'Buscando startups en fase pre-seed en computación espacial y agentes de IA.',
-    scannedAt: new Date().toLocaleDateString('es-ES'),
-    notes: 'Seguimiento el lunes para presentar deck de Spatialgineers.',
-    tags: ['Inversionista', 'VC', 'Pre-Seed']
-  }
-];
 
 interface NetworkingQrScannerModalProps {
   onClose: () => void;
@@ -116,6 +72,27 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
     } catch {}
     return []; // Real scans only: the Rolodex starts empty
   });
+
+  // The pass Rolodex (incl. people who scanned you) shows up here too.
+  useEffect(() => {
+    const fromPass = sgx?.identity.contacts || [];
+    if (!fromPass.length) return;
+    setContacts((prev) => {
+      const known = new Set(prev.map((c) => c.id));
+      const added: SummitContact[] = fromPass.filter((c) => !known.has(c.code)).map((c) => ({
+        id: c.code,
+        name: c.name,
+        role: c.role || c.callsign || 'SGX Pass',
+        company: c.organization || 'Spatialgineers Summit 2026',
+        pillar: c.pillar ? `SGX.${c.pillar}` : 'SGX.SYNTHESIZE',
+        email: '',
+        linkedin: c.linkedin,
+        scannedAt: new Date(c.at).toLocaleDateString('es-ES'),
+        tags: [c.via === 'received' ? 'Te escaneó' : 'SGX Pass'],
+      }));
+      return added.length ? [...added, ...prev] : prev;
+    });
+  }, [sgx?.identity.contacts]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPillarFilter, setSelectedPillarFilter] = useState('ALL');
@@ -319,27 +296,13 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
       } else if (rawData.startsWith('{')) {
         parsedContact = JSON.parse(rawData);
       } else {
-        // Plain text fallback
-        parsedContact = {
-          id: `scan_${Date.now()}`,
-          name: rawData.slice(0, 30),
-          role: 'Asistente Summit',
-          company: 'Spatialgineers 2026',
-          pillar: 'SGX.STAGE',
-          email: 'contacto@spatialgineers.com',
-          scannedAt: new Date().toLocaleDateString('es-ES')
-        };
+        throw new Error('not an SGX card');
       }
-    } catch (err) {
-      parsedContact = {
-        id: `scan_${Date.now()}`,
-        name: 'Asistente Detectado',
-        role: 'Invitado Summit',
-        company: 'Spatial Computing PR',
-        pillar: 'SGX.SYNTHESIZE',
-        email: 'info@spatialgineers.com',
-        scannedAt: new Date().toLocaleDateString('es-ES')
-      };
+      if (!parsedContact || !parsedContact.name) throw new Error('empty card');
+    } catch {
+      // Never invent a contact: tell the pilot what happened and keep scanning.
+      setCameraError('Ese QR no es un SGX Pass ni una tarjeta del Summit. Escanea el QR del pase de la otra persona.');
+      return;
     }
 
     setScannedResult(parsedContact);

@@ -1,6 +1,7 @@
 import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { SgxStandby } from '../../immersion/SgxStandby';
 import { SgxPassSection, SgxHoloStudioPanel } from '../../identity/SgxPassSection';
+import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { LazyFallback } from '../common/LazyFallback';
 import { SpatialTiltCard } from '../common/SpatialTiltCard';
@@ -173,20 +174,10 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
   } = useSummitFeatures();
   const [analyticsModalOpen, setAnalyticsModalOpen] = useState(false);
   const embeddedHoloIframeRef = useRef<HTMLIFrameElement>(null);
-  const [hasRegisteredTicket, setHasRegisteredTicket] = useState<boolean>(() => {
-    try {
-      return Boolean(localStorage.getItem('sgx_summit_registered_pass'));
-    } catch {
-      return false;
-    }
-  });
-  const [hasGeneratedHoloCard, setHasGeneratedHoloCard] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('sgx_holo_card_generated') === 'true';
-    } catch {
-      return false;
-    }
-  });
+  // One source of truth: the SGX Pass identity store.
+  const sgxIdentity = useOptionalSgxIdentity();
+  const hasRegisteredTicket = !!sgxIdentity?.isForged;
+  const hasGeneratedHoloCard = !!sgxIdentity?.identity.holo?.image;
 
   // Global 3D Interactive Tilt & Specular Parallax Engine across all cards & panels
   useEffect(() => {
@@ -293,6 +284,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       }
     };
     const handleOpenAudit = () => setAuditModalOpen(true);
+    const handleOpenSpeakerPortal = () => setSpeakerPortalOpen(true);
+    window.addEventListener('sgx:open_speaker_portal', handleOpenSpeakerPortal);
     const handleOpenAnalytics = () => setAnalyticsModalOpen(true);
     const handleOpenSponsor = () => handleOpenSponsorModal('tier_2');
 
@@ -304,6 +297,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     return () => {
       window.removeEventListener('sgx:switch_summit_section', handleSwitchSectionEvent);
       window.removeEventListener('sgx:open_audit_modal', handleOpenAudit);
+      window.removeEventListener('sgx:open_speaker_portal', handleOpenSpeakerPortal);
       window.removeEventListener('sgx:open_analytics', handleOpenAnalytics);
       window.removeEventListener('sgx:open_sponsor_modal', handleOpenSponsor);
     };
@@ -461,7 +455,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
     const handleCredentialMessage = (e: MessageEvent) => {
       if (e.data && e.data.type === 'SGX_CREDENTIAL_EXPORTED') {
-        setHasGeneratedHoloCard(true);
         playScanSuccessSound();
         recordActivity?.('holo_card_generated', 150, 'SGX Holo Card 3D Generada');
         setActiveToastNotif({
@@ -490,25 +483,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     };
   }, [recordActivity]);
 
-  // Sync ticket & holo card completion badges whenever modals close or section switches
-  useEffect(() => {
-    try {
-      setHasRegisteredTicket(Boolean(localStorage.getItem('sgx_summit_registered_pass')));
-      setHasGeneratedHoloCard(localStorage.getItem('sgx_holo_card_generated') === 'true');
-    } catch {}
-  }, [isHoloCardModalOpen, activeSection]);
-
-  // The SGX Pass is forged outside this page (SgxPassHost); follow it live.
-  useEffect(() => {
-    const sync = () => {
-      try {
-        setHasRegisteredTicket(Boolean(localStorage.getItem('sgx_summit_registered_pass')));
-        setHasGeneratedHoloCard(localStorage.getItem('sgx_holo_card_generated') === 'true');
-      } catch {}
-    };
-    window.addEventListener('sgx:identity_changed', sync);
-    return () => window.removeEventListener('sgx:identity_changed', sync);
-  }, []);
 
   const handleBroadcastPush = (notif: SummitNotification) => {
     setActiveToastNotif(notif);

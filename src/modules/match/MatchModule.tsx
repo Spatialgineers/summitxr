@@ -135,15 +135,6 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
     }
   };
 
-  // Tick passport quest progress
-  const updatePassportProgress = useCallback((stepKey: string) => {
-    try {
-      const saved = localStorage.getItem('sgx_passport_quests');
-      const quests = saved ? JSON.parse(saved) : {};
-      quests[stepKey] = true;
-      localStorage.setItem('sgx_passport_quests', JSON.stringify(quests));
-    } catch {}
-  }, []);
 
   // Handle Wizard Completion
   const handleWizardCompleted = async (savedProfile: MatchProfile, isFirstPublish: boolean) => {
@@ -151,8 +142,6 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
     setIsWizardOpen(false);
     handleSelectTab('deck');
 
-    // Update Passport Quest: Step 1 (Create Profile)
-    updatePassportProgress('quest_match_profile');
     syncMatchDetails(savedProfile.pitch || '', savedProfile.brings || [], savedProfile.seeking || []);
 
     recordActivity(
@@ -183,7 +172,6 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
     setMatchCount(updatedMatches.length);
 
     // Update Passport Quest: Step 2 (First Match)
-    updatePassportProgress('quest_match_first');
 
     const matchedName = match.candidateB?.displayName || match.candidateA?.displayName || 'Emprendedor';
     const matchedRole = match.candidateB?.roleTitle || match.candidateA?.roleTitle || 'Founder';
@@ -214,7 +202,6 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
       const bonusAwarded = localStorage.getItem('sgx_match_squad_bonus_awarded');
       if (!bonusAwarded) {
         localStorage.setItem('sgx_match_squad_bonus_awarded', 'true');
-        updatePassportProgress('quest_match_squad');
         recordActivity(
           'match_connection',
           'Bonus de Red: 3+ Matches Alcanzados',

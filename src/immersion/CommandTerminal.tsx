@@ -8,6 +8,7 @@ import { SECTION_META, pillarDisplay } from './sections';
 import { QUESTS, SECRET_CODES, TOTAL_CELLS } from './quests';
 import { navigateToPage, navigateToPillar, navigateToSection } from './navigation';
 import { SGX_PILLARS, bi } from '../lib/sgxPillars';
+import { useOptionalSgxIdentity } from '../identity/SgxIdentityContext';
 
 interface Command {
   id: string;
@@ -37,6 +38,10 @@ export const CommandTerminal: React.FC = () => {
   const imm = useImmersion();
   const { terminalOpen, setTerminalOpen } = imm;
   const { language } = useLanguage();
+  // The same mission count the rail and the dock show (Reactor), not the old quest list.
+  const sgx = useOptionalSgxIdentity();
+  const reactorTotal = sgx?.missions.length || 0;
+  const reactorDone = sgx ? sgx.missions.filter((m) => sgx.isDone(m.id)).length : 0;
   const { profile } = usePilotProfile();
   const es = language === 'es';
   const [input, setInput] = useState('');
@@ -95,7 +100,7 @@ export const CommandTerminal: React.FC = () => {
         id: 'status', label: es ? 'Estado del piloto' : 'Pilot status', group: 'SGX.System', keywords: ['estado', 'status', 'stats', 'whoami'],
         run: () => [
           `PILOT ${profile.nickname} · LVL ${profile.level} · ${profile.rankTitle}`,
-          `XP ${profile.totalXp.toLocaleString()} · ${es ? 'MISIONES' : 'QUESTS'} ${imm.completedCount}/${QUESTS.length} · ${es ? 'CELDAS' : 'CELLS'} ${imm.state.cells.length}/${TOTAL_CELLS} · ${es ? 'ENERGÍA' : 'ENERGY'} ${Math.round(imm.state.energy)}%`,
+          `XP ${profile.totalXp.toLocaleString()} · ${es ? 'MISIONES' : 'MISSIONS'} ${reactorDone}/${reactorTotal} · ${es ? 'CELDAS' : 'CELLS'} ${imm.state.cells.length}/${TOTAL_CELLS} · ${es ? 'ENERGÍA' : 'ENERGY'} ${Math.round(imm.state.energy)}%`,
         ],
       },
       {
@@ -107,7 +112,7 @@ export const CommandTerminal: React.FC = () => {
       { id: 'clear', label: es ? 'Limpiar terminal' : 'Clear terminal', group: 'SGX.System', keywords: ['limpiar', 'clear', 'cls'], run: () => { setLog([]); } },
     );
     return list;
-  }, [es, imm, profile, setTerminalOpen, language]);
+  }, [es, imm, profile, setTerminalOpen, language, reactorDone, reactorTotal]);
 
   const matches = useMemo(() => {
     const q = normalize(input);

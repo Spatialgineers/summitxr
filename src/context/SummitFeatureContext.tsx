@@ -452,13 +452,6 @@ export const SummitFeatureProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => unsubscribe();
   }, []);
 
-  // Listen for global custom event to open module visibility manager from anywhere
-  useEffect(() => {
-    const handleOpenVisibilityModal = () => setAuditModalOpen(true);
-    window.addEventListener('sgx:open_module_visibility', handleOpenVisibilityModal);
-    return () => window.removeEventListener('sgx:open_module_visibility', handleOpenVisibilityModal);
-  }, []);
-
   const persistFeatures = (nextFeatures: Record<string, FeatureToggleItem>) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(nextFeatures));

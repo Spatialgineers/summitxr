@@ -1,14 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { HeaderNav, PageRoute } from './components/common/HeaderNav';
 import { InteractiveSpatialCanvas } from './components/common/InteractiveSpatialCanvas';
-import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AdminAuthGuard } from './components/admin/AdminAuthGuard';
-import { StagePage } from './components/stage/StagePage';
-import { AudiencePWA } from './components/audience/AudiencePWA';
-import { AnalyticsDashboard } from './components/analytics/AnalyticsDashboard';
-import { DatabaseSchemaViewer } from './components/schema/DatabaseSchemaViewer';
-import { StageVisualizer } from './components/visualizer/StageVisualizer';
+import { LazyFallback } from './components/common/LazyFallback';
 import { SummitLandingPage } from './components/summit/SummitLandingPage';
+
+// Route-level code splitting: admin/stage/play/analytics/schema load on demand.
+const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard })));
+const StagePage = lazy(() => import('./components/stage/StagePage').then((m) => ({ default: m.StagePage })));
+const AudiencePWA = lazy(() => import('./components/audience/AudiencePWA').then((m) => ({ default: m.AudiencePWA })));
+const AnalyticsDashboard = lazy(() => import('./components/analytics/AnalyticsDashboard').then((m) => ({ default: m.AnalyticsDashboard })));
+const DatabaseSchemaViewer = lazy(() => import('./components/schema/DatabaseSchemaViewer').then((m) => ({ default: m.DatabaseSchemaViewer })));
 import { 
   EventSession, 
   Question, 
@@ -1046,7 +1048,9 @@ export default function App() {
       
       {/* Application Content Layer */}
       <div className={`relative z-10 w-full ${currentPage === 'summit' && activeSummitSection === 'OVERVIEW' ? 'h-full overflow-hidden' : 'min-h-screen'}`}>
-        {renderCurrentView()}
+        <Suspense fallback={<LazyFallback fullScreen />}>
+          {renderCurrentView()}
+        </Suspense>
       </div>
 
       {/* SGX Pass: Forja de identidad + Hangar del piloto (replaces taquilla, profile, passport, tours) */}

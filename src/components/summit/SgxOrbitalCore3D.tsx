@@ -3,7 +3,7 @@ import { PILLAR_BY_KEY, type PillarKey } from '../../lib/sgxPillars';
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { VisitCounterChip } from './SummitVisitRadar';
+import { VisitCounterChip } from './VisitCounterChip';
 import { navigateToSection } from '../../immersion/navigation';
 import { createPilotOrbit, type PilotCardInfo, type PilotOrbit } from '../../identity/pilotOrbit3D';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';

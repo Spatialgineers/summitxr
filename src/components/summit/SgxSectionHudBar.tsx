@@ -5,7 +5,7 @@ import { useImmersion } from '../../immersion/ImmersionContext';
 import { SgxBolt } from '../../immersion/SgxSymbols';
 import { SGX_PILLARS, findPillar, moduleCode } from '../../lib/sgxPillars';
 import { navigateToPillar } from '../../immersion/navigation';
-import { VisitCounterChip } from './SummitVisitRadar';
+import { VisitCounterChip } from './VisitCounterChip';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 
 export interface HudSectionChip {

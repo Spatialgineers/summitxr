@@ -1,0 +1,56 @@
+/* =========================================================================
+   SGX PHONE ERGONOMICS (≤ 640px)
+   Touch targets of at least 40px and readable type on phones. Unlayered, so it
+   wins over Tailwind utilities on the same element; desktop is untouched.
+   ========================================================================= */
+
+@media (max-width: 640px) {
+  /* ---------- Touch targets ---------- */
+  button,
+  [role="button"],
+  [role="tab"],
+  summary,
+  select,
+  textarea,
+  input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+  a[href] {
+    min-height: 40px;
+  }
+  /* Block-level links grow, so keep their label centred. */
+  a[href]:is(.flex, .inline-flex):not([class*="items-"]) { align-items: center; }
+  a[href].block { display: flex; align-items: center; }
+  a[href].inline-block { display: inline-flex; align-items: center; }
+
+  /* Inline footer links: vertical padding grows the hit area without moving the text. */
+  footer a[href]:not([class*="flex"]):not([class*="block"]):not([class*="grid"]) { padding-block: 13px; }
+
+  /* Tiny swatch / pager dots keep their look; the padding is the hit area. */
+  button:is(.w-2.h-2, .w-2\.5.h-2\.5, .w-3.h-3) {
+    box-sizing: content-box; padding: 14px 6px; background-clip: content-box;
+    min-height: 0; min-width: 0;
+  }
+
+  /* ---------- Overflow guards ---------- */
+  /* Header: the brand logos give way before the pass chip and MENÚ do. */
+  header.sticky > div > div:first-child, header.sticky > div > div:first-child > button,
+  header.sticky > div > div:first-child img { flex-shrink: 1; min-width: 0; }
+  /* Title rows with a trailing action (e.g. the Guild initiates header) wrap. */
+  .flex.justify-between:has(> :is(h2, h3) + .flex > .sgx-btn) { flex-wrap: wrap; gap: 8px; }
+
+  /* ---------- Scroll reveal ---------- */
+  /* Phone sections stack into very tall blocks that can stay under the reveal
+     threshold and remain invisible on the first screen; show them at once. */
+  [data-sgx-reveal="pending"] { opacity: 1; transform: none; }
+  [data-sgx-reveal="in"] { animation: none; }
+
+  /* ---------- Readable type ---------- */
+  /* Body and meta text at 12px; monospace HUD labels may sit at 11px. */
+  .text-\[7px\], .text-\[8px\], .text-\[9px\], .text-\[10px\], .text-\[11px\] { font-size: 12px; }
+  :is(.font-mono, .font-mono :not([class*="font-sans"]):not([class*="font-["])):is(.text-\[7px\], .text-\[8px\], .text-\[9px\], .text-\[10px\], .text-\[11px\]) { font-size: 11px; }
+
+  .sgx-badge-active, .sgx-toast__more, .sgx-hpillars__index,
+  .sgx-portfolio__tag, .sgx-portfolio__partners,
+  .sgx-pass__issued, .sgx-hangar__xp-sub, .sgx-hangar__via, .sgx-passchip__label small,
+  .sgx-constellation__stats dt, .sgx-passstrip__who small, .sgx-passstrip--forge small { font-size: 0.6875rem; }
+  .sgx-radar__value small { font-size: max(0.45em, 0.75rem); }
+}

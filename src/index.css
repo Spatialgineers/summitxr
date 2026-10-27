@@ -3,6 +3,7 @@
 @import "./styles/sgx-platform.css";
 @import "./immersion/immersion.css";
 @import "./identity/identity.css";
+@import "./styles/sgx-mobile.css";
 
 @layer base {
   :root {

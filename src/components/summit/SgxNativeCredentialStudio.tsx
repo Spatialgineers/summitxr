@@ -1,4 +1,4 @@
-import { pillarIcon } from '../../lib/sgxPillars';
+import { pillarIcon, pillarInk } from '../../lib/sgxPillars';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Sparkles,
@@ -52,7 +52,7 @@ const SGX_PILLARS: PillarItem[] = [
     name: 'SGX.STORY',
     tag: 'Narrativa & Lore',
     tagEn: 'Narrative & Lore',
-    color: '#FDCC0D',
+    color: pillarInk('STORY'),
     iconUrl: pillarIcon('STORY')
   },
   {
@@ -60,7 +60,7 @@ const SGX_PILLARS: PillarItem[] = [
     name: 'SGX.SHOWCASE',
     tag: 'Expo & Demos XR',
     tagEn: 'Expo & XR Demos',
-    color: '#00DDFF',
+    color: pillarInk('SHOWCASE'),
     iconUrl: pillarIcon('SHOWCASE')
   },
   {
@@ -68,14 +68,14 @@ const SGX_PILLARS: PillarItem[] = [
     name: 'SGX.SPARK',
     tag: 'Juegos & Retos',
     tagEn: 'Games & Challenges',
-    color: '#FFBB00',
+    color: pillarInk('SPARK'),
     iconUrl: pillarIcon('SPARK')
   },
   {
     id: 'stage',
     name: 'SGX.STAGE',
     tag: 'Keynotes & Show',
-    color: '#38BDF8',
+    color: pillarInk('STAGE'),
     iconUrl: pillarIcon('STAGE')
   },
   {
@@ -83,7 +83,7 @@ const SGX_PILLARS: PillarItem[] = [
     name: 'SGX.SYSTEM',
     tag: 'Ingeniería & IA',
     tagEn: 'Engineering & AI',
-    color: '#5F86B4',
+    color: pillarInk('SYSTEM'),
     iconUrl: pillarIcon('SYSTEM')
   },
   {
@@ -91,7 +91,7 @@ const SGX_PILLARS: PillarItem[] = [
     name: 'SGX.SYNTHESIZE',
     tag: 'Alianzas & Red',
     tagEn: 'Partnerships & Network',
-    color: '#10B981',
+    color: pillarInk('SYNTHESIZE'),
     iconUrl: pillarIcon('SYNTHESIZE')
   }
 ];
@@ -195,6 +195,10 @@ interface SgxNativeCredentialStudioProps {
   passQr?: { code: string; url: string } | null;
 }
 
+/** Pass affinities use the pillar slugs (system); the studio ids say 'systems'. */
+const studioPillarIds = (ids: string[]) =>
+  ids.map((id) => (id === 'system' ? 'systems' : id)).filter((id) => SGX_PILLARS.some((p) => p.id === id)).slice(0, 2);
+
 const CARD_W = 1050;
 const CARD_H = 660;
 
@@ -292,7 +296,7 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
 
   // Selected Pillars (max 2)
   const [selectedPillars, setSelectedPillars] = useState<string[]>(() =>
-    resolvedDefault.pillars?.length ? resolvedDefault.pillars.slice(0, 2) : ['showcase', 'spark']
+    resolvedDefault.pillars?.length ? studioPillarIds(resolvedDefault.pillars) : ['showcase', 'spark']
   );
 
   // Photo & Framing State (100% Client-Side)
@@ -356,8 +360,15 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
     img.src = passQr.url;
   }, [passQr?.url]);
 
-  // Sync external initialProfile changes
+  // Sync external initialProfile changes. Parents rebuild the profile object on
+  // every render, so re-seed only when its content changes; otherwise any
+  // re-render would wipe what the user just picked.
+  const profileRef = useRef(initialProfile);
+  profileRef.current = initialProfile;
+  const { photoUrl: _photo, ...profileFields } = initialProfile || {};
+  const profileKey = initialProfile ? JSON.stringify(profileFields) : '';
   useEffect(() => {
+    const initialProfile = profileRef.current;
     if (!initialProfile) return;
     if (initialProfile.role) {
       const r = initialProfile.role.toLowerCase();
@@ -384,14 +395,14 @@ export const SgxNativeCredentialStudio: React.FC<SgxNativeCredentialStudioProps>
     }
     if (initialProfile.handle) setSocialHandle(initialProfile.handle);
     if (initialProfile.ticketCode) setTicketCode(initialProfile.ticketCode);
-    if (initialProfile.pillars?.length) setSelectedPillars(initialProfile.pillars.slice(0, 2));
+    if (initialProfile.pillars?.length) setSelectedPillars(studioPillarIds(initialProfile.pillars));
     if (initialProfile.passType) {
       const pt = initialProfile.passType.toLowerCase();
       if (pt === 'digital' || pt === 'showcase' || pt === 'vip') {
         setPassType(pt);
       }
     }
-  }, [initialProfile]);
+  }, [profileKey]);
 
   // Load official SGX brand logos & pillar icons for Canvas rendering
   useEffect(() => {

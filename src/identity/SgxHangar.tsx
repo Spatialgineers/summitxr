@@ -10,6 +10,8 @@ import { useSgxIdentity } from './SgxIdentityContext';
 import { isDay3Open, missionsOfPillar, type ReactorMission } from './reactor';
 import { SgxPassCard, usePassQr } from './SgxPassCard';
 import { SgxConstellation } from './SgxConstellation';
+import { useAuth } from '../context/AuthContext';
+import { GoogleSignInButton } from '../components/common/GoogleSignInButton';
 
 /* HANGAR DEL PILOTO: the one screen for "me". It replaces the profile modal,
    the passport drawer and the passport modal. Pass in front, everything you
@@ -28,6 +30,8 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   const es = language === 'es';
   const { profile, leaderboard } = usePilotProfile();
   const { identity, isForged, missions, isDone, xpBalance, checkIn } = useSgxIdentity();
+  const { user, logout } = useAuth();
+  const googleEmail = user && !user.isAnonymous ? user.email : null;
   const [tab, setTab] = useState<HangarTab>(initialTab);
   const [flipped, setFlipped] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -126,6 +130,20 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
         </nav>
 
         <div className="sgx-hangar__body">
+          {/* Account: same Google sign-in the old profile drawer had. */}
+          <div className={`sgx-hangar__account ${googleEmail ? 'is-linked' : ''}`}>
+            {googleEmail ? (
+              <>
+                <p>{es ? 'Cuenta conectada' : 'Account connected'} · <strong>{googleEmail}</strong></p>
+                <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => { playUiChirp(420); logout(); }}>{es ? 'Cerrar sesión' : 'Sign out'}</button>
+              </>
+            ) : (
+              <>
+                <p>{es ? 'Inicia sesión con Google para guardar tu progreso en tu cuenta.' : 'Sign in with Google to save your progress to your account.'}</p>
+                <GoogleSignInButton variant="compact" buttonText={es ? 'Iniciar con Google' : 'Sign in with Google'} />
+              </>
+            )}
+          </div>
           {!isForged && tab !== 'reactor' && tab !== 'log' ? (
             <div className="sgx-hangar__empty">
               <h3>{es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass'}</h3>

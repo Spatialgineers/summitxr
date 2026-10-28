@@ -8,18 +8,12 @@
    terminal above every modal.
    ========================================================================= */
 
-/* ---------- Atmosphere: vignette + scanlines ---------- */
+/* ---------- Atmosphere: soft vignette (no CRT scanlines) ---------- */
 .sgx-atmosphere {
   position: fixed; inset: 0; z-index: 30; pointer-events: none;
   background:
-    radial-gradient(120% 90% at 50% 45%, transparent 62%, rgba(5, 5, 5, 0.55) 100%),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.01) 0 1px, transparent 1px 3px);
+    radial-gradient(120% 90% at 50% 45%, transparent 66%, rgba(5, 5, 5, 0.35) 100%);
   mix-blend-mode: normal;
-}
-.sgx-atmosphere::after {
-  content: ""; position: absolute; left: 0; right: 0; top: -20%; height: 20%;
-  background: linear-gradient(180deg, transparent, rgba(0, 221, 255, 0.018), transparent);
-  animation: sgx-sweep 9s linear infinite;
 }
 @keyframes sgx-sweep { from { transform: translateY(0); } to { transform: translateY(600%); } }
 

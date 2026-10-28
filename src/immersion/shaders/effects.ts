@@ -127,8 +127,8 @@ void main() {
 #endif
   float v2 = sgxFbm(p * 1.6 + vec2(v * 2.2, -v), t * 1.4);
   vec3 col = vec3(0.018, 0.02, 0.028);
-  col = mix(col, uColorA * 0.58, smoothstep(0.38, 0.78, v));
-  col = mix(col, uColorB * 0.85, smoothstep(0.64, 0.92, v2) * 0.65);
+  col = mix(col, uColorA * 0.34, smoothstep(0.42, 0.8, v));
+  col = mix(col, uColorB * 0.5, smoothstep(0.66, 0.94, v2) * 0.5);
   float fil = 1.0 - smoothstep(0.0, 0.035, abs(fract(v * 7.0) - 0.5) - 0.43);
   col += uColorA * fil * 0.22 * smoothstep(0.45, 0.8, v);
   col += mix(uColorA, uColorB, 0.5) * (0.12 + uPulse * 0.25) * exp(-d * 7.0);
@@ -142,7 +142,7 @@ void main() {
 
   col *= uGain + uPulse * 0.3;
   vec2 q = gl_FragCoord.xy / uRes;
-  col *= 0.3 + 0.7 * pow(16.0 * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), 0.22);
+  col *= 0.62 + 0.38 * pow(16.0 * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), 0.22);
   gl_FragColor = vec4(col, 1.0);
 #ifdef SGX_LINEAR
   gl_FragColor.rgb = pow(max(gl_FragColor.rgb, vec3(0.0)), vec3(2.2));

@@ -16,7 +16,7 @@ import { useChromaCheckins } from './visitRadarStore';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { DOME_ENERGY_FRAG, HOLO_PILLAR_FRAG, HOLO_PILLAR_VERT } from '../../immersion/shaders/effects';
 import { fxPair } from '../../immersion/shaders/pillarFx';
-import { createBeam, createCoreShell, createCorePost, createFloor, createShaftMaterial } from '../../immersion/shaders/coreFx';
+import { createBeam, createCoreShell, createCorePost, createFloor } from '../../immersion/shaders/coreFx';
 import {
   Pause,
   Play,
@@ -612,7 +612,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.NeutralToneMapping;
-      renderer.toneMappingExposure = 1.18;
+      renderer.toneMappingExposure = 1.0;
       container.appendChild(renderer.domElement);
     } catch (e) {
       console.warn('WebGL unavailable for SgxOrbitalCore3D:', e);
@@ -684,24 +684,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     scene.add(ceilingFx.mesh);
     const onXpRipple = () => floorFx.ripple(0, 0, 0.8);
     window.addEventListener('sgx:xp_sparks', onXpRipple);
-
-    // Concentric 3D Floor Reactor Rings
-    const floorRingRadii = [34, 68, 108];
-    const floorRings: THREE.Mesh[] = [];
-    floorRingRadii.forEach((radius, rIdx) => {
-      const rGeo = new THREE.RingGeometry(radius - 0.35, radius + 0.35, 96);
-      const rMat = new THREE.MeshBasicMaterial({
-        color: rIdx === 1 ? 0xFDCC0D : rIdx === 0 ? 0x00DDFF : 0x32527B,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: rIdx === 1 ? 0.45 : 0.28,
-      });
-      const rMesh = new THREE.Mesh(rGeo, rMat);
-      rMesh.rotation.x = Math.PI / 2;
-      rMesh.position.y = -33.8;
-      environmentArchitectureGroup.add(rMesh);
-      floorRings.push(rMesh);
-    });
 
     // 3. MULTI-LAYER 3D VOLUMETRIC QUANTUM STARFIELD (1,100 3D Particles across depth)
     const particleCount = 1100;
@@ -779,22 +761,22 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     scene.add(innerSwarmPoints);
 
     // 4. Pure Neutral White Studio Lighting so GLB models preserve 100% of their original native colors & materials
-    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 2.3);
+    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.9);
     scene.add(ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0xFFFFFF, 0xE2E8F0, 1.55);
+    const hemiLight = new THREE.HemisphereLight(0xFFF9E2, 0x1A2233, 1.1);
     hemiLight.position.set(0, 90, 0);
     scene.add(hemiLight);
 
-    const keyLight = new THREE.DirectionalLight(0xFFFFFF, 2.85);
+    const keyLight = new THREE.DirectionalLight(0xFFFFFF, 2.6);
     keyLight.position.set(55, 85, 80);
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xFFFFFF, 1.95);
+    const fillLight = new THREE.DirectionalLight(0xFFFFFF, 1.1);
     fillLight.position.set(-70, 30, 60);
     scene.add(fillLight);
 
-    const backRimLight = new THREE.DirectionalLight(0xFFFFFF, 1.65);
+    const backRimLight = new THREE.DirectionalLight(0x9FEFFF, 1.8);
     backRimLight.position.set(0, 50, -80);
     scene.add(backRimLight);
 
@@ -834,14 +816,13 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     const centralColumnMat = new THREE.MeshBasicMaterial({
       color: 0xFDCC0D,
       transparent: true,
-      opacity: 0.08,
+      opacity: 0.035,
       side: THREE.DoubleSide,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
     const centralColumnMesh = new THREE.Mesh(centralColumnGeo, centralColumnMat);
     centralColumnMesh.position.y = -12;
-    scene.add(centralColumnMesh);
 
     // Fallback core crystal while SGX Icon.glb loads
     const fallbackCoreGeo = new THREE.OctahedronGeometry(11.5, 1);
@@ -897,7 +878,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       opacity: 0.72,
     });
     const gyroRing1 = new THREE.Mesh(ringGeo1, ringMat1);
-    coreGroup.add(gyroRing1);
 
     const ringGeo2 = new THREE.TorusGeometry(24, 0.24, 16, 96);
     const ringMat2 = new THREE.MeshBasicMaterial({
@@ -907,19 +887,9 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     });
     const gyroRing2 = new THREE.Mesh(ringGeo2, ringMat2);
     gyroRing2.rotation.x = Math.PI / 3;
-    coreGroup.add(gyroRing2);
 
-    // Expanded Planetary Orbit Track (ORBIT_RADIUS = 68 so the 6 Pillar GLBs have generous spatial breathing room)
+    // Pillars orbit at ORBIT_RADIUS (no drawn track: they stand on their own podiums).
     const ORBIT_RADIUS = 68;
-    const orbitTrackGeo = new THREE.TorusGeometry(ORBIT_RADIUS, 0.24, 16, 128);
-    const orbitTrackMat = new THREE.MeshBasicMaterial({
-      color: 0x32527B,
-      transparent: true,
-      opacity: 0.55,
-    });
-    const orbitTrackMesh = new THREE.Mesh(orbitTrackGeo, orbitTrackMat);
-    orbitTrackMesh.rotation.x = Math.PI / 2;
-    scene.add(orbitTrackMesh);
 
     // Orbiting 6 Pillars Group
     const pillarsOrbitGroup = new THREE.Group();
@@ -932,15 +902,22 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       modelContainer: THREE.Group;
       fallbackMesh: THREE.Mesh;
       holoMeshes: THREE.Mesh[];
-      haloMesh: THREE.Mesh;
-      pedestalCone: THREE.Mesh;
+      podiumGlow: THREE.MeshBasicMaterial;
+      podiumRim: THREE.MeshBasicMaterial;
       beamLine: THREE.Mesh;
       baseAngle: number;
     }[] = [];
 
     const nodeSphereGeo = new THREE.OctahedronGeometry(5.5, 1);
-    const nodeHaloGeo = new THREE.TorusGeometry(9.2, 0.25, 12, 48);
-    const pedestalConeGeo = new THREE.CylinderGeometry(3.2, 8.5, 32, 24, 1, true);
+    // Podium under each pillar: a dark hex plinth, a lit rim in the pillar color and a glow pad.
+    const podiumBaseGeo = new THREE.CylinderGeometry(7.4, 8.8, 2.4, 6);
+    const podiumTopGeo = new THREE.CylinderGeometry(6.4, 7.1, 0.7, 6);
+    const podiumRimGeo = new THREE.CylinderGeometry(7.18, 7.18, 0.32, 6, 1, true);
+    const podiumPadGeo = new THREE.CircleGeometry(5.4, 6);
+    const podiumBaseMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.85, roughness: 0.38, flatShading: true });
+    const podiumTopMat = new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.6, roughness: 0.55, flatShading: true });
+    // Just under the pillar's feet at its largest (docked) scale; it floats with the pillar.
+    const PODIUM_Y = -12.8;
 
     SGX_ORBITAL_PILLARS.forEach((p, idx) => {
       const baseAngle = (idx / SGX_ORBITAL_PILLARS.length) * Math.PI * 2;
@@ -999,20 +976,23 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         );
       }
 
-      const haloMat = new THREE.MeshBasicMaterial({
-        color: p.threeColor,
-        transparent: true,
-        opacity: 0.65,
-      });
-      const haloMesh = new THREE.Mesh(nodeHaloGeo, haloMat);
-      haloMesh.rotation.x = Math.PI / 2.3;
-      pGroup.add(haloMesh);
-
-      // 3D Volumetric Pedestal Light Cone grounding each Pillar GLB to the 3D floor grid
-      const coneMat = createShaftMaterial(p.threeColor, linear);
-      const pedestalCone = new THREE.Mesh(pedestalConeGeo, coneMat);
-      pedestalCone.position.y = -17;
-      pGroup.add(pedestalCone);
+      const podium = new THREE.Group();
+      podium.position.y = PODIUM_Y;
+      podium.rotation.y = Math.PI / 6;
+      podium.add(new THREE.Mesh(podiumBaseGeo, podiumBaseMat));
+      const top = new THREE.Mesh(podiumTopGeo, podiumTopMat);
+      top.position.y = 1.55;
+      podium.add(top);
+      const podiumRim = new THREE.MeshBasicMaterial({ color: p.threeColor, transparent: true, opacity: 0.55 });
+      const rim = new THREE.Mesh(podiumRimGeo, podiumRim);
+      rim.position.y = 0.9;
+      podium.add(rim);
+      const podiumGlow = new THREE.MeshBasicMaterial({ color: p.threeColor, transparent: true, opacity: 0.07, blending: THREE.AdditiveBlending, depthWrite: false });
+      const pad = new THREE.Mesh(podiumPadGeo, podiumGlow);
+      pad.rotation.x = -Math.PI / 2;
+      pad.position.y = 1.95;
+      podium.add(pad);
+      pGroup.add(podium);
 
       // Energy Beam connecting Central SGX Logo to this Pillar GLB
       const beam = createBeam(new THREE.Vector3(0, 0, 0), new THREE.Vector3(x, 0, z), p.threeColor, linear);
@@ -1027,8 +1007,8 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         modelContainer,
         fallbackMesh,
         holoMeshes,
-        haloMesh,
-        pedestalCone,
+        podiumGlow,
+        podiumRim,
         beamLine,
         baseAngle,
       });
@@ -1054,7 +1034,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       xpOrbs.push({ mesh: orbMesh, angle, radius, yOffset: orbMesh.position.y, active: true, cooldown: 0 });
     }
 
-    const billboardTime = { value: 0 };
 
     // Outer Sponsor Orbital Guide Rail at radius = 94
     const sponsorRailGeo = new THREE.TorusGeometry(94, 0.22, 16, 128);
@@ -1065,7 +1044,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     });
     const sponsorRailMesh = new THREE.Mesh(sponsorRailGeo, sponsorRailMat);
     sponsorRailMesh.rotation.x = Math.PI / 2;
-    scene.add(sponsorRailMesh);
+    // (no rail: the old orbit rings read as clutter)
 
     // 4 ROTATING 3D SPONSOR STATIONS & ARCHITECTURAL AREAS
     const sponsorStationMeshes: {
@@ -1111,7 +1090,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       const baseRing = new THREE.Mesh(baseRingGeo, baseRingMat);
       baseRing.rotation.x = Math.PI / 2;
       baseRing.position.y = -33.8 - s.yPos;
-      stationGroup.add(baseRing);
 
       // Upward vertical light beacon column from floor
       const beaconGeo = new THREE.CylinderGeometry(2.0, 6.5, 34, 24, 1, true);
@@ -1125,7 +1103,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       });
       const beacon = new THREE.Mesh(beaconGeo, beaconMat);
       beacon.position.y = -17 - s.yPos / 2;
-      stationGroup.add(beacon);
 
       // Floating upper halo ring
       const haloGeo = new THREE.TorusGeometry(12.5, 0.22, 16, 48);
@@ -1136,7 +1113,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       });
       const halo = new THREE.Mesh(haloGeo, haloMat);
       halo.rotation.x = Math.PI / 4;
-      stationGroup.add(halo);
 
       // Rotating Billboard Assembly
       const billboardPivot = new THREE.Group();
@@ -1158,16 +1134,14 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         transparent: true,
         opacity: 1,
       });
-      // Holo glass on the sponsor screens: slow scanlines and a cyan edge glow.
+      // Clean glass on the sponsor screens: just a cyan edge glow (scan and glitch stay on the selected pillar).
       faceMat.onBeforeCompile = (shader) => {
-        shader.uniforms.uTime = billboardTime;
-        shader.fragmentShader = 'uniform float uTime;\n' + shader.fragmentShader.replace(
+        shader.fragmentShader = shader.fragmentShader.replace(
           '#include <dithering_fragment>',
           `#include <dithering_fragment>
-          float sgxScan = 0.985 + 0.015 * sin(vMapUv.y * 90.0 - uTime * 2.0);
           vec2 sgxE = min(vMapUv, 1.0 - vMapUv);
           float sgxEdge = exp(-min(sgxE.x, sgxE.y) * 48.0);
-          gl_FragColor.rgb = gl_FragColor.rgb * sgxScan + vec3(0.0, 0.5, 0.7) * sgxEdge * 0.3;
+          gl_FragColor.rgb = gl_FragColor.rgb + vec3(0.0, 0.5, 0.7) * sgxEdge * 0.3;
           gl_FragColor.a *= 0.97;`
         );
       };
@@ -1436,7 +1410,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       floorFx.update(elapsed);
       ceilingFx.update(elapsed);
       coreShell.uniforms.uTime.value = elapsed;
-      billboardTime.value = reduceMotion ? 0 : elapsed;
       coreShell.uniforms.uPulse.value = surge;
       coreShell.mesh.scale.setScalar(1 + surge * 0.18 + Math.sin(elapsed * 2.4) * 0.025);
 
@@ -1495,11 +1468,9 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
 
         pm.group.position.y = Math.sin(elapsed * 2.0 + idx) * 2.5;
         pm.modelContainer.rotation.y = elapsed * (isActive ? 1.4 : 0.65) * orbitSpeedMultRef.current;
-        pm.haloMesh.rotation.z = -elapsed * (isActive ? 2.1 : 0.85);
 
-        const coneU = (pm.pedestalCone.material as THREE.ShaderMaterial).uniforms;
-        coneU.uOpacity.value += ((isActive ? 0.22 : 0.06) - coneU.uOpacity.value) * 0.08;
-        coneU.uTime.value = elapsed;
+        pm.podiumGlow.opacity += ((isActive ? 0.3 : 0.07) - pm.podiumGlow.opacity) * 0.08;
+        pm.podiumRim.opacity += ((isActive ? 1 : 0.55) - pm.podiumRim.opacity) * 0.08;
 
         const beamU = (pm.beamLine.material as THREE.ShaderMaterial).uniforms;
         beamU.uActive.value += ((isActive ? (cameraFocusedRef.current ? 1 : 0.6) : 0) - beamU.uActive.value) * 0.08;
@@ -1706,11 +1677,12 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       });
       centralColumnGeo.dispose();
       centralColumnMat.dispose();
-      pedestalConeGeo.dispose();
+      [podiumBaseGeo, podiumTopGeo, podiumRimGeo, podiumPadGeo, podiumBaseMat, podiumTopMat].forEach((d) => d.dispose());
       pillarMeshes.forEach((pm) => {
         pm.beamLine.geometry.dispose();
         (pm.beamLine.material as THREE.Material).dispose();
-        (pm.pedestalCone.material as THREE.Material).dispose();
+        pm.podiumGlow.dispose();
+        pm.podiumRim.dispose();
       });
       container.removeEventListener('pointerdown', skipIntro);
       fallbackCoreGeo.dispose();
@@ -1719,10 +1691,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       ringMat1.dispose();
       ringGeo2.dispose();
       ringMat2.dispose();
-      orbitTrackGeo.dispose();
-      orbitTrackMat.dispose();
       nodeSphereGeo.dispose();
-      nodeHaloGeo.dispose();
       orbGeo.dispose();
       if (renderer && renderer.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);

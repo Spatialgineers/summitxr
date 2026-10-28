@@ -47,7 +47,7 @@ const GRADE_SHADER = {
       col.r = texture2D(tDiffuse, vUv + off).r;
       col.g = texture2D(tDiffuse, vUv).g;
       col.b = texture2D(tDiffuse, vUv - off).b;
-      col *= 1.0 - smoothstep(0.18, 0.75, r2) * 0.32;
+      col *= 1.0 - smoothstep(0.22, 0.8, r2) * 0.16;
       col += (hash(vUv * 1024.0 + fract(uTime)) - 0.5) * uGrain;
       gl_FragColor = vec4(col, 1.0);
     }`,
@@ -65,11 +65,12 @@ export function createCorePost(renderer: THREE.WebGLRenderer, scene: THREE.Scene
   try {
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(w, h), opts.coarse ? 0.22 : 0.3, 0.3, 0.92);
+    const bloom = new UnrealBloomPass(new THREE.Vector2(w, h), opts.coarse ? 0.12 : 0.16, 0.18, 0.95);
     composer.addPass(bloom);
     composer.addPass(new OutputPass());
     const grade = new ShaderPass(GRADE_SHADER);
-    grade.uniforms.uGrain.value = opts.reduceMotion ? 0.01 : 0.02;
+    grade.uniforms.uGrain.value = 0;
+    grade.uniforms.uAberration.value = 0;
     composer.addPass(grade);
     composer.setSize(w, h);
 

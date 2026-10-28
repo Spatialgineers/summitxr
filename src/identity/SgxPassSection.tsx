@@ -29,8 +29,8 @@ export const SgxPassSection: React.FC = () => {
           <h3 className="sgx-panel__title">{es ? 'Todavía no tienes pase' : "You don't have a pass yet"}</h3>
           <p className="sgx-panel__body">
             {es
-              ? 'La taquilla, la Holo Card y la credencial ahora son una sola cosa. Forja tu SGX Pass en un minuto: nombre, pilar, piloto y listo.'
-              : 'The ticket desk, the Holo Card and the credential are one thing now. Forge your SGX Pass in a minute: name, pillar, pilot, done.'}
+              ? 'Tu Holo Card, tu QR de networking y tu acceso al Summit. Forja tu SGX Pass en un minuto: nombre, pilar, piloto y listo.'
+              : 'Your Holo Card, your networking QR and your access to the Summit. Forge your SGX Pass in a minute: name, pillar, pilot, done.'}
           </p>
           <div className="sgx-forge__actions">
             <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => fire('sgx:open_forge')}>[ ⚡ {es ? 'Forjar mi SGX Pass' : 'Forge my SGX Pass'} ]</button></span>

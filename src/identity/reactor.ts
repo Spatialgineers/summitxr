@@ -37,8 +37,8 @@ export interface ReactorMission {
 export const REACTOR_MISSIONS: ReactorMission[] = [
   // SGX.Story
   { id: 'm_story_forge', pillar: 'STORY', xp: 120, trigger: { flag: 'forged' },
-    es: { title: 'Forja tu SGX Pass', hint: 'Tu nombre, tu pilar y tu avatar en un solo pase.' },
-    en: { title: 'Forge your SGX Pass', hint: 'Your name, your pillar and your avatar on one pass.' },
+    es: { title: 'Forja tu SGX Pass', hint: 'Tu nombre, tu pilar y tu piloto en tu pase.' },
+    en: { title: 'Forge your SGX Pass', hint: 'Your name, your pillar and your pilot on your pass.' },
     go: { event: 'sgx:open_forge' } },
   { id: 'm_story_manifesto', pillar: 'STORY', xp: 60, trigger: { visit: ['PILLARS_MANIFESTO'] },
     es: { title: 'Lee el manifiesto', hint: 'La historia detrás de los 6 pilares.' },

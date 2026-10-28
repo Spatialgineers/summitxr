@@ -143,7 +143,7 @@ export const SGX_PILLARS: SgxPillar[] = [
     ],
     modules: [
       { kind: 'section', key: 'VISITS', icon: Radar, label: { es: 'Radar de visitas', en: 'Visit radar' }, desc: { es: 'Desde dónde nos visitan, en vivo: mapa de PR, contadores y leaderboards.', en: 'Where our visitors come from, live: PR map, counters and leaderboards.' } },
-      { kind: 'section', key: 'CREDENTIAL_GENERATOR', icon: BadgeCheck, label: { es: 'SGX Pass', en: 'SGX Pass' }, desc: { es: 'Registro, Holo Card, credencial y QR en un solo pase.', en: 'Registration, Holo Card, credential and QR in one pass.' } },
+      { kind: 'section', key: 'CREDENTIAL_GENERATOR', icon: BadgeCheck, label: { es: 'SGX Pass', en: 'SGX Pass' }, desc: { es: 'Tu Holo Card, tu QR de networking y tu entrada del Día 3.', en: 'Your Holo Card, your networking QR and your Day 3 entrance.' } },
       { kind: 'action', event: 'sgx:open_qr_scanner', icon: ScanLine, label: { es: 'Escáner de pases & Rolodex', en: 'Pass scanner & Rolodex' }, desc: { es: 'Escanea un SGX Pass: quedan en los dos Rolodex (+50 XP).', en: 'Scan an SGX Pass: you land in both Rolodexes (+50 XP).' } },
       { kind: 'action', event: 'sgx:open_terminal', icon: Terminal, label: { es: 'Terminal de mando', en: 'Command terminal' }, desc: { es: 'Navega toda la plataforma escribiendo. Ctrl+K.', en: 'Navigate the whole platform by typing. Ctrl+K.' } },
     ],

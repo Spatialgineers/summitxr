@@ -306,7 +306,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       features: [
         {
           title: 'SGX Pass & Holo Card',
-          desc: (es ? 'Registro, Holo Card, credencial y QR en un solo pase.' : 'Registration, Holo Card, credential and QR in a single pass.'),
+          desc: (es ? 'Tu Holo Card, tu QR de networking y tu entrada del Día 3.' : 'Your Holo Card, your networking QR and your Day 3 entrance.'),
           actionLabel: (es ? 'Abrir mi SGX Pass' : 'Open my SGX Pass'),
           icon: Ticket,
           onClick: onOpenTickets,

@@ -126,11 +126,11 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
         {step === 'intro' && (
           <section className="sgx-forge__stage sgx-forge__intro">
             <p className="sgx-forge__kicker">SPATIALGINEERS SUMMIT 2026</p>
-            <h2>{es ? 'Un solo pase para todo el Summit' : 'One pass for the whole Summit'}</h2>
+            <h2>{es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass'}</h2>
             <p>
               {es
-                ? 'Tu registro, tu Holo Card, tu credencial y tu QR de networking ahora son el mismo objeto: el SGX Pass. Forjarlo toma un minuto y evoluciona con cada misión que completes.'
-                : 'Your registration, Holo Card, credential and networking QR are now the same object: the SGX Pass. Forging it takes a minute and it evolves with every mission you complete.'}
+                ? 'Tu identidad en el Summit: tu Holo Card, tu QR de networking y tu acceso a todo el evento. Forjarlo toma un minuto y evoluciona con cada misión que completes.'
+                : 'Your identity at the Summit: your Holo Card, your networking QR and your access to the whole event. Forging it takes a minute and it evolves with every mission you complete.'}
             </p>
             <ul className="sgx-forge__bullets">
               <li>{es ? 'Días 1 y 2: lo usas por YouTube Live desde cualquier lugar.' : 'Days 1 and 2: use it on YouTube Live from anywhere.'}</li>

@@ -240,7 +240,7 @@ export const SummitSectionsDropdown: React.FC<SummitSectionsDropdownProps> = ({
       key: 'CREDENTIAL_GENERATOR',
       title: 'SGX Pass',
       shortLabel: 'SGX Pass',
-      description: (es ? 'Tu registro, Holo Card, credencial y QR de networking en un solo pase que evoluciona con cada misión.' : 'Your registration, Holo Card, credential and networking QR in a single pass that evolves with every mission.'),
+      description: (es ? 'Tu Holo Card, tu QR de networking y tu entrada del Día 3, en un pase que evoluciona con cada misión.' : 'Your Holo Card, your networking QR and your Day 3 entrance, on a pass that evolves with every mission.'),
       icon: Award,
       iconUrl: pillarIcon('SHOWCASE'),
       badge: 'SGX.SHOWCASE',

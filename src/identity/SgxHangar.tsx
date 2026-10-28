@@ -149,7 +149,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
           {!isForged && tab !== 'reactor' && tab !== 'log' ? (
             <div className="sgx-hangar__empty">
               <h3>{es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass'}</h3>
-              <p>{es ? 'Un solo pase es tu registro, tu Holo Card, tu credencial, tu QR de networking y tu entrada del Día 3.' : 'One pass is your registration, Holo Card, credential, networking QR and Day 3 entrance.'}</p>
+              <p>{es ? 'Tu Holo Card, tu QR de networking y tu entrada del Día 3. Toma un minuto.' : 'Your Holo Card, your networking QR and your Day 3 entrance. It takes a minute.'}</p>
               <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={onForge}>[ ⚡ {es ? 'Forjar ahora' : 'Forge now'} ]</button></span>
             </div>
           ) : null}

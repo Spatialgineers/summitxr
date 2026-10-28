@@ -26,7 +26,7 @@ export const SgxPassStrip: React.FC<{ onAction?: () => void }> = ({ onAction }) 
       <div className="sgx-passstrip sgx-passstrip--forge">
         <div>
           <strong>{es ? 'Todavía no tienes SGX Pass' : 'No SGX Pass yet'}</strong>
-          <small>{es ? 'Registro, Holo Card, QR y entrada del Día 3 en un solo pase.' : 'Registration, Holo Card, QR and Day 3 entrance in one pass.'}</small>
+          <small>{es ? 'Tu Holo Card, tu QR de networking y tu entrada del Día 3.' : 'Your Holo Card, your networking QR and your Day 3 entrance.'}</small>
         </div>
         <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => go('sgx:open_forge')}>⚡ {es ? 'Forjar pase' : 'Forge pass'}</button>
       </div>

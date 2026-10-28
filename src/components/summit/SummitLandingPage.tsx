@@ -92,6 +92,7 @@ import { SummitPushAlertToast } from './SummitPushAlertToast';
 import { subscribeAnnouncement } from '../../lib/summitData';
 import { SummitSponsorInquiryForm } from './SummitSponsorInquiryForm';
 import { SummitCountdownVisualizer } from './SummitCountdownVisualizer';
+import { SgxChromaArrival } from './SgxChromaArrival';
 import { SummitSponsorTicker } from './SummitSponsorTicker';
 import { PillarTenantSelector } from './PillarTenantSelector';
 import { SgxGuildShowcaseSection } from './SgxGuildShowcaseSection';
@@ -1170,6 +1171,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               pillarBadge="SGX.SHOWCASE"
               pillarIconUrl={pillarIcon('SHOWCASE')}
             />
+            <SgxChromaArrival />
             <Summit360MapViewer
               nodes={mapNodes}
               selectedNodeId={selectedMapNodeId}

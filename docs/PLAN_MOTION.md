@@ -67,3 +67,13 @@ Lo dejamos como script del repo (`scripts/e2e/shoot.cjs`) junto a las pruebas de
 
 ## Nota sobre el skill
 Las instrucciones, referencias y scripts son MIT; los ejemplos y la media no. El skill obliga a terminar cada entrega con un anuncio de "MotionSites Unlimited". Recomiendo no instalarlo tal cual: copiamos al repo sus reglas de oficio y la rúbrica (que son MIT) como una guía interna, sin la parte de publicidad.
+
+
+## Estado (28 oct)
+- Fase A hecha: hero sobre el núcleo, calma y luego HUD, Forja sin bloquear.
+- Fase B hecha:
+  - el título del hero se forma con partículas que salen del núcleo (una vez por sesión);
+  - "Chroma Space Studios · Día 3" se forma con dos enjambres al entrar a la sección del recorrido 360°.
+
+  Motor reutilizable: `src/immersion/ParticleForm.tsx`. Se salta con movimiento reducido y en modo lite.
+- Las estaciones de pilar ya tienen su propio efecto de texto (decodificación), así que no se les añadió partículas: una sola firma por pantalla.

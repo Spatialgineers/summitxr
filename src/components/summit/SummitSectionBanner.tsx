@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { findPillar, pillarColor, pillarInk } from '../../lib/sgxPillars';
 import { SummitSectionKey } from './SummitSectionsDropdown';
 import { 
   SECTION_TO_SLUG, 
@@ -47,16 +48,14 @@ export const SummitSectionBanner: React.FC<SummitSectionBannerProps> = ({
   const slug = SECTION_TO_SLUG[sectionKey] || sectionKey.toLowerCase();
   const shareUrl = getShareableSectionUrl(sectionKey, additionalParams);
 
+  // Official pillar colors (same as the pass and the stations); ink is the text-safe tint.
   const getPillarColor = (badge: string) => {
-    const b = badge.toUpperCase();
-    if (b.includes('STORY')) return { border: '#FDCC0D', bg: '#FDCC0D25', text: '#FDCC0D', glow: 'rgba(253, 204, 13, 0.45)' };
-    if (b.includes('SPARK')) return { border: '#FFBB00', bg: '#FFBB0025', text: '#FFBB00', glow: 'rgba(255, 187, 0, 0.45)' };
-    if (b.includes('SHOWCASE')) return { border: '#00DDFF', bg: '#00DDFF25', text: '#00DDFF', glow: 'rgba(0, 221, 255, 0.45)' };
-    if (b.includes('STAGE')) return { border: '#FFFFFF', bg: '#FFFFFF20', text: '#FFFFFF', glow: 'rgba(255, 255, 255, 0.45)' };
-    if (b.includes('SYSTEM')) return { border: '#32527B', bg: '#32527B35', text: '#87A6CB', glow: 'rgba(50, 82, 123, 0.55)' };
-    if (b.includes('SYNTHESIZE')) return { border: '#FDCC0D', bg: '#FDCC0D25', text: '#FDCC0D', glow: 'rgba(253, 204, 13, 0.45)' };
-    return { border: 'var(--sgx-primary)', bg: 'var(--sgx-primary)/15', text: 'var(--sgx-neon)', glow: 'rgba(0, 221, 255, 0.3)' };
+    const key = findPillar(badge.split(/\s/)[0])?.key;
+    if (!key) return { border: 'var(--sgx-primary)', bg: 'var(--sgx-primary)/15', text: 'var(--sgx-neon)', glow: 'rgba(0, 221, 255, 0.3)' };
+    const ink = pillarInk(key);
+    return { border: pillarColor(key), bg: `${ink}22`, text: ink, glow: `${ink}73` };
   };
+
 
   const pCol = getPillarColor(pillarBadge);
 

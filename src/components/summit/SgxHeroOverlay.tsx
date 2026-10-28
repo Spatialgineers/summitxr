@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import { explore, useCalm } from '../../immersion/calmMode';
+import { ParticleForm, canRunParticles, paintLines } from '../../immersion/ParticleForm';
 
 /* The first screen's message, over the 3D core: what it is, when, and one
    clear action. It steps aside (with the rest of the calm layer) as soon
@@ -30,15 +31,56 @@ export const SgxHeroOverlay: React.FC = () => {
   const forged = !!sgx?.isForged;
   const { d, h, m, live } = useCountdown();
 
+  // The title is first drawn by particles leaving the core (once per session).
+  const rootRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const [form, setForm] = useState<null | { left: number; top: number; w: number; h: number; fonts: string[]; origin: { x: number; y: number } }>(null);
+  const [forming, setForming] = useState(() => {
+    try { return canRunParticles() && sessionStorage.getItem('sgx_hero_formed') !== '1' && window.innerWidth >= 360; } catch { return false; }
+  });
+  useEffect(() => {
+    if (!forming || !calm) return;
+    let alive = true;
+    (document.fonts?.ready || Promise.resolve()).then(() => {
+      const root = rootRef.current, title = titleRef.current;
+      if (!alive || !root || !title) return;
+      const rr = root.getBoundingClientRect(), tr = title.getBoundingClientRect();
+      const fonts = Array.from(title.children).map((el) => {
+        const cs = getComputedStyle(el as HTMLElement);
+        return `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      });
+      setForm({
+        left: tr.left - rr.left - 8, top: tr.top - rr.top - 8, w: tr.width + 16, h: tr.height + 16, fonts,
+        origin: { x: rr.width * 0.55 - (tr.left - rr.left), y: rr.height * 0.42 - (tr.top - rr.top) },
+      });
+      try { sessionStorage.setItem('sgx_hero_formed', '1'); } catch { /* ignore */ }
+    });
+    return () => { alive = false; };
+  }, [forming, calm]);
+
   return (
-    <div className={`sgx-corehero ${calm ? '' : 'is-gone'}`} aria-hidden={!calm}>
+    <div ref={rootRef} className={`sgx-corehero ${calm ? '' : 'is-gone'}`} aria-hidden={!calm}>
+      {form && (
+        <ParticleForm
+          className="sgx-corehero__swarm"
+          style={{ left: form.left, top: form.top }}
+          width={form.w}
+          height={form.h}
+          origin={form.origin}
+          duration={1500}
+          hold={350}
+          paint={paintLines([{ text: 'SPATIALGINEERS', font: form.fonts[0] || '600 64px Orbitron' }, { text: 'SUMMIT 2026', font: form.fonts[1] || form.fonts[0] || '600 64px Orbitron' }], 'left', 0.98)}
+          onSettled={() => setForming(false)}
+          onDone={() => setForm(null)}
+        />
+      )}
       <div className="sgx-corehero__scrim" aria-hidden="true" />
       <div className="sgx-corehero__copy">
         <p className="sgx-corehero__badge sgx-corehero__in" style={{ ['--i' as string]: 0 }}>
           <span className="sgx-corehero__dot" aria-hidden="true" />
           {es ? 'Regresa el Spatialgineers Summit · segunda edición' : 'The Spatialgineers Summit returns · second edition'}
         </p>
-        <h1 className="sgx-corehero__title sgx-corehero__in" style={{ ['--i' as string]: 1 }}>
+        <h1 ref={titleRef} className={`sgx-corehero__title ${forming ? 'is-forming' : 'sgx-corehero__in'}`} style={{ ['--i' as string]: 1 }}>
           <span>Spatialgineers</span>
           <span className="sgx-corehero__accent">Summit 2026</span>
         </h1>

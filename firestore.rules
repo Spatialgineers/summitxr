@@ -208,6 +208,12 @@ service cloud.firestore {
              (!('timestamp' in data) || data.timestamp == request.time);
     }
 
+    // Emails sent by the Apps Script mailer (info@, IAM credentials: rules do not apply to it).
+    // Admins read the log to see who got which email; nobody writes it from the app.
+    match /mail_log/{logId} {
+      allow get, list: if isAdmin();
+    }
+
     match /ticket_inquiries/{inquiryId} {
       allow get: if isAdmin() || (isSignedIn() && resource.data.userId == me());
       allow list: if isAdmin() || (isSignedIn() && resource.data.userId == me());

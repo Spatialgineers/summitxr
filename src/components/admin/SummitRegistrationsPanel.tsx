@@ -7,7 +7,6 @@ import { approveSpeakerSubmission, fetchSpeakerSubmissions, rejectSpeakerSubmiss
 import type { SummitSpeaker } from '../../types/summit';
 import { findPillar } from '../../lib/sgxPillars';
 import { grantCredential } from '../../identity/credentials';
-import { SummitInitiatesPanel } from './SummitInitiatesPanel';
 
 /* INSCRITOS: every SGX Pass forged lands in `ticket_inquiries`. The team
    reviews them here, marks who gets the Day 3 invitation, exports the list
@@ -100,6 +99,14 @@ export const SummitRegistrationsPanel: React.FC = () => {
       setSpeakerMsg(`No se pudo completar: ${err?.message || err}`);
     }
   };
+
+  // Emails sent by the Apps Script mailer (docs/EMAIL_SETUP.md): mail_log/{kind}_{registrationId}.
+  const [mailLog, setMailLog] = useState<Record<string, number>>({});
+  useEffect(() => onSnapshot(collection(db, 'mail_log'), (snap) => {
+    const next: Record<string, number> = {};
+    snap.forEach((d) => { next[d.id] = toMillis((d.data() as any).sentAt) || 1; });
+    setMailLog(next);
+  }, () => { /* rules not deployed yet: no badges */ }), []);
 
   useEffect(() => {
     const q = query(collection(db, 'ticket_inquiries'), orderBy('timestamp', 'desc'), limit(MAX_ROWS));
@@ -309,7 +316,16 @@ export const SummitRegistrationsPanel: React.FC = () => {
                     <div className="text-[11px] text-slate-400">{[r.roleTitle, r.organization].filter(Boolean).join(' · ')}</div>
                     <div className="text-[10px] font-mono text-slate-500">{r.referenceCode}</div>
                   </td>
-                  <td className="py-2 pr-2 text-slate-200 break-all">{r.email}</td>
+                  <td className="py-2 pr-2 text-slate-200 break-all">
+                    {r.email}
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {([['confirm', 'Confirmación'], ['invite', 'Invitación Día 3'], ['remind1', 'Recordatorio'], ['remind3', 'Recordatorio Día 3']] as const)
+                        .filter(([k]) => mailLog[`${k}_${r.id}`])
+                        .map(([k, label]) => (
+                          <span key={k} className="text-[10px] font-mono text-[#4ade80] border border-[#4ade80]/40 px-1" title={new Date(mailLog[`${k}_${r.id}`]).toLocaleString('es-PR')}>✉ {label}</span>
+                        ))}
+                    </div>
+                  </td>
                   <td className="py-2 pr-2 text-slate-300">{r.ticketType === 'SHOWCASE_PHYSICAL' ? 'Día 3' : 'Digital'}</td>
                   <td className="py-2 pr-2">{r.imageConsent === true ? <span className="text-[#00DDFF]">Sí</span> : <span className="text-slate-500">{r.imageConsent === false ? 'No' : '—'}</span>}</td>
                   <td className="py-2 pr-2"><span className={`inline-block border px-1.5 py-0.5 font-mono text-[10px] uppercase ${STATUS_CLASS[r.status]}`}>{STATUS_LABEL[r.status]}</span></td>

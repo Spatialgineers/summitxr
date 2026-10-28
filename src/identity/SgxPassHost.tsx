@@ -137,6 +137,13 @@ export const SgxPassHost: React.FC = () => {
       if (forgedRef.current) setHangar('day3');
       else setForge({ tier: 'SHOWCASE' });
     }
+    // Email buttons: ?hangar=pass|day3|reactor opens the Hangar on that tab (or the Forge without a pass).
+    const tab = params.get('hangar');
+    if (tab) {
+      stripParam('hangar');
+      const valid = ['pass', 'reactor', 'stars', 'rolodex', 'day3', 'log'];
+      window.setTimeout(() => openHangarOrForge((valid.includes(tab) ? tab : 'pass') as HangarTab, tab === 'day3' ? 'SHOWCASE' : 'DIGITAL'), 600);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

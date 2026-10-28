@@ -30,6 +30,13 @@ window.addEventListener('vite:preloadError', (event) => {
   window.location.reload();
 });
 
+// Installable app + offline SGX Pass (production builds only; dev uses Vite's server).
+if ('serviceWorker' in navigator && (import.meta as any).env?.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => reportError('manual', err));
+  });
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AppCrashBoundary>

@@ -18,7 +18,7 @@ async function openForgeToName(p) {
   await p.goto(APP + '/', { waitUntil: 'domcontentloaded' });
   await p.waitForTimeout(9000);
   await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_forge', { detail: { tier: 'DIGITAL' } })));
-  await p.waitForTimeout(800);
+  await p.waitForSelector('.sgx-forge button', { timeout: 20000 }); await p.waitForTimeout(300);
   await p.click('.sgx-forge button:has-text("Seguir sin cuenta"), .sgx-forge button:has-text("Continue without")');
   await p.waitForTimeout(400);
   await p.fill('.sgx-forge input[type=email]', EMAIL);
@@ -50,7 +50,7 @@ async function openForgeToName(p) {
   await a.keyboard.press('Escape');
   // 2. edit details: one form, no ceremony, same code
   await a.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } })));
-  await a.waitForTimeout(1500);
+  await a.waitForSelector(".sgx-hangar", { timeout: 20000 }); await a.waitForTimeout(1200);
   await a.click('.sgx-hangar button:has-text("Editar datos")');
   await a.waitForTimeout(800);
   check('edit opens one form', await a.evaluate(() => /Edita tus datos/i.test(document.querySelector('.sgx-forge')?.innerText || '')));

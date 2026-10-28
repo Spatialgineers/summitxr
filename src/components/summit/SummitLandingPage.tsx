@@ -2,13 +2,11 @@ import { PassGate } from '../../identity/PassGate';
 import { pillarIcon } from '../../lib/sgxPillars';
 import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { SgxStandby } from '../../immersion/SgxStandby';
-import { SgxPassSection, SgxHoloStudioPanel } from '../../identity/SgxPassSection';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { LazyBoundary } from '../common/LazyBoundary';
 import { LazyFallback } from '../common/LazyFallback';
 import { SpatialTiltCard } from '../common/SpatialTiltCard';
-import { SummitAnalyticsView } from '../analytics/SummitAnalyticsView';
 import { 
   Compass, 
   Calendar, 
@@ -86,31 +84,14 @@ import {
 } from '../../lib/summitData';
 
 import { useAuth } from '../../context/AuthContext';
-import { Summit360MapViewer } from './Summit360MapViewer';
-import { SummitAgendaBuilder } from './SummitAgendaBuilder';
-import { SummitNetworkingChat } from './SummitNetworkingChat';
 import { SummitPushAlertToast } from './SummitPushAlertToast';
 import { subscribeAnnouncement } from '../../lib/summitData';
-import { SummitSponsorInquiryForm } from './SummitSponsorInquiryForm';
-import { SummitCountdownVisualizer } from './SummitCountdownVisualizer';
 import { SgxChromaArrival } from './SgxChromaArrival';
 import { SummitSponsorTicker } from './SummitSponsorTicker';
-import { PillarTenantSelector } from './PillarTenantSelector';
-import { SgxGuildShowcaseSection } from './SgxGuildShowcaseSection';
-import { SummitBrandShowcaseModal } from './SummitBrandShowcaseModal';
-import { SummitSectionsDropdown, SummitSectionKey } from './SummitSectionsDropdown';
+import type { SummitSectionKey } from './sectionKeys';
 import { SummitExperienceHub } from './SummitExperienceHub';
-import { SummitRewardsStoreModal } from './SummitRewardsStoreModal';
-import { KeynotePulseReactions } from './KeynotePulseReactions';
 import { SgxSectionHudBar, HudSectionChip } from './SgxSectionHudBar';
-import { SgxPillarStation } from './SgxPillarStation';
 import { SGX_PILLARS, pillarOfSection, findPillar } from '../../lib/sgxPillars';
-import { SummitPrivacyPolicyModal } from './SummitPrivacyPolicyModal';
-import { LiveSocialStream } from './LiveSocialStream';
-import { SgxPillarsManifestoSection } from './SgxPillarsManifestoSection';
-import { SummitRunOfShowTimeline } from './SummitRunOfShowTimeline';
-import { SummitSpeakersDeck } from './SummitSpeakersDeck';
-import { SummitSponsorshipMatrix } from './SummitSponsorshipMatrix';
 import { SummitSectionBanner } from './SummitSectionBanner';
 import { TransientSponsorSlot } from './TransientSponsorSlot';
 import { getAppRouteAndSectionFromUrl, getSectionFromUrl, syncAppUrl, syncSectionToUrl, scrollToSectionContainer, SECTION_TO_SLUG } from '../../lib/summitUrlSync';
@@ -120,10 +101,29 @@ import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
 import { usePilotProfile } from '../../context/PilotProfileContext';
 import { useSummitFeatures } from '../../context/SummitFeatureContext';
-import { SummitContentAuditModal } from './SummitContentAuditModal';
-import { SummitWeeklyCapsules } from './SummitWeeklyCapsules';
 
 // Heavy, on-demand modules (Leaflet radar, jsQR scanner, drone game, Match, avatar studio).
+// Each section and modal downloads when it is first opened.
+const Summit360MapViewer = lazy(() => import('./Summit360MapViewer').then((m) => ({ default: m.Summit360MapViewer })));
+const SummitAgendaBuilder = lazy(() => import('./SummitAgendaBuilder').then((m) => ({ default: m.SummitAgendaBuilder })));
+const SummitNetworkingChat = lazy(() => import('./SummitNetworkingChat').then((m) => ({ default: m.SummitNetworkingChat })));
+const SummitSponsorInquiryForm = lazy(() => import('./SummitSponsorInquiryForm').then((m) => ({ default: m.SummitSponsorInquiryForm })));
+const SgxGuildShowcaseSection = lazy(() => import('./SgxGuildShowcaseSection').then((m) => ({ default: m.SgxGuildShowcaseSection })));
+const SummitBrandShowcaseModal = lazy(() => import('./SummitBrandShowcaseModal').then((m) => ({ default: m.SummitBrandShowcaseModal })));
+const SummitRewardsStoreModal = lazy(() => import('./SummitRewardsStoreModal').then((m) => ({ default: m.SummitRewardsStoreModal })));
+const KeynotePulseReactions = lazy(() => import('./KeynotePulseReactions').then((m) => ({ default: m.KeynotePulseReactions })));
+const SgxPillarStation = lazy(() => import('./SgxPillarStation').then((m) => ({ default: m.SgxPillarStation })));
+const SummitPrivacyPolicyModal = lazy(() => import('./SummitPrivacyPolicyModal').then((m) => ({ default: m.SummitPrivacyPolicyModal })));
+const LiveSocialStream = lazy(() => import('./LiveSocialStream').then((m) => ({ default: m.LiveSocialStream })));
+const SgxPillarsManifestoSection = lazy(() => import('./SgxPillarsManifestoSection').then((m) => ({ default: m.SgxPillarsManifestoSection })));
+const SummitRunOfShowTimeline = lazy(() => import('./SummitRunOfShowTimeline').then((m) => ({ default: m.SummitRunOfShowTimeline })));
+const SummitSpeakersDeck = lazy(() => import('./SummitSpeakersDeck').then((m) => ({ default: m.SummitSpeakersDeck })));
+const SummitSponsorshipMatrix = lazy(() => import('./SummitSponsorshipMatrix').then((m) => ({ default: m.SummitSponsorshipMatrix })));
+const SummitContentAuditModal = lazy(() => import('./SummitContentAuditModal').then((m) => ({ default: m.SummitContentAuditModal })));
+const SummitWeeklyCapsules = lazy(() => import('./SummitWeeklyCapsules').then((m) => ({ default: m.SummitWeeklyCapsules })));
+const SummitAnalyticsView = lazy(() => import('../analytics/SummitAnalyticsView').then((m) => ({ default: m.SummitAnalyticsView })));
+const SgxPassSection = lazy(() => import('../../identity/SgxPassSection').then((m) => ({ default: m.SgxPassSection })));
+const SgxHoloStudioPanel = lazy(() => import('../../identity/SgxPassSection').then((m) => ({ default: m.SgxHoloStudioPanel })));
 const SummitVisitRadar = lazy(() => import('./SummitVisitRadar').then((m) => ({ default: m.SummitVisitRadar })));
 const SummitEmbedsHub = lazy(() => import('./SummitEmbedsHub').then((m) => ({ default: m.SummitEmbedsHub })));
 const MatchModule = lazy(() => import('../../modules/match/MatchModule').then((m) => ({ default: m.MatchModule })));
@@ -559,6 +559,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
       {/* 5. Main Dynamic Body Views */}
       <main id="summit-main-tab-content" className={`w-full flex flex-col ${activeSection === 'OVERVIEW' ? 'flex-1 min-h-0 overflow-hidden p-0 max-w-none' : 'max-w-[1750px] mx-auto p-2 sm:p-4 lg:p-5 flex-1'}`}>
+        <LazyBoundary fallback={<LazyFallback />}>
         
         {/* Maintenance / Hidden Section Guard for Non-Overview Sections */}
         {activeSection !== 'OVERVIEW' && getSectionStatus(activeSection) !== 'ACTIVE' && (
@@ -1573,6 +1574,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           </div>
         )}
 
+        </LazyBoundary>
       </main>
 
       {/* 6. Session Detail Modal */}
@@ -1692,18 +1694,24 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       )}
 
       {/* 8. Brand Showcase Landing Modal */}
-      <SummitBrandShowcaseModal
-        sponsor={selectedBrandShowcase}
-        onClose={() => setSelectedBrandShowcase(null)}
-      />
+      {selectedBrandShowcase && (
+        <LazyBoundary fallback={<LazyFallback overlay />}>
+          <SummitBrandShowcaseModal
+            sponsor={selectedBrandShowcase}
+            onClose={() => setSelectedBrandShowcase(null)}
+          />
+        </LazyBoundary>
+      )}
 
       {/* 9. Reactor store (the pass, passport and tickets live in SgxPassHost) */}
       {rewardsStoreModalOpen && (
-        <SummitRewardsStoreModal
-          onClose={() => setRewardsStoreModalOpen(false)}
-          onOpenAdminRewards={onNavigateToAdmin}
-          isAdmin={isAdmin}
-        />
+        <LazyBoundary fallback={<LazyFallback overlay />}>
+          <SummitRewardsStoreModal
+            onClose={() => setRewardsStoreModalOpen(false)}
+            onOpenAdminRewards={onNavigateToAdmin}
+            isAdmin={isAdmin}
+          />
+        </LazyBoundary>
       )}
 
       {/* 10. Avatar Studio: the Pilot Builder lives with the pass (SgxPassHost). */}
@@ -1719,21 +1727,26 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
       {/* 12. Floating Live Pulse Reactions & Keynote Polls Widget */}
       {isFeatureVisible('exp_pulse_reactions') && (
+        <LazyBoundary fallback={null}>
         <KeynotePulseReactions
           currentSessionTitle={(sessions[0] && loc(sessions[0], 'title', language)) || (es ? 'Keynote Oficial: The Spatial Web' : 'Official Keynote: The Spatial Web')}
         />
+        </LazyBoundary>
       )}
 
       {/* 13. Privacy & Data Disclosure Modal (Puerto Rico Compliant) */}
       {privacyModalOpen && (
-        <SummitPrivacyPolicyModal
-          onClose={() => setPrivacyModalOpen(false)}
-        />
+        <LazyBoundary fallback={<LazyFallback overlay />}>
+          <SummitPrivacyPolicyModal
+            onClose={() => setPrivacyModalOpen(false)}
+          />
+        </LazyBoundary>
       )}
 
       {sponsorInquiryModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
           <div className="max-h-[95vh] overflow-y-auto w-full max-w-4xl">
+            <LazyBoundary fallback={<LazyFallback />}>
             <SummitSponsorInquiryForm
               initialTierId={selectedSponsorTierId}
               isModal={true}
@@ -1742,6 +1755,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 // Refresh local state of inquiries
               }}
             />
+            </LazyBoundary>
           </div>
         </div>
       )}
@@ -1798,7 +1812,9 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 {es ? 'Cerrar Analíticas ✕' : 'Close Analytics ✕'}
               </button>
             </div>
-            <SummitAnalyticsView />
+            <LazyBoundary fallback={<LazyFallback />}>
+              <SummitAnalyticsView />
+            </LazyBoundary>
           </div>
         </div>
       )}
@@ -1867,10 +1883,14 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       )}
 
       {/* Module Visibility & Content Audit Control Modal */}
-      <SummitContentAuditModal
-        isOpen={isAdmin && isAuditModalOpen}
-        onClose={() => setAuditModalOpen(false)}
-      />
+      {isAdmin && isAuditModalOpen && (
+        <LazyBoundary fallback={<LazyFallback overlay />}>
+          <SummitContentAuditModal
+            isOpen
+            onClose={() => setAuditModalOpen(false)}
+          />
+        </LazyBoundary>
+      )}
 
 
 

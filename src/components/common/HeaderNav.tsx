@@ -51,7 +51,7 @@ import { HeaderPillarNav, PillarDirectoryGrid } from './SgxPillarNav';
 import { usePilotProfile } from '../../context/PilotProfileContext';
 import { playUiChirp, getIsAudioMuted, toggleAudioMute } from '../../lib/cyberAudioEngine';
 import { syncAppUrl, getAppRouteAndSectionFromUrl } from '../../lib/summitUrlSync';
-import { SummitSectionKey } from '../summit/SummitSectionsDropdown';
+import type { SummitSectionKey } from '../summit/sectionKeys';
 import { TransientSponsorSlot } from '../summit/TransientSponsorSlot';
 
 export type PageRoute = 'summit' | 'multiview' | 'admin' | 'play' | 'stage' | 'analytics' | 'schema';

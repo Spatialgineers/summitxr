@@ -21,7 +21,7 @@ const S = (v) => ({ stringValue: v });
   await p.waitForTimeout(9000);
   // forge
   if (!(await p.$('.sgx-forge'))) await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_forge', { detail: { tier: 'SHOWCASE' } })));
-  await p.waitForTimeout(800);
+  await p.waitForSelector('.sgx-forge button', { timeout: 20000 }); await p.waitForTimeout(300);
   const start = await p.$('.sgx-forge button.sgx-btn'); if (start) await start.click();
   await p.waitForTimeout(400);
   await p.fill('.sgx-forge input[type=email]', `holo.${Date.now() % 1e6}@example.com`);
@@ -40,7 +40,7 @@ const S = (v) => ({ stringValue: v });
   await p.waitForTimeout(500);
   // hangar pass for comparison
   await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } })));
-  await p.waitForTimeout(1500);
+  await p.waitForSelector(".sgx-hangar", { timeout: 20000 }); await p.waitForTimeout(1200);
   // the Holo Card lives in the Hangar: drawn, and it turns over to the event + QR
   const inkOf = () => p.evaluate(() => { const c = document.querySelector('.sgx-hangar .sgx-hstudio__preview canvas'); if (!c) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4000) if (d[i] > 0) n++; return n; });
   check('hangar shows the Holo Card', (await inkOf()) > 50);

@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { LazyBoundary } from '../components/common/LazyBoundary';
+import { LazyFallback } from '../components/common/LazyFallback';
 import { useLanguage } from '../context/LanguageContext';
 import { usePilotProfile } from '../context/PilotProfileContext';
 import { PILLAR_BY_KEY } from '../lib/sgxPillars';
@@ -6,12 +8,23 @@ import { playScanSuccessSound } from '../lib/cyberAudioEngine';
 import { parsePassQr, PILLAR_ACCENT, type PassQrPayload, type PassTier } from './sgxIdentity';
 import { CHECKIN_CODE_KEY, useSgxIdentity, type CheckinResult } from './SgxIdentityContext';
 import { useImmersion } from '../immersion/ImmersionContext';
-import { SgxForge } from './SgxForge';
-import { SgxHangar, type HangarTab } from './SgxHangar';
+import type { HangarTab } from './SgxHangar';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
-import { SgxHoloCardGeneratorModal } from '../components/summit/SgxHoloCardGeneratorModal';
-import { SgxHoloViewer } from './SgxHoloViewer';
-import { PilotBuilderModal } from './PilotBuilderModal';
+
+// The pass surfaces download the first time they open.
+const SgxForge = lazy(() => import('./SgxForge').then((m) => ({ default: m.SgxForge })));
+const SgxHangar = lazy(() => import('./SgxHangar').then((m) => ({ default: m.SgxHangar })));
+const SgxHoloCardGeneratorModal = lazy(() => import('../components/summit/SgxHoloCardGeneratorModal').then((m) => ({ default: m.SgxHoloCardGeneratorModal })));
+const SgxHoloViewer = lazy(() => import('./SgxHoloViewer').then((m) => ({ default: m.SgxHoloViewer })));
+const PilotBuilderModal = lazy(() => import('./PilotBuilderModal').then((m) => ({ default: m.PilotBuilderModal })));
+
+/** Warm the pass chunks once the page is idle, so the first tap opens instantly. */
+function prefetchPassSurfaces() {
+  const go = () => { import('./SgxForge'); import('./SgxHangar'); };
+  const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+  if (w.requestIdleCallback) w.requestIdleCallback(go, { timeout: 6000 });
+  else window.setTimeout(go, 3000);
+}
 import type { CredentialRole, HoloCredential } from './credentials';
 
 /* Global owner of the identity surfaces. Every legacy entry point (taquilla,
@@ -43,6 +56,7 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
   const es = language === 'es';
   const { isProfileModalOpen, setIsProfileModalOpen, isRoleModalOpen, setIsRoleModalOpen } = usePilotProfile();
   const { isForged, addContact, checkIn, identity, myUid } = useSgxIdentity();
+  useEffect(() => { if (!quiet) prefetchPassSurfaces(); }, [quiet]);
   const { pushToast } = useImmersion();
   // Holo Card Studio (visitante / speaker / initiate / sponsor), prefilled from the pass.
   const [holo, setHolo] = useState<{ role?: CredentialRole; n: number } | null>(null);
@@ -238,28 +252,32 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
           <button type="button" className="sgx-nudge__x" onClick={dismissNudge} aria-label={es ? 'Ahora no' : 'Not now'}>✕</button>
         </div>
       )}
-      <SgxHoloCardGeneratorModal
-        key={holo?.n || 0}
-        isOpen={!!holo}
-        onClose={() => setHolo(null)}
-        initialRole={holo?.role}
-      />
-      {viewCard && <SgxHoloViewer cred={viewCard} onClose={() => setViewCard(null)} />}
-      {pilotStudio && <PilotBuilderModal onClose={() => setPilotStudio(false)} />}
-      {forge && (
-        <SgxForge
-          initialTier={forge.tier}
-          onClose={closeForge}
-          onOpenHangar={() => { setForge(null); setHangar(pendingCheckin.current ? 'day3' : 'pass'); }}
-        />
-      )}
-      {hangar && (
-        <SgxHangar
-          initialTab={hangar}
-          onClose={() => setHangar(null)}
-          onForge={() => { setHangar(null); setForge({ tier: 'DIGITAL' }); }}
-        />
-      )}
+      <LazyBoundary fallback={<LazyFallback overlay />}>
+        {holo && (
+          <SgxHoloCardGeneratorModal
+            key={holo.n || 0}
+            isOpen
+            onClose={() => setHolo(null)}
+            initialRole={holo.role}
+          />
+        )}
+        {viewCard && <SgxHoloViewer cred={viewCard} onClose={() => setViewCard(null)} />}
+        {pilotStudio && <PilotBuilderModal onClose={() => setPilotStudio(false)} />}
+        {forge && (
+          <SgxForge
+            initialTier={forge.tier}
+            onClose={closeForge}
+            onOpenHangar={() => { setForge(null); setHangar(pendingCheckin.current ? 'day3' : 'pass'); }}
+          />
+        )}
+        {hangar && (
+          <SgxHangar
+            initialTab={hangar}
+            onClose={() => setHangar(null)}
+            onForge={() => { setHangar(null); setForge({ tier: 'DIGITAL' }); }}
+          />
+        )}
+      </LazyBoundary>
       {incoming && (
         <div className="sgx-hangar sgx-incoming" role="dialog" aria-modal="true" onClick={() => setIncoming(null)}>
           <div className="sgx-incoming__card sgx-panel" onClick={(e) => e.stopPropagation()} style={{ ['--pass-accent' as string]: incoming.p ? PILLAR_ACCENT[incoming.p] : '#FDCC0D' }}>

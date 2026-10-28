@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChevronLeft, HelpCircle, Share2 } from 'lucide-react';
-import type { SummitSectionKey } from './SummitSectionsDropdown';
+import type { SummitSectionKey } from './sectionKeys';
 import { SGX_PILLARS, findPillar, moduleCode } from '../../lib/sgxPillars';
 import { VisitCounterChip } from './VisitCounterChip';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';

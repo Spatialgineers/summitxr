@@ -1,5 +1,5 @@
 import { VisualizerPreset, VisualizerPresetId } from '../types/engine';
-import { BUILTIN_PARTICLE_SPRITES } from './assetCache';
+import { BUILTIN_PARTICLE_SPRITES } from './presetAssets';
 
 export const BUILTIN_PRESETS: Record<string, VisualizerPreset> = {
   preset_sgx_icon_3d: {

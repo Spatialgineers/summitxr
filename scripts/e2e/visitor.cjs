@@ -34,7 +34,7 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
 
   // 1. Forge a pass (registration + consent)
   if (!(await p.$('.sgx-forge'))) await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_forge', { detail: { tier: 'SHOWCASE' } })));
-  await p.waitForTimeout(800);
+  await p.waitForSelector('.sgx-forge button', { timeout: 20000 }); await p.waitForTimeout(300);
   const start = await p.$('.sgx-forge button.sgx-btn'); if (start) await start.click();
   await p.waitForTimeout(400);
   await p.fill('.sgx-forge input[type=email]', PASS_EMAIL);

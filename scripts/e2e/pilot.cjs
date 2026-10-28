@@ -13,7 +13,7 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
     await p.goto('http://localhost:3200/', { waitUntil: 'domcontentloaded' });
     await p.waitForTimeout(7000);
     await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_forge', { detail: { tier: 'DIGITAL' } })));
-    await p.waitForTimeout(800);
+    await p.waitForSelector('.sgx-forge button', { timeout: 20000 }); await p.waitForTimeout(300);
     const start = await p.$('.sgx-forge button.sgx-btn'); if (start) await start.click();
     await p.waitForTimeout(400);
     await p.fill('.sgx-forge input[type=email]', `pilot.${Date.now() % 1e6}@example.com`);
@@ -50,7 +50,7 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
     await p.waitForTimeout(500);
     // Avatar Studio from the event
     await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_avatar')));
-    await p.waitForTimeout(1000);
+    await p.waitForSelector(".sgx-pilotb-modal .sgx-pilotb", { timeout: 20000 }).catch(() => {});
     check(`${name}: Avatar Studio opens the builder`, !!(await p.$('.sgx-pilotb-modal .sgx-pilotb')));
     await p.click('.sgx-pilotb-modal .sgx-pilotb__rolls button >> nth=1'); // vary
     await p.click('.sgx-pilotb-modal button:has-text("Guardar piloto")');

@@ -46,10 +46,9 @@ import {
 } from 'lucide-react';
 import { playUiChirp, playScanSuccessSound } from '../../lib/cyberAudioEngine';
 import { useTenantTheme } from '../../context/TenantThemeContext';
-import { SummitRetrospectiveGallery } from './SummitRetrospectiveGallery';
 import { OFFICIAL_BRAND_ASSETS } from '../../lib/summitData';
 import { copyUnifiedLinkToClipboard, syncAppUrl } from '../../lib/summitUrlSync';
-import { SummitSectionKey } from './SummitSectionsDropdown';
+import type { SummitSectionKey } from './sectionKeys';
 import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
 

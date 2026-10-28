@@ -10,7 +10,6 @@ import {
   OptionEffectType,
   CustomVisualAssets
 } from '../../types/engine';
-import { CustomVisualUploader } from './CustomVisualUploader';
 import { FXPresetsStudio } from './FXPresetsStudio';
 import { getAllPresets } from '../../lib/presets';
 import { AdminRewardsManager } from "./AdminRewardsManager";

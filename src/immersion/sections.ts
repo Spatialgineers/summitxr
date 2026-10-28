@@ -1,4 +1,4 @@
-import type { SummitSectionKey } from '../components/summit/SummitSectionsDropdown';
+import type { SummitSectionKey } from '../components/summit/sectionKeys';
 import { SGX_PILLARS, SECTIONS_IN_PILLAR_ORDER } from '../lib/sgxPillars';
 
 export type PillarId = 'SGX.STORY' | 'SGX.SHOWCASE' | 'SGX.SPARK' | 'SGX.STAGE' | 'SGX.SYSTEM' | 'SGX.SYNTHESIZE';

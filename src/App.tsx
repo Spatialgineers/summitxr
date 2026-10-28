@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { HeaderNav, PageRoute } from './components/common/HeaderNav';
-import { InteractiveSpatialCanvas } from './components/common/InteractiveSpatialCanvas';
 import { AdminAuthGuard } from './components/admin/AdminAuthGuard';
 import { LazyBoundary } from './components/common/LazyBoundary';
 import { SummitPushAlertToast } from './components/summit/SummitPushAlertToast';
@@ -10,6 +9,8 @@ import { LazyFallback } from './components/common/LazyFallback';
 import { SummitLandingPage } from './components/summit/SummitLandingPage';
 
 // Route-level code splitting: admin/stage/play/analytics/schema load on demand.
+// The ambient three.js background is decoration: it loads after the page.
+const InteractiveSpatialCanvas = lazy(() => import('./components/common/InteractiveSpatialCanvas').then((m) => ({ default: m.InteractiveSpatialCanvas })));
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard })));
 const StagePage = lazy(() => import('./components/stage/StagePage').then((m) => ({ default: m.StagePage })));
 const AudiencePWA = lazy(() => import('./components/audience/AudiencePWA').then((m) => ({ default: m.AudiencePWA })));
@@ -29,7 +30,6 @@ import {
 } from './types/engine';
 import { SAMPLE_QUESTIONS, INITIAL_TENANTS } from './lib/schemas';
 import { DEFAULT_PRESET, VISUALIZER_PRESETS, getAllPresets } from './lib/presets';
-import { preloadAllPresetAssets } from './lib/assetCache';
 import { useAuth } from './context/AuthContext';
 import { auth } from './lib/firebase';
 import { appCheckHeaders, getAppCheckToken } from './lib/appCheck';
@@ -273,13 +273,11 @@ export default function App() {
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
 
     // Background Ecosystem Preload: Cache all sprites, models & shaders in IndexedDB locally
-    try {
-      const presets = Object.values(getAllPresets());
-      preloadAllPresetAssets(presets).catch((err) => {
-        console.warn('Preload assets notice:', err);
-      });
-    } catch (e) {
-      console.warn('Preload initialization warning:', e);
+    // Only the screens that render the stage visuals cache their assets (phones voting don't).
+    if (currentPage === 'stage' || currentPage === 'admin') {
+      import('./lib/assetCache')
+        .then(({ preloadAllPresetAssets }) => preloadAllPresetAssets(Object.values(getAllPresets())))
+        .catch((err) => console.warn('Preload assets notice:', err));
     }
 
     let isDisposed = false;
@@ -1084,7 +1082,9 @@ export default function App() {
       )}
 
       {/* Persistent 3D Three.js Spatial Atmosphere & Cursor-Reactive Canvas */}
-      <InteractiveSpatialCanvas />
+      <LazyBoundary fallback={null}>
+        <InteractiveSpatialCanvas />
+      </LazyBoundary>
       
       {currentPage !== 'summit' && (
         <SummitPushAlertToast

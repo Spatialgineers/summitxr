@@ -1,6 +1,6 @@
 import { pillarIcon } from '../../lib/sgxPillars';
 import { pillarInk } from '../../lib/sgxPillars';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy } from 'react';
 import {
   Sparkles,
   Orbit,
@@ -28,13 +28,17 @@ import {
   Volume2,
   Eye,
 } from 'lucide-react';
-import { SummitSectionKey } from './SummitSectionsDropdown';
+import type { SummitSectionKey } from './sectionKeys';
 import { useTenantTheme, hexToRgbStr } from '../../context/TenantThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { playUiChirp, playPillarDockSound, playCyberBurstSound } from '../../lib/cyberAudioEngine';
 import { usePilotProfile } from '../../context/PilotProfileContext';
-import { SgxOrbitalCore3D, SgxCorePillarId } from './SgxOrbitalCore3D';
-import { SummitAnalyticsView } from '../analytics/SummitAnalyticsView';
+import type { SgxCorePillarId } from './SgxOrbitalCore3D';
+import { LazyBoundary } from '../common/LazyBoundary';
+import { LazyFallback } from '../common/LazyFallback';
+// three.js and the core arrive after the page shell has painted.
+const SummitAnalyticsView = lazy(() => import('../analytics/SummitAnalyticsView').then((m) => ({ default: m.SummitAnalyticsView })));
+const SgxOrbitalCore3D = lazy(() => import('./SgxOrbitalCore3D').then((m) => ({ default: m.SgxOrbitalCore3D })));
 import { useSummitFeatures } from '../../context/SummitFeatureContext';
 import { PILLAR_BY_KEY, PillarKey } from '../../lib/sgxPillars';
 import { navigateToPillar } from '../../immersion/navigation';
@@ -592,6 +596,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
   return (
     <div id="summit-experience-hub" className="w-full h-full flex-1 min-h-0 flex flex-col overflow-hidden">
       {/* 1. Full-Bleed Interactive 3D Orbital Core Reactor with 4 Circular 3D Clocks & Angled HUD Wings */}
+      <LazyBoundary fallback={<LazyFallback fullScreen label="Cargando núcleo 3D…" />}>
       <SgxOrbitalCore3D
         activePillarId={activePillarId}
         noSelection={!pillarChosen}
@@ -609,6 +614,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           }
         }}
       />
+      </LazyBoundary>
 
       {/* Compact On-Demand Expansion Bar (Only shown when expanded, keeping default 3D core full-screen) */}
       {viewMode !== 'CLOSED_3D_ONLY' && (
@@ -732,7 +738,9 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
               </div>
 
               {/* Embedded Full Live Summit Analytics & Telemetry View */}
-              <SummitAnalyticsView />
+              <LazyBoundary fallback={<LazyFallback />}>
+                <SummitAnalyticsView />
+              </LazyBoundary>
             </div>
           )}
 

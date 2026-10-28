@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { findPillar, pillarColor, pillarInk } from '../../lib/sgxPillars';
-import { SummitSectionKey } from './SummitSectionsDropdown';
+import type { SummitSectionKey } from './sectionKeys';
 import { 
   SECTION_TO_SLUG, 
   copySectionLinkToClipboard, 

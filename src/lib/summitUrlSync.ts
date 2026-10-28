@@ -1,4 +1,4 @@
-import { SummitSectionKey } from '../components/summit/SummitSectionsDropdown';
+import type { SummitSectionKey } from '../components/summit/sectionKeys';
 export type { SummitSectionKey };
 import { PageRoute } from '../components/common/HeaderNav';
 

@@ -45,6 +45,7 @@ import {
 import { usePilotProfile } from '../../context/PilotProfileContext';
 import { SPONSORSHIP_TIERS } from '../../lib/summitData';
 import { SgxHeroOverlay } from './SgxHeroOverlay';
+import { SgxClocksBanner } from './SgxClocksBanner';
 import { explore, startCalm } from '../../immersion/calmMode';
 
 export type SgxCorePillarId = 'STORY' | 'SHOWCASE' | 'SPARK' | 'STAGE' | 'SYSTEM' | 'SYNTHESIZE';
@@ -463,7 +464,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   const [cameraFocusedOnPillar, setCameraFocusedOnPillar] = useState<boolean>(false);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [zenImmersionMode, setZenImmersionMode] = useState<boolean>(false);
-  const [clocksCollapsedMobile, setClocksCollapsedMobile] = useState<boolean>(true);
   const [optionsMenuOpen, setOptionsMenuOpen] = useState<boolean>(false);
   const [activeDrawerTab, setActiveDrawerTab] = useState<'MODULES' | 'INTERACTIVE_LAB' | 'SPONSORS'>('MODULES');
   const [orbitSpeedMultiplier, setOrbitSpeedMultiplier] = useState<number>(1.0);
@@ -1934,173 +1934,20 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         {/* Official Brand & Tactical Guide Credit: "POWERED BY SPATIALGINEERS" at 40% opacity */}
         <div
           aria-hidden="true"
-          className="sgx-calm-hide pointer-events-none absolute top-3 right-4 z-20 font-['Orbitron',sans-serif] text-[10px] sm:text-xs font-bold tracking-[0.2em] text-white opacity-40 uppercase"
+          className="sgx-calm-hide pointer-events-none absolute top-16 right-4 z-20 font-['Orbitron',sans-serif] text-[10px] sm:text-xs font-bold tracking-[0.2em] text-white opacity-40 uppercase"
         >
           POWERED BY SPATIALGINEERS
         </div>
 
-        {/* LEFT 3D COCKPIT WING: THE 4 CIRCULAR COUNTDOWN CLOCKS ("LOS RELOJES") — Sleek on Desktop & Compact Pill on Mobile */}
+        {/* SUMMIT CLOCKS: thin full-width band, hides to a small tab */}
         {!zenImmersionMode && (
-          <div className="sgx-calm-hide absolute top-2.5 left-2.5 sm:top-4 sm:left-4 z-25 pointer-events-auto">
-            {/* Mobile Compact Pill (when collapsed) */}
-            {clocksCollapsedMobile && (
-              <button
-                type="button"
-                onClick={() => setClocksCollapsedMobile(false)}
-                className="sm:hidden px-2.5 py-1.5 bg-[#050505]/95 border border-[#FDCC0D] text-white font-mono text-[11px] font-bold flex items-center gap-2 shadow-2xl cursor-pointer"
-                style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-                title={es ? 'Expandir relojes del Summit' : 'Expand the Summit clocks'}
-              >
-                <Clock className="w-3.5 h-3.5 text-[#FDCC0D]" />
-                <span className="tabular-nums tracking-wide">{countdown.days}D : {countdown.hours}H : {countdown.minutes}M</span>
-                <span className="text-[#00DDFF] text-[9px]">▼</span>
-              </button>
-            )}
-
-            {/* Full Clocks Panel (Always visible on desktop sm:block, on mobile only when expanded) */}
-            <div
-              data-holographic-drawer="true"
-              onClick={e => e.stopPropagation()}
-              className={`${clocksCollapsedMobile ? 'hidden sm:block' : 'block'} w-[216px] sm:w-[238px] bg-[#1A1A1A]/95 backdrop-blur-xl border border-[#32527B] p-2.5 sm:p-3.5 shadow-[0_18px_45px_rgba(0,0,0,0.88)] transition-all duration-300`}
-              style={{
-                clipPath: 'polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px)',
-              }}
-            >
-              <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-[#32527B]/50">
-                <div className="min-w-0">
-                  <div className="text-[9px] font-mono font-bold text-[#FDCC0D] tracking-widest uppercase">
-                    {es ? '11–13 DIC 2026 · 10:00 AM AST' : 'DEC 11–13, 2026 · 10:00 AM AST'}
-                  </div>
-                  <div className="text-xs font-black text-white font-['Orbitron',sans-serif] tracking-wide truncate">
-                    {es ? 'RELOJES DEL SUMMIT' : 'SUMMIT CLOCKS'}
-                  </div>
-                  <div className="text-[9px] font-mono text-slate-300 leading-snug mt-0.5">
-                    {es ? 'Días 1–2 por ' : 'Days 1–2 on '}<a href={SGX_YOUTUBE} target="_blank" rel="noopener noreferrer" className="text-[#00DDFF] underline">YouTube Live</a>{es ? ' · Día 3 en Chroma Space Studios (por invitación) · Gratis · En español' : ' · Day 3 at Chroma Space Studios (by invitation) · Free · In Spanish'}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setClocksCollapsedMobile(true)}
-                  className="sm:hidden px-1.5 py-0.5 bg-[#050505] border border-[#32527B] text-[10px] font-mono text-[#00DDFF] cursor-pointer"
-                  title={es ? 'Minimizar relojes' : 'Minimize clocks'}
-                >
-                  ▲
-                </button>
-                <span className="hidden sm:inline-block px-1.5 py-0.5 bg-[#00DDFF]/15 border border-[#00DDFF]/50 text-[9px] font-mono font-bold text-[#00DDFF] shrink-0">
-                  {es ? 'CUENTA ATRÁS' : 'COUNTDOWN'}
-                </span>
-              </div>
-
-              {/* 4 Circular Radial SVG Countdown Clocks */}
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  {
-                    label: (es ? 'DÍAS' : 'DAYS'),
-                    value: String(countdown.days).padStart(2, '0'),
-                    color: '#00DDFF',
-                    progress: Math.min(1, countdown.days / 120),
-                    hz: 1.0,
-                  },
-                  {
-                    label: (es ? 'HORAS' : 'HOURS'),
-                    value: String(countdown.hours).padStart(2, '0'),
-                    color: '#FDCC0D',
-                    progress: countdown.hours / 24,
-                    hz: 1.25,
-                  },
-                  {
-                    label: 'MIN',
-                    value: String(countdown.minutes).padStart(2, '0'),
-                    color: '#FFBB00',
-                    progress: countdown.minutes / 60,
-                    hz: 1.5,
-                  },
-                  {
-                    label: (es ? 'SEG' : 'SEC'),
-                    value: String(countdown.seconds).padStart(2, '0'),
-                    color: '#B87000',
-                    progress: countdown.seconds / 60,
-                    hz: 1.75,
-                  },
-                ].map(dial => {
-                  const circumference = 251.2;
-                  const dashOffset = circumference - Math.max(0.05, dial.progress) * circumference;
-                  return (
-                    <button
-                      key={dial.label}
-                      type="button"
-                      onClick={() => handlePlayHarmonicNote(dial.hz, dial.label)}
-                      className="group relative flex flex-col items-center justify-center p-1.5 bg-[#050505]/90 hover:bg-[#32527B]/30 border border-[#32527B]/60 hover:border-[#FDCC0D] transition-all cursor-pointer hover:scale-105"
-                      style={{
-                        clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)',
-                      }}
-                      title={(es ? `Emitir pulso armónico 432Hz (${dial.label})` : `Send a 432Hz harmonic pulse (${dial.label})`)}
-                    >
-                      <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center">
-                        <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                          <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                            fill="rgba(5, 5, 5, 0.85)"
-                            stroke="rgba(50, 82, 123, 0.35)"
-                            strokeWidth="6"
-                          />
-                          <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                            fill="transparent"
-                            stroke={dial.color}
-                            strokeWidth="6"
-                            strokeLinecap="round"
-                            strokeDasharray={circumference}
-                            strokeDashoffset={dashOffset}
-                            style={{
-                              filter: `drop-shadow(0 0 6px ${dial.color})`,
-                              transition: 'stroke-dashoffset 0.4s ease-out',
-                            }}
-                          />
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
-                          <span
-                            className="text-xs sm:text-sm font-black font-mono tabular-nums tracking-tight text-white group-hover:scale-110 transition-transform"
-                            style={{ textShadow: `0 0 10px ${dial.color}90` }}
-                          >
-                            {dial.value}
-                          </span>
-                          <span
-                            className="text-[8px] font-['Orbitron',sans-serif] font-extrabold tracking-widest mt-0.5"
-                            style={{ color: dial.color }}
-                          >
-                            {dial.label}
-                          </span>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* 1-Click Trigger for Weekly Lore & Playable Time Capsules */}
-              {onOpenTimeCapsules && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    playUiChirp(820);
-                    onOpenTimeCapsules();
-                  }}
-                  className="sgx-btn mt-2.5 w-full py-1.5 px-2.5 flex items-center justify-between gap-1.5 text-[11px]"
-                >
-                  <span className="flex items-center gap-1.5 truncate">
-                    <Clock className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">{es ? 'Cápsulas & Retos' : 'Capsules & Challenges'}</span>
-                  </span>
-                  <ArrowRight className="w-3.5 h-3.5 shrink-0" />
-                </button>
-              )}
-            </div>
-          </div>
+          <SgxClocksBanner
+            es={es}
+            countdown={countdown}
+            youtubeUrl={SGX_YOUTUBE}
+            onDial={(hz, label) => handlePlayHarmonicNote(hz, label)}
+            onOpenTimeCapsules={onOpenTimeCapsules}
+          />
         )}
 
         {/* Lite Mode 2D Spatial Schematic (High Performance · Zero GPU Load) */}

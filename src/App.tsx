@@ -35,7 +35,6 @@ import { auth } from './lib/firebase';
 import { telemetry } from './lib/telemetry';
 
 import { getAppRouteAndSectionFromUrl, syncAppUrl } from './lib/summitUrlSync';
-import { SummitIntroSplash } from './components/summit/SummitIntroSplash';
 import { SgxPassHost } from './identity/SgxPassHost';
 import { ImmersionLayer } from './immersion/ImmersionLayer';
 import { SgxBootSequence } from './immersion/SgxBootSequence';
@@ -1057,23 +1056,16 @@ export default function App() {
 
   return (
     <div className={`relative bg-[var(--sgx-bg)] text-slate-100 selection:bg-[var(--sgx-primary)] selection:text-black ${currentPage === 'summit' && activeSummitSection === 'OVERVIEW' ? 'h-[100dvh] overflow-hidden' : 'min-h-screen'}`}>
-      {/* 5-Second Cybernetic Intro Splash with Official Sponsors & Partners */}
+      {/* The one splash: particle bolt, Summit wordmark and the Tier 3+ partner row */}
       {showSplash && !bootDone && (
         <SgxBootSequence
           onFadeStart={() => setBootFading(true)}
           onComplete={() => {
             setBootDone(true);
-            if (!splashReplay) {
-              setShowSplash(false);
-              try { sessionStorage.setItem('sgx_splash_shown', '1'); } catch { /* private mode */ }
-            }
+            setShowSplash(false);
+            setSplashReplay(false);
+            try { sessionStorage.setItem('sgx_splash_shown', '1'); } catch { /* private mode */ }
           }}
-        />
-      )}
-      {showSplash && splashReplay && (bootDone || bootFading) && (
-        <SummitIntroSplash
-          durationMs={4000}
-          onComplete={() => { setShowSplash(false); setSplashReplay(false); }}
         />
       )}
 

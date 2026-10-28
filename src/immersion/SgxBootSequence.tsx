@@ -1,15 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { ScrambleText } from './ScrambleText';
+import { loc } from '../lib/localize';
+import { isFallback, isOpenSlot, pickSplashSponsors, sponsorTierLevel } from './splashSponsors';
 
 /*
- * Cinematic boot, after the SGX brand film: a swarm of particles streaks in and
- * assembles the official SGX Bolt, the bolt ignites with emission, a shockwave
- * rolls out and the Summit wordmark decodes. ~3.4 s, skippable with any key or tap.
+ * The one splash: a swarm of particles streaks in and assembles the official
+ * SGX Bolt, the bolt ignites, a shockwave rolls out, "Spatialgineers LLC
+ * presenta" and the Summit wordmark decode, and the Tier 3+ partner row
+ * (with open "your brand here" slots) gets its moment. ~5 s, skippable with
+ * any key, a tap, or the Skip button.
  */
 
 const BOLT_PATH = 'M1665 62 L121 1265 L763 1266 L382 1987 L1925 784 L1284 782 Z';
-const TOTAL_MS = 3400;
+const TOTAL_MS = 5200;
 const COLORS = ['#FDCC0D', '#FDCC0D', '#FDCC0D', '#FFBB00', '#00DDFF', '#32527B'];
 
 interface Particle { x: number; y: number; sx: number; sy: number; tx: number; ty: number; c: string; d: number; s: number }
@@ -46,6 +50,7 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
   const [phase, setPhase] = useState<'swarm' | 'ignite' | 'title' | 'out'>('swarm');
   const [log, setLog] = useState<string[]>(['SGX://BOOT v2026.10.1']);
   const doneRef = useRef(false);
+  const [sponsors] = useState(() => { try { return pickSplashSponsors(4); } catch { return []; } });
 
   const finish = () => {
     if (doneRef.current) return;
@@ -86,8 +91,9 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
     canvas.style.width = `${W}px`; canvas.style.height = `${H}px`;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const boltSize = Math.min(W, H) * (W < 640 ? 0.52 : 0.4);
-    const cx = W / 2, cy = H * (W < 640 ? 0.4 : 0.42);
+    // Room below for the title and the partner row.
+    const boltSize = Math.min(W, H) * (W < 640 ? 0.42 : 0.33);
+    const cx = W / 2, cy = H * (W < 640 ? 0.27 : 0.33);
     const count = W < 640 ? 650 : 1400;
     const pts = sampleBolt(Math.round(boltSize), count);
     const boltPath = new Path2D(BOLT_PATH);
@@ -129,7 +135,7 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
       ctx.fillRect(0, 0, W, H);
 
       // Holodeck horizon.
-      const hy = H * 0.78;
+      const hy = H * 0.52;
       const grad = ctx.createLinearGradient(0, 0, W, 0);
       grad.addColorStop(0, 'rgba(253,204,13,0)');
       grad.addColorStop(0.5, `rgba(253,204,13,${0.25 + 0.2 * Math.sin(t / 300)})`);
@@ -188,6 +194,7 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
       <pre className="sgx-boot__log" aria-hidden="true">{log.join('\n')}</pre>
       {(phase === 'title' || phase === 'out') && (
         <div className="sgx-boot__title">
+          <p className="sgx-boot__presents">{es ? 'Spatialgineers LLC presenta' : 'Spatialgineers LLC presents'}</p>
           <h1><ScrambleText text="SPATIALGINEERS SUMMIT 2026" durationMs={650} /></h1>
           <p className="sgx-boot__meta">{es ? '11–13 DIC · YOUTUBE LIVE · DÍA 3 EN SAN JUAN' : 'DEC 11–13 · YOUTUBE LIVE · DAY 3 IN SAN JUAN'}</p>
           <p className="sgx-boot__tagline">
@@ -195,6 +202,42 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
           </p>
         </div>
       )}
+      {sponsors.length > 0 && (phase === 'title' || phase === 'out') && (
+        <div className="sgx-boot__partners" onPointerDown={(e) => e.stopPropagation()}>
+          <p className="sgx-boot__partners-head">{es ? 'Patrocinadores y aliados' : 'Sponsors and partners'}</p>
+          <ul>
+            {sponsors.map((sp, i) => {
+              const open = isOpenSlot(sp);
+              const tier = sponsorTierLevel(sp);
+              return (
+                <li key={sp.id} style={{ ['--i' as string]: i }}>
+                  <button
+                    type="button"
+                    className={`sgx-boot__partner ${open ? 'is-open' : ''}`}
+                    onClick={() => {
+                      finish();
+                      window.setTimeout(() => {
+                        if (open) {
+                          window.dispatchEvent(new CustomEvent('sgx:open_sponsorships', { detail: { preferredTier: sp.tierId, source: 'splash_intro' } }));
+                          window.dispatchEvent(new CustomEvent('sgx:switch_summit_section', { detail: { section: 'SPONSORS_HUB' } }));
+                        } else {
+                          window.dispatchEvent(new CustomEvent('sgx:open_brand_showcase', { detail: { sponsor: sp } }));
+                        }
+                      }, 380);
+                    }}
+                  >
+                    {!isFallback(sp) && sp.logoUrl && <img src={sp.logoUrl} alt="" loading="lazy" />}
+                    <span className="sgx-boot__partner-tier">{sp.tierId === 'media_partner' ? (es ? 'Aliado de transmisión' : 'Streaming partner') : `Tier ${tier}`}</span>
+                    <strong>{open ? (es ? 'Tu marca podría estar aquí' : 'Your brand could be here') : loc(sp, 'companyName', language)}</strong>
+                    <span className="sgx-boot__partner-line">{open ? (es ? 'Postula tu marca →' : 'Apply your brand →') : loc(sp, 'tagline', language)}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+      <button type="button" className="sgx-boot__skipbtn" onPointerDown={(e) => e.stopPropagation()} onClick={finish}>{es ? 'Saltar intro' : 'Skip intro'} ›</button>
       <div className="sgx-boot__skip sgx-type-caption">{es ? 'Toca o presiona cualquier tecla para saltar' : 'Tap or press any key to skip'}</div>
     </div>
   );

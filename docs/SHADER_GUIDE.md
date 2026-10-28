@@ -11,6 +11,22 @@ Code lives in `src/immersion/shaders/`.
 | XP sparks | Global layer on the summit/play pages | `SPARKS_FRAG`, `XpSparks` in `ImmersionFX.tsx` | Same → the existing "+XP" float only |
 | Holo glass | Hangar, Forge, Holo Card Studio, pilot builder | `GLASS_FRAG`, `HoloGlass.tsx` | Same → the CSS panel background |
 
+## The 3D core (main viewer)
+
+`src/immersion/shaders/coreFx.ts`, wired in `SgxOrbitalCore3D.tsx`:
+
+- **Post-processing.** EffectComposer runs bloom, then OutputPass (tone mapping + sRGB), then a grade pass (light chromatic aberration, film grain, vignette).
+  - Adaptive quality: after a 2.5 s warm-up it averages 90 frames. Above 24 ms it drops the pixel ratio to 1; above 30 ms it turns bloom off.
+  - Custom shaders output linear color (`SGX_LINEAR`), so the pipeline stays consistent.
+- **Shader floor and faint ceiling.** They replace the GridHelpers: a grid with a distance fade in the energy-field colors and a slow radial pulse.
+  - Up to 4 ripples at a time: one from the pillar when you dock on it, one from the core on every XP gain (`sgx:xp_sparks`).
+- **Energy beams.** Flowing dashes run from the core to each pillar. The active one runs brighter, and pulses once docked.
+- **Core shell.** A fresnel energy shell with flowing plasma bands around the SGX Icon .glb that pulses with the reactor.
+- **Light shafts.** The pillar pedestals become noisy volumetric beams that are brighter on the active pillar.
+- **Sponsor screens.** Holo glass: slow scanlines and a cyan edge glow, injected with `onBeforeCompile`.
+- **Intro flythrough.** Once per session, after the splash, the camera flies in from deep space (2.8 s). Touching the screen skips it; it never runs with reduced motion.
+- **SGX Guild easter egg.** `Sgxgs 1.glb` rides a slow, high orbit. The first click gives +50 XP; later clicks just show it was already found.
+
 ## How the colors work
 
 `pillarFx.ts` holds two colors per pillar (A = pillar, lifted where the official color is too

@@ -16,6 +16,7 @@ import { useChromaCheckins } from './visitRadarStore';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { DOME_ENERGY_FRAG, HOLO_PILLAR_FRAG, HOLO_PILLAR_VERT } from '../../immersion/shaders/effects';
 import { fxPair } from '../../immersion/shaders/pillarFx';
+import { createBeam, createCoreShell, createCorePost, createFloor, createShaftMaterial } from '../../immersion/shaders/coreFx';
 import {
   Pause,
   Play,
@@ -68,6 +69,9 @@ export interface SgxOrbitalPillarNode {
 }
 
 export const SGX_CORE_LOGO_GLB_URL = 'https://cdn.spatialgineers.com/3D%20Branding/SGX%20Icon.glb';
+const SGX_GUILD_GLB_URL = 'https://cdn.spatialgineers.com/3D%20Branding/Sgxgs%201.glb';
+const GUILD_EGG_KEY = 'sgx_guild_egg_v1';
+const CORE_INTRO_KEY = 'sgx_core_intro_v1';
 
 // Official v2026.10 Pillar Order: 1. Story, 2. Showcase, 3. Spark, 4. Stage, 5. System, 6. Synthesize
 // Official v2026.10 Palette: #32527B, #FDCC0D, #B87000, #00DDFF, #FFBB00
@@ -615,6 +619,10 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     const coarsePointer = window.matchMedia?.('(pointer: coarse)').matches ?? false;
     const [initA, initB] = fxPair(initialPillar.id);
     const drawSize = renderer.getDrawingBufferSize(new THREE.Vector2());
+    // Bloom + grade + adaptive quality. Custom shaders then output linear color (SGX_LINEAR).
+    const post = createCorePost(renderer, scene, camera, width, height, { coarse: coarsePointer, reduceMotion });
+    const linear = !!post;
+    const linDefine = linear ? { SGX_LINEAR: 1 } : {};
     const domeUniforms = {
       uTime: { value: 0 },
       uPulse: { value: 0 },
@@ -629,7 +637,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     const domeMat = new THREE.ShaderMaterial({
       vertexShader: VOLUMETRIC_DOME_VERTEX_SHADER,
       fragmentShader: DOME_ENERGY_FRAG,
-      defines: coarsePointer ? { SGX_LITE: 1 } : {},
+      defines: { ...(coarsePointer ? { SGX_LITE: 1 } : {}), ...linDefine },
       uniforms: domeUniforms,
       side: THREE.BackSide,
       depthWrite: false,
@@ -649,6 +657,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     const holoMat = new THREE.ShaderMaterial({
       vertexShader: HOLO_PILLAR_VERT,
       fragmentShader: HOLO_PILLAR_FRAG,
+      defines: linDefine,
       uniforms: holoUniforms,
       transparent: true,
       blending: THREE.AdditiveBlending,
@@ -661,20 +670,13 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     const environmentArchitectureGroup = new THREE.Group();
     scene.add(environmentArchitectureGroup);
 
-    const floorGrid = new THREE.GridHelper(320, 44, 0x00DDFF, 0x32527B);
-    floorGrid.position.y = -34;
-    const floorGridMat = floorGrid.material as THREE.Material;
-    floorGridMat.transparent = true;
-    floorGridMat.opacity = 0.28;
-    environmentArchitectureGroup.add(floorGrid);
-
-    // Upper ceiling telemetry grid for full 3D cockpit enclosure
-    const ceilingGrid = new THREE.GridHelper(320, 32, 0xFDCC0D, 0x32527B);
-    ceilingGrid.position.y = 54;
-    const ceilingGridMat = ceilingGrid.material as THREE.Material;
-    ceilingGridMat.transparent = true;
-    ceilingGridMat.opacity = 0.12;
-    environmentArchitectureGroup.add(ceilingGrid);
+    // Shader floor (pillar colors, ripples on dock and XP) and a faint ceiling grid.
+    const floorFx = createFloor(domeUniforms.uColorA, domeUniforms.uColorB, -34, 1, linear);
+    scene.add(floorFx.mesh);
+    const ceilingFx = createFloor(domeUniforms.uColorA, domeUniforms.uColorB, 54, 0.12, linear);
+    scene.add(ceilingFx.mesh);
+    const onXpRipple = () => floorFx.ripple(0, 0, 0.8);
+    window.addEventListener('sgx:xp_sparks', onXpRipple);
 
     // Concentric 3D Floor Reactor Rings
     const floorRingRadii = [34, 68, 108];
@@ -845,6 +847,10 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     const fallbackCoreMesh = new THREE.Mesh(fallbackCoreGeo, fallbackCoreMat);
     coreGroup.add(fallbackCoreMesh);
 
+    // Energy shell around the SGX core (fresnel rim + flowing plasma bands).
+    const coreShell = createCoreShell(17.5, domeUniforms.uColorA, linear);
+    scene.add(coreShell.mesh);
+
     const loadCentralLogoGlb = () => {
       if (glbTemplateCache.has(SGX_CORE_LOGO_GLB_URL)) {
         const normalized = normalizeGlbScene(glbTemplateCache.get(SGX_CORE_LOGO_GLB_URL)!, 25);
@@ -867,6 +873,14 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       );
     };
     loadCentralLogoGlb();
+
+    // Easter egg: the SGX Guild logo on a slow, high orbit. First click is worth XP.
+    const guildEgg = new THREE.Group();
+    guildEgg.userData = { type: 'GUILD_EGG' };
+    scene.add(guildEgg);
+    const attachGuild = (raw: THREE.Group) => guildEgg.add(normalizeGlbScene(raw, 9));
+    if (glbTemplateCache.has(SGX_GUILD_GLB_URL)) attachGuild(glbTemplateCache.get(SGX_GUILD_GLB_URL)!);
+    else gltfLoader.load(SGX_GUILD_GLB_URL, (g) => { glbTemplateCache.set(SGX_GUILD_GLB_URL, g.scene); attachGuild(g.scene); }, undefined, () => {});
 
     // Gyroscopic Energy Rings around the SGX Logo Core (Official SGX Gold #FDCC0D & SGX Blue #32527B)
     const ringGeo1 = new THREE.TorusGeometry(20, 0.3, 16, 96);
@@ -913,7 +927,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       holoMeshes: THREE.Mesh[];
       haloMesh: THREE.Mesh;
       pedestalCone: THREE.Mesh;
-      beamLine: THREE.Line;
+      beamLine: THREE.Mesh;
       baseAngle: number;
     }[] = [];
 
@@ -988,27 +1002,14 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       pGroup.add(haloMesh);
 
       // 3D Volumetric Pedestal Light Cone grounding each Pillar GLB to the 3D floor grid
-      const coneMat = new THREE.MeshBasicMaterial({
-        color: p.threeColor,
-        transparent: true,
-        opacity: 0.12,
-        side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      });
+      const coneMat = createShaftMaterial(p.threeColor, linear);
       const pedestalCone = new THREE.Mesh(pedestalConeGeo, coneMat);
       pedestalCone.position.y = -17;
       pGroup.add(pedestalCone);
 
       // Energy Beam connecting Central SGX Logo to this Pillar GLB
-      const beamPoints = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(x, 0, z)];
-      const beamGeo = new THREE.BufferGeometry().setFromPoints(beamPoints);
-      const beamMat = new THREE.LineBasicMaterial({
-        color: p.threeColor,
-        transparent: true,
-        opacity: 0.28,
-      });
-      const beamLine = new THREE.Line(beamGeo, beamMat);
+      const beam = createBeam(new THREE.Vector3(0, 0, 0), new THREE.Vector3(x, 0, z), p.threeColor, linear);
+      const beamLine = beam.mesh;
       pillarsOrbitGroup.add(beamLine);
 
       pillarsOrbitGroup.add(pGroup);
@@ -1045,6 +1046,8 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       pillarsOrbitGroup.add(orbMesh);
       xpOrbs.push({ mesh: orbMesh, angle, radius, yOffset: orbMesh.position.y, active: true, cooldown: 0 });
     }
+
+    const billboardTime = { value: 0 };
 
     // Outer Sponsor Orbital Guide Rail at radius = 94
     const sponsorRailGeo = new THREE.TorusGeometry(94, 0.22, 16, 128);
@@ -1148,6 +1151,19 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         transparent: true,
         opacity: 0.96,
       });
+      // Holo glass on the sponsor screens: slow scanlines and a cyan edge glow.
+      faceMat.onBeforeCompile = (shader) => {
+        shader.uniforms.uTime = billboardTime;
+        shader.fragmentShader = 'uniform float uTime;\n' + shader.fragmentShader.replace(
+          '#include <dithering_fragment>',
+          `#include <dithering_fragment>
+          float sgxScan = 0.9 + 0.1 * sin(vMapUv.y * 220.0 - uTime * 4.0);
+          vec2 sgxE = min(vMapUv, 1.0 - vMapUv);
+          float sgxEdge = exp(-min(sgxE.x, sgxE.y) * 38.0);
+          gl_FragColor.rgb = gl_FragColor.rgb * sgxScan + vec3(0.0, 0.5, 0.7) * sgxEdge * 0.55;
+          gl_FragColor.a *= 0.9;`
+        );
+      };
       const billboardMesh = new THREE.Mesh(billboardGeo, [
         borderMat,
         borderMat,
@@ -1284,6 +1300,23 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         }
       }
 
+      // 2b. SGX Guild easter egg
+      if (guildEgg.children.length && raycaster.intersectObject(guildEgg, true).length > 0) {
+        const wp = guildEgg.getWorldPosition(new THREE.Vector3());
+        spawnShockwave(wp, 0xFDCC0D);
+        playScanSuccessSound();
+        let first = false;
+        try { first = !localStorage.getItem(GUILD_EGG_KEY); localStorage.setItem(GUILD_EGG_KEY, '1'); } catch { /* ignore */ }
+        if (first) {
+          recordActivity('easter_egg', 'Logo del SGX Guild encontrado', 'Núcleo Orbital SGX', 50);
+          setFloatingXpNotice(es ? '+50 XP • ENCONTRASTE EL SGX GUILD' : '+50 XP • YOU FOUND THE SGX GUILD');
+        } else {
+          setFloatingXpNotice(es ? 'SGX GUILD · YA LO ENCONTRASTE' : 'SGX GUILD · ALREADY FOUND');
+        }
+        setTimeout(() => setFloatingXpNotice(null), 2600);
+        return;
+      }
+
       // 3. Check Pillar GLB Groups
       for (const pm of pillarMeshes) {
         const hits = raycaster.intersectObject(pm.group, true);
@@ -1291,6 +1324,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           const worldPos = new THREE.Vector3();
           pm.group.getWorldPosition(worldPos);
           spawnShockwave(worldPos, pm.colorHex);
+          floorFx.ripple(worldPos.x, worldPos.z, 1.2);
           setAutoRotate(false);
           setFocusedSponsorId(null);
           setCameraFocusedOnPillar(true);
@@ -1331,6 +1365,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
+      post?.setSize(w, h);
       renderer.getDrawingBufferSize(domeUniforms.uRes.value);
     };
     window.addEventListener('resize', handleResize);
@@ -1339,6 +1374,14 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       handleResize();
     });
     resizeObserver.observe(container);
+
+    // Intro flythrough: once per session, from deep space to the core, after the splash is gone.
+    const introFrom = new THREE.Vector3(0, 230, 660);
+    let introOn = (() => { try { return !reduceMotion && !sessionStorage.getItem(CORE_INTRO_KEY); } catch { return false; } })();
+    let introT0 = -1;
+    if (introOn) camera.position.copy(introFrom);
+    const skipIntro = () => { introOn = false; };
+    container.addEventListener('pointerdown', skipIntro);
 
     // Main Animation Loop
     let reqId: number | null = null;
@@ -1377,6 +1420,13 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       const pp = pointerParallaxRef.current;
       domeUniforms.uMouse.value.lerp(fxMouse.set(pp.x * 0.5 + 0.5, pp.y * 0.5 + 0.5), 0.08);
       domeUniforms.uDrift.value = currentOrbitAngleRef.current * 0.35;
+      if (renderer) renderer.getDrawingBufferSize(domeUniforms.uRes.value);
+      floorFx.update(elapsed);
+      ceilingFx.update(elapsed);
+      coreShell.uniforms.uTime.value = elapsed;
+      billboardTime.value = reduceMotion ? 0 : elapsed;
+      coreShell.uniforms.uPulse.value = surge;
+      coreShell.mesh.scale.setScalar(1 + surge * 0.18 + Math.sin(elapsed * 2.4) * 0.025);
 
       // Holographic active pillar: rim only while it orbits, full hologram once docked.
       if (holoPillarId !== activePillarRef.current) {
@@ -1435,11 +1485,13 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         pm.modelContainer.rotation.y = elapsed * (isActive ? 1.4 : 0.65) * orbitSpeedMultRef.current;
         pm.haloMesh.rotation.z = -elapsed * (isActive ? 2.1 : 0.85);
 
-        const coneMat = pm.pedestalCone.material as THREE.MeshBasicMaterial;
-        coneMat.opacity = isActive ? 0.26 : 0.07;
+        const coneU = (pm.pedestalCone.material as THREE.ShaderMaterial).uniforms;
+        coneU.uOpacity.value += ((isActive ? 0.22 : 0.06) - coneU.uOpacity.value) * 0.08;
+        coneU.uTime.value = elapsed;
 
-        const beamMat = pm.beamLine.material as THREE.LineBasicMaterial;
-        beamMat.opacity = isActive ? 0.88 : 0.22;
+        const beamU = (pm.beamLine.material as THREE.ShaderMaterial).uniforms;
+        beamU.uActive.value += ((isActive ? (cameraFocusedRef.current ? 1 : 0.6) : 0) - beamU.uActive.value) * 0.08;
+        beamU.uTime.value = elapsed;
 
         pm.group.getWorldPosition(tempVec);
         if (isActive) {
@@ -1525,8 +1577,24 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         targetLookAt.set(6, -2, 0);
       }
 
-      camera.position.lerp(targetCameraPos, 0.06);
+      if (introOn) {
+        if (introT0 < 0 && !document.querySelector('.sgx-boot')) {
+          introT0 = elapsed;
+          try { sessionStorage.setItem(CORE_INTRO_KEY, '1'); } catch { /* ignore */ }
+        }
+        const k = introT0 < 0 ? 0 : Math.min(1, (elapsed - introT0) / 2.8);
+        const ease = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+        camera.position.lerpVectors(introFrom, targetCameraPos, ease);
+        if (k >= 1) introOn = false;
+      } else {
+        camera.position.lerp(targetCameraPos, 0.06);
+      }
       currentLookAt.lerp(targetLookAt, 0.08);
+
+      // Guild egg orbit
+      const ga = elapsed * 0.09 + 1.2;
+      guildEgg.position.set(Math.cos(ga) * 122, 44 + Math.sin(elapsed * 0.7) * 3, Math.sin(ga) * 122);
+      guildEgg.rotation.y = elapsed * 0.8;
       camera.lookAt(currentLookAt);
 
       // Animate Collectible XP Orbs
@@ -1564,7 +1632,12 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       }
 
       if (renderer) {
-        renderer.render(scene, camera);
+        if (post) {
+          post.tick(delta * 1000, elapsed);
+          post.render();
+        } else {
+          renderer.render(scene, camera);
+        }
       }
     };
 
@@ -1581,6 +1654,11 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       domeGeo.dispose();
       domeMat.dispose();
       holoMat.dispose();
+      post?.dispose();
+      floorFx.dispose();
+      ceilingFx.dispose();
+      coreShell.dispose();
+      window.removeEventListener('sgx:xp_sparks', onXpRipple);
       circleParticleTexture.dispose();
       starfieldGeo.dispose();
       starfieldMat.dispose();
@@ -1605,6 +1683,12 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       centralColumnGeo.dispose();
       centralColumnMat.dispose();
       pedestalConeGeo.dispose();
+      pillarMeshes.forEach((pm) => {
+        pm.beamLine.geometry.dispose();
+        (pm.beamLine.material as THREE.Material).dispose();
+        (pm.pedestalCone.material as THREE.Material).dispose();
+      });
+      container.removeEventListener('pointerdown', skipIntro);
       fallbackCoreGeo.dispose();
       fallbackCoreMat.dispose();
       ringGeo1.dispose();

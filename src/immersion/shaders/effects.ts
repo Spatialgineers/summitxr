@@ -144,6 +144,9 @@ void main() {
   vec2 q = gl_FragCoord.xy / uRes;
   col *= 0.3 + 0.7 * pow(16.0 * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), 0.22);
   gl_FragColor = vec4(col, 1.0);
+#ifdef SGX_LINEAR
+  gl_FragColor.rgb = pow(max(gl_FragColor.rgb, vec3(0.0)), vec3(2.2));
+#endif
 }`;
 
 /* Holographic pillar: an additive overlay drawn on the active pillar's own
@@ -185,4 +188,7 @@ void main() {
   col += vec3(1.0) * pow(fres, 7.0) * 0.6;
   col += uColorB * pow(fres, 3.0) * 0.35 * uScan;
   gl_FragColor = vec4(col * uHolo, 1.0);
+#ifdef SGX_LINEAR
+  gl_FragColor.rgb = pow(max(gl_FragColor.rgb, vec3(0.0)), vec3(2.2));
+#endif
 }`;

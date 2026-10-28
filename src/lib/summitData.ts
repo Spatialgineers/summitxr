@@ -2771,6 +2771,29 @@ const LIVE_CONTENT_KEYS: Record<string, string> = {
 
 let applyingRemoteContent = false;
 
+/** A CMS list kept in summit_content/{key}: bundled defaults until an admin publishes, then live for everyone. */
+export function makeLiveList<T extends { id: string }>(key: string, storageKey: string, defaults: () => T[]) {
+  LIVE_CONTENT_KEYS[key] = storageKey;
+  return {
+    key,
+    load(): T[] {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return withEnTwins(parsed, defaults());
+        }
+      } catch { /* ignore */ }
+      return defaults();
+    },
+    save(items: T[]): Promise<boolean> {
+      try { localStorage.setItem(storageKey, JSON.stringify(items)); } catch { /* ignore */ }
+      window.dispatchEvent(new Event('storage'));
+      return publishContent(key, items);
+    },
+  };
+}
+
 /** Admin edits go live for everyone. Visitors (anonymous) never publish. */
 export function publishContent(key: keyof typeof LIVE_CONTENT_KEYS | string, items: unknown[]): Promise<boolean> {
   if (applyingRemoteContent) return Promise.resolve(false);

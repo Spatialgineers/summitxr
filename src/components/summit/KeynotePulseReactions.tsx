@@ -1,4 +1,3 @@
-import { PILLAR_BY_KEY } from '../../lib/sgxPillars';
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { 
@@ -24,66 +23,8 @@ import { db } from '../../lib/firebase';
 import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
 
-export interface KeynotePollOption {
-  id: string;
-  label: string;
-  labelEn?: string;
-  votes: number;
-  color: string;
-}
-
-export interface KeynotePoll {
-  id: string;
-  question: string;
-  speaker: string;
-  sessionTitle: string;
-  questionEn?: string;
-  speakerEn?: string;
-  sessionTitleEn?: string;
-  options: KeynotePollOption[];
-}
-
-// Polls tied to the real Run of Show. Speakers are named only when confirmed in writing.
-const PILLAR_OPTIONS = [
-  { id: 'opt_story', label: 'SGX.Story (lore)', labelEn: 'SGX.Story (lore)', votes: 0, color: PILLAR_BY_KEY['STORY'].color },
-  { id: 'opt_showcase', label: 'SGX.Showcase (inmersión)', labelEn: 'SGX.Showcase (immersion)', votes: 0, color: PILLAR_BY_KEY['SHOWCASE'].color },
-  { id: 'opt_spark', label: 'SGX.Spark (interactividad y juegos)', labelEn: 'SGX.Spark (interactivity and games)', votes: 0, color: PILLAR_BY_KEY['SPARK'].color },
-  { id: 'opt_stage', label: 'SGX.Stage (eventos)', labelEn: 'SGX.Stage (events)', votes: 0, color: PILLAR_BY_KEY['STAGE'].color },
-  { id: 'opt_system', label: 'SGX.System (herramientas, IA y backend)', labelEn: 'SGX.System (tools, AI and backend)', votes: 0, color: PILLAR_BY_KEY['SYSTEM'].color },
-  { id: 'opt_synthesize', label: 'SGX.Synthesize (todo converge)', labelEn: 'SGX.Synthesize (everything converges)', votes: 0, color: PILLAR_BY_KEY['SYNTHESIZE'].color },
-];
-
-const DEFAULT_POLLS: KeynotePoll[] = [
-  {
-    id: 'poll_day1_open',
-    sessionTitle: 'Día 1 · Apertura',
-    sessionTitleEn: 'Day 1 · Opening',
-    speaker: 'Danelson Maldonado González',
-    question: '¿Qué pilar te mueve más?',
-    questionEn: 'Which pillar moves you the most?',
-    options: PILLAR_OPTIONS.map((o) => ({ ...o })),
-  },
-  {
-    id: 'poll_day2_industry',
-    sessionTitle: 'Día 2 · Día de la Industria',
-    sessionTitleEn: 'Day 2 · Industry Day',
-    speaker: 'Personas invitadas (por anunciar)',
-    speakerEn: 'Guests (TBA)',
-    question: '¿Qué conversación de industria quieres escuchar primero?',
-    questionEn: 'Which industry conversation do you want to hear first?',
-    options: PILLAR_OPTIONS.map((o) => ({ ...o })),
-  },
-  {
-    id: 'poll_day3_showcase',
-    sessionTitle: 'Día 3 · SGX Showcase',
-    sessionTitleEn: 'Day 3 · SGX Showcase',
-    speaker: 'Initiates del SGX Guild',
-    speakerEn: 'SGX Guild Initiates',
-    question: '¿En qué pilar quieres ver el próximo proyecto de un Initiate?',
-    questionEn: 'In which pillar do you want to see an Initiate\'s next project?',
-    options: PILLAR_OPTIONS.map((o) => ({ ...o })),
-  },
-];
+import { POLLS, useLiveList } from '../../lib/content/liveLists';
+export type { KeynotePoll, KeynotePollOption } from '../../lib/content/liveLists';
 
 interface FloatingReactionParticle {
   id: string;
@@ -108,7 +49,12 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'REACTIONS' | 'POLL'>('REACTIONS');
   const [selectedPollIndex, setSelectedPollIndex] = useState<number>(0);
-  const [polls, setPolls] = useState<KeynotePoll[]>(DEFAULT_POLLS);
+  const basePolls = useLiveList(POLLS);
+  const [voteCounts, setVoteCounts] = useState<Record<string, Record<string, number>>>({});
+  const polls = React.useMemo(() => basePolls.map((p) => ({
+    ...p,
+    options: p.options.map((o) => ({ ...o, votes: voteCounts[p.id]?.[o.id] || 0 })),
+  })), [basePolls, voteCounts]);
   const [userVotedPolls, setUserVotedPolls] = useState<Record<string, string>>({});
   const [voteError, setVoteError] = useState<string | null>(null);
   const [totalReactionsCount, setTotalReactionsCount] = useState<number>(0);
@@ -127,7 +73,9 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
 
   // Live counts: one Firestore doc per pilot per poll (`summit_poll_votes`), shared by everyone.
   useEffect(() => {
-    const pollIds = DEFAULT_POLLS.map((p) => p.id);
+    // Firestore 'in' takes up to 30 ids.
+    const pollIds = basePolls.map((p) => p.id).slice(0, 30);
+    if (!pollIds.length) return undefined;
     try {
       const q = query(collection(db, 'summit_poll_votes'), where('pollId', 'in', pollIds), limit(5000));
       return onSnapshot(q, (snap) => {
@@ -139,16 +87,13 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
           counts[v.pollId][v.optionId] = (counts[v.pollId][v.optionId] || 0) + 1;
           if (user?.uid && v.uid === user.uid) mine[v.pollId] = v.optionId;
         });
-        setPolls(DEFAULT_POLLS.map((p) => ({
-          ...p,
-          options: p.options.map((o) => ({ ...o, votes: counts[p.id]?.[o.id] || 0 })),
-        })));
+        setVoteCounts(counts);
         if (Object.keys(mine).length) setUserVotedPolls((prev) => ({ ...prev, ...mine }));
       }, () => { /* offline: local view only */ });
     } catch {
       return undefined;
     }
-  }, [user?.uid]);
+  }, [user?.uid, basePolls]);
 
   // Clean up floating particles
   useEffect(() => {

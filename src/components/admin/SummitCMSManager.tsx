@@ -57,9 +57,6 @@ import {
   approveSponsorInquiryAndCreateShowcase,
   updateApprovedSponsor,
   deleteApprovedSponsor,
-  saveSessionToFirestore,
-  deleteSessionFromFirestore,
-  saveSpeakerToFirestore,
   deleteSpeakerFromFirestore,
   playNotificationChime,
   INITIAL_SUMMIT_SESSIONS,
@@ -75,7 +72,6 @@ import {
 } from '../../lib/summitData';
 import { SummitBrandShowcaseModal } from '../summit/SummitBrandShowcaseModal';
 import { SummitSpeakerPortalModal } from '../summit/SummitSpeakerPortalModal';
-import { TabCsvDirectActions } from './TabCsvDirectActions';
 
 interface SummitCMSManagerProps {
   sessions: SummitSession[];
@@ -89,7 +85,11 @@ interface SummitCMSManagerProps {
   onUpdateEmbeds: (embeds: EmbedWidget[]) => void;
   onUpdateSponsors: (sponsors: SponsorshipTier[]) => void;
   onBroadcastPushNotification: (notification: SummitNotification) => void;
+  /** Shows one sub-tab only, without the CMS banner and tab bar (the admin menu picks it). */
+  tab?: CmsTab;
 }
+
+export type CmsTab = 'BROADCAST' | 'SESSIONS' | 'SPEAKERS' | 'MAP_NODES' | 'EMBEDS' | 'SPONSORS' | 'BRAND_SHOWCASES' | 'INQUIRIES';
 
 export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
   sessions,
@@ -103,10 +103,10 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
   onUpdateEmbeds,
   onUpdateSponsors,
   onBroadcastPushNotification,
+  tab,
 }) => {
-  const [activeTab, setActiveTab] = useState<
-    'BROADCAST' | 'SESSIONS' | 'SPEAKERS' | 'MAP_NODES' | 'EMBEDS' | 'SPONSORS' | 'BRAND_SHOWCASES' | 'INQUIRIES'
-  >('BROADCAST');
+  const [activeTabState, setActiveTab] = useState<CmsTab>('BROADCAST');
+  const activeTab = tab || activeTabState;
 
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
@@ -288,17 +288,15 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
     }
     onUpdateSessions(updated);
     saveAllSessions(updated);
-    saveSessionToFirestore(sessionToSave);
     setEditingSession(null);
-    showStatus('Sesión guardada y sincronizada en Firestore.');
+    showStatus('Sesión guardada y publicada.');
   };
 
   const handleDeleteSession = (id: string) => {
     const updated = sessions.filter(s => s.id !== id);
     onUpdateSessions(updated);
     saveAllSessions(updated);
-    deleteSessionFromFirestore(id);
-    showStatus('Sesión eliminada de la agenda y Firestore.');
+    showStatus('Sesión eliminada y publicada.');
   };
 
   const handleNewSession = () => {
@@ -333,9 +331,8 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
     }
     onUpdateSpeakers(updated);
     saveAllSpeakers(updated);
-    saveSpeakerToFirestore(spk);
     setEditingSpeaker(null);
-    showStatus('Speaker guardado y sincronizado en Firestore.');
+    showStatus('Speaker guardado y publicado.');
   };
 
   const handleDeleteSpeaker = (id: string) => {
@@ -445,6 +442,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
 
   return (
     <div className="space-y-6">
+      {!tab && (<>
       {/* Top Banner */}
       <div className="bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -562,6 +560,10 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
           <span>TIERS (1-4)</span>
         </button>
       </div>
+      </>)}
+      {tab && statusMessage && (
+        <p className="px-2.5 py-1 bg-[#FDCC0D]/15 border border-[#FDCC0D] text-[#FDCC0D] text-xs font-bold font-mono">{statusMessage}</p>
+      )}
 
       {/* TAB: BRAND SHOWCASES CRUD */}
       {activeTab === 'BRAND_SHOWCASES' && (
@@ -578,14 +580,6 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
             </div>
 
             <div className="flex items-center space-x-2 self-start sm:self-auto">
-              <TabCsvDirectActions
-                entityKey="SPONSORS"
-                items={approvedSponsors}
-                onUpdateItems={(newItems) => {
-                  setApprovedSponsors(newItems);
-                  saveAllApprovedSponsors(newItems);
-                }}
-              />
               <button
                 onClick={handleNewApprovedSponsor}
                 className="sgx-btn-cyan px-3 py-1.5 text-xs font-bold flex items-center space-x-1.5"
@@ -933,11 +927,6 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
               </p>
             </div>
             <div className="flex items-center space-x-2">
-              <TabCsvDirectActions
-                entityKey="SESSIONS"
-                items={sessions}
-                onUpdateItems={onUpdateSessions}
-              />
               <button
                 onClick={handleNewSession}
                 className="sgx-btn text-xs font-bold py-1.5 px-4 flex items-center space-x-1"
@@ -998,11 +987,6 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
               </p>
             </div>
             <div className="flex items-center space-x-2">
-              <TabCsvDirectActions
-                entityKey="SPEAKERS"
-                items={speakers}
-                onUpdateItems={onUpdateSpeakers}
-              />
               <button
                 onClick={() => setIsSpeakerPortalOpen(true)}
                 className="bg-black/80 border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black transition-colors text-xs font-bold py-1.5 px-3 flex items-center space-x-1.5 font-mono"
@@ -1065,11 +1049,6 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
             <span className="text-xs font-bold text-white uppercase font-['Orbitron',sans-serif]">
               NODOS DEL MAPA 360° & FOTOESFERAS ({mapNodes.length})
             </span>
-            <TabCsvDirectActions
-              entityKey="MAP_NODES"
-              items={mapNodes}
-              onUpdateItems={onUpdateMapNodes}
-            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[500px] overflow-y-auto">
@@ -1108,11 +1087,6 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
               EXPERIENCIAS EMBEBIDAS, WEBAPPS & JUEGOS ({embeds.length})
             </span>
             <div className="flex items-center space-x-2">
-              <TabCsvDirectActions
-                entityKey="EMBEDS"
-                items={embeds}
-                onUpdateItems={onUpdateEmbeds}
-              />
               <button
                 onClick={() => {
                   const newEmb: EmbedWidget = {

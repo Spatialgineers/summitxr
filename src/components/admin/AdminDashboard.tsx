@@ -13,9 +13,7 @@ import {
 import { CustomVisualUploader } from './CustomVisualUploader';
 import { FXPresetsStudio } from './FXPresetsStudio';
 import { getAllPresets } from '../../lib/presets';
-import { GamificationTierManager } from "./GamificationTierManager";
 import { AdminRewardsManager } from "./AdminRewardsManager";
-import { PRIZE_TIERS } from '../../lib/gamification';
 import { INITIAL_TENANTS } from '../../lib/schemas';
 import { TenantRoomManager } from './TenantRoomManager';
 import { SummitRegistrationsPanel } from './SummitRegistrationsPanel';
@@ -70,9 +68,11 @@ import { SummitContentAuditModal } from '../summit/SummitContentAuditModal';
 import { BulkQuestionUploadModal } from './BulkQuestionUploadModal';
 import { BulkInstagramImportModal } from './BulkInstagramImportModal';
 import { AdminMatchPanel } from '../../modules/match/admin/AdminMatchPanel';
-import { AdminCsvHubModal } from './AdminCsvHubModal';
-import { TabCsvDirectActions } from './TabCsvDirectActions';
-import { Instagram, UploadCloud, Sliders } from 'lucide-react';
+import { AdminSection, LiveListTable, AdminRosterPanel, ContentBackupPanel } from './AdminPanels';
+import { SummitInitiatesPanel } from './SummitInitiatesPanel';
+import { CSV_ENTITIES } from '../../lib/csv/entities';
+import './admin.css';
+import { Instagram, UploadCloud, Sliders, Download as DownloadIcon, Megaphone, Vote, CalendarDays, Mic2, Handshake, Layers3, Sparkle, Map as MapIcon, AppWindow, Package, Images, Ticket, Gift, Target, HelpCircle as HelpIcon, BarChart2, Brush, Wand2, ShieldCheck as ShieldIcon, UserCog, DatabaseBackup, Users2, Briefcase, Radio as RadioIcon } from 'lucide-react';
 import { 
   SummitSession, 
   SummitSpeaker, 
@@ -126,23 +126,58 @@ interface AdminDashboardProps {
   onUpdateCustomAssets?: (assets: CustomVisualAssets) => void;
 }
 
-export type AdminSubpage = 
-  | 'REGISTRATIONS'
-  | 'DIRECTOR' 
-  | 'CYOA_SCENARIOS' 
-  | 'PRESETS_LAB' 
-  | 'SUMMIT_CMS'
-  | 'SPONSORS_CRM'
-  | 'SUMMIT_ANALYTICS'
-  | 'AUDIENCE_LEADS'
-  | 'TELEMETRY'
-  | 'TENANT_ROOMS' 
-  | 'THEME_STUDIO'
-  | 'GAMIFICATION' 
-  | 'FIRESTORE_SYNC' 
-  | 'SECURITY_ACCESS'
-  | 'ENTREPRENEUR_MATCH'
-  | 'CONTENT_AUDIT';
+export type AdminSubpage =
+  // En vivo
+  | 'DIRECTOR' | 'ANNOUNCE' | 'POLLS'
+  // Contenido
+  | 'AGENDA' | 'SPEAKERS' | 'SPONSORS' | 'TIERS' | 'INITIATES' | 'MAP' | 'EMBEDS' | 'CAPSULES' | 'GALLERY' | 'SOCIAL'
+  // Personas
+  | 'REGISTRATIONS' | 'AUDIENCE_LEADS' | 'ENTREPRENEUR_MATCH'
+  // Juego
+  | 'REWARDS' | 'MISSIONS' | 'CYOA_SCENARIOS'
+  // Sistema
+  | 'SUMMIT_ANALYTICS' | 'BRAND' | 'PRESETS_LAB' | 'CONTENT_AUDIT' | 'ADMINS' | 'BACKUP';
+
+type NavItem = { id: AdminSubpage; label: string; icon: React.ComponentType<{ className?: string }>; keywords?: string };
+const ADMIN_NAV: { id: string; label: string; items: NavItem[] }[] = [
+  { id: 'live', label: 'En vivo', items: [
+    { id: 'DIRECTOR', label: 'Consola del director', icon: RadioIcon, keywords: 'votacion pregunta escenario' },
+    { id: 'ANNOUNCE', label: 'Anuncios', icon: Megaphone, keywords: 'push aviso notificacion' },
+    { id: 'POLLS', label: 'Encuestas del keynote', icon: Vote, keywords: 'votos reacciones' },
+  ] },
+  { id: 'content', label: 'Contenido', items: [
+    { id: 'AGENDA', label: 'Agenda / Run of Show', icon: CalendarDays, keywords: 'sesiones horario programa' },
+    { id: 'SPEAKERS', label: 'Speakers', icon: Mic2, keywords: 'conferencistas oradores' },
+    { id: 'SPONSORS', label: 'Sponsors', icon: Handshake, keywords: 'auspiciadores solicitudes showcase crm' },
+    { id: 'TIERS', label: 'Niveles de auspicio', icon: Layers3, keywords: 'tiers precios' },
+    { id: 'INITIATES', label: 'Guild Initiates', icon: Sparkle, keywords: 'guild iniciados' },
+    { id: 'MAP', label: 'Mapa 360', icon: MapIcon, keywords: 'tour chroma nodos' },
+    { id: 'EMBEDS', label: 'Apps embebidas', icon: AppWindow, keywords: 'juegos widgets' },
+    { id: 'CAPSULES', label: 'Cápsulas semanales', icon: Package, keywords: 'transmisiones' },
+    { id: 'GALLERY', label: 'Galería', icon: Images, keywords: 'fotos retrospectiva' },
+    { id: 'SOCIAL', label: 'Redes sociales', icon: Instagram, keywords: 'instagram reels' },
+  ] },
+  { id: 'people', label: 'Personas', items: [
+    { id: 'REGISTRATIONS', label: 'Inscritos y Día 3', icon: Ticket, keywords: 'registro check-in propuestas' },
+    { id: 'AUDIENCE_LEADS', label: 'Audiencia y leads', icon: Users2, keywords: 'pilotos emails' },
+    { id: 'ENTREPRENEUR_MATCH', label: 'Entrepreneur Match', icon: Briefcase, keywords: 'match perfiles' },
+  ] },
+  { id: 'game', label: 'Juego', items: [
+    { id: 'REWARDS', label: 'Tienda del Reactor', icon: Gift, keywords: 'premios canjes xp' },
+    { id: 'MISSIONS', label: 'Misiones', icon: Target, keywords: 'reactor xp' },
+    { id: 'CYOA_SCENARIOS', label: 'Preguntas en vivo', icon: HelpIcon, keywords: 'cyoa votacion' },
+  ] },
+  { id: 'system', label: 'Sistema', items: [
+    { id: 'SUMMIT_ANALYTICS', label: 'Analítica', icon: BarChart2, keywords: 'metricas visitas' },
+    { id: 'BRAND', label: 'Marca y tenants', icon: Brush, keywords: 'tema colores salas' },
+    { id: 'PRESETS_LAB', label: 'Efectos visuales', icon: Wand2, keywords: 'presets fx shaders' },
+    { id: 'CONTENT_AUDIT', label: 'Funciones y QA', icon: ShieldIcon, keywords: 'feature flags toggles auditoria' },
+    { id: 'ADMINS', label: 'Admins', icon: UserCog, keywords: 'acceso roles' },
+    { id: 'BACKUP', label: 'Respaldo y restauración', icon: DatabaseBackup, keywords: 'csv backup reset' },
+  ] },
+];
+const fold = (t: string) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const matchesNav = (it: NavItem, q: string) => !q.trim() || fold(`${it.label} ${it.keywords || ''}`).includes(fold(q.trim()));
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   tenantId,
@@ -165,6 +200,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const { user, isAdmin } = useAuth();
   const [activeSubpage, setActiveSubpage] = useState<AdminSubpage>('DIRECTOR');
   const [isAuditModalOpen, setIsAuditModalOpen] = useState<boolean>(false);
+  const [navQuery, setNavQuery] = useState('');
+  const searchRef = React.useRef<HTMLInputElement>(null);
+  const [csvRev, setCsvRev] = useState(0);
+  const bumpCsv = () => setCsvRev((n) => n + 1);
 
   // Interactive Simulation Weights State for Active Question Options
   const activeQ = questions[currentQuestionIndex];
@@ -185,13 +224,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [approvedSponsors, setApprovedSponsors] = useState<ApprovedSponsor[]>(() => loadAllApprovedSponsors());
   const [sponsorInquiries, setSponsorInquiries] = useState<SponsorInquiry[]>(() => loadAllSponsorInquiries());
   const [previewShowcaseModal, setPreviewShowcaseModal] = useState<ApprovedSponsor | null>(null);
-  const [editingApprovedSponsor, setEditingApprovedSponsor] = useState<ApprovedSponsor | null>(null);
   const [crmStatusMessage, setCrmStatusMessage] = useState<string | null>(null);
 
   // Bulk Upload Modals State
   const [isBulkQuestionModalOpen, setIsBulkQuestionModalOpen] = useState<boolean>(false);
   const [isBulkInstagramModalOpen, setIsBulkInstagramModalOpen] = useState<boolean>(false);
-  const [isCsvHubModalOpen, setIsCsvHubModalOpen] = useState<boolean>(false);
 
   // New Question Form State for CYOA Scenarios
   const [newPrompt, setNewPrompt] = useState<string>('');
@@ -224,13 +261,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     if (activeSubpage === 'AUDIENCE_LEADS') {
       fetchLeads();
     }
-    if (activeSubpage === 'SPONSORS_CRM') {
+    if (activeSubpage === 'SPONSORS') {
       fetchSponsorInquiriesRemote().then(setSponsorInquiries);
     }
   }, [activeSubpage]);
 
   // Live content can change under us (another admin, an approval, the live snapshot):
   // always edit the current version, never the one loaded when this page mounted.
+  const reloadContent = () => {
+    setSummitSessions(loadPersistedSessions());
+    setSummitSpeakers(loadPersistedSpeakers());
+    setSummitMapNodes(loadPersistedMapNodes());
+    setSummitEmbeds(loadPersistedEmbedWidgets());
+    setSummitSponsors(loadPersistedSponsorshipTiers());
+    setApprovedSponsors(loadAllApprovedSponsors());
+    bumpCsv();
+  };
+
+  // Ctrl/Cmd+K jumps to the section search.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); e.stopPropagation(); searchRef.current?.focus(); }
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, []);
+
   useEffect(() => {
     const reload = () => {
       setSummitSessions(loadPersistedSessions());
@@ -255,43 +311,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setTimeout(() => setCrmStatusMessage(null), 3500);
   };
 
-  // 1-Click Approve Inquiry and Create Showcase
-  const handleApproveInquiryInCRM = (inquiry: SponsorInquiry) => {
-    const result = approveSponsorInquiryAndCreateShowcase(inquiry);
-    setSponsorInquiries(loadAllSponsorInquiries());
-    setApprovedSponsors(loadAllApprovedSponsors());
-    setSummitSponsors(loadPersistedSponsorshipTiers());
-    showCrmStatus(`¡Patrocinador aprobado y Brand Showcase generado para ${result.approvedSponsor.companyName}!`);
-    setPreviewShowcaseModal(result.approvedSponsor);
-  };
 
-  const handleDeleteInquiryInCRM = (id: string) => {
-    const updated = sponsorInquiries.filter(i => i.id !== id);
-    setSponsorInquiries(updated);
-    saveAllSponsorInquiries(updated);
-    deleteSponsorInquiryRemote(id);
-    showCrmStatus('Solicitud eliminada.');
-  };
 
-  const handleSaveApprovedSponsorCRM = (sponsor: ApprovedSponsor) => {
-    let updated: ApprovedSponsor[];
-    const exists = approvedSponsors.some(s => s.id === sponsor.id);
-    if (exists) {
-      updated = approvedSponsors.map(s => s.id === sponsor.id ? sponsor : s);
-    } else {
-      updated = [...approvedSponsors, sponsor];
-    }
-    setApprovedSponsors(updated);
-    saveAllApprovedSponsors(updated);
-    setEditingApprovedSponsor(null);
-    showCrmStatus(`Brand Showcase guardado para ${sponsor.companyName}`);
-  };
 
-  const handleDeleteApprovedSponsorCRM = (id: string) => {
-    deleteApprovedSponsor(id);
-    setApprovedSponsors(loadAllApprovedSponsors());
-    showCrmStatus('Brand Showcase eliminado.');
-  };
 
   // Combined audience data (Firestore records + current live room users)
   const combinedLeads = React.useMemo(() => {
@@ -335,7 +357,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // CSV Lead Exporter
   const handleExportCSV = () => {
-    const headers = ['User ID', 'Nickname', 'Email', 'Score', 'Highest Streak', 'Interactions', 'Prize Tier', 'Status', 'Tenant ID', 'Event ID', 'Last Active'];
+    const headers = ['ID', 'Nombre', 'Email', 'Puntos', 'Mejor racha', 'Interacciones', 'Nivel', 'Estado', 'Tenant', 'Evento', 'Ultima actividad'];
     const rows = combinedLeads.map(lead => [
       lead.id,
       `"${(lead.nickname || '').replace(/"/g, '""')}"`,
@@ -344,7 +366,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       lead.streak || 0,
       lead.totalInteractions || 0,
       `"${(lead.prizeTier || 'Bronze Contributor').replace(/"/g, '""')}"`,
-      lead.isLive ? 'LIVE_IN_ROOM' : 'RECORDED_LEAD',
+      lead.isLive ? 'EN_SALA' : 'REGISTRADO',
       lead.tenantId || tenantId,
       lead.eventId || eventId,
       lead.updatedAt ? new Date(lead.updatedAt).toISOString() : new Date().toISOString(),
@@ -406,24 +428,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="space-y-2">
             <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] text-[#FFBB00] text-[10px] font-mono font-bold uppercase">
               <ShieldAlert className="w-3.5 h-3.5" />
-              <span>Gated Administrative Control Plane</span>
+              <span>Centro de mando · acceso restringido</span>
             </div>
 
             <h1 className="text-xl md:text-2xl font-bold text-white uppercase tracking-wider">
-              SGX Director Authorization Required
+              Solo para admins
             </h1>
 
             <p className="text-xs text-slate-300 font-mono max-w-md mx-auto leading-relaxed">
-              Administrative functions are restricted to authorized administrators via Firebase Authentication. 
-              Primary authorized director: <span className="text-[var(--sgx-neon)] font-bold">{AUTHORIZED_SUPER_ADMIN_EMAIL}</span>.
+              Esta área es solo para el equipo. Entra con Google con una cuenta de admin.
+              Super admin: <span className="text-[var(--sgx-neon)] font-bold">{AUTHORIZED_SUPER_ADMIN_EMAIL}</span>.
             </p>
           </div>
 
           <div className="p-4 bg-[#121212] border border-[var(--sgx-secondary)] text-left text-xs font-mono space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[#888888]">FIREBASE AUTH STATUS:</span>
+              <span className="text-[#888888]">SESIÓN:</span>
               <span className={user ? 'text-[var(--sgx-neon)] font-bold' : 'text-[#888888]'}>
-                {user ? 'AUTHENTICATED' : 'ANONYMOUS'}
+                {user ? (user.email || 'ANÓNIMA') : 'SIN SESIÓN'}
               </span>
             </div>
             {user && (
@@ -501,130 +523,67 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const activeQuestion = questions[currentQuestionIndex] || null;
 
   return (
-    <div className="min-h-screen bg-[var(--sgx-bg)] text-slate-100 font-['Orbitron',sans-serif] relative">
+    <div className="sgx-admin min-h-screen bg-[var(--sgx-bg)] text-slate-100 relative">
       
-      {/* Top Header */}
-      <div className="p-3 md:p-5 border-b border-[var(--sgx-secondary)]/60 bg-[var(--sgx-bg)] sticky top-0 z-20 shadow-md">
-        <div className="max-w-[1700px] mx-auto flex flex-col xl:flex-row xl:items-center justify-between gap-3">
-          
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] flex items-center justify-center text-[var(--sgx-accent)] shadow-md">
-              <Radio className="w-4 h-4 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2 text-[10px] font-mono text-[var(--sgx-neon)] uppercase">
-                <span>ADMINISTRATIVE COMMAND CENTER</span>
-                <span>•</span>
-                <span className="text-[#FDCC0D] font-bold">UNIFIED SINGLE LOGIN</span>
-              </div>
-              <h1 className="text-sm md:text-base font-bold text-white tracking-wider uppercase">
-                Director Studio Control & Summit Operations
-              </h1>
-            </div>
+      <header className="sgx-admin__top">
+        <div className="sgx-admin__brand">
+          <Radio className="w-4 h-4" />
+          <div>
+            <small>Spatialgineers Summit 2026 · Admin</small>
+            <h1>Centro de mando</h1>
           </div>
-
-          {/* Right Toolbar: Telemetry Indicator & Bulk Tools */}
-          <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
-            {crmStatusMessage && (
-              <span className="px-2.5 py-1 bg-[#FDCC0D]/20 border border-[#FDCC0D] text-[#FDCC0D] text-[10px] font-bold animate-pulse">
-                {crmStatusMessage}
-              </span>
-            )}
-
-            <button
-              onClick={() => setIsCsvHubModalOpen(true)}
-              className="px-2.5 py-1 bg-cyan-950/80 hover:bg-cyan-400 hover:text-black text-cyan-300 border border-cyan-400/80 text-[10px] font-bold flex items-center gap-1.5 transition-all cursor-pointer rounded shadow-sm"
-              title="Abrir Suite Unificada de Gestión CSV (Descargar plantillas y subir datos editados)"
-            >
-              <FileSpreadsheet className="w-3.5 h-3.5 text-cyan-400" />
-              <span>SUITE GESTIÓN CSV</span>
-            </button>
-
-            <button
-              onClick={() => setIsBulkQuestionModalOpen(true)}
-              className="px-2.5 py-1 bg-[var(--sgx-secondary)] hover:bg-[var(--sgx-neon)] hover:text-black text-white border border-[var(--sgx-neon)]/60 text-[10px] font-bold flex items-center gap-1.5 transition-all cursor-pointer rounded"
-              title="Importar múltiples preguntas para la sesión via CSV o JSON"
-            >
-              <UploadCloud className="w-3.5 h-3.5 text-[var(--sgx-neon)] hover:text-black" />
-              <span>CARGA MASIVA PREGUNTAS</span>
-            </button>
-
-            <button
-              onClick={() => setIsBulkInstagramModalOpen(true)}
-              className="px-2.5 py-1 bg-[var(--sgx-secondary)] hover:bg-[var(--sgx-primary)] hover:text-black text-white border border-[var(--sgx-primary)]/60 text-[10px] font-bold flex items-center gap-1.5 transition-all cursor-pointer rounded"
-              title="Importar lista de publicaciones y reels de Instagram via CSV"
-            >
-              <Instagram className="w-3.5 h-3.5 text-[var(--sgx-primary)] hover:text-black" />
-              <span>BULK INSTAGRAM (.CSV)</span>
-            </button>
-
-            <div className="flex items-center space-x-2 bg-[#121212] border border-[var(--sgx-secondary)] px-2.5 py-1 text-[10px]">
-              <Activity className="w-3 h-3 text-[var(--sgx-neon)] animate-pulse" />
-              <span className="text-slate-300">STREAM:</span>
-              <span className="text-[#FDCC0D] font-bold">{telemetryStats.kbPerUserPer30s} KB / user / 30s</span>
-            </div>
-          </div>
-
         </div>
-      </div>
+        <div className="sgx-admin__status">
+          {crmStatusMessage && <span className="sgx-admin__flash">{crmStatusMessage}</span>}
+          <span className="sgx-admin__chip"><Users className="w-3.5 h-3.5" /> {connectedAudienceCount} en la sala en vivo</span>
+          <span className="sgx-admin__chip">{user?.email}</span>
+        </div>
+      </header>
 
-      {/* Main Container: Clean Full Width Admin Panel */}
-      <div className="p-3 md:p-5 max-w-[1700px] mx-auto w-full grid grid-cols-1 gap-5">
-        
-        {/* Admin Control Plane */}
-        <div className="space-y-4 w-full">
-          
-          {/* Subpage Navigation Tabs (Unified Single-Login Menu) */}
-          <div className="flex items-center space-x-2 border-b border-[var(--sgx-secondary)] pb-2 overflow-x-auto">
-            {[
-              { id: 'REGISTRATIONS', label: '0. INSCRITOS & DÍA 3', icon: Users },
-              { id: 'DIRECTOR', label: '1. DIRECTOR CONSOLE', icon: Radio },
-              { id: 'CYOA_SCENARIOS', label: '2. CYOA SCENARIOS', icon: GitBranch },
-              { id: 'PRESETS_LAB', label: '3. FX PRESETS & UBERSHADERS', icon: Sparkles },
-              { id: 'THEME_STUDIO', label: '4. THEME & COLOR STUDIO', icon: Palette },
-              { id: 'SUMMIT_CMS', label: '5. SUMMIT CMS (AGENDA/MAPS/SPEAKERS)', icon: Calendar },
-              { id: 'SPONSORS_CRM', label: '6. SPONSORS & BRAND SHOWCASES', icon: Building2 },
-              { id: 'SUMMIT_ANALYTICS', label: '7. ANALYTICS & RETENTION', icon: BarChart3 },
-              { id: 'AUDIENCE_LEADS', label: '8. AUDIENCIA & LEADS (CSV)', icon: Users },
-              { id: 'TELEMETRY', label: '9. DATA & STREAM METRICS', icon: Activity },
-              { id: 'TENANT_ROOMS', label: '10. TENANTS & ROOMS', icon: Layers },
-              { id: 'GAMIFICATION', label: '11. REWARDS & TIERS', icon: Award },
-              { id: 'FIRESTORE_SYNC', label: '12. FIRESTORE SYNC', icon: Database },
-              { id: 'SECURITY_ACCESS', label: '13. SECURITY & ACCESS', icon: Key },
-              { id: 'ENTREPRENEUR_MATCH', label: '14. ENTREPRENEUR MATCH', icon: Zap },
-              { id: 'CONTENT_AUDIT', label: '15. AUDITORÍA & QA FLAGS', icon: ShieldCheck },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeSubpage === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveSubpage(tab.id as AdminSubpage)}
-                  className={`flex items-center space-x-1.5 px-3 py-1.5 text-[11px] font-mono font-bold whitespace-nowrap transition-all ${
-                    isActive
-                      ? 'sgx-btn shadow-md shadow-[var(--sgx-accent)]/20'
-                      : 'text-[#888888] hover:text-white bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)]/40 hover:border-[var(--sgx-secondary)]'
-                  }`}
-                  style={{ clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
+      <div className="sgx-admin__layout">
+        <nav className="sgx-admin__nav" aria-label="Secciones del admin">
+          <label className="sgx-admin__search">
+            <Search className="w-3.5 h-3.5" />
+            <input ref={searchRef} value={navQuery} onChange={(e) => setNavQuery(e.target.value)} placeholder="Buscar sección (Ctrl+K)" />
+          </label>
+          {ADMIN_NAV.map((area) => {
+            const items = area.items.filter((it) => matchesNav(it, navQuery));
+            if (!items.length) return null;
+            return (
+              <div key={area.id} className="sgx-admin__area">
+                <span className="sgx-admin__area-name">{area.label}</span>
+                {items.map((it) => {
+                  const Icon = it.icon;
+                  return (
+                    <button key={it.id} type="button" aria-current={activeSubpage === it.id ? 'page' : undefined} onClick={() => { setActiveSubpage(it.id); setNavQuery(''); }}>
+                      <Icon className="w-3.5 h-3.5" /> <span>{it.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </nav>
+
+        <div className="sgx-admin__main space-y-4 w-full">
 
           {/* SUBPAGE 1: DIRECTOR CONSOLE */}
-          {activeSubpage === 'REGISTRATIONS' && <SummitRegistrationsPanel />}
+          {activeSubpage === 'REGISTRATIONS' && (
+            <AdminSection title="Inscritos y Día 3" desc="Registros, código de check-in del Día 3 y propuestas de speakers.">
+              <SummitRegistrationsPanel />
+            </AdminSection>
+          )}
 
           {activeSubpage === 'DIRECTOR' && (
+            <AdminSection title="Consola del director" desc="Lanza la pregunta en vivo a la audiencia, cierra la votación y dispara efectos.">
+
             <div className="space-y-4">
               
               {/* Active Broadcast Node Card */}
               <div className="sgx-panel space-y-3">
                 <div className="flex items-center justify-between border-b border-[var(--sgx-secondary)] pb-2 text-[10px] font-mono">
                   <span className="text-[var(--sgx-neon)] font-bold uppercase">
-                    NODE ({currentQuestionIndex + 1}/{questions.length}) • LIVE BROADCAST
+                    PREGUNTA {currentQuestionIndex + 1}/{questions.length} • EN VIVO
                   </span>
                   <span className={`font-bold px-2 py-0.5 ${
                     session.status === 'VOTING_ACTIVE' 
@@ -664,7 +623,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 <span className="text-slate-200">{opt.label}</span>
                                 {isWinning && (
                                   <span className="text-[10px] px-1.5 py-0.2 bg-[var(--sgx-accent)] text-black font-bold">
-                                    LEADING
+                                    GANANDO
                                   </span>
                                 )}
                               </span>
@@ -693,7 +652,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-mono text-xs font-bold uppercase transition-all flex items-center space-x-1.5"
                         >
                           <Square className="w-3.5 h-3.5" />
-                          <span>CLOSE VOTING & REVEAL OUTCOME</span>
+                          <span>CERRAR VOTACIÓN Y REVELAR RESULTADO</span>
                         </button>
                       ) : (
                         <button
@@ -701,7 +660,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           className="sgx-btn text-xs font-bold py-2 px-5 flex items-center space-x-1.5"
                         >
                           <Play className="w-3.5 h-3.5" />
-                          <span>OPEN LIVE AUDIENCE VOTING</span>
+                          <span>ABRIR VOTACIÓN EN VIVO</span>
                         </button>
                       )}
 
@@ -710,7 +669,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           onClick={() => onBroadcastQuestion(currentQuestionIndex + 1)}
                           className="px-3 py-2 bg-[var(--sgx-bg)] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black font-mono text-xs font-bold transition-all"
                         >
-                          NEXT SCENARIO ➔
+                          SIGUIENTE PREGUNTA ➔
                         </button>
                       )}
                     </div>
@@ -724,7 +683,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {/* Scenarios Quick Grid */}
               <div className="sgx-panel space-y-3">
                 <h3 className="text-xs font-bold text-white uppercase tracking-wider border-b border-[var(--sgx-secondary)] pb-1.5">
-                  Scenario Sequence Roster ({questions.length})
+                  Orden de preguntas ({questions.length})
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   {questions.map((q, idx) => (
@@ -738,7 +697,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       }`}
                     >
                       <div className="flex items-center justify-between text-[10px] text-[var(--sgx-accent)]">
-                        <span>SCENARIO #{idx + 1}</span>
+                        <span>PREGUNTA #{idx + 1}</span>
                         <span>{q.durationSeconds}s</span>
                       </div>
                       <p className="font-bold text-white truncate mt-1">{q.prompt}</p>
@@ -748,33 +707,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
             </div>
+          </AdminSection>
           )}
 
           {/* SUBPAGE 2: CYOA SCENARIOS */}
           {activeSubpage === 'CYOA_SCENARIOS' && (
+            <AdminSection title="Preguntas en vivo (CYOA)" desc="Las preguntas que la audiencia vota para dirigir el escenario. Importación masiva por CSV o JSON." actions={<button type="button" className="sgx-btn text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => setIsBulkQuestionModalOpen(true)}><UploadCloud className="w-3.5 h-3.5" /> Importar preguntas</button>}>
+
             <div className="space-y-4">
               <div className="sgx-panel space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--sgx-secondary)] pb-2">
                   <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
                     <GitBranch className="w-4 h-4 text-[var(--sgx-neon)]" />
-                    <span>Create Interactive CYOA Scenario & 3D Visualizer Trigger</span>
+                    <span>Crear pregunta en vivo con efecto en el visualizador</span>
                   </h3>
 
-                  <div className="flex items-center space-x-2">
-                    <TabCsvDirectActions
-                      entityKey="QUESTIONS"
-                      items={questions}
-                      onUpdateItems={(newQ) => handleBulkImportQuestions(newQ, 'replace')}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setIsBulkQuestionModalOpen(true)}
-                      className="px-3 py-1.5 bg-[var(--sgx-neon)]/15 hover:bg-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:text-black border border-[var(--sgx-neon)] text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer rounded"
-                    >
-                      <UploadCloud className="w-4 h-4" />
-                      <span>IMPORTAR (.CSV / .JSON)</span>
-                    </button>
-                  </div>
                 </div>
 
                 <form onSubmit={handleSaveQuestion} className="space-y-3 font-mono text-xs">
@@ -784,7 +731,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       type="text"
                       value={newPrompt}
                       onChange={(e) => setNewPrompt(e.target.value)}
-                      placeholder="e.g. ¿Qué estructura procedural debe manifestarse en el escenario?"
+                      placeholder="ej. ¿Qué estructura procedural debe manifestarse en el escenario?"
                       className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2 text-white focus:outline-none focus:border-[var(--sgx-neon)]"
                     />
                   </div>
@@ -819,7 +766,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         value={optA}
                         onChange={(e) => setOptA(e.target.value)}
                         className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-1.5 text-white"
-                        placeholder="Option A Label"
+                        placeholder="Opción A"
                       />
                       <select
                         value={presetA}
@@ -839,7 +786,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         value={optB}
                         onChange={(e) => setOptB(e.target.value)}
                         className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-1.5 text-white"
-                        placeholder="Option B Label"
+                        placeholder="Opción B"
                       />
                       <select
                         value={presetB}
@@ -869,15 +816,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     className="sgx-btn text-xs font-bold py-2 px-6 flex items-center space-x-2"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>SAVE & APPEND CYOA SCENARIO</span>
+                    <span>GUARDAR Y AÑADIR PREGUNTA</span>
                   </button>
                 </form>
               </div>
             </div>
+          </AdminSection>
           )}
 
           {/* SUBPAGE 3: PRESETS LAB */}
           {activeSubpage === 'PRESETS_LAB' && (
+            <AdminSection title="Efectos visuales (presets)" desc="Presets del visualizador y assets propios. Se guardan en este equipo; usa exportar/importar JSON para moverlos.">
+
             <div className="space-y-4">
               <FXPresetsStudio
                 onTriggerPreset={onTriggerPreset}
@@ -885,252 +835,139 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onUpdateCustomAssets={onUpdateCustomAssets}
               />
             </div>
+          </AdminSection>
           )}
 
-          {/* SUBPAGE 4: SUMMIT CMS (UNIFIED IN ADMIN DASHBOARD) */}
-          {activeSubpage === 'SUMMIT_CMS' && (
-            <div className="space-y-4">
-              <SummitCMSManager
-                sessions={summitSessions}
-                speakers={summitSpeakers}
-                mapNodes={summitMapNodes}
-                embeds={summitEmbeds}
-                sponsors={summitSponsors}
-                onUpdateSessions={setSummitSessions}
-                onUpdateSpeakers={setSummitSpeakers}
-                onUpdateMapNodes={setSummitMapNodes}
-                onUpdateEmbeds={setSummitEmbeds}
-                onUpdateSponsors={setSummitSponsors}
-                onBroadcastPushNotification={handleCMSPushAlert}
-              />
-            </div>
+          {activeSubpage === 'ANNOUNCE' && (
+            <AdminSection title="Anuncios en vivo" desc="Un aviso que aparece al instante en todas las páginas abiertas del Summit.">
+              <SummitCMSManager key={`BROADCAST_${csvRev}`} tab="BROADCAST" sessions={summitSessions} speakers={summitSpeakers} mapNodes={summitMapNodes} embeds={summitEmbeds} sponsors={summitSponsors}
+                onUpdateSessions={setSummitSessions} onUpdateSpeakers={setSummitSpeakers} onUpdateMapNodes={setSummitMapNodes}
+                onUpdateEmbeds={setSummitEmbeds} onUpdateSponsors={setSummitSponsors} onBroadcastPushNotification={handleCMSPushAlert} />
+            </AdminSection>
           )}
 
-          {/* SUBPAGE 5: SPONSORS & BRAND SHOWCASES (CRM & 1-CLICK LANDINGS) */}
-          {activeSubpage === 'SPONSORS_CRM' && (
-            <div className="space-y-6">
-              
-              {/* Header Stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-4 bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] rounded-xl flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] font-mono text-slate-400 uppercase block">Brand Showcases Activos</span>
-                    <strong className="text-xl font-black text-[var(--sgx-neon)] font-['Orbitron',sans-serif]">{approvedSponsors.length}</strong>
-                  </div>
-                  <Sparkles className="w-6 h-6 text-[var(--sgx-neon)]" />
-                </div>
+          {activeSubpage === 'POLLS' && (
+            <AdminSection title="Encuestas del keynote" desc="Las encuestas del panel de reacciones. Los votos se guardan por id de opción." publishKeys={['polls']} csv={[CSV_ENTITIES.polls]} onCsvApplied={bumpCsv}>
+              <LiveListTable entity={CSV_ENTITIES.polls} version={csvRev} columns={[
+                { label: 'Sesión', get: (p: any) => p.sessionTitle },
+                { label: 'Pregunta', get: (p: any) => p.question },
+                { label: 'Opciones', get: (p: any) => p.options.map((o: any) => o.label).join(' · ') },
+              ]} />
+            </AdminSection>
+          )}
 
-                <div className="p-4 bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] rounded-xl flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] font-mono text-slate-400 uppercase block">Inquiries / Leads Recibidos</span>
-                    <strong className="text-xl font-black text-[var(--sgx-accent)] font-['Orbitron',sans-serif]">{sponsorInquiries.length}</strong>
-                  </div>
-                  <Building2 className="w-6 h-6 text-[var(--sgx-accent)]" />
-                </div>
+          {activeSubpage === 'AGENDA' && (
+            <AdminSection title="Agenda / Run of Show" desc="Sesiones de los 3 días. El orden se calcula solo por la hora de inicio." publishKeys={['sessions']} csv={[CSV_ENTITIES.sessions]} onCsvApplied={reloadContent}>
+              <SummitCMSManager key={`SESSIONS_${csvRev}`} tab="SESSIONS" sessions={summitSessions} speakers={summitSpeakers} mapNodes={summitMapNodes} embeds={summitEmbeds} sponsors={summitSponsors}
+                onUpdateSessions={setSummitSessions} onUpdateSpeakers={setSummitSpeakers} onUpdateMapNodes={setSummitMapNodes}
+                onUpdateEmbeds={setSummitEmbeds} onUpdateSponsors={setSummitSponsors} onBroadcastPushNotification={handleCMSPushAlert} />
+            </AdminSection>
+          )}
 
-                <div className="p-4 bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] rounded-xl flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] font-mono text-slate-400 uppercase block">Venue Día 3</span>
-                    <strong className="text-xs font-bold text-white">Chroma Space Studios</strong>
-                  </div>
-                  <Tag className="w-6 h-6 text-[#FDCC0D]" />
-                </div>
-              </div>
+          {activeSubpage === 'SPEAKERS' && (
+            <AdminSection title="Speakers" desc="Personas confirmadas por escrito. Sus IDs se usan en la agenda." publishKeys={['speakers']} csv={[CSV_ENTITIES.speakers]} onCsvApplied={reloadContent}>
+              <SummitCMSManager key={`SPEAKERS_${csvRev}`} tab="SPEAKERS" sessions={summitSessions} speakers={summitSpeakers} mapNodes={summitMapNodes} embeds={summitEmbeds} sponsors={summitSponsors}
+                onUpdateSessions={setSummitSessions} onUpdateSpeakers={setSummitSpeakers} onUpdateMapNodes={setSummitMapNodes}
+                onUpdateEmbeds={setSummitEmbeds} onUpdateSponsors={setSummitSponsors} onBroadcastPushNotification={handleCMSPushAlert} />
+            </AdminSection>
+          )}
 
-              {/* Inquiries Section with 1-Click Approval */}
-              <div className="bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] p-5 space-y-4 rounded-xl font-mono text-xs">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--sgx-secondary)]/60 pb-3">
-                  <div>
-                    <h3 className="text-sm font-bold text-white uppercase font-['Orbitron',sans-serif] flex items-center space-x-2">
-                      <Building2 className="w-4 h-4 text-[var(--sgx-accent)]" />
-                      <span>SOLICITUDES DE PATROCINIO PENDIENTES & LEADS</span>
-                    </h3>
-                    <p className="text-xs text-slate-400">
-                      Al aprobar una solicitud, el sistema genera automáticamente un landing de marca con logo, banners y presencia activa en la app.
-                    </p>
-                  </div>
+          {activeSubpage === 'SPONSORS' && (
+            <AdminSection title="Sponsors" desc="Solicitudes que llegan del formulario y las marcas aprobadas con su showcase. Aprobar una solicitud le da su Holo Card de sponsor." publishKeys={['approved_sponsors']} csv={[CSV_ENTITIES.showcases]} onCsvApplied={bumpCsv}
+              actions={<button type="button" className="sgx-btn text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={handleExportInquiriesCSV}><Download className="w-3.5 h-3.5" /> Solicitudes CSV</button>}>
+              <SummitCMSManager key={`INQUIRIES_${csvRev}`} tab="INQUIRIES" sessions={summitSessions} speakers={summitSpeakers} mapNodes={summitMapNodes} embeds={summitEmbeds} sponsors={summitSponsors}
+                onUpdateSessions={setSummitSessions} onUpdateSpeakers={setSummitSpeakers} onUpdateMapNodes={setSummitMapNodes}
+                onUpdateEmbeds={setSummitEmbeds} onUpdateSponsors={setSummitSponsors} onBroadcastPushNotification={handleCMSPushAlert} />
+              <div className="mt-6"><SummitCMSManager key={`BRAND_SHOWCASES_${csvRev}`} tab="BRAND_SHOWCASES" sessions={summitSessions} speakers={summitSpeakers} mapNodes={summitMapNodes} embeds={summitEmbeds} sponsors={summitSponsors}
+                onUpdateSessions={setSummitSessions} onUpdateSpeakers={setSummitSpeakers} onUpdateMapNodes={setSummitMapNodes}
+                onUpdateEmbeds={setSummitEmbeds} onUpdateSponsors={setSummitSponsors} onBroadcastPushNotification={handleCMSPushAlert} /></div>
+            </AdminSection>
+          )}
 
-                  <button
-                    onClick={handleExportInquiriesCSV}
-                    className="px-3 py-1.5 bg-[#262626] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black font-bold text-xs flex items-center space-x-1.5 rounded transition-all self-start sm:self-auto"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>EXPORTAR CSV</span>
-                  </button>
-                </div>
+          {activeSubpage === 'TIERS' && (
+            <AdminSection title="Niveles de auspicio" desc="Los niveles (1–5) con su precio y beneficios que ve la matriz de auspicios." publishKeys={['sponsorship_tiers']} csv={[CSV_ENTITIES.tiers]} onCsvApplied={reloadContent}>
+              <SummitCMSManager key={`SPONSORS_${csvRev}`} tab="SPONSORS" sessions={summitSessions} speakers={summitSpeakers} mapNodes={summitMapNodes} embeds={summitEmbeds} sponsors={summitSponsors}
+                onUpdateSessions={setSummitSessions} onUpdateSpeakers={setSummitSpeakers} onUpdateMapNodes={setSummitMapNodes}
+                onUpdateEmbeds={setSummitEmbeds} onUpdateSponsors={setSummitSponsors} onBroadcastPushNotification={handleCMSPushAlert} />
+            </AdminSection>
+          )}
 
-                {sponsorInquiries.length === 0 ? (
-                  <p className="text-slate-400 text-center py-6">No hay solicitudes de patrocinio pendientes.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {sponsorInquiries.map((inq) => (
-                      <div 
-                        key={inq.id}
-                        className="p-4 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] rounded-xl hover:border-[var(--sgx-neon)]/70 transition-all space-y-3"
-                      >
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--sgx-secondary)]/40 pb-2">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm font-bold text-white uppercase font-['Orbitron',sans-serif]">
-                              {inq.companyName}
-                            </span>
-                            <span className="text-[10px] px-2 py-0.5 bg-[#1B1B1B] border border-[var(--sgx-accent)] text-[var(--sgx-accent)] font-bold rounded">
-                              {inq.referenceCode}
-                            </span>
-                          </div>
+          {activeSubpage === 'INITIATES' && (
+            <AdminSection title="SGX Guild Initiates" desc="El roster público del Guild y el email privado con el que cada initiate reclama su Holo Card." publishKeys={['initiates']} csv={[CSV_ENTITIES.initiates]} onCsvApplied={bumpCsv}>
+              <SummitInitiatesPanel key={csvRev} />
+            </AdminSection>
+          )}
 
-                          <div className="flex items-center space-x-2">
-                            {inq.status !== 'APPROVED' ? (
-                              <button
-                                onClick={() => handleApproveInquiryInCRM(inq)}
-                                className="px-3 py-1.5 bg-gradient-to-r from-amber-600 to-[#FDCC0D] hover:brightness-110 text-black font-bold text-[11px] rounded flex items-center space-x-1.5 shadow-md shadow-amber-950/40"
-                              >
-                                <Zap className="w-3.5 h-3.5 text-black" />
-                                <span>⚡ APROBAR & CREAR SHOWCASE</span>
-                              </button>
-                            ) : (
-                              <span className="px-2.5 py-1 bg-amber-950 border border-[#FDCC0D] text-[#FDCC0D] text-[10px] font-bold rounded">
-                                ✓ SHOWCASE APROBADO
-                              </span>
-                            )}
+          {activeSubpage === 'MAP' && (
+            <AdminSection title="Mapa 360" desc="Lugares de Chroma Space Studios y del recorrido 360." publishKeys={['map_nodes']} csv={[CSV_ENTITIES.map]} onCsvApplied={reloadContent}>
+              <SummitCMSManager key={`MAP_NODES_${csvRev}`} tab="MAP_NODES" sessions={summitSessions} speakers={summitSpeakers} mapNodes={summitMapNodes} embeds={summitEmbeds} sponsors={summitSponsors}
+                onUpdateSessions={setSummitSessions} onUpdateSpeakers={setSummitSpeakers} onUpdateMapNodes={setSummitMapNodes}
+                onUpdateEmbeds={setSummitEmbeds} onUpdateSponsors={setSummitSponsors} onBroadcastPushNotification={handleCMSPushAlert} />
+            </AdminSection>
+          )}
 
-                            <button
-                              onClick={() => handleDeleteInquiryInCRM(inq.id)}
-                              className="p-1.5 border border-rose-500/60 text-rose-400 hover:bg-rose-500 hover:text-white rounded"
-                              title="Eliminar Solicitud"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
+          {activeSubpage === 'EMBEDS' && (
+            <AdminSection title="Apps embebidas" desc="Juegos, mundos y apps del hub. Solo los admins pueden añadirlas." publishKeys={['embeds']} csv={[CSV_ENTITIES.embeds]} onCsvApplied={reloadContent}>
+              <SummitCMSManager key={`EMBEDS_${csvRev}`} tab="EMBEDS" sessions={summitSessions} speakers={summitSpeakers} mapNodes={summitMapNodes} embeds={summitEmbeds} sponsors={summitSponsors}
+                onUpdateSessions={setSummitSessions} onUpdateSpeakers={setSummitSpeakers} onUpdateMapNodes={setSummitMapNodes}
+                onUpdateEmbeds={setSummitEmbeds} onUpdateSponsors={setSummitSponsors} onBroadcastPushNotification={handleCMSPushAlert} />
+            </AdminSection>
+          )}
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 text-[11px] text-slate-300">
-                          <div>
-                            <span className="text-slate-500 text-[10px] block">Contacto:</span>
-                            <span className="font-bold text-white">{inq.contactName}</span>
-                            {inq.roleTitle && <span className="text-slate-400 block text-[10px]">({inq.roleTitle})</span>}
-                          </div>
-                          <div>
-                            <span className="text-slate-500 text-[10px] block">Email:</span>
-                            <a href={`mailto:${inq.email}`} className="text-[var(--sgx-neon)] hover:underline flex items-center space-x-1 break-all">
-                              <Mail className="w-3 h-3 shrink-0" />
-                              <span>{inq.email}</span>
-                            </a>
-                          </div>
-                          <div>
-                            <span className="text-slate-500 text-[10px] block">Teléfono / WhatsApp:</span>
-                            <a href={`tel:${inq.phone}`} className="text-white hover:underline flex items-center space-x-1">
-                              <Phone className="w-3 h-3 shrink-0 text-[#FDCC0D]" />
-                              <span>{inq.phone}</span>
-                            </a>
-                          </div>
-                          <div>
-                            <span className="text-slate-500 text-[10px] block">Tier Seleccionado:</span>
-                            <span className="font-bold text-[var(--sgx-accent)]">{inq.selectedTierName}</span>
-                          </div>
-                        </div>
+          {activeSubpage === 'CAPSULES' && (
+            <AdminSection title="Cápsulas semanales" desc="Las transmisiones que se abren cada semana antes del Summit." publishKeys={['capsules']} csv={[CSV_ENTITIES.capsules]} onCsvApplied={bumpCsv}>
+              <LiveListTable entity={CSV_ENTITIES.capsules} version={csvRev} columns={[
+                { label: 'Semana', get: (c: any) => c.weekNumber },
+                { label: 'Título', get: (c: any) => c.title },
+                { label: 'Se abre', get: (c: any) => new Date(c.unlockDate).toLocaleString('es-PR', { dateStyle: 'medium', timeStyle: 'short' }) },
+                { label: 'XP', get: (c: any) => c.xpReward },
+              ]} />
+            </AdminSection>
+          )}
 
-                        {inq.customMessage && (
-                          <p className="p-2.5 bg-[#101010] border border-[var(--sgx-secondary)]/60 text-slate-300 italic text-[11px] rounded">
-                            "{inq.customMessage}"
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+          {activeSubpage === 'GALLERY' && (
+            <AdminSection title="Galería retrospectiva" desc="Fotos de ediciones anteriores y del equipo." publishKeys={['gallery']} csv={[CSV_ENTITIES.gallery]} onCsvApplied={bumpCsv}>
+              <LiveListTable entity={CSV_ENTITIES.gallery} version={csvRev} columns={[
+                { label: 'Foto', get: (g: any) => <img src={g.url} alt="" className="w-16 h-10 object-cover" /> },
+                { label: 'Título', get: (g: any) => g.title },
+                { label: 'Categoría', get: (g: any) => g.tag },
+              ]} />
+            </AdminSection>
+          )}
 
-              {/* Approved Brand Showcases Directory */}
-              <div className="bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] p-5 space-y-4 rounded-xl font-mono text-xs">
-                <div className="flex items-center justify-between border-b border-[var(--sgx-secondary)]/60 pb-3">
-                  <div>
-                    <h3 className="text-sm font-bold text-white uppercase font-['Orbitron',sans-serif] flex items-center space-x-2">
-                      <Sparkles className="w-4 h-4 text-[var(--sgx-neon)]" />
-                      <span>BRAND SHOWCASES EN VIVO ({approvedSponsors.length})</span>
-                    </h3>
-                    <p className="text-xs text-slate-400">
-                      Marcas con landing oficial activo, banners interactivos y tickers del Spatialgineers Summit 2026.
-                    </p>
-                  </div>
-                </div>
+          {activeSubpage === 'SOCIAL' && (
+            <AdminSection title="Redes sociales" desc="Publicaciones y reels de Instagram que alimentan el radar social."
+              actions={<button type="button" className="sgx-btn text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => setIsBulkInstagramModalOpen(true)}><Instagram className="w-3.5 h-3.5" /> Importar publicaciones</button>}>
+              <p className="text-sm text-slate-400">Sube un CSV con los enlaces de las publicaciones; aparecen en el radar social de la app.</p>
+            </AdminSection>
+          )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {approvedSponsors.map((sp) => (
-                    <div 
-                      key={sp.id}
-                      className="p-4 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] rounded-xl space-y-3 flex flex-col justify-between"
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className="w-16 h-16 rounded-xl bg-[#121212] border border-[var(--sgx-neon)]/60 p-1.5 flex items-center justify-center overflow-hidden shrink-0">
-                          <img 
-                            src={sp.logoUrl} 
-                            alt={sp.companyName} 
-                            className="w-full h-full object-contain"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=100&auto=format&fit=crop&q=80';
-                            }}
-                          />
-                        </div>
+          {activeSubpage === 'MISSIONS' && (
+            <AdminSection title="Misiones del Reactor" desc="Cambia el texto y el XP de cada misión. Qué completa una misión está programado; una misión nueva necesita código." publishKeys={['mission_overrides']} csv={[CSV_ENTITIES.missions]} onCsvApplied={bumpCsv}>
+              <LiveListTable entity={CSV_ENTITIES.missions} version={csvRev} columns={[
+                { label: 'Pilar', get: (m: any) => m.pillar },
+                { label: 'Misión', get: (m: any) => m.titleEs },
+                { label: 'XP', get: (m: any) => m.xp },
+              ]} />
+            </AdminSection>
+          )}
 
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-bold text-white uppercase font-['Orbitron',sans-serif] truncate">
-                              {sp.companyName}
-                            </h4>
-                            <span className="text-[9px] px-2 py-0.5 bg-[var(--sgx-accent)]/10 text-[var(--sgx-accent)] border border-[var(--sgx-accent)]/40 font-bold rounded shrink-0">
-                              {sp.tierName.split('(')[0]}
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-[var(--sgx-neon)] truncate mt-0.5">{sp.tagline}</p>
-                          <a 
-                            href={sp.websiteUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="text-[10px] text-slate-400 hover:text-white flex items-center space-x-1 mt-1 truncate"
-                          >
-                            <Globe className="w-3 h-3 text-[var(--sgx-neon)] shrink-0" />
-                            <span className="truncate">{sp.websiteUrl}</span>
-                          </a>
-                        </div>
-                      </div>
+          {activeSubpage === 'ADMINS' && (
+            <AdminSection title="Admins" desc="Quién puede entrar a este centro de mando.">
+              <AdminRosterPanel />
+            </AdminSection>
+          )}
 
-                      {/* Activations & Actions */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[var(--sgx-secondary)]/40">
-                        <button
-                          onClick={() => setPreviewShowcaseModal(sp)}
-                          className="px-3 py-1 bg-[#262626] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black font-bold text-[10px] flex items-center space-x-1.5 rounded transition-all"
-                        >
-                          <Eye className="w-3 h-3" />
-                          <span>VER LANDING DE MARCA</span>
-                        </button>
-
-                        <div className="flex items-center space-x-1.5">
-                          <button
-                            onClick={() => setEditingApprovedSponsor(sp)}
-                            className="p-1.5 rounded border border-[var(--sgx-secondary)] text-slate-300 hover:border-[var(--sgx-neon)] hover:text-white"
-                            title="Editar Marca y Landing"
-                          >
-                            <Edit3 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteApprovedSponsorCRM(sp.id)}
-                            className="p-1.5 rounded border border-rose-500/60 text-rose-400 hover:bg-rose-500 hover:text-white"
-                            title="Eliminar Marca"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
+          {activeSubpage === 'BACKUP' && (
+            <AdminSection title="Respaldo y restauración" desc="Descarga todo el contenido en CSV o vuelve al contenido original con respaldo previo.">
+              <ContentBackupPanel onRestored={reloadContent} />
+            </AdminSection>
           )}
 
           {/* SUBPAGE 6: SUMMIT ANALYTICS (UNIFIED IN ADMIN DASHBOARD) */}
           {activeSubpage === 'SUMMIT_ANALYTICS' && (
+            <AdminSection title="Analítica" desc="Visitas, pases, votos y retención con datos reales de Firestore.">
+
             <div className="space-y-4">
               <SummitAnalyticsView
                 questions={questions}
@@ -1139,16 +976,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 telemetryStats={telemetryStats}
               />
             </div>
+          </AdminSection>
           )}
 
           {/* SUBPAGE 7: AUDIENCE & LEADS (CSV) */}
           {activeSubpage === 'AUDIENCE_LEADS' && (
+            <AdminSection title="Audiencia y leads" desc="Pilotos registrados y personas en la sala en vivo. Exporta en CSV o JSON.">
+
             <div className="sgx-panel space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--sgx-secondary)] pb-2">
                 <div>
                   <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
                     <Users className="w-4 h-4 text-[var(--sgx-neon)]" />
-                    <span>Audience Leads & Registered Gamers ({combinedLeads.length})</span>
+                    <span>Pilotos y audiencia ({combinedLeads.length})</span>
                   </h3>
                   <p className="text-[10px] text-slate-400 font-mono">
                     Real-time audience participant database synchronized with Firebase Firestore.
@@ -1161,7 +1001,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     className="sgx-btn text-[11px] font-mono font-bold py-1.5 px-3 flex items-center space-x-1.5"
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5" />
-                    <span>EXPORT CSV</span>
+                    <span>EXPORTAR CSV</span>
                   </button>
                   <button
                     onClick={handleExportJSON}
@@ -1180,7 +1020,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   type="text"
                   value={leadsSearch}
                   onChange={(e) => setLeadsSearch(e.target.value)}
-                  placeholder="Filter by nickname, email or prize tier..."
+                  placeholder="Filtrar por nombre o email…"
                   className="w-full bg-transparent text-xs text-white font-mono focus:outline-none"
                 />
               </div>
@@ -1190,13 +1030,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <table className="w-full text-left font-mono text-xs">
                   <thead className="bg-[#121212] border-b border-[var(--sgx-secondary)] text-[10px] text-[var(--sgx-neon)] uppercase">
                     <tr>
-                      <th className="p-2">Rank</th>
-                      <th className="p-2">User / Avatar</th>
+                      <th className="p-2">#</th>
+                      <th className="p-2">Piloto</th>
                       <th className="p-2">Email</th>
-                      <th className="p-2">Score</th>
-                      <th className="p-2">Streak</th>
-                      <th className="p-2">Interactions</th>
-                      <th className="p-2">Status</th>
+                      <th className="p-2">Puntos</th>
+                      <th className="p-2">Racha</th>
+                      <th className="p-2">Interacciones</th>
+                      <th className="p-2">Estado</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[var(--sgx-secondary)]/40">
@@ -1227,106 +1067,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </table>
               </div>
             </div>
+          </AdminSection>
           )}
 
-          {/* SUBPAGE 8: TELEMETRY */}
-          {activeSubpage === 'TELEMETRY' && (
-            <div className="sgx-panel space-y-4 font-mono text-xs">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider border-b border-[var(--sgx-secondary)] pb-2 flex items-center space-x-2">
-                <Activity className="w-4 h-4 text-[#FDCC0D]" />
-                <span>Live Data Streaming Telemetry & Low-Latency Metrics</span>
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-3 bg-[#121212] border border-[var(--sgx-secondary)]">
-                  <span className="text-[10px] text-slate-400 uppercase block">Total Consumed (30s Window)</span>
-                  <span className="text-lg font-bold text-[#FDCC0D] font-['Orbitron',sans-serif]">
-                    {telemetryStats.kbPerUserPer30s} KB
-                  </span>
-                  <span className="text-[9px] text-slate-500 block mt-0.5">Under 250 KB target SLA</span>
-                </div>
-
-                <div className="p-3 bg-[#121212] border border-[var(--sgx-secondary)]">
-                  <span className="text-[10px] text-slate-400 uppercase block">Connected Audience Nodes</span>
-                  <span className="text-lg font-bold text-[var(--sgx-neon)] font-['Orbitron',sans-serif]">
-                    {connectedAudienceCount}
-                  </span>
-                  <span className="text-[9px] text-slate-500 block mt-0.5">WebSocket Multiplexing</span>
-                </div>
-
-                <div className="p-3 bg-[#121212] border border-[var(--sgx-secondary)]">
-                  <span className="text-[10px] text-slate-400 uppercase block">Average Packet RTT</span>
-                  <span className="text-lg font-bold text-[var(--sgx-accent)] font-['Orbitron',sans-serif]">
-                    18 ms
-                  </span>
-                  <span className="text-[9px] text-slate-500 block mt-0.5">Cloud Edge Ingress</span>
-                </div>
-              </div>
-            </div>
+          {activeSubpage === 'BRAND' && (
+            <AdminSection title="Marca y tenants" desc="Colores del tema y los tenants / salas del motor de votación, en un solo lugar.">
+              <AdminThemeStudio />
+              <div className="border-t border-[var(--sgx-secondary)] pt-6 mt-6"><TenantRoomManager /></div>
+            </AdminSection>
           )}
 
-          {/* SUBPAGE 4: THEME & COLOR STUDIO */}
-          {activeSubpage === 'THEME_STUDIO' && (
-            <AdminThemeStudio />
-          )}
-
-          {/* SUBPAGE 10: TENANTS & ROOMS */}
-          {activeSubpage === 'TENANT_ROOMS' && (
-            <TenantRoomManager />
-          )}
-
-          {/* SUBPAGE 10: GAMIFICATION & REWARDS REDEMPTION MANAGER */}
-          {activeSubpage === 'GAMIFICATION' && (
-            <div className="space-y-6">
-              <AdminRewardsManager />
-              <div className="border-t border-[var(--sgx-secondary)] pt-6">
-                <GamificationTierManager />
-              </div>
-            </div>
-          )}
-
-          {/* SUBPAGE 11: FIRESTORE SYNC */}
-          {activeSubpage === 'FIRESTORE_SYNC' && (
-            <div className="sgx-panel space-y-3 font-mono text-xs">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider border-b border-[var(--sgx-secondary)] pb-1.5">
-                Firestore Cloud Persistence Status
-              </h3>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="p-2.5 bg-[#121212] border border-[var(--sgx-secondary)]">
-                  <span className="text-[#888888] text-[9px] block">/admins</span>
-                  <span className="font-bold text-[#FDCC0D]">1 Super Admin Node</span>
-                </div>
-                <div className="p-2.5 bg-[#121212] border border-[var(--sgx-secondary)]">
-                  <span className="text-[#888888] text-[9px] block">/questions</span>
-                  <span className="font-bold text-[var(--sgx-neon)]">{questions.length} Scenarios</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* SUBPAGE 12: SECURITY & ACCESS */}
-          {activeSubpage === 'SECURITY_ACCESS' && (
-            <div className="sgx-panel space-y-3 font-mono text-xs">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider border-b border-[var(--sgx-secondary)] pb-1.5">
-                Zero-Trust Security & Admin Roster
-              </h3>
-              <div className="p-3 bg-[#121212] border border-[var(--sgx-secondary)] space-y-2">
-                <div className="flex items-center space-x-2 text-[#FDCC0D] font-bold">
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Primary Admin: {AUTHORIZED_SUPER_ADMIN_EMAIL}</span>
-                </div>
-                <p className="text-slate-300 font-sans text-xs">
-                  All write operations on director session triggers and summit configurations are secured by Firebase Security Rules.
-                </p>
-              </div>
-            </div>
+          {activeSubpage === 'REWARDS' && (
+            <AdminSection title="Tienda del Reactor" desc="Premios que los pilotos canjean con su XP. Un premio inactivo no se puede canjear." csv={[CSV_ENTITIES.rewards]} onCsvApplied={bumpCsv}>
+              <AdminRewardsManager key={csvRev} />
+            </AdminSection>
           )}
 
           {/* SUBPAGE 14: ENTREPRENEUR MATCH MODERATION */}
           {activeSubpage === 'ENTREPRENEUR_MATCH' && (
+            <AdminSection title="Entrepreneur Match" desc="Moderación de perfiles y el interruptor del módulo.">
+
             <div className="space-y-4">
               <AdminMatchPanel />
             </div>
+          </AdminSection>
           )}
 
           {/* SUBPAGE 15: CONTENT AUDIT & QA CONTROL PLANE */}
@@ -1337,7 +1101,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div>
                     <h2 className="text-base font-bold text-white uppercase font-['Orbitron',sans-serif] flex items-center gap-2">
                       <ShieldCheck className="w-5 h-5 text-[var(--sgx-neon)]" />
-                      <span>Auditoría de Contenido, Feature Toggles & Diagnósticos QA</span>
+                      <span>Funciones activas y diagnóstico de contenido</span>
                     </h2>
                     <p className="text-xs text-slate-400 font-mono mt-1">
                       Módulo aislado de administración para activar/desactivar características, diagnosticar la salud del contenido y verificar compatibilidad.
@@ -1348,7 +1112,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     className="sgx-btn px-4 py-2 text-xs font-bold font-mono flex items-center space-x-2 cursor-pointer shadow-lg"
                   >
                     <Sliders className="w-4 h-4" />
-                    <span>ABRIR MATRIZ INTERACTIVA DE AUDITORÍA</span>
+                    <span>ABRIR PANEL DE FUNCIONES Y QA</span>
                   </button>
                 </div>
 
@@ -1382,185 +1146,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       </div>
 
-      {/* EDIT APPROVED SPONSOR SHOWCASE MODAL */}
-      {editingApprovedSponsor && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[var(--sgx-card-bg)] border-2 border-[var(--sgx-neon)] max-w-2xl w-full p-6 space-y-4 max-h-[92vh] overflow-y-auto rounded-2xl shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[var(--sgx-secondary)] pb-3">
-              <span className="text-sm font-bold text-white uppercase font-['Orbitron',sans-serif]">
-                EDITAR BRAND SHOWCASE & LANDING DE PATROCINADOR
-              </span>
-              <button onClick={() => setEditingApprovedSponsor(null)} className="text-slate-400 hover:text-white">
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-3 font-mono text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[10px] text-slate-400 uppercase block mb-1">Nombre de la Empresa / Marca</label>
-                  <input
-                    type="text"
-                    value={editingApprovedSponsor.companyName}
-                    onChange={(e) => setEditingApprovedSponsor({ ...editingApprovedSponsor, companyName: e.target.value })}
-                    className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-2 text-white focus:outline-none focus:border-[var(--sgx-neon)]"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[10px] text-slate-400 uppercase block mb-1">Slug / Identificador URL</label>
-                  <input
-                    type="text"
-                    value={editingApprovedSponsor.brandSlug}
-                    onChange={(e) => setEditingApprovedSponsor({ ...editingApprovedSponsor, brandSlug: e.target.value })}
-                    className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-2 text-white focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[10px] text-slate-400 uppercase block mb-1">URL de Logo (PNG/SVG)</label>
-                  <input
-                    type="text"
-                    value={editingApprovedSponsor.logoUrl}
-                    onChange={(e) => setEditingApprovedSponsor({ ...editingApprovedSponsor, logoUrl: e.target.value })}
-                    className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-2 text-white focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[10px] text-slate-400 uppercase block mb-1">URL de Banner Hero (1400x600)</label>
-                  <input
-                    type="text"
-                    value={editingApprovedSponsor.bannerUrl || ''}
-                    onChange={(e) => setEditingApprovedSponsor({ ...editingApprovedSponsor, bannerUrl: e.target.value })}
-                    className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-2 text-white focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[10px] text-slate-400 uppercase block mb-1">Sitio Web Oficial (Enlace CTA)</label>
-                  <input
-                    type="text"
-                    value={editingApprovedSponsor.websiteUrl}
-                    onChange={(e) => setEditingApprovedSponsor({ ...editingApprovedSponsor, websiteUrl: e.target.value })}
-                    className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-2 text-white focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[10px] text-slate-400 uppercase block mb-1">Texto del Botón CTA</label>
-                  <input
-                    type="text"
-                    value={editingApprovedSponsor.ctaButtonText || 'VISITAR SITIO WEB'}
-                    onChange={(e) => setEditingApprovedSponsor({ ...editingApprovedSponsor, ctaButtonText: e.target.value })}
-                    className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-2 text-white focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-[10px] text-slate-400 uppercase block mb-1">Tagline / Lema de Marca</label>
-                <input
-                  type="text"
-                  value={editingApprovedSponsor.tagline}
-                  onChange={(e) => setEditingApprovedSponsor({ ...editingApprovedSponsor, tagline: e.target.value })}
-                  className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-2 text-white focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="text-[10px] text-slate-400 uppercase block mb-1">Descripción Completa en Landing</label>
-                <textarea
-                  value={editingApprovedSponsor.description}
-                  onChange={(e) => setEditingApprovedSponsor({ ...editingApprovedSponsor, description: e.target.value })}
-                  rows={3}
-                  className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-2 text-white focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[10px] text-slate-400 uppercase block mb-1">Código Promocional Especial (Opcional)</label>
-                  <input
-                    type="text"
-                    value={editingApprovedSponsor.specialOfferCode || ''}
-                    onChange={(e) => setEditingApprovedSponsor({ ...editingApprovedSponsor, specialOfferCode: e.target.value })}
-                    className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-accent)] p-2 text-[var(--sgx-accent)] font-bold focus:outline-none"
-                    placeholder="Ej. SGX2026"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[10px] text-slate-400 uppercase block mb-1">Ubicación / Stage (Chroma Space Studios)</label>
-                  <input
-                    type="text"
-                    value={editingApprovedSponsor.boothLocation || ''}
-                    onChange={(e) => setEditingApprovedSponsor({ ...editingApprovedSponsor, boothLocation: e.target.value })}
-                    className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-2 text-white focus:outline-none"
-                    placeholder="Chroma Space Studios - Partner Pavilion"
-                  />
-                </div>
-              </div>
-
-              {/* Activation Toggles */}
-              <div className="p-3 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] rounded-xl space-y-2">
-                <span className="text-[10px] text-[var(--sgx-accent)] uppercase font-bold block">
-                  Presencia e Integración Interactiva en la Aplicación
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <label className="flex items-center space-x-2 text-slate-300 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={editingApprovedSponsor.activeInVisualizer !== false}
-                      onChange={(e) => setEditingApprovedSponsor({ ...editingApprovedSponsor, activeInVisualizer: e.target.checked })}
-                    />
-                    <span>Visualizador 3D Stage</span>
-                  </label>
-
-                  <label className="flex items-center space-x-2 text-slate-300 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={editingApprovedSponsor.activeInMiniGame !== false}
-                      onChange={(e) => setEditingApprovedSponsor({ ...editingApprovedSponsor, activeInMiniGame: e.target.checked })}
-                    />
-                    <span>Minijuegos & Roblox</span>
-                  </label>
-
-                  <label className="flex items-center space-x-2 text-slate-300 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={editingApprovedSponsor.activeInAppTicker !== false}
-                      onChange={(e) => setEditingApprovedSponsor({ ...editingApprovedSponsor, activeInAppTicker: e.target.checked })}
-                    />
-                    <span>Ticker Global</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end space-x-2 pt-3 border-t border-[var(--sgx-secondary)]">
-              <button
-                onClick={() => setEditingApprovedSponsor(null)}
-                className="px-4 py-2 text-xs font-mono text-slate-400 hover:text-white"
-              >
-                CANCELAR
-              </button>
-              <button
-                onClick={() => handleSaveApprovedSponsorCRM(editingApprovedSponsor)}
-                className="sgx-btn text-xs font-bold px-5 py-2 flex items-center space-x-1.5"
-              >
-                <Save className="w-3.5 h-3.5" />
-                <span>GUARDAR BRAND SHOWCASE</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* BRAND SHOWCASE LANDING PREVIEW MODAL */}
       <SummitBrandShowcaseModal
         sponsor={previewShowcaseModal}
@@ -1592,41 +1177,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         onClose={() => setIsAuditModalOpen(false)}
       />
 
-      {/* UNIFIED CSV MANAGEMENT SUITE MODAL */}
-      <AdminCsvHubModal
-        isOpen={isCsvHubModalOpen}
-        onClose={() => setIsCsvHubModalOpen(false)}
-        sessions={summitSessions}
-        speakers={summitSpeakers}
-        mapNodes={summitMapNodes}
-        embeds={summitEmbeds}
-        sponsors={summitSponsors}
-        questions={questions}
-        gamificationTiers={PRIZE_TIERS}
-        onUpdateSessions={(sess) => {
-          setSummitSessions(sess);
-          saveAllSessions(sess);
-        }}
-        onUpdateSpeakers={(spks) => {
-          setSummitSpeakers(spks);
-          saveAllSpeakers(spks);
-        }}
-        onUpdateMapNodes={(nodes) => {
-          setSummitMapNodes(nodes);
-          saveAllMapNodes(nodes);
-        }}
-        onUpdateEmbeds={(embs) => {
-          setSummitEmbeds(embs);
-          saveAllEmbedWidgets(embs);
-        }}
-        onUpdateSponsors={(spons) => {
-          setSummitSponsors(spons);
-          saveAllSponsorshipTiers(spons);
-        }}
-        onUpdateQuestions={(qs) => {
-          handleBulkImportQuestions(qs, 'replace');
-        }}
-      />
 
     </div>
   );

@@ -1,3 +1,4 @@
+import { GALLERY, useLiveList } from '../../lib/content/liveLists';
 import React, { useState } from 'react';
 import { 
   Camera, 
@@ -14,7 +15,6 @@ import {
   Layers,
   CheckCircle2
 } from 'lucide-react';
-import { OFFICIAL_BRAND_ASSETS } from '../../lib/summitData';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -24,7 +24,7 @@ export const SummitRetrospectiveGallery: React.FC = () => {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
   const [selectedTag, setSelectedTag] = useState<string>('ALL');
 
-  const photos = OFFICIAL_BRAND_ASSETS.retrospectiveGallery;
+  const photos = useLiveList(GALLERY);
 
   const tags = ['ALL', ...Array.from(new Set(photos.map(p => p.tag)))];
 

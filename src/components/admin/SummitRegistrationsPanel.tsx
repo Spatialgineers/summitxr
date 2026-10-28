@@ -381,7 +381,6 @@ export const SummitRegistrationsPanel: React.FC = () => {
         )}
       </div>
 
-      <SummitInitiatesPanel />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { normalizePilot, type PilotConfig } from './pilotAvatar';
+import { applyMissionOverrides } from '../lib/content/liveLists';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { usePilotProfile } from '../context/PilotProfileContext';
@@ -78,7 +79,7 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   // Sponsor missions follow the published sponsor list.
   const [sponsorRev, setSponsorRev] = useState(0);
-  const missions = useMemo(() => [...REACTOR_MISSIONS, ...sponsorMissions(loadAllApprovedSponsors())], [sponsorRev]);
+  const missions = useMemo(() => [...applyMissionOverrides(REACTOR_MISSIONS), ...sponsorMissions(loadAllApprovedSponsors())], [sponsorRev]);
   const missionsRef = useRef(missions);
   missionsRef.current = missions;
 

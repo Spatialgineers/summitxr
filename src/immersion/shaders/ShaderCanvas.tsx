@@ -10,7 +10,8 @@ type U = number | [number, number] | [number, number, number] | [number, number,
 
 interface Props {
   fragment: string;
-  uniforms?: Record<string, U>;
+  /** static values, or a function read every frame */
+  uniforms?: Record<string, U> | (() => Record<string, U>);
   className?: string;
   style?: React.CSSProperties;
   /** ms; uProgress goes 0→1 and onDone fires at the end */
@@ -29,6 +30,8 @@ in vec2 aPos;
 out vec2 vUv;
 void main() { vUv = aPos * 0.5 + 0.5; gl_Position = vec4(aPos, 0.0, 1.0); }`;
 
+export type ShaderUniform = U;
+
 export const ShaderCanvas: React.FC<Props> = ({ fragment, uniforms, className, style, duration, onDone, onUnsupported, fps = 60, maxDpr = 1.5, pointer = false }) => {
   const ref = useRef<HTMLCanvasElement>(null);
   const uniRef = useRef(uniforms);
@@ -39,7 +42,7 @@ export const ShaderCanvas: React.FC<Props> = ({ fragment, uniforms, className, s
   useEffect(() => {
     const canvas = ref.current;
     const gl = canvas?.getContext('webgl2', { premultipliedAlpha: true, alpha: true, antialias: false, powerPreference: 'low-power' });
-    if (!canvas || !gl) { cb.current.onUnsupported?.(); return; }
+    if (!canvas || !gl || gl.isContextLost()) { cb.current.onUnsupported?.(); return; }
 
     const compile = (type: number, src: string) => {
       const s = gl.createShader(type)!;
@@ -111,7 +114,8 @@ export const ShaderCanvas: React.FC<Props> = ({ fragment, uniforms, className, s
         set('uProgress', p);
         if (p >= 1 && !done) { done = true; cb.current.onDone?.(); }
       }
-      const extra = uniRef.current;
+      const u = uniRef.current;
+      const extra = typeof u === 'function' ? u() : u;
       if (extra) for (const k in extra) set(k, extra[k]);
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -124,7 +128,8 @@ export const ShaderCanvas: React.FC<Props> = ({ fragment, uniforms, className, s
       ro.disconnect();
       if (pointer) window.removeEventListener('pointermove', onMove);
       gl.deleteBuffer(buf); gl.deleteProgram(prog); gl.deleteShader(vs); gl.deleteShader(fs);
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      // Free the context once the canvas is really gone (StrictMode remounts reuse it).
+      window.setTimeout(() => { if (!canvas.isConnected) gl.getExtension('WEBGL_lose_context')?.loseContext(); }, 0);
     };
     // the program is built once per mount
     // eslint-disable-next-line react-hooks/exhaustive-deps

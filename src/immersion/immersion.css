@@ -64,6 +64,9 @@
   border-radius: var(--radius-round);
   animation: sgx-warp-zoom 0.76s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
 }
+.sgx-warp__tunnel { position: absolute; inset: 0; }
+.sgx-warp--gl .sgx-warp__title { text-shadow: 0 0 24px rgba(253, 204, 13, 0.45), 0 2px 18px rgba(5, 5, 5, 0.9); }
+.sgx-sparks { position: fixed; inset: 0; z-index: 62; pointer-events: none; }
 .sgx-warp__label {
   position: relative; display: grid; justify-items: center; gap: var(--space-xs); text-align: center;
   animation: sgx-warp-label 0.76s ease-out forwards;
@@ -424,3 +427,7 @@ body:has([aria-modal="true"], .sgx-hangar, .sgx-forge, .sgx-terminal-backdrop, .
   .sgx-pulse-widget:has(> .w-96) { bottom: 88px !important; }
 }
 @media (max-width: 639px) { .sgx-ticker-wrap { display: none; } }
+
+/* ---------- Holo glass (WebGL2 panel background, see shaders/HoloGlass.tsx) ---------- */
+.sgx-hologlass-host { isolation: isolate; }
+.sgx-hologlass { position: absolute; left: 0; top: 0; width: 100%; z-index: -1; pointer-events: none; }

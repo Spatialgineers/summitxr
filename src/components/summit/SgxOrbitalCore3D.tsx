@@ -14,6 +14,8 @@ import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
 import { renderPassCardImage } from '../../identity/passCardImage';
 import { useChromaCheckins } from './visitRadarStore';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { DOME_ENERGY_FRAG, HOLO_PILLAR_FRAG, HOLO_PILLAR_VERT } from '../../immersion/shaders/effects';
+import { fxPair } from '../../immersion/shaders/pillarFx';
 import {
   Pause,
   Play,
@@ -383,7 +385,7 @@ function createSponsorBillboardTexture(
   return texture;
 }
 
-// Custom GLSL Volumetric Spatial Dome Shader (replaces flat CSS gradient with real 3D WebGL atmosphere)
+// Dome: the energy field (domain-warped smoke in the active pillar's colors, see immersion/shaders/effects.ts)
 const VOLUMETRIC_DOME_VERTEX_SHADER = `
   varying vec3 vWorldDirection;
   varying vec2 vUv;
@@ -395,54 +397,6 @@ const VOLUMETRIC_DOME_VERTEX_SHADER = `
   }
 `;
 
-const VOLUMETRIC_DOME_FRAGMENT_SHADER = `
-  uniform float uTime;
-  uniform float uPulse;
-  uniform vec3 uActiveColor;
-  varying vec3 vWorldDirection;
-  varying vec2 vUv;
-
-  // Lightweight 3D trigonometric FBM for volumetric spatial plasma
-  float waveNoise(vec3 p) {
-    return sin(p.x * 2.4 + uTime * 0.35) * cos(p.y * 2.8 - uTime * 0.25) * sin(p.z * 2.4 + uTime * 0.2);
-  }
-
-  void main() {
-    vec3 dir = normalize(vWorldDirection);
-    float y = dir.y;
-
-    // Deep obsidian void at zenith & nadir (#050505) with metallic blue (#32527B) horizon band
-    vec3 deepVoid = vec3(0.02, 0.024, 0.035);
-    vec3 sgxBlue = vec3(0.196, 0.322, 0.482); // #32527B
-    vec3 sgxCyan = vec3(0.0, 0.867, 1.0);     // #00DDFF
-    vec3 sgxGold = vec3(0.992, 0.8, 0.051);   // #FDCC0D
-
-    // Horizon glow band
-    float horizonBand = exp(-abs(y + 0.06) * 4.2);
-
-    // Volumetric 3D nebula waves
-    float n1 = waveNoise(dir * 2.2 + vec3(uTime * 0.08));
-    float n2 = waveNoise(dir * 4.5 - vec3(uTime * 0.12));
-    float nebula = smoothstep(-0.2, 0.75, n1 * 0.6 + n2 * 0.4);
-
-    // 3D Spherical Coordinate Architectural Lat/Lon Grid Lines
-    float latLines = smoothstep(0.975, 0.995, abs(sin(y * 28.0 - uTime * 0.4)));
-    float angle = atan(dir.z, dir.x);
-    float lonLines = smoothstep(0.985, 0.998, abs(sin(angle * 18.0)));
-    float spatialGrid = (latLines * 0.45 + lonLines * 0.35) * exp(-abs(y) * 2.2);
-
-    //Sonar pulse ring traveling vertically through the 3D dome
-    float sonarWave = exp(-pow((y - mod(uTime * 0.22, 1.6) + 0.8) * 14.0, 2.0)) * 0.35;
-
-    vec3 col = deepVoid;
-    col = mix(col, sgxBlue * 0.65, horizonBand * 0.85);
-    col += uActiveColor * nebula * horizonBand * (0.28 + uPulse * 0.25);
-    col += mix(sgxBlue, sgxCyan, 0.5) * spatialGrid * 0.35;
-    col += sgxGold * sonarWave * 0.22;
-
-    gl_FragColor = vec4(col, 1.0);
-  }
-`;
 
 export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   activePillarId,
@@ -657,20 +611,51 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     // 1. TRUE 3D VOLUMETRIC SPATIAL SHADER DOME (Replaces flat CSS gradient)
     const domeGeo = new THREE.SphereGeometry(340, 48, 32);
     const initialPillar = SGX_ORBITAL_PILLARS.find(p => p.id === activePillarRef.current) || SGX_ORBITAL_PILLARS[0];
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    const coarsePointer = window.matchMedia?.('(pointer: coarse)').matches ?? false;
+    const [initA, initB] = fxPair(initialPillar.id);
+    const drawSize = renderer.getDrawingBufferSize(new THREE.Vector2());
     const domeUniforms = {
       uTime: { value: 0 },
       uPulse: { value: 0 },
-      uActiveColor: { value: new THREE.Color(initialPillar.threeColor) },
+      uColorA: { value: new THREE.Vector3(...initA) },
+      uColorB: { value: new THREE.Vector3(...initB) },
+      uRes: { value: new THREE.Vector2(drawSize.x, drawSize.y) },
+      uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+      uDrift: { value: 0 },
+      uMotion: { value: reduceMotion ? 0 : 1 },
+      uGain: { value: 1.2 },
     };
     const domeMat = new THREE.ShaderMaterial({
       vertexShader: VOLUMETRIC_DOME_VERTEX_SHADER,
-      fragmentShader: VOLUMETRIC_DOME_FRAGMENT_SHADER,
+      fragmentShader: DOME_ENERGY_FRAG,
+      defines: coarsePointer ? { SGX_LITE: 1 } : {},
       uniforms: domeUniforms,
       side: THREE.BackSide,
       depthWrite: false,
     });
     const domeMesh = new THREE.Mesh(domeGeo, domeMat);
     scene.add(domeMesh);
+
+    // Holographic pillar: one additive overlay material, shown only on the active pillar's .glb meshes.
+    const holoUniforms = {
+      uTime: { value: 0 },
+      uGlitch: { value: 0 },
+      uHolo: { value: 0 },
+      uScan: { value: 0 },
+      uColorA: { value: new THREE.Vector3(...initA) },
+      uColorB: { value: new THREE.Vector3(...initB) },
+    };
+    const holoMat = new THREE.ShaderMaterial({
+      vertexShader: HOLO_PILLAR_VERT,
+      fragmentShader: HOLO_PILLAR_FRAG,
+      uniforms: holoUniforms,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      depthFunc: THREE.LessEqualDepth,
+    });
+    let holoPillarId: SgxCorePillarId | null = null;
 
     // 2. 3D ARCHITECTURAL CYBER FLOOR & CEILING HORIZON RINGS (True 3D Perspective Depth)
     const environmentArchitectureGroup = new THREE.Group();
@@ -925,6 +910,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       group: THREE.Group;
       modelContainer: THREE.Group;
       fallbackMesh: THREE.Mesh;
+      holoMeshes: THREE.Mesh[];
       haloMesh: THREE.Mesh;
       pedestalCone: THREE.Mesh;
       beamLine: THREE.Line;
@@ -956,10 +942,25 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       const fallbackMesh = new THREE.Mesh(nodeSphereGeo, pMat);
       modelContainer.add(fallbackMesh);
 
+      // The loading crystal gets the hologram too (it hides with its parent once the .glb arrives).
+      const fallbackHolo = new THREE.Mesh(nodeSphereGeo, holoMat);
+      fallbackHolo.visible = false;
+      fallbackHolo.renderOrder = 2;
+      fallbackMesh.add(fallbackHolo);
+      const holoMeshes: THREE.Mesh[] = [fallbackHolo];
       const attachPillarGlb = (rawScene: THREE.Group) => {
         const normalized = normalizeGlbScene(rawScene, 15.0);
         fallbackMesh.visible = false;
         modelContainer.add(normalized);
+        const meshes: THREE.Mesh[] = [];
+        normalized.traverse((o) => { if ((o as THREE.Mesh).isMesh && !(o as THREE.SkinnedMesh).isSkinnedMesh) meshes.push(o as THREE.Mesh); });
+        meshes.forEach((m) => {
+          const overlay = new THREE.Mesh(m.geometry, holoMat);
+          overlay.visible = false;
+          overlay.renderOrder = 2;
+          m.add(overlay);
+          holoMeshes.push(overlay);
+        });
         setLoadedModelsCount(c => c + 1);
       };
 
@@ -1017,6 +1018,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         group: pGroup,
         modelContainer,
         fallbackMesh,
+        holoMeshes,
         haloMesh,
         pedestalCone,
         beamLine,
@@ -1329,6 +1331,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
+      renderer.getDrawingBufferSize(domeUniforms.uRes.value);
     };
     window.addEventListener('resize', handleResize);
 
@@ -1343,7 +1346,9 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     let lastTime = performance.now();
     let accumulatedElapsed = 0;
     const tempVec = new THREE.Vector3();
-    const targetColorObj = new THREE.Color();
+    const fxTargetA = new THREE.Vector3();
+    const fxTargetB = new THREE.Vector3();
+    const fxMouse = new THREE.Vector2();
 
     const animate = (timestamp?: number) => {
       reqId = requestAnimationFrame(animate);
@@ -1368,9 +1373,23 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       // Update 3D Volumetric Shader Dome Uniforms
       domeUniforms.uTime.value = elapsed;
       domeUniforms.uPulse.value = surge;
-      const activePillarObj = SGX_ORBITAL_PILLARS.find(p => p.id === activePillarRef.current) || SGX_ORBITAL_PILLARS[0];
-      targetColorObj.setHex(activePillarObj.threeColor);
-      domeUniforms.uActiveColor.value.lerp(targetColorObj, 0.06);
+      const [fxA, fxB] = fxPair(activePillarRef.current);
+      const pp = pointerParallaxRef.current;
+      domeUniforms.uMouse.value.lerp(fxMouse.set(pp.x * 0.5 + 0.5, pp.y * 0.5 + 0.5), 0.08);
+      domeUniforms.uDrift.value = currentOrbitAngleRef.current * 0.35;
+
+      // Holographic active pillar: rim only while it orbits, full hologram once docked.
+      if (holoPillarId !== activePillarRef.current) {
+        holoPillarId = activePillarRef.current;
+        holoUniforms.uHolo.value = 0;
+        holoUniforms.uColorA.value.set(...fxA);
+        holoUniforms.uColorB.value.set(...fxB);
+      }
+      const docked = cameraFocusedRef.current;
+      holoUniforms.uTime.value = elapsed;
+      holoUniforms.uHolo.value += ((docked ? 1 : 0.55) - holoUniforms.uHolo.value) * 0.08;
+      holoUniforms.uScan.value = docked && !reduceMotion ? 1 : 0;
+      holoUniforms.uGlitch.value = docked && !reduceMotion ? 1 : 0;
 
       // Rotate 3D Starfield & Architectural Horizon
       starfieldPoints.rotation.y = elapsed * 0.035;
@@ -1402,10 +1421,13 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       const ch = container.clientHeight || 560;
 
       let activeWorldPos = new THREE.Vector3(0, 0, 0);
+      let frontId: SgxCorePillarId = activePillarRef.current;
+      let frontZ = -Infinity;
 
       // Update each Pillar GLB satellite & 2D projected HUD tag
       pillarMeshes.forEach((pm, idx) => {
         const isActive = pm.id === activePillarRef.current;
+        for (const hm of pm.holoMeshes) hm.visible = isActive;
         const targetScale = isActive ? 1.42 + surge * 0.22 : 0.95;
         pm.modelContainer.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
 
@@ -1423,6 +1445,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         if (isActive) {
           activeWorldPos.copy(tempVec);
         }
+        if (tempVec.z > frontZ) { frontZ = tempVec.z; frontId = pm.id; }
 
         // Project 3D position to 2D container coordinates
         tempVec.project(camera);
@@ -1440,6 +1463,12 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           btnEl.style.opacity = isActive ? '1' : isFarBack ? '0.18' : '0.78';
         }
       });
+
+      // Energy field colors: the pillar passing in front while the core orbits, the docked one once docked.
+      const [domeA, domeB] = fxPair(docked ? activePillarRef.current : frontId);
+      domeUniforms.uColorA.value.lerp(fxTargetA.set(...domeA), 0.025);
+      domeUniforms.uColorB.value.lerp(fxTargetB.set(...domeB), 0.025);
+      domeUniforms.uGain.value += ((docked ? 0.9 : 1.2) - domeUniforms.uGain.value) * 0.05;
 
       // Update 3D Sponsor Billboard Stations (Stable & Facing the Camera — NO spinning so sponsors are 100% readable!)
       sponsorStationMeshes.forEach((sm, idx) => {
@@ -1551,6 +1580,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       dracoLoader.dispose();
       domeGeo.dispose();
       domeMat.dispose();
+      holoMat.dispose();
       circleParticleTexture.dispose();
       starfieldGeo.dispose();
       starfieldMat.dispose();

@@ -10,6 +10,7 @@ import { useSgxIdentity } from './SgxIdentityContext';
 import { PilotBuilder } from './PilotBuilder';
 import { randomPilot, type PilotConfig } from './pilotAvatar';
 import { SgxPassCard } from './SgxPassCard';
+import { HoloGlass } from '../immersion/shaders/HoloGlass';
 
 /* FORJA DE IDENTIDAD: one ~60 second ceremony replaces the taquilla form, the
    Holo Card generator, the role selector and both tours. Name → pillar →
@@ -106,6 +107,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
     <div className="sgx-forge" role="dialog" aria-modal="true" aria-label={es ? 'Forja de identidad' : 'Identity forge'} style={{ ['--pass-accent' as string]: accent }}>
       <div className="sgx-forge__grid" aria-hidden="true" />
       <div className="sgx-forge__frame">
+        <HoloGlass pillar={affinity} />
         <header className="sgx-forge__head">
           <div className="sgx-forge__title">
             <img src="/brand/sgx-bolt.svg" alt="" />

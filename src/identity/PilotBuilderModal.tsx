@@ -4,6 +4,7 @@ import { playUiChirp } from '../lib/cyberAudioEngine';
 import { PILLAR_ACCENT } from './sgxIdentity';
 import { useSgxIdentity } from './SgxIdentityContext';
 import { PilotBuilder } from './PilotBuilder';
+import { HoloGlass } from '../immersion/shaders/HoloGlass';
 import { configFromSeed, type PilotConfig } from './pilotAvatar';
 
 /* Avatar Studio: the Pilot Builder outside the Forge (from the Hangar, the
@@ -35,6 +36,7 @@ export const PilotBuilderModal: React.FC<{ onClose: () => void }> = ({ onClose }
   return (
     <div className="sgx-hangar" role="dialog" aria-modal="true" aria-label={es ? 'Constructor de piloto' : 'Pilot builder'} onClick={onClose}>
       <div className="sgx-hangar__frame sgx-pilotb-modal" onClick={(e) => e.stopPropagation()}>
+        <HoloGlass />
         <header className="sgx-hangar__head">
           <div className="sgx-hangar__title">
             <img src="/brand/sgx-bolt.svg" alt="" />

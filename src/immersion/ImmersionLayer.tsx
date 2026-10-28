@@ -12,7 +12,7 @@ import { HudToasts } from './HudToasts';
 import { MissionRail } from './MissionRail';
 import { CommandTerminal } from './CommandTerminal';
 import { EnergyCell, boltBurst } from './EnergyCell';
-import { Atmosphere, CursorReticle, Holodeck, OverdriveFrame, PulseWaves, WarpTransition, XpTicker, useScrollReveal } from './ImmersionFX';
+import { Atmosphere, CursorReticle, Holodeck, OverdriveFrame, PulseWaves, WarpTransition, XpSparks, XpTicker, useScrollReveal } from './ImmersionFX';
 import { SgxMobileDock } from './SgxMobileDock';
 
 /** Pages that get the full game layer. The broadcast stage and multiview stay clean for projection. */
@@ -211,6 +211,7 @@ export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPa
       <OverdriveFrame />
       {!stageMode && isGamePage && <MissionRail />}
       {!stageMode && isGamePage && <XpTicker />}
+      {fx && !stageMode && isGamePage && <XpSparks />}
       <CommandTerminal />
       <HudToasts />
       {!stageMode && currentPage === 'summit' && <SgxMobileDock section={section} />}

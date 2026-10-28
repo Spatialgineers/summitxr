@@ -4,6 +4,9 @@ import { usePilotProfile } from '../context/PilotProfileContext';
 import { useLanguage } from '../context/LanguageContext';
 import { SECTION_BY_KEY, pillarDisplay, sectionLabel } from './sections';
 import { findPillar } from '../lib/sgxPillars';
+import { ShaderCanvas, canRunShaders } from './shaders/ShaderCanvas';
+import { SPARKS_FRAG, WARP_FRAG } from './shaders/effects';
+import { fxPair, getFxPillar, setFxPillar } from './shaders/pillarFx';
 
 /* -------------------------------------------------------------------------
    Atmosphere: holodeck vignette + scanlines. Pure CSS, pointer-events none.
@@ -17,11 +20,14 @@ export const WarpTransition: React.FC<{ sectionKey: string }> = ({ sectionKey })
   const { language } = useLanguage();
   const [jump, setJump] = useState<{ key: string; n: number } | null>(null);
   const prevRef = useRef(sectionKey);
+  // The WebGL2 tunnel replaces the CSS streaks; without it (or with reduced motion) the streaks stay.
+  const [gl, setGl] = useState(() => canRunShaders());
 
   useEffect(() => {
     if (prevRef.current === sectionKey) return;
     prevRef.current = sectionKey;
     setJump((j) => ({ key: sectionKey, n: (j?.n || 0) + 1 }));
+    if (sectionKey.startsWith('PILLAR:')) setFxPillar(sectionKey.slice(7));
     const t = window.setTimeout(() => setJump(null), 760);
     return () => window.clearTimeout(t);
   }, [sectionKey]);
@@ -31,9 +37,12 @@ export const WarpTransition: React.FC<{ sectionKey: string }> = ({ sectionKey })
   const station = jump.key.startsWith('PILLAR:') ? findPillar(jump.key.slice(7)) : undefined;
   const pillarText = station ? `${language === 'es' ? 'Estación' : 'Station'} 0${station.index}` : meta ? pillarDisplay(meta.pillar) : '';
   const titleText = station ? station.name : sectionLabel(meta, language) || jump.key.replace(/^PAGE_/, '');
+  const [a, b] = fxPair(station?.key || meta?.pillar || getFxPillar());
   return (
-    <div className="sgx-warp" key={jump.n} aria-hidden="true">
-      <div className="sgx-warp__streaks" />
+    <div className={`sgx-warp${gl ? ' sgx-warp--gl' : ''}`} key={jump.n} aria-hidden="true">
+      {gl
+        ? <ShaderCanvas className="sgx-warp__tunnel" fragment={WARP_FRAG} duration={760} maxDpr={1} uniforms={{ uA: a, uB: b }} onUnsupported={() => setGl(false)} />
+        : <div className="sgx-warp__streaks" />}
       <div className="sgx-warp__label">
         {pillarText && <span className="sgx-warp__pillar">{pillarText}</span>}
         <span className="sgx-warp__title">{titleText}</span>
@@ -164,6 +173,7 @@ export const XpTicker: React.FC = () => {
     if (lastXp.current !== null && xp > lastXp.current && Date.now() > readyAt.current) {
       const id = Date.now() + Math.random();
       setFloats((f) => [...f.slice(-4), { id, xp: xp - (lastXp.current as number) }]);
+      window.dispatchEvent(new CustomEvent('sgx:xp_sparks'));
       window.setTimeout(() => setFloats((f) => f.filter((v) => v.id !== id)), 1600);
     }
     lastXp.current = xp;
@@ -183,6 +193,57 @@ export const XpTicker: React.FC = () => {
       {floats.map((f) => (
         <span key={f.id} className="sgx-xp-float">+{f.xp} XP</span>
       ))}
+    </div>
+  );
+};
+
+/* -------------------------------------------------------------------------
+   XP sparks: a burst of GPU particles from wherever the visitor last tapped
+   (or from the XP ticker) on every XP gain. Fire 'sgx:xp_sparks' with
+   {x, y} in client px to burst somewhere specific. The canvas exists only
+   while a burst is alive.
+   ------------------------------------------------------------------------- */
+export const XpSparks: React.FC = () => {
+  const [gl, setGl] = useState(() => canRunShaders());
+  const [burst, setBurst] = useState<{ n: number; x: number; y: number; t0: number } | null>(null);
+  const lastDown = useRef<{ x: number; y: number; at: number } | null>(null);
+
+  useEffect(() => {
+    if (!gl) return;
+    const onDown = (e: PointerEvent) => { lastDown.current = { x: e.clientX, y: e.clientY, at: Date.now() }; };
+    const onSpark = (e: Event) => {
+      const d = (e as CustomEvent<{ x?: number; y?: number } | null>).detail || {};
+      const recent = lastDown.current && Date.now() - lastDown.current.at < 2500 ? lastDown.current : null;
+      const x = d.x ?? recent?.x ?? window.innerWidth - 40;
+      const y = d.y ?? recent?.y ?? window.innerHeight * (window.innerWidth <= 640 ? 0.7 : 0.5);
+      setBurst((b) => ({ n: (b?.n || 0) + 1, x, y, t0: performance.now() }));
+    };
+    window.addEventListener('pointerdown', onDown, { capture: true, passive: true });
+    window.addEventListener('sgx:xp_sparks', onSpark);
+    return () => {
+      window.removeEventListener('pointerdown', onDown, { capture: true } as any);
+      window.removeEventListener('sgx:xp_sparks', onSpark);
+    };
+  }, [gl]);
+
+  useEffect(() => {
+    if (!burst) return;
+    const t = window.setTimeout(() => setBurst(null), 1500);
+    return () => window.clearTimeout(t);
+  }, [burst]);
+
+  if (!gl || !burst) return null;
+  const [a] = fxPair(getFxPillar());
+  const bx = burst.x / Math.max(1, window.innerWidth);
+  const by = 1 - burst.y / Math.max(1, window.innerHeight);
+  return (
+    <div className="sgx-sparks" aria-hidden="true">
+      <ShaderCanvas
+        fragment={SPARKS_FRAG}
+        maxDpr={1}
+        uniforms={() => ({ uBurst: [bx, by], uAge: (performance.now() - burst.t0) / 1000, uA: a })}
+        onUnsupported={() => setGl(false)}
+      />
     </div>
   );
 };

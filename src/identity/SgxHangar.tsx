@@ -10,6 +10,7 @@ import { useSgxIdentity } from './SgxIdentityContext';
 import { isDay3Open, missionsOfPillar, type ReactorMission } from './reactor';
 import { SgxPassCard, usePassQr } from './SgxPassCard';
 import { SgxConstellation } from './SgxConstellation';
+import { HoloGlass } from '../immersion/shaders/HoloGlass';
 import { useAuth } from '../context/AuthContext';
 import { GoogleSignInButton } from '../components/common/GoogleSignInButton';
 
@@ -106,6 +107,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   return (
     <div className="sgx-hangar" role="dialog" aria-modal="true" aria-label={es ? 'Hangar del piloto' : 'Pilot hangar'} onClick={onClose}>
       <div className="sgx-hangar__frame" onClick={(e) => e.stopPropagation()}>
+        <HoloGlass pillar={identity.affinity} />
         <header className="sgx-hangar__head">
           <div className="sgx-hangar__title">
             <img src="/brand/sgx-bolt.svg" alt="" />

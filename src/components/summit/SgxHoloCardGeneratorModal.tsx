@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { playCyberBurstSound, playUiChirp } from '../../lib/cyberAudioEngine';
 import { useLanguage } from '../../context/LanguageContext';
 import { SgxHoloStudio } from '../../identity/SgxHoloStudio';
+import { HoloGlass } from '../../immersion/shaders/HoloGlass';
 import type { CredentialRole } from '../../identity/credentials';
 
 /* Full-screen Holo Card Studio. Your Holo Card is your SGX Pass; the roles
@@ -31,6 +32,7 @@ export const SgxHoloCardGeneratorModal: React.FC<SgxHoloCardGeneratorModalProps>
   return (
     <div className="sgx-hangar" role="dialog" aria-modal="true" aria-label="Holo Card Studio" onClick={onClose}>
       <div className="sgx-hangar__frame sgx-hstudio-modal" onClick={(e) => e.stopPropagation()}>
+        <HoloGlass />
         <header className="sgx-hangar__head">
           <div className="sgx-hangar__title">
             <img src="/brand/sgx-bolt.svg" alt="" />

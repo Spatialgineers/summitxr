@@ -354,6 +354,7 @@ service cloud.firestore {
         ((existing().inventoryCount == -1 && incoming().inventoryCount == -1) ||
           (existing().inventoryCount > 0 && incoming().inventoryCount == existing().inventoryCount - 1)) &&
         (!('isActive' in existing()) || existing().isActive != false) &&
+        (!('active' in existing()) || existing().active != false) &&
         incoming().lastClaimId == rewardId + '_' + me() &&
         !exists(/databases/$(database)/documents/redeemed_prizes/$(rewardId + '_' + me())) &&
         existsAfter(/databases/$(database)/documents/redeemed_prizes/$(rewardId + '_' + me())));

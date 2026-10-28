@@ -30,6 +30,7 @@ import { EmbedWidget, EmbedCategory } from '../../types/summit';
 import { SummitDroneMiniGame } from './SummitDroneMiniGame';
 import { saveAllEmbedWidgets, loadAllEmbedWidgets } from '../../lib/summitData';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import { loc } from '../../lib/localize';
 
 interface SummitEmbedsHubProps {
@@ -76,6 +77,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
   embeds: initialEmbedsProp,
 }) => {
   const { language } = useLanguage();
+  const { isAdmin } = useAuth();
   const es = language === 'es';
   const [embedList, setEmbedList] = useState<EmbedWidget[]>(() => {
     try {
@@ -179,7 +181,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
     if (confirm((es ? '¿Estás seguro de que deseas eliminar esta aplicación integrada?' : 'Are you sure you want to remove this embedded app?'))) {
       const updated = embedList.filter(item => item.id !== id);
       setEmbedList(updated);
-      saveAllEmbedWidgets(updated);
+      saveAllEmbedWidgets(updated, isAdmin);
       if (selectedEmbedId === id && updated.length > 0) {
         setSelectedEmbedId(updated[0].id);
       }
@@ -223,7 +225,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
     }
 
     setEmbedList(updatedList);
-    saveAllEmbedWidgets(updatedList);
+    saveAllEmbedWidgets(updatedList, isAdmin);
     setSelectedEmbedId(newWidget.id);
     setIsModalOpen(false);
   };

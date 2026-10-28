@@ -2221,10 +2221,11 @@ export function loadAllEmbedWidgets(): EmbedWidget[] {
   return INITIAL_EMBED_WIDGETS;
 }
 
-export function saveAllEmbedWidgets(widgets: EmbedWidget[]): void {
+/** Visitors keep their own sandbox apps on this device; only admins publish to everyone. */
+export function saveAllEmbedWidgets(widgets: EmbedWidget[], publish = true): void {
   try {
     localStorage.setItem(STORAGE_KEY_CUSTOM_EMBEDS, JSON.stringify(widgets));
-    publishContent('embeds', widgets);
+    if (publish) publishContent('embeds', widgets);
     window.dispatchEvent(new Event('storage'));
   } catch (e) {
     console.warn('Could not save embed widgets locally', e);

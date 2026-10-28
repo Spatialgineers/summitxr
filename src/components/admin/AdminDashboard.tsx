@@ -1,3 +1,4 @@
+import { downloadCsvFile, escapeCsvCell } from '../../lib/csvManager';
 import React, { useState, useEffect } from 'react';
 import { 
   Question, 
@@ -359,6 +360,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  };
+
+  // Sponsor inquiries (CRM) exporter
+  const handleExportInquiriesCSV = () => {
+    const headers = ['Referencia', 'Empresa', 'Contacto', 'Cargo', 'Email', 'Telefono', 'Web', 'Tier', 'Presupuesto', 'Metas', 'Mensaje', 'Estado', 'Enviado'];
+    const rows = sponsorInquiries.map((q) => [
+      q.referenceCode, q.companyName, q.contactName, q.roleTitle || '', q.email, q.phone, q.websiteUrl || '',
+      q.selectedTierName, q.estimatedBudget || '', (q.goals || []).join(' | '), q.customMessage || '', q.status,
+      q.submittedAt ? new Date(q.submittedAt).toISOString() : '',
+    ]);
+    downloadCsvFile([headers, ...rows].map((r) => r.map(escapeCsvCell).join(',')).join('\n'), `sgx_sponsor_inquiries_${new Date().toISOString().split('T')[0]}.csv`);
   };
 
   // JSON Lead Exporter
@@ -939,7 +951,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </div>
 
                   <button
-                    onClick={handleExportCSV}
+                    onClick={handleExportInquiriesCSV}
                     className="px-3 py-1.5 bg-[#262626] border border-[var(--sgx-neon)] text-[var(--sgx-neon)] hover:bg-[var(--sgx-neon)] hover:text-black font-bold text-xs flex items-center space-x-1.5 rounded transition-all self-start sm:self-auto"
                   >
                     <Download className="w-3.5 h-3.5" />

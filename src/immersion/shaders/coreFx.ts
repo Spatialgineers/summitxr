@@ -26,7 +26,7 @@ const GRADE_SHADER = {
     tDiffuse: { value: null as THREE.Texture | null },
     uTime: { value: 0 },
     uGrain: { value: 0.035 },
-    uAberration: { value: 0.0016 },
+    uAberration: { value: 0.0008 },
     uRes: { value: new THREE.Vector2(1, 1) },
   },
   vertexShader: /* glsl */ `
@@ -65,7 +65,7 @@ export function createCorePost(renderer: THREE.WebGLRenderer, scene: THREE.Scene
   try {
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(w, h), opts.coarse ? 0.42 : 0.55, 0.4, 0.88);
+    const bloom = new UnrealBloomPass(new THREE.Vector2(w, h), opts.coarse ? 0.22 : 0.3, 0.3, 0.92);
     composer.addPass(bloom);
     composer.addPass(new OutputPass());
     const grade = new ShaderPass(GRADE_SHADER);
@@ -152,7 +152,7 @@ const FLOOR_FRAG = /* glsl */ `
         rip += exp(-k * k) * (1.0 - age / 3.0) * r.w;
       }
     }
-    vec3 col = tint * (lines * 0.55 + pulse) + mix(uColorA, vec3(1.0), 0.35) * rip * 0.8;
+    vec3 col = tint * (lines * 0.38 + pulse * 0.7) + mix(uColorA, vec3(1.0), 0.35) * rip * 0.6;
     float a = clamp(lines * 0.55 + pulse + rip * 0.7, 0.0, 1.0) * uOpacity;
     gl_FragColor = vec4(col * uOpacity, a);
     ${LINEAR_OUT}
@@ -251,7 +251,7 @@ const SHELL_FRAG = /* glsl */ `
     float bands = smoothstep(0.55, 0.85, flow);
     vec3 gold = vec3(0.99, 0.8, 0.05);
     vec3 col = mix(gold, uColorA, 0.35) * (fres * 1.1 + bands * (0.15 + fres * 0.9));
-    col *= 0.75 + uPulse * 0.9;
+    col *= 0.5 + uPulse * 0.7;
     gl_FragColor = vec4(col, 1.0);
     ${LINEAR_OUT}
   }`;

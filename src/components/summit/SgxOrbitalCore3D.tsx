@@ -632,7 +632,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       uDrift: { value: 0 },
       uMotion: { value: reduceMotion ? 0 : 1 },
-      uGain: { value: 1.2 },
+      uGain: { value: 0.85 },
     };
     const domeMat = new THREE.ShaderMaterial({
       vertexShader: VOLUMETRIC_DOME_VERTEX_SHADER,
@@ -729,11 +729,11 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     starfieldGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
     starfieldGeo.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
     const starfieldMat = new THREE.PointsMaterial({
-      size: 2.2,
+      size: 1.7,
       map: circleParticleTexture,
       vertexColors: true,
       transparent: true,
-      opacity: 0.86,
+      opacity: 0.5,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -760,11 +760,11 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     innerSwarmGeo.setAttribute('position', new THREE.BufferAttribute(innerSwarmPositions, 3));
     innerSwarmGeo.setAttribute('color', new THREE.BufferAttribute(innerSwarmColors, 3));
     const innerSwarmMat = new THREE.PointsMaterial({
-      size: 2.6,
+      size: 2.0,
       map: circleParticleTexture,
       vertexColors: true,
       transparent: true,
-      opacity: 0.92,
+      opacity: 0.55,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -1520,7 +1520,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       const [domeA, domeB] = fxPair(docked ? activePillarRef.current : frontId);
       domeUniforms.uColorA.value.lerp(fxTargetA.set(...domeA), 0.025);
       domeUniforms.uColorB.value.lerp(fxTargetB.set(...domeB), 0.025);
-      domeUniforms.uGain.value += ((docked ? 0.9 : 1.2) - domeUniforms.uGain.value) * 0.05;
+      domeUniforms.uGain.value += ((docked ? 0.65 : 0.85) - domeUniforms.uGain.value) * 0.05;
 
       // Update 3D Sponsor Billboard Stations (Stable & Facing the Camera — NO spinning so sponsors are 100% readable!)
       sponsorStationMeshes.forEach((sm, idx) => {

@@ -131,7 +131,7 @@ void main() {
   col = mix(col, uColorB * 0.85, smoothstep(0.64, 0.92, v2) * 0.65);
   float fil = 1.0 - smoothstep(0.0, 0.035, abs(fract(v * 7.0) - 0.5) - 0.43);
   col += uColorA * fil * 0.22 * smoothstep(0.45, 0.8, v);
-  col += mix(uColorA, uColorB, 0.5) * (0.22 + uPulse * 0.3) * exp(-d * 7.0);
+  col += mix(uColorA, uColorB, 0.5) * (0.12 + uPulse * 0.25) * exp(-d * 7.0);
 
   float latLines = smoothstep(0.975, 0.995, abs(sin(y * 28.0 - uTime * 0.4 * uMotion)));
   float lonLines = smoothstep(0.985, 0.998, abs(sin(atan(dir.z, dir.x) * 18.0)));

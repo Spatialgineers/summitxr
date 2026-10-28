@@ -11,6 +11,7 @@ import { PilotBuilder } from './PilotBuilder';
 import { randomPilot, type PilotConfig } from './pilotAvatar';
 import { SgxPassCard } from './SgxPassCard';
 import { HoloGlass } from '../immersion/shaders/HoloGlass';
+import { findMyRegistration, type MyRegistration } from './passNetwork';
 
 /* FORJA DE IDENTIDAD: one ~60 second ceremony replaces the taquilla form, the
    Holo Card generator, the role selector and both tours. Name → pillar →
@@ -46,6 +47,24 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
   const [pilot, setPilot] = useState<PilotConfig>(() => identity.avatar.pilot || randomPilot(identity.affinity ? PILLAR_ACCENT[identity.affinity] : undefined));
   const [imageConsent, setImageConsent] = useState<boolean>(identity.pass?.imageConsent === true);
   const [error, setError] = useState('');
+  // Signed in with Google and no pass here yet: look for one forged on another device.
+  const [found, setFound] = useState<MyRegistration | null>(null);
+  useEffect(() => {
+    if (!googleUser || identity.pass) return;
+    let alive = true;
+    findMyRegistration(googleUser.uid).then((reg) => {
+      if (!alive || !reg) return;
+      setFound(reg);
+      setFullName(reg.fullName);
+      setEmail(reg.email);
+      setOrganization(reg.organization || '');
+      setRoleTitle(reg.roleTitle || '');
+      setTier(reg.tier);
+      setImageConsent(reg.imageConsent === true);
+    });
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [googleUser?.uid]);
   const nameRef = useRef<HTMLInputElement>(null);
   const accent = affinity ? PILLAR_ACCENT[affinity] : '#FDCC0D';
   const stepIndex = ORDER.indexOf(step);
@@ -91,7 +110,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
     if (!affinity) return;
     setStep('print');
     playCyberBurstSound('kudos');
-    forge({ fullName, email, tier, affinity, roleTitle, organization, avatarSeed: seed, avatarPilot: pilot, imageConsent });
+    forge({ fullName, email, tier, affinity, roleTitle, organization, avatarSeed: seed, avatarPilot: pilot, imageConsent, code: found?.code });
     window.setTimeout(() => {
       playScanSuccessSound();
       try {
@@ -140,7 +159,17 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
             {googleUser ? (
               <div className="sgx-forge__actions">
                 <p className="sgx-forge__account">{es ? 'Conectado como' : 'Signed in as'} <strong>{googleUser.email}</strong></p>
-                <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => go('name')}>[ {es ? 'Comenzar la forja' : 'Start the forge'} ]</button></span>
+                {found ? (
+                  <>
+                    <p className="sgx-forge__account">
+                      {es ? 'Encontramos tu pase' : 'We found your pass'} <strong>{found.code}</strong>.{' '}
+                      {es ? 'Escoge tu pilar y tu piloto y queda en este dispositivo.' : 'Pick your pillar and your pilot and it lives on this device too.'}
+                    </p>
+                    <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => go('pillar')}>[ {es ? 'Recuperar mi pase' : 'Restore my pass'} ]</button></span>
+                  </>
+                ) : (
+                  <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => go('name')}>[ {es ? 'Comenzar la forja' : 'Start the forge'} ]</button></span>
+                )}
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={onClose}>{es ? 'Ahora no' : 'Not now'}</button>
               </div>
             ) : (

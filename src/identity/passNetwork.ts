@@ -1,5 +1,5 @@
 import {
-  addDoc, collection, doc, getDoc, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, where, writeBatch,
+  addDoc, collection, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, where, writeBatch,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { PassQrPayload, SgxPass } from './sgxIdentity';
@@ -28,6 +28,38 @@ export async function registerPass(pass: SgxPass, uid: string | null): Promise<v
     }, { merge: true });
   } catch (err) {
     console.warn('[SGX Pass] registration kept local:', err instanceof Error ? err.message : err);
+  }
+}
+
+export interface MyRegistration {
+  code: string;
+  fullName: string;
+  email: string;
+  tier: 'DIGITAL' | 'SHOWCASE';
+  roleTitle?: string;
+  organization?: string;
+  imageConsent?: boolean;
+}
+
+/** A pass forged on another device while signed in with this Google account (rules: owner can read it). */
+export async function findMyRegistration(uid: string): Promise<MyRegistration | null> {
+  try {
+    const snap = await getDocs(query(collection(db, 'ticket_inquiries'), where('userId', '==', uid), limit(1)));
+    const d = snap.docs[0];
+    if (!d) return null;
+    const v = d.data();
+    return {
+      code: String(v.referenceCode || d.id),
+      fullName: String(v.fullName || ''),
+      email: String(v.email || ''),
+      tier: v.ticketType === 'SHOWCASE_PHYSICAL' ? 'SHOWCASE' : 'DIGITAL',
+      roleTitle: v.roleTitle || undefined,
+      organization: v.organization || undefined,
+      imageConsent: v.imageConsent === true,
+    };
+  } catch (err) {
+    console.warn('[SGX Pass] could not look up an earlier pass:', err instanceof Error ? err.message : err);
+    return null;
   }
 }
 

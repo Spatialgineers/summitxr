@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { usePilotProfile } from '../context/PilotProfileContext';
 import { navigateToSection } from '../immersion/navigation';
@@ -30,6 +30,12 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   const { language } = useLanguage();
   const es = language === 'es';
   const { profile, leaderboard } = usePilotProfile();
+  const liveXp = useMemo(
+    () => profile.weekendActivity
+      .filter((a) => a.category === 'stage_cyoa' || a.category === 'trivia_vote' || a.category === 'keynote_reaction')
+      .reduce((sum, a) => sum + (a.xpEarned || 0), 0),
+    [profile.weekendActivity],
+  );
   const { identity, isForged, missions, isDone, xpBalance, checkIn } = useSgxIdentity();
   const { user, logout } = useAuth();
   const googleEmail = user && !user.isAnonymous ? user.email : null;
@@ -179,6 +185,24 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                     <a className="sgx-btn sgx-btn--sm sgx-btn--ground" href={identity.holo.image} download={`sgx-holo-card-${identity.pass!.serial}.jpg`}>{es ? 'Descargar Holo Card' : 'Download Holo Card'}</a>
                   )}
                 </div>
+              </div>
+              <div className="sgx-hangar__live">
+                <div>
+                  <h4>SGX Live</h4>
+                  <p>
+                    {es
+                      ? 'Tu perfil de jugador vive en este pase: tu callsign sale en el escenario y cada voto y reacción suma XP aquí.'
+                      : 'Your player profile lives on this pass: your callsign shows on the stage and every vote and reaction adds XP here.'}
+                  </p>
+                </div>
+                <dl>
+                  <div><dt>{es ? 'Votos' : 'Votes'}</dt><dd>{profile.weekendStats.votesSubmitted}</dd></div>
+                  <div><dt>{es ? 'Reacciones' : 'Reactions'}</dt><dd>{profile.weekendStats.reactionsSent}</dd></div>
+                  <div><dt>{es ? 'XP en vivo' : 'Live XP'}</dt><dd>{liveXp.toLocaleString('es-PR')}</dd></div>
+                </dl>
+                <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => { onClose(); window.dispatchEvent(new CustomEvent('sgx:navigate_page', { detail: { page: 'play' } })); }}>
+                  {es ? 'Ir a SGX Live' : 'Go to SGX Live'} →
+                </button>
               </div>
               <p className="sgx-hangar__note">
                 {es

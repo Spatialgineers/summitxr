@@ -51,3 +51,23 @@ People data is export-only:
 - **Respaldo y restauración**:
   - Download every data set as CSV.
   - Restore the original agenda, speakers, map, apps and tiers. You have to type `RESTAURAR`, and a backup downloads first.
+
+## Venue screen (live stage)
+
+- Open `summit.spatialgineers.com/?page=stage` on the venue screen. It shows the question, live percentages, the countdown, the winner, a QR to vote and the audience's reactions.
+- Visitors can only watch. Nothing on that page changes the visual. You change it from the admin (FX Presets) and by running the votes.
+- Signed in as admin, the **Proyección** button opens: transparent background, HUD on/off, 3D vote towers, camera motion, sounds, and **Copiar enlace para OBS**.
+- OBS link options: `&clean=1` hides every button, `&transparent=1` gives a transparent background, `&hud=0` shows only the 3D scene.
+
+## What needs an SGX Pass
+
+The SGX Pass is the player profile and the key to the app. There is no separate SGX Live profile: the pass callsign is the name on the stage, and votes and reactions add XP to the pass.
+
+| Open to everyone | Needs an SGX Pass |
+|---|---|
+| 3D core, pillars, agenda, speakers, sponsors, Guild, visit radar, broadcast rooms, watching the stage | SGX Live (voting and reactions), drone simulator and games, SGX.Match, networking forums and chat, 360° tour of Chroma |
+
+- Admins always get through.
+- The section banner stays visible as a teaser. The content shows a "Forja tu SGX Pass" card instead.
+- To change the list, edit `PASS_GATED_SECTIONS` in `src/identity/PassGate.tsx`.
+- **Restoring a pass on another device:** sign in with the same Google account in the Forge. It finds the earlier registration and keeps the same pass code. This only works for passes forged while signed in with Google.

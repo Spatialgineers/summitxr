@@ -36,6 +36,7 @@ import { telemetry } from './lib/telemetry';
 
 import { getAppRouteAndSectionFromUrl, syncAppUrl } from './lib/summitUrlSync';
 import { SgxPassHost } from './identity/SgxPassHost';
+import { PassGate } from './identity/PassGate';
 import { ImmersionLayer } from './immersion/ImmersionLayer';
 import { SgxBootSequence } from './immersion/SgxBootSequence';
 import { recordVisit } from './lib/visitTracker';
@@ -811,19 +812,21 @@ export default function App() {
             onSelectTenant={handleSelectTenant}
             isConnected={isConnected}
           />
-          <AudiencePWA
-            tenantId={selectedTenantId}
-            eventId={selectedEventId}
-            session={session}
-            currentQuestion={activeQuestion}
-            voteSummary={voteSummary}
-            user={userProfile}
-            hasVoted={hasVoted}
-            selectedOptionId={selectedOptionId}
-            onCastVote={handleCastVote}
-            onSendReaction={handleSendReaction}
-            isConnected={isConnected}
-          />
+          <PassGate feature="live">
+              <AudiencePWA
+                tenantId={selectedTenantId}
+                eventId={selectedEventId}
+                session={session}
+                currentQuestion={activeQuestion}
+                voteSummary={voteSummary}
+                user={userProfile}
+                hasVoted={hasVoted}
+                selectedOptionId={selectedOptionId}
+                onCastVote={handleCastVote}
+                onSendReaction={handleSendReaction}
+                isConnected={isConnected}
+              />
+          </PassGate>
         </div>
       );
     }
@@ -923,19 +926,23 @@ export default function App() {
             onSelectTenant={handleSelectTenant}
             isConnected={isConnected}
           />
-          <AudiencePWA
-            tenantId={selectedTenantId}
-            eventId={selectedEventId}
-            session={session}
-            currentQuestion={activeQuestion}
-            voteSummary={voteSummary}
-            user={userProfile}
-            hasVoted={hasVoted}
-            selectedOptionId={selectedOptionId}
-            onCastVote={handleCastVote}
-            onSendReaction={handleSendReaction}
-            isConnected={isConnected}
-          />
+          <div className="px-3 pt-4">
+            <PassGate feature="live">
+              <AudiencePWA
+                tenantId={selectedTenantId}
+                eventId={selectedEventId}
+                session={session}
+                currentQuestion={activeQuestion}
+                voteSummary={voteSummary}
+                user={userProfile}
+                hasVoted={hasVoted}
+                selectedOptionId={selectedOptionId}
+                onCastVote={handleCastVote}
+                onSendReaction={handleSendReaction}
+                isConnected={isConnected}
+              />
+            </PassGate>
+          </div>
         </div>
       );
     }

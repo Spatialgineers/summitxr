@@ -30,6 +30,8 @@ export interface ForgeInput {
   avatarPng?: string;
   avatarPilot?: PilotConfig;
   imageConsent: boolean;
+  /** Restoring a pass forged on another device keeps its code (and its registration). */
+  code?: string;
 }
 
 export type CheckinResult = 'ok' | 'already' | 'closed' | 'no_pass' | 'need_code' | 'invalid';
@@ -292,7 +294,7 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, [myUid, commit, pushToast, flag]);
 
   const forge = useCallback((input: ForgeInput) => {
-    const code = idRef.current.pass?.code || newPassCode();
+    const code = idRef.current.pass?.code || input.code || newPassCode();
     const callsign = idRef.current.callsign || callsignFromName(input.fullName);
     const pass = {
       code,

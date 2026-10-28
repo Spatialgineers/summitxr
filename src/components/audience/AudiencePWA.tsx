@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
+import { SgxPilotGlyph } from '../../identity/SgxPilotGlyph';
+import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
 import { runAnime } from '../../lib/animeHelper';
 import { 
   Question, 
@@ -15,9 +17,6 @@ import {
   Wifi,
   WifiOff,
   User,
-  X,
-  Save,
-  ShieldCheck,
   Award,
   HelpCircle,
   Zap,
@@ -78,7 +77,6 @@ interface AudiencePWAProps {
   isConnected: boolean;
 }
 
-const AVATAR_OPTIONS = ['🚀', '⚡', '🤖', '🎮', '👾', '💎', '🔥', '🏆', '🎯', '👑'];
 
 export const AudiencePWA: React.FC<AudiencePWAProps> = ({
   tenantId,
@@ -92,25 +90,22 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
   onCastVote,
   isConnected,
 }) => {
-  const { savePlayerProfile, user: firebaseAuthUser, isAnonymous } = useAuth();
+  const { savePlayerProfile } = useAuth();
   const { recordActivity, setIsProfileModalOpen } = usePilotProfile();
-  // With an SGX Pass the voter is already identified: the pass callsign is the nickname.
+  // The SGX Pass is the player profile: its callsign is the nickname on the stage and
+  // its email ties prizes to the registration. There is no separate SGX Live profile.
   const sgx = useOptionalSgxIdentity();
   const passCallsign = sgx?.isForged ? sgx.identity.callsign : '';
+  const passEmail = sgx?.isForged ? sgx.identity.pass?.email || '' : '';
   useEffect(() => {
-    if (!passCallsign || user.nickname === passCallsign) return;
-    savePlayerProfile?.({ nickname: passCallsign }).catch?.(() => {});
+    if (!passCallsign) return;
+    if (user.nickname === passCallsign && (!passEmail || user.email === passEmail)) return;
+    savePlayerProfile?.({ nickname: passCallsign, ...(passEmail ? { email: passEmail } : {}) }).catch?.(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [passCallsign]);
+  }, [passCallsign, passEmail]);
   const [activeTab, setActiveTab] = useState<'vote' | 'visualizer'>('vote');
-  const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
   const [showRewardsModal, setShowRewardsModal] = useState<boolean>(false);
   const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
-  const [nicknameInput, setNicknameInput] = useState<string>(user.nickname || '');
-  const [emailInput, setEmailInput] = useState<string>(user.email || '');
-  const [selectedAvatar, setSelectedAvatar] = useState<string>(user.avatar || '🚀');
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
 
   const handleVoteClick = (e: React.MouseEvent<HTMLButtonElement>, optionId: string, optionCode: number) => {
     if (hasVoted || session.status !== 'VOTING_ACTIVE') return;
@@ -135,29 +130,6 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
     onCastVote(optionId, optionCode);
   };
 
-  const handleSaveProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-    try {
-      await savePlayerProfile({
-        nickname: nicknameInput.trim() || user.nickname,
-        email: emailInput.trim(),
-        avatar: selectedAvatar,
-        tenantId,
-        eventId,
-      });
-      setSaveSuccess(true);
-      setTimeout(() => {
-        setSaveSuccess(false);
-        setShowProfileModal(false);
-      }, 1500);
-    } catch (err) {
-      console.error('Error saving profile:', err);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const progressPercent = currentQuestion && currentQuestion.durationSeconds > 0
     ? Math.max(0, ((session.timeRemaining || 0) / currentQuestion.durationSeconds) * 100)
     : 0;
@@ -168,25 +140,33 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
       {/* Top Floating Guest Header & Mode Selector (Only 2 Modes: Vote & Live Visualizer) */}
       <header className="p-3 border-b border-[var(--sgx-secondary)]/60 bg-[var(--sgx-bg)]/95 backdrop-blur-md sticky top-0 z-30">
         <div className="flex items-center justify-between">
-          <button 
-            onClick={() => setShowProfileModal(true)}
-            className="flex items-center space-x-2 text-left group hover:opacity-90 transition-opacity"
-            title="Editar Nickname y Correo de Jugador"
+          {/* The SGX Pass is your player profile: tap it to open the Hangar. */}
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } }))}
+            className="flex items-center space-x-2 text-left group hover:opacity-90 transition-opacity min-w-0"
+            title="Mi SGX Pass"
           >
-            <div className="w-8 h-8 rounded bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] group-hover:border-[var(--sgx-neon)] flex items-center justify-center text-sm shadow-md transition-colors" style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}>
-              <span>{user.avatar || '🚀'}</span>
+            <div className="w-9 h-9 bg-[var(--sgx-bg)] border border-[var(--sgx-accent)]/70 group-hover:border-[var(--sgx-neon)] flex items-center justify-center overflow-hidden shadow-md transition-colors shrink-0" style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}>
+              {sgx?.identity.avatar.png ? (
+                <img src={sgx.identity.avatar.png} alt="" className="w-full h-full object-cover" />
+              ) : sgx?.isForged ? (
+                <SgxPilotGlyph seed={sgx.identity.avatar.seed} config={sgx.identity.avatar.pilot} accent={sgx.identity.affinity ? PILLAR_ACCENT[sgx.identity.affinity] : '#FDCC0D'} size={26} />
+              ) : (
+                <span>{user.avatar || '🚀'}</span>
+              )}
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center space-x-1.5">
-                <span className="text-xs font-bold text-white tracking-wider truncate max-w-[120px] group-hover:text-[var(--sgx-neon)]">
-                  {user.nickname}
+                <span className="text-xs font-bold text-white tracking-wider truncate max-w-[130px] group-hover:text-[var(--sgx-neon)]">
+                  {passCallsign || user.nickname}
                 </span>
                 <span className="text-[9px] font-mono text-[var(--sgx-accent)] px-1.5 py-0.2 bg-[var(--sgx-accent)]/10 border border-[var(--sgx-accent)]/30">
-                  {passCallsign ? 'SGX PASS' : isAnonymous ? 'ANON' : 'AUTH'}
+                  {sgx?.isForged ? `#${sgx.identity.pass?.serial}` : 'ADMIN'}
                 </span>
               </div>
-              <span className="text-[9px] text-[var(--sgx-neon)] font-mono block underline">
-                Editar Perfil ✎
+              <span className="text-[9px] text-[var(--sgx-neon)] font-mono block">
+                {(sgx?.xpEarned ?? 0).toLocaleString('es-PR')} XP · SGX Pass
               </span>
             </div>
           </button>
@@ -473,129 +453,6 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
             </div>
           )}
         </main>
-      )}
-
-      {/* User Profile & Lead Registration Modal Drawer */}
-      {showProfileModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div 
-            className="w-full max-w-md bg-[#121212] border-2 border-[var(--sgx-neon)] p-5 shadow-2xl space-y-4 font-mono relative"
-            style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
-          >
-            <div className="flex items-center justify-between border-b border-[var(--sgx-secondary)] pb-3">
-              <div className="flex items-center space-x-2">
-                <User className="w-5 h-5 text-[var(--sgx-neon)]" />
-                <h3 className="text-sm font-bold text-[var(--sgx-neon)] uppercase">
-                  PERFIL DE JUGADOR • SGX LIVE
-                </h3>
-              </div>
-              <button
-                onClick={() => setShowProfileModal(false)}
-                className="p-1 text-slate-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveProfile} className="space-y-4 text-left">
-              <div className="p-3 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)]/60 space-y-1.5">
-                <div className="flex items-center justify-between text-[10px] text-[#FDCC0D] font-bold">
-                  <span className="flex items-center space-x-1">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>AUTENTICACIÓN ANÓNIMA ACTIVA</span>
-                  </span>
-                  <span>ID RECORDADO</span>
-                </div>
-                <div className="text-[9px] text-[#888888] break-all">
-                  UID: <code className="text-slate-300">{firebaseAuthUser?.uid || user.id}</code>
-                </div>
-              </div>
-
-              {/* Avatar Selector */}
-              <div className="space-y-1.5">
-                <label className="text-[11px] text-slate-300 block font-bold">
-                  ELIGE TU AVATAR:
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {AVATAR_OPTIONS.map((emoji) => (
-                    <button
-                      type="button"
-                      key={emoji}
-                      onClick={() => setSelectedAvatar(emoji)}
-                      className={`w-9 h-9 text-lg flex items-center justify-center border transition-all ${
-                        selectedAvatar === emoji
-                          ? 'bg-[var(--sgx-neon)]/20 border-[var(--sgx-neon)] scale-110 shadow-md'
-                          : 'bg-[var(--sgx-bg)] border-[var(--sgx-secondary)] hover:border-white'
-                      }`}
-                    >
-                      {emoji}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Nickname Input */}
-              <div className="space-y-1">
-                <label className="text-[11px] text-slate-300 block font-bold">
-                  NOMBRE / NICKNAME:
-                </label>
-                <input
-                  type="text"
-                  required
-                  maxLength={50}
-                  placeholder="Ej: CyberNinja_99"
-                  value={nicknameInput}
-                  onChange={(e) => setNicknameInput(e.target.value)}
-                  className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] text-white p-2 text-xs focus:border-[var(--sgx-neon)] outline-none"
-                />
-              </div>
-
-              {/* Optional Email for Rewards & Leads */}
-              <div className="space-y-1">
-                <label className="text-[11px] text-[var(--sgx-accent)] block font-bold flex items-center justify-between">
-                  <span>CORREO ELECTRÓNICO (OPCIONAL):</span>
-                  <span className="text-[9px] text-slate-400 font-normal">Para premios y sorteos</span>
-                </label>
-                <input
-                  type="email"
-                  maxLength={100}
-                  placeholder="tu.correo@ejemplo.com"
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                  className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] text-white p-2 text-xs focus:border-[var(--sgx-accent)] outline-none"
-                />
-                <p className="text-[10px] text-slate-400 font-sans leading-tight">
-                  Tus datos se guardan en el backend seguro de Spatialgineers para registrar tu puntaje y coordinar premios del evento.
-                </p>
-              </div>
-
-              {saveSuccess && (
-                <div className="p-2.5 bg-[#32527B]/90 border border-[#FDCC0D] text-[#FDCC0D] text-xs flex items-center space-x-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#FDCC0D] shrink-0" />
-                  <span>¡Perfil guardado en la nube con éxito!</span>
-                </div>
-              )}
-
-              <div className="flex space-x-2 pt-2 border-t border-[var(--sgx-secondary)]/60">
-                <button
-                  type="button"
-                  onClick={() => setShowProfileModal(false)}
-                  className="flex-1 py-2 bg-[var(--sgx-bg)] hover:bg-slate-800 border border-[var(--sgx-secondary)] text-xs text-slate-300 font-bold"
-                >
-                  CANCELAR
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="flex-1 sgx-btn-cyan py-2 text-xs font-bold flex items-center justify-center space-x-1"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>{isSaving ? 'GUARDANDO...' : 'GUARDAR PERFIL'}</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
       )}
 
       {/* Rewards Store & Leaderboard Modal */}

@@ -1,3 +1,4 @@
+import { PassGate } from '../../identity/PassGate';
 import { pillarIcon } from '../../lib/sgxPillars';
 import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { SgxStandby } from '../../immersion/SgxStandby';
@@ -1168,13 +1169,15 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               pillarBadge="SGX.SHOWCASE"
               pillarIconUrl={pillarIcon('SHOWCASE')}
             />
-            <SgxChromaArrival />
-            <Summit360MapViewer
-              nodes={mapNodes}
-              selectedNodeId={selectedMapNodeId}
-              onSelectNode={(id) => setSelectedMapNodeId(id)}
-              onOpenSessionDetails={(nodeId) => handleSelectSection('AGENDA')}
-            />
+            <PassGate feature="tour360">
+              <SgxChromaArrival />
+              <Summit360MapViewer
+                nodes={mapNodes}
+                selectedNodeId={selectedMapNodeId}
+                onSelectNode={(id) => setSelectedMapNodeId(id)}
+                onOpenSessionDetails={(nodeId) => handleSelectSection('AGENDA')}
+              />
+            </PassGate>
           </div>
         )}
 
@@ -1421,7 +1424,9 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               pillarBadge="SGX.SYNTHESIZE"
               pillarIconUrl={pillarIcon('SYNTHESIZE')}
             />
-            <SummitNetworkingChat />
+            <PassGate feature="networking">
+              <SummitNetworkingChat />
+            </PassGate>
           </div>
         )}
 
@@ -1435,12 +1440,14 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               pillarBadge="SGX.SHOWCASE"
               pillarIconUrl={pillarIcon('SHOWCASE')}
             />
-            <LazyBoundary fallback={<LazyFallback />}>
-              <MatchModule
-                onOpenPassport={() => window.dispatchEvent(new CustomEvent('sgx:open_passport'))}
-                onOpenAvatarGenerator={() => window.dispatchEvent(new CustomEvent('sgx:open_avatar'))}
-              />
-            </LazyBoundary>
+            <PassGate feature="match">
+              <LazyBoundary fallback={<LazyFallback />}>
+                <MatchModule
+                  onOpenPassport={() => window.dispatchEvent(new CustomEvent('sgx:open_passport'))}
+                  onOpenAvatarGenerator={() => window.dispatchEvent(new CustomEvent('sgx:open_avatar'))}
+                />
+              </LazyBoundary>
+            </PassGate>
           </div>
         )}
 
@@ -1454,9 +1461,11 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               pillarBadge="SGX.SPARK"
               pillarIconUrl={pillarIcon('SPARK')}
             />
-            <LazyBoundary fallback={<LazyFallback />}>
-              <SummitEmbedsHub embeds={embeds} />
-            </LazyBoundary>
+            <PassGate feature="games">
+              <LazyBoundary fallback={<LazyFallback />}>
+                <SummitEmbedsHub embeds={embeds} />
+              </LazyBoundary>
+            </PassGate>
           </div>
         )}
 

@@ -550,3 +550,35 @@
   .sgx-forge__account { flex-basis: 100%; margin: 0 0 4px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--SGX_Cyan); }
   .sgx-forge__account strong { color: #fff; font-weight: 400; }
 }
+
+/* Pass gate: what a visitor without an SGX Pass sees in place of a pass-only feature. */
+@layer components {
+  .sgx-passgate {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    max-width: 640px; margin: 8px auto 24px; padding: 32px 20px 28px;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(253, 204, 13, 0.06), rgba(5, 5, 5, 0.6));
+    border: 1px solid rgba(253, 204, 13, 0.35);
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  }
+  .sgx-passgate__icon { display: grid; place-items: center; width: 52px; height: 52px; border: 1px solid var(--SGX_Yellow); color: var(--SGX_Yellow); }
+  .sgx-passgate__icon svg { width: 22px; height: 22px; }
+  .sgx-passgate__kicker { margin: 0; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--SGX_Cyan); }
+  .sgx-passgate h2 { margin: 0; font-family: var(--font-display); font-size: clamp(1.1rem, 2.6vw, 1.5rem); line-height: 1.2; text-transform: uppercase; text-wrap: balance; }
+  .sgx-passgate__lead { margin: 0; max-width: 46ch; font-family: var(--font-body); color: rgba(255, 255, 255, 0.78); line-height: 1.5; }
+  .sgx-passgate__list { list-style: none; margin: 4px 0 8px; padding: 0; display: grid; gap: 6px; font-family: var(--font-body); font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); }
+  .sgx-passgate__list li::before { content: '◆ '; color: var(--SGX_Yellow); }
+  .sgx-passgate__note { margin: 4px 0 0; max-width: 46ch; font-family: var(--font-body); font-size: 0.8rem; color: rgba(255, 255, 255, 0.55); }
+}
+
+@layer components {
+  .sgx-hangar__live { display: grid; grid-template-columns: 1fr auto; gap: 12px 18px; align-items: center; padding: 14px 16px; border: 1px solid rgba(0, 221, 255, 0.3); background: rgba(0, 221, 255, 0.05); }
+  .sgx-hangar__live h4 { margin: 0 0 4px; font-family: var(--font-display); font-size: 0.95rem; text-transform: uppercase; color: var(--SGX_Cyan); }
+  .sgx-hangar__live p { margin: 0; font-family: var(--font-body); font-size: 0.85rem; color: rgba(255, 255, 255, 0.72); }
+  .sgx-hangar__live dl { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; }
+  .sgx-hangar__live dl div { padding: 8px 10px; background: rgba(5, 5, 5, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); }
+  .sgx-hangar__live dt { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.55); }
+  .sgx-hangar__live dd { margin: 2px 0 0; font-family: var(--font-hud); font-weight: 700; font-size: 1.15rem; font-variant-numeric: tabular-nums; color: #fff; }
+  .sgx-hangar__live .sgx-btn { grid-column: 1 / -1; justify-self: start; }
+}

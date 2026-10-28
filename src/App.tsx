@@ -1096,7 +1096,7 @@ export default function App() {
       </div>
 
       {/* SGX Pass: Forja de identidad + Hangar del piloto (replaces taquilla, profile, passport, tours) */}
-      <SgxPassHost />
+      <SgxPassHost quiet={currentPage === 'stage' || currentPage === 'multiview'} />
 
       {/* SGX Immersion Engine: quests, energy cells, terminal, HUD and FX */}
       <ImmersionLayer currentPage={currentPage} />

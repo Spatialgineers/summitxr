@@ -37,7 +37,8 @@ function stripParam(name: string) {
   } catch { /* ignore */ }
 }
 
-export const SgxPassHost: React.FC = () => {
+/** `quiet`: venue screens (stage, multiview) never show the forge nudge. */
+export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) => {
   const { language } = useLanguage();
   const es = language === 'es';
   const { isProfileModalOpen, setIsProfileModalOpen, isRoleModalOpen, setIsRoleModalOpen } = usePilotProfile();
@@ -230,7 +231,7 @@ export const SgxPassHost: React.FC = () => {
 
   return (
     <>
-      {nudge && !forge && !isForged && (
+      {nudge && !quiet && !forge && !isForged && (
         <div className="sgx-nudge" role="status">
           <p><b>{es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass'}</b>{es ? 'Tu registro, tu Holo Card y tu entrada del Día 3, en un minuto.' : 'Your registration, Holo Card and Day 3 entrance, in one minute.'}</p>
           <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => { setNudge(false); setForge({ tier: 'DIGITAL' }); }}>{es ? 'Forjar' : 'Forge'}</button>

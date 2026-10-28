@@ -125,6 +125,7 @@ const FLOOR_FRAG = /* glsl */ `
   uniform vec3 uColorB;
   uniform float uTime;
   uniform float uOpacity;
+  uniform float uScale;
   uniform vec4 uRipples[4];
   varying vec3 vWorld;
   float gridLine(vec2 p, float size) {
@@ -133,7 +134,7 @@ const FLOOR_FRAG = /* glsl */ `
     return 1.0 - min(min(g.x, g.y), 1.0);
   }
   void main() {
-    vec2 p = vWorld.xz;
+    vec2 p = vWorld.xz * uScale;
     float d = length(p);
     float fade = 1.0 - smoothstep(70.0, 330.0, d);
     float minor = gridLine(p, 8.0) * 0.4;
@@ -165,10 +166,11 @@ export interface CoreFloor {
   dispose: () => void;
 }
 
-export function createFloor(colorA: { value: THREE.Vector3 }, colorB: { value: THREE.Vector3 }, y: number, opacity: number, linear: boolean): CoreFloor {
+/** `scale` > 1 packs the grid tighter for smaller scenes (the stage uses 4). */
+export function createFloor(colorA: { value: THREE.Vector3 }, colorB: { value: THREE.Vector3 }, y: number, opacity: number, linear: boolean, scale = 1): CoreFloor {
   const ripples = [0, 1, 2, 3].map(() => new THREE.Vector4(0, 0, -99, 0));
-  const uniforms = { uColorA: colorA, uColorB: colorB, uTime: { value: 0 }, uOpacity: { value: opacity }, uRipples: { value: ripples } };
-  const geo = new THREE.PlaneGeometry(900, 900, 1, 1);
+  const uniforms = { uColorA: colorA, uColorB: colorB, uTime: { value: 0 }, uOpacity: { value: opacity }, uScale: { value: scale }, uRipples: { value: ripples } };
+  const geo = new THREE.PlaneGeometry(900 / scale, 900 / scale, 1, 1);
   const mat = new THREE.ShaderMaterial({
     vertexShader: FLOOR_VERT, fragmentShader: FLOOR_FRAG, uniforms, defines: linear ? { SGX_LINEAR: 1 } : {},
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
@@ -180,7 +182,7 @@ export function createFloor(colorA: { value: THREE.Vector3 }, colorB: { value: T
   let next = 0;
   return {
     mesh,
-    ripple: (x, z, strength = 1) => { ripples[next].set(x, z, uniforms.uTime.value, strength); next = (next + 1) % 4; },
+    ripple: (x, z, strength = 1) => { ripples[next].set(x * scale, z * scale, uniforms.uTime.value, strength); next = (next + 1) % 4; },
     update: (t) => { uniforms.uTime.value = t; },
     dispose: () => { geo.dispose(); mat.dispose(); },
   };

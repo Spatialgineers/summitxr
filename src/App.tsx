@@ -281,6 +281,7 @@ export default function App() {
     }
 
     let isDisposed = false;
+    let reconnectAttempt = 0;
 
     const connectWS = () => {
       if (isDisposed) return;
@@ -293,6 +294,7 @@ export default function App() {
 
         ws.onopen = () => {
           if (isDisposed) return;
+          reconnectAttempt = 0;
           setIsConnected(true);
           // App Check: the engine accepts votes and reactions from verified app instances.
           getAppCheckToken().then((token) => {
@@ -326,7 +328,10 @@ export default function App() {
         ws.onclose = () => {
           if (isDisposed) return;
           setIsConnected(false);
-          reconnectTimerRef.current = setTimeout(connectWS, 4000);
+          // Backoff with jitter: after a deploy or a Wi-Fi blip, a full room
+          // doesn't knock on the server in the same second.
+          const base = Math.min(30_000, 1500 * 2 ** reconnectAttempt++);
+          reconnectTimerRef.current = setTimeout(connectWS, base * (0.5 + Math.random()));
         };
 
         ws.onerror = () => {
@@ -471,10 +476,10 @@ export default function App() {
 
       case 'AUDIENCE_REACTION':
       case 'REACTION_BURST': {
-        const reaction: ReactionBurst = msg.payload;
-        if (reaction) {
-          setReactions(prev => [...prev.slice(-20), reaction]);
-        }
+        // The engine batches taps: one message carries several reactions.
+        const batch: ReactionBurst[] = (Array.isArray(msg.payload) ? msg.payload : [msg.payload])
+          .filter((r: ReactionBurst | undefined) => r && r.userId !== userProfile.id);
+        if (batch.length) setReactions(prev => [...prev, ...batch].slice(-21));
         break;
       }
 
@@ -525,14 +530,8 @@ export default function App() {
     }
   };
 
-  // Send Ultra-Low Payload Binary Buffer (1 byte: 0x01–0x04)
-  const sendBinaryVote = (code: number) => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      const buffer = new Uint8Array([code]);
-      telemetry.recordBytesOut(1);
-      wsRef.current.send(buffer);
-    }
-  };
+  /** REST copies are a fallback for when the socket is down; sending both double-counts on the server. */
+  const socketOpen = () => !!wsRef.current && wsRef.current.readyState === WebSocket.OPEN;
 
   // Director Actions (Dual-path: Instant Optimistic + WebSocket + REST)
   const handleBroadcastQuestion = (index: number) => {
@@ -558,7 +557,7 @@ export default function App() {
     });
 
     // 3. REST Action Sync
-    adminFetch('/api/action/broadcast-question', {
+    if (!socketOpen()) adminFetch('/api/action/broadcast-question', {
       method: 'POST',
       body: JSON.stringify({
         tenantId: selectedTenantId,
@@ -581,7 +580,7 @@ export default function App() {
       eventId: selectedEventId,
     });
 
-    adminFetch('/api/action/close-voting', {
+    if (!socketOpen()) adminFetch('/api/action/close-voting', {
       method: 'POST',
       body: JSON.stringify({
         tenantId: selectedTenantId,
@@ -603,7 +602,7 @@ export default function App() {
       eventId: selectedEventId,
     });
 
-    adminFetch('/api/action/trigger-preset', {
+    if (!socketOpen()) adminFetch('/api/action/trigger-preset', {
       method: 'POST',
       body: JSON.stringify({
         tenantId: selectedTenantId,
@@ -682,15 +681,15 @@ export default function App() {
     setHasVoted(true);
     setSelectedOptionId(optionId);
 
-    // 1. Send ultra-low latency binary buffer (1 byte)
-    sendBinaryVote(optionCode);
-
-    // 2. Send JSON payload over WebSocket
+    // The question id travels with the vote, so a late one can't land on the next poll.
+    const questionId = questions[currentQuestionIndex]?.id;
+    const viaSocket = socketOpen();
     sendWS({
       type: 'SUBMIT_VOTE',
       payload: {
         optionId,
         optionCode,
+        questionId,
         userId: userProfile.id,
         user: userProfile,
       },
@@ -698,7 +697,8 @@ export default function App() {
       eventId: selectedEventId,
     });
 
-    // 3. REST fallback POST
+    // REST only when the socket is down.
+    if (viaSocket) return;
     appCheckHeaders().then((ac) => fetch('/api/vote', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...ac },
@@ -708,6 +708,7 @@ export default function App() {
         userId: userProfile.id,
         optionId,
         optionCode,
+        questionId,
         user: userProfile,
       }),
     })).catch(err => console.warn('REST vote fallback warning:', err));
@@ -724,7 +725,8 @@ export default function App() {
     };
     setReactions(prev => [...prev.slice(-20), optimisticRx]);
 
-    // 2. Send WebSocket
+    // 2. Send WebSocket (REST only when the socket is down)
+    const viaSocket = socketOpen();
     sendWS({
       type: 'SEND_REACTION',
       payload: {
@@ -738,7 +740,7 @@ export default function App() {
       eventId: selectedEventId,
     });
 
-    // 3. REST fallback
+    if (viaSocket) return;
     appCheckHeaders().then((ac) => fetch('/api/reaction', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...ac },

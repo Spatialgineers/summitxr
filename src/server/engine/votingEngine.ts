@@ -12,8 +12,8 @@ const VOTE_BROADCAST_INTERVAL_MS = 500;
 const LIVE_USERS_LIMIT = 50;
 
 export type VoteResult =
-  | { status: 'ACCEPTED'; calc: ReturnType<typeof calculatePoints>; user: UserProfile; summary: VoteSummary }
-  | { status: 'DUPLICATE' | 'INVALID_OPTION' | 'NOT_ACTIVE' };
+  | { status: 'ACCEPTED'; calc: ReturnType<typeof calculatePoints>; user: UserProfile }
+  | { status: 'DUPLICATE' | 'INVALID_OPTION' | 'NOT_ACTIVE' | 'STALE' };
 
 export function computeVoteSummary(room: RoomState, question: Question | null | undefined): VoteSummary {
   const options = Array.isArray(question?.options) ? question!.options.filter((o) => o && typeof o.id === 'string') : [];
@@ -70,6 +70,9 @@ export function endVotingAndReveal(
   }
   cancelVoteBroadcast(room);
 
+  // The director's console may send the close twice (socket + REST): reveal once.
+  if (room.session.status === 'RESULT_REVEALED' && room.session.currentQuestionId === question.id) return;
+
   const summary = computeVoteSummary(room, question);
   room.session.status = 'RESULT_REVEALED';
   room.session.activePresetId = summary.winningPresetId;
@@ -87,19 +90,8 @@ export function endVotingAndReveal(
       winningPreset,
       winningPresetId: summary.winningPresetId,
       storyNarrative: question.storyPathOutcome?.narrative,
-      users: Array.from(room.users.values()),
-    },
-  });
-
-  broadcast(room.tenantId, room.eventId, {
-    type: 'VOTE_SUMMARY',
-    tenantId: room.tenantId,
-    eventId: room.eventId,
-    timestamp: Date.now(),
-    payload: {
-      summary,
-      winningPreset,
-      storyNarrative: question.storyPathOutcome?.narrative,
+      // Leaderboard only: everyone's full history would grow with every poll.
+      users: topUsers(room),
     },
   });
 
@@ -114,16 +106,6 @@ export function endVotingAndReveal(
     },
   });
 
-  broadcast(room.tenantId, room.eventId, {
-    type: 'PRESET_TRIGGER',
-    tenantId: room.tenantId,
-    eventId: room.eventId,
-    timestamp: Date.now(),
-    payload: {
-      presetId: summary.winningPresetId,
-      source: 'WINNER_VOTE',
-    },
-  });
 }
 
 export function startQuestionVoting(
@@ -137,6 +119,10 @@ export function startQuestionVoting(
 
   const question = room.questions[room.currentQuestionIndex];
   if (!question) return null;
+
+  // Starting the question that is already open is a no-op (the console sends
+  // socket + REST); resetting would wipe the votes cast in between.
+  if (room.session.status === 'VOTING_ACTIVE' && room.session.currentQuestionId === question.id) return question;
 
   // Reset votes for new round
   room.votes.clear();
@@ -204,17 +190,6 @@ export function startQuestionVoting(
       }
     });
 
-    broadcast(room.tenantId, room.eventId, {
-      type: 'COUNTDOWN_TICK',
-      tenantId: room.tenantId,
-      eventId: room.eventId,
-      timestamp: now,
-      payload: {
-        questionId: question.id,
-        timeRemaining: remainingSec,
-        totalDuration: duration,
-      }
-    });
 
     if (remainingSec <= 0) {
       endVotingAndReveal(room, question, broadcast);
@@ -240,7 +215,8 @@ function cancelVoteBroadcast(room: RoomState) {
 function topUsers(room: RoomState): UserProfile[] {
   return Array.from(room.users.values())
     .sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0))
-    .slice(0, LIVE_USERS_LIMIT);
+    .slice(0, LIVE_USERS_LIMIT)
+    .map((u) => ({ ...u, choiceHistory: [] }));
 }
 
 /** Coalesces live vote updates: one VOTE_UPDATE + STATE_SYNC per room per interval. */
@@ -287,6 +263,8 @@ export function processVoteSubmission(
   payload: {
     optionId?: unknown;
     optionCode?: unknown;
+    /** The question the phone was looking at; a late vote for an older question is refused. */
+    questionId?: unknown;
     nickname?: unknown;
     avatar?: unknown;
   },
@@ -296,6 +274,7 @@ export function processVoteSubmission(
   if (!currentQ || room.session.status !== 'VOTING_ACTIVE' || !Array.isArray(currentQ.options)) {
     return { status: 'NOT_ACTIVE' };
   }
+  if (typeof payload.questionId === 'string' && payload.questionId !== currentQ.id) return { status: 'STALE' };
   if (room.votes.has(voterId)) return { status: 'DUPLICATE' };
 
   const opt = (typeof payload.optionId === 'string' && currentQ.options.find(o => o.id === payload.optionId))
@@ -371,9 +350,8 @@ export function processVoteSubmission(
     points: calc.totalPointsEarned,
   });
 
-  const liveSummary = computeVoteSummary(room, currentQ);
   scheduleVoteBroadcast(room, broadcast);
 
-  return { status: 'ACCEPTED', calc, user, summary: liveSummary };
+  return { status: 'ACCEPTED', calc, user };
 }
 

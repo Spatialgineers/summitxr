@@ -5,9 +5,11 @@
  * Simula N teléfonos de audiencia contra una instancia LOCAL del servidor
  * (server.ts empaquetado igual que `npm run build`) y un director que abre y
  * cierra votaciones. Usa exactamente los mensajes que envían los clientes
- * reales (src/App.tsx): voto binario de 1 byte + SUBMIT_VOTE JSON + POST
- * /api/vote, reacciones SEND_REACTION + POST /api/reaction, y para el
- * director BROADCAST_QUESTION / TRIGGER_PRESET / CLOSE_VOTING por WS + REST.
+ * reales (src/App.tsx): SUBMIT_VOTE JSON con questionId y reacciones
+ * SEND_REACTION por WS (REST solo con --rest, como cuando el socket se cae), y
+ * para el director BROADCAST_QUESTION / TRIGGER_PRESET / CLOSE_VOTING por WS
+ * + copia REST (--no-admin-rest la quita) para comprobar que el duplicado no
+ * borra votos.
  *
  * No toca el código de la app: no hay simulador ni hooks dentro del servidor.
  * Ver scripts/loadtest/README.md.
@@ -112,18 +114,17 @@ function runWorker() {
     c.voted.add(q.id);
     let r = Math.random(), opt = q.options[q.options.length - 1];
     for (let i = 0; i < q.options.length; i++) { r -= OPTION_WEIGHTS[i] ?? 0; if (r <= 0) { opt = q.options[i]; break; } }
-    // Same three paths as handleCastVote in src/App.tsx.
-    send(c, Buffer.from([opt.code]));
+    // Same as handleCastVote in src/App.tsx: JSON with the question id.
     send(c, JSON.stringify({
       type: 'SUBMIT_VOTE',
-      payload: { optionId: opt.id, optionCode: opt.code, userId: c.userId, user: { id: c.userId, nickname: c.nick, avatar: '🚀' } },
+      payload: { optionId: opt.id, optionCode: opt.code, questionId: q.id, userId: c.userId, user: { id: c.userId, nickname: c.nick, avatar: '🚀' } },
       tenantId: cfg.tenantId, eventId: cfg.eventId,
     }));
     stats.votesSent++;
     const t = tally(q.id); t.voters++; bump(t.sentByOption, opt.id);
     c.lastVoteQ = q.id;
     if (cfg.rest) {
-      rest(c, '/api/vote', { tenantId: cfg.tenantId, eventId: cfg.eventId, userId: c.userId, optionId: opt.id, optionCode: opt.code, user: { id: c.userId, nickname: c.nick } })
+      rest(c, '/api/vote', { tenantId: cfg.tenantId, eventId: cfg.eventId, userId: c.userId, optionId: opt.id, optionCode: opt.code, questionId: q.id, user: { id: c.userId, nickname: c.nick } })
         .then((s) => { if (s === 200) { t.restAccepted++; c.acceptedCount.set(q.id, (c.acceptedCount.get(q.id) || 0) + 1); if (c.acceptedCount.get(q.id) > 1) t.doubleAccepted++; } });
     }
   }
@@ -190,6 +191,7 @@ function runWorker() {
         if (q) recordReceipt(c, type + '|' + q[1], hr);
         break;
       }
+      case 'VISUALIZER_TRIGGER':
       case 'PRESET_TRIGGER': {
         const msg = JSON.parse(buf.toString('utf8'));
         if (msg.payload?.source === 'MANUAL_DIRECTOR') recordReceipt(c, 'PRESET_TRIGGER|' + msg.payload.presetId, hr);
@@ -306,7 +308,7 @@ function parseArgs(argv) {
   const a = {
     url: null, clients: 1000, rampMs: 10000, workers: Math.max(1, Math.min(3, os.cpus().length - 1)),
     rounds: 3, roundMs: 12000, voteMinMs: 300, voteWindowMs: 8000, voteRate: 0.9, reactionRate: 0.03,
-    rest: true, adminDualPath: true, adminRestDelayMs: 0, clientsPerIp: 1, slow: 0,
+    rest: false, adminDualPath: true, adminRestDelayMs: 0, clientsPerIp: 1, slow: 0,
     tenant: 'tenant_spatialgineers', event: 'event_live_main', port: 0, serverJs: false,
     adminToken: process.env.SGX_TEST_ADMIN_TOKEN || null, out: path.join(HERE, 'out'), label: '',
     allowRemote: false, settleMs: 3000, handshakeTimeoutMs: 15000, serverPid: null, appCheck: 'monitor',
@@ -327,6 +329,7 @@ function parseArgs(argv) {
       case 'vote-rate': a.voteRate = num(next(), k0); break;
       case 'reaction-rate': a.reactionRate = num(next(), k0); break;
       case 'no-rest': a.rest = false; break;
+      case 'rest': a.rest = true; break;
       case 'no-admin-rest': a.adminDualPath = false; break;
       case 'admin-rest-delay-ms': a.adminRestDelayMs = num(next(), k0); break;
       case 'clients-per-ip': a.clientsPerIp = num(next(), k0); break;

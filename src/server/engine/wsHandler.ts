@@ -36,31 +36,63 @@ const DIRECTOR_MESSAGES = new Set([
 ]);
 
 // A whole venue can share one Wi-Fi address (Day 3 at Chroma), so the per-IP cap is generous.
-const MAX_SOCKETS_PER_IP = 600;
+const MAX_SOCKETS_PER_IP = 1500;
 // Directors upload custom visuals over the socket; keep room for them.
 const MAX_PAYLOAD_BYTES = 12 * 1024 * 1024;
 // The audience only sends votes, reactions and its sign-in token.
 const MAX_AUDIENCE_PAYLOAD_BYTES = 64 * 1024;
 
+// A phone that stops reading (bad Wi-Fi) must not make the server hold its
+// backlog forever: above SOFT, it misses decorative updates; above HARD, it is
+// dropped (it reconnects and gets a fresh INIT_STATE).
+const BACKLOG_SOFT_BYTES = 512 * 1024;
+const BACKLOG_HARD_BYTES = 8 * 1024 * 1024;
+/** Messages a lagging phone can skip without losing state. */
+const SKIPPABLE = new Set(['REACTION_BURST', 'TIMER_TICK', 'VOTE_UPDATE', 'STATE_SYNC']);
+/** Audience count broadcasts are coalesced to one per room per interval. */
+const COUNT_SYNC_MS = 1000;
+
 export function setupWebSocketEngine(server: http.Server) {
   const wss = new WebSocketServer({ server, path: '/ws', maxPayload: MAX_PAYLOAD_BYTES });
   const clientMap = new Map<WebSocket, ClientMeta>();
   const socketsPerIp = new Map<string, number>();
+  // Sockets per room, so a broadcast only walks that room and the count is O(1).
+  const roomSockets = new Map<string, Set<WebSocket>>();
+  const roomKey = (tenantId: string, eventId: string) => `${tenantId}:${eventId}`;
+  const countTimers = new Map<string, NodeJS.Timeout>();
 
   function broadcastToRoom(tenantId: string, eventId: string, message: WSMessage) {
+    const sockets = roomSockets.get(roomKey(tenantId, eventId));
+    if (!sockets || sockets.size === 0) return;
     const payloadStr = JSON.stringify(message);
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        const meta = clientMap.get(client);
-        if (meta && meta.tenantId === tenantId && meta.eventId === eventId) {
-          client.send(payloadStr);
-        }
-      }
+    const skippable = SKIPPABLE.has(message.type);
+    sockets.forEach((client) => {
+      if (client.readyState !== WebSocket.OPEN) return;
+      const backlog = client.bufferedAmount;
+      if (backlog > BACKLOG_HARD_BYTES) { client.terminate(); return; }
+      if (skippable && backlog > BACKLOG_SOFT_BYTES) return;
+      client.send(payloadStr);
     });
   }
 
-  const roomCount = (tenantId: string, eventId: string) =>
-    Array.from(clientMap.values()).filter(c => c.tenantId === tenantId && c.eventId === eventId).length;
+  const roomCount = (tenantId: string, eventId: string) => roomSockets.get(roomKey(tenantId, eventId))?.size || 0;
+
+  /** Connect/disconnect storms (a deploy, a Wi-Fi blip) send one count update per second, not one per phone. */
+  function scheduleCountSync(tenantId: string, eventId: string) {
+    const key = roomKey(tenantId, eventId);
+    if (countTimers.has(key)) return;
+    countTimers.set(key, setTimeout(() => {
+      countTimers.delete(key);
+      try {
+        broadcastToRoom(tenantId, eventId, {
+          type: 'STATE_SYNC', tenantId, eventId, timestamp: Date.now(),
+          payload: { connectedAudienceCount: roomCount(tenantId, eventId) },
+        });
+      } catch (err) {
+        console.error('[WebSocket Engine Error]:', err);
+      }
+    }, COUNT_SYNC_MS));
+  }
 
   function syncRoom(room: RoomState) {
     const currentQ = room.questions[room.currentQuestionIndex];
@@ -111,6 +143,9 @@ export function setupWebSocketEngine(server: http.Server) {
 
       const meta: ClientMeta = { tenantId, eventId, userId, role, isAdmin: false, appCheck: false };
       clientMap.set(ws, meta);
+      const rk = roomKey(tenantId, eventId);
+      if (!roomSockets.has(rk)) roomSockets.set(rk, new Set());
+      roomSockets.get(rk)!.add(ws);
       const limiter = new TokenBucket(30, 10);
 
       const authenticate = async (token: unknown) => {
@@ -137,10 +172,7 @@ export function setupWebSocketEngine(server: http.Server) {
 
       ws.send(JSON.stringify({ type: 'INIT_STATE', tenantId, eventId, timestamp: Date.now(), payload: initStatePayload }));
       ws.send(JSON.stringify({ type: 'ROOM_STATE_SYNC', tenantId, eventId, timestamp: Date.now(), payload: initStatePayload }));
-      broadcastToRoom(tenantId, eventId, {
-        type: 'STATE_SYNC', tenantId, eventId, timestamp: Date.now(),
-        payload: { connectedAudienceCount: roomCount(tenantId, eventId) },
-      });
+      scheduleCountSync(tenantId, eventId);
 
       let appCheckPending: Promise<boolean> | null = null;
       ws.on('message', async (data, isBinary) => {
@@ -151,23 +183,13 @@ export function setupWebSocketEngine(server: http.Server) {
           let messageType = '';
           let payload: any = {};
 
-          if (isBinary) {
-            const buffer = Buffer.from(data as Buffer);
-            const optionCode = buffer[0];
-            const curQ = room.questions[room.currentQuestionIndex];
-            if (curQ && Array.isArray(curQ.options)) {
-              const matchedOpt = curQ.options.find(o => o.code === optionCode) || curQ.options[optionCode - 1];
-              if (matchedOpt) {
-                messageType = 'SUBMIT_VOTE';
-                payload = { optionId: matchedOpt.id, nickname };
-              }
-            }
-          } else {
-            const parsed = JSON.parse(data.toString());
-            if (!parsed || typeof parsed !== 'object') return;
-            messageType = typeof parsed.type === 'string' ? parsed.type : '';
-            payload = parsed.payload ?? {};
-          }
+          // Votes are JSON with the question id; old 1-byte binary votes can't say
+          // which question they were for, so they are ignored.
+          if (isBinary) return;
+          const parsed = JSON.parse(data.toString());
+          if (!parsed || typeof parsed !== 'object') return;
+          messageType = typeof parsed.type === 'string' ? parsed.type : '';
+          payload = parsed.payload ?? {};
 
           if (messageType === 'AUTH') {
             authenticate(payload?.token).catch(() => {});
@@ -279,16 +301,11 @@ export function setupWebSocketEngine(server: http.Server) {
 
       ws.on('close', () => {
         clientMap.delete(ws);
+        roomSockets.get(rk)?.delete(ws);
+        if (roomSockets.get(rk)?.size === 0) roomSockets.delete(rk);
         socketsPerIp.set(ip, Math.max(0, (socketsPerIp.get(ip) || 1) - 1));
         if ((socketsPerIp.get(ip) || 0) === 0) socketsPerIp.delete(ip);
-        try {
-          broadcastToRoom(tenantId, eventId, {
-            type: 'STATE_SYNC', tenantId, eventId, timestamp: Date.now(),
-            payload: { connectedAudienceCount: roomCount(tenantId, eventId) },
-          });
-        } catch (err) {
-          console.error('[WebSocket Engine Error]:', err);
-        }
+        scheduleCountSync(tenantId, eventId);
       });
 
       ws.on('error', (err) => console.warn('[WebSocket Engine] socket error:', err?.message || err));

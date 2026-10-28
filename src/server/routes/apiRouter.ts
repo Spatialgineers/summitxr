@@ -113,10 +113,10 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
 
     const result = processVoteSubmission(room, voterId, req.body || {}, broadcastToRoom);
     if (result.status !== 'ACCEPTED') {
-      return res.status(result.status === 'DUPLICATE' ? 409 : 400).json({ error: result.status });
+      return res.status(result.status === 'DUPLICATE' || result.status === 'STALE' ? 409 : 400).json({ error: result.status });
     }
     const ok = result as Extract<typeof result, { status: 'ACCEPTED' }>;
-    res.json({ success: true, calculation: ok.calc, summary: ok.summary, user: ok.user });
+    res.json({ success: true, calculation: ok.calc, summary: computeVoteSummary(room, room.questions[room.currentQuestionIndex]), user: ok.user });
   });
 
   // Audience Reaction (REST Fallback)

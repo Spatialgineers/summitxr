@@ -33,6 +33,22 @@ check('one vote per socket despite payload userIds', last && last.payload.totalV
 send(v.ws, 'SIMULATE_VOTES', { count: 10 }); await wait(200);
 check('voter cannot simulate', v.msgs.some(m => m.type === 'ERROR'));
 
+// A repeated start of the open question (console sends socket + REST) must not wipe votes.
+send(d.ws, 'START_VOTING', { index: 0 }); await wait(400);
+const v2 = await open('&userId=voter2');
+send(v2.ws, 'SUBMIT_VOTE', { optionId: 'b', questionId: 'q1' }); await wait(700);
+const before = v2.msgs.filter(m => m.type === 'VOTE_UPDATE').pop()?.payload.totalVotes;
+send(d.ws, 'START_VOTING', { index: 0 }); await wait(900);
+const v3 = await open('&userId=voter3'); await wait(300);
+const synced = v3.msgs.find(m => m.type === 'INIT_STATE')?.payload.voteSummary?.totalVotes;
+check('duplicate start keeps the votes', before === 2 && synced === 2);
+// A late vote for an older question is refused instead of landing on the current one.
+send(v3.ws, 'SUBMIT_VOTE', { optionId: 'a', questionId: 'q_old' }); await wait(500);
+check('stale vote (other question) not counted', !v3.msgs.some(m => m.type === 'SCORE_UPDATE'));
+// Binary votes carry no question id and are ignored.
+v3.ws.send(Buffer.from([1])); await wait(500);
+check('binary vote ignored', !v3.msgs.some(m => m.type === 'SCORE_UPDATE'));
+
 const bws = await open('&userId=big1'); let closed = false; bws.ws.on('close', () => { closed = true; }); bws.ws.on('error', () => {}); bws.ws.send('x'.repeat(300 * 1024)); await wait(400);
 check('oversized payload closes that socket', closed);
 const c3 = await open('&userId=alive2'); await wait(200);

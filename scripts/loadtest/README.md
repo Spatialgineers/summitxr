@@ -39,17 +39,17 @@ Exactamente lo que hace `src/App.tsx`:
 
 1. Conecta a `/ws?tenantId=…&eventId=…&userId=…&nickname=…`.
 2. Al recibir `QUESTION_START` decide una sola vez si vota (`--vote-rate`) y,
-   tras un tiempo de reacción aleatorio, envía **el voto binario de 1 byte**
-   (código de opción), **`SUBMIT_VOTE` JSON** y **`POST /api/vote`** (fallback
-   REST), igual que `handleCastVote`.
-3. Envía reacciones (`SEND_REACTION` por WS + `POST /api/reaction`) a
-   `--reaction-rate` toques por segundo por persona.
+   tras un tiempo de reacción aleatorio, envía **`SUBMIT_VOTE` JSON con el
+   `questionId`**, igual que `handleCastVote`. El cliente real solo usa
+   `POST /api/vote` cuando el socket está caído; `--rest` lo fuerza siempre.
+3. Envía reacciones (`SEND_REACTION` por WS; `POST /api/reaction` solo con
+   `--rest`) a `--reaction-rate` toques por segundo por persona.
 4. No envía token de App Check (los clientes reales tampoco mientras
    `recaptchaSiteKey` esté vacío). El servidor local corre con
    `SGX_APPCHECK=monitor` (cuenta, no bloquea). Con `--appcheck enforce` todos
    los votos simulados serían rechazados.
 
-Para no compartir un solo límite por IP (600 sockets por IP), cada cliente
+Para no compartir un solo límite por IP (1500 sockets por IP), cada cliente
 manda una `X-Forwarded-For` distinta (`--clients-per-ip 1`). Con
 `--clients-per-ip 0` todos salen de 127.0.0.1, como un Wi-Fi con NAT único.
 
@@ -59,9 +59,10 @@ Un socket `role=admin` se autentica con `AUTH` usando el token de prueba
 `SGX_TEST_ADMIN_TOKEN` (aleatorio, solo para el servidor local, que corre con
 `NODE_ENV=development`; en producción ese token no existe). Carga las preguntas
 con `UPDATE_QUESTIONS` y por cada ronda envía `BROADCAST_QUESTION`, a mitad de
-ronda `TRIGGER_PRESET` y al final `CLOSE_VOTING`. Como la consola real, repite
-cada acción por REST (`/api/action/*`) justo después; `--no-admin-rest` lo
-desactiva y `--admin-rest-delay-ms` simula que el REST llega tarde.
+ronda `TRIGGER_PRESET` y al final `CLOSE_VOTING`. Por defecto repite cada
+acción por REST (`/api/action/*`) justo después, para comprobar que una copia
+duplicada (la consola la manda cuando el socket se cae) no borra votos;
+`--no-admin-rest` lo desactiva y `--admin-rest-delay-ms` hace que llegue tarde.
 
 El servidor local arranca con `FIREBASE_API_KEY` inválida y una lista de admins
 vacía: no habla con Firebase/Firestore de producción.
@@ -101,3 +102,35 @@ vacía: no habla con Firebase/Firestore de producción.
 El resumen sale por consola y el detalle completo en
 `scripts/loadtest/out/ws-load-<N>c-<label>-<fecha>.json` (carpeta ignorada por git),
 junto al log del servidor.
+
+## Resultados (28 oct 2026, máquina de 4 vCPU, Node 22)
+
+| | Antes de los arreglos | Después |
+|---|---|---|
+| 1000 teléfonos: inicio de votación llega a los teléfonos (p99) | 3929 ms | 25 ms |
+| 1000: cierre de votación llega (p99) | 3352 ms | 48 ms |
+| 1000: CPU del servidor durante votaciones (media) | 94% | 14% |
+| 1000: `/healthz` p99 | 10 s (timeout) | 52 ms |
+| 1000: votos contados vs enviados | 912 vs 909 en una ronda | 3/3 rondas exactas |
+| Tamaño de `VOTING_CLOSED` por teléfono | 455–738 KB (crecía) | 21 KB (fijo) |
+| 10% de teléfonos con mala conexión | +90 MB de RAM en 1 min | estable (125 MB) |
+| 2000 teléfonos | no probado | p99 ≤ 102 ms, CPU 27%, votos exactos |
+
+Arreglos que salieron de esta prueba:
+- Un inicio o cierre repetido de la misma pregunta (socket + REST) ya no borra
+  los votos ni se emite dos veces; un preset repetido en <2 s se ignora.
+- Los votos llevan `questionId`; uno tardío de otra pregunta se rechaza. El voto
+  binario de 1 byte (sin pregunta) se ignora.
+- `VOTING_CLOSED` lleva solo el top 50 sin historial; se quitaron los mensajes
+  duplicados (`VOTE_SUMMARY`, `PRESET_TRIGGER`, `COUNTDOWN_TICK`,
+  `AUDIENCE_REACTION`).
+- Las reacciones se agrupan: un `REACTION_BURST` por sala cada 250 ms (máx 24).
+- El conteo de audiencia se envía como mucho una vez por segundo; los sockets
+  se agrupan por sala.
+- Teléfonos que no leen: por encima de 512 KB pendientes se saltan mensajes
+  decorativos; por encima de 8 MB se cierra su conexión (reconecta solo).
+- Reconexión con espera exponencial y aleatoria (no todos a la vez tras un deploy).
+- El cliente solo usa REST cuando el socket está caído.
+
+Pendiente: `POST /api/vote` acepta el `userId` del cuerpo; con App Check en
+`enforce` solo la app real puede usarlo.

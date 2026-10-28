@@ -34,7 +34,14 @@ export interface RoomState {
   recentReactions: ReactionBurst[];
   /** Pending throttled vote broadcast (see votingEngine). */
   voteBroadcastTimer?: NodeJS.Timeout;
+  /** Reactions waiting for the next batched broadcast. */
+  pendingReactions?: ReactionBurstLike[];
+  reactionTimer?: NodeJS.Timeout;
+  /** Last director preset trigger (to drop the REST/WS duplicate). */
+  lastPresetTrigger?: { presetId: string; at: number };
 }
+
+export interface ReactionBurstLike { id: string; emoji: string; userId: string; timestamp: number; color?: string }
 
 export const DEFAULT_TENANT_ID = 'tenant_spatialgineers';
 export const DEFAULT_EVENT_ID = 'event_live_main';
@@ -109,6 +116,7 @@ export function resetRoom(tenantId: string, eventId: string): RoomState {
   if (existing?.timerInterval) {
     clearInterval(existing.timerInterval);
   }
+  if (existing?.reactionTimer) clearTimeout(existing.reactionTimer);
   if (existing?.voteBroadcastTimer) {
     clearTimeout(existing.voteBroadcastTimer);
   }

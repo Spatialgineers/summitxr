@@ -1051,6 +1051,7 @@ function endVotingAndReveal(room, question, broadcast) {
     room.timerInterval = void 0;
   }
   cancelVoteBroadcast(room);
+  if (room.session.status === "RESULT_REVEALED" && room.session.currentQuestionId === question.id) return;
   const summary = computeVoteSummary(room, question);
   room.session.status = "RESULT_REVEALED";
   room.session.activePresetId = summary.winningPresetId;
@@ -1066,32 +1067,12 @@ function endVotingAndReveal(room, question, broadcast) {
       winningPreset,
       winningPresetId: summary.winningPresetId,
       storyNarrative: question.storyPathOutcome?.narrative,
-      users: Array.from(room.users.values())
-    }
-  });
-  broadcast(room.tenantId, room.eventId, {
-    type: "VOTE_SUMMARY",
-    tenantId: room.tenantId,
-    eventId: room.eventId,
-    timestamp: Date.now(),
-    payload: {
-      summary,
-      winningPreset,
-      storyNarrative: question.storyPathOutcome?.narrative
+      // Leaderboard only: everyone's full history would grow with every poll.
+      users: topUsers(room)
     }
   });
   broadcast(room.tenantId, room.eventId, {
     type: "VISUALIZER_TRIGGER",
-    tenantId: room.tenantId,
-    eventId: room.eventId,
-    timestamp: Date.now(),
-    payload: {
-      presetId: summary.winningPresetId,
-      source: "WINNER_VOTE"
-    }
-  });
-  broadcast(room.tenantId, room.eventId, {
-    type: "PRESET_TRIGGER",
     tenantId: room.tenantId,
     eventId: room.eventId,
     timestamp: Date.now(),
@@ -1107,6 +1088,7 @@ function startQuestionVoting(room, questionIndex, broadcast) {
   }
   const question = room.questions[room.currentQuestionIndex];
   if (!question) return null;
+  if (room.session.status === "VOTING_ACTIVE" && room.session.currentQuestionId === question.id) return question;
   room.votes.clear();
   const duration = question.durationSeconds || 30;
   const endTime = Date.now() + duration * 1e3;
@@ -1164,17 +1146,6 @@ function startQuestionVoting(room, questionIndex, broadcast) {
           totalDuration: duration
         }
       });
-      broadcast(room.tenantId, room.eventId, {
-        type: "COUNTDOWN_TICK",
-        tenantId: room.tenantId,
-        eventId: room.eventId,
-        timestamp: now,
-        payload: {
-          questionId: question.id,
-          timeRemaining: remainingSec,
-          totalDuration: duration
-        }
-      });
       if (remainingSec <= 0) {
         endVotingAndReveal(room, question, broadcast);
       }
@@ -1193,7 +1164,7 @@ function cancelVoteBroadcast(room) {
   }
 }
 function topUsers(room) {
-  return Array.from(room.users.values()).sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)).slice(0, LIVE_USERS_LIMIT);
+  return Array.from(room.users.values()).sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)).slice(0, LIVE_USERS_LIMIT).map((u) => ({ ...u, choiceHistory: [] }));
 }
 function scheduleVoteBroadcast(room, broadcast) {
   if (room.voteBroadcastTimer) return;
@@ -1231,6 +1202,7 @@ function processVoteSubmission(room, voterId, payload, broadcast) {
   if (!currentQ || room.session.status !== "VOTING_ACTIVE" || !Array.isArray(currentQ.options)) {
     return { status: "NOT_ACTIVE" };
   }
+  if (typeof payload.questionId === "string" && payload.questionId !== currentQ.id) return { status: "STALE" };
   if (room.votes.has(voterId)) return { status: "DUPLICATE" };
   const opt = typeof payload.optionId === "string" && currentQ.options.find((o) => o.id === payload.optionId) || typeof payload.optionCode === "number" && currentQ.options.find((o) => o.code === payload.optionCode) || null;
   if (!opt) return { status: "INVALID_OPTION" };
@@ -1297,27 +1269,21 @@ function processVoteSubmission(room, voterId, payload, broadcast) {
     isCorrect: calc.isCorrect,
     points: calc.totalPointsEarned
   });
-  const liveSummary = computeVoteSummary(room, currentQ);
   scheduleVoteBroadcast(room, broadcast);
-  return { status: "ACCEPTED", calc, user, summary: liveSummary };
+  return { status: "ACCEPTED", calc, user };
 }
 
 // src/server/engine/visualizerBridge.ts
+var REACTION_BATCH_MS = 250;
+var REACTION_BATCH_MAX = 24;
 function triggerPresetOverride(room, presetId, source = "MANUAL_DIRECTOR", broadcast) {
   if (presetId && VISUALIZER_PRESETS[presetId]) {
+    const now = Date.now();
+    if (room.lastPresetTrigger && room.lastPresetTrigger.presetId === presetId && now - room.lastPresetTrigger.at < 2e3) return true;
+    room.lastPresetTrigger = { presetId, at: now };
     room.session.activePresetId = presetId;
     broadcast(room.tenantId, room.eventId, {
       type: "VISUALIZER_TRIGGER",
-      tenantId: room.tenantId,
-      eventId: room.eventId,
-      timestamp: Date.now(),
-      payload: {
-        presetId,
-        source
-      }
-    });
-    broadcast(room.tenantId, room.eventId, {
-      type: "PRESET_TRIGGER",
       tenantId: room.tenantId,
       eventId: room.eventId,
       timestamp: Date.now(),
@@ -1340,20 +1306,27 @@ function processAudienceReaction(room, reaction, broadcast) {
   };
   room.recentReactions.push(burst);
   if (room.recentReactions.length > 50) room.recentReactions.shift();
-  broadcast(room.tenantId, room.eventId, {
-    type: "AUDIENCE_REACTION",
-    tenantId: room.tenantId,
-    eventId: room.eventId,
-    timestamp: Date.now(),
-    payload: burst
-  });
-  broadcast(room.tenantId, room.eventId, {
-    type: "REACTION_BURST",
-    tenantId: room.tenantId,
-    eventId: room.eventId,
-    timestamp: Date.now(),
-    payload: burst
-  });
+  (room.pendingReactions ||= []).push(burst);
+  if (room.pendingReactions.length > REACTION_BATCH_MAX) room.pendingReactions.shift();
+  if (!room.reactionTimer) {
+    room.reactionTimer = setTimeout(() => {
+      room.reactionTimer = void 0;
+      const batch = room.pendingReactions || [];
+      room.pendingReactions = [];
+      if (!batch.length) return;
+      try {
+        broadcast(room.tenantId, room.eventId, {
+          type: "REACTION_BURST",
+          tenantId: room.tenantId,
+          eventId: room.eventId,
+          timestamp: Date.now(),
+          payload: batch
+        });
+      } catch (err) {
+        console.error("[Visualizer Bridge] reaction batch error:", err);
+      }
+    }, REACTION_BATCH_MS);
+  }
   return burst;
 }
 
@@ -1625,25 +1598,55 @@ var DIRECTOR_MESSAGES = /* @__PURE__ */ new Set([
   "CREATE_QUESTION",
   "UPDATE_QUESTIONS"
 ]);
-var MAX_SOCKETS_PER_IP = 600;
+var MAX_SOCKETS_PER_IP = 1500;
 var MAX_PAYLOAD_BYTES = 12 * 1024 * 1024;
 var MAX_AUDIENCE_PAYLOAD_BYTES = 64 * 1024;
+var BACKLOG_SOFT_BYTES = 512 * 1024;
+var BACKLOG_HARD_BYTES = 8 * 1024 * 1024;
+var SKIPPABLE = /* @__PURE__ */ new Set(["REACTION_BURST", "TIMER_TICK", "VOTE_UPDATE", "STATE_SYNC"]);
+var COUNT_SYNC_MS = 1e3;
 function setupWebSocketEngine(server) {
   const wss = new WebSocketServer({ server, path: "/ws", maxPayload: MAX_PAYLOAD_BYTES });
   const clientMap = /* @__PURE__ */ new Map();
   const socketsPerIp = /* @__PURE__ */ new Map();
+  const roomSockets = /* @__PURE__ */ new Map();
+  const roomKey = (tenantId, eventId) => `${tenantId}:${eventId}`;
+  const countTimers = /* @__PURE__ */ new Map();
   function broadcastToRoom(tenantId, eventId, message) {
+    const sockets = roomSockets.get(roomKey(tenantId, eventId));
+    if (!sockets || sockets.size === 0) return;
     const payloadStr = JSON.stringify(message);
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        const meta = clientMap.get(client);
-        if (meta && meta.tenantId === tenantId && meta.eventId === eventId) {
-          client.send(payloadStr);
-        }
+    const skippable = SKIPPABLE.has(message.type);
+    sockets.forEach((client) => {
+      if (client.readyState !== WebSocket.OPEN) return;
+      const backlog = client.bufferedAmount;
+      if (backlog > BACKLOG_HARD_BYTES) {
+        client.terminate();
+        return;
       }
+      if (skippable && backlog > BACKLOG_SOFT_BYTES) return;
+      client.send(payloadStr);
     });
   }
-  const roomCount = (tenantId, eventId) => Array.from(clientMap.values()).filter((c) => c.tenantId === tenantId && c.eventId === eventId).length;
+  const roomCount = (tenantId, eventId) => roomSockets.get(roomKey(tenantId, eventId))?.size || 0;
+  function scheduleCountSync(tenantId, eventId) {
+    const key = roomKey(tenantId, eventId);
+    if (countTimers.has(key)) return;
+    countTimers.set(key, setTimeout(() => {
+      countTimers.delete(key);
+      try {
+        broadcastToRoom(tenantId, eventId, {
+          type: "STATE_SYNC",
+          tenantId,
+          eventId,
+          timestamp: Date.now(),
+          payload: { connectedAudienceCount: roomCount(tenantId, eventId) }
+        });
+      } catch (err) {
+        console.error("[WebSocket Engine Error]:", err);
+      }
+    }, COUNT_SYNC_MS));
+  }
   function syncRoom(room) {
     const currentQ = room.questions[room.currentQuestionIndex];
     broadcastToRoom(room.tenantId, room.eventId, {
@@ -1688,6 +1691,9 @@ function setupWebSocketEngine(server) {
       const nickname = cleanNickname(url.searchParams.get("nickname"));
       const meta = { tenantId, eventId, userId, role, isAdmin: false, appCheck: false };
       clientMap.set(ws, meta);
+      const rk = roomKey(tenantId, eventId);
+      if (!roomSockets.has(rk)) roomSockets.set(rk, /* @__PURE__ */ new Set());
+      roomSockets.get(rk).add(ws);
       const limiter = new TokenBucket(30, 10);
       const authenticate = async (token) => {
         const identity = await verifyAdminToken(token);
@@ -1712,13 +1718,7 @@ function setupWebSocketEngine(server) {
       };
       ws.send(JSON.stringify({ type: "INIT_STATE", tenantId, eventId, timestamp: Date.now(), payload: initStatePayload }));
       ws.send(JSON.stringify({ type: "ROOM_STATE_SYNC", tenantId, eventId, timestamp: Date.now(), payload: initStatePayload }));
-      broadcastToRoom(tenantId, eventId, {
-        type: "STATE_SYNC",
-        tenantId,
-        eventId,
-        timestamp: Date.now(),
-        payload: { connectedAudienceCount: roomCount(tenantId, eventId) }
-      });
+      scheduleCountSync(tenantId, eventId);
       let appCheckPending = null;
       ws.on("message", async (data, isBinary) => {
         try {
@@ -1730,23 +1730,11 @@ function setupWebSocketEngine(server) {
           }
           let messageType = "";
           let payload = {};
-          if (isBinary) {
-            const buffer = Buffer.from(data);
-            const optionCode = buffer[0];
-            const curQ = room.questions[room.currentQuestionIndex];
-            if (curQ && Array.isArray(curQ.options)) {
-              const matchedOpt = curQ.options.find((o) => o.code === optionCode) || curQ.options[optionCode - 1];
-              if (matchedOpt) {
-                messageType = "SUBMIT_VOTE";
-                payload = { optionId: matchedOpt.id, nickname };
-              }
-            }
-          } else {
-            const parsed = JSON.parse(data.toString());
-            if (!parsed || typeof parsed !== "object") return;
-            messageType = typeof parsed.type === "string" ? parsed.type : "";
-            payload = parsed.payload ?? {};
-          }
+          if (isBinary) return;
+          const parsed = JSON.parse(data.toString());
+          if (!parsed || typeof parsed !== "object") return;
+          messageType = typeof parsed.type === "string" ? parsed.type : "";
+          payload = parsed.payload ?? {};
           if (messageType === "AUTH") {
             authenticate(payload?.token).catch(() => {
             });
@@ -1849,19 +1837,11 @@ function setupWebSocketEngine(server) {
       });
       ws.on("close", () => {
         clientMap.delete(ws);
+        roomSockets.get(rk)?.delete(ws);
+        if (roomSockets.get(rk)?.size === 0) roomSockets.delete(rk);
         socketsPerIp.set(ip, Math.max(0, (socketsPerIp.get(ip) || 1) - 1));
         if ((socketsPerIp.get(ip) || 0) === 0) socketsPerIp.delete(ip);
-        try {
-          broadcastToRoom(tenantId, eventId, {
-            type: "STATE_SYNC",
-            tenantId,
-            eventId,
-            timestamp: Date.now(),
-            payload: { connectedAudienceCount: roomCount(tenantId, eventId) }
-          });
-        } catch (err) {
-          console.error("[WebSocket Engine Error]:", err);
-        }
+        scheduleCountSync(tenantId, eventId);
       });
       ws.on("error", (err) => console.warn("[WebSocket Engine] socket error:", err?.message || err));
     } catch (err) {
@@ -1951,10 +1931,10 @@ function createApiRouter(broadcastToRoom) {
     if (!isValidId(voterId)) return res.status(400).json({ error: "INVALID_USER_ID" });
     const result = processVoteSubmission(room, voterId, req.body || {}, broadcastToRoom);
     if (result.status !== "ACCEPTED") {
-      return res.status(result.status === "DUPLICATE" ? 409 : 400).json({ error: result.status });
+      return res.status(result.status === "DUPLICATE" || result.status === "STALE" ? 409 : 400).json({ error: result.status });
     }
     const ok = result;
-    res.json({ success: true, calculation: ok.calc, summary: ok.summary, user: ok.user });
+    res.json({ success: true, calculation: ok.calc, summary: computeVoteSummary(room, room.questions[room.currentQuestionIndex]), user: ok.user });
   });
   router.post("/reaction", appCheckGuard, (req, res) => {
     const room = roomFrom(req, res);

@@ -32,6 +32,7 @@ import { DEFAULT_PRESET, VISUALIZER_PRESETS, getAllPresets } from './lib/presets
 import { preloadAllPresetAssets } from './lib/assetCache';
 import { useAuth } from './context/AuthContext';
 import { auth } from './lib/firebase';
+import { appCheckHeaders, getAppCheckToken } from './lib/appCheck';
 import { telemetry } from './lib/telemetry';
 
 import { getAppRouteAndSectionFromUrl, syncAppUrl } from './lib/summitUrlSync';
@@ -295,6 +296,10 @@ export default function App() {
         ws.onopen = () => {
           if (isDisposed) return;
           setIsConnected(true);
+          // App Check: the engine accepts votes and reactions from verified app instances.
+          getAppCheckToken().then((token) => {
+            if (token && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'APP_CHECK', payload: { token } }));
+          }).catch(() => {});
           // Directors prove who they are with their Firebase ID token.
           if (isAdminRef.current && auth.currentUser) {
             auth.currentUser.getIdToken()
@@ -696,9 +701,9 @@ export default function App() {
     });
 
     // 3. REST fallback POST
-    fetch('/api/vote', {
+    appCheckHeaders().then((ac) => fetch('/api/vote', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...ac },
       body: JSON.stringify({
         tenantId: selectedTenantId,
         eventId: selectedEventId,
@@ -707,7 +712,7 @@ export default function App() {
         optionCode,
         user: userProfile,
       }),
-    }).catch(err => console.warn('REST vote fallback warning:', err));
+    })).catch(err => console.warn('REST vote fallback warning:', err));
   };
 
   const handleSendReaction = (emoji: string, type: ReactionType) => {
@@ -736,9 +741,9 @@ export default function App() {
     });
 
     // 3. REST fallback
-    fetch('/api/reaction', {
+    appCheckHeaders().then((ac) => fetch('/api/reaction', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...ac },
       body: JSON.stringify({
         tenantId: selectedTenantId,
         eventId: selectedEventId,
@@ -746,7 +751,7 @@ export default function App() {
         emoji,
         color: optimisticRx.color,
       }),
-    }).catch(err => console.warn('REST reaction fallback warning:', err));
+    })).catch(err => console.warn('REST reaction fallback warning:', err));
   };
 
   const handleUpdateCustomAssets = (newAssets: CustomVisualAssets) => {

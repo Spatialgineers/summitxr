@@ -11,6 +11,7 @@ import {
 } from './votingEngine';
 import { triggerPresetOverride, processAudienceReaction } from './visualizerBridge';
 import { verifyAdminToken } from '../security/adminAuth';
+import { appCheckMode, noteMissingAppCheck, verifyAppCheckToken } from '../security/appCheck';
 import { TokenBucket } from '../security/rateLimit';
 import { cleanNickname, isValidId, LIMITS, validateQuestionList } from '../security/validation';
 
@@ -21,7 +22,12 @@ export interface ClientMeta {
   role: 'admin' | 'audience' | 'stage';
   /** Set only after the socket presented a verified admin Firebase ID token. */
   isAdmin: boolean;
+  /** Set once the socket presented a valid Firebase App Check token. */
+  appCheck: boolean;
 }
+
+/** Audience actions that App Check guards (in enforce mode). */
+const APP_CHECKED_MESSAGES = new Set(['SUBMIT_VOTE', 'VOTE_SUBMIT', 'SEND_REACTION', 'REACTION_BURST']);
 
 /** Messages only a verified director may send. Everything else is audience. */
 const DIRECTOR_MESSAGES = new Set([
@@ -103,7 +109,7 @@ export function setupWebSocketEngine(server: http.Server) {
       const userId = isValidId(rawUserId) ? rawUserId : `user_${Math.random().toString(36).substring(2, 11)}`;
       const nickname = cleanNickname(url.searchParams.get('nickname'));
 
-      const meta: ClientMeta = { tenantId, eventId, userId, role, isAdmin: false };
+      const meta: ClientMeta = { tenantId, eventId, userId, role, isAdmin: false, appCheck: false };
       clientMap.set(ws, meta);
       const limiter = new TokenBucket(30, 10);
 
@@ -136,7 +142,8 @@ export function setupWebSocketEngine(server: http.Server) {
         payload: { connectedAudienceCount: roomCount(tenantId, eventId) },
       });
 
-      ws.on('message', (data, isBinary) => {
+      let appCheckPending: Promise<boolean> | null = null;
+      ws.on('message', async (data, isBinary) => {
         try {
           if (!limiter.take()) return;
           const size = Array.isArray(data) ? data.reduce((n, b) => n + b.length, 0) : (data as Buffer | ArrayBuffer).byteLength;
@@ -165,6 +172,22 @@ export function setupWebSocketEngine(server: http.Server) {
           if (messageType === 'AUTH') {
             authenticate(payload?.token).catch(() => {});
             return;
+          }
+
+          if (messageType === 'APP_CHECK') {
+            appCheckPending = verifyAppCheckToken(payload?.token).then((ok) => { meta.appCheck = meta.appCheck || ok; return ok; });
+            return;
+          }
+
+          // Scripts without a real browser + reCAPTCHA have no App Check token.
+          // A vote can arrive while the token is still being checked.
+          if (APP_CHECKED_MESSAGES.has(messageType) && !meta.appCheck && appCheckPending) await appCheckPending;
+          if (APP_CHECKED_MESSAGES.has(messageType) && !meta.appCheck && !meta.isAdmin && appCheckMode() !== 'off') {
+            noteMissingAppCheck();
+            if (appCheckMode() === 'enforce') {
+              ws.send(JSON.stringify({ type: 'ERROR', tenantId, eventId, timestamp: Date.now(), payload: { error: 'APP_CHECK_REQUIRED', for: messageType } }));
+              return;
+            }
           }
 
           if (DIRECTOR_MESSAGES.has(messageType) && !meta.isAdmin) {

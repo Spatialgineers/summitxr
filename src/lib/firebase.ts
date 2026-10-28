@@ -12,15 +12,20 @@ import {
 } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer, connectFirestoreEmulator } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
+import { initAppCheck } from './appCheck';
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+
+const USE_EMULATORS = (import.meta as any).env?.VITE_USE_EMULATORS === '1' && typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+// App Check first, so Firestore requests carry the token from the start.
+initAppCheck(app, (firebaseConfig as { recaptchaSiteKey?: string }).recaptchaSiteKey, USE_EMULATORS);
 
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
 
 // Local testing only: point the app at the Firebase emulators instead of the real project.
 // Needs BOTH the explicit build flag and a localhost page, so it can never switch on in production.
-if ((import.meta as any).env?.VITE_USE_EMULATORS === '1' && typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+if (USE_EMULATORS) {
   connectFirestoreEmulator(db, '127.0.0.1', 8085);
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
   console.info('[SGX] Firebase emulators in use (local testing).');

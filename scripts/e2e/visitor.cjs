@@ -17,6 +17,9 @@ const SPONSOR_EMAIL = `ana.${RUN}@acme.example`;
 const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS' : 'FAIL', n, extra); };
 
 (async () => {
+  // First suite of the run: start from an empty emulator database (EMULATOR ONLY), so
+  // admin.cjs (which reads what this suite writes) never sees old runs' data.
+  await fetch(`http://127.0.0.1:8085/emulator/v1/projects/${PROJECT}/databases/${DB}/documents`, { method: 'DELETE' });
   const b = await chromium.launch();
   const ctx = await b.newContext({ viewport: { width: 1366, height: 900 } });
   const prodHits = [];

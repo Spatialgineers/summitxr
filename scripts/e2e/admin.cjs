@@ -100,7 +100,8 @@ const OUT = require('path').join(__dirname, 'out'); require('fs').mkdirSync(OUT,
   const header = lines[0];
   const firstRow = lines[2];
   const cols = header.split(',').map((h) => h.replace(/"/g, ''));
-  const newRow = cols.map((c) => ({ id: 'sess_e2e_new', day: '2', startTime: '3:15 PM', endTime: '3:45 PM', title: 'Sesión e2e', pillarId: 'spark', speakerIds: '', tags: 'e2e | csv' }[c] ?? '')).map((v) => `"${v}"`).join(',');
+  const NEW_ID = `sess_e2e_${Date.now() % 1e7}`; // unique per run: the emulator keeps data between runs
+  const newRow = cols.map((c) => ({ id: NEW_ID, day: '2', startTime: '3:15 PM', endTime: '3:45 PM', title: 'Sesión e2e', pillarId: 'spark', speakerIds: '', tags: 'e2e | csv' }[c] ?? '')).map((v) => `"${v}"`).join(',');
   const edited = [header, lines[1], firstRow.replace(/^("[^"]*","[^"]*","[^"]*","[^"]*",)"([^"]*)"/, '$1"$2 (editado)"'), newRow].join('\n');
   const tmp = require('path').join(OUT, 'agenda_edit.csv');
   fs.writeFileSync(tmp, edited);
@@ -113,7 +114,7 @@ const OUT = require('path').join(__dirname, 'out'); require('fs').mkdirSync(OUT,
   await p.waitForTimeout(3000);
   const sessDoc = await get('summit_content/sessions');
   const items = sessDoc.fields?.items?.arrayValue?.values || [];
-  const added = items.find((v) => v.mapValue.fields.id.stringValue === 'sess_e2e_new');
+  const added = items.find((v) => v.mapValue.fields.id.stringValue === NEW_ID);
   check('imported session published with real fields', !!added && added.mapValue.fields.startMinutes?.integerValue == 915 && added.mapValue.fields.pillarId?.stringValue === 'SGX.SPARK' && added.mapValue.fields.tags?.arrayValue?.values?.length === 2,
     added ? JSON.stringify(Object.keys(added.mapValue.fields)).slice(0, 80) : 'missing');
 

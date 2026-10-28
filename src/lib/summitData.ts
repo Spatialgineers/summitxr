@@ -1955,89 +1955,116 @@ function getSessionEndMinutes(session: SummitSession): number {
   return end > session.startMinutes ? end : session.startMinutes + 45;
 }
 
-export function generateICSForSession(session: SummitSession): string {
-  const sanitize = (text: string) => text.replace(/\n/g, '\\n').replace(/,/g, '\\,');
-  
-  // Format dates: 20261211T100000Z
-  const dateMap: Record<number, string> = {
-    1: '20261211',
-    2: '20261212',
-    3: '20261213',
-  };
+/* Calendar export. Every event carries a 15-minute alarm (VALARM), so the
+   phone's own calendar rings before the session even if the app is closed. */
+export const ALERT_MINUTES_BEFORE = 15;
+const DAY_DATES: Record<number, string> = { 1: '20261211', 2: '20261212', 3: '20261213' };
 
-  const dayDate = dateMap[session.day] || '20261211';
-  const startHour = Math.floor(session.startMinutes / 60).toString().padStart(2, '0');
-  const startMin = (session.startMinutes % 60).toString().padStart(2, '0');
-  const endMinutes = getSessionEndMinutes(session);
-  const endHour = Math.floor(endMinutes / 60).toString().padStart(2, '0');
-  const endMin = (endMinutes % 60).toString().padStart(2, '0');
+const icsText = (text: string) => text.replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/[,;]/g, (m) => `\\${m}`);
+// RFC 5545: lines longer than 75 octets fold with CRLF + space.
+function icsFold(line: string): string {
+  const bytes = new TextEncoder().encode(line);
+  if (bytes.length <= 75) return line;
+  const out: string[] = [];
+  let cur = '';
+  let len = 0;
+  for (const ch of line) {
+    const n = new TextEncoder().encode(ch).length;
+    if (len + n > (out.length ? 74 : 75)) { out.push(cur); cur = ''; len = 0; }
+    cur += ch; len += n;
+  }
+  out.push(cur);
+  return out.join('\r\n ');
+}
 
-  // Puerto Rico runs on AST (UTC-4, no daylight saving): export in UTC so
-  // every calendar shows the right local hour anywhere in the world.
-  const dtStart = toUtcStamp(dayDate, session.startMinutes);
-  const dtEnd = toUtcStamp(dayDate, endMinutes);
+function sessionText(session: SummitSession, lang: string) {
+  const en = lang !== 'es';
+  const title = (en && session.titleEn) || session.title;
+  const desc = (en && session.descriptionEn) || session.description;
+  const venue = (en && session.venueLocationEn) || session.venueLocation;
+  return { title, desc, venue };
+}
 
-  return [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Spatialgineers//Summit 2026 Engine//EN',
-    'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
+function icsEvent(session: SummitSession, lang: string, alarmMinutes: number): string[] {
+  const dayDate = DAY_DATES[session.day] || DAY_DATES[1];
+  const { title, desc, venue } = sessionText(session, lang);
+  const now = new Date();
+  const p = (n: number) => String(n).padStart(2, '0');
+  const stamp = `${now.getUTCFullYear()}${p(now.getUTCMonth() + 1)}${p(now.getUTCDate())}T${p(now.getUTCHours())}${p(now.getUTCMinutes())}${p(now.getUTCSeconds())}Z`;
+  const reminder = lang === 'es'
+    ? `En ${alarmMinutes} min: ${title}`
+    : `In ${alarmMinutes} min: ${title}`;
+  const lines = [
     'BEGIN:VEVENT',
     `UID:sgx_sess_${session.id}_2026@spatialgineers.com`,
-    `DTSTAMP:${dayDate}T000000Z`,
-    `DTSTART:${dtStart}`,
-    `DTEND:${dtEnd}`,
-    `SUMMARY:${sanitize(session.title)}`,
-    `DESCRIPTION:${sanitize(session.description + ' \\n\\nVenue: ' + session.venueLocation)}`,
-    `LOCATION:${sanitize(session.venueLocation)}`,
+    `DTSTAMP:${stamp}`,
+    `DTSTART:${toUtcStamp(dayDate, session.startMinutes)}`,
+    `DTEND:${toUtcStamp(dayDate, getSessionEndMinutes(session))}`,
+    `SUMMARY:${icsText(`${title} · SGX Summit 2026`)}`,
+    `DESCRIPTION:${icsText(`${desc}\n\n${venue}${session.streamUrl ? `\n${session.streamUrl}` : ''}\nhttps://summit.spatialgineers.com`)}`,
+    `LOCATION:${icsText(venue)}`,
+    ...(session.streamUrl ? [`URL:${session.streamUrl}`] : []),
     'STATUS:CONFIRMED',
+    'BEGIN:VALARM',
+    'ACTION:DISPLAY',
+    `DESCRIPTION:${icsText(reminder)}`,
+    `TRIGGER:-PT${alarmMinutes}M`,
+    'END:VALARM',
     'END:VEVENT',
-    'END:VCALENDAR'
-  ].join('\r\n');
+  ];
+  return lines;
+}
+
+export function generateICS(sessions: SummitSession[], lang = 'es', alarmMinutes = ALERT_MINUTES_BEFORE): string {
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Spatialgineers//Summit 2026//ES',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'X-WR-CALNAME:Spatialgineers Summit 2026',
+    ...sessions.flatMap((s) => icsEvent(s, lang, alarmMinutes)),
+    'END:VCALENDAR',
+  ];
+  return lines.map(icsFold).join('\r\n') + '\r\n';
+}
+
+export function generateICSForSession(session: SummitSession, lang = 'es'): string {
+  return generateICS([session], lang);
 }
 
 function toUtcStamp(dayDate: string, minutesAst: number): string {
+  // Puerto Rico runs on AST (UTC-4, no daylight saving): export in UTC so
+  // every calendar shows the right local hour anywhere in the world.
   const d = new Date(Date.UTC(+dayDate.slice(0, 4), +dayDate.slice(4, 6) - 1, +dayDate.slice(6, 8), 0, minutesAst + 240));
   const p = (n: number) => String(n).padStart(2, '0');
   return `${d.getUTCFullYear()}${p(d.getUTCMonth() + 1)}${p(d.getUTCDate())}T${p(d.getUTCHours())}${p(d.getUTCMinutes())}00Z`;
 }
 
-export function downloadICS(session: SummitSession) {
-  const icsContent = generateICSForSession(session);
-  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+/** Downloads (or, on phones, opens in the calendar app) one .ics with alarms. */
+export function downloadICS(sessionOrList: SummitSession | SummitSession[], lang = 'es', fileName?: string) {
+  const list = Array.isArray(sessionOrList) ? sessionOrList : [sessionOrList];
+  if (!list.length) return;
+  const blob = new Blob([generateICS(list, lang)], { type: 'text/calendar;charset=utf-8' });
+  const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
-  link.href = window.URL.createObjectURL(blob);
-  link.setAttribute('download', `Spatialgineers_Summit_${session.id}.ics`);
+  link.href = url;
+  link.setAttribute('download', fileName || (list.length === 1 ? `SGX_Summit_${list[0].id}.ics` : 'SGX_Summit_2026_mi_agenda.ics'));
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  window.setTimeout(() => window.URL.revokeObjectURL(url), 4000);
 }
 
-export function getGoogleCalendarUrl(session: SummitSession): string {
-  const dateMap: Record<number, string> = {
-    1: '20261211',
-    2: '20261212',
-    3: '20261213',
-  };
-
-  const dayDate = dateMap[session.day] || '20261211';
-  const startHour = Math.floor(session.startMinutes / 60).toString().padStart(2, '0');
-  const startMin = (session.startMinutes % 60).toString().padStart(2, '0');
-  const endMinutes = getSessionEndMinutes(session);
-  const endHour = Math.floor(endMinutes / 60).toString().padStart(2, '0');
-  const endMin = (endMinutes % 60).toString().padStart(2, '0');
-
-  // Puerto Rico runs on AST (UTC-4, no daylight saving): export in UTC so
-  // every calendar shows the right local hour anywhere in the world.
-  const dtStart = toUtcStamp(dayDate, session.startMinutes);
-  const dtEnd = toUtcStamp(dayDate, endMinutes);
-
-  const title = encodeURIComponent(session.title);
-  const details = encodeURIComponent(`${session.description}\n\nVenue: ${session.venueLocation}\nSpatialgineers Summit 2026`);
-  const location = encodeURIComponent(session.venueLocation);
-
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dtStart}/${dtEnd}&details=${details}&location=${location}`;
+/** Google Calendar template link. Google applies the user's default reminder
+    to events made this way (the URL cannot carry an alarm). */
+export function getGoogleCalendarUrl(session: SummitSession, lang = 'es'): string {
+  const dayDate = DAY_DATES[session.day] || DAY_DATES[1];
+  const { title, desc, venue } = sessionText(session, lang);
+  const dates = `${toUtcStamp(dayDate, session.startMinutes)}/${toUtcStamp(dayDate, getSessionEndMinutes(session))}`;
+  const details = `${desc}\n\n${venue}${session.streamUrl ? `\n${session.streamUrl}` : ''}\nhttps://summit.spatialgineers.com`;
+  const q = new URLSearchParams({ action: 'TEMPLATE', text: `${title} · SGX Summit 2026`, dates, details, location: venue, ctz: 'America/Puerto_Rico' });
+  return `https://calendar.google.com/calendar/render?${q.toString()}`;
 }
 
 // Local Storage Offline Management (Bumped to v2026_10_1 so the corrected Run of Show, Map Nodes, Embeds & Tiers take immediate effect)

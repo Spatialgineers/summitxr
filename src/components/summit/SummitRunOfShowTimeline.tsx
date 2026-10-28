@@ -300,7 +300,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
           daySessions.map((session, index) => {
             const sessionSpeakers = getSessionSpeakers(session.speakerIds);
             const isExpanded = expandedSessionId === session.id;
-            const googleCalUrl = getGoogleCalendarUrl(session);
+            const googleCalUrl = getGoogleCalendarUrl(session, language);
 
             return (
               <div 
@@ -351,7 +351,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                         <Calendar className="w-3.5 h-3.5" />
                       </a>
                       <button
-                        onClick={() => downloadICS(session)}
+                        onClick={() => downloadICS(session, language)}
                         title={es ? 'Descargar archivo .ics' : 'Download .ics file'}
                         className="p-1.5 border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-[#00DDFF] hover:border-[#00DDFF]/40 transition-colors cursor-pointer"
                         style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Calendar, 
   Clock, 
@@ -27,10 +28,13 @@ import {
   getGoogleCalendarUrl, 
   getSavedAgendaIds, 
   saveAgendaIds,
-  playNotificationChime
+  playNotificationChime,
+  ALERT_MINUTES_BEFORE,
 } from '../../lib/summitData';
 import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
+
+const ALERTS_KEY = 'sgx_agenda_alerts_v1';
 
 interface SummitAgendaBuilderProps {
   sessions: SummitSession[];
@@ -52,7 +56,28 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
   const [onlyMyAgenda, setOnlyMyAgenda] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => getSavedAgendaIds());
-  const [notifiedSessionIds, setNotifiedSessionIds] = useState<string[]>([]);
+  // Sessions whose alert went to the visitor's calendar (an .ics with a 15-min alarm, or Google Calendar).
+  const [notifiedSessionIds, setNotifiedSessionIds] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem(ALERTS_KEY) || '[]'); } catch { return []; }
+  });
+  const [alertMenuId, setAlertMenuId] = useState<string | null>(null);
+  const [alertMenuPos, setAlertMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  useEffect(() => {
+    try { localStorage.setItem(ALERTS_KEY, JSON.stringify(notifiedSessionIds)); } catch { /* private mode */ }
+  }, [notifiedSessionIds]);
+  useEffect(() => {
+    if (!alertMenuId) return;
+    const close = () => setAlertMenuId(null);
+    const openedAt = performance.now();
+    // a click can scroll the button into view; only a later scroll closes the menu
+    const onScroll = () => { if (performance.now() - openedAt > 400) close(); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
+    window.addEventListener('click', close);
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('scroll', onScroll, true);
+    window.addEventListener('resize', close);
+    return () => { window.removeEventListener('click', close); window.removeEventListener('keydown', onKey); window.removeEventListener('scroll', onScroll, true); window.removeEventListener('resize', close); };
+  }, [alertMenuId]);
   const [isOfflineMode, setIsOfflineMode] = useState<boolean>(!navigator.onLine);
   const [copiedSessionId, setCopiedSessionId] = useState<string | null>(null);
 
@@ -80,18 +105,26 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
     saveAgendaIds(updated);
   };
 
-  const togglePushNotification = (session: SummitSession, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const isNowActive = !notifiedSessionIds.includes(session.id);
-    if (isNowActive) {
-      setNotifiedSessionIds(prev => [...prev, session.id]);
-      playNotificationChime();
-      if (onTriggerNotification) {
-        onTriggerNotification(session);
-      }
-    } else {
-      setNotifiedSessionIds(prev => prev.filter(id => id !== session.id));
-    }
+  const markAlerted = (ids: string[]) => {
+    setNotifiedSessionIds((prev) => Array.from(new Set([...prev, ...ids])));
+    playNotificationChime();
+  };
+  const alertWithIcs = (session: SummitSession) => {
+    downloadICS(session, language);
+    markAlerted([session.id]);
+    setAlertMenuId(null);
+    if (onTriggerNotification) onTriggerNotification(session);
+  };
+  const alertWithGoogle = (session: SummitSession) => {
+    window.open(getGoogleCalendarUrl(session, language), '_blank', 'noopener');
+    markAlerted([session.id]);
+    setAlertMenuId(null);
+  };
+  const alertMyAgenda = () => {
+    const mine = sessions.filter((s) => bookmarkedIds.includes(s.id));
+    if (!mine.length) return;
+    downloadICS(mine, language);
+    markAlerted(mine.map((s) => s.id));
   };
 
   const handleShareSession = (session: SummitSession, e: React.MouseEvent) => {
@@ -162,6 +195,17 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
           >
             <Bookmark className="w-3.5 h-3.5" />
             <span>{t('filter_my_agenda', 'MI AGENDA')} ({bookmarkedIds.length})</span>
+          </button>
+
+          <button
+            onClick={alertMyAgenda}
+            disabled={!bookmarkedIds.length}
+            className="px-3 py-1.5 text-xs font-bold font-mono flex items-center space-x-1.5 bg-[var(--sgx-bg)] border border-[var(--sgx-accent)] text-[var(--sgx-accent)] hover:bg-[var(--sgx-accent)] hover:text-black disabled:opacity-40 disabled:pointer-events-none"
+            style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
+            title={es ? `Un archivo de calendario con todas tus sesiones guardadas y aviso ${ALERT_MINUTES_BEFORE} min antes de cada una` : `One calendar file with all your saved sessions and a reminder ${ALERT_MINUTES_BEFORE} min before each`}
+          >
+            <BellRing className="w-3.5 h-3.5" />
+            <span>{es ? 'ALERTAS DE MI AGENDA' : 'ALERTS FOR MY AGENDA'}</span>
           </button>
         </div>
       </div>
@@ -369,25 +413,73 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
                       <span>{isBookmarked ? t('btn_remove_agenda', 'GUARDADO') : t('btn_add_agenda', '+ MI AGENDA')}</span>
                     </button>
 
-                    {/* Push Notification Toggle */}
-                    <button
-                      onClick={(e) => togglePushNotification(session, e)}
-                      className={`p-1.5 border text-xs font-mono transition-all flex items-center space-x-1 ${
-                        isNotified 
-                          ? 'border-[var(--sgx-accent)] bg-[var(--sgx-accent)]/20 text-[var(--sgx-accent)] animate-pulse' 
-                          : 'border-[var(--sgx-secondary)] bg-[var(--sgx-bg)] text-slate-400 hover:text-white'
-                      }`}
-                      title={isNotified ? (es ? 'Alerta activa para esta sesión' : 'Alert active for this session') : (es ? 'Notificarme al iniciar' : 'Notify me when it starts')}
-                    >
-                      {isNotified ? <BellRing className="w-3.5 h-3.5 text-[var(--sgx-accent)]" /> : <Bell className="w-3.5 h-3.5" />}
-                      <span className="text-[10px] hidden sm:inline">{isNotified ? t('btn_notify_active', 'NOTIFICAR ACTIVO') : t('btn_notify_session', 'ALERTAR')}</span>
-                    </button>
+                    {/* Alert: a real calendar event with a 15-min alarm */}
+                    <div className="relative">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (alertMenuId === session.id) { setAlertMenuId(null); return; }
+                          // The card clips its children, so the menu lives in a portal next to the button.
+                          const r = e.currentTarget.getBoundingClientRect();
+                          const w = Math.min(272, window.innerWidth - 16);
+                          const below = r.bottom + 6 + 210 < window.innerHeight;
+                          setAlertMenuPos({ left: Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8)), top: below ? r.bottom + 6 : Math.max(8, r.top - 216) });
+                          setAlertMenuId(session.id);
+                        }}
+                        aria-haspopup="menu"
+                        aria-expanded={alertMenuId === session.id}
+                        className={`p-1.5 border text-xs font-mono transition-all flex items-center space-x-1 ${
+                          isNotified
+                            ? 'border-[var(--sgx-accent)] bg-[var(--sgx-accent)]/20 text-[var(--sgx-accent)]'
+                            : 'border-[var(--sgx-secondary)] bg-[var(--sgx-bg)] text-slate-300 hover:text-white'
+                        }`}
+                        title={es ? `Avisarme ${ALERT_MINUTES_BEFORE} min antes en mi calendario` : `Remind me ${ALERT_MINUTES_BEFORE} min before in my calendar`}
+                      >
+                        {isNotified ? <BellRing className="w-3.5 h-3.5 text-[var(--sgx-accent)]" /> : <Bell className="w-3.5 h-3.5" />}
+                        <span className="text-[10px]">{isNotified ? (es ? 'EN TU CALENDARIO' : 'IN YOUR CALENDAR') : (es ? 'ALERTAR' : 'ALERT ME')}</span>
+                      </button>
+                      {alertMenuId === session.id && createPortal(
+                        <div
+                          role="menu"
+                          aria-label={es ? 'Añadir alerta al calendario' : 'Add alert to calendar'}
+                          onClick={(e) => e.stopPropagation()}
+                          className="fixed z-[200] p-3 bg-[#0b0d12] border border-[var(--sgx-accent)] shadow-xl shadow-black/60 text-left"
+                          style={{ top: alertMenuPos.top, left: alertMenuPos.left, width: Math.min(272, window.innerWidth - 16) }}
+                        >
+                          <p className="text-[11px] text-slate-300 leading-snug mb-2">
+                            {es
+                              ? `Te avisamos ${ALERT_MINUTES_BEFORE} min antes con un evento en tu calendario, aunque la app esté cerrada.`
+                              : `We remind you ${ALERT_MINUTES_BEFORE} min before with an event in your calendar, even with the app closed.`}
+                          </p>
+                          <button
+                            role="menuitem"
+                            onClick={() => alertWithIcs(session)}
+                            className="w-full mb-1.5 px-2.5 py-2 text-[11px] font-mono font-bold flex items-center gap-1.5 bg-[var(--sgx-accent)] text-black"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            {es ? 'Calendario del teléfono (iPhone, Outlook)' : 'Phone calendar (iPhone, Outlook)'}
+                          </button>
+                          <button
+                            role="menuitem"
+                            onClick={() => alertWithGoogle(session)}
+                            className="w-full px-2.5 py-2 text-[11px] font-mono font-bold flex items-center gap-1.5 border border-[var(--sgx-secondary)] text-slate-200 hover:border-white"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            Google Calendar
+                          </button>
+                          <p className="text-[10px] text-slate-400 mt-1.5 leading-snug">
+                            {es ? 'En Google Calendar el aviso es el que tengas por defecto.' : 'In Google Calendar the reminder is your default one.'}
+                          </p>
+                        </div>,
+                        document.body,
+                      )}
+                    </div>
 
                     {/* Calendar Export Links */}
                     <div className="flex items-center space-x-1">
                       {/* .ICS File Download */}
                       <button
-                        onClick={(e) => { e.stopPropagation(); downloadICS(session); }}
+                        onClick={(e) => { e.stopPropagation(); downloadICS(session, language); }}
                         className="p-1.5 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)] text-slate-300 hover:text-[var(--sgx-neon)] text-[10px] font-mono flex items-center space-x-1"
                         title={t('btn_export_calendar', 'Descargar archivo de calendario universal (.ics)')}
                       >
@@ -397,7 +489,7 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
 
                       {/* Google Calendar Web Link */}
                       <a
-                        href={getGoogleCalendarUrl(session)}
+                        href={getGoogleCalendarUrl(session, language)}
                         target="_blank"
                         rel="noreferrer"
                         onClick={(e) => e.stopPropagation()}

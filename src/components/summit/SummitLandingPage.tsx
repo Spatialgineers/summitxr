@@ -1615,7 +1615,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               {/* Action Buttons: Calendar Sync */}
               <div className="flex flex-wrap gap-2 pt-2">
                 <button
-                  onClick={() => downloadICS(selectedSessionModal)}
+                  onClick={() => downloadICS(selectedSessionModal, language)}
                   className="sgx-btn-cyan px-3 py-1.5 text-xs font-bold flex items-center space-x-1"
                 >
                   <Download className="w-3.5 h-3.5" />
@@ -1623,7 +1623,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                 </button>
 
                 <a
-                  href={getGoogleCalendarUrl(selectedSessionModal)}
+                  href={getGoogleCalendarUrl(selectedSessionModal, language)}
                   target="_blank"
                   rel="noreferrer"
                   className="sgx-btn px-3 py-1.5 text-xs font-bold flex items-center space-x-1"

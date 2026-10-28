@@ -41,7 +41,13 @@ const S = (v) => ({ stringValue: v });
   // hangar pass for comparison
   await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } })));
   await p.waitForTimeout(1500);
-  await (await p.$('.sgx-pass')).screenshot({ path: `${OUT}/c_pass_dom.png` });
+  // the Holo Card lives in the Hangar: drawn, and it turns over to the event + QR
+  const inkOf = () => p.evaluate(() => { const c = document.querySelector('.sgx-hangar .sgx-hstudio__preview canvas'); if (!c) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4000) if (d[i] > 0) n++; return n; });
+  check('hangar shows the Holo Card', (await inkOf()) > 50);
+  await (await p.$('.sgx-hangar .sgx-hstudio__preview canvas')).screenshot({ path: `${OUT}/c_hangar_front.png` });
+  await p.click('.sgx-hangar .sgx-hstudio__preview canvas'); await p.waitForTimeout(900);
+  check('hangar card flips to the back', !!(await p.$('.sgx-hangar .sgx-hstudio__flip:has-text("Frente"), .sgx-hangar .sgx-hstudio__flip:has-text("Front")')));
+  await (await p.$('.sgx-hangar .sgx-hstudio__preview canvas')).screenshot({ path: `${OUT}/c_hangar_back.png` });
   await p.click('.sgx-hangar__close'); await p.waitForTimeout(400);
   // studio
   await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_credential_generator')));

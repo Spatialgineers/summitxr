@@ -582,3 +582,22 @@
   .sgx-hangar__live dd { margin: 2px 0 0; font-family: var(--font-hud); font-weight: 700; font-size: 1.15rem; font-variant-numeric: tabular-nums; color: #fff; }
   .sgx-hangar__live .sgx-btn { grid-column: 1 / -1; justify-self: start; }
 }
+
+/* Holo Card in the Hangar (compact Studio) and the turn-over. */
+@layer components {
+  .sgx-hstudio__preview canvas { cursor: pointer; }
+  .sgx-hstudio__preview canvas.is-flipping { transition: transform 0.16s ease-in; }
+  .sgx-hstudio__panel > summary { display: none; }
+  .sgx-hstudio--compact .sgx-hstudio__grid { grid-template-columns: 1fr; }
+  .sgx-hstudio--compact .sgx-hstudio__preview { min-height: 0; padding: 18px 12px; }
+  .sgx-hstudio--compact .sgx-hstudio__preview canvas { width: min(100%, 720px); margin: 0 auto; }
+  .sgx-hstudio--compact .sgx-hstudio__panel > summary {
+    display: block; cursor: pointer; padding: 10px 14px; list-style: none;
+    font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--SGX_Cyan); background: #0d0f13; border: 1px solid rgba(0, 221, 255, 0.25);
+  }
+  .sgx-hstudio--compact .sgx-hstudio__panel > summary::-webkit-details-marker { display: none; }
+  .sgx-hstudio--compact .sgx-hstudio__panel > summary::before { content: '▸ '; }
+  .sgx-hstudio--compact .sgx-hstudio__panel[open] > summary::before { content: '▾ '; }
+  .sgx-hstudio--compact .sgx-hstudio__panel[open] { gap: 12px; }
+}

@@ -2,14 +2,13 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLanguage } from '../context/LanguageContext';
 import { usePilotProfile } from '../context/PilotProfileContext';
 import { useAuth } from '../context/AuthContext';
-import { SGX_PILLARS, type PillarKey } from '../lib/sgxPillars';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import { PILLAR_ACCENT } from './sgxIdentity';
 import { useSgxIdentity } from './SgxIdentityContext';
 import { usePassQr } from './SgxPassCard';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
 import { ROLE_COPY, useHoloCredentials, type CredentialRole, type HoloCredential } from './credentials';
-import { CARD_H, CARD_W, drawCardBack, drawCardFront, loadImage, renderFormat, svgElementToImage, type CardArt, type HoloFormat } from './holoCardCanvas';
+import { CARD_H, CARD_W, drawCardBack, drawCardFront, loadImage, renderFormat, svgElementToImage, useHoloAssets, type CardArt, type HoloFormat } from './holoCardCanvas';
 
 /* HOLO CARD STUDIO. Your Holo Card is your SGX Pass: same name, pilot, QR
    and stamps. The data comes from your registration (Forge, speaker portal,
@@ -30,16 +29,19 @@ const fire = (name: string, detail?: unknown) => window.dispatchEvent(new Custom
 interface Props {
   initialRole?: CredentialRole;
   onClose?: () => void;
+  /** Inside the Hangar: the card first, the adjustments folded away. */
+  compact?: boolean;
 }
 
-export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
+export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose, compact = false }) => {
   const { language } = useLanguage();
   const es = language === 'es';
   const { profile, recordActivity } = usePilotProfile();
   const { user } = useAuth();
-  const { identity, isForged, missions, xpBalance } = useSgxIdentity();
+  const { identity, isForged } = useSgxIdentity();
   const { credentials } = useHoloCredentials();
   const qr = usePassQr();
+  const assetsReady = useHoloAssets();
 
   const [role, setRole] = useState<CredentialRole>(initialRole || 'visitor');
   const [format, setFormat] = useState<HoloFormat>('badge');
@@ -47,6 +49,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
   const [style, setStyleState] = useState<Style>(() => loadStyle());
   const [banner, setBanner] = useState<string | null>(null);
   const [tilt, setTilt] = useState({ x: 4, y: -8 });
+  const [flipping, setFlipping] = useState(false);
   const setStyle = (patch: Partial<Style>) => setStyleState((s) => {
     const next = { ...s, ...patch };
     try { localStorage.setItem(STYLE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
@@ -66,8 +69,6 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
   const [photoImg, setPhotoImg] = useState<HTMLImageElement | null>(null);
   const [roleImg, setRoleImg] = useState<HTMLImageElement | null>(null);
   const [qrImg, setQrImg] = useState<HTMLImageElement | null>(null);
-  const [bolt, setBolt] = useState<HTMLImageElement | null>(null);
-  const [icons, setIcons] = useState<Partial<Record<PillarKey, HTMLImageElement>>>({});
   const pilotKey = JSON.stringify(identity.avatar.pilot || identity.avatar.seed) + accent;
 
   useEffect(() => {
@@ -81,17 +82,6 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
   useEffect(() => { let a = true; loadImage(identity.avatar.png).then((i) => a && setPhotoImg(i)); return () => { a = false; }; }, [identity.avatar.png]);
   useEffect(() => { let a = true; loadImage(cred?.photo).then((i) => a && setRoleImg(i)); return () => { a = false; }; }, [cred?.photo]);
   useEffect(() => { let a = true; loadImage(qr).then((i) => a && setQrImg(i)); return () => { a = false; }; }, [qr]);
-  useEffect(() => {
-    let a = true;
-    loadImage('/brand/sgx-bolt.svg').then((i) => a && setBolt(i));
-    Promise.all(SGX_PILLARS.map((p) => loadImage(p.iconUrl).then((img) => [p.key, img] as const))).then((pairs) => {
-      if (!a) return;
-      const m: Partial<Record<PillarKey, HTMLImageElement>> = {};
-      pairs.forEach(([k, img]) => { if (img) m[k] = img; });
-      setIcons(m);
-    });
-    return () => { a = false; };
-  }, []);
 
   const portraitChoice: Portrait = style.portrait === 'photo' && !photoImg ? 'pilot'
     : style.portrait === 'role' && !roleImg ? 'pilot' : style.portrait;
@@ -101,43 +91,25 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
   const pass = identity.pass;
   const art: CardArt | null = useMemo(() => {
     if (!cred) return null;
-    const stamps: Partial<Record<PillarKey, boolean>> = {};
-    SGX_PILLARS.forEach((p) => { stamps[p.key] = !!identity.stamps[`pillar:${p.key}`]; });
     return {
       cred, es, accent,
       serial: pass?.serial,
       code: pass?.code,
-      tierLabel: cred.role === 'visitor'
-        ? (pass?.tier === 'SHOWCASE' ? (es ? 'DÍA 3 · CHROMA' : 'DAY 3 · CHROMA') : (es ? 'DIGITAL GLOBAL' : 'GLOBAL DIGITAL'))
-        : ROLE_COPY[cred.role].label[es ? 0 : 1].toUpperCase(),
+      passTier: pass?.tier,
+      passStatus: pass?.status,
+      xp: profile.totalXp,
       rank: `${profile.rankTitle} · LV ${profile.level}`,
-      stamps,
-      chroma: !!identity.stamps['chroma:checkin'],
       portrait,
       frame: portraitChoice === 'pilot' ? undefined : { zoom: style.zoom, x: style.x, y: style.y },
+      fit: portraitChoice === 'pilot' ? 'contain' : 'cover',
       qr: pass ? qrImg : null,
-      bolt,
-      pillarIcons: icons,
       foil: style.foil,
-      foilAngle: 35 + tilt.y * 3,
+      // the foil sweep follows the tilt
+      sheen: 0.5 + tilt.y / 40,
     };
-  }, [cred, es, accent, pass, identity.stamps, profile.rankTitle, profile.level, portrait, portraitChoice, style, qrImg, bolt, icons, tilt.y]);
-
-  const backArt = useMemo(() => ({
-    es, accent, serial: pass?.serial, bolt, foil: style.foil,
-    stats: [
-      { label: 'XP', value: profile.totalXp.toLocaleString('es-PR') },
-      { label: es ? 'Para gastar' : 'Spendable', value: xpBalance.toLocaleString('es-PR') },
-      { label: 'Reactor', value: `${Object.keys(identity.missions).length}/${missions.length}` },
-      { label: 'Rolodex', value: String(identity.contacts.length) },
-      { label: es ? 'Sellos' : 'Stamps', value: `${Object.keys(identity.stamps).filter((k) => k.startsWith('pillar:')).length}/6` },
-      { label: 'Sponsors', value: String(Object.keys(identity.stamps).filter((k) => k.startsWith('sponsor:')).length) },
-    ],
-    fine: es
-      ? 'Días 1 y 2: YouTube Live. Día 3: Chroma Space Studios, San Juan, por invitación y cupo limitado. Este mismo QR es tu entrada, tu tarjeta de contacto y tu ficha de premios.'
-      : 'Days 1 and 2: YouTube Live. Day 3: Chroma Space Studios, San Juan, by invitation and limited capacity. This same QR is your entrance, your contact card and your prize token.',
-    issued: pass ? `${es ? 'Forjado' : 'Forged'} · ${new Date(pass.forgedAt).toLocaleDateString(es ? 'es-PR' : 'en-US', { day: '2-digit', month: 'short', year: 'numeric' })}` : '',
-  }), [es, accent, pass, bolt, style.foil, profile.totalXp, xpBalance, identity.missions, identity.contacts.length, identity.stamps, missions.length]);
+    // assetsReady: redraw once the card art has loaded
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cred, es, accent, pass, profile.totalXp, profile.rankTitle, profile.level, portrait, portraitChoice, style, qrImg, tilt.y, assetsReady]);
 
   const headline = cred ? (cred.role === 'visitor'
     ? (es ? 'YA TENGO MI SGX PASS' : 'I GOT MY SGX PASS')
@@ -145,9 +117,9 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
 
   const draw = useCallback((fmt: HoloFormat, scale = 1): HTMLCanvasElement | null => {
     if (!art) return null;
-    const face = (ctx: CanvasRenderingContext2D) => (back && fmt === 'badge' ? drawCardBack(ctx, backArt) : drawCardFront(ctx, art));
+    const face = (ctx: CanvasRenderingContext2D) => (back && fmt === 'badge' ? drawCardBack(ctx, art) : drawCardFront(ctx, art));
     return renderFormat(face, fmt, { es, accent, headline, backdrop: style.backdrop, scale });
-  }, [art, back, backArt, es, accent, headline, style.backdrop]);
+  }, [art, back, es, accent, headline, style.backdrop]);
 
   /* ---- live preview ---- */
   const previewRef = useRef<HTMLCanvasElement | null>(null);
@@ -158,6 +130,15 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
     c.width = out.width; c.height = out.height;
     c.getContext('2d')!.drawImage(out, 0, 0);
   }, [draw, format]);
+
+  // Tap the card (or the button) to turn it over.
+  const flip = () => {
+    if (flipping) return;
+    playUiChirp(480);
+    setFlipping(true);
+    window.setTimeout(() => setBack((b) => !b), 160);
+    window.setTimeout(() => setFlipping(false), 340);
+  };
 
   const onTilt = (e: React.PointerEvent<HTMLDivElement>) => {
     if (format !== 'badge') return;
@@ -265,7 +246,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
   const roleName = (r: CredentialRole) => (r === 'visitor' ? (es ? 'SGX Pass' : 'SGX Pass') : ROLE_COPY[r].label[es ? 0 : 1]);
 
   return (
-    <div className="sgx-hstudio">
+    <div className={`sgx-hstudio${compact ? ' sgx-hstudio--compact' : ''}`}>
       <div ref={glyphRef} className="sgx-hstudio__glyph" aria-hidden="true">
         <SgxPilotGlyph seed={identity.avatar.seed} config={identity.avatar.pilot} accent={accent} size={300} />
       </div>
@@ -289,8 +270,8 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
                 {f === 'badge' ? (es ? 'Tarjeta 3D' : '3D card') : f === 'post' ? 'Post 4:5' : 'Story 9:16'}
               </button>
             ))}
-            {format === 'badge' && cred.role === 'visitor' && (
-              <button type="button" className="sgx-hstudio__flip" onClick={() => { playUiChirp(480); setBack((b) => !b); }}>⟲ {back ? (es ? 'Frente' : 'Front') : (es ? 'Telemetría' : 'Telemetry')}</button>
+            {format === 'badge' && (
+              <button type="button" className="sgx-hstudio__flip" onClick={flip}>⟲ {back ? (es ? 'Frente' : 'Front') : (es ? 'Reverso' : 'Back')}</button>
             )}
           </div>
           <div
@@ -302,7 +283,9 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
               ref={previewRef}
               width={CARD_W}
               height={CARD_H}
-              style={format === 'badge' ? { transform: `perspective(1200px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` } : undefined}
+              onClick={format === 'badge' ? flip : undefined}
+              className={flipping ? 'is-flipping' : ''}
+              style={format === 'badge' ? { transform: `perspective(1200px) rotateX(${tilt.x}deg) rotateY(${tilt.y + (flipping ? 90 : 0)}deg)` } : undefined}
               aria-label={es ? `Vista previa de tu Holo Card (${roleName(cred.role)})` : `Your Holo Card preview (${roleName(cred.role)})`}
               role="img"
             />
@@ -321,7 +304,8 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
           {banner && <p className="sgx-hstudio__banner" role="status">{banner}</p>}
         </div>
 
-        <div className="sgx-hstudio__panel">
+        <details className="sgx-hstudio__panel" open={!compact || undefined}>
+          <summary>{es ? 'Personalizar: retrato, foil y datos' : 'Customize: portrait, foil and details'}</summary>
           <section>
             <h4>{es ? 'Datos' : 'Details'}</h4>
             <dl className="sgx-hstudio__data">
@@ -394,7 +378,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
               {es ? '¿Eres Initiate del SGX Guild? Inicia sesión con Google (desde tu Hangar) con el email que registró el equipo y tu Holo Card de Initiate aparece aquí.' : 'Are you an SGX Guild Initiate? Sign in with Google (from your Hangar) with the email the team registered and your Initiate Holo Card shows up here.'}
             </p>
           )}
-        </div>
+        </details>
       </div>
       {!isForged && cred.role !== 'visitor' && (
         <p className="sgx-hstudio__hint">{es ? 'Forja tu SGX Pass para que esta tarjeta lleve tu QR y tus sellos.' : 'Forge your SGX Pass so this card carries your QR and stamps.'}</p>

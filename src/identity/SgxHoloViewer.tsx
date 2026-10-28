@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { SGX_PILLARS, type PillarKey } from '../lib/sgxPillars';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import { PILLAR_ACCENT } from './sgxIdentity';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
 import { ROLE_COPY, type HoloCredential } from './credentials';
-import { CARD_H, CARD_W, drawCardFront, loadImage, svgElementToImage } from './holoCardCanvas';
+import { CARD_H, CARD_W, drawCardFront, loadHoloAssets, loadImage, svgElementToImage } from './holoCardCanvas';
 
 /* Someone else's official Holo Card (a published speaker, a Guild
    initiate): read-only, from the team's data. */
@@ -26,21 +25,13 @@ export const SgxHoloViewer: React.FC<Props> = ({ cred, onClose }) => {
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [photo, bolt, ...icons] = await Promise.all([
-        loadImage(cred.photo),
-        loadImage('/brand/sgx-bolt.svg'),
-        ...SGX_PILLARS.map((p) => loadImage(p.iconUrl)),
-      ]);
+      const [photo] = await Promise.all([loadImage(cred.photo), loadHoloAssets()]);
       const portrait = photo || await svgElementToImage(glyphRef.current?.querySelector('svg') || null, 600);
       if (!alive || !canvasRef.current) return;
-      const pillarIcons: Partial<Record<PillarKey, HTMLImageElement>> = {};
-      SGX_PILLARS.forEach((p, i) => { if (icons[i]) pillarIcons[p.key] = icons[i]!; });
       const ctx = canvasRef.current.getContext('2d')!;
       ctx.clearRect(0, 0, CARD_W, CARD_H);
       drawCardFront(ctx, {
-        cred, es, accent, portrait, bolt, pillarIcons,
-        tierLabel: ROLE_COPY[cred.role].label[es ? 0 : 1].toUpperCase(),
-        stamps: cred.pillar ? { [cred.pillar]: true } : {},
+        cred, es, accent, portrait, fit: photo ? 'cover' : 'contain', foil: 0.7, sheen: 0.45,
       });
       setReady(true);
     })();

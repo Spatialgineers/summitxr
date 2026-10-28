@@ -8,7 +8,9 @@ import { playUiChirp } from '../lib/cyberAudioEngine';
 import { PILLAR_ACCENT } from './sgxIdentity';
 import { useSgxIdentity } from './SgxIdentityContext';
 import { isDay3Open, missionsOfPillar, type ReactorMission } from './reactor';
-import { SgxPassCard, usePassQr } from './SgxPassCard';
+import { usePassQr } from './SgxPassCard';
+import { SgxHoloStudio } from './SgxHoloStudio';
+import { SgxPilotGlyph } from './SgxPilotGlyph';
 import { SgxConstellation } from './SgxConstellation';
 import { HoloGlass } from '../immersion/shaders/HoloGlass';
 import { useAuth } from '../context/AuthContext';
@@ -40,7 +42,6 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   const { user, logout } = useAuth();
   const googleEmail = user && !user.isAnonymous ? user.email : null;
   const [tab, setTab] = useState<HangarTab>(initialTab);
-  const [flipped, setFlipped] = useState(false);
   const [copied, setCopied] = useState(false);
   const [checkinMsg, setCheckinMsg] = useState('');
   const qr = usePassQr();
@@ -66,7 +67,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
 
   // jsPDF loads only when someone asks for the PDF.
   const downloadPdf = async () => {
-    const svg = cardRef.current?.querySelector('.sgx-pass__portrait svg') as SVGSVGElement | null;
+    const svg = cardRef.current?.querySelector('svg') as SVGSVGElement | null;
     const { exportPassPdf } = await import('./passPdf');
     exportPassPdf(identity, qr, `${profile.rankTitle} · LV ${profile.level}`, svg);
   };
@@ -162,29 +163,16 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
 
           {isForged && tab === 'pass' && (
             <div className="sgx-hangar__pass">
-              <div ref={cardRef}><SgxPassCard flipped={flipped} onFlip={() => { playUiChirp(480); setFlipped((f) => !f); }} /></div>
+              {/* The Holo Card is the pass: tap it to see the back with the event and your QR. */}
+              <SgxHoloStudio compact onClose={onClose} />
+              <div ref={cardRef} hidden aria-hidden="true">
+                <SgxPilotGlyph seed={identity.avatar.seed} config={identity.avatar.pilot} accent={identity.affinity ? PILLAR_ACCENT[identity.affinity] : '#FDCC0D'} size={300} />
+              </div>
               <div className="sgx-hangar__actions">
-                <button type="button" className="sgx-btn" onClick={downloadPdf}>{es ? 'Descargar PDF' : 'Download PDF'}</button>
+                <button type="button" className="sgx-btn sgx-btn--ground" onClick={downloadPdf}>{es ? 'Pase en PDF' : 'Pass as PDF'}</button>
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={copyCode}>{copied ? (es ? 'Copiado' : 'Copied') : (es ? 'Copiar código' : 'Copy code')}</button>
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_avatar')), 80); }}>{es ? 'Mi piloto' : 'My pilot'}</button>
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={onForge}>{es ? 'Editar datos' : 'Edit details'}</button>
-              </div>
-              <div className="sgx-hangar__holo">
-                {identity.holo?.image && <img src={identity.holo.image} alt={es ? 'Tu Holo Card' : 'Your Holo Card'} />}
-                <div>
-                  <h4>Holo Card</h4>
-                  <p>
-                    {es
-                      ? 'Es este mismo pase, listo para compartir como tarjeta 3D, post o story. Si eres speaker, sponsor o initiate, esa tarjeta aparece en el Studio cuando el equipo confirma tu registro.'
-                      : 'It is this same pass, ready to share as a 3D card, post or story. If you are a speaker, sponsor or initiate, that card shows up in the Studio once the team confirms your registration.'}
-                  </p>
-                  <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_credential_generator')), 80); }}>
-                    {es ? 'Compartir mi Holo Card' : 'Share my Holo Card'}
-                  </button>
-                  {identity.holo?.image && (
-                    <a className="sgx-btn sgx-btn--sm sgx-btn--ground" href={identity.holo.image} download={`sgx-holo-card-${identity.pass!.serial}.jpg`}>{es ? 'Descargar Holo Card' : 'Download Holo Card'}</a>
-                  )}
-                </div>
               </div>
               <div className="sgx-hangar__live">
                 <div>
@@ -206,8 +194,8 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
               </div>
               <p className="sgx-hangar__note">
                 {es
-                  ? 'El pase es tu registro, tu QR y tu entrada. El PDF es una copia del mismo pase, con el mismo QR. La Holo Card es su versión para compartir.'
-                  : 'The pass is your registration, your QR and your entrance. The PDF is a copy of the same pass, with the same QR. The Holo Card is its shareable version.'}
+                  ? 'Tu Holo Card es tu pase: tu registro, tu QR (en el reverso) y tu entrada del Día 3. Tócala para voltearla. El PDF es una copia con el mismo QR.'
+                  : 'Your Holo Card is your pass: your registration, your QR (on the back) and your Day 3 entrance. Tap it to flip it. The PDF is a copy with the same QR.'}
               </p>
             </div>
           )}

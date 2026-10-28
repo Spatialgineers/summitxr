@@ -74,11 +74,10 @@ const isWrite = (u, method) =>
         for (const m of jsBodies[i].matchAll(/["'(](?:\.\/|\/?assets\/)([\w.-]+\.js)["')]/g)) {
           if (seen.has(m[1]) || /draco/.test(m[1])) continue;
           seen.add(m[1]);
-          try { const r = await fetch(`${SITE}/assets/${m[1]}`); if (r.ok) jsBodies.push(await r.text()); } catch { /* ignore */ }
+          try { const body = await p.evaluate((u) => fetch(u).then((r) => (r.ok ? r.text() : '')), `${SITE}/assets/${m[1]}`); if (body) jsBodies.push(body); } catch { /* ignore */ }
         }
       }
-      const head = await fetch(SITE + '/');
-      console.log(`  deploy: ${jsBodies.length} JS files, index last-modified ${head.headers.get('last-modified')}`);
+      console.log(`  deploy: ${jsBodies.length} JS files checked`);
       const js = jsBodies.join('\n');
       const markers = {
         'section HUD without the sliding strip': js.includes('sgx-sechud') && !js.includes('sgx-sechud__strip'),

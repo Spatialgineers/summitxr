@@ -252,7 +252,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
       createdAt: Date.now(),
       lastActive: Date.now(),
       weekendStats: {
-        totalInteractions: 1,
+        totalInteractions: 0,
         votesSubmitted: 0,
         connectionsMade: 0,
         dronesDelivered: 0,

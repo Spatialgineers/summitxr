@@ -60,12 +60,13 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           eventId: 'summit-2026',
           totalScore: entry.totalXp,
           score: entry.totalXp,
-          accuracyRate: 0.92,
-          multiplier: 1.5,
-          currentStreak: Math.max(1, Math.floor(entry.votesCount / 2)),
-          highestStreak: Math.max(2, entry.votesCount),
-          totalInteractions: entry.votesCount + entry.connectionsCount + Math.max(1, Math.floor(entry.totalTricks / 2)),
-          activeSeconds: 300,
+          // Only what the leaderboard really records; the rest is unknown (0).
+          accuracyRate: 0,
+          multiplier: 1,
+          currentStreak: 0,
+          highestStreak: 0,
+          totalInteractions: entry.votesCount + entry.connectionsCount + entry.totalTricks,
+          activeSeconds: 0,
           prizeTier: entry.level >= 6 ? 'GOLD' : entry.level >= 3 ? 'SILVER' : 'BRONZE',
           unlockedPrizeIds: [],
           choiceHistory: [],
@@ -85,12 +86,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         eventId: 'summit-2026',
         totalScore: profile.totalXp,
         score: profile.totalXp,
-        accuracyRate: 0.95,
-        multiplier: 2.0,
-        currentStreak: 3,
-        highestStreak: Math.max(3, profile.weekendStats.votesSubmitted),
+        accuracyRate: 0,
+        multiplier: 1,
+        currentStreak: 0,
+        highestStreak: 0,
         totalInteractions: profile.weekendStats.totalInteractions,
-        activeSeconds: 450,
+        activeSeconds: 0,
         prizeTier: profile.level >= 6 ? 'GOLD' : profile.level >= 3 ? 'SILVER' : 'BRONZE',
         unlockedPrizeIds: [],
         choiceHistory: [],
@@ -223,7 +224,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
               {Math.max(profile.droneStats.highScore, ...(leaderboard.map((l) => l.droneHighScore || 0))).toLocaleString()} PTS
             </div>
             <span className="text-[10px] text-[#FDCC0D] font-mono mt-1 block">
-              Racha Máxima: x{topStreak}
+              Racha Máxima: {topStreak ? `x${topStreak}` : "—"}
             </span>
           </div>
         </div>
@@ -322,7 +323,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                         </span>
                       </td>
                       <td className="py-3 px-3 text-slate-300 tabular-nums">{user.totalInteractions}</td>
-                      <td className="py-3 px-3 text-[#FDCC0D] tabular-nums">x{user.highestStreak}</td>
+                      <td className="py-3 px-3 text-[#FDCC0D] tabular-nums">{user.highestStreak ? `x${user.highestStreak}` : "—"}</td>
                       <td className="py-3 px-3 text-right font-extrabold text-[#FDCC0D] text-sm tabular-nums">
                         {user.totalScore.toLocaleString()}
                       </td>
@@ -439,11 +440,6 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
                   {sessionTelemetry.mostActivePillar}
                 </span>
                 <span className="text-[10px] text-slate-400 mt-0.5 block">Frecuencia de acoplamiento</span>
-              </div>
-              <div className="p-3 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)]">
-                <span className="text-slate-400 text-[10px] uppercase block">Motor Three.js & GLB</span>
-                <span className="text-base font-bold text-[#00DDFF] mt-1 block">60.0 FPS Stable</span>
-                <span className="text-[10px] text-slate-400 mt-0.5 block">7 modelos .GLB en caché</span>
               </div>
             </div>
 

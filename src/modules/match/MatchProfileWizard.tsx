@@ -88,7 +88,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
   userUid,
   userName,
   userAvatar,
-  userXp = 250,
+  userXp = 0,
   userOrg = 'Spatialgineers Attendee',
   userRole = 'Builder',
   lang = 'es',
@@ -255,7 +255,7 @@ export const MatchProfileWizard: React.FC<MatchProfileWizardProps> = ({
       updatedAt: new Date().toISOString(),
       receivedIntentCount: 0
     },
-    score: 98,
+    score: undefined,
     matchReason: (es ? 'Así lucirá tu tarjeta en el mazo' : 'This is how your card will look in the deck')
   };
 

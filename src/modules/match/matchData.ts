@@ -11,7 +11,8 @@ import {
   where, 
   orderBy, 
   limit, 
-  serverTimestamp 
+  serverTimestamp,
+  getCountFromServer
 } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { 
@@ -24,158 +25,6 @@ import {
   MatchStats 
 } from './match.types';
 
-// Curated seed attendees matching the 6 SGX pillars to guarantee an immediate, rich deck
-export const INITIAL_MATCH_CANDIDATES: MatchCandidate[] = [
-  {
-    uid: 'candidate_maya_lin',
-    displayName: 'Maya Lin',
-    email: 'maya.lin@spatialxr.io',
-    organization: 'SpatialXR Labs (perfil de muestra)',
-    roleTitle: 'WebXR Architect & Founder',
-    avatarUrl: '',
-    avatarSeed: 'maya_spark_84',
-    xp: 1420,
-    profile: {
-      pitch: 'Building a WebXR onboarding and multiplayer workspace tool for spatial teams.',
-      brings: ['3d_xr', 'technical', 'design'],
-      seeking: ['investor', 'cofounder'],
-      pillar: 'spark',
-      openTo: ['get_funded', 'partner', 'collab'],
-      visible: true,
-      createdAt: '2026-09-20T10:00:00Z',
-      updatedAt: '2026-09-20T10:00:00Z',
-      receivedIntentCount: 3,
-    }
-  },
-  {
-    uid: 'candidate_carlos_rivera',
-    displayName: 'Carlos Rivera',
-    email: 'carlos@boricua.audio',
-    organization: 'Sonido Espacial PR (perfil de muestra)',
-    roleTitle: 'Spatial Audio Director',
-    avatarUrl: '',
-    avatarSeed: 'carlos_story_19',
-    xp: 980,
-    profile: {
-      pitch: 'Diseño sonoro binaural y música reactiva procedural para experiencias inmersivas.',
-      brings: ['audio', 'content', 'creative'],
-      seeking: ['collaborator', 'client'],
-      pillar: 'story',
-      openTo: ['collab', 'partner'],
-      visible: true,
-      createdAt: '2026-09-20T11:30:00Z',
-      updatedAt: '2026-09-20T11:30:00Z',
-      receivedIntentCount: 1,
-    }
-  },
-  {
-    uid: 'candidate_elena_voss',
-    displayName: 'Elena Voss',
-    email: 'elena@caribbeancapital.vc',
-    organization: 'Caribbean Horizon Ventures (perfil de muestra)',
-    roleTitle: 'Managing Partner & Angel Investor',
-    avatarUrl: '',
-    avatarSeed: 'elena_systems_55',
-    xp: 1850,
-    profile: {
-      pitch: 'Invirtiendo en startups caribeñas de WebXR, gaming y robótica espacial.',
-      brings: ['capital', 'network', 'mentorship'],
-      seeking: ['talent', 'cofounder'],
-      pillar: 'systems',
-      openTo: ['invest', 'partner'],
-      visible: true,
-      createdAt: '2026-09-20T12:00:00Z',
-      updatedAt: '2026-09-20T12:00:00Z',
-      receivedIntentCount: 8,
-    }
-  },
-  {
-    uid: 'candidate_mateo_ramos',
-    displayName: 'Mateo Ramos',
-    email: 'mateo@shaderforge.studio',
-    organization: 'ShaderForge Studio (perfil de muestra)',
-    roleTitle: 'Lead GLSL Graphics Engineer',
-    avatarUrl: '',
-    avatarSeed: 'mateo_showcase_02',
-    xp: 1120,
-    profile: {
-      pitch: 'Especialista en WebGL y UberShaders de alta densidad optimizados para móvil.',
-      brings: ['technical', '3d_xr', 'hardware'],
-      seeking: ['client', 'collaborator'],
-      pillar: 'showcase',
-      openTo: ['hire', 'collab'],
-      visible: true,
-      createdAt: '2026-09-20T14:15:00Z',
-      updatedAt: '2026-09-20T14:15:00Z',
-      receivedIntentCount: 2,
-    }
-  },
-  {
-    uid: 'candidate_sofia_chen',
-    displayName: 'Sofía Chen',
-    email: 'sofia@synthesize.ai',
-    organization: 'Synthesize Intelligence (perfil de muestra)',
-    roleTitle: 'AI Prompt & LLM Systems Architect',
-    avatarUrl: '',
-    avatarSeed: 'sofia_synth_99',
-    xp: 1650,
-    profile: {
-      pitch: 'Agentes autónomos de Gemini y pipelines de generación 3D en tiempo real.',
-      brings: ['technical', 'sales', 'mentorship'],
-      seeking: ['cofounder', 'sponsor'],
-      pillar: 'synthesize',
-      openTo: ['partner', 'get_funded', 'collab'],
-      visible: true,
-      createdAt: '2026-09-20T15:00:00Z',
-      updatedAt: '2026-09-20T15:00:00Z',
-      receivedIntentCount: 4,
-    }
-  },
-  {
-    uid: 'candidate_marcus_cruz',
-    displayName: 'Marcus Cruz',
-    email: 'marcus@chromaevents.com',
-    organization: 'Stage Ops Collective (perfil de muestra)',
-    roleTitle: 'Live Visuals & Stage Director',
-    avatarUrl: '',
-    avatarSeed: 'marcus_stage_33',
-    xp: 1300,
-    profile: {
-      pitch: 'Montaje escénico con pantallas LED volumétricas y tracking de drones en vivo.',
-      brings: ['hardware', 'network', 'legal_ops'],
-      seeking: ['vendor', 'collaborator'],
-      pillar: 'stage',
-      openTo: ['hire', 'partner'],
-      visible: true,
-      createdAt: '2026-09-20T16:20:00Z',
-      updatedAt: '2026-09-20T16:20:00Z',
-      receivedIntentCount: 0,
-    }
-  },
-  {
-    uid: 'candidate_andrea_ortiz',
-    displayName: 'Andrea Ortiz',
-    email: 'andrea@techpr.org',
-    organization: 'Tech Puerto Rico Guild (perfil de muestra)',
-    roleTitle: 'Community & Growth Lead',
-    avatarUrl: '',
-    avatarSeed: 'andrea_spark_12',
-    xp: 1190,
-    profile: {
-      pitch: 'Conectando fundadores locales con aceleradoras globales y fondos seed.',
-      brings: ['community', 'network', 'sales'],
-      seeking: ['sponsor', 'mentor'],
-      pillar: 'spark',
-      openTo: ['partner', 'collab'],
-      visible: true,
-      createdAt: '2026-09-20T17:00:00Z',
-      updatedAt: '2026-09-20T17:00:00Z',
-      receivedIntentCount: 1,
-    }
-  }
-];
-
-// Helper: Get storage keys
 const STORAGE_KEYS = {
   MY_PROFILE: 'sgx_match_my_profile',
   XP_AWARDED: 'sgx_match_profile_xp_awarded',
@@ -514,7 +363,6 @@ export async function fetchCandidatesDeck(
   const excluded = new Set([myUid, ...passedUids, ...sentIntents, ...matchedUids]);
 
   // Real attendees only: the public, email-free cards in `match_profiles`.
-  // (The seed profiles above are kept for the admin preview, never shown in the deck.)
   const pool: MatchCandidate[] = [];
   try {
     if (db) {
@@ -601,7 +449,8 @@ export async function reportMatchProfile(
  * Admin: Get all profiles
  */
 export async function getAllProfilesForAdmin(): Promise<MatchCandidate[]> {
-  const list: MatchCandidate[] = [...INITIAL_MATCH_CANDIDATES];
+  // Real profiles only (no sample people).
+  const list: MatchCandidate[] = [];
 
   try {
     if (db) {
@@ -613,13 +462,13 @@ export async function getAllProfilesForAdmin(): Promise<MatchCandidate[]> {
           const existingIdx = list.findIndex(c => c.uid === d.id);
           const candidate: MatchCandidate = {
             uid: d.id,
-            displayName: data.username || data.nickname || `Founder_${d.id.slice(0, 4)}`,
+            displayName: data.username || data.nickname || '—',
             email: data.email || '',
-            organization: data.organization || 'Attendee',
-            roleTitle: data.roleTitle || 'Builder',
+            organization: data.organization || '',
+            roleTitle: data.roleTitle || '',
             avatarUrl: data.avatar || '',
             avatarSeed: data.avatarSeed || d.id,
-            xp: data.totalScore || 100,
+            xp: data.totalScore ?? 0,
             profile: data.matchProfile
           };
           if (existingIdx >= 0) {
@@ -637,15 +486,24 @@ export async function getAllProfilesForAdmin(): Promise<MatchCandidate[]> {
   return list;
 }
 
+/** Admin: real totals of connection intents and mutual matches (null if unavailable). */
+export async function getMatchTotalsForAdmin(): Promise<{ intents: number; matches: number } | null> {
+  try {
+    const [intents, matches] = await Promise.all([
+      getCountFromServer(collection(db, 'match_intents')),
+      getCountFromServer(collection(db, 'matches')),
+    ]);
+    return { intents: intents.data().count, matches: matches.data().count };
+  } catch (err) {
+    console.warn('Firestore getMatchTotalsForAdmin note:', err);
+    return null;
+  }
+}
+
 /**
  * Admin: Toggle profile visibility (soft moderation)
  */
 export async function toggleProfileVisibilityAdmin(uid: string, visible: boolean): Promise<void> {
-  const seed = INITIAL_MATCH_CANDIDATES.find(c => c.uid === uid);
-  if (seed) {
-    seed.profile.visible = visible;
-  }
-
   try {
     if (db) {
       await setDoc(doc(db, 'players', uid), {
@@ -665,11 +523,6 @@ export async function toggleProfileVisibilityAdmin(uid: string, visible: boolean
  * Admin: Delete profile
  */
 export async function deleteProfileAdmin(uid: string): Promise<void> {
-  const seedIdx = INITIAL_MATCH_CANDIDATES.findIndex(c => c.uid === uid);
-  if (seedIdx >= 0) {
-    INITIAL_MATCH_CANDIDATES.splice(seedIdx, 1);
-  }
-
   try {
     if (db) {
       await setDoc(doc(db, 'players', uid), {

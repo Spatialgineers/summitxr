@@ -49,7 +49,8 @@ export const MatchCard: React.FC<MatchCardProps> = ({
   const strings = MATCH_I18N[lang] || MATCH_I18N.es;
   const pillar = candidate.profile.pillar || 'spark';
   const meta = PILLAR_META[pillar] || PILLAR_META.spark;
-  const score = candidate.score !== undefined ? candidate.score : 85;
+  // Only a score that was really computed is shown.
+  const score = candidate.score;
 
   // Map brings / seeking to human chips
   const getBringLabel = (chip: string) => {
@@ -143,17 +144,19 @@ export const MatchCard: React.FC<MatchCardProps> = ({
             >
               {meta.label}
             </span>
-            <span 
-              className="text-[11px] font-mono px-2 py-0.5 rounded-full flex items-center gap-1 border"
-              style={{
-                color: 'var(--sgx-neon)',
-                backgroundColor: 'rgba(var(--sgx-neon-rgb), 0.15)',
-                borderColor: 'rgba(var(--sgx-neon-rgb), 0.4)'
-              }}
-            >
-              <Zap className="w-3 h-3 fill-current" />
-              {candidate.xp} XP
-            </span>
+            {candidate.xp > 0 && (
+              <span 
+                className="text-[11px] font-mono px-2 py-0.5 rounded-full flex items-center gap-1 border"
+                style={{
+                  color: 'var(--sgx-neon)',
+                  backgroundColor: 'rgba(var(--sgx-neon-rgb), 0.15)',
+                  borderColor: 'rgba(var(--sgx-neon-rgb), 0.4)'
+                }}
+              >
+                <Zap className="w-3 h-3 fill-current" />
+                {candidate.xp} XP
+              </span>
+            )}
           </div>
         </div>
 
@@ -242,16 +245,18 @@ export const MatchCard: React.FC<MatchCardProps> = ({
         {/* Match Fit Score & Reason */}
         <div className="mb-4 bg-[var(--sgx-bg)]/80 border border-[var(--sgx-secondary)]/60 rounded-xl p-2.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span 
-              className="text-xs sm:text-sm font-mono font-extrabold px-2 py-0.5 rounded-lg border"
-              style={{
-                backgroundColor: score >= 75 ? `${meta.primary}25` : 'rgba(148, 163, 184, 0.15)',
-                borderColor: score >= 75 ? meta.primary : '#767676',
-                color: score >= 75 ? meta.primary : '#cbd5e1'
-              }}
-            >
-              ⬡ {score}% MATCH
-            </span>
+            {score !== undefined && (
+              <span 
+                className="text-xs sm:text-sm font-mono font-extrabold px-2 py-0.5 rounded-lg border"
+                style={{
+                  backgroundColor: score >= 75 ? `${meta.primary}25` : 'rgba(148, 163, 184, 0.15)',
+                  borderColor: score >= 75 ? meta.primary : '#767676',
+                  color: score >= 75 ? meta.primary : '#cbd5e1'
+                }}
+              >
+                ⬡ {score}% MATCH
+              </span>
+            )}
           </div>
           <p className="text-[11px] text-slate-300 italic text-right truncate">
             {candidate.matchReason || strings.wizardSubtitle}

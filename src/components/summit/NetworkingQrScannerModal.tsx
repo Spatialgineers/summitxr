@@ -209,8 +209,8 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
       console.warn('Camera stream notice:', err);
       setCameraError(
         err?.name === 'NotAllowedError'
-          ? (es ? 'Permiso de cámara denegado en el navegador. Puedes usar los escaneos de demostración o subir una foto de la credencial.' : 'Camera permission denied by the browser. You can use the demo scans or upload a photo of the credential.')
-          : (es ? 'No se pudo iniciar la cámara en este dispositivo. Puedes usar la simulación de escaneo o subir una imagen.' : 'Couldn\'t start the camera on this device. You can use the scan simulation or upload an image.')
+          ? (es ? 'Permiso de cámara denegado en el navegador. Puedes subir una foto del QR de la credencial.' : 'Camera permission denied by the browser. You can upload a photo of the credential QR.')
+          : (es ? 'No se pudo iniciar la cámara en este dispositivo. Puedes subir una foto del QR.' : 'Couldn\'t start the camera on this device. You can upload a photo of the QR.')
       );
       setCameraActive(false);
     }

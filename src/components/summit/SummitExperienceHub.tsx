@@ -716,7 +716,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
             <div className="space-y-5">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs p-3.5 bg-black/50 border border-cyan-500/30">
                 <div className="space-y-1 text-slate-300">
-                  <div>{es ? 'Estado de los 7 Nodos .GLB: ' : 'Status of the 7 .GLB Nodes: '}<strong className="text-[#00DDFF]">{es ? 'SINCRONIZADOS (60 FPS)' : 'SYNCED (60 FPS)'}</strong></div>
                   <div>{es ? 'Pulsos de Calibración Emitidos: ' : 'Calibration Pulses Sent: '}<strong className="text-[#FDCC0D] tabular-nums">{telemetryPulseCount}</strong></div>
                 </div>
                 <button

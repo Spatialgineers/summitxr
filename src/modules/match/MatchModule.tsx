@@ -94,7 +94,7 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
   const myUid = user?.uid || 'local_player';
   const myName = playerProfile?.nickname || (user?.isAnonymous ? 'Spatialgineer Anonymous' : user?.displayName || 'Builder');
   const myAvatar = playerProfile?.avatar || '';
-  const myXp = playerProfile?.totalScore || 350;
+  const myXp = playerProfile?.totalScore ?? 0;
 
   // Load existing profile on mount
   useEffect(() => {

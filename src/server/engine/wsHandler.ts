@@ -8,7 +8,6 @@ import {
   startQuestionVoting,
   endVotingAndReveal,
   processVoteSubmission,
-  simulateAudienceVotes
 } from './votingEngine';
 import { triggerPresetOverride, processAudienceReaction } from './visualizerBridge';
 import { verifyAdminToken } from '../security/adminAuth';
@@ -213,7 +212,8 @@ export function setupWebSocketEngine(server: http.Server) {
             }
 
             case 'SIMULATE_VOTES': {
-              simulateAudienceVotes(room, Number(payload?.count) || 25, broadcastToRoom);
+              // Fake voters were removed: every vote on the stage comes from a real person.
+              ws.send(JSON.stringify({ type: 'ERROR', tenantId, eventId, timestamp: Date.now(), payload: { error: 'NOT_AVAILABLE', for: messageType } }));
               break;
             }
 

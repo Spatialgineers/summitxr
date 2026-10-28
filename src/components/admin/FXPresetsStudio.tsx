@@ -541,9 +541,6 @@ export const FXPresetsStudio: React.FC<FXPresetsStudioProps> = ({
                   <span>Geometría: <strong className="text-[var(--sgx-accent)]">{editingPreset.coreGeometry || 'icosahedron'}</strong></span>
                   <span>Flujo: <strong className="text-white">{editingPreset.particleBehavior || 'ambient'}</strong></span>
                 </div>
-                <div className="text-[#FDCC0D] font-bold">
-                  Latencia de Cambio: &lt; 12ms (Asset Preloaded)
-                </div>
               </div>
             </div>
           </div>

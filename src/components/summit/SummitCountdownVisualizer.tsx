@@ -351,9 +351,6 @@ export const SummitCountdownVisualizer: React.FC<SummitCountdownVisualizerProps>
           ))}
         </div>
 
-        <span className="text-[10px] font-mono text-[#FDCC0D] font-bold">
-          LIVE SYNC OK
-        </span>
       </div>
 
       {/* Venue Strategic Partner Clarification Banner */}

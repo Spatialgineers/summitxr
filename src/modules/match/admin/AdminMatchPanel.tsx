@@ -23,8 +23,7 @@ import {
   deleteProfileAdmin,
   getMatchModuleKillSwitch,
   setMatchModuleKillSwitch,
-  getLocalMatches,
-  getSentIntents
+  getMatchTotalsForAdmin
 } from '../matchData';
 import { PILLAR_META } from '../MatchCard';
 import { playUiChirp } from '../../../lib/cyberAudioEngine';
@@ -41,12 +40,14 @@ export const AdminMatchPanel: React.FC<AdminMatchPanelProps> = ({ lang = 'es' })
   const [search, setSearch] = useState<string>('');
   const [killSwitchEnabled, setKillSwitchEnabled] = useState<boolean>(getMatchModuleKillSwitch());
   const [deletingUid, setDeletingUid] = useState<string | null>(null);
+  const [totals, setTotals] = useState<{ intents: number; matches: number } | null>(null);
 
   // Load profiles
   const loadData = async () => {
     setLoading(true);
-    const data = await getAllProfilesForAdmin();
+    const [data, t] = await Promise.all([getAllProfilesForAdmin(), getMatchTotalsForAdmin()]);
     setProfiles(data);
+    setTotals(t);
     setLoading(false);
   };
 
@@ -96,8 +97,6 @@ export const AdminMatchPanel: React.FC<AdminMatchPanelProps> = ({ lang = 'es' })
     );
   });
 
-  const totalMatchesCount = getLocalMatches().length;
-  const totalIntentsCount = getSentIntents().length;
 
   return (
     <div className="space-y-6 text-white">
@@ -119,7 +118,7 @@ export const AdminMatchPanel: React.FC<AdminMatchPanelProps> = ({ lang = 'es' })
           <div>
             <p className="text-xs font-mono text-slate-400">INTENCIONES REGISTRADAS</p>
             <h3 className="text-2xl font-bold font-mono text-amber-400">
-              {totalIntentsCount + 14}
+              {totals ? totals.intents : '—'}
             </h3>
           </div>
           <Zap className="w-8 h-8 text-amber-400/40" />
@@ -130,7 +129,7 @@ export const AdminMatchPanel: React.FC<AdminMatchPanelProps> = ({ lang = 'es' })
           <div>
             <p className="text-xs font-mono text-slate-400">MUTUAL MATCHES</p>
             <h3 className="text-2xl font-bold font-mono text-emerald-400">
-              {totalMatchesCount + 6}
+              {totals ? totals.matches : '—'}
             </h3>
           </div>
           <Sparkles className="w-8 h-8 text-emerald-400/40" />

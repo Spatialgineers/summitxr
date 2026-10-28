@@ -571,9 +571,9 @@ var SAMPLE_QUESTIONS = [
     tenantId: "tenant_spatialgineers",
     eventId: "event_live_main",
     order: 1,
-    prompt: "Which dimensional timeline should our live stage warp towards next?",
-    subtitle: "Audience CYOA choice determines the live visual world & stage lighting in real-time!",
-    category: "CYOA Dimension Shift",
+    prompt: "\xBFHacia qu\xE9 mundo viaja el escenario ahora?",
+    subtitle: "La audiencia decide: tu voto cambia el visual y las luces del escenario en vivo.",
+    category: "Decisi\xF3n en vivo",
     answerType: "OPINION_CYOA",
     durationSeconds: 30,
     basePoints: 200,
@@ -584,8 +584,8 @@ var SAMPLE_QUESTIONS = [
         id: "opt_a",
         index: 0,
         code: 1,
-        label: "A: Synthwave Neon Grid",
-        description: "Retro 80s perspective wireframe mountains and glowing cyber sun",
+        label: "A: Rejilla ne\xF3n",
+        description: "Monta\xF1as de malla y un sol ne\xF3n al horizonte",
         presetId: "preset_neon_grid",
         color: "#00ddff",
         effectType: "cyber_grid_pulse",
@@ -597,8 +597,8 @@ var SAMPLE_QUESTIONS = [
         id: "opt_b",
         index: 1,
         code: 2,
-        label: "B: Inferno Magma Volcano",
-        description: "Turbulent volcanic lava vortex with burning thermal ember eruptive bursts",
+        label: "B: Volc\xE1n de magma",
+        description: "Remolino de lava con brasas que suben",
         presetId: "preset_volcano_fire",
         color: "#ff3b30",
         effectType: "magma_eruption",
@@ -610,8 +610,8 @@ var SAMPLE_QUESTIONS = [
         id: "opt_c",
         index: 2,
         code: 3,
-        label: "C: Quantum Particle Storm",
-        description: "Cosmic 8,000-particle gravitational attractor vortex",
+        label: "C: Tormenta de part\xEDculas",
+        description: "8,000 part\xEDculas atra\xEDdas por un n\xFAcleo de gravedad",
         presetId: "preset_particle_storm",
         color: "#5f86b4",
         effectType: "quantum_vortex",
@@ -623,8 +623,8 @@ var SAMPLE_QUESTIONS = [
         id: "opt_d",
         index: 3,
         code: 4,
-        label: "D: Neural Matrix Rain",
-        description: "Digital data streams with rotating 3D holographic quantum core",
+        label: "D: Lluvia de datos",
+        description: "Columnas de datos alrededor de un n\xFAcleo hologr\xE1fico",
         presetId: "preset_cyber_matrix",
         color: "#22c55e",
         effectType: "matrix_rain",
@@ -643,9 +643,9 @@ var SAMPLE_QUESTIONS = [
     tenantId: "tenant_spatialgineers",
     eventId: "event_live_main",
     order: 2,
-    prompt: "TRIVIA CHALLENGE: What rendering pipeline power WebGL shaders directly in the browser?",
-    subtitle: "Speed + Correctness unlocks highest streak multipliers and VIP points!",
-    category: "Spatial Knowledge",
+    prompt: "TRIVIA: \xBFQu\xE9 hace posible que el navegador dibuje 3D en tiempo real?",
+    subtitle: "Responde r\xE1pido y bien: sumas m\xE1s XP.",
+    category: "Trivia espacial",
     answerType: "KNOWLEDGE",
     durationSeconds: 20,
     basePoints: 300,
@@ -656,8 +656,8 @@ var SAMPLE_QUESTIONS = [
         id: "opt_a",
         index: 0,
         code: 1,
-        label: "A: OpenGL ES & GLSL GPU Shaders",
-        description: "Direct GPU programmable vertex & fragment pipelines",
+        label: "A: WebGL y shaders en la GPU",
+        description: "Programas que corren directo en la tarjeta gr\xE1fica",
         presetId: "preset_hyper_warp",
         isCorrect: true,
         color: "#0070f3",
@@ -670,8 +670,8 @@ var SAMPLE_QUESTIONS = [
         id: "opt_b",
         index: 1,
         code: 2,
-        label: "B: Static HTML Canvas 2D Bitmap",
-        description: "Pure CPU rasterization on main thread",
+        label: "B: Im\xE1genes 2D est\xE1ticas",
+        description: "Todo dibujado por el procesador, cuadro a cuadro",
         presetId: "preset_volcano_fire",
         isCorrect: false,
         color: "#ff3b30",
@@ -684,8 +684,8 @@ var SAMPLE_QUESTIONS = [
         id: "opt_c",
         index: 2,
         code: 3,
-        label: "C: Server-Side Video JPEG Stream",
-        description: "Remote cloud streaming buffer",
+        label: "C: Un video desde el servidor",
+        description: "Im\xE1genes que llegan de la nube",
         presetId: "preset_neon_grid",
         isCorrect: false,
         color: "#00ddff",
@@ -698,8 +698,8 @@ var SAMPLE_QUESTIONS = [
         id: "opt_d",
         index: 3,
         code: 4,
-        label: "D: CSS Transitions Only",
-        description: "DOM style transform engine",
+        label: "D: Solo animaciones CSS",
+        description: "Transformaciones de estilo en la p\xE1gina",
         presetId: "preset_aurora_crystal",
         isCorrect: false,
         color: "#ec4899",
@@ -715,9 +715,9 @@ var SAMPLE_QUESTIONS = [
     tenantId: "tenant_spatialgineers",
     eventId: "event_live_main",
     order: 3,
-    prompt: "CYOA CLIMAX: Choose the ultimate climax stage effect for the grand finale!",
-    subtitle: "Your vote triggers real-time 3D particle physics on the main OBS broadcast canvas.",
-    category: "Finale Climax",
+    prompt: "GRAN FINAL: \xBFCon qu\xE9 efecto cerramos el escenario?",
+    subtitle: "Tu voto dispara el efecto final en la pantalla y en la transmisi\xF3n.",
+    category: "Gran final",
     answerType: "OPINION_CYOA",
     durationSeconds: 30,
     basePoints: 250,
@@ -728,8 +728,8 @@ var SAMPLE_QUESTIONS = [
         id: "opt_a",
         index: 0,
         code: 1,
-        label: "A: Prismatic Aurora Realm",
-        description: "Refractive quartz crystals with iridescent atmosphere wave curtains",
+        label: "A: Aurora de cristal",
+        description: "Cristales que refractan y cortinas de aurora",
         presetId: "preset_aurora_crystal",
         color: "#38bdf8",
         effectType: "aurora_crystal_wave",
@@ -741,8 +741,8 @@ var SAMPLE_QUESTIONS = [
         id: "opt_b",
         index: 1,
         code: 2,
-        label: "B: Lightspeed Hyperspace Warp",
-        description: "Relativistic starfield acceleration warp speed",
+        label: "B: Salto al hiperespacio",
+        description: "Las estrellas se estiran a la velocidad de la luz",
         presetId: "preset_hyper_warp",
         color: "#6366f1",
         effectType: "hyper_warp_streak",
@@ -754,8 +754,8 @@ var SAMPLE_QUESTIONS = [
         id: "opt_c",
         index: 2,
         code: 3,
-        label: "C: Cosmic Quantum Storm",
-        description: "High-energy galactic vortex with dual gravity wells",
+        label: "C: Tormenta c\xF3smica",
+        description: "Un v\xF3rtice gal\xE1ctico con dos pozos de gravedad",
         presetId: "preset_particle_storm",
         color: "#9d4edd",
         effectType: "quantum_vortex",
@@ -767,8 +767,8 @@ var SAMPLE_QUESTIONS = [
         id: "opt_d",
         index: 3,
         code: 4,
-        label: "D: Inferno Lava Eruption",
-        description: "Volcanic magma eruption with fiery thermal glow",
+        label: "D: Erupci\xF3n de lava",
+        description: "Magma y fuego que iluminan la escena",
         presetId: "preset_volcano_fire",
         color: "#f97316",
         effectType: "magma_eruption",
@@ -1302,84 +1302,6 @@ function processVoteSubmission(room, voterId, payload, broadcast) {
   scheduleVoteBroadcast(room, broadcast);
   return { status: "ACCEPTED", calc, user, summary: liveSummary };
 }
-function simulateAudienceVotes(room, count, broadcast) {
-  const currentQ = room.questions[room.currentQuestionIndex];
-  if (!currentQ || !Array.isArray(currentQ.options) || currentQ.options.length === 0) return null;
-  count = Math.min(LIMITS.SIMULATE_MAX, Math.max(1, Math.floor(Number(count) || 0)));
-  const firstNames = ["Kai", "Nova", "Zephyr", "Echo", "Alex", "Jordan", "Taylor", "Morgan", "Casey", "Riley", "Avery", "Sam", "Cameron", "Dakota", "Skylar", "Quinn", "Harper", "Rowan"];
-  for (let i = 0; i < count; i++) {
-    const mockUserId = `sim_user_${Math.random().toString(36).substring(2, 9)}`;
-    const randomOpt = currentQ.options[Math.floor(Math.random() * currentQ.options.length)];
-    const responseTimeMs = Math.floor(Math.random() * ((currentQ.durationSeconds || 30) * 1e3 * 0.75)) + 600;
-    const nickname = `${firstNames[Math.floor(Math.random() * firstNames.length)]}_${Math.floor(Math.random() * 899 + 100)}`;
-    const calc = calculatePoints(
-      currentQ.answerType,
-      randomOpt.isCorrect ?? false,
-      responseTimeMs,
-      (currentQ.durationSeconds || 30) * 1e3,
-      currentQ.basePoints,
-      currentQ.maxSpeedBonus,
-      currentQ.participationWeight,
-      Math.floor(Math.random() * 3)
-    );
-    const userProfile = {
-      id: mockUserId,
-      nickname,
-      avatar: ["\u{1F680}", "\u26A1", "\u{1F525}", "\u{1F48E}", "\u{1F3AE}", "\u{1F31F}"][Math.floor(Math.random() * 6)],
-      avatarSeed: mockUserId,
-      tenantId: room.tenantId,
-      eventId: room.eventId,
-      score: calc.totalPointsEarned * Math.floor(Math.random() * 3 + 1),
-      totalScore: calc.totalPointsEarned * Math.floor(Math.random() * 3 + 1),
-      accuracyRate: Math.floor(Math.random() * 25 + 75),
-      multiplier: 1 + Math.random() * 1.5,
-      streak: calc.newStreak,
-      currentStreak: calc.newStreak,
-      highestStreak: Math.max(calc.newStreak, Math.floor(Math.random() * 4)),
-      totalInteractions: Math.floor(Math.random() * 5 + 1),
-      activeSeconds: Math.floor(Math.random() * 300 + 60),
-      prizeTier: "Silver Specialist",
-      unlockedPrizeIds: [],
-      choiceHistory: [{
-        questionId: currentQ.id,
-        selectedOptionId: randomOpt.id,
-        isCorrect: calc.isCorrect,
-        pointsEarned: calc.totalPointsEarned,
-        responseTimeMs,
-        timestamp: Date.now()
-      }]
-    };
-    room.users.set(mockUserId, userProfile);
-    room.votes.set(mockUserId, {
-      optionId: randomOpt.id,
-      optionCode: randomOpt.code,
-      responseTimeMs,
-      isCorrect: calc.isCorrect,
-      points: calc.totalPointsEarned
-    });
-  }
-  const updatedSummary = computeVoteSummary(room, currentQ);
-  broadcast(room.tenantId, room.eventId, {
-    type: "VOTE_UPDATE",
-    tenantId: room.tenantId,
-    eventId: room.eventId,
-    timestamp: Date.now(),
-    payload: updatedSummary
-  });
-  broadcast(room.tenantId, room.eventId, {
-    type: "STATE_SYNC",
-    tenantId: room.tenantId,
-    eventId: room.eventId,
-    timestamp: Date.now(),
-    payload: {
-      voteSummary: updatedSummary,
-      totalVotes: room.votes.size,
-      connectedAudienceCount: room.users.size + 1,
-      users: topUsers(room)
-    }
-  });
-  return updatedSummary;
-}
 
 // src/server/engine/visualizerBridge.ts
 function triggerPresetOverride(room, presetId, source = "MANUAL_DIRECTOR", broadcast) {
@@ -1610,6 +1532,7 @@ var DIRECTOR_MESSAGES = /* @__PURE__ */ new Set([
 ]);
 var MAX_SOCKETS_PER_IP = 600;
 var MAX_PAYLOAD_BYTES = 12 * 1024 * 1024;
+var MAX_AUDIENCE_PAYLOAD_BYTES = 64 * 1024;
 function setupWebSocketEngine(server) {
   const wss = new WebSocketServer({ server, path: "/ws", maxPayload: MAX_PAYLOAD_BYTES });
   const clientMap = /* @__PURE__ */ new Map();
@@ -1704,6 +1627,11 @@ function setupWebSocketEngine(server) {
       ws.on("message", (data, isBinary) => {
         try {
           if (!limiter.take()) return;
+          const size = Array.isArray(data) ? data.reduce((n, b) => n + b.length, 0) : data.byteLength;
+          if (!meta.isAdmin && size > MAX_AUDIENCE_PAYLOAD_BYTES) {
+            ws.close(1009, "Message too big");
+            return;
+          }
           let messageType = "";
           let payload = {};
           if (isBinary) {
@@ -1771,7 +1699,7 @@ function setupWebSocketEngine(server) {
               break;
             }
             case "SIMULATE_VOTES": {
-              simulateAudienceVotes(room, Number(payload?.count) || 25, broadcastToRoom);
+              ws.send(JSON.stringify({ type: "ERROR", tenantId, eventId, timestamp: Date.now(), payload: { error: "NOT_AVAILABLE", for: messageType } }));
               break;
             }
             case "CREATE_QUESTION": {
@@ -1942,17 +1870,6 @@ function createApiRouter(broadcastToRoom) {
     } else {
       res.status(400).json({ error: "Invalid preset ID" });
     }
-  });
-  router.post("/action/simulate-votes", requireAdmin, (req, res) => {
-    const { count = 100 } = req.body || {};
-    const room = roomFrom(req, res);
-    if (!room) return;
-    const simCount = Math.min(LIMITS.SIMULATE_MAX, Math.max(1, Math.floor(Number(count) || 0)));
-    const updatedSummary = simulateAudienceVotes(room, simCount, broadcastToRoom);
-    if (!updatedSummary) {
-      return res.status(400).json({ error: "No active question" });
-    }
-    res.json({ success: true, simulatedCount: simCount, totalVotes: room.votes.size, summary: updatedSummary });
   });
   router.get("/analytics", requireAdmin, (req, res) => {
     const room = roomFrom(req, res);

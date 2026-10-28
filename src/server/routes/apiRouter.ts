@@ -12,7 +12,6 @@ import {
   startQuestionVoting, 
   endVotingAndReveal, 
   processVoteSubmission, 
-  simulateAudienceVotes,
   BroadcastFn 
 } from '../engine/votingEngine';
 import { triggerPresetOverride, processAudienceReaction } from '../engine/visualizerBridge';
@@ -149,19 +148,6 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
     } else {
       res.status(400).json({ error: 'Invalid preset ID' });
     }
-  });
-
-  // Director Tool: Simulate Audience Crowd Votes
-  router.post('/action/simulate-votes', requireAdmin, (req, res) => {
-    const { count = 100 } = req.body || {};
-    const room = roomFrom(req, res);
-    if (!room) return;
-    const simCount = Math.min(LIMITS.SIMULATE_MAX, Math.max(1, Math.floor(Number(count) || 0)));
-    const updatedSummary = simulateAudienceVotes(room, simCount, broadcastToRoom);
-    if (!updatedSummary) {
-      return res.status(400).json({ error: 'No active question' });
-    }
-    res.json({ success: true, simulatedCount: simCount, totalVotes: room.votes.size, summary: updatedSummary });
   });
 
   // Analytics

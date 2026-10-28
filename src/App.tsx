@@ -1070,6 +1070,11 @@ export default function App() {
 
   return (
     <div className={`relative bg-[var(--sgx-bg)] text-slate-100 selection:bg-[var(--sgx-primary)] selection:text-black ${currentPage === 'summit' && activeSummitSection === 'OVERVIEW' ? 'h-[100dvh] overflow-hidden' : 'min-h-screen'}`}>
+      {/* Keyboard and screen-reader users jump past the header straight to the content. */}
+      <a href="#summit-main-tab-content" className="sgx-skip" onClick={(e) => {
+        const main = document.getElementById('summit-main-tab-content') || document.querySelector('main');
+        if (main) { e.preventDefault(); (main as HTMLElement).setAttribute('tabindex', '-1'); (main as HTMLElement).focus(); }
+      }}>Saltar al contenido</a>
       {/* The one splash: particle bolt, Summit wordmark and the Tier 3+ partner row */}
       {showSplash && !bootDone && (
         <SgxBootSequence

@@ -606,8 +606,9 @@ This summary is not a binding offer. The short sponsorship contract signed by bo
             <div className="space-y-3">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="text-[10px] text-slate-300 block mb-1">{es ? 'RANGO DE INVERSIÓN ESTIMADO' : 'ESTIMATED INVESTMENT RANGE'}</label>
+                  <label htmlFor="sgx-sponsor-budget" className="text-[10px] text-slate-300 block mb-1">{es ? 'RANGO DE INVERSIÓN ESTIMADO' : 'ESTIMATED INVESTMENT RANGE'}</label>
                   <select
+                    id="sgx-sponsor-budget"
                     value={estimatedBudget}
                     onChange={e => setEstimatedBudget(e.target.value)}
                     className="w-full p-2.5 bg-[#1b1b1b] border border-[var(--sgx-secondary)] text-xs text-white focus:outline-none focus:border-[var(--sgx-neon)]"

@@ -270,10 +270,10 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose, compact =
                 {f === 'badge' ? (es ? 'Tarjeta 3D' : '3D card') : f === 'post' ? 'Post 4:5' : 'Story 9:16'}
               </button>
             ))}
-            {format === 'badge' && (
-              <button type="button" className="sgx-hstudio__flip" onClick={flip}>⟲ {back ? (es ? 'Frente' : 'Front') : (es ? 'Reverso' : 'Back')}</button>
-            )}
           </div>
+          {format === 'badge' && (
+            <button type="button" className="sgx-hstudio__flip" onClick={flip} aria-pressed={back}>⟲ {back ? (es ? 'Frente' : 'Front') : (es ? 'Reverso' : 'Back')}</button>
+          )}
           <div
             className={`sgx-hstudio__preview sgx-hstudio__preview--${format}`}
             onPointerMove={onTilt}

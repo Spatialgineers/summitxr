@@ -217,7 +217,10 @@ export const SgxGuildShowcaseSection: React.FC = () => {
             {GUILD_MINDSET_QUOTES.map((_, i) => (
               <button
                 key={i}
+                type="button"
                 onClick={() => setActiveQuoteIdx(i)}
+                aria-label={`${language === 'es' ? 'Cita' : 'Quote'} ${i + 1}`}
+                aria-pressed={activeQuoteIdx === i}
                 className={`w-3 h-3 transition-all ${
                   activeQuoteIdx === i ? 'scale-125' : 'opacity-40'
                 }`}

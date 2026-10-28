@@ -1,4 +1,5 @@
 import { auth } from '../lib/firebase';
+import { useDialogFocus } from '../lib/useDialogFocus';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../context/AuthContext';
@@ -31,6 +32,8 @@ interface Props {
 export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier = 'DIGITAL' }) => {
   const { language } = useLanguage();
   const es = language === 'es';
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  useDialogFocus(dialogRef);
   const { user, signInWithGoogle, authError, loading: authLoading } = useAuth();
   const googleUser = user && !user.isAnonymous ? user : null;
   const [signingIn, setSigningIn] = useState(false);
@@ -166,7 +169,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
   const pillarCards = useMemo(() => SGX_PILLARS, []);
 
   return (
-    <div className="sgx-forge" role="dialog" aria-modal="true" aria-label={es ? 'Forja de identidad' : 'Identity forge'} style={{ ['--pass-accent' as string]: accent }}>
+    <div ref={dialogRef} tabIndex={-1} className="sgx-forge" role="dialog" aria-modal="true" aria-label={es ? 'Forja de identidad' : 'Identity forge'} style={{ ['--pass-accent' as string]: accent }}>
       <div className="sgx-forge__grid" aria-hidden="true" />
       <div className="sgx-forge__frame">
         <HoloGlass pillar={affinity} />

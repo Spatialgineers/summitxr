@@ -1667,6 +1667,8 @@ export const SummitDroneMiniGame: React.FC = () => {
           <button
             type="button"
             onClick={() => setSoundEnabled(!soundEnabled)}
+            aria-label={soundEnabled ? (es ? 'Silenciar' : 'Mute') : (es ? 'Activar sonido' : 'Unmute')}
+            aria-pressed={soundEnabled}
             className="p-1.5 bg-slate-900 border border-slate-700 text-slate-300 hover:text-white cursor-pointer"
           >
             {soundEnabled ? <Volume2 className="w-4 h-4 text-cyan-400" /> : <VolumeX className="w-4 h-4" />}
@@ -1675,6 +1677,7 @@ export const SummitDroneMiniGame: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsGuideOpen(true)}
+            aria-label={es ? 'Cómo se juega' : 'How to play'}
             className="p-1.5 bg-slate-900 border border-slate-700 text-cyan-400 hover:bg-cyan-950 cursor-pointer"
           >
             <HelpCircle className="w-4 h-4" />

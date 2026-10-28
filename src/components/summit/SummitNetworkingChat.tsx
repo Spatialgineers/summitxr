@@ -896,6 +896,7 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
               <button
                 type="submit"
                 disabled={!inputText.trim()}
+                aria-label={es ? 'Publicar' : 'Post'}
                 className="sgx-btn-cyan px-5 py-3 sm:py-2.5 min-h-[46px] text-xs font-bold font-mono flex items-center justify-center space-x-1.5 disabled:opacity-50 shrink-0 shadow-lg shadow-[var(--sgx-neon)]/20 transition-all hover:scale-105"
                 style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
               >
@@ -934,7 +935,9 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
                 </div>
               </div>
               <button 
+                type="button"
                 onClick={() => setSelectedAttendeeProfile(null)}
+                aria-label="Cerrar perfil"
                 className="text-slate-400 hover:text-white p-1"
               >
                 <X className="w-4 h-4" />

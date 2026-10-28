@@ -263,6 +263,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
           <select
             value={selectedPillarFilter}
             onChange={(e) => setSelectedPillarFilter(e.target.value as any)}
+            aria-label={es ? 'Filtrar por pilar' : 'Filter by pillar'}
             className="text-xs font-mono bg-slate-900 border border-slate-700 text-slate-200 px-2.5 py-1.5 focus:border-[#FDCC0D] focus:outline-none cursor-pointer"
             style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
           >
@@ -275,6 +276,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
           <select
             value={formatFilter}
             onChange={(e) => setFormatFilter(e.target.value as any)}
+            aria-label={es ? 'Filtrar por formato' : 'Filter by format'}
             className="text-xs font-mono bg-slate-900 border border-slate-700 text-slate-200 px-2.5 py-1.5 focus:border-[#FDCC0D] focus:outline-none cursor-pointer"
             style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
           >

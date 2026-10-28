@@ -254,6 +254,7 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
           <select
             value={selectedPillar}
             onChange={(e) => setSelectedPillar(e.target.value as any)}
+            aria-label={es ? 'Filtrar por pilar' : 'Filter by pillar'}
             className="w-full bg-transparent text-xs font-mono text-white focus:outline-none cursor-pointer"
           >
             <option value="ALL" className="bg-[var(--sgx-bg)] text-white">{t('filter_all', 'FILTRAR POR PILAR (TODOS LOS 6)')}</option>

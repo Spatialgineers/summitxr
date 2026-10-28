@@ -87,7 +87,9 @@ export const SummitPushAlertToast: React.FC<SummitPushAlertToastProps> = ({
 
         {/* Close Button */}
         <button
+          type="button"
           onClick={onClose}
+          aria-label="Cerrar aviso"
           className="text-slate-400 hover:text-white p-1"
         >
           <X className="w-4 h-4" />

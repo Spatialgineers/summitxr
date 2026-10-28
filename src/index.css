@@ -565,3 +565,40 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--sgx-accent);
 }
+
+
+/* Accessibility (WCAG AA): theme colors as text use their readable variant
+   (computed per theme in TenantThemeContext), and black text on a theme fill
+   becomes black or white, whichever reads. */
+.text-\[var\(--sgx-primary\)\] { color: var(--sgx-primary-text, var(--sgx-primary)); }
+.text-\[var\(--sgx-secondary\)\] { color: var(--sgx-secondary-text, var(--sgx-secondary)); }
+.text-\[var\(--sgx-accent\)\] { color: var(--sgx-accent-text, var(--sgx-accent)); }
+.text-\[var\(--sgx-neon\)\] { color: var(--sgx-neon-text, var(--sgx-neon)); }
+.bg-\[var\(--sgx-primary\)\].text-black { color: var(--sgx-primary-ink, #000); }
+.bg-\[var\(--sgx-secondary\)\].text-black { color: var(--sgx-secondary-ink, #fff); }
+.bg-\[var\(--sgx-accent\)\].text-black { color: var(--sgx-accent-ink, #000); }
+.bg-\[var\(--sgx-neon\)\].text-black { color: var(--sgx-neon-ink, #000); }
+
+.sgx-skip {
+  position: fixed; left: 12px; top: -60px; z-index: 10000;
+  padding: 10px 16px; background: #FDCC0D; color: #050505;
+  font-weight: 700; text-decoration: none;
+}
+.sgx-skip:focus { top: 12px; outline: 2px solid #fff; outline-offset: 2px; }
+
+/* Visible keyboard focus everywhere (WCAG 2.4.7), even where a utility set
+   focus:outline-none. Unlayered, so it wins over Tailwind utilities. Elements
+   with the SGX cut corners (clip-path) get the ring inside, where it isn't clipped. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus-ring, #00DDFF) !important;
+  outline-offset: 2px;
+}
+:where(a, button, input, select, textarea, summary, [tabindex])[style*="clip-path"]:focus-visible,
+:where(.sgx-btn, .sgx-btn-cyan):focus-visible {
+  outline-offset: -3px;
+}
+/* A theme color on a theme fill: use that fill's ink. */
+.bg-\[var\(--sgx-primary\)\][class*="text-[var(--sgx-"] { color: var(--sgx-primary-ink, #000); }
+.bg-\[var\(--sgx-secondary\)\][class*="text-[var(--sgx-"] { color: var(--sgx-secondary-ink, #fff); }
+.bg-\[var\(--sgx-accent\)\][class*="text-[var(--sgx-"] { color: var(--sgx-accent-ink, #000); }
+.bg-\[var\(--sgx-neon\)\][class*="text-[var(--sgx-"] { color: var(--sgx-neon-ink, #000); }

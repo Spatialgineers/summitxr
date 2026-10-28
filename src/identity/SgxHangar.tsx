@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useDialogFocus } from '../lib/useDialogFocus';
 import { useLanguage } from '../context/LanguageContext';
 import { usePilotProfile } from '../context/PilotProfileContext';
 import { navigateToSection } from '../immersion/navigation';
@@ -31,6 +32,8 @@ interface Props {
 export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pass' }) => {
   const { language } = useLanguage();
   const es = language === 'es';
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  useDialogFocus(dialogRef);
   const { profile, leaderboard } = usePilotProfile();
   const liveXp = useMemo(
     () => profile.weekendActivity
@@ -112,7 +115,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   ];
 
   return (
-    <div className="sgx-hangar" role="dialog" aria-modal="true" aria-label={es ? 'Hangar del piloto' : 'Pilot hangar'} onClick={onClose}>
+    <div ref={dialogRef} tabIndex={-1} className="sgx-hangar" role="dialog" aria-modal="true" aria-label={es ? 'Hangar del piloto' : 'Pilot hangar'} onClick={onClose}>
       <div className="sgx-hangar__frame" onClick={(e) => e.stopPropagation()}>
         <HoloGlass pillar={identity.affinity} />
         <header className="sgx-hangar__head">

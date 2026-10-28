@@ -125,6 +125,30 @@ export function getInitialTenant(allTenants?: Tenant[]): Tenant {
   return currentTenants[0] || INITIAL_TENANTS[0];
 }
 
+/* Accessibility: theme colors used as text on the dark UI must reach 4.5:1,
+   and text on a theme-colored fill must pick black or white, whatever pillar
+   theme is active. */
+function lum(hex: string): number {
+  const h = hex.replace('#', '');
+  const n = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h.slice(0, 6), 16);
+  const ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => { const c = v / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
+  return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+}
+const ratio = (a: number, b: number) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+const DARK_SURFACE = 0.036; // ~#353739: the lightest dark surface (a card with a tinted chip) text sits on
+function readableOnDark(hex: string): string {
+  if (!/^#?[0-9a-f]{3,8}$/i.test(hex)) return hex;
+  const h = hex.replace('#', '');
+  const n = parseInt(h.length === 3 ? h.split('').map((c) => c + c).join('') : h.slice(0, 6), 16);
+  let [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  const to = (x: number) => Math.round(x).toString(16).padStart(2, '0');
+  for (let i = 0; i < 20 && ratio(lum(`#${to(r)}${to(g)}${to(b)}`), DARK_SURFACE) < 4.6; i++) {
+    r += (255 - r) * 0.12; g += (255 - g) * 0.12; b += (255 - b) * 0.12;
+  }
+  return `#${to(r)}${to(g)}${to(b)}`;
+}
+const inkOn = (hex: string) => (/^#?[0-9a-f]{3,8}$/i.test(hex) && ratio(lum(hex), 0) >= ratio(lum(hex), 1) ? '#050505' : '#FFFFFF');
+
 export function applyRootTenantCSSVariables(tenant: Tenant) {
   if (typeof document === 'undefined') return;
   const root = document.documentElement;
@@ -154,6 +178,17 @@ export function applyRootTenantCSSVariables(tenant: Tenant) {
   root.style.setProperty('--sgx-erratic-level', String(tenant.erraticRating || 1));
   if (b.gradientCss) {
     root.style.setProperty('--sgx-gradient', b.gradientCss);
+  }
+
+  const themed: Record<string, string> = {
+    primary: b.primaryColor,
+    secondary: b.secondaryColor || '#32527B',
+    accent: b.accentColor || '#FDCC0D',
+    neon: b.neonHighlightColor || b.primaryColor,
+  };
+  for (const [k, v] of Object.entries(themed)) {
+    root.style.setProperty(`--sgx-${k}-text`, readableOnDark(v));
+    root.style.setProperty(`--sgx-${k}-ink`, inkOn(v));
   }
 
   try {

@@ -348,6 +348,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                 href={activeEmbed.externalUrl || activeEmbed.embedUrl}
                 target="_blank"
                 rel="noreferrer"
+                aria-label={es ? 'Abrir en una pestaña nueva' : 'Open in a new tab'}
                 className="sgx-btn-cyan px-2.5 py-1 text-[10px] font-bold font-mono flex items-center space-x-1 shadow-md shadow-[var(--sgx-neon)]/15 shrink-0"
               >
                 <span className="hidden sm:inline">{es ? 'NUEVA PESTAÑA' : 'NEW TAB'}</span>

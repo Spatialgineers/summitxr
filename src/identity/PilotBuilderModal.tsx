@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
+import { useDialogFocus } from '../lib/useDialogFocus';
 import { useLanguage } from '../context/LanguageContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import { PILLAR_ACCENT } from './sgxIdentity';
@@ -14,6 +15,8 @@ import { configFromSeed, type PilotConfig } from './pilotAvatar';
 export const PilotBuilderModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { language } = useLanguage();
   const es = language === 'es';
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  useDialogFocus(dialogRef);
   const { identity } = useSgxIdentity();
   const accent = identity.affinity ? PILLAR_ACCENT[identity.affinity] : '#FDCC0D';
   const [pilot, setPilot] = useState<PilotConfig>(() => identity.avatar.pilot || configFromSeed(identity.avatar.seed, accent));
@@ -34,7 +37,7 @@ export const PilotBuilderModal: React.FC<{ onClose: () => void }> = ({ onClose }
   };
 
   return (
-    <div className="sgx-hangar" role="dialog" aria-modal="true" aria-label={es ? 'Constructor de piloto' : 'Pilot builder'} onClick={onClose}>
+    <div ref={dialogRef} tabIndex={-1} className="sgx-hangar" role="dialog" aria-modal="true" aria-label={es ? 'Constructor de piloto' : 'Pilot builder'} onClick={onClose}>
       <div className="sgx-hangar__frame sgx-pilotb-modal" onClick={(e) => e.stopPropagation()}>
         <HoloGlass />
         <header className="sgx-hangar__head">

@@ -181,7 +181,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
     if (confirm((es ? '¿Estás seguro de que deseas eliminar esta aplicación integrada?' : 'Are you sure you want to remove this embedded app?'))) {
       const updated = embedList.filter(item => item.id !== id);
       setEmbedList(updated);
-      saveAllEmbedWidgets(updated, isAdmin);
+      saveAllEmbedWidgets(updated);
       if (selectedEmbedId === id && updated.length > 0) {
         setSelectedEmbedId(updated[0].id);
       }
@@ -225,7 +225,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
     }
 
     setEmbedList(updatedList);
-    saveAllEmbedWidgets(updatedList, isAdmin);
+    saveAllEmbedWidgets(updatedList);
     setSelectedEmbedId(newWidget.id);
     setIsModalOpen(false);
   };
@@ -424,7 +424,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
           </div>
 
           <div className="flex items-center space-x-2 shrink-0">
-            <button
+            {isAdmin && <button
               onClick={() => handleOpenEditModal(activeEmbed)}
               className="px-2.5 py-1 bg-[var(--sgx-bg)] hover:bg-[#32527B] text-slate-300 hover:text-white border border-[var(--sgx-secondary)] text-[11px] font-mono flex items-center space-x-1.5 transition-colors cursor-pointer"
               style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
@@ -432,7 +432,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
             >
               <Edit3 className="w-3 h-3" />
               <span>{es ? 'CONFIGURAR' : 'CONFIGURE'}</span>
-            </button>
+            </button>}
           </div>
         </div>
       </div>
@@ -515,13 +515,13 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
               </button>
             </div>
 
-            <button
+            {isAdmin && <button
               onClick={handleOpenAddModal}
               className="sgx-btn px-4 py-2 text-xs font-bold font-mono flex items-center space-x-1.5 shadow-lg shadow-[var(--sgx-accent)]/20 hover:scale-105 transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>{es ? '＋ INTEGRAR APP O CÓDIGO' : '＋ EMBED APP OR CODE'}</span>
-            </button>
+            </button>}
           </div>
         </div>
 
@@ -585,7 +585,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
                   </span>
                 </div>
 
-                {emb.isCustomUserApp && (
+                {isAdmin && emb.isCustomUserApp && (
                   <button
                     onClick={e => handleDeleteEmbed(emb.id, e)}
                     className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-400 transition-opacity absolute top-2 right-2 cursor-pointer"
@@ -672,7 +672,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
       )}
 
       {/* 4. Modal for Integrating ANY Custom App (Link or Code) */}
-      {isModalOpen && (
+      {isAdmin && isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
           <div 
             className="bg-[var(--sgx-card-bg)] border-2 border-[var(--sgx-neon)] max-w-2xl w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto"

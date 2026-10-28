@@ -6,21 +6,21 @@ import {
   pilotSvg, randomPilot, varyPilot, type PilotConfig, type PilotPart,
 } from './pilotAvatar';
 
-/* PILOT BUILDER: the visitor builds their pilot part by part. Every part
-   has a visual picker, colors are free, "Sorpresa" rolls a whole new pilot
-   and "Variar" nudges one or two parts of the current one. */
+/* PILOT BUILDER: the visitor builds their XR avatar part by part. Every part
+   has a visual picker, colors come only from the official SGX palette,
+   "Sorpresa" rolls a whole new avatar and "Variar" nudges one or two parts. */
 
 type Tab = PilotPart | 'colors';
 const TABS: Tab[] = ['helmet', 'visor', 'eyes', 'crest', 'armor', 'emblem', 'pattern', 'colors'];
 const TAB_LABEL: Record<Tab, [string, string]> = {
-  helmet: ['Casco', 'Helmet'], visor: ['Visor', 'Visor'], eyes: ['Ojos', 'Eyes'], crest: ['Cresta', 'Crest'],
-  armor: ['Armadura', 'Armor'], emblem: ['Emblema', 'Emblem'], pattern: ['Patrón', 'Pattern'], colors: ['Colores', 'Colors'],
+  helmet: ['Cabeza', 'Head'], visor: ['Visor XR', 'XR headset'], eyes: ['Interfaz', 'Interface'], crest: ['Accesorio', 'Gear'],
+  armor: ['Ropa', 'Outfit'], emblem: ['Emblema', 'Emblem'], pattern: ['Textura', 'Texture'], colors: ['Colores', 'Colors'],
 };
 const COLOR_ROWS: { key: 'primary' | 'secondary' | 'glow' | 'shell'; label: [string, string] }[] = [
   { key: 'primary', label: ['Trazo y emblema', 'Trim and emblem'] },
   { key: 'secondary', label: ['Detalles', 'Details'] },
   { key: 'glow', label: ['Luz del visor', 'Visor light'] },
-  { key: 'shell', label: ['Casco y armadura', 'Helmet and armor'] },
+  { key: 'shell', label: ['Visor y ropa', 'Headset and outfit'] },
 ];
 
 interface Props {
@@ -96,7 +96,7 @@ export const PilotBuilder: React.FC<Props> = ({ value, onChange, accent, callsig
       </div>
 
       <div className="sgx-pilotb__panel">
-        <div className="sgx-pilotb__tabs" role="tablist" aria-label={es ? 'Piezas del piloto' : 'Pilot parts'}>
+        <div className="sgx-pilotb__tabs" role="tablist" aria-label={es ? 'Piezas del avatar' : 'Avatar parts'}>
           {TABS.map((t) => (
             <button key={t} type="button" role="tab" aria-selected={tab === t} className={tab === t ? 'is-on' : ''} onClick={() => { playUiChirp(640); setTab(t); }}>
               {L(TAB_LABEL[t])}
@@ -144,10 +144,6 @@ export const PilotBuilder: React.FC<Props> = ({ value, onChange, accent, callsig
                       onClick={() => set({ ...value, [row.key]: hex })}
                     />
                   ))}
-                  <label className="sgx-pilotb__picker" title={es ? 'Cualquier color' : 'Any color'}>
-                    <input type="color" value={value[row.key].length === 7 ? value[row.key] : '#FDCC0D'} onChange={(e) => onChange({ ...value, [row.key]: e.target.value.toUpperCase() })} />
-                    <span aria-hidden="true">+</span>
-                  </label>
                 </div>
               </div>
             ))}

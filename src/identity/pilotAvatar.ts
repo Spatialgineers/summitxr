@@ -1,67 +1,127 @@
-/* SGX PILOT: a parametric pilot portrait. Every part is a choice the
-   visitor makes in the Pilot Builder; colors are free. Drawn as a plain SVG
-   string so it renders the same in React, on canvas (Holo Card, PDF) and
-   at any size, from the 30 px pass strip to a 600 px export. */
+/* SGX PILOT: a parametric XR avatar. Every part is a choice the visitor
+   makes in the Pilot Builder: head, headset (VR, AR, MR, gaming), what the
+   lens shows, accessory, outfit, chest emblem (SGX bolt, SGX gear, Guild or
+   a pillar) and the outfit texture (the seamless SGX tiles from the Tile
+   Lab). Only official SGX and pillar colors. Drawn as a plain SVG string so
+   it renders the same in React, on canvas (Holo Card, PDF) and at any size. */
 
 export interface PilotConfig {
   v: 1;
+  /** head shape */
   helmet: number;
+  /** headset */
   visor: number;
+  /** what the lens shows */
   eyes: number;
+  /** accessory */
   crest: number;
+  /** outfit */
   armor: number;
   emblem: number;
+  /** outfit texture */
   pattern: number;
-  /** trim and emblem */
+  /** trim, outline, emblem plate */
   primary: string;
-  /** crest, pattern, second light */
+  /** accessory and details */
   secondary: string;
-  /** visor light */
+  /** lens light */
   glow: string;
-  /** helmet and armor body */
+  /** head and plain outfit */
   shell: string;
 }
 
-export const PART_COUNTS = { helmet: 10, visor: 9, eyes: 8, crest: 10, armor: 7, emblem: 8, pattern: 6 } as const;
+/* Seamless SGX tiles (from the SGX Tile Lab) used as outfit textures. 0 = plain. */
+/* gain lifts the darker tiles so they read on a small outfit. */
+export const PILOT_TEXTURES: { file: string; es: string; en: string; gain?: number }[] = [
+  { file: '', es: 'Liso', en: 'Plain' },
+  { file: 'sgx-story', es: 'SGX.Story', en: 'SGX.Story', gain: 1.98 },
+  { file: 'sgx-showcase', es: 'SGX.Showcase', en: 'SGX.Showcase', gain: 2.71 },
+  { file: 'sgx-spark', es: 'SGX.Spark', en: 'SGX.Spark', gain: 2.57 },
+  { file: 'sgx-stage', es: 'SGX.Stage', en: 'SGX.Stage', gain: 2.26 },
+  { file: 'sgx-system', es: 'SGX.System', en: 'SGX.System', gain: 2.32 },
+  { file: 'sgx-synthesize', es: 'SGX.Synthesize', en: 'SGX.Synthesize', gain: 2.21 },
+  { file: 'los-seis-pilares', es: 'Seis pilares', en: 'Six pillars', gain: 2.32 },
+  { file: 'engranajes-sgx', es: 'Engranajes SGX', en: 'SGX gears', gain: 0.74 },
+  { file: 'engranaje-g', es: 'Engranaje G', en: 'G gear', gain: 0.72 },
+  { file: 'engranajes-entrelazados', es: 'Engranajes', en: 'Meshed gears', gain: 0.95 },
+  { file: 'rayos-sgx', es: 'Rayos SGX', en: 'SGX bolts', gain: 1.08 },
+  { file: 'rayos-nocturnos', es: 'Rayos nocturnos', en: 'Night bolts', gain: 2.32 },
+  { file: 'panel-hud', es: 'Panel HUD', en: 'HUD panel', gain: 1.03 },
+  { file: 'reticula-holodeck', es: 'Holodeck', en: 'Holodeck', gain: 2.88 },
+  { file: 'red-de-energia-sgx', es: 'Red de energía', en: 'Energy grid', gain: 2.57 },
+  { file: 'lineas-de-energia', es: 'Líneas de energía', en: 'Energy lines', gain: 3.2 },
+  { file: 'circuito-futurista', es: 'Circuito', en: 'Circuit', gain: 2.88 },
+  { file: 'escudo-de-energia', es: 'Escudo hex', en: 'Hex shield', gain: 3.2 },
+  { file: 'metal-cepillado', es: 'Metal cepillado', en: 'Brushed metal', gain: 0.66 },
+  { file: 'zigzag-sgx', es: 'Zigzag SGX', en: 'SGX zigzag', gain: 0.45 },
+];
+
+/* Chest emblems: official marks only. */
+const EMBLEMS: { src: string; es: string; en: string }[] = [
+  { src: '/holo/bolt.png', es: 'Rayo SGX', en: 'SGX bolt' },
+  { src: '/holo/gear.png', es: 'Engranaje SGX', en: 'SGX gear' },
+  { src: '/holo/guild.png', es: 'SGX Guild', en: 'SGX Guild' },
+  { src: '/holo/story.png', es: 'Story', en: 'Story' },
+  { src: '/holo/showcase.png', es: 'Showcase', en: 'Showcase' },
+  { src: '/holo/spark.png', es: 'Spark', en: 'Spark' },
+  { src: '/holo/stage.png', es: 'Stage', en: 'Stage' },
+  { src: '/holo/system.png', es: 'System', en: 'System' },
+  { src: '/holo/synthesize.png', es: 'Synthesize', en: 'Synthesize' },
+  { src: '', es: 'Ninguno', en: 'None' },
+];
+
+export const PART_COUNTS = { helmet: 8, visor: 9, eyes: 8, crest: 10, armor: 7, emblem: EMBLEMS.length, pattern: PILOT_TEXTURES.length } as const;
 export type PilotPart = keyof typeof PART_COUNTS;
 
 export const PART_NAMES: Record<PilotPart, { es: string[]; en: string[] }> = {
   helmet: {
-    es: ['Domo', 'Hexa', 'Bloque', 'Caballero', 'Burbuja', 'Samurái', 'Mecha', 'Aletas', 'Racing', 'Cresta'],
-    en: ['Dome', 'Hex', 'Block', 'Knight', 'Bubble', 'Samurai', 'Mech', 'Fins', 'Racing', 'Ridge'],
+    es: ['Redonda', 'Ovalada', 'Cuadrada', 'Hexa', 'Cápsula', 'Low-poly', 'Mecha', 'Holograma'],
+    en: ['Round', 'Oval', 'Square', 'Hex', 'Capsule', 'Low-poly', 'Mech', 'Hologram'],
   },
   visor: {
-    es: ['Banda', 'Trapecio', 'Escudo', 'Óvalo', 'T', 'Lentes', 'Rendija', 'V', 'Cristal'],
-    en: ['Band', 'Trapeze', 'Shield', 'Oval', 'T', 'Lenses', 'Slit', 'V', 'Glass'],
+    es: ['VR clásico', 'VR slim', 'Gafas AR', 'Visor MR', 'Visor gaming', 'Goggles', 'Monóculo holo', 'Banda LED', 'Escudo facial'],
+    en: ['Classic VR', 'Slim VR', 'AR glasses', 'MR visor', 'Gaming visor', 'Goggles', 'Holo monocle', 'LED band', 'Face shield'],
   },
   eyes: {
-    es: ['Reflejo', 'Scan', 'LEDs', 'Mira', 'HUD', 'Píxel', 'Feliz', 'Ojo único'],
-    en: ['Glint', 'Scan', 'LEDs', 'Reticle', 'HUD', 'Pixel', 'Happy', 'Mono-eye'],
+    es: ['HUD', 'Escáner', 'Ojos LED', 'Mira', 'Píxel', 'Cargando', 'Onda', 'Rayo SGX'],
+    en: ['HUD', 'Scanner', 'LED eyes', 'Reticle', 'Pixel', 'Loading', 'Waveform', 'SGX bolt'],
   },
   crest: {
-    es: ['Nada', 'Aleta', 'Antena', 'Antenas', 'Halo', 'Mohawk', 'Cuernos', 'Alas', 'Corona', 'Órbita'],
-    en: ['None', 'Fin', 'Antenna', 'Antennas', 'Halo', 'Mohawk', 'Horns', 'Wings', 'Crown', 'Orbit'],
+    es: ['Nada', 'Audífonos', 'Headset con mic', 'Orejas de gato', 'Antena', 'Halo', 'Gorro', 'Capucha', 'Mohawk', 'Pelo en punta'],
+    en: ['None', 'Headphones', 'Headset + mic', 'Cat ears', 'Antenna', 'Halo', 'Beanie', 'Hood', 'Mohawk', 'Spiky hair'],
   },
   armor: {
-    es: ['Base', 'Hombreras', 'Placas', 'Cuello alto', 'Chaqueta', 'Exo', 'Capa'],
-    en: ['Base', 'Pauldrons', 'Plates', 'High collar', 'Jacket', 'Exo', 'Cape'],
+    es: ['Hoodie', 'Techwear', 'Traje háptico', 'Jersey esports', 'Bomber', 'Chaleco', 'Capa streamer'],
+    en: ['Hoodie', 'Techwear', 'Haptic suit', 'Esports jersey', 'Bomber', 'Vest', 'Streamer cape'],
   },
-  emblem: {
-    es: ['Bolt SGX', 'Hexágono', 'Estrella', 'Chevron', 'Diamante', 'Núcleo', 'Pilar', 'Nada'],
-    en: ['SGX bolt', 'Hexagon', 'Star', 'Chevron', 'Diamond', 'Core', 'Pillar', 'None'],
-  },
-  pattern: {
-    es: ['Liso', 'Franja', 'Hexágonos', 'Circuito', 'Camuflaje', 'Bicolor'],
-    en: ['Plain', 'Stripe', 'Hex', 'Circuit', 'Camo', 'Two-tone'],
-  },
+  emblem: { es: EMBLEMS.map((e) => e.es), en: EMBLEMS.map((e) => e.en) },
+  pattern: { es: PILOT_TEXTURES.map((t) => t.es), en: PILOT_TEXTURES.map((t) => t.en) },
 };
 
-/** Swatches: the six pillar colors plus a few extra lights. */
-export const PILOT_SWATCHES = ['#FDCC0D', '#00DDFF', '#5D86C6', '#E08A1E', '#9AA3AD', '#FFFFFF', '#FF3D71', '#7CFF6B', '#B07CFF'];
-export const SHELL_SWATCHES = ['#0B0D12', '#1A1A1A', '#1D2633', '#2B1F14', '#32527B', '#3A3F47', '#E6E8EB'];
+/** Official SGX lights (design system + pillar inks). No free colors. */
+export const PILOT_SWATCHES = ['#FDCC0D', '#FFBB00', '#B87000', '#00DDFF', '#5D86C6', '#32527B', '#888888', '#FFF9E2', '#FFFFFF'];
+/** Official SGX bases for the head and plain outfits. */
+export const SHELL_SWATCHES = ['#050505', '#1A1A1A', '#333333', '#32527B', '#888888', '#FFF9E2'];
 
-const HEX = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/;
-const col = (c: string | undefined, fallback: string) => (c && HEX.test(c) ? c : fallback);
+const HEX = /^#[0-9a-fA-F]{6}$/;
+function rgbOf(h: string): [number, number, number] {
+  const n = parseInt(h.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+/** Any color snaps to the closest official one (older pilots had free colors). */
+function snap(c: string | undefined, palette: string[], fallback: string): string {
+  if (!c || !HEX.test(c)) return fallback;
+  const up = c.toUpperCase();
+  if (palette.includes(up)) return up;
+  const [r, g, b] = rgbOf(up);
+  let best = fallback, d = Infinity;
+  for (const p of palette) {
+    const [pr, pg, pb] = rgbOf(p);
+    const dd = (r - pr) ** 2 + (g - pg) ** 2 + (b - pb) ** 2;
+    if (dd < d) { d = dd; best = p; }
+  }
+  return best;
+}
 const wrap = (n: number, max: number) => ((Math.floor(n) % max) + max) % max;
 
 function rng(seed: string) {
@@ -84,13 +144,15 @@ function pickParts(r: () => number) {
 export function configFromSeed(seed: string, accent = '#FDCC0D'): PilotConfig {
   const r = rng(seed || 'sgx');
   const parts = pickParts(r);
+  const primary = snap(accent, PILOT_SWATCHES, '#FDCC0D');
   const lights = ['#00DDFF', '#FDCC0D', '#FFFFFF', '#5D86C6'];
-  const secondary = lights[Math.floor(r() * lights.length)];
+  let secondary = lights[Math.floor(r() * lights.length)];
+  if (secondary === primary) secondary = primary === '#00DDFF' ? '#FDCC0D' : '#00DDFF';
   return {
     v: 1, ...parts,
-    primary: col(accent, '#FDCC0D'),
-    secondary: secondary.toLowerCase() === accent.toLowerCase() ? '#00DDFF' : secondary,
-    glow: r() > 0.5 ? '#00DDFF' : col(accent, '#FDCC0D'),
+    primary,
+    secondary,
+    glow: r() > 0.5 ? '#00DDFF' : primary,
     shell: SHELL_SWATCHES[Math.floor(r() * 4)],
   };
 }
@@ -99,15 +161,15 @@ export function randomPilot(accent?: string): PilotConfig {
   const r = Math.random;
   const parts = pickParts(r);
   const pick = (a: string[]) => a[Math.floor(r() * a.length)];
-  const primary = accent && r() < 0.6 ? accent : pick(PILOT_SWATCHES);
+  const primary = accent && r() < 0.6 ? snap(accent, PILOT_SWATCHES, '#FDCC0D') : pick(PILOT_SWATCHES);
   let secondary = pick(PILOT_SWATCHES);
   if (secondary === primary) secondary = primary === '#00DDFF' ? '#FDCC0D' : '#00DDFF';
   return {
     v: 1, ...parts,
     primary,
     secondary,
-    glow: r() < 0.5 ? pick(['#00DDFF', '#FDCC0D', '#FF3D71', '#7CFF6B', '#FFFFFF']) : secondary,
-    shell: r() < 0.12 ? '#E6E8EB' : pick(SHELL_SWATCHES.slice(0, 6)),
+    glow: pick(['#00DDFF', '#FDCC0D', '#FFBB00', '#FFFFFF']),
+    shell: pick(SHELL_SWATCHES),
   };
 }
 
@@ -132,109 +194,127 @@ export function normalizePilot(c: Partial<PilotConfig> | null | undefined, accen
     const v = Number((c as any)[k]);
     out[k] = Number.isFinite(v) ? wrap(v, PART_COUNTS[k]) : base[k];
   });
-  out.primary = col(c.primary, base.primary);
-  out.secondary = col(c.secondary, base.secondary);
-  out.glow = col(c.glow, base.glow);
-  out.shell = col(c.shell, base.shell);
+  out.primary = snap(c.primary, PILOT_SWATCHES, base.primary);
+  out.secondary = snap(c.secondary, PILOT_SWATCHES, base.secondary);
+  out.glow = snap(c.glow, PILOT_SWATCHES, base.glow);
+  out.shell = snap(c.shell, SHELL_SWATCHES, base.shell);
   return out;
+}
+
+/* ---------- images (emblems, textures) ----------
+   In the page the SVG points at /holo and /pilot/tex. A raster copy (canvas,
+   PDF) cannot load outside images, so those are inlined as data URIs first. */
+
+const INLINE = new Map<string, string>();
+const texUrl = (i: number) => (PILOT_TEXTURES[i]?.file ? `/pilot/tex/${PILOT_TEXTURES[i].file}.png` : '');
+const asset = (url: string) => INLINE.get(url) || url;
+
+async function inline(url: string): Promise<void> {
+  if (!url || INLINE.has(url)) return;
+  try {
+    const blob = await (await fetch(url)).blob();
+    const data = await new Promise<string>((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result)); fr.onerror = rej; fr.readAsDataURL(blob); });
+    INLINE.set(url, data);
+  } catch { /* the raster copy simply goes without it */ }
+}
+
+/** Inline the images this pilot uses, so its raster copy carries them. */
+export async function loadPilotAssets(c: PilotConfig): Promise<void> {
+  const n = normalizePilot(c) as PilotConfig;
+  await Promise.all([inline(EMBLEMS[n.emblem]?.src || ''), inline(texUrl(n.pattern))]);
+}
+
+/** Swap every <image> href in a rendered SVG for an inlined copy, so a
+    data-URL raster of it (canvas, PDF) still shows emblems and textures. */
+export async function inlineSvgImages(svg: SVGSVGElement): Promise<void> {
+  const imgs = Array.from(svg.querySelectorAll('image'));
+  await Promise.all(imgs.map(async (el) => {
+    const href = el.getAttribute('href') || el.getAttribute('xlink:href') || '';
+    if (!href || href.startsWith('data:')) return;
+    await inline(href);
+    const data = INLINE.get(href);
+    if (data) el.setAttribute('href', data);
+  }));
 }
 
 /* ---------- geometry (viewBox 0 0 100 120) ---------- */
 
-const HELMETS = [
-  'M50 16 C28 16 20 36 20 56 L20 80 L34 94 L66 94 L80 80 L80 56 C80 36 72 16 50 16 Z',
-  'M50 14 L76 26 L82 58 L72 92 L28 92 L18 58 L24 26 Z',
-  'M28 20 L72 20 L82 34 L82 82 L70 94 L30 94 L18 82 L18 34 Z',
-  'M50 10 L70 24 L80 52 L76 84 L62 96 L38 96 L24 84 L20 52 L30 24 Z',
-  'M16 56 A34 34 0 1 1 84 56 A34 34 0 1 1 16 56 Z',
-  'M50 16 C34 16 26 28 24 44 L12 60 L22 64 L22 82 L36 94 L64 94 L78 82 L78 64 L88 60 L76 44 C74 28 66 16 50 16 Z',
-  'M30 18 L70 18 L80 30 L80 62 L72 70 L72 88 L60 96 L40 96 L28 88 L28 70 L20 62 L20 30 Z',
-  'M24 12 L36 26 L64 26 L76 12 L80 40 L80 80 L66 94 L34 94 L20 80 L20 40 Z',
-  'M50 20 C26 20 14 38 14 58 C14 78 26 92 40 94 L60 94 C74 92 86 78 86 58 C86 38 74 20 50 20 Z',
-  'M50 8 L58 18 C72 22 80 38 80 56 L80 80 L66 94 L34 94 L20 80 L20 56 C20 38 28 22 42 18 Z',
+const HEADS = [
+  'M50 22 C66 22 76 34 76 52 C76 70 66 82 50 82 C34 82 24 70 24 52 C24 34 34 22 50 22 Z',
+  'M50 18 C66 18 74 34 74 54 C74 72 64 84 50 84 C36 84 26 72 26 54 C26 34 34 18 50 18 Z',
+  'M32 22 L68 22 Q78 22 78 32 L78 70 Q78 82 66 82 L34 82 Q22 82 22 70 L22 32 Q22 22 32 22 Z',
+  'M50 18 L76 32 L76 68 L50 84 L24 68 L24 32 Z',
+  'M50 16 C68 16 76 28 76 44 L76 66 C76 78 66 86 50 86 C34 86 24 78 24 66 L24 44 C24 28 32 16 50 16 Z',
+  'M50 18 L70 26 L78 50 L70 74 L50 84 L30 74 L22 50 L30 26 Z',
+  'M30 22 L70 22 L78 32 L78 58 L72 64 L72 76 L62 84 L38 84 L28 76 L28 64 L22 58 L22 32 Z',
+  'M50 22 C66 22 76 34 76 52 C76 70 66 82 50 82 C34 82 24 70 24 52 C24 34 34 22 50 22 Z',
 ];
 
-const VISORS = [
-  '<rect x="28" y="44" width="44" height="16" rx="3"/>',
-  '<path d="M26 44 L74 44 L66 62 L34 62 Z"/>',
-  '<path d="M28 42 L72 42 L72 54 L58 64 L42 64 L28 54 Z"/>',
-  '<ellipse cx="50" cy="53" rx="23" ry="10"/>',
-  '<path d="M26 42 L74 42 L74 50 L56 50 L56 68 L44 68 L44 50 L26 50 Z"/>',
-  '<circle cx="38" cy="52" r="9"/><circle cx="62" cy="52" r="9"/>',
-  '<rect x="24" y="49" width="52" height="7" rx="3.5"/>',
-  '<path d="M24 42 L50 60 L76 42 L76 50 L50 68 L24 50 Z"/>',
-  '<path d="M30 36 L70 36 L74 60 L62 72 L38 72 L26 60 Z"/>',
+/* Headsets: body (drawn dark), lens (glows, clips the interface). */
+const HEADSETS: { body: string; lens: string; strap?: boolean }[] = [
+  { body: '<path d="M20 40 Q20 34 26 34 L74 34 Q80 34 80 40 L80 62 Q80 68 74 68 L58 68 L54 62 L46 62 L42 68 L26 68 Q20 68 20 62 Z"/>', lens: '<path d="M25 39 L75 39 L75 60 L57 60 L53 56 L47 56 L43 60 L25 60 Z"/>', strap: true },
+  { body: '<rect x="22" y="40" width="56" height="22" rx="7"/>', lens: '<rect x="26" y="43" width="48" height="16" rx="5"/>', strap: true },
+  { body: '<path d="M26 46 Q26 42 30 42 L44 42 Q48 42 48 46 L48 54 Q48 59 43 59 L31 59 Q26 59 26 54 Z M52 46 Q52 42 56 42 L70 42 Q74 42 74 46 L74 54 Q74 59 69 59 L57 59 Q52 59 52 54 Z M46 46 L54 46 L54 48 L46 48 Z M22 46 L26 45 L26 48 L22 49 Z M74 45 L78 46 L78 49 L74 48 Z"/>', lens: '<rect x="28" y="44" width="18" height="13" rx="3"/><rect x="54" y="44" width="18" height="13" rx="3"/>' },
+  { body: '<path d="M20 40 Q20 34 26 34 L74 34 Q80 34 80 40 L80 62 Q80 68 74 68 L26 68 Q20 68 20 62 Z"/>', lens: '<path d="M24 39 L76 39 L76 63 L24 63 Z"/>', strap: true },
+  { body: '<path d="M14 46 Q50 30 86 46 L84 62 Q50 74 16 62 Z"/>', lens: '<path d="M19 47 Q50 35 81 47 L79 59 Q50 69 21 59 Z"/>' },
+  { body: '<circle cx="37" cy="52" r="13"/><circle cx="63" cy="52" r="13"/><rect x="46" y="49" width="8" height="5"/>', lens: '<circle cx="37" cy="52" r="9.5"/><circle cx="63" cy="52" r="9.5"/>', strap: true },
+  { body: '<circle cx="62" cy="51" r="12"/><path d="M24 49 L50 49 L50 53 L24 53 Z"/>', lens: '<circle cx="62" cy="51" r="8.5"/>' },
+  { body: '<rect x="20" y="46" width="60" height="12" rx="6"/>', lens: '<rect x="23" y="49" width="54" height="6" rx="3"/>' },
+  { body: '<path d="M24 34 L76 34 L78 62 L64 78 L36 78 L22 62 Z"/>', lens: '<path d="M28 38 L72 38 L74 60 L62 73 L38 73 L26 60 Z"/>' },
 ];
 
-const BOLT = 'M53 99 L44 111 L50 111 L47 119 L57 106 L51 106 Z';
+const BOLT_MINI = 'M52 43 L44 54 L49 54 L47 61 L56 50 L51 50 Z';
 
-function eyesSvg(i: number, glow: string, sec: string): string {
+function lensSvg(i: number, glow: string, sec: string): string {
   const lite = '#FFFFFF';
   switch (i) {
-    case 0: return `<path d="M32 46 L44 46" stroke="${lite}" stroke-opacity="0.7" stroke-width="1.6" stroke-linecap="round"/><path d="M66 58 L70 58" stroke="${lite}" stroke-opacity="0.35" stroke-width="1.2" stroke-linecap="round"/>`;
-    case 1: return [42, 46, 50, 54, 58, 62, 66].map((y) => `<rect x="20" y="${y}" width="60" height="1.2" fill="#000" opacity="0.35"/>`).join('') + `<rect class="pg-scan" x="20" y="50" width="60" height="2.2" fill="${lite}" opacity="0.55"/>`;
-    case 2: return `<rect x="35" y="50" width="9" height="4" rx="2" fill="${lite}"/><rect x="56" y="50" width="9" height="4" rx="2" fill="${lite}"/>`;
-    case 3: return `<circle cx="50" cy="53" r="6" fill="none" stroke="${lite}" stroke-width="1.2"/><path d="M50 44 V49 M50 57 V62 M41 53 H46 M54 53 H59" stroke="${lite}" stroke-width="1.2"/><circle cx="50" cy="53" r="1.4" fill="${sec}"/>`;
-    case 4: return `<rect x="30" y="47" width="16" height="2" fill="${lite}"/><rect x="30" y="52" width="24" height="2" fill="${lite}" opacity="0.8"/><rect x="30" y="57" width="10" height="2" fill="${lite}" opacity="0.6"/><rect x="62" y="47" width="6" height="12" fill="none" stroke="${lite}" stroke-width="1"/>`;
-    case 5: return `<g fill="${lite}"><rect x="36" y="48" width="4" height="4"/><rect x="40" y="52" width="4" height="4"/><rect x="36" y="52" width="4" height="4"/><rect x="56" y="48" width="4" height="4"/><rect x="60" y="52" width="4" height="4"/><rect x="56" y="52" width="4" height="4"/></g>`;
-    case 6: return `<path d="M35 56 Q40 48 45 56 M55 56 Q60 48 65 56" fill="none" stroke="${lite}" stroke-width="2.2" stroke-linecap="round"/>`;
-    default: return `<circle cx="50" cy="53" r="6" fill="${glow}" opacity="0.5"/><circle class="pg-eye" cx="50" cy="53" r="3.4" fill="${lite}"/>`;
+    case 0: return `<rect x="28" y="45" width="14" height="1.6" fill="${lite}"/><rect x="28" y="50" width="22" height="1.6" fill="${lite}" opacity="0.8"/><rect x="28" y="55" width="9" height="1.6" fill="${lite}" opacity="0.6"/><rect x="62" y="44" width="8" height="12" fill="none" stroke="${lite}" stroke-width="1"/>`;
+    case 1: return [42, 46, 50, 54, 58, 62, 66].map((y) => `<rect x="14" y="${y}" width="72" height="1.1" fill="#000" opacity="0.3"/>`).join('') + `<rect class="pg-scan" x="14" y="50" width="72" height="2.2" fill="${lite}" opacity="0.6"/>`;
+    case 2: return `<rect x="33" y="49" width="10" height="5" rx="2.5" fill="${lite}"/><rect x="57" y="49" width="10" height="5" rx="2.5" fill="${lite}"/>`;
+    case 3: return `<circle cx="50" cy="51" r="6" fill="none" stroke="${lite}" stroke-width="1.2"/><path d="M50 42 V47 M50 55 V60 M41 51 H46 M54 51 H59" stroke="${lite}" stroke-width="1.2"/><circle cx="50" cy="51" r="1.4" fill="${sec}"/>`;
+    case 4: return `<g fill="${lite}"><rect x="34" y="47" width="4" height="4"/><rect x="38" y="51" width="4" height="4"/><rect x="34" y="51" width="4" height="4"/><rect x="58" y="47" width="4" height="4"/><rect x="62" y="51" width="4" height="4"/><rect x="58" y="51" width="4" height="4"/></g>`;
+    case 5: return `<circle cx="50" cy="51" r="6" fill="none" stroke="${lite}" stroke-opacity="0.3" stroke-width="2"/><circle class="pg-load" cx="50" cy="51" r="6" fill="none" stroke="${lite}" stroke-width="2" stroke-dasharray="12 26" stroke-linecap="round"/>`;
+    case 6: return `<polyline points="24,51 30,51 33,45 37,57 41,47 45,55 49,49 53,53 57,46 61,56 65,50 70,51 78,51" fill="none" stroke="${lite}" stroke-width="1.5" stroke-linejoin="round"/>`;
+    default: return `<path d="${BOLT_MINI}" fill="${lite}"/><circle cx="50" cy="51" r="9" fill="${glow}" opacity="0.25"/>`;
   }
 }
 
-function crestSvg(i: number, p: string, s: string, shell: string): string {
+function crestBack(i: number, p: string, s: string, fill: string): string {
   switch (i) {
-    case 1: return `<path d="M50 2 L57 20 L43 20 Z" fill="${p}"/><path d="M50 6 L50 19" stroke="${shell}" stroke-width="1"/>`;
-    case 2: return `<g stroke="${s}" stroke-width="1.6"><line x1="70" y1="26" x2="80" y2="6"/></g><circle cx="80.5" cy="5" r="2.6" fill="${s}"/>`;
-    case 3: return `<g stroke="${s}" stroke-width="1.4"><line x1="34" y1="22" x2="26" y2="4"/><line x1="66" y1="22" x2="74" y2="4"/></g><circle cx="25.5" cy="3.5" r="2.2" fill="${p}"/><circle cx="74.5" cy="3.5" r="2.2" fill="${p}"/>`;
-    case 4: return `<ellipse cx="50" cy="10" rx="20" ry="4" fill="none" stroke="${s}" stroke-width="1.6" opacity="0.95"/>`;
-    case 5: return `<path d="M38 22 L42 6 L46 20 L50 2 L54 20 L58 6 L62 22 Z" fill="${p}"/>`;
-    case 6: return `<path d="M30 28 C20 22 16 12 20 4 C22 14 28 18 36 22 Z M70 28 C80 22 84 12 80 4 C78 14 72 18 64 22 Z" fill="${s}"/>`;
-    case 7: return `<path d="M20 50 L4 36 L8 58 Z M80 50 L96 36 L92 58 Z" fill="${p}" opacity="0.95"/>`;
-    case 8: return `<path d="M32 22 L36 8 L43 18 L50 4 L57 18 L64 8 L68 22 Z" fill="${p}"/><circle cx="50" cy="12" r="2" fill="${s}"/>`;
-    case 9: return `<ellipse cx="50" cy="40" rx="44" ry="10" fill="none" stroke="${s}" stroke-width="1.4" opacity="0.8" transform="rotate(-14 50 40)"/><circle cx="91" cy="31" r="2.6" fill="${p}"/>`;
+    case 5: return `<ellipse cx="50" cy="13" rx="20" ry="4.5" fill="none" stroke="${s}" stroke-width="2" opacity="0.95"/>`;
+    case 7: return `<path d="M16 64 C10 22 90 22 84 64 L80 92 L20 92 Z" fill="${fill}" stroke="${p}" stroke-width="1.2"/>`;
     default: return '';
   }
 }
 
-function armorSvg(i: number, p: string, shell: string): string {
-  const base = `<path d="M14 120 L20 100 L38 92 L62 92 L80 100 L86 120 Z" fill="${shell}" stroke="${p}" stroke-width="1.2"/>`;
+function crestFront(i: number, p: string, s: string, glow: string): string {
+  const band = `<path d="M23 50 C23 18 77 18 77 50" fill="none" stroke="${s}" stroke-width="4" stroke-linecap="round"/>`;
+  const cups = `<rect x="15" y="42" width="10" height="20" rx="4" fill="${p}"/><rect x="75" y="42" width="10" height="20" rx="4" fill="${p}"/>`;
   switch (i) {
-    case 1: return `${base}<circle cx="19" cy="106" r="11" fill="${shell}" stroke="${p}" stroke-width="1.2"/><circle cx="81" cy="106" r="11" fill="${shell}" stroke="${p}" stroke-width="1.2"/><path d="M12 106 H26 M74 106 H88" stroke="${p}" stroke-opacity="0.6"/>`;
-    case 2: return `<path d="M6 120 L12 98 L36 90 L64 90 L88 98 L94 120 Z" fill="${shell}" stroke="${p}" stroke-width="1.2"/><path d="M14 104 L34 98 M86 104 L66 98 M22 116 L38 108 M78 116 L62 108" stroke="${p}" stroke-opacity="0.55"/>`;
-    case 3: return `${base}<path d="M34 86 L66 86 L70 102 L30 102 Z" fill="${shell}" stroke="${p}" stroke-width="1.2"/><path d="M38 90 H62" stroke="${p}" stroke-opacity="0.5"/>`;
-    case 4: return `${base}<path d="M38 92 L50 112 L62 92" fill="none" stroke="${p}" stroke-width="1.4"/><path d="M30 100 L40 120 M70 100 L60 120" stroke="${p}" stroke-opacity="0.45"/>`;
-    case 5: return `${base}<path d="M20 102 L38 112 L50 104 L62 112 L80 102" fill="none" stroke="${p}" stroke-width="1.2"/><circle cx="38" cy="112" r="1.8" fill="${p}"/><circle cx="62" cy="112" r="1.8" fill="${p}"/>`;
-    case 6: return `<path d="M2 120 L16 96 L40 90 L60 90 L84 96 L98 120 Z" fill="${shell}" stroke="${p}" stroke-width="1.2"/><path d="M16 96 L10 120 M84 96 L90 120" stroke="${p}" stroke-opacity="0.5"/>`;
-    default: return base;
-  }
-}
-
-function emblemSvg(i: number, p: string, s: string): string {
-  switch (i) {
-    case 0: return `<path d="${BOLT}" fill="${p}"/>`;
-    case 1: return `<path d="M50 100 L57 104 L57 112 L50 116 L43 112 L43 104 Z" fill="none" stroke="${p}" stroke-width="1.6"/><circle cx="50" cy="108" r="2" fill="${s}"/>`;
-    case 2: return `<path d="M50 99 L52.6 105 L59 105.4 L54 109.4 L55.8 116 L50 112.3 L44.2 116 L46 109.4 L41 105.4 L47.4 105 Z" fill="${p}"/>`;
-    case 3: return `<path d="M42 102 L50 108 L58 102 M42 109 L50 115 L58 109" fill="none" stroke="${p}" stroke-width="2"/>`;
-    case 4: return `<path d="M50 99 L58 108 L50 117 L42 108 Z" fill="${p}"/><path d="M50 103 L54 108 L50 113 L46 108 Z" fill="${s}"/>`;
-    case 5: return `<circle cx="50" cy="108" r="7" fill="none" stroke="${p}" stroke-width="1.6"/><circle cx="50" cy="108" r="2.6" fill="${s}"/>`;
-    case 6: return `<path d="M50 100 L58 116 L42 116 Z" fill="none" stroke="${p}" stroke-width="1.6"/><path d="M50 106 L53.5 113 L46.5 113 Z" fill="${p}"/>`;
+    case 1: return band + cups;
+    case 2: return band + cups + `<path d="M20 61 Q22 76 38 74" fill="none" stroke="${s}" stroke-width="2"/><circle cx="39" cy="74" r="2.6" fill="${glow}"/>`;
+    case 3: return `<path d="M28 30 L24 12 L40 24 Z M72 30 L76 12 L60 24 Z" fill="${p}"/><path d="M29 27 L27 17 L36 24 Z M71 27 L73 17 L64 24 Z" fill="${glow}"/>` + band + cups;
+    case 4: return `<line x1="64" y1="26" x2="74" y2="6" stroke="${s}" stroke-width="1.8"/><circle cx="74.5" cy="5" r="3" fill="${glow}"/>`;
+    case 6: return `<path d="M24 42 C24 14 76 14 76 42 Z" fill="${s}"/><rect x="22" y="38" width="56" height="7" rx="2" fill="${p}"/><circle cx="50" cy="13" r="4" fill="${p}"/>`;
+    case 7: return `<path d="M22 70 C20 40 30 26 50 26 C70 26 80 40 78 70" fill="none" stroke="${p}" stroke-width="1.4" opacity="0.8"/>`;
+    case 8: return `<path d="M40 26 L43 8 L47 22 L50 2 L53 22 L57 8 L60 26 Z" fill="${p}"/>`;
+    case 9: return `<path d="M24 40 L22 22 L32 30 L34 14 L42 26 L50 10 L58 26 L66 14 L68 30 L78 22 L76 40 Z" fill="${s}"/>`;
     default: return '';
   }
 }
 
-function patternSvg(i: number, s: string): string {
+const TORSO = 'M8 120 L14 100 Q18 92 32 90 L42 88 L58 88 L68 90 Q82 92 86 100 L92 120 Z';
+
+function outfitSvg(i: number, fill: string, p: string, s: string, glow: string, shell: string): string {
+  const torso = `<path d="${TORSO}" fill="${fill}" stroke="${p}" stroke-width="1.3"/>`;
   switch (i) {
-    case 1: return `<rect x="44" y="0" width="12" height="100" fill="${s}" opacity="0.5"/><rect x="40" y="0" width="1.5" height="100" fill="${s}" opacity="0.6"/><rect x="58.5" y="0" width="1.5" height="100" fill="${s}" opacity="0.6"/>`;
-    case 2: {
-      let d = '';
-      for (let y = 10; y < 100; y += 10) for (let x = (y / 10) % 2 ? 10 : 15; x < 95; x += 10) d += `M${x} ${y - 3} l3 1.7 v3.4 l-3 1.7 l-3 -1.7 v-3.4 Z `;
-      return `<path d="${d}" fill="none" stroke="${s}" stroke-width="0.7" opacity="0.45"/>`;
-    }
-    case 3: return `<path d="M22 70 H34 L40 64 H48 M78 70 H66 L60 76 H52 M30 32 H40 L46 26 M70 32 H60 L54 26 M24 84 H40 M60 84 H76" fill="none" stroke="${s}" stroke-width="1" opacity="0.6"/><g fill="${s}" opacity="0.7"><circle cx="48" cy="64" r="1.3"/><circle cx="52" cy="76" r="1.3"/><circle cx="46" cy="26" r="1.3"/><circle cx="54" cy="26" r="1.3"/></g>`;
-    case 4: return `<g fill="${s}" opacity="0.28"><ellipse cx="30" cy="30" rx="12" ry="7" transform="rotate(-20 30 30)"/><ellipse cx="70" cy="74" rx="14" ry="8" transform="rotate(25 70 74)"/><ellipse cx="66" cy="28" rx="8" ry="5"/><ellipse cx="30" cy="80" rx="9" ry="6" transform="rotate(10 30 80)"/></g>`;
-    case 5: return `<rect x="50" y="0" width="50" height="100" fill="${s}" opacity="0.22"/>`;
-    default: return '';
+    case 0: return torso + `<path d="M30 92 Q50 76 70 92 Q60 99 50 99 Q40 99 30 92 Z" fill="${fill}" stroke="${p}" stroke-width="1.2"/><path d="M45 98 L44 111 M55 98 L56 111" stroke="${s}" stroke-width="1.2" stroke-linecap="round"/><path d="M34 113 L66 113 L62 120 L38 120 Z" fill="none" stroke="${p}" stroke-opacity="0.7"/>`;
+    case 1: return torso + `<path d="M38 82 L62 82 L65 97 L35 97 Z" fill="${shell}" stroke="${p}" stroke-width="1.2"/><path d="M22 97 L72 120" stroke="${p}" stroke-width="3"/><rect x="44" y="104" width="7" height="5" fill="${s}" transform="rotate(25 47 106)"/>`;
+    case 2: return `<path d="${TORSO}" fill="${shell}" stroke="${p}" stroke-width="1.3"/><path d="M20 104 L38 96 L50 104 L62 96 L80 104 M38 96 L38 120 M62 96 L62 120 M50 104 L50 120" fill="none" stroke="${glow}" stroke-width="1.2" opacity="0.9"/><g fill="${glow}"><circle cx="20" cy="104" r="2"/><circle cx="38" cy="96" r="2"/><circle cx="50" cy="104" r="2"/><circle cx="62" cy="96" r="2"/><circle cx="80" cy="104" r="2"/></g>` + `<path d="${TORSO}" fill="${fill}" opacity="0.35"/>`;
+    case 3: return torso + `<path d="M14 100 Q18 92 32 90 L36 98 L18 110 Z M86 100 Q82 92 68 90 L64 98 L82 110 Z" fill="${p}"/><path d="M42 88 L50 99 L58 88" fill="none" stroke="${s}" stroke-width="2"/>`;
+    case 4: return torso + `<path d="M40 86 Q50 92 60 86 L62 92 Q50 98 38 92 Z" fill="${s}"/><path d="M50 95 L50 120" stroke="${p}" stroke-width="1.6"/><path d="M14 116 L86 116" stroke="${s}" stroke-width="2.5" opacity="0.7"/>`;
+    case 5: return `<path d="${TORSO}" fill="${shell}" stroke="${p}" stroke-width="1.3"/><path d="M14 100 Q18 92 32 90 L40 89 L44 120 L10 120 Z M86 100 Q82 92 68 90 L60 89 L56 120 L90 120 Z" fill="${fill}" stroke="${p}" stroke-width="1.2"/>`;
+    default: return `<path d="M2 120 L16 94 L84 94 L98 120 Z" fill="${fill}" stroke="${p}" stroke-width="1.2" opacity="0.95"/><path d="${TORSO}" fill="${shell}" stroke="${p}" stroke-width="1.3"/><path d="M34 90 Q50 100 66 90" fill="none" stroke="${s}" stroke-width="3"/>`;
   }
 }
 
@@ -245,42 +325,55 @@ export function pilotSvg(raw: PilotConfig, opts: { size?: number; idPrefix?: str
   const c = normalizePilot(raw) as PilotConfig;
   const id = opts.idPrefix || `pl${(uidCounter = (uidCounter + 1) % 1e6)}`;
   const size = opts.size || 160;
-  const helmet = HELMETS[c.helmet];
-  const visor = VISORS[c.visor];
-  const light = c.shell.toUpperCase() === '#E6E8EB';
-  const vents = c.helmet !== 4 && c.visor !== 8;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" width="${size}" height="${Math.round(size * 1.2)}" role="img" aria-label="${(opts.title || 'SGX pilot').replace(/"/g, '')}">`
+  const head = HEADS[c.helmet];
+  const set = HEADSETS[c.visor];
+  const tex = texUrl(c.pattern);
+  const gain = PILOT_TEXTURES[c.pattern]?.gain ?? 1;
+  const emblem = EMBLEMS[c.emblem]?.src || '';
+  const fill = tex ? `url(#${id}-t)` : c.shell;
+  const holo = c.helmet === 7;
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 120" width="${size}" height="${Math.round(size * 1.2)}" role="img" aria-label="${(opts.title || 'SGX pilot').replace(/"/g, '')}">`
     + `<defs>`
     + `<linearGradient id="${id}-v" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c.glow}" stop-opacity="0.95"/><stop offset="1" stop-color="${c.secondary}" stop-opacity="0.75"/></linearGradient>`
-    + `<linearGradient id="${id}-s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="${light ? 0.15 : 0.1}"/><stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity="0.35"/></linearGradient>`
-    + `<clipPath id="${id}-h"><path d="${helmet}"/></clipPath>`
-    + `<clipPath id="${id}-c">${visor}</clipPath>`
+    + `<linearGradient id="${id}-s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.12"/><stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity="0.35"/></linearGradient>`
+    + (tex ? `<filter id="${id}-b" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="linear" slope="${gain}"/><feFuncG type="linear" slope="${gain}"/><feFuncB type="linear" slope="${gain}"/></feComponentTransfer></filter>`
+      + `<pattern id="${id}-t" patternUnits="userSpaceOnUse" width="22" height="22"><image href="${asset(tex)}" xlink:href="${asset(tex)}" width="22" height="22" preserveAspectRatio="none" filter="url(#${id}-b)"/></pattern>` : '')
+    + `<clipPath id="${id}-c">${set.lens}</clipPath>`
     + `<filter id="${id}-g" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter>`
     + `</defs>`
-    + armorSvg(c.armor, c.primary, c.shell)
-    + emblemSvg(c.emblem, c.primary, c.secondary)
-    + crestSvg(c.crest, c.primary, c.secondary, c.shell)
-    + `<path d="${helmet}" fill="${c.shell}"/>`
-    + `<g clip-path="url(#${id}-h)">${patternSvg(c.pattern, c.secondary)}<rect width="100" height="100" fill="url(#${id}-s)"/></g>`
-    + `<path d="${helmet}" fill="none" stroke="${c.primary}" stroke-width="1.6" stroke-linejoin="round"/>`
-    + (vents ? `<g stroke="${c.primary}" stroke-opacity="0.55" stroke-width="1"><line x1="41" y1="76" x2="41" y2="84"/><line x1="46" y1="76" x2="46" y2="86"/><line x1="54" y1="76" x2="54" y2="86"/><line x1="59" y1="76" x2="59" y2="84"/></g>` : '')
-    + `<g fill="${c.glow}" opacity="0.55" filter="url(#${id}-g)">${visor}</g>`
-    + `<g fill="url(#${id}-v)">${visor}</g>`
-    + `<g clip-path="url(#${id}-c)">${eyesSvg(c.eyes, c.glow, c.secondary)}</g>`
-    + `<g fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="0.8">${visor}</g>`
+    + crestBack(c.crest, c.primary, c.secondary, fill)
+    + outfitSvg(c.armor, fill, c.primary, c.secondary, c.glow, c.shell)
+    + (emblem ? `<path d="M41 100 L59 100 L59 112 L55 116 L41 116 Z" fill="#050505" stroke="${c.primary}" stroke-width="1"/><image href="${asset(emblem)}" xlink:href="${asset(emblem)}" x="43" y="101" width="14" height="14" preserveAspectRatio="xMidYMid meet"/>` : '')
+    + `<rect x="44" y="78" width="12" height="12" fill="${c.shell}"/><rect x="44" y="78" width="12" height="12" fill="#000" opacity="0.3"/>`
+    + `<path d="${head}" fill="${c.shell}" ${holo ? 'fill-opacity="0.35"' : ''}/>`
+    + `<path d="${head}" fill="url(#${id}-s)"/>`
+    + (holo ? `<g fill="none" stroke="${c.glow}" stroke-opacity="0.55" stroke-width="0.6"><ellipse cx="50" cy="52" rx="26" ry="10"/><ellipse cx="50" cy="52" rx="26" ry="20"/><ellipse cx="50" cy="52" rx="10" ry="30"/><ellipse cx="50" cy="52" rx="19" ry="30"/></g>` : '')
+    + `<path d="${head}" fill="none" stroke="${c.primary}" stroke-width="1.6" stroke-linejoin="round"/>`
+    + (set.strap ? `<path d="M14 51 L22 51 M78 51 L86 51" stroke="#1A1A1A" stroke-width="4"/>` : '')
+    + `<g fill="#141414" stroke="${c.primary}" stroke-width="1.2">${set.body}</g>`
+    + `<g fill="${c.glow}" opacity="0.55" filter="url(#${id}-g)">${set.lens}</g>`
+    + `<g fill="url(#${id}-v)">${set.lens}</g>`
+    + `<g clip-path="url(#${id}-c)">${lensSvg(c.eyes, c.glow, c.secondary)}</g>`
+    + (c.visor === 3 ? `<g fill="#050505" stroke="${c.glow}" stroke-width="0.8"><circle cx="31" cy="64" r="2.2"/><circle cx="69" cy="64" r="2.2"/></g>` : '')
+    + crestFront(c.crest, c.primary, c.secondary, c.glow)
     + `</svg>`;
 }
 
 /** Raster copy (PNG data URL) for canvas cards and the PDF. */
-export function pilotPng(c: PilotConfig, size = 512): Promise<string> {
+export async function pilotPng(c: PilotConfig, size = 512): Promise<string> {
+  const img = await pilotImage(c, size);
+  const cv = document.createElement('canvas');
+  cv.width = size; cv.height = Math.round(size * 1.2);
+  cv.getContext('2d')!.drawImage(img, 0, 0, cv.width, cv.height);
+  return cv.toDataURL('image/png');
+}
+
+/** The pilot as an image with its emblem and texture inlined (for canvas). */
+export async function pilotImage(c: PilotConfig, size = 512): Promise<HTMLImageElement> {
+  await loadPilotAssets(c);
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.onload = () => {
-      const cv = document.createElement('canvas');
-      cv.width = size; cv.height = Math.round(size * 1.2);
-      cv.getContext('2d')!.drawImage(img, 0, 0, cv.width, cv.height);
-      resolve(cv.toDataURL('image/png'));
-    };
+    img.onload = () => resolve(img);
     img.onerror = reject;
     img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(pilotSvg(c, { size }))}`;
   });

@@ -41,8 +41,8 @@ export const PilotBuilderModal: React.FC<{ onClose: () => void }> = ({ onClose }
           <div className="sgx-hangar__title">
             <img src="/brand/sgx-bolt.svg" alt="" />
             <div>
-              <h2>{es ? 'Construye tu piloto' : 'Build your pilot'}</h2>
-              <p>{es ? 'Pieza por pieza. Sale en tu pase, tu Holo Card y el núcleo 3D.' : 'Part by part. It shows on your pass, your Holo Card and the 3D core.'}</p>
+              <h2>{es ? 'Arma tu avatar XR' : 'Build your XR avatar'}</h2>
+              <p>{es ? 'Visor, interfaz, ropa con texturas SGX y el emblema de tu pilar. Sale en tu pase, tu Holo Card y el núcleo 3D.' : 'Headset, interface, SGX-textured outfit and your pillar emblem. It shows on your pass, your Holo Card and the 3D core.'}</p>
             </div>
           </div>
           <button type="button" className="sgx-hangar__close" onClick={onClose} aria-label={es ? 'Cerrar' : 'Close'}>✕</button>

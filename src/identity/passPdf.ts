@@ -1,13 +1,17 @@
 import { jsPDF } from 'jspdf';
 import { PILLAR_BY_KEY } from '../lib/sgxPillars';
 import type { SgxIdentity } from './sgxIdentity';
+import { inlineSvgImages } from './pilotAvatar';
 
 /* The PDF is an export of the SGX Pass, not a separate ticket: same code,
    same QR, same portrait. 210 × 95 mm, SGX dark with 45° cuts. */
 
 async function svgToPng(svg: SVGSVGElement, size = 360): Promise<string | null> {
   try {
-    const xml = new XMLSerializer().serializeToString(svg);
+    const clone = svg.cloneNode(true) as SVGSVGElement;
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    await inlineSvgImages(clone);
+    const xml = new XMLSerializer().serializeToString(clone);
     const url = URL.createObjectURL(new Blob([xml], { type: 'image/svg+xml;charset=utf-8' }));
     const img = new Image();
     await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = () => rej(); img.src = url; });

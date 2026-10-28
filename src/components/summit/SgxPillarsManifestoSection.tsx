@@ -146,7 +146,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       features: [
         {
           title: 'Avatar Studio',
-          desc: (es ? 'Crea tu identidad de piloto en pixel art o low-poly; queda impresa en tu SGX Pass.' : 'Create your pilot identity in pixel art or low-poly; it\'s printed on your SGX Pass.'),
+          desc: (es ? 'Arma tu avatar XR: visor, ropa con texturas SGX y emblema de tu pilar; queda impreso en tu SGX Pass.' : 'Build your XR avatar: headset, SGX-textured outfit and pillar emblem; it\'s printed on your SGX Pass.'),
           actionLabel: (es ? 'Abrir Avatar Studio' : 'Open Avatar Studio'),
           icon: UserCheck,
           onClick: onOpenAvatarGenerator,

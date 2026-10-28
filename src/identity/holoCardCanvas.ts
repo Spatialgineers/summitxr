@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PILLAR_BY_KEY, SGX_PILLARS, type PillarKey } from '../lib/sgxPillars';
 import { type HoloCredential } from './credentials';
+import { inlineSvgImages } from './pilotAvatar';
 
 /* The Holo Card drawn on canvas, in the style of the Summit badge
    ("Credenciales Summit 2026"): a ticket with 45° cuts and notches, the SGX
@@ -98,9 +99,10 @@ export function loadImage(src?: string | null): Promise<HTMLImageElement | null>
 }
 
 /** Any rendered <svg> (the pilot glyph) → image. */
-export function svgElementToImage(svg: SVGSVGElement | null, size = 512): Promise<HTMLImageElement | null> {
-  if (!svg) return Promise.resolve(null);
+export async function svgElementToImage(svg: SVGSVGElement | null, size = 512): Promise<HTMLImageElement | null> {
+  if (!svg) return null;
   const clone = svg.cloneNode(true) as SVGSVGElement;
+  await inlineSvgImages(clone);
   clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
   const vb = clone.viewBox?.baseVal;
   const ratio = vb && vb.width ? vb.height / vb.width : 1.2;

@@ -131,3 +131,5 @@
   .sgx-admin__area button[aria-current='page'] { border-bottom-color: #FDCC0D; }
 }
 .sgx-admin__main { min-width: 0; }
+
+.sgx-admin__badge { margin-left: auto; min-width: 20px; padding: 1px 6px; font-family: var(--font-mono, monospace); font-size: 11px; font-weight: 700; text-align: center; color: #050505; background: #FDCC0D; border-radius: 10px; }

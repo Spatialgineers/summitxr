@@ -9,13 +9,19 @@ import { SummitFeatureProvider } from './context/SummitFeatureContext.tsx';
 import { ImmersionProvider } from './immersion/ImmersionContext.tsx';
 import { SgxIdentityProvider } from './identity/SgxIdentityContext.tsx';
 import { startLiveContentSync } from './lib/summitData';
+import { installErrorMonitor, reportError } from './lib/errorMonitor';
+import { AppCrashBoundary } from './components/common/AppCrashBoundary';
 import './index.css';
+
+// Uncaught errors on visitors' phones reach the admin dashboard (Errores en vivo).
+installErrorMonitor();
 
 // Published CMS content (speakers, sessions, sponsors…) reaches every visitor live.
 startLiveContentSync();
 
 // After a new deploy, an open tab may ask for chunks that no longer exist: reload once.
 window.addEventListener('vite:preloadError', (event) => {
+  reportError('chunk', (event as Event & { payload?: unknown }).payload || 'vite:preloadError');
   try {
     if (sessionStorage.getItem('sgx_chunk_reloaded')) return;
     sessionStorage.setItem('sgx_chunk_reloaded', '1');
@@ -26,6 +32,7 @@ window.addEventListener('vite:preloadError', (event) => {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <AppCrashBoundary>
     <AuthProvider>
       <TenantThemeProvider>
         <LanguageProvider>
@@ -41,5 +48,6 @@ createRoot(document.getElementById('root')!).render(
         </LanguageProvider>
       </TenantThemeProvider>
     </AuthProvider>
+    </AppCrashBoundary>
   </StrictMode>,
 );

@@ -70,9 +70,10 @@ import { BulkInstagramImportModal } from './BulkInstagramImportModal';
 import { AdminMatchPanel } from '../../modules/match/admin/AdminMatchPanel';
 import { AdminSection, LiveListTable, AdminRosterPanel, ContentBackupPanel } from './AdminPanels';
 import { SummitInitiatesPanel } from './SummitInitiatesPanel';
+import { ClientErrorsPanel, useClientErrors } from './ClientErrorsPanel';
 import { CSV_ENTITIES } from '../../lib/csv/entities';
 import './admin.css';
-import { Instagram, UploadCloud, Sliders, Download as DownloadIcon, Megaphone, Vote, CalendarDays, Mic2, Handshake, Layers3, Sparkle, Map as MapIcon, AppWindow, Package, Images, Ticket, Gift, Target, HelpCircle as HelpIcon, BarChart2, Brush, Wand2, ShieldCheck as ShieldIcon, UserCog, DatabaseBackup, Users2, Briefcase, Radio as RadioIcon } from 'lucide-react';
+import { Instagram, UploadCloud, Sliders, Download as DownloadIcon, Megaphone, Vote, CalendarDays, Mic2, Handshake, Layers3, Sparkle, Map as MapIcon, AppWindow, Package, Images, Ticket, Gift, Target, HelpCircle as HelpIcon, BarChart2, Brush, Wand2, ShieldCheck as ShieldIcon, UserCog, DatabaseBackup, Users2, Briefcase, Radio as RadioIcon, Bug } from 'lucide-react';
 import { 
   SummitSession, 
   SummitSpeaker, 
@@ -128,7 +129,7 @@ interface AdminDashboardProps {
 
 export type AdminSubpage =
   // En vivo
-  | 'DIRECTOR' | 'ANNOUNCE' | 'POLLS'
+  | 'DIRECTOR' | 'ANNOUNCE' | 'POLLS' | 'ERRORS'
   // Contenido
   | 'AGENDA' | 'SPEAKERS' | 'SPONSORS' | 'TIERS' | 'INITIATES' | 'MAP' | 'EMBEDS' | 'CAPSULES' | 'GALLERY' | 'SOCIAL'
   // Personas
@@ -144,6 +145,7 @@ const ADMIN_NAV: { id: string; label: string; items: NavItem[] }[] = [
     { id: 'DIRECTOR', label: 'Consola del director', icon: RadioIcon, keywords: 'votacion pregunta escenario' },
     { id: 'ANNOUNCE', label: 'Anuncios', icon: Megaphone, keywords: 'push aviso notificacion' },
     { id: 'POLLS', label: 'Encuestas del keynote', icon: Vote, keywords: 'votos reacciones' },
+    { id: 'ERRORS', label: 'Errores en vivo', icon: Bug, keywords: 'monitoreo fallos telefonos crash sentry' },
   ] },
   { id: 'content', label: 'Contenido', items: [
     { id: 'AGENDA', label: 'Agenda / Run of Show', icon: CalendarDays, keywords: 'sesiones horario programa' },
@@ -199,6 +201,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }) => {
   const { user, isAdmin } = useAuth();
   const [activeSubpage, setActiveSubpage] = useState<AdminSubpage>('DIRECTOR');
+  // Live error feed: drives the nav badge and the Errores en vivo panel.
+  const clientErrors = useClientErrors(isAdmin);
+  const recentErrorCount = clientErrors.items.filter((d) => Date.now() - (d.at?.toMillis?.() ?? Date.now()) < 15 * 60_000).length;
   const [isAuditModalOpen, setIsAuditModalOpen] = useState<boolean>(false);
   const [navQuery, setNavQuery] = useState('');
   const searchRef = React.useRef<HTMLInputElement>(null);
@@ -557,6 +562,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   return (
                     <button key={it.id} type="button" aria-current={activeSubpage === it.id ? 'page' : undefined} onClick={() => { setActiveSubpage(it.id); setNavQuery(''); }}>
                       <Icon className="w-3.5 h-3.5" /> <span>{it.label}</span>
+                      {it.id === 'ERRORS' && recentErrorCount > 0 && <span className="sgx-admin__badge" aria-label={`${recentErrorCount} errores en 15 min`}>{recentErrorCount}</span>}
                     </button>
                   );
                 })}
@@ -965,6 +971,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           )}
 
           {/* SUBPAGE 6: SUMMIT ANALYTICS (UNIFIED IN ADMIN DASHBOARD) */}
+          {activeSubpage === 'ERRORS' && (
+            <AdminSection title="Errores en vivo" desc="Lo que falla en los teléfonos de la gente, en tiempo real. Agrupado por error, con dispositivo y pantalla.">
+              <ClientErrorsPanel items={clientErrors.items} error={clientErrors.error} />
+            </AdminSection>
+          )}
+
           {activeSubpage === 'SUMMIT_ANALYTICS' && (
             <AdminSection title="Analítica" desc="Visitas, pases, votos y retención con datos reales de Firestore.">
 

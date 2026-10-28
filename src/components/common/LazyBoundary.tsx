@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+import { reportError } from '../../lib/errorMonitor';
 
 /* Suspense + an error boundary for code-split modules. If a chunk fails to load
    (flaky network, or a new deploy replaced it), only that module shows a retry
@@ -18,6 +19,7 @@ class ChunkErrorBoundary extends React.Component<{ children: React.ReactNode }, 
 
   componentDidCatch(error: unknown) {
     console.warn('[SGX] module failed to load:', error);
+    reportError(/dynamically imported module|Importing a module script/i.test(String((error as Error)?.message)) ? 'chunk' : 'react', error);
   }
 
   render() {

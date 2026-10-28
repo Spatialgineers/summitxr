@@ -284,6 +284,21 @@ await ok('admin lists email claims', getDocs(collection(admin, 'pass_emails')));
 await ok('registration with affinity', setDoc(doc(alice, 'ticket_inquiries', 't_alice_aff'), { ...reg, affinity: 'SPARK' }));
 await no('registration with bad affinity', setDoc(doc(alice, 'ticket_inquiries', 't_alice_aff2'), { ...reg, affinity: 'NOPE' }));
 
+// Error reports from visitors (client_errors)
+const errDoc = (o = {}) => ({ kind: 'error', message: 'TypeError: x is undefined', fingerprint: 'error|TypeError', sessionId: 'abc123', path: '/', ua: 'UA', viewport: '390x844', online: true, uid: null, build: '', stack: 'at f', component: '', at: serverTimestamp(), ...o });
+await ok('anon device files an error report', setDoc(doc(anon, 'client_errors', 'e1'), errDoc()));
+await ok('signed-in visitor files a report with own uid', setDoc(doc(alice, 'client_errors', 'e2'), errDoc({ uid: 'alice' })));
+await no('report claiming another uid', setDoc(doc(alice, 'client_errors', 'e3'), errDoc({ uid: 'bob' })));
+await no('report with unknown kind', setDoc(doc(anon, 'client_errors', 'e4'), errDoc({ kind: 'spam' })));
+await no('report with huge message', setDoc(doc(anon, 'client_errors', 'e5'), errDoc({ message: 'x'.repeat(600) })));
+await no('report with extra field', setDoc(doc(anon, 'client_errors', 'e6'), errDoc({ email: 'a@b.com' })));
+await no('report with client clock', setDoc(doc(anon, 'client_errors', 'e7'), errDoc({ at: new Date() })));
+await no('visitor cannot read error reports', getDoc(doc(alice, 'client_errors', 'e1')));
+await no('visitor cannot list error reports', getDocs(collection(alice, 'client_errors')));
+await no('visitor cannot edit a report', setDoc(doc(anon, 'client_errors', 'e1'), errDoc({ message: 'changed' })));
+await ok('admin lists error reports', getDocs(collection(admin, 'client_errors')));
+await ok('admin clears a report', deleteDoc(doc(admin, 'client_errors', 'e1')));
+
 console.log(`RESULT ${n} passed, ${failed} failed`);
 await env.cleanup();
 process.exit(failed ? 1 : 0);

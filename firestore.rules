@@ -227,6 +227,31 @@ service cloud.firestore {
 
     // Emails sent by the Apps Script mailer (info@, IAM credentials: rules do not apply to it).
     // Admins read the log to see who got which email; nobody writes it from the app.
+    // Error reports from visitors' devices (src/lib/errorMonitor.ts). Anyone may
+    // file one, tightly shaped; only the team reads and clears them.
+    function isValidClientError(d) {
+      return d.keys().hasOnly(['kind', 'message', 'stack', 'fingerprint', 'component', 'path', 'ua', 'viewport', 'online', 'sessionId', 'uid', 'build', 'at']) &&
+             d.keys().hasAll(['kind', 'message', 'fingerprint', 'sessionId', 'at']) &&
+             d.kind in ['error', 'promise', 'react', 'chunk', 'webgl', 'manual'] &&
+             isShortString(d.message, 500) && d.message.size() > 0 &&
+             isShortString(d.fingerprint, 400) &&
+             isShortString(d.sessionId, 40) &&
+             d.at == request.time &&
+             optString(d, 'stack', 4000) &&
+             optString(d, 'component', 120) &&
+             optString(d, 'path', 300) &&
+             optString(d, 'ua', 300) &&
+             optString(d, 'viewport', 20) &&
+             optString(d, 'build', 40) &&
+             (!('online' in d) || d.online is bool) &&
+             (!('uid' in d) || d.uid == null || (isSignedIn() && d.uid == me()));
+    }
+
+    match /client_errors/{errorId} {
+      allow create: if isValidClientError(incoming());
+      allow get, list, delete: if isAdmin();
+    }
+
     match /mail_log/{logId} {
       allow get, list: if isAdmin();
     }

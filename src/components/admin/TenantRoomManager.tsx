@@ -376,7 +376,7 @@ export const TenantRoomManager: React.FC = () => {
           </div>
 
           {/* Sub-Tabs Bar */}
-          <div className="flex border-b border-[var(--sgx-secondary)]/60 font-mono text-xs overflow-x-auto space-x-1 pb-1">
+          <div className="flex flex-wrap gap-1 border-b border-[var(--sgx-secondary)]/60 font-mono text-xs pb-1">
             {[
               { id: 'METADATA', label: '1. IDENTIDAD & SLUG', icon: FileCode },
               { id: 'PRESET_SHADERS', label: '2. PRESET 3D & SHADERS', icon: Box },

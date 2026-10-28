@@ -115,6 +115,10 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
   const [activePillarId, setActivePillarId] = useState<SgxCorePillarId>(() =>
     resolvePillarFromTenantId(tenant.pillarId || tenant.id)
   );
+  // No pillar is picked until the visitor picks one (or a link names it).
+  const [pillarChosen, setPillarChosen] = useState<boolean>(() => {
+    try { return !!new URLSearchParams(window.location.search).get('pillar'); } catch { return false; }
+  });
   const [viewMode, setViewMode] = useState<'CLOSED_3D_ONLY' | 'DOCKED_STATION' | 'ALL_PILLARS_MATRIX'>('CLOSED_3D_ONLY');
   const [activeHoloSandbox, setActiveHoloSandbox] = useState<
     'NONE' | 'HARMONIC_SYNTH_LAB' | 'TELEMETRY_MATRIX' | 'RELIC_INSPECTOR'
@@ -129,6 +133,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
   }, [tenant.id, tenant.pillarId]);
 
   const handleDockPillar = (pillarId: SgxCorePillarId) => {
+    setPillarChosen(true);
     setActivePillarId(pillarId);
     selectPillar(`SGX.${pillarId}`);
     playPillarDockSound(pillarId);
@@ -589,6 +594,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
       {/* 1. Full-Bleed Interactive 3D Orbital Core Reactor with 4 Circular 3D Clocks & Angled HUD Wings */}
       <SgxOrbitalCore3D
         activePillarId={activePillarId}
+        noSelection={!pillarChosen}
         onSelectPillar={handleDockPillar}
         activePillarModules={activeStation.modules}
         onOpenTimeCapsules={onOpenTimeCapsules}

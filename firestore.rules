@@ -193,7 +193,7 @@ service cloud.firestore {
     // ---------------------------------------------------------------------
     function isValidTicketInquiry(data) {
       return data.keys().hasOnly(['email', 'ticketType', 'fullName', 'roleTitle', 'organization', 'referenceCode',
-                                  'status', 'userId', 'timestamp', 'imageConsent', 'consentAt']) &&
+                                  'status', 'userId', 'timestamp', 'imageConsent', 'consentAt', 'affinity']) &&
              data.keys().hasAll(['email', 'ticketType']) &&
              isShortString(data.email, 150) && data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$') &&
              data.ticketType in ['DIGITAL', 'SHOWCASE_PHYSICAL'] &&
@@ -205,7 +205,24 @@ service cloud.firestore {
              (!('userId' in data) || data.userId == null || (isSignedIn() && data.userId == me())) &&
              (!('imageConsent' in data) || data.imageConsent is bool) &&
              (!('consentAt' in data) || data.consentAt is int) &&
+             (!('affinity' in data) || data.affinity in ['STORY', 'SHOWCASE', 'SPARK', 'STAGE', 'SYSTEM', 'SYNTHESIZE']) &&
              (!('timestamp' in data) || data.timestamp == request.time);
+    }
+
+    // One SGX Pass per email: {sha256(email)} → { code, userId }. The email is never stored.
+    match /pass_emails/{key} {
+      allow get: if isSignedIn();
+      allow list, delete: if isAdmin();
+      allow create: if isSignedIn() && key.size() == 64 &&
+        request.resource.data.keys().hasOnly(['code', 'userId', 'at']) &&
+        request.resource.data.userId == me() &&
+        isShortString(request.resource.data.code, 40) &&
+        request.resource.data.at == request.time;
+      allow update: if isSignedIn() && resource.data.userId == me() &&
+        request.resource.data.keys().hasOnly(['code', 'userId', 'at']) &&
+        request.resource.data.userId == me() &&
+        isShortString(request.resource.data.code, 40) &&
+        request.resource.data.at == request.time;
     }
 
     // Emails sent by the Apps Script mailer (info@, IAM credentials: rules do not apply to it).
@@ -224,7 +241,7 @@ service cloud.firestore {
           incoming().status in ['PENDING', 'INVITED', 'CONFIRMED', 'DECLINED'] &&
           optString(incoming(), 'notes', 500)) ||
         (isSignedIn() && resource.data.userId == me() && incoming().userId == me() &&
-          changed().hasOnly(['email', 'ticketType', 'fullName', 'roleTitle', 'organization', 'imageConsent', 'consentAt', 'timestamp']) &&
+          changed().hasOnly(['email', 'ticketType', 'fullName', 'roleTitle', 'organization', 'imageConsent', 'consentAt', 'timestamp', 'affinity']) &&
           isShortString(incoming().email, 150) &&
           incoming().ticketType in ['DIGITAL', 'SHOWCASE_PHYSICAL'] &&
           optString(incoming(), 'fullName', 100) &&
@@ -232,6 +249,7 @@ service cloud.firestore {
           optString(incoming(), 'organization', 150) &&
           (!('imageConsent' in incoming()) || incoming().imageConsent is bool) &&
           (!('consentAt' in incoming()) || incoming().consentAt is int) &&
+          (!('affinity' in incoming()) || incoming().affinity in ['STORY', 'SHOWCASE', 'SPARK', 'STAGE', 'SYSTEM', 'SYNTHESIZE']) &&
           incoming().timestamp == request.time);
       allow delete: if isAdmin();
     }

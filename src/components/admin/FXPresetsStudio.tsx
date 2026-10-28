@@ -552,7 +552,7 @@ export const FXPresetsStudio: React.FC<FXPresetsStudioProps> = ({
           <div className="sgx-panel space-y-4">
             
             {/* Editor Sub-tabs */}
-            <div className="flex items-center space-x-2 border-b border-[var(--sgx-secondary)] pb-2 overflow-x-auto text-xs">
+            <div className="flex flex-wrap items-center gap-2 border-b border-[var(--sgx-secondary)] pb-2 text-xs">
               {[
                 { id: 'IDENTITY', label: '1. IDENTIDAD & COLORES', icon: Sliders },
                 { id: 'UBERSHADER', label: '2. UBERSHADER, GLITCH & WARP', icon: Zap },

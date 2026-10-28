@@ -184,6 +184,8 @@ export interface HolographicDrawerModule {
 
 interface SgxOrbitalCore3DProps {
   activePillarId: SgxCorePillarId;
+  /** Nothing picked yet: no pillar is highlighted, labeled or docked. */
+  noSelection?: boolean;
   onSelectPillar: (pillarId: SgxCorePillarId) => void;
   activePillarModules?: HolographicDrawerModule[];
   onQuickLaunchPrimaryModule?: (pillarId: SgxCorePillarId) => void;
@@ -404,6 +406,7 @@ const VOLUMETRIC_DOME_VERTEX_SHADER = `
 
 export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   activePillarId,
+  noSelection = false,
   onSelectPillar,
   activePillarModules = [],
   onOpenTimeCapsules,
@@ -421,6 +424,8 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   const [autoRotate, setAutoRotate] = useState<boolean>(true);
   const [cameraFocusedOnPillar, setCameraFocusedOnPillar] = useState<boolean>(false);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const drawerOpenRef = useRef(false);
+  drawerOpenRef.current = drawerOpen;
   const [zenImmersionMode, setZenImmersionMode] = useState<boolean>(false);
   const [optionsMenuOpen, setOptionsMenuOpen] = useState<boolean>(false);
   const [activeDrawerTab, setActiveDrawerTab] = useState<'MODULES' | 'INTERACTIVE_LAB' | 'SPONSORS'>('MODULES');
@@ -456,6 +461,8 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   }, []);
 
   const activePillarRef = useRef<SgxCorePillarId>(activePillarId);
+  const noSelectionRef = useRef(noSelection);
+  noSelectionRef.current = noSelection;
 
   // Piloto en órbita: your Holo Card / SGX Pass flies around the core, and
   // Day 3 check-ins at Chroma join the orbit.
@@ -1149,7 +1156,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       const faceMat = new THREE.MeshBasicMaterial({
         map: billboardTexture,
         transparent: true,
-        opacity: 0.96,
+        opacity: 1,
       });
       // Holo glass on the sponsor screens: slow scanlines and a cyan edge glow.
       faceMat.onBeforeCompile = (shader) => {
@@ -1157,11 +1164,11 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         shader.fragmentShader = 'uniform float uTime;\n' + shader.fragmentShader.replace(
           '#include <dithering_fragment>',
           `#include <dithering_fragment>
-          float sgxScan = 0.9 + 0.1 * sin(vMapUv.y * 220.0 - uTime * 4.0);
+          float sgxScan = 0.985 + 0.015 * sin(vMapUv.y * 90.0 - uTime * 2.0);
           vec2 sgxE = min(vMapUv, 1.0 - vMapUv);
-          float sgxEdge = exp(-min(sgxE.x, sgxE.y) * 38.0);
-          gl_FragColor.rgb = gl_FragColor.rgb * sgxScan + vec3(0.0, 0.5, 0.7) * sgxEdge * 0.55;
-          gl_FragColor.a *= 0.9;`
+          float sgxEdge = exp(-min(sgxE.x, sgxE.y) * 48.0);
+          gl_FragColor.rgb = gl_FragColor.rgb * sgxScan + vec3(0.0, 0.5, 0.7) * sgxEdge * 0.3;
+          gl_FragColor.a *= 0.97;`
         );
       };
       const billboardMesh = new THREE.Mesh(billboardGeo, [
@@ -1389,6 +1396,11 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     let lastTime = performance.now();
     let accumulatedElapsed = 0;
     const tempVec = new THREE.Vector3();
+    // Floating panels that can hide a pillar label behind them.
+    const occluders: THREE.Object3D[] = sponsorStationMeshes.map((sm) => sm.billboardMesh);
+    const occlusionRay = new THREE.Raycaster();
+    const occlusionTarget = new THREE.Vector3();
+    const occlusionDir = new THREE.Vector3();
     const fxTargetA = new THREE.Vector3();
     const fxTargetB = new THREE.Vector3();
     const fxMouse = new THREE.Vector2();
@@ -1435,7 +1447,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         holoUniforms.uColorA.value.set(...fxA);
         holoUniforms.uColorB.value.set(...fxB);
       }
-      const docked = cameraFocusedRef.current;
+      const docked = cameraFocusedRef.current && !noSelectionRef.current;
       holoUniforms.uTime.value = elapsed;
       holoUniforms.uHolo.value += ((docked ? 1 : 0.55) - holoUniforms.uHolo.value) * 0.08;
       holoUniforms.uScan.value = docked && !reduceMotion ? 1 : 0;
@@ -1476,7 +1488,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
 
       // Update each Pillar GLB satellite & 2D projected HUD tag
       pillarMeshes.forEach((pm, idx) => {
-        const isActive = pm.id === activePillarRef.current;
+        const isActive = !noSelectionRef.current && pm.id === activePillarRef.current;
         for (const hm of pm.holoMeshes) hm.visible = isActive;
         const targetScale = isActive ? 1.42 + surge * 0.22 : 0.95;
         pm.modelContainer.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
@@ -1507,12 +1519,24 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
 
         const btnEl = nodeMarkerRefs.current[pm.id];
         if (btnEl) {
+          // Depth-aware: a floating panel (sponsor screen, the pass card) in front of
+          // this pillar hides its label, and so does reading a focused panel.
+          pm.group.getWorldPosition(occlusionTarget);
+          occlusionDir.subVectors(occlusionTarget, camera.position);
+          const dist = occlusionDir.length();
+          occlusionRay.set(camera.position, occlusionDir.normalize());
+          occlusionRay.far = Math.max(0, dist - 4);
+          const hidden = !!focusedSponsorRef.current
+            || (drawerOpenRef.current && !isActive)
+            || occlusionRay.intersectObjects(occluders, false).length > 0
+            || pilotOrbit.hit(occlusionRay);
           btnEl.style.transform = `translate3d(${screenX}px, ${screenY + 38}px, 0) translate(-50%, -50%) scale(${
             isActive ? 1.04 : tempVec.z < 0.88 ? 0.9 : 0.76
           })`;
           btnEl.style.zIndex = isActive ? '24' : tempVec.z < 0.89 ? '16' : '10';
           // Fade out back-row labels when not active so labels never feel stacked or cluttered
-          btnEl.style.opacity = isActive ? '1' : isFarBack ? '0.18' : '0.78';
+          btnEl.style.opacity = hidden ? '0' : isActive ? '1' : isFarBack ? '0.18' : '0.78';
+          btnEl.style.pointerEvents = hidden ? 'none' : 'auto';
         }
       });
 
@@ -1799,7 +1823,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   };
 
   const activeNode = SGX_ORBITAL_PILLARS.find(p => p.id === activePillarId) || SGX_ORBITAL_PILLARS[0];
-  const readableAccent = activeNode.colorHex === '#32527B' ? '#00DDFF' : activeNode.colorHex;
+  const readableAccent = noSelection ? '#FDCC0D' : (activeNode.colorHex === '#32527B' ? '#00DDFF' : activeNode.colorHex);
 
   return (
     <div
@@ -1812,18 +1836,18 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       <div className="sgx-calm-collapse relative z-30 flex items-center justify-between gap-2 px-3 sm:px-5 py-2 bg-[#050505]/95 backdrop-blur-md border-b border-[#32527B]/60 shrink-0">
         <div className="flex items-center gap-2 min-w-0">
           <img
-            src={activeNode.iconUrl}
-            alt={activeNode.code}
+            src={noSelection ? '/holo/summitIcon.png' : activeNode.iconUrl}
+            alt={noSelection ? 'SGX' : activeNode.code}
             referrerPolicy="no-referrer"
             className="w-6 h-6 sm:w-7 sm:h-7 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(253,204,13,0.5)]"
           />
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-mono">
               <span className="font-extrabold tracking-wider" style={{ color: readableAccent }}>
-                {activeNode.code}
+                {noSelection ? (es ? '6 PILARES SGX' : '6 SGX PILLARS') : activeNode.code}
               </span>
               <span className="text-slate-500 hidden md:inline">·</span>
-              <span className="text-slate-400 truncate hidden md:inline">{loc(activeNode, 'title', language)}</span>
+              <span className="text-slate-400 truncate hidden md:inline">{noSelection ? (es ? 'Toca un pilar para entrar' : 'Tap a pillar to enter') : loc(activeNode, 'title', language)}</span>
             </div>
             <h3 className="text-xs sm:text-sm font-extrabold text-white font-['Orbitron',sans-serif] truncate">
               {es ? 'NÚCLEO 3D SPATIALGINEERS' : 'SPATIALGINEERS 3D CORE'}
@@ -1892,14 +1916,19 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
             type="button"
             onClick={() => {
               playUiChirp(740);
-              setDrawerOpen(prev => !prev);
               setOptionsMenuOpen(false);
+              if (noSelection && !drawerOpen) {
+                setFloatingXpNotice(es ? 'Toca un pilar en 3D o en la barra de abajo' : 'Tap a pillar in 3D or in the bar below');
+                setTimeout(() => setFloatingXpNotice(null), 2200);
+                return;
+              }
+              setDrawerOpen(prev => !prev);
             }}
             className="px-2.5 sm:px-3.5 py-1.5 bg-[#FDCC0D] hover:bg-[#FFBB00] text-[#050505] font-['Orbitron',sans-serif] font-black flex items-center gap-1 cursor-pointer text-xs transition-transform hover:scale-102"
             style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
           >
             <Compass className="w-3.5 h-3.5 text-[#050505]" />
-            <span>{drawerOpen ? (es ? 'Cerrar' : 'Close') : (es ? `Explorar ${activeNode.id}` : `Explore ${activeNode.id}`)}</span>
+            <span>{drawerOpen ? (es ? 'Cerrar' : 'Close') : noSelection ? (es ? 'Elige un pilar' : 'Pick a pillar') : (es ? `Explorar ${activeNode.id}` : `Explore ${activeNode.id}`)}</span>
           </button>
 
           {/* Sleek Options Popover Button (De-clutters secondary controls) */}
@@ -2092,7 +2121,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 const r = 112;
                 const x = Math.cos(angle) * r;
                 const y = Math.sin(angle) * r;
-                const isSelected = p.id === activePillarId;
+                const isSelected = !noSelection && p.id === activePillarId;
 
                 return (
                   <button
@@ -2142,7 +2171,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         {/* 6 Orbiting Semantic DOM Tags synchronized with the 3D .GLB Pillar Positions */}
         {!liteMode &&
           SGX_ORBITAL_PILLARS.map(pillar => {
-            const isDocked = pillar.id === activePillarId;
+            const isDocked = !noSelection && pillar.id === activePillarId;
             const tagColor = pillar.colorHex === '#32527B' ? '#00DDFF' : pillar.colorHex;
             return (
               <button
@@ -2191,7 +2220,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
             <aside
               data-holographic-drawer="true"
               onClick={e => e.stopPropagation()}
-              className="relative w-full h-[90vh] max-h-[90vh] md:h-auto md:max-h-none md:absolute md:top-4 md:bottom-14 md:left-auto md:right-4 md:w-[490px] lg:w-[520px] bg-[#111111] border-t-4 md:border-2 border-[#FDCC0D] flex flex-col overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.98)] pointer-events-auto transition-all duration-300"
+              className="relative w-full h-[90vh] max-h-[90vh] md:h-auto md:max-h-none md:absolute md:z-40 md:top-4 md:bottom-14 md:left-auto md:right-4 md:w-[490px] lg:w-[520px] bg-[#111111] border-t-4 md:border-2 border-[#FDCC0D] flex flex-col overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.98)] pointer-events-auto transition-all duration-300"
               style={{
                 borderColor: readableAccent,
                 clipPath: typeof window !== 'undefined' && window.innerWidth >= 768
@@ -2667,7 +2696,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
             {es ? 'Toca cualquier escultura ' : 'Tap any '}<strong className="text-[#FDCC0D]">.GLB</strong>{es ? ' o los orbes en 3D · Arrastra para orbitar el espacio' : ' sculpture or the 3D orbs · Drag to orbit the space'}
           </div>
 
-          {!drawerOpen && (
+          {!drawerOpen && !noSelection && (
             <button
               type="button"
               onClick={e => {
@@ -2698,7 +2727,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       {/* Direct 6-Pillar Quick Docking Strip (Bottom Bar — Sleek Horizontal Swipe Dock on Mobile, 6-Col Grid on Desktop) */}
       <div className="sgx-calm-collapse relative z-30 flex items-center gap-1.5 p-2 bg-[#050505] border-t border-[#32527B]/60 font-mono text-xs overflow-x-auto scroll-smooth no-scrollbar lg:grid lg:grid-cols-6">
         {SGX_ORBITAL_PILLARS.map((p, index) => {
-          const isSelected = p.id === activePillarId;
+          const isSelected = !noSelection && p.id === activePillarId;
           const pillAccent = p.colorHex === '#32527B' ? '#00DDFF' : p.colorHex;
           return (
             <button

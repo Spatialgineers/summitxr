@@ -16,7 +16,7 @@ import {
 import {
   REACTOR_MISSIONS, sponsorMissions, isPillarComplete, isDay3Open, type IdentityFlag, type ReactorMission,
 } from './reactor';
-import { hasServerCheckin, payloadToCard, publishConstellation, recordCheckin, registerPass, sendExchange, subscribeExchanges } from './passNetwork';
+import { checkEmailClaim, claimEmail, hasServerCheckin, payloadToCard, publishConstellation, recordCheckin, registerPass, sendExchange, subscribeExchanges } from './passNetwork';
 import { constellationPillars } from './constellation';
 
 export interface ForgeInput {
@@ -272,6 +272,15 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contactsKey, myUid, identity.pass?.code]);
 
+  // Passes forged before the one-per-email index: claim their email once.
+  useEffect(() => {
+    const pass = idRef.current.pass;
+    if (!myUid || !pass?.email) return;
+    let alive = true;
+    checkEmailClaim(pass.email, myUid).then((c) => { if (alive && c.state === 'free') claimEmail(pass.email, pass.code, myUid); });
+    return () => { alive = false; };
+  }, [myUid, identity.pass?.code, identity.pass?.email]);
+
   // Mutual exchange: whoever scanned my pass lands in my Rolodex too.
   useEffect(() => {
     if (!myUid) return;
@@ -300,7 +309,9 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
       code,
       serial: serialFromCode(code),
       tier: input.tier,
-      status: input.tier === 'DIGITAL' ? 'CONFIRMED' as const : 'PENDING' as const,
+      // Editing keeps the status the team set (an invited Day 3 pass stays invited).
+      status: input.tier === 'DIGITAL' ? 'CONFIRMED' as const
+        : (idRef.current.pass?.tier === 'SHOWCASE' ? idRef.current.pass.status : 'PENDING' as const),
       fullName: input.fullName.trim(),
       email: input.email.trim(),
       roleTitle: input.roleTitle?.trim() || undefined,
@@ -317,7 +328,8 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     });
     updateProfileName(input.fullName.trim().split(/\s+/)[0] || input.fullName, callsign);
     updateAvatar(input.avatarSeed, PILLAR_ACCENT[input.affinity]);
-    registerPass(pass, myUid);
+    registerPass(pass, myUid, input.affinity);
+    claimEmail(pass.email, code, myUid);
     flag('forged');
     window.dispatchEvent(new CustomEvent('sgx:pass_forged', { detail: { code } }));
   }, [commit, flag, myUid, updateAvatar, updateProfileName]);

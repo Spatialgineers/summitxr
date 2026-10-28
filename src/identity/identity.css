@@ -601,3 +601,17 @@
   .sgx-hstudio--compact .sgx-hstudio__panel[open] > summary::before { content: '▾ '; }
   .sgx-hstudio--compact .sgx-hstudio__panel[open] { gap: 12px; }
 }
+
+/* Pillar chips in the pass edit form. */
+@layer components {
+  .sgx-forge__affinity { margin: 0; padding: 0; border: 0; }
+  .sgx-forge__affinity legend { margin-bottom: 8px; font-family: var(--font-hud); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); }
+  .sgx-forge__affinity > div { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sgx-forge__affinity button {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px;
+    font-family: var(--font-display); font-size: 0.72rem; letter-spacing: 0.06em; color: #fff;
+    background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.14); cursor: pointer;
+  }
+  .sgx-forge__affinity button img { width: 20px; height: 20px; object-fit: contain; }
+  .sgx-forge__affinity button.is-on { border-color: var(--pillar-accent); box-shadow: 0 0 0 1px var(--pillar-accent) inset; color: var(--pillar-accent); }
+}

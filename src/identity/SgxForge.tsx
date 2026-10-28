@@ -11,7 +11,7 @@ import { PilotBuilder } from './PilotBuilder';
 import { randomPilot, type PilotConfig } from './pilotAvatar';
 import { SgxPassCard } from './SgxPassCard';
 import { HoloGlass } from '../immersion/shaders/HoloGlass';
-import { findMyRegistration, type MyRegistration } from './passNetwork';
+import { checkEmailClaim, findMyRegistration, type MyRegistration } from './passNetwork';
 
 /* FORJA DE IDENTIDAD: one ~60 second ceremony replaces the taquilla form, the
    Holo Card generator, the role selector and both tours. Name → pillar →
@@ -34,8 +34,14 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
   const { user, signInWithGoogle, authError, loading: authLoading } = useAuth();
   const googleUser = user && !user.isAnonymous ? user : null;
   const [signingIn, setSigningIn] = useState(false);
-  const { forge, identity } = useSgxIdentity();
-  const [step, setStep] = useState<Step>('intro');
+  const { forge, identity, myUid } = useSgxIdentity();
+  // A pass already on this device: "Editar datos" is one form, never a new forge.
+  const editing = !!identity.pass;
+  const [step, setStep] = useState<Step>(editing ? 'name' : 'intro');
+  const [restoring, setRestoring] = useState(false);
+  const [checking, setChecking] = useState(false);
+  // The code of a pass this account already has (same email): reused, never duplicated.
+  const [reuseCode, setReuseCode] = useState<string | null>(null);
   const [fullName, setFullName] = useState(identity.pass?.fullName || user?.displayName || '');
   const [email, setEmail] = useState(identity.pass?.email || user?.email || '');
   const [organization, setOrganization] = useState(identity.pass?.organization || '');
@@ -61,6 +67,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
       setRoleTitle(reg.roleTitle || '');
       setTier(reg.tier);
       setImageConsent(reg.imageConsent === true);
+      if (reg.affinity) setAffinity(reg.affinity);
     });
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -97,20 +104,56 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
 
   const go = (s: Step) => { playUiChirp(660); setStep(s); };
 
-  const submitName = (e: React.FormEvent) => {
+  const takenMsg = es
+    ? 'Este correo ya tiene un SGX Pass. Entra con Google con ese correo para recuperarlo, o escríbenos a info@spatialgineers.com.'
+    : 'This email already has an SGX Pass. Sign in with Google with that email to get it back, or write to info@spatialgineers.com.';
+
+  const submitName = async (e: React.FormEvent) => {
     e.preventDefault();
     if (fullName.trim().length < 2) { setError(es ? 'Escribe tu nombre.' : 'Type your name.'); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError(es ? 'Escribe un correo válido.' : 'Type a valid email.'); return; }
     if (!imageConsent) { setError(es ? 'Para registrarte, acepta el consentimiento de imagen.' : 'To register, accept the image consent.'); return; }
+    if (editing && !affinity) { setError(es ? 'Escoge tu pilar.' : 'Pick your pillar.'); return; }
     setError('');
+    // One pass per email: check before creating a pass or moving it to another email.
+    const emailChanged = !editing || email.trim().toLowerCase() !== (identity.pass?.email || '').trim().toLowerCase();
+    if (emailChanged && !found) {
+      setChecking(true);
+      const claim = await checkEmailClaim(email, myUid);
+      setChecking(false);
+      if (claim.state === 'taken') { setError(takenMsg); return; }
+      if (claim.state === 'mine' && !editing) setReuseCode(claim.code);
+    }
+    if (editing) { saveEdit(); return; }
     go('pillar');
+  };
+
+  // Edit: same pass, same code and pilot, new details. No ceremony.
+  const saveEdit = () => {
+    if (!affinity) return;
+    playScanSuccessSound();
+    forge({ fullName, email, tier, affinity, roleTitle, organization, avatarSeed: seed, avatarPilot: identity.avatar.pilot || pilot, avatarPng: identity.avatar.png, imageConsent });
+    onOpenHangar();
+  };
+
+  // Restore: the registration found for this Google account comes back as it was.
+  const restoreNow = (pick?: PillarKey) => {
+    const aff = pick || affinity || found?.affinity;
+    if (!found || !aff) return;
+    playScanSuccessSound();
+    forge({
+      fullName: found.fullName, email: found.email, tier: found.tier, affinity: aff,
+      roleTitle: found.roleTitle, organization: found.organization,
+      avatarSeed: seed, avatarPilot: pilot, imageConsent: found.imageConsent === true, code: found.code,
+    });
+    onOpenHangar();
   };
 
   const print = () => {
     if (!affinity) return;
     setStep('print');
     playCyberBurstSound('kudos');
-    forge({ fullName, email, tier, affinity, roleTitle, organization, avatarSeed: seed, avatarPilot: pilot, imageConsent, code: found?.code });
+    forge({ fullName, email, tier, affinity, roleTitle, organization, avatarSeed: seed, avatarPilot: pilot, imageConsent, code: found?.code || reuseCode || undefined });
     window.setTimeout(() => {
       playScanSuccessSound();
       try {
@@ -132,7 +175,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
             <img src="/brand/sgx-bolt.svg" alt="" />
             <span>{es ? 'Forja de identidad' : 'Identity forge'}</span>
           </div>
-          <ol className="sgx-forge__steps" aria-hidden="true">
+          <ol className="sgx-forge__steps" aria-hidden="true" hidden={editing || restoring}>
             {['name', 'pillar', 'pilot', 'print'].map((s, i) => (
               <li key={s} className={stepIndex > i + 1 || step === 'done' ? 'is-done' : stepIndex === i + 1 ? 'is-on' : ''}>{String(i + 1).padStart(2, '0')}</li>
             ))}
@@ -163,9 +206,9 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
                   <>
                     <p className="sgx-forge__account">
                       {es ? 'Encontramos tu pase' : 'We found your pass'} <strong>{found.code}</strong>.{' '}
-                      {es ? 'Escoge tu pilar y tu piloto y queda en este dispositivo.' : 'Pick your pillar and your pilot and it lives on this device too.'}
+                      {es ? 'Recupéralo en este dispositivo con un toque.' : 'Restore it on this device in one tap.'}
                     </p>
-                    <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => go('pillar')}>[ {es ? 'Recuperar mi pase' : 'Restore my pass'} ]</button></span>
+                    <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => { if (found.affinity) restoreNow(found.affinity); else { setRestoring(true); go('pillar'); } }}>[ {es ? 'Recuperar mi pase' : 'Restore my pass'} ]</button></span>
                   </>
                 ) : (
                   <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => go('name')}>[ {es ? 'Comenzar la forja' : 'Start the forge'} ]</button></span>
@@ -198,8 +241,8 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
 
         {step === 'name' && (
           <form className="sgx-forge__stage" onSubmit={submitName}>
-            <p className="sgx-forge__kicker">01 · {es ? 'Identifícate' : 'Identify yourself'}</p>
-            <h2>{es ? '¿Cómo te llamas, piloto?' : 'What is your name, pilot?'}</h2>
+            <p className="sgx-forge__kicker">{editing ? (es ? `Tu SGX Pass · ${identity.pass?.code}` : `Your SGX Pass · ${identity.pass?.code}`) : `01 · ${es ? 'Identifícate' : 'Identify yourself'}`}</p>
+            <h2>{editing ? (es ? 'Edita tus datos' : 'Edit your details') : (es ? '¿Cómo te llamas, piloto?' : 'What is your name, pilot?')}</h2>
             <div className="sgx-forge__fields">
               <label className="sgx-forge__field">
                 <span>{es ? 'Nombre completo' : 'Full name'}</span>
@@ -237,10 +280,30 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
                 ? 'Acepto que Spatialgineers use fotos y video en los que aparezca durante el Summit (transmisión, redes y materiales del evento).'
                 : 'I agree that Spatialgineers may use photos and video in which I appear during the Summit (broadcast, social media and event materials).'}</span>
             </label>
+            {editing && (
+              <fieldset className="sgx-forge__affinity">
+                <legend>{es ? 'Tu pilar' : 'Your pillar'}</legend>
+                <div>
+                  {pillarCards.map((p) => (
+                    <button
+                      key={p.key}
+                      type="button"
+                      className={affinity === p.key ? 'is-on' : ''}
+                      style={{ ['--pillar-accent' as string]: PILLAR_ACCENT[p.key] }}
+                      aria-pressed={affinity === p.key}
+                      onClick={() => setAffinity(p.key)}
+                    >
+                      <img src={p.iconUrl} alt="" />{p.key}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            )}
             {error && <p className="sgx-forge__error" role="alert">{error}</p>}
             <p className="sgx-forge__fine">{es ? 'Usamos tu nombre y correo solo para el Summit. Tu correo no aparece en el QR.' : 'We use your name and email only for the Summit. Your email is not in the QR.'}</p>
             <div className="sgx-forge__actions">
-              <span className="sgx-glow"><button type="submit" className="sgx-btn">[ {es ? 'Siguiente' : 'Next'} ]</button></span>
+              {editing && <button type="button" className="sgx-btn sgx-btn--ground" onClick={onClose}>{es ? 'Cancelar' : 'Cancel'}</button>}
+              <span className="sgx-glow"><button type="submit" className="sgx-btn" disabled={checking}>[ {checking ? (es ? 'Verificando…' : 'Checking…') : editing ? (es ? 'Guardar cambios' : 'Save changes') : (es ? 'Siguiente' : 'Next')} ]</button></span>
             </div>
           </form>
         )}
@@ -266,8 +329,8 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
               ))}
             </div>
             <div className="sgx-forge__actions">
-              <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => go('name')}>{es ? 'Atrás' : 'Back'}</button>
-              <span className="sgx-glow"><button type="button" className="sgx-btn" disabled={!affinity} onClick={() => go('pilot')}>[ {es ? 'Siguiente' : 'Next'} ]</button></span>
+              <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => (restoring ? (setRestoring(false), go('intro')) : go('name'))}>{es ? 'Atrás' : 'Back'}</button>
+              <span className="sgx-glow"><button type="button" className="sgx-btn" disabled={!affinity} onClick={() => (restoring ? restoreNow() : go('pilot'))}>[ {restoring ? (es ? 'Recuperar mi pase' : 'Restore my pass') : (es ? 'Siguiente' : 'Next')} ]</button></span>
             </div>
           </section>
         )}

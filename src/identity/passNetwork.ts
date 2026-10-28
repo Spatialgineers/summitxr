@@ -10,7 +10,7 @@ import type { PillarKey } from '../lib/sgxPillars';
    locally and only the shared parts (mutual Rolodex, Chroma check-ins) wait. */
 
 /** Registration lands where the old taquilla wrote, so the admin views keep working. */
-export async function registerPass(pass: SgxPass, uid: string | null): Promise<void> {
+export async function registerPass(pass: SgxPass, uid: string | null, affinity?: PillarKey | null): Promise<void> {
   // One registration per pass (doc id = pass code). Editing the pass updates it in place;
   // the status is never sent from the browser, so an invitation set by the team survives.
   try {
@@ -23,6 +23,7 @@ export async function registerPass(pass: SgxPass, uid: string | null): Promise<v
       organization: pass.organization || '',
       imageConsent: pass.imageConsent === true,
       ...(pass.consentAt ? { consentAt: pass.consentAt } : {}),
+      ...(affinity ? { affinity } : {}),
       userId: uid,
       timestamp: serverTimestamp(),
     }, { merge: true });
@@ -39,6 +40,7 @@ export interface MyRegistration {
   roleTitle?: string;
   organization?: string;
   imageConsent?: boolean;
+  affinity?: PillarKey | null;
 }
 
 /** A pass forged on another device while signed in with this Google account (rules: owner can read it). */
@@ -56,10 +58,45 @@ export async function findMyRegistration(uid: string): Promise<MyRegistration | 
       roleTitle: v.roleTitle || undefined,
       organization: v.organization || undefined,
       imageConsent: v.imageConsent === true,
+      affinity: (['STORY', 'SHOWCASE', 'SPARK', 'STAGE', 'SYSTEM', 'SYNTHESIZE'] as PillarKey[]).includes(v.affinity) ? v.affinity : null,
     };
   } catch (err) {
     console.warn('[SGX Pass] could not look up an earlier pass:', err instanceof Error ? err.message : err);
     return null;
+  }
+}
+
+/* ---------- one SGX Pass per email ----------
+   pass_emails/{sha256(email)} → { code, userId }. Created with the pass; a
+   second pass with the same email is refused unless it is the same account,
+   which gets its own pass back instead. The email itself is never stored. */
+
+async function emailKey(email: string): Promise<string> {
+  const bytes = new TextEncoder().encode(email.trim().toLowerCase());
+  const hash = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+export type EmailClaim = { state: 'free' } | { state: 'mine'; code: string } | { state: 'taken' } | { state: 'unknown' };
+
+export async function checkEmailClaim(email: string, uid: string | null): Promise<EmailClaim> {
+  try {
+    const snap = await getDoc(doc(db, 'pass_emails', await emailKey(email)));
+    if (!snap.exists()) return { state: 'free' };
+    const v = snap.data();
+    return uid && v.userId === uid ? { state: 'mine', code: String(v.code) } : { state: 'taken' };
+  } catch {
+    // Offline or rules not deployed yet: do not block the forge.
+    return { state: 'unknown' };
+  }
+}
+
+export async function claimEmail(email: string, code: string, uid: string | null): Promise<void> {
+  if (!uid) return;
+  try {
+    await setDoc(doc(db, 'pass_emails', await emailKey(email)), { code, userId: uid, at: serverTimestamp() });
+  } catch (err) {
+    console.warn('[SGX Pass] email claim kept local:', err instanceof Error ? err.message : err);
   }
 }
 

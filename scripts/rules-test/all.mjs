@@ -269,6 +269,21 @@ await ok('sponsor inquiry with own uid', setDoc(doc(alice, 'sponsor_inquiries', 
 await no('sponsor inquiry with someone else uid', setDoc(doc(alice, 'sponsor_inquiries', 'inq_u2'), { ...inq, id: 'inq_u2', submittedBy: 'bob' }));
 await no('anon sponsor inquiry claiming a uid', setDoc(doc(anon, 'sponsor_inquiries', 'inq_u3'), { ...inq, id: 'inq_u3', submittedBy: 'alice' }));
 
+// One SGX Pass per email (pass_emails/{sha256})
+const K = 'a'.repeat(64);
+await ok('claim email for own pass', setDoc(doc(alice, 'pass_emails', K), { code: 'SGX-AAAA-0001', userId: 'alice', at: serverTimestamp() }));
+await ok('signed-in visitor can check a claim', getDoc(doc(bob, 'pass_emails', K)));
+await no('anon cannot check a claim', getDoc(doc(anon, 'pass_emails', K)));
+await no('another person cannot take a claimed email', setDoc(doc(bob, 'pass_emails', K), { code: 'SGX-BBBB-0002', userId: 'bob', at: serverTimestamp() }));
+await no('claim for someone else uid', setDoc(doc(bob, 'pass_emails', 'b'.repeat(64)), { code: 'SGX-BBBB-0002', userId: 'alice', at: serverTimestamp() }));
+await no('claim with a short key', setDoc(doc(bob, 'pass_emails', 'short'), { code: 'SGX-BBBB-0002', userId: 'bob', at: serverTimestamp() }));
+await no('claim with extra field', setDoc(doc(bob, 'pass_emails', 'c'.repeat(64)), { code: 'X', userId: 'bob', at: serverTimestamp(), email: 'b@x.com' }));
+await ok('owner updates own claim code', setDoc(doc(alice, 'pass_emails', K), { code: 'SGX-AAAA-0009', userId: 'alice', at: serverTimestamp() }));
+await no('visitor cannot list claims of emails', getDocs(collection(alice, 'pass_emails')));
+await ok('admin lists email claims', getDocs(collection(admin, 'pass_emails')));
+await ok('registration with affinity', setDoc(doc(alice, 'ticket_inquiries', 't_alice_aff'), { ...reg, affinity: 'SPARK' }));
+await no('registration with bad affinity', setDoc(doc(alice, 'ticket_inquiries', 't_alice_aff2'), { ...reg, affinity: 'NOPE' }));
+
 console.log(`RESULT ${n} passed, ${failed} failed`);
 await env.cleanup();
 process.exit(failed ? 1 : 0);

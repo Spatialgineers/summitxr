@@ -25,8 +25,8 @@ const GRADE_SHADER = {
   uniforms: {
     tDiffuse: { value: null as THREE.Texture | null },
     uTime: { value: 0 },
-    uGrain: { value: 0.035 },
-    uAberration: { value: 0.0008 },
+    uGrain: { value: 0.02 },
+    uAberration: { value: 0.0003 },
     uRes: { value: new THREE.Vector2(1, 1) },
   },
   vertexShader: /* glsl */ `
@@ -69,7 +69,7 @@ export function createCorePost(renderer: THREE.WebGLRenderer, scene: THREE.Scene
     composer.addPass(bloom);
     composer.addPass(new OutputPass());
     const grade = new ShaderPass(GRADE_SHADER);
-    grade.uniforms.uGrain.value = opts.reduceMotion ? 0.018 : 0.035;
+    grade.uniforms.uGrain.value = opts.reduceMotion ? 0.01 : 0.02;
     composer.addPass(grade);
     composer.setSize(w, h);
 

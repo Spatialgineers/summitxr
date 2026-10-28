@@ -75,7 +75,7 @@ export const SgxPassCard: React.FC<Props> = ({ flipped = false, onFlip, printing
             <div className="sgx-pass__portrait">
               {identity.avatar.png
                 ? <img src={identity.avatar.png} alt={pass.fullName} />
-                : <SgxPilotGlyph seed={identity.avatar.seed} accent={accent} size={compact ? 92 : 120} />}
+                : <SgxPilotGlyph seed={identity.avatar.seed} config={identity.avatar.pilot} accent={accent} size={compact ? 92 : 120} />}
               <span className="sgx-pass__tier">{pass.tier === 'SHOWCASE' ? (es ? 'DÍA 3 · CHROMA' : 'DAY 3 · CHROMA') : (es ? 'DIGITAL GLOBAL' : 'GLOBAL DIGITAL')}</span>
             </div>
             <div className="sgx-pass__who">

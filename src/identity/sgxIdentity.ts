@@ -1,3 +1,4 @@
+import type { PilotConfig } from './pilotAvatar';
 import { pillarInk, type PillarKey } from '../lib/sgxPillars';
 
 /* =========================================================================
@@ -64,7 +65,8 @@ export interface SgxIdentity {
   pass: SgxPass | null;
   callsign: string;
   affinity: PillarKey | null;
-  avatar: { seed: string; png?: string };
+  /** seed (legacy and QR), the pilot built in the Pilot Builder, and an optional photo. */
+  avatar: { seed: string; png?: string; pilot?: PilotConfig };
   /** missionId → completedAt */
   missions: Record<string, number>;
   /** stampId → stampedAt. pillar:<KEY>, sponsor:<id>, chroma:checkin… */

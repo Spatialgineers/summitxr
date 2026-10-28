@@ -11,6 +11,7 @@ import { navigateToSection } from '../../immersion/navigation';
 import { createPilotOrbit, type PilotCardInfo, type PilotOrbit } from '../../identity/pilotOrbit3D';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
+import { renderPassCardImage } from '../../identity/passCardImage';
 import { useChromaCheckins } from './visitRadarStore';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import {
@@ -503,9 +504,20 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   const sgxId = useOptionalSgxIdentity();
   const checkins = useChromaCheckins();
   const pilotOrbitRef = useRef<PilotOrbit | null>(null);
+  // The orbit card is the pass itself (same drawing as the Holo Card), or the last exported Holo Card.
+  const [passImage, setPassImage] = useState<string | null>(null);
+  const idForCard = sgxId?.identity;
+  const passCardKey = idForCard?.pass ? [idForCard.pass.code, idForCard.pass.fullName, idForCard.callsign, idForCard.affinity, idForCard.avatar.png?.length || 0, JSON.stringify(idForCard.avatar.pilot || idForCard.avatar.seed), Object.keys(idForCard.stamps).length, language].join('|') : '';
+  useEffect(() => {
+    if (!passCardKey || !idForCard) { setPassImage(null); return; }
+    let alive = true;
+    renderPassCardImage(idForCard, { es: language === 'es' }).then((img) => { if (alive) setPassImage(img); }).catch(() => undefined);
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [passCardKey]);
   const pilotInfo: PilotCardInfo = {
     forged: !!sgxId?.isForged,
-    image: sgxId?.identity.holo?.image || null,
+    image: sgxId?.identity.holo?.image || passImage,
     name: sgxId?.identity.pass?.fullName,
     callsign: sgxId?.identity.callsign,
     serial: sgxId?.identity.pass?.serial,

@@ -13,6 +13,8 @@ VITE_USE_EMULATORS=1 DISABLE_HMR=true PORT=3200 npx tsx server.ts
 # then:
 node scripts/e2e/visitor.cjs   # forge pass, profile, poll, chat, sponsor form, visits, all tabs
 node scripts/e2e/admin.cjs     # Google sign-in as info@ (emulated), invite, Day 3 code, announcement, CMS publish
+node scripts/e2e/holo.cjs      # Holo Card = pass; speaker in review → approved; initiate by Google email; viewer
+node scripts/e2e/pilot.cjs     # Pilot Builder in the Forge and in Avatar Studio (desktop + 390 px)
 ```
 
 Run `visitor.cjs` before `admin.cjs` (the admin test invites the visitor's registration).

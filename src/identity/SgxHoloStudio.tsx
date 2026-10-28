@@ -68,7 +68,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
   const [qrImg, setQrImg] = useState<HTMLImageElement | null>(null);
   const [bolt, setBolt] = useState<HTMLImageElement | null>(null);
   const [icons, setIcons] = useState<Partial<Record<PillarKey, HTMLImageElement>>>({});
-  const pilotKey = JSON.stringify((identity.avatar as any).pilot || identity.avatar.seed) + accent;
+  const pilotKey = JSON.stringify(identity.avatar.pilot || identity.avatar.seed) + accent;
 
   useEffect(() => {
     let alive = true;
@@ -267,7 +267,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
   return (
     <div className="sgx-hstudio">
       <div ref={glyphRef} className="sgx-hstudio__glyph" aria-hidden="true">
-        <SgxPilotGlyph seed={identity.avatar.seed} accent={accent} size={300} {...({ config: (identity.avatar as any).pilot } as any)} />
+        <SgxPilotGlyph seed={identity.avatar.seed} config={identity.avatar.pilot} accent={accent} size={300} />
       </div>
 
       {credentials.length > 1 && (

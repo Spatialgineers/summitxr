@@ -37,7 +37,7 @@ export const SgxPassStrip: React.FC<{ onAction?: () => void }> = ({ onAction }) 
   return (
     <div className="sgx-passstrip" style={{ ['--pass-accent' as string]: accent }}>
       <span className="sgx-passstrip__face">
-        {identity.avatar.png ? <img src={identity.avatar.png} alt="" /> : <SgxPilotGlyph seed={identity.avatar.seed} accent={accent} size={30} />}
+        {identity.avatar.png ? <img src={identity.avatar.png} alt="" /> : <SgxPilotGlyph seed={identity.avatar.seed} config={identity.avatar.pilot} accent={accent} size={30} />}
       </span>
       <div className="sgx-passstrip__who">
         <strong>{identity.callsign} <span>#{identity.pass!.serial}</span></strong>

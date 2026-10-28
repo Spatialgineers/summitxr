@@ -158,7 +158,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
               <div className="sgx-hangar__actions">
                 <button type="button" className="sgx-btn" onClick={downloadPdf}>{es ? 'Descargar PDF' : 'Download PDF'}</button>
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={copyCode}>{copied ? (es ? 'Copiado' : 'Copied') : (es ? 'Copiar código' : 'Copy code')}</button>
-                <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_avatar')), 80); }}>Avatar Studio</button>
+                <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_avatar')), 80); }}>{es ? 'Mi piloto' : 'My pilot'}</button>
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={onForge}>{es ? 'Editar datos' : 'Edit details'}</button>
               </div>
               <div className="sgx-hangar__holo">

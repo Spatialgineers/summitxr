@@ -601,7 +601,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                 {sgxId?.identity.avatar.png ? (
                   <img src={sgxId.identity.avatar.png} alt="" />
                 ) : sgxId?.isForged ? (
-                  <SgxPilotGlyph seed={sgxId.identity.avatar.seed} accent={sgxId.identity.affinity ? PILLAR_ACCENT[sgxId.identity.affinity] : '#FDCC0D'} size={20} />
+                  <SgxPilotGlyph seed={sgxId.identity.avatar.seed} config={sgxId.identity.avatar.pilot} accent={sgxId.identity.affinity ? PILLAR_ACCENT[sgxId.identity.affinity] : '#FDCC0D'} size={20} />
                 ) : isAdmin ? (
                   <ShieldCheck className="w-3.5 h-3.5" />
                 ) : (

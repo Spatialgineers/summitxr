@@ -11,6 +11,7 @@ import { SgxHangar, type HangarTab } from './SgxHangar';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
 import { SgxHoloCardGeneratorModal } from '../components/summit/SgxHoloCardGeneratorModal';
 import { SgxHoloViewer } from './SgxHoloViewer';
+import { PilotBuilderModal } from './PilotBuilderModal';
 import type { CredentialRole, HoloCredential } from './credentials';
 
 /* Global owner of the identity surfaces. Every legacy entry point (taquilla,
@@ -45,6 +46,7 @@ export const SgxPassHost: React.FC = () => {
   // Holo Card Studio (visitante / speaker / initiate / sponsor), prefilled from the pass.
   const [holo, setHolo] = useState<{ role?: CredentialRole; n: number } | null>(null);
   const [viewCard, setViewCard] = useState<HoloCredential | null>(null);
+  const [pilotStudio, setPilotStudio] = useState(false);
   const [forge, setForge] = useState<{ tier: PassTier } | null>(null);
   const [hangar, setHangar] = useState<HangarTab | null>(null);
   const [incoming, setIncoming] = useState<PassQrPayload | null>(null);
@@ -89,6 +91,8 @@ export const SgxPassHost: React.FC = () => {
       if (c?.name) setViewCard(c);
     };
     window.addEventListener('sgx:view_holo_card', onView);
+    const onAvatar = () => { setHangar(null); setPilotStudio(true); };
+    window.addEventListener('sgx:open_avatar', onAvatar);
     window.addEventListener('sgx:open_holo_card', onHolo);
     window.addEventListener('sgx:open_credential_generator', onHolo);
     return () => {
@@ -96,6 +100,7 @@ export const SgxPassHost: React.FC = () => {
       window.removeEventListener('sgx:open_holo_card', onHolo);
       window.removeEventListener('sgx:open_credential_generator', onHolo);
       window.removeEventListener('sgx:view_holo_card', onView);
+      window.removeEventListener('sgx:open_avatar', onAvatar);
     };
   }, [openHangarOrForge]);
 
@@ -232,6 +237,7 @@ export const SgxPassHost: React.FC = () => {
         initialRole={holo?.role}
       />
       {viewCard && <SgxHoloViewer cred={viewCard} onClose={() => setViewCard(null)} />}
+      {pilotStudio && <PilotBuilderModal onClose={() => setPilotStudio(false)} />}
       {forge && (
         <SgxForge
           initialTier={forge.tier}

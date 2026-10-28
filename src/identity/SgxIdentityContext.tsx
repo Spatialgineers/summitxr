@@ -1,3 +1,4 @@
+import { normalizePilot, type PilotConfig } from './pilotAvatar';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { usePilotProfile } from '../context/PilotProfileContext';
@@ -26,6 +27,7 @@ export interface ForgeInput {
   organization?: string;
   avatarSeed: string;
   avatarPng?: string;
+  avatarPilot?: PilotConfig;
   imageConsent: boolean;
 }
 
@@ -177,11 +179,14 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (sp?.id) completeWhere((m) => 'sponsor' in m.trigger && m.trigger.sponsor === sp.id);
     };
     const onAvatar = (e: Event) => {
-      const d = (e as CustomEvent<{ png?: string; seed?: string; pillar?: string }>).detail || {};
+      const d = (e as CustomEvent<{ png?: string; seed?: string; pillar?: string; pilot?: PilotConfig; clearPhoto?: boolean }>).detail || {};
       const aff = findPillar(d.pillar || '')?.key;
+      const pilot = normalizePilot(d.pilot);
       commit((draft) => {
         if (d.png) draft.avatar.png = d.png;
+        if (d.clearPhoto) delete draft.avatar.png;
         if (d.seed) draft.avatar.seed = d.seed;
+        if (pilot) draft.avatar.pilot = pilot;
         if (aff && !draft.affinity) draft.affinity = aff;
       });
       flag('avatar');
@@ -305,7 +310,7 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
       d.pass = pass;
       d.callsign = callsign;
       d.affinity = input.affinity;
-      d.avatar = { seed: input.avatarSeed, png: input.avatarPng || d.avatar.png };
+      d.avatar = { seed: input.avatarSeed, png: input.avatarPng || d.avatar.png, pilot: input.avatarPilot || d.avatar.pilot };
     });
     updateProfileName(input.fullName.trim().split(/\s+/)[0] || input.fullName, callsign);
     updateAvatar(input.avatarSeed, PILLAR_ACCENT[input.affinity]);

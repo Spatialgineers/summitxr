@@ -125,7 +125,6 @@ import { SummitWeeklyCapsules } from './SummitWeeklyCapsules';
 const SummitVisitRadar = lazy(() => import('./SummitVisitRadar').then((m) => ({ default: m.SummitVisitRadar })));
 const SummitEmbedsHub = lazy(() => import('./SummitEmbedsHub').then((m) => ({ default: m.SummitEmbedsHub })));
 const MatchModule = lazy(() => import('../../modules/match/MatchModule').then((m) => ({ default: m.MatchModule })));
-const AttendeeAvatarGenerator = lazy(() => import('./AttendeeAvatarGenerator').then((m) => ({ default: m.AttendeeAvatarGenerator })));
 const NetworkingQrScannerModal = lazy(() => import('./NetworkingQrScannerModal').then((m) => ({ default: m.NetworkingQrScannerModal })));
 const SummitSpeakerPortalModal = lazy(() => import('./SummitSpeakerPortalModal').then((m) => ({ default: m.SummitSpeakerPortalModal })));
 
@@ -382,7 +381,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
   const [selectedSpeakerModal, setSelectedSpeakerModal] = useState<SummitSpeaker | null>(null);
   const [selectedMapNodeId, setSelectedMapNodeId] = useState<string>('node_chroma_studios');
   const [rewardsStoreModalOpen, setRewardsStoreModalOpen] = useState<boolean>(false);
-  const [avatarGeneratorModalOpen, setAvatarGeneratorModalOpen] = useState<boolean>(false);
   const [qrScannerModalOpen, setQrScannerModalOpen] = useState<boolean>(false);
   const [privacyModalOpen, setPrivacyModalOpen] = useState<boolean>(false);
   const [isAmbiancePlaying, setIsAmbiancePlaying] = useState<boolean>(false);
@@ -418,7 +416,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     };
 
     const handleOpenRewards = () => setRewardsStoreModalOpen(true);
-    const handleOpenAvatar = () => setAvatarGeneratorModalOpen(true);
     const handleOpenQrScanner = () => setQrScannerModalOpen(true);
 
     window.addEventListener('storage', handleStorage);
@@ -436,7 +433,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     };
 
     window.addEventListener('sgx:open_rewards', handleOpenRewards);
-    window.addEventListener('sgx:open_avatar', handleOpenAvatar);
     window.addEventListener('sgx:open_qr_scanner', handleOpenQrScanner);
     window.addEventListener('sgx:open_sponsorships', handleOpenSponsorshipsEvent);
     window.addEventListener('sgx:open_brand_showcase', handleOpenBrandShowcaseEvent);
@@ -476,7 +472,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     return () => {
       window.removeEventListener('storage', handleStorage);
       window.removeEventListener('sgx:open_rewards', handleOpenRewards);
-      window.removeEventListener('sgx:open_avatar', handleOpenAvatar);
       window.removeEventListener('sgx:open_qr_scanner', handleOpenQrScanner);
       window.removeEventListener('sgx:open_sponsorships', handleOpenSponsorshipsEvent);
       window.removeEventListener('sgx:open_brand_showcase', handleOpenBrandShowcaseEvent);
@@ -615,7 +610,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               onNavigateToPlayVote={onNavigateToPlayVote}
               onNavigateToVisualizer={onNavigateToVisualizer}
               onOpenRewardsStore={() => setRewardsStoreModalOpen(true)}
-              onOpenAvatarGenerator={() => setAvatarGeneratorModalOpen(true)}
+              onOpenAvatarGenerator={() => window.dispatchEvent(new CustomEvent('sgx:open_avatar'))}
               onOpenQrScanner={() => setQrScannerModalOpen(true)}
               onOpenPassport={() => window.dispatchEvent(new CustomEvent('sgx:open_passport'))}
               onOpenSpeakerPortal={() => setSpeakerPortalOpen(true)}
@@ -1156,7 +1151,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               onOpen360Tour={() => handleSelectSection('MAP_360')}
               onOpenMatchModule={() => handleSelectSection('ENTREPRENEUR_MATCH')}
               onOpenSpeakerPortal={() => setSpeakerPortalOpen(true)}
-              onOpenAvatarGenerator={() => setAvatarGeneratorModalOpen(true)}
+              onOpenAvatarGenerator={() => window.dispatchEvent(new CustomEvent('sgx:open_avatar'))}
               onOpenPassportModal={() => window.dispatchEvent(new CustomEvent('sgx:open_passport'))}
               onOpenBroadcastRooms={() => handleSelectSection('BROADCAST_ROOMS')}
               onOpenSponsorInquiry={() => handleOpenSponsorModal('tier_2')}
@@ -1444,7 +1439,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <LazyBoundary fallback={<LazyFallback />}>
               <MatchModule
                 onOpenPassport={() => window.dispatchEvent(new CustomEvent('sgx:open_passport'))}
-                onOpenAvatarGenerator={() => setAvatarGeneratorModalOpen(true)}
+                onOpenAvatarGenerator={() => window.dispatchEvent(new CustomEvent('sgx:open_avatar'))}
               />
             </LazyBoundary>
           </div>
@@ -1703,14 +1698,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
         />
       )}
 
-      {/* 10. Avatar Studio Generator Modal */}
-      {avatarGeneratorModalOpen && (
-        <LazyBoundary fallback={<LazyFallback overlay />}>
-          <AttendeeAvatarGenerator
-            onClose={() => setAvatarGeneratorModalOpen(false)}
-          />
-        </LazyBoundary>
-      )}
+      {/* 10. Avatar Studio: the Pilot Builder lives with the pass (SgxPassHost). */}
 
       {/* 11. WebXR QR Networking Scanner & Rolodex Modal */}
       {qrScannerModalOpen && (

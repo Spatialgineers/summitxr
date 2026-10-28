@@ -45,8 +45,8 @@ export const REACTOR_MISSIONS: ReactorMission[] = [
     en: { title: 'Read the manifesto', hint: 'The story behind the 6 pillars.' },
     go: { section: 'PILLARS_MANIFESTO' } },
   { id: 'm_story_avatar', pillar: 'STORY', xp: 80, trigger: { flag: 'avatar' },
-    es: { title: 'Diseña tu piloto', hint: 'Guarda un avatar en Avatar Studio; queda impreso en tu pase.' },
-    en: { title: 'Design your pilot', hint: 'Save an avatar in Avatar Studio; it is printed on your pass.' },
+    es: { title: 'Diseña tu piloto', hint: 'Ajusta tu piloto pieza por pieza en el constructor; queda impreso en tu pase.' },
+    en: { title: 'Design your pilot', hint: 'Fine-tune your pilot part by part in the builder; it is printed on your pass.' },
     go: { event: 'sgx:open_avatar' } },
 
   // SGX.Showcase

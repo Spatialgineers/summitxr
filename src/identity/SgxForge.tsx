@@ -6,7 +6,8 @@ import { bi, SGX_PILLARS, type PillarKey } from '../lib/sgxPillars';
 import { playCyberBurstSound, playScanSuccessSound, playUiChirp } from '../lib/cyberAudioEngine';
 import { PILLAR_ACCENT, type PassTier } from './sgxIdentity';
 import { useSgxIdentity } from './SgxIdentityContext';
-import { SgxPilotGlyph } from './SgxPilotGlyph';
+import { PilotBuilder } from './PilotBuilder';
+import { randomPilot, type PilotConfig } from './pilotAvatar';
 import { SgxPassCard } from './SgxPassCard';
 
 /* FORJA DE IDENTIDAD: one ~60 second ceremony replaces the taquilla form, the
@@ -17,7 +18,6 @@ import { SgxPassCard } from './SgxPassCard';
 type Step = 'intro' | 'name' | 'pillar' | 'pilot' | 'print' | 'done';
 const ORDER: Step[] = ['intro', 'name', 'pillar', 'pilot', 'print', 'done'];
 
-const seeds = () => Array.from({ length: 3 }, () => Math.random().toString(36).slice(2, 8));
 
 interface Props {
   onClose: () => void;
@@ -37,8 +37,9 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
   const [roleTitle, setRoleTitle] = useState(identity.pass?.roleTitle || '');
   const [tier, setTier] = useState<PassTier>(identity.pass?.tier || initialTier);
   const [affinity, setAffinity] = useState<PillarKey | null>(identity.affinity);
-  const [options, setOptions] = useState<string[]>(() => [identity.avatar.seed, ...seeds().slice(0, 2)]);
-  const [seed, setSeed] = useState(identity.avatar.seed);
+  const seed = identity.avatar.seed;
+  // Re-forging keeps your pilot; a new pass starts from a random one you then make your own.
+  const [pilot, setPilot] = useState<PilotConfig>(() => identity.avatar.pilot || randomPilot(identity.affinity ? PILLAR_ACCENT[identity.affinity] : undefined));
   const [imageConsent, setImageConsent] = useState<boolean>(identity.pass?.imageConsent === true);
   const [error, setError] = useState('');
   const nameRef = useRef<HTMLInputElement>(null);
@@ -72,7 +73,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
     if (!affinity) return;
     setStep('print');
     playCyberBurstSound('kudos');
-    forge({ fullName, email, tier, affinity, roleTitle, organization, avatarSeed: seed, imageConsent });
+    forge({ fullName, email, tier, affinity, roleTitle, organization, avatarSeed: seed, avatarPilot: pilot, imageConsent });
     window.setTimeout(() => {
       playScanSuccessSound();
       try {
@@ -203,22 +204,13 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
         {step === 'pilot' && (
           <section className="sgx-forge__stage">
             <p className="sgx-forge__kicker">03 · {es ? 'Tu piloto' : 'Your pilot'}</p>
-            <h2>{es ? 'Elige tu piloto' : 'Pick your pilot'}</h2>
-            <div className="sgx-forge__pilots">
-              {options.map((s) => (
-                <button key={s} type="button" className={`sgx-forge__pilot ${seed === s ? 'is-on' : ''}`} onClick={() => { playUiChirp(780); setSeed(s); }} aria-pressed={seed === s}>
-                  <SgxPilotGlyph seed={s} accent={accent} size={110} />
-                </button>
-              ))}
-            </div>
+            <h2>{es ? 'Construye tu piloto' : 'Build your pilot'}</h2>
+            <PilotBuilder value={pilot} onChange={setPilot} accent={accent} compact />
             <div className="sgx-forge__actions">
-              <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => { const n = seeds(); setOptions(n); setSeed(n[0]); playUiChirp(400); }}>
-                ⟳ {es ? 'Otros pilotos' : 'More pilots'}
-              </button>
               <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => go('pillar')}>{es ? 'Atrás' : 'Back'}</button>
               <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={print}>[ ⚡ {es ? 'Forjar mi SGX Pass' : 'Forge my SGX Pass'} ]</button></span>
             </div>
-            <p className="sgx-forge__fine">{es ? 'Luego puedes diseñarlo a detalle en Avatar Studio, desde tu Hangar.' : 'You can design it in detail later in Avatar Studio, from your Hangar.'}</p>
+            <p className="sgx-forge__fine">{es ? 'Lo puedes cambiar cuando quieras desde tu Hangar.' : 'You can change it any time from your Hangar.'}</p>
           </section>
         )}
 

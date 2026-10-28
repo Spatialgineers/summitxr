@@ -522,7 +522,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       {activeSection !== 'OVERVIEW' && (
         <SgxSectionHudBar
           activeSection={activeSection}
-          chips={HUD_SECTION_CHIPS.filter((chip) => isSectionVisible(chip.key))}
+          chips={HUD_SECTION_CHIPS}
           pillarLabel={activeSection === 'PILLAR' ? findPillar(activePillarSlug)?.id : SECTION_TO_PILLAR_MAP[activeSection]?.pillarId}
           pillarIconUrl={activeSection === 'PILLAR' ? findPillar(activePillarSlug)?.iconUrl : SECTION_TO_PILLAR_MAP[activeSection]?.iconUrl}
           stationSlug={activeSection === 'PILLAR' ? activePillarSlug : undefined}
@@ -542,16 +542,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             }
             playUiChirp(880);
           }}
-          dropdown={
-            <SummitSectionsDropdown
-              activeSection={activeSection}
-              onSelectSection={(sec) => handleSelectSection(sec)}
-              onOpenTickets={() => window.dispatchEvent(new CustomEvent('sgx:open_tickets'))}
-              onOpenSponsors={(tier) => handleOpenSponsorModal(tier || 'tier_2')}
-              onOpenTour={() => window.dispatchEvent(new CustomEvent('sgx:open_tour'))}
-              className="shrink-0"
-            />
-          }
         />
       )}
 

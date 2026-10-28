@@ -1,3 +1,4 @@
+import { auth } from '../lib/firebase';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../context/AuthContext';
@@ -28,7 +29,9 @@ interface Props {
 export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier = 'DIGITAL' }) => {
   const { language } = useLanguage();
   const es = language === 'es';
-  const { user } = useAuth();
+  const { user, signInWithGoogle, authError, loading: authLoading } = useAuth();
+  const googleUser = user && !user.isAnonymous ? user : null;
+  const [signingIn, setSigningIn] = useState(false);
   const { forge, identity } = useSgxIdentity();
   const [step, setStep] = useState<Step>('intro');
   const [fullName, setFullName] = useState(identity.pass?.fullName || user?.displayName || '');
@@ -49,6 +52,20 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
   useEffect(() => {
     if (step === 'name') window.setTimeout(() => nameRef.current?.focus(), 60);
   }, [step]);
+
+  // Signed in with Google: the pass starts with your name and email.
+  useEffect(() => {
+    if (!googleUser) return;
+    setFullName((v) => v || googleUser.displayName || '');
+    setEmail((v) => v || googleUser.email || '');
+  }, [googleUser]);
+
+  const continueWithGoogle = async () => {
+    playUiChirp(880);
+    setSigningIn(true);
+    try { await signInWithGoogle(); } finally { setSigningIn(false); }
+    if (auth.currentUser && !auth.currentUser.isAnonymous) go('name');
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -118,10 +135,33 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
               <li>{es ? 'Día 3: si recibes invitación por correo, este mismo QR es tu entrada en Chroma Space Studios.' : 'Day 3: if you receive an email invitation, this same QR is your entrance at Chroma Space Studios.'}</li>
               <li>{es ? 'Cada pilar completado deja un sello en tu pase.' : 'Every pillar you complete leaves a stamp on your pass.'}</li>
             </ul>
-            <div className="sgx-forge__actions">
-              <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => go('name')}>[ {es ? 'Comenzar la forja' : 'Start the forge'} ]</button></span>
-              <button type="button" className="sgx-btn sgx-btn--ground" onClick={onClose}>{es ? 'Ahora no' : 'Not now'}</button>
-            </div>
+            {googleUser ? (
+              <div className="sgx-forge__actions">
+                <p className="sgx-forge__account">{es ? 'Conectado como' : 'Signed in as'} <strong>{googleUser.email}</strong></p>
+                <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => go('name')}>[ {es ? 'Comenzar la forja' : 'Start the forge'} ]</button></span>
+                <button type="button" className="sgx-btn sgx-btn--ground" onClick={onClose}>{es ? 'Ahora no' : 'Not now'}</button>
+              </div>
+            ) : (
+              <>
+                <div className="sgx-forge__login">
+                  <button type="button" className="sgx-forge__google" onClick={continueWithGoogle} disabled={signingIn || authLoading}>
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                      <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z" />
+                      <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.24v3.15C3.26 21.36 7.33 24 12 24z" />
+                      <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.24C.45 8.15 0 9.97 0 12s.45 3.85 1.24 5.42l4.04-3.15z" />
+                      <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.24 6.58l4.04 3.15C6.23 6.86 8.88 4.75 12 4.75z" />
+                    </svg>
+                    <span>{signingIn ? (es ? 'Conectando con Google…' : 'Connecting to Google…') : (es ? 'Continuar con Google' : 'Continue with Google')}</span>
+                  </button>
+                  <p>{es ? 'Recomendado: tu nombre y correo se llenan solos y tu pase te sigue a cualquier dispositivo.' : 'Recommended: your name and email fill in by themselves and your pass follows you to any device.'}</p>
+                  {authError && !signingIn && <p className="sgx-forge__error" role="alert">{authError === 'POPUP_BLOCKED' ? (es ? 'El navegador bloqueó la ventana de Google. Permite ventanas emergentes e inténtalo otra vez.' : 'The browser blocked the Google window. Allow pop-ups and try again.') : authError}</p>}
+                </div>
+                <div className="sgx-forge__actions">
+                  <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => go('name')}>{es ? 'Seguir sin cuenta' : 'Continue without an account'}</button>
+                  <button type="button" className="sgx-btn sgx-btn--ground" onClick={onClose}>{es ? 'Ahora no' : 'Not now'}</button>
+                </div>
+              </>
+            )}
           </section>
         )}
 

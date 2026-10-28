@@ -536,3 +536,17 @@
     .sgx-pilotb__preview, .sgx-pilotb__preview.is-rolling, .sgx-pilotb__preview .pg-scan, .sgx-pilotb__preview .pg-eye { animation: none; }
   }
 }
+@layer components {
+  .sgx-forge__login { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .sgx-forge__login p { margin: 0; font-family: var(--font-body); font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); }
+  .sgx-forge__google {
+    display: inline-flex; align-items: center; justify-content: center; gap: 12px; width: min(100%, 360px); min-height: 50px; padding: 0 20px;
+    font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: #1a1a1a; background: #fff; border: 0; cursor: pointer; box-shadow: 0 0 0 1px rgba(253, 204, 13, 0.6), 0 10px 30px rgba(253, 204, 13, 0.18);
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .sgx-forge__google:hover { transform: translateY(-1px); box-shadow: 0 0 0 2px var(--SGX_Yellow), 0 14px 34px rgba(253, 204, 13, 0.28); }
+  .sgx-forge__google[disabled] { opacity: 0.7; cursor: wait; }
+  .sgx-forge__account { flex-basis: 100%; margin: 0 0 4px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--SGX_Cyan); }
+  .sgx-forge__account strong { color: #fff; font-weight: 400; }
+}

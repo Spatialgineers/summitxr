@@ -272,6 +272,13 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     }
   };
 
+  // Tell the app shell which section is showing: only the 3D core (OVERVIEW)
+  // locks the page height; every other section must scroll. Every path that
+  // changes the section (buttons, core, URL) goes through this one effect.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('sgx:summit_section_changed', { detail: { section: activeSection } }));
+  }, [activeSection]);
+
   // Sincronización en tiempo real de eventos de navegación global (HeaderNav, enlaces internos, etc.)
   useEffect(() => {
     const handleSwitchSectionEvent = (e: Event) => {

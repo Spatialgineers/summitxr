@@ -181,10 +181,12 @@ export default function App() {
 
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('sgx:switch_summit_section', handleSwitchSection as EventListener);
+    window.addEventListener('sgx:summit_section_changed', handleSwitchSection as EventListener);
     window.addEventListener('sgx:navigate_page', handleNavigatePage);
     return () => {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('sgx:switch_summit_section', handleSwitchSection as EventListener);
+      window.removeEventListener('sgx:summit_section_changed', handleSwitchSection as EventListener);
       window.removeEventListener('sgx:navigate_page', handleNavigatePage);
     };
   }, []);

@@ -59,9 +59,9 @@ function bounded<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
     earlier as a guest with the same (Google-verified) email. Rules allow both reads. */
 export async function findMyRegistration(uid: string, verifiedEmail?: string | null): Promise<MyRegistration | null> {
   try {
-    let snap = await bounded(getDocs(query(collection(db, 'ticket_inquiries'), where('userId', '==', uid), limit(1))), 6000, 'registration by uid');
+    let snap = await bounded(getDocs(query(collection(db, 'ticket_inquiries'), where('userId', '==', uid), limit(1))), 8000, 'registration by uid');
     if (snap.empty && verifiedEmail) {
-      snap = await bounded(getDocs(query(collection(db, 'ticket_inquiries'), where('email', '==', verifiedEmail), limit(1))), 6000, 'registration by email');
+      snap = await bounded(getDocs(query(collection(db, 'ticket_inquiries'), where('email', '==', verifiedEmail), limit(1))), 8000, 'registration by email');
     }
     const d = snap.docs[0];
     if (!d) return null;
@@ -97,7 +97,7 @@ export type EmailClaim = { state: 'free' } | { state: 'mine'; code: string } | {
 
 export async function checkEmailClaim(email: string, uid: string | null): Promise<EmailClaim> {
   try {
-    const snap = await bounded(getDoc(doc(db, 'pass_emails', await emailKey(email))), 6000, 'pass email claim');
+    const snap = await bounded(getDoc(doc(db, 'pass_emails', await emailKey(email))), 8000, 'pass email claim');
     if (!snap.exists()) return { state: 'free' };
     const v = snap.data();
     return uid && v.userId === uid

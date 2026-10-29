@@ -90,7 +90,7 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
   // 4. Networking chat message + reaction
   await p.goto(APP + '/?tab=networking', { waitUntil: 'domcontentloaded' });
   await p.waitForTimeout(7000);
-  const box = await p.$('input[placeholder*="públicamente"], textarea[placeholder*="públicamente"]');
+  const box = await p.$('input[placeholder*="(público)"], input[placeholder*="(public)"]');
   if (box) { await box.fill('Hola desde la prueba e2e'); await box.press('Enter'); await p.waitForTimeout(2500); }
   const msgs = await list('chat_messages');
   const myMsg = msgs.find((d) => d.fields?.text?.stringValue === 'Hola desde la prueba e2e');

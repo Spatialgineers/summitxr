@@ -554,6 +554,10 @@
 .sgx-dialog__body { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; padding: 16px 20px 20px 26px; }
 .sgx-dialog__footer { flex-shrink: 0; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding: 12px 20px 16px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
 @media (max-width: 640px) {
+  .sgx-dialog .sgx-dialog__head { flex-wrap: nowrap; align-items: flex-start; }
+  .sgx-dialog .sgx-dialog__head .sgx-hangar__title { flex: 1 1 0; min-width: 0; }
+  .sgx-dialog .sgx-dialog__head h2 { overflow-wrap: anywhere; }
+  .sgx-dialog__extra { display: none; }
   .sgx-dialog__body { padding: 12px 14px 16px; }
   .sgx-dialog__toolbar { padding: 0 14px 8px; }
   .sgx-dialog__footer { padding: 10px 14px 14px; }

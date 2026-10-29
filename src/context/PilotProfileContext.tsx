@@ -534,27 +534,27 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
     switch (trick) {
       case 'barrel_roll':
         xpAward = 40;
-        trickName = 'Barrel Roll 360°';
+        trickName = es ? 'Giro 360°' : '360° roll';
         trickColor = '#00DDFF';
         break;
       case 'flip_360':
         xpAward = 50;
-        trickName = 'Salto Vertical 360°';
+        trickName = es ? 'Salto vertical 360°' : '360° vertical flip';
         trickColor = '#FFFFFF';
         break;
       case 'speed_dash':
         xpAward = 30;
-        trickName = 'Hyper Dash Turbo';
+        trickName = es ? 'Arrancada turbo' : 'Turbo dash';
         trickColor = '#FDCC0D';
         break;
       case 'precision_hover':
         xpAward = 45;
-        trickName = 'Hover de Precisión';
+        trickName = es ? 'Vuelo estacionario de precisión' : 'Precision hover';
         trickColor = '#32527B';
         break;
       case 'emp_pulse':
         xpAward = 60;
-        trickName = 'Pulso EMP Cuántico';
+        trickName = es ? 'Pulso SGX' : 'SGX pulse';
         trickColor = '#FFBB00';
         break;
     }

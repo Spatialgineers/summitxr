@@ -1820,7 +1820,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       {/* 14. Global Footer (Only rendered on scrollable content sub-sections, completely hidden on the 100dvh 3D core OVERVIEW) */}
       {activeSection !== 'OVERVIEW' && (
         <footer className="bg-[#101010] border-t border-[var(--sgx-secondary)] py-8 px-4 text-center font-mono text-xs text-slate-400 space-y-4">
-          {/* Transient Sponsor Strip in Footer with 10s rotation and '(tu marca podría estar aquí)' */}
+          {/* Transient Sponsor Strip in Footer with 10s rotation and a sponsor call to action */}
           <div className="max-w-4xl mx-auto pb-2">
             <TransientSponsorSlot 
               slotId="footer_sponsor_strip" 

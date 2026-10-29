@@ -53,7 +53,8 @@ export const ROUTE_COLORS: string[] = ROUTE_PILLARS.map((k) => PILLAR_ACCENT[k])
 export const ROUTE_NAMES = ['Story', 'Showcase', 'Spark', 'Stage', 'System', 'Synthesize'];
 export const RINGS_PER_ZONE = 18; // three full routes per zone
 export const ROUTE_BONUS = 1500;
-export const ROUTE_QUEST_ID = 'drone_six_pillars';
+/** The Reactor pays the secret SGX.Spark mission "Ruta de los 6 pilares" on this event. */
+export const ROUTE_EVENT = 'sgx:drone_route';
 
 export const POINTS = { ring: 250, crate: 400, mine: 150, empBase: 200, empPerMine: 150, gate: 1000 } as const;
 

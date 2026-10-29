@@ -410,7 +410,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             <HeaderPillarNav />
           </div>
 
-          {/* 3. Transient Sponsor Logo with 10s rotation and '(tu marca podría estar aquí)' */}
+          {/* 3. Transient Sponsor Logo with 10s rotation and a sponsor call to action */}
           <div className="hidden md:flex xl:hidden min-[1600px]:flex items-center shrink-0">
             <TransientSponsorSlot slotId="header_main" variant="compact" showSubtitleLink={true} />
           </div>

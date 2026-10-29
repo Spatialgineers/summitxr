@@ -9,7 +9,7 @@ import type { ApprovedSponsor } from '../types/summit';
    branded missions inside SGX.Showcase.
    ========================================================================= */
 
-export type IdentityFlag = 'forged' | 'avatar' | 'contact' | 'checkin' | 'redeem' | 'holo' | 'constellation';
+export type IdentityFlag = 'forged' | 'avatar' | 'contact' | 'checkin' | 'redeem' | 'holo' | 'constellation' | 'drone_route';
 
 export type MissionTrigger =
   | { visit: string[] }
@@ -61,8 +61,12 @@ export const REACTOR_MISSIONS: ReactorMission[] = [
 
   // SGX.Spark
   { id: 'm_spark_play', pillar: 'SPARK', xp: 60, trigger: { visit: ['EMBEDS_GAMES', 'PAGE_PLAY'] },
-    es: { title: 'Despega el dron', hint: 'Entra al simulador de dron 3D o al arcade.' },
-    en: { title: 'Launch the drone', hint: 'Enter the 3D drone simulator or the arcade.' },
+    es: { title: 'Juega en el Spark', hint: 'Entra a Juegos y laboratorios o al arcade.' },
+    en: { title: 'Play in Spark', hint: 'Open Games & labs or the arcade.' },
+    go: { section: 'EMBEDS_GAMES' } },
+  { id: 'm_spark_drone_route', pillar: 'SPARK', xp: 150, trigger: { flag: 'drone_route' }, secret: true,
+    es: { title: 'Ruta de los 6 pilares', hint: 'En el dron, cruza seis anillos seguidos con los colores de los pilares en orden.' },
+    en: { title: 'Six-pillar route', hint: 'In the drone game, fly through six rings in a row in the pillar colors, in order.' },
     go: { section: 'EMBEDS_GAMES' } },
   { id: 'm_spark_cells', pillar: 'SPARK', xp: 120, trigger: { quest: 'q_cells_6' },
     es: { title: 'Carga 6 celdas', hint: 'Encuentra 6 rayos SGX escondidos en las secciones.' },

@@ -215,6 +215,8 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
       flag('holo');
     };
     window.addEventListener('sgx:holo_card_exported', onHolo);
+    const onDroneRoute = () => flag('drone_route');
+    window.addEventListener('sgx:drone_route', onDroneRoute);
     return () => {
       window.removeEventListener('sgx:route_changed', onRoute);
       window.removeEventListener('popstate', onRoute);
@@ -224,6 +226,7 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
       window.removeEventListener('sgx:open_brand_showcase', onSponsor);
       window.removeEventListener('sgx:avatar_saved', onAvatar);
       window.removeEventListener('sgx:holo_card_exported', onHolo);
+      window.removeEventListener('sgx:drone_route', onDroneRoute);
     };
   }, [commit, completeWhere, flag]);
 

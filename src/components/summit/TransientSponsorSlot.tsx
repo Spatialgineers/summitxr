@@ -236,9 +236,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
     }
   };
 
-  const subtitleText = language === 'en' 
-    ? '(your brand could be here)' 
-    : '(tu marca podría estar aquí)';
+  const subtitleText = language === 'en' ? 'Sponsor the Summit' : 'Patrocina el Summit';
 
   // RENDER VARIANTS
 
@@ -277,7 +275,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
           <button
             onClick={handleOpenSponsorship}
             className="text-[10px] font-mono text-[#FDCC0D] hover:text-white underline decoration-dotted hover:decoration-solid hover:scale-105 transition-all cursor-pointer whitespace-nowrap pl-1 border-l border-slate-800"
-            title="Conviértete en patrocinador oficial de Spatialgineers Summit 2026"
+            title={language === 'en' ? 'Become an official sponsor of Spatialgineers Summit 2026' : 'Conviértete en patrocinador oficial de Spatialgineers Summit 2026'}
           >
             {subtitleText}
           </button>

@@ -7,7 +7,7 @@ import { QuickGuideModal } from '../common/QuickGuideModal';
 import { TransientSponsorSlot } from './TransientSponsorSlot';
 import { loadAllApprovedSponsors } from '../../lib/summitData';
 import {
-  POINTS, POWERS, POWER_ORDER, RINGS_PER_ZONE, ROUTE_BONUS, ROUTE_COLORS, ROUTE_NAMES, ROUTE_QUEST_ID, ZONES, ZONE_ORDER,
+  POINTS, POWERS, POWER_ORDER, RINGS_PER_ZONE, ROUTE_BONUS, ROUTE_COLORS, ROUTE_NAMES, ROUTE_EVENT, ZONES, ZONE_ORDER,
   droneGuideSteps, runXp, zoneName, type PowerKey, type ZoneKey,
 } from './drone/droneConfig';
 import { buildZone, createCrateSkin, createDroneMesh, disposeCrateSkins, disposeObject, type CrateSkin, type ZoneWorld } from './drone/droneScene';
@@ -600,7 +600,7 @@ export const SummitDroneMiniGame: React.FC = () => {
             addToast(`+${fmt(ROUTE_BONUS, e)} pts · ${e ? 'Ruta de los 6 pilares' : '6 Pillars Route'}`, 'yellow');
             if (!s.questFired) {
               s.questFired = true;
-              window.dispatchEvent(new CustomEvent('sgx:quest_complete', { detail: { questId: ROUTE_QUEST_ID } }));
+              window.dispatchEvent(new Event(ROUTE_EVENT));
             }
           } else {
             addToast(`+${POINTS.ring} pts · ${ROUTE_NAMES[ring.colorIdx]}`);

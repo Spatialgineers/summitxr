@@ -1,38 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
 import jsQR from 'jsqr';
-import { 
-  Camera, 
-  QrCode, 
-  BookUser, 
-  ScanLine, 
-  Zap, 
-  RefreshCw, 
-  Download, 
-  UserPlus, 
-  FileText, 
-  Trash2, 
-  ExternalLink, 
-  Check, 
-  Search, 
-  Sparkles, 
-  X,
-  Upload,
-  Phone,
-  Mail,
-  Linkedin,
-  Twitter,
-  Building2,
-  Award,
-  AlertCircle
-} from 'lucide-react';
+import { Camera, QrCode, BookUser, RefreshCw, Download, UserPlus, FileText, Trash2, Check, Copy, Search, Upload, Phone, Mail, Linkedin, AtSign, AlertCircle, Flashlight } from 'lucide-react';
 import { playScanSuccessSound, playUiChirp, playCyberBurstSound } from '../../lib/cyberAudioEngine';
 import { useAuth } from '../../context/AuthContext';
-import { PILLAR_COLORS } from './AttendeeAvatarGenerator';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
-import { parsePassQr, passQrUrl } from '../../identity/sgxIdentity';
+import { parsePassQr, passQrUrl, PILLAR_ACCENT } from '../../identity/sgxIdentity';
+import { SGX_PILLARS, findPillar } from '../../lib/sgxPillars';
+import { SgxDialog } from '../common/SgxDialog';
 import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
+import './sgxModals.css';
+
+/* NETWORKING QR: scan another pass, show yours and keep a private contact
+   book (localStorage + the pass Rolodex), exportable as .vcf / CSV. */
+
+type QrTab = 'SCANNER' | 'MY_BADGE' | 'ROLODEX';
 
 export interface SummitContact {
   id: string;
@@ -59,7 +42,7 @@ export interface SummitContact {
 interface NetworkingQrScannerModalProps {
   onClose: () => void;
   onAwardXp?: (amount: number, reason: string) => void;
-  initialTab?: 'SCANNER' | 'MY_BADGE' | 'ROLODEX';
+  initialTab?: QrTab;
 }
 
 export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> = ({
@@ -71,7 +54,8 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
   const es = language === 'es';
   const { user, playerProfile, savePlayerProfile } = useAuth();
   const sgx = useOptionalSgxIdentity();
-  const [activeTab, setActiveTab] = useState<'SCANNER' | 'MY_BADGE' | 'ROLODEX'>(initialTab);
+  const [activeTab, setActiveTab] = useState<QrTab>(initialTab);
+  const [notice, setNotice] = useState<string | null>(null);
 
   // Contacts storage
   const [contacts, setContacts] = useState<SummitContact[]>(() => {
@@ -137,12 +121,10 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
       const payload: SummitContact = {
         id: user?.uid || `sgx_${Date.now()}`,
         name: userName,
-        role: 'Spatialgineer Attendee',
-        company: 'Spatialgineers Community',
+        role: es ? 'Asistente del Summit' : 'Summit attendee',
+        company: 'Spatialgineers Summit 2026',
         pillar: playerProfile?.tenantId?.includes('synthesize') ? 'SGX.SYNTHESIZE' : 'SGX.STAGE',
         email: user?.email || 'asistente@spatialgineers.com',
-        linkedin: `linkedin.com/in/${userName.toLowerCase()}`,
-        twitter: `@${userName.toLowerCase()}`,
         bio: (es ? 'Participante oficial en Spatialgineers Summit 2026 San Juan & Global Live.' : 'Official participant at the Spatialgineers Summit 2026 San Juan & Global Live.'),
         scannedAt: new Date().toLocaleDateString('es-ES')
       };
@@ -186,7 +168,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
 
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Cámara no compatible con este navegador.');
+        throw new Error('camera unsupported');
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -242,7 +224,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
         setTorchOn(!torchOn);
         playUiChirp(840);
       } else {
-        alert((es ? 'La linterna no está disponible en este dispositivo o cámara.' : 'The flashlight isn\'t available on this device or camera.'));
+        setNotice(es ? 'La linterna no está disponible en este dispositivo o cámara.' : "The light isn't available on this device or camera.");
       }
     } catch (err) {
       console.warn('Torch toggle notice:', err);
@@ -354,7 +336,9 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.target.value = '';
     if (!file) return;
+    setNotice(null);
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -371,7 +355,7 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
           if (code && code.data) {
             handleProcessQrData(code.data);
           } else {
-            alert((es ? 'No se detectó un código QR válido en la imagen seleccionada.' : 'No valid QR code was detected in the selected image.'));
+            setNotice(es ? 'No encontramos un código QR en esa imagen. Prueba con una foto más nítida.' : "We couldn't find a QR code in that image. Try a sharper photo.");
           }
         }
       };
@@ -443,502 +427,213 @@ export const NetworkingQrScannerModal: React.FC<NetworkingQrScannerModalProps> =
     return matchesQuery && matchesPillar;
   });
 
+  const tabs: { key: QrTab; icon: React.ReactNode; label: string; count?: number }[] = [
+    { key: 'SCANNER', icon: <Camera size={16} aria-hidden />, label: es ? 'Escanear' : 'Scan' },
+    { key: 'MY_BADGE', icon: <QrCode size={16} aria-hidden />, label: es ? 'Mi QR' : 'My QR' },
+    { key: 'ROLODEX', icon: <BookUser size={16} aria-hidden />, label: es ? 'Libreta' : 'Contacts', count: contacts.length },
+  ];
+  const pillarTag = (pillar: string) => {
+    const p = findPillar(pillar);
+    return p
+      ? <span className="sgx-m-tag" style={{ color: PILLAR_ACCENT[p.key], boxShadow: `inset 0 0 0 1px ${PILLAR_ACCENT[p.key]}` }}>{p.name}</span>
+      : <span className="sgx-m-tag sgx-m-tag--mute">{pillar}</span>;
+  };
+  const faceOf = (c: SummitContact, lg = false) => {
+    const p = findPillar(c.pillar);
+    return (
+      <span className={`sgx-qr__face ${lg ? 'sgx-qr__face--lg' : ''}`}>
+        {c.avatar ? <img src={c.avatar} alt="" /> : <img src={`/holo/${(p?.key || 'SYNTHESIZE').toLowerCase()}.png`} alt="" style={{ objectFit: 'contain', padding: 6 }} />}
+      </span>
+    );
+  };
+  const myName = sgx?.identity.pass?.fullName || playerProfile?.nickname || user?.displayName || (user?.email ? user.email.split('@')[0] : '');
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md font-mono">
-      <div 
-        className="w-full max-w-4xl max-h-[92vh] bg-[#0f0f0f] border-2 border-[var(--sgx-secondary)] shadow-2xl flex flex-col overflow-hidden text-xs"
-        style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
-      >
-        {/* Header */}
-        <div className="p-3 bg-gradient-to-r from-slate-950 via-[#1A1A1A] to-black border-b border-[var(--sgx-secondary)] flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <ScanLine className="w-4 h-4 text-cyan-400 animate-pulse" />
-            <div>
-              <div className="text-sm font-black text-white flex items-center space-x-2">
-                <span>{es ? 'NETWORKING QR & LIBRETA DE CONTACTOS' : 'NETWORKING QR & CONTACT BOOK'}</span>
-                <span className="px-1.5 py-0.5 bg-cyan-950 text-cyan-300 border border-cyan-800 text-[10px]">
-                  SAN JUAN 2026
-                </span>
-              </div>
-              <div className="text-[10px] text-slate-400 font-sans">
-                {es ? 'Escanea credenciales presenciales, comparte tu QR y exporta a tu móvil (.vcf)' : 'Scan in-person credentials, share your QR and export to your phone (.vcf)'}
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={onClose}
-            className="p-1.5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+    <SgxDialog
+      onClose={onClose}
+      title={es ? 'Networking QR' : 'Networking QR'}
+      kicker={es ? 'Escanea pases, comparte tu QR y guarda contactos (.vcf)' : 'Scan passes, share your QR and save contacts (.vcf)'}
+      icon={<img src="/holo/guild.png" alt="" />}
+      size="md"
+      toolbar={
+        <div className="sgx-m-tabs" role="tablist" aria-label={es ? 'Secciones' : 'Sections'}>
+          {tabs.map((t) => (
+            <button key={t.key} type="button" role="tab" aria-selected={activeTab === t.key} onClick={() => { setActiveTab(t.key); playUiChirp(600); }}>
+              {t.icon}<span>{t.label}</span>{t.count !== undefined && <b>{t.count}</b>}
+            </button>
+          ))}
         </div>
-
-        {/* Global Toast for XP */}
-        {justEarnedXp && (
-          <div className="bg-gradient-to-r from-amber-950 via-[#262626] to-amber-950 border-b border-[#FDCC0D] p-2 text-center text-[#FDCC0D] font-bold flex items-center justify-center space-x-2 animate-pulse">
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>{justEarnedXp}</span>
+      }
+      footer={
+        <>
+          <p className="sgx-m-fine sgx-m-footnote">{es ? 'Tus contactos y notas se guardan en este dispositivo y en tu pase.' : 'Your contacts and notes are saved on this device and in your pass.'}</p>
+          <button type="button" className="sgx-btn sgx-btn--sm" onClick={onClose}>{es ? 'Cerrar' : 'Close'}</button>
+        </>
+      }
+    >
+      <div className="sgx-m sgx-m-stack">
+        {justEarnedXp && <div className="sgx-qr__xp" role="status">{justEarnedXp}</div>}
+        {notice && (
+          <div className="sgx-m-note sgx-m-note--warn" role="alert">
+            <AlertCircle size={18} aria-hidden />
+            <div>{notice}</div>
+            <button type="button" className="sgx-m-iconbtn" aria-label={es ? 'Cerrar aviso' : 'Dismiss'} onClick={() => setNotice(null)}>✕</button>
           </div>
         )}
 
-        {/* Navigation Tabs */}
-        <div className="grid grid-cols-3 bg-[#151515] border-b border-[var(--sgx-secondary)] text-center text-xs">
-          <button
-            onClick={() => {
-              setActiveTab('SCANNER');
-              playUiChirp(600);
-            }}
-            className={`py-2.5 font-bold flex items-center justify-center space-x-1.5 border-b-2 transition-colors ${
-              activeTab === 'SCANNER'
-                ? 'border-cyan-400 text-cyan-300 bg-cyan-950/20'
-                : 'border-transparent text-slate-400 hover:text-white'
-            }`}
-          >
-            <Camera className="w-3.5 h-3.5" />
-            <span>{es ? 'ESCANEAR CÁMARA' : 'CAMERA SCAN'}</span>
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveTab('MY_BADGE');
-              playUiChirp(600);
-            }}
-            className={`py-2.5 font-bold flex items-center justify-center space-x-1.5 border-b-2 transition-colors ${
-              activeTab === 'MY_BADGE'
-                ? 'border-amber-400 text-amber-300 bg-amber-950/20'
-                : 'border-transparent text-slate-400 hover:text-white'
-            }`}
-          >
-            <QrCode className="w-3.5 h-3.5" />
-            <span>{es ? 'MI CREDENCIAL QR' : 'MY QR CREDENTIAL'}</span>
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveTab('ROLODEX');
-              playUiChirp(600);
-            }}
-            className={`py-2.5 font-bold flex items-center justify-center space-x-1.5 border-b-2 transition-colors ${
-              activeTab === 'ROLODEX'
-                ? 'border-[#FDCC0D] text-[#FDCC0D] bg-amber-950/20'
-                : 'border-transparent text-slate-400 hover:text-white'
-            }`}
-          >
-            <BookUser className="w-3.5 h-3.5" />
-            <span>{es ? 'LIBRETA (' : 'CONTACT BOOK ('}{contacts.length})</span>
-          </button>
-        </div>
-
-        {/* Body Views */}
-        <div className="flex-1 overflow-y-auto p-4">
-          {/* TAB 1: CAMERA SCANNER */}
-          {activeTab === 'SCANNER' && (
-            <div className="space-y-4">
-              {!scannedResult ? (
-                <div className="flex flex-col items-center space-y-3">
-                  {/* Viewfinder Video Feed */}
-                  <div className="relative w-full max-w-md aspect-[4/3] bg-black border-2 border-cyan-500/80 shadow-2xl overflow-hidden flex items-center justify-center">
-                    <video
-                      ref={videoRef}
-                      className="w-full h-full object-cover"
-                      playsInline
-                    />
-                    <canvas ref={canvasRef} className="hidden" />
-
-                    {/* Cyber HUD Reticle Overlay */}
-                    <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-4">
-                      {/* Top corners */}
-                      <div className="flex justify-between">
-                        <div className="w-6 h-6 border-t-2 border-l-2 border-cyan-400" />
-                        <div className="w-6 h-6 border-t-2 border-r-2 border-cyan-400" />
-                      </div>
-
-                      {/* Center Target Box with Moving Laser Sweep */}
-                      <div className="relative self-center w-52 h-52 border border-cyan-400/40 rounded-sm flex items-center justify-center">
-                        <div className="w-4 h-4 border border-amber-400/60 rounded-full animate-ping" />
-                        <div className="w-1.5 h-1.5 bg-cyan-300 rounded-full" />
-                        {/* Scanning Laser */}
-                        <div className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_10px_#00DDFF] animate-bounce" />
-                      </div>
-
-                      {/* Bottom corners */}
-                      <div className="flex justify-between">
-                        <div className="w-6 h-6 border-b-2 border-l-2 border-cyan-400" />
-                        <div className="w-6 h-6 border-b-2 border-r-2 border-cyan-400" />
-                      </div>
-                    </div>
-
-                    {/* Camera Status Notification */}
-                    {cameraError && (
-                      <div className="absolute inset-0 bg-black/90 p-4 flex flex-col items-center justify-center text-center space-y-2">
-                        <AlertCircle className="w-8 h-8 text-amber-400" />
-                        <span className="text-slate-300 text-xs">{cameraError}</span>
-                      </div>
-                    )}
+        {activeTab === 'SCANNER' && (
+          !scannedResult ? (
+            <>
+              <div className="sgx-qr__finder">
+                <video ref={videoRef} playsInline muted aria-label={es ? 'Vista de la cámara' : 'Camera view'} />
+                <canvas ref={canvasRef} hidden />
+                {cameraActive && (
+                  <div className="sgx-qr__reticle" aria-hidden="true"><i /><i /><i /><i /><span className="sgx-qr__sweep" /></div>
+                )}
+                {(cameraError || !cameraActive) && (
+                  <div className="sgx-qr__state" role={cameraError ? 'alert' : 'status'}>
+                    {cameraError ? <AlertCircle size={28} aria-hidden /> : <Camera size={28} aria-hidden />}
+                    <p className="sgx-m-p">{cameraError || (es ? 'Iniciando la cámara…' : 'Starting the camera…')}</p>
                   </div>
-
-                  {/* Hardware Controls (Torch, Switch Camera, File Upload) */}
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={toggleTorch}
-                      className={`px-3 py-1.5 border font-bold flex items-center space-x-1 transition-colors ${
-                        torchOn ? 'bg-amber-400 text-black border-amber-300' : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-amber-400'
-                      }`}
-                    >
-                      <Zap className="w-3.5 h-3.5" />
-                      <span>{torchOn ? (es ? 'LINTERNA ON' : 'FLASHLIGHT ON') : (es ? 'LINTERNA' : 'FLASHLIGHT')}</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
-                        playUiChirp(700);
-                      }}
-                      className="px-3 py-1.5 bg-slate-900 border border-slate-700 hover:border-cyan-400 text-slate-300 font-bold flex items-center space-x-1"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5" />
-                      <span>{es ? 'CAMBIAR CÁMARA' : 'SWITCH CAMERA'}</span>
-                    </button>
-
-                    <label className="px-3 py-1.5 bg-slate-900 border border-slate-700 hover:border-[#FDCC0D] text-[#FDCC0D] font-bold flex items-center space-x-1 cursor-pointer">
-                      <Upload className="w-3.5 h-3.5" />
-                      <span>{es ? 'SUBIR IMAGEN' : 'UPLOAD IMAGE'}</span>
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleFileUpload} 
-                        className="hidden" 
-                      />
-                    </label>
-                  </div>
-
-                </div>
-              ) : (
-                /* Detected Contact Result Card */
-                <div className="max-w-lg mx-auto bg-[#191919] border-2 border-[#FDCC0D] p-5 shadow-2xl space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-[#FDCC0D] rounded-full animate-ping" />
-                      <span className="text-xs font-black text-[#FDCC0D] uppercase tracking-wider">
-                        {es ? '¡CREDENCIAL ESCANEADA CON ÉXITO! (+50 XP)' : 'CREDENTIAL SCANNED SUCCESSFULLY! (+50 XP)'}
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-slate-400">{scannedResult.scannedAt}</span>
-                  </div>
-
-                  <div className="flex items-start space-x-4">
-                    <div className="w-14 h-14 bg-black border-2 border-[#FDCC0D] flex items-center justify-center text-2xl shrink-0">
-                      {scannedResult.avatar ? (
-                        <img src={scannedResult.avatar} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <span>🚀</span>
-                      )}
-                    </div>
-
-                    <div className="flex-1 overflow-hidden space-y-1">
-                      <div className="text-base font-black text-white">{scannedResult.name}</div>
-                      <div className="text-xs text-cyan-300 font-bold">{loc(scannedResult, 'role', language)}</div>
-                      <div className="text-[11px] text-slate-400 flex items-center space-x-1">
-                        <Building2 className="w-3 h-3" />
-                        <span>{loc(scannedResult, 'company', language)}</span>
-                      </div>
-                      <div className="inline-block px-2 py-0.5 bg-amber-950/60 border border-amber-400 text-amber-300 text-[10px] font-bold mt-1">
-                        {scannedResult.pillar}
-                      </div>
-                    </div>
-                  </div>
-
-                  {loc(scannedResult, 'bio', language) && (
-                    <div className="p-2.5 bg-black/60 border border-slate-800 text-[11px] text-slate-300 italic">
-                      "{loc(scannedResult, 'bio', language)}"
-                    </div>
-                  )}
-
-                  {/* Private Notes Input */}
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-slate-400 font-bold uppercase">
-                      {es ? 'Nota privada para el seguimiento:' : 'Private follow-up note:'}
-                    </label>
-                    <textarea
-                      value={scannedNotesInput}
-                      onChange={e => setScannedNotesInput(e.target.value)}
-                      placeholder={es ? 'Ej: Hablamos en el panel de WebXR, quiere demo de shaders o inversión...' : 'E.g. We talked at the WebXR panel, wants a shader demo or investment...'}
-                      rows={2}
-                      className="w-full p-2 bg-black border border-slate-700 text-white text-xs focus:border-[#FDCC0D] outline-none"
-                    />
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="grid grid-cols-2 gap-2 pt-2">
-                    <button
-                      onClick={handleSaveScannedContact}
-                      className="p-2.5 bg-[#FDCC0D] hover:bg-[#E5B80B] text-black font-extrabold flex items-center justify-center space-x-1.5 shadow-lg hover:scale-[1.02] transition-transform"
-                    >
-                      <UserPlus className="w-4 h-4" />
-                      <span>{es ? 'GUARDAR EN LIBRETA' : 'SAVE TO CONTACT BOOK'}</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setScannedResult(null);
-                        startCamera();
-                      }}
-                      className="p-2.5 bg-[#232323] border border-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center space-x-1"
-                    >
-                      <span>{es ? 'ESCANEAR OTRO' : 'SCAN ANOTHER'}</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* TAB 2: MY QR BADGE */}
-          {activeTab === 'MY_BADGE' && (
-            <div className="max-w-md mx-auto space-y-4">
-              {/* Virtual Badge Card */}
-              <div className="bg-[#181818] border-2 border-[var(--sgx-neon)] p-5 relative overflow-hidden shadow-2xl space-y-4">
-                {/* Lanyard Ring Decoration */}
-                <div className="w-12 h-2.5 bg-slate-700 mx-auto rounded-full border border-slate-500 mb-2" />
-
-                {/* Top Header */}
-                <div className="text-center space-y-1">
-                  <div className="text-[10px] tracking-widest text-cyan-400 font-mono uppercase">
-                    SPATIALGINEERS SUMMIT 2026
-                  </div>
-                  <div className="text-lg font-black text-white">
-                    {playerProfile?.nickname || user?.email?.split('@')[0] || 'ASISTENTE_SGX'}
-                  </div>
-                  <div className="text-xs text-amber-300 font-bold">
-                    {playerProfile?.prizeTier || 'EXPLORER CADET'} • SAN JUAN, PR
-                  </div>
-                </div>
-
-                {/* Real Generated QR Code */}
-                <div className="flex justify-center p-3 bg-black border-2 border-cyan-400 shadow-inner">
-                  {myQrDataUrl ? (
-                    <img 
-                      src={myQrDataUrl} 
-                      alt={es ? 'Mi Credencial QR' : 'My QR Credential'} 
-                      className="w-56 h-56 object-contain"
-                    />
-                  ) : (
-                    <div className="w-56 h-56 flex items-center justify-center text-slate-500">
-                      {es ? 'Generando QR...' : 'Generating QR...'}
-                    </div>
-                  )}
-                </div>
-
-                {/* Badge Bottom Metadata */}
-                <div className="text-center text-[10px] text-slate-400 space-y-1">
-                  <div>{es ? 'Muestra este código para que otros participantes te agreguen a su libreta.' : 'Show this code so other participants can add you to their contact book.'}</div>
-                  <div className="text-[#FDCC0D] font-mono font-bold">
-                    ID: {user?.uid ? user.uid.slice(0, 12) : 'SGX-LIVE-2026'}
-                  </div>
-                </div>
+                )}
               </div>
-
-              {/* Share & Copy Link */}
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
-                    setCopiedLink(true);
-                    playUiChirp(840);
-                    setTimeout(() => setCopiedLink(false), 2000);
-                  }}
-                  className="flex-1 p-2.5 bg-[#202020] border border-cyan-400 text-cyan-300 font-bold flex items-center justify-center space-x-1.5 hover:bg-cyan-950/40 transition-colors"
-                >
-                  <Check className="w-3.5 h-3.5" />
-                  <span>{copiedLink ? (es ? '¡ENLACE COPIADO!' : 'LINK COPIED!') : (es ? 'COPIAR LINK DE ASISTENTE' : 'COPY ATTENDEE LINK')}</span>
+              <div className="sgx-qr__controls">
+                <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" aria-pressed={torchOn} onClick={toggleTorch} disabled={!cameraActive}>
+                  <Flashlight size={14} aria-hidden /> {torchOn ? (es ? 'Linterna encendida' : 'Light on') : (es ? 'Linterna' : 'Light')}
                 </button>
-
-                <button
-                  onClick={() => {
-                    const a = document.createElement('a');
-                    a.download = `SGX_Badge_${playerProfile?.nickname || 'Attendee'}.png`;
-                    a.href = myQrDataUrl;
-                    a.click();
-                  }}
-                  className="p-2.5 bg-[#202020] border border-amber-400 text-amber-300 font-bold flex items-center space-x-1"
-                  title={es ? 'Descargar imagen QR' : 'Download QR image'}
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">{es ? 'BAJAR QR' : 'DOWNLOAD QR'}</span>
+                <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => { setFacingMode(prev => prev === 'environment' ? 'user' : 'environment'); playUiChirp(700); }}>
+                  <RefreshCw size={14} aria-hidden /> {es ? 'Cambiar cámara' : 'Switch camera'}
                 </button>
+                <label className="sgx-btn sgx-btn--sm sgx-sp__upload">
+                  <Upload size={14} aria-hidden /> {es ? 'Subir foto del QR' : 'Upload QR photo'}
+                  <input type="file" accept="image/*" onChange={handleFileUpload} aria-label={es ? 'Subir foto del QR' : 'Upload QR photo'} />
+                </label>
+              </div>
+            </>
+          ) : (
+            <div className="sgx-m-card sgx-m-card--gold" style={{ maxWidth: 560, marginInline: 'auto', width: '100%' }}>
+              <div className="sgx-m-row sgx-m-row--between">
+                <span className="sgx-m-tag sgx-m-tag--solid">{es ? 'Pase escaneado · +50 XP' : 'Pass scanned · +50 XP'}</span>
+                <span className="sgx-m-fine">{scannedResult.scannedAt}</span>
+              </div>
+              <div className="sgx-m-row" style={{ alignItems: 'flex-start', flexWrap: 'nowrap', gap: 12 }}>
+                {faceOf(scannedResult, true)}
+                <div style={{ minWidth: 0 }}>
+                  <h3 className="sgx-m-h">{scannedResult.name}</h3>
+                  <p className="sgx-m-kicker" style={{ marginTop: 4 }}>{loc(scannedResult, 'role', language)}</p>
+                  <p className="sgx-m-fine">{loc(scannedResult, 'company', language)}</p>
+                  <div style={{ marginTop: 6 }}>{pillarTag(scannedResult.pillar)}</div>
+                </div>
+              </div>
+              {loc(scannedResult, 'bio', language) && <p className="sgx-m-p">{loc(scannedResult, 'bio', language)}</p>}
+              <label className="sgx-m-field">
+                <span>{es ? 'Nota privada para el seguimiento' : 'Private follow-up note'}</span>
+                <textarea className="sgx-m-input" rows={2} value={scannedNotesInput} onChange={(e) => setScannedNotesInput(e.target.value)}
+                  placeholder={es ? 'Ej: Hablamos en el panel de WebXR; quiere ver una demo.' : 'E.g. We talked at the WebXR panel; wants to see a demo.'} />
+              </label>
+              <div className="sgx-m-row" style={{ justifyContent: 'flex-end' }}>
+                <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => { setScannedResult(null); startCamera(); }}>{es ? 'Escanear otro' : 'Scan another'}</button>
+                <button type="button" className="sgx-btn sgx-btn--sm" onClick={handleSaveScannedContact}><UserPlus size={14} aria-hidden /> {es ? 'Guardar en la libreta' : 'Save to contacts'}</button>
               </div>
             </div>
-          )}
+          )
+        )}
 
-          {/* TAB 3: CONTACTS BOOK (ROLODEX) */}
-          {activeTab === 'ROLODEX' && (
-            <div className="space-y-4">
-              {/* Search & Export Toolbar */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-2 bg-[#181818] p-2.5 border border-slate-800">
-                <div className="relative w-full sm:w-64">
-                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    placeholder={es ? 'Buscar por nombre, cargo...' : 'Search by name, title...'}
-                    className="w-full pl-8 pr-3 py-1.5 bg-black border border-slate-700 text-white text-xs outline-none focus:border-cyan-400"
-                  />
-                </div>
+        {activeTab === 'MY_BADGE' && (
+          <div className="sgx-qr__badge">
+            <p className="sgx-m-kicker">Spatialgineers Summit 2026</p>
+            {myName && <h3 className="sgx-m-h" style={{ fontSize: '1.2rem' }}>{myName}</h3>}
+            {sgx?.identity.pass && <p className="sgx-m-fine">{sgx.identity.callsign} · {sgx.identity.pass.code}</p>}
+            <div className="sgx-qr__code">
+              {myQrDataUrl
+                ? <img src={myQrDataUrl} alt={es ? 'Tu código QR de contacto' : 'Your contact QR code'} />
+                : <p className="sgx-m-fine" style={{ width: 240, padding: '100px 0' }}>{es ? 'Generando QR…' : 'Generating QR…'}</p>}
+            </div>
+            <p className="sgx-m-p">{es ? 'Muestra este código para que otras personas te agreguen a su libreta.' : 'Show this code so others can add you to their contacts.'}</p>
+            {!sgx?.identity.pass && <p className="sgx-m-fine">{es ? 'Con tu SGX Pass este QR es el mismo de tu pase.' : 'With your SGX Pass this QR is the same as your pass QR.'}</p>}
+            <div className="sgx-m-row" style={{ justifyContent: 'center' }}>
+              <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" disabled={!myQrDataUrl} onClick={() => {
+                const a = document.createElement('a');
+                a.download = `SGX_QR_${(myName || 'Summit').replace(/\s+/g, '_')}.png`;
+                a.href = myQrDataUrl;
+                a.click();
+              }}>
+                <Download size={14} aria-hidden /> {es ? 'Descargar QR' : 'Download QR'}
+              </button>
+              <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => {
+                navigator.clipboard?.writeText(window.location.href);
+                setCopiedLink(true);
+                playUiChirp(840);
+                setTimeout(() => setCopiedLink(false), 2000);
+              }}>
+                {copiedLink ? <Check size={14} aria-hidden /> : <Copy size={14} aria-hidden />} {copiedLink ? (es ? 'Enlace copiado' : 'Link copied') : (es ? 'Copiar enlace' : 'Copy link')}
+              </button>
+            </div>
+          </div>
+        )}
 
-                <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
-                  <select
-                    value={selectedPillarFilter}
-                    onChange={e => setSelectedPillarFilter(e.target.value)}
-                    className="p-1.5 bg-black border border-slate-700 text-slate-300 text-xs outline-none"
-                  >
-                    <option value="ALL">{es ? 'Todos los Pilares' : 'All Pillars'}</option>
-                    <option value="SGX.SYNTHESIZE">SGX.SYNTHESIZE</option>
-                    <option value="SGX.STAGE">SGX.STAGE</option>
-                    <option value="SGX.SYSTEM">SGX.SYSTEM</option>
-                    <option value="SGX.SHOWCASE">SGX.SHOWCASE</option>
-                  </select>
+        {activeTab === 'ROLODEX' && (
+          <>
+            <div className="sgx-m-row">
+              <label className="sgx-m-search">
+                <Search size={16} aria-hidden />
+                <input type="search" className="sgx-m-input" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label={es ? 'Buscar contacto' : 'Search contacts'} placeholder={es ? 'Buscar por nombre, cargo…' : 'Search by name, title…'} />
+              </label>
+              <select className="sgx-m-input" style={{ width: 'auto', minHeight: 40, fontSize: '0.85rem' }} value={selectedPillarFilter} onChange={(e) => setSelectedPillarFilter(e.target.value)} aria-label={es ? 'Filtrar por pilar' : 'Filter by pillar'}>
+                <option value="ALL">{es ? 'Todos los pilares' : 'All pillars'}</option>
+                {SGX_PILLARS.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={handleExportCsv} disabled={!contacts.length} title={es ? 'Exportar todos los contactos a CSV' : 'Export all contacts to CSV'}>
+                <FileText size={14} aria-hidden /> CSV
+              </button>
+            </div>
 
-                  <button
-                    onClick={handleExportCsv}
-                    className="px-3 py-1.5 bg-[#232323] hover:bg-[#313131] border border-slate-700 hover:border-cyan-400 text-cyan-300 font-bold flex items-center space-x-1"
-                    title={es ? 'Exportar todos los contactos a Excel / CSV' : 'Export all contacts to Excel / CSV'}
-                  >
-                    <FileText className="w-3.5 h-3.5" />
-                    <span>CSV</span>
-                  </button>
-                </div>
+            {filteredContacts.length === 0 ? (
+              <div className="sgx-m-empty">
+                <img src="/holo/guild.png" alt="" />
+                <p className="sgx-m-p">{contacts.length ? (es ? 'Ningún contacto coincide con ese filtro.' : 'No contacts match that filter.') : (es ? 'Tu libreta está vacía. Escanea el QR del pase de otra persona para empezar.' : 'Your contact book is empty. Scan someone’s pass QR to start.')}</p>
+                <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => setActiveTab('SCANNER')}>{es ? 'Escanear un pase' : 'Scan a pass'}</button>
               </div>
-
-              {/* Contacts Grid */}
-              {filteredContacts.length === 0 ? (
-                <div className="text-center p-8 bg-black/40 border border-slate-800 space-y-2">
-                  <BookUser className="w-8 h-8 text-slate-600 mx-auto" />
-                  <div className="text-slate-400 text-xs">{es ? 'No hay contactos guardados con ese filtro.' : 'No saved contacts match that filter.'}</div>
-                  <button
-                    onClick={() => setActiveTab('SCANNER')}
-                    className="px-3 py-1.5 bg-cyan-950 border border-cyan-500 text-cyan-300 font-bold"
-                  >
-                    {es ? 'Escanear primer contacto' : 'Scan your first contact'}
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {filteredContacts.map(contact => (
-                    <div
-                      key={contact.id}
-                      className="p-3 bg-[#1A1A1A] border border-slate-800 hover:border-cyan-500/70 transition-all space-y-2 relative group"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start space-x-2.5">
-                          <div className="w-10 h-10 bg-black border border-cyan-400/50 flex items-center justify-center text-lg shrink-0">
-                            {contact.avatar ? (
-                              <img src={contact.avatar} alt="" className="w-full h-full object-cover" />
-                            ) : (
-                              <span>👨‍🚀</span>
-                            )}
-                          </div>
-                          <div>
-                            <div className="font-black text-white text-xs">{contact.name}</div>
-                            <div className="text-[11px] text-cyan-300 font-bold">{loc(contact, 'role', language)}</div>
-                            <div className="text-[10px] text-slate-400">{loc(contact, 'company', language)}</div>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col items-end space-y-1">
-                          <span className="px-1.5 py-0.5 bg-amber-950/40 border border-amber-500/60 text-amber-300 text-[9px] font-bold">
-                            {contact.pillar}
-                          </span>
-                          <span className="text-[9px] text-slate-500">{contact.scannedAt}</span>
-                        </div>
-                      </div>
-
-                      {/* Notes / Follow-up */}
-                      {loc(contact, 'notes', language) && (
-                        <div className="p-2 bg-black/50 border border-slate-800 text-[10px] text-slate-300 italic">
-                          "{loc(contact, 'notes', language)}"
-                        </div>
-                      )}
-
-                      {/* Contact Channels & Export vCard */}
-                      <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-                        <div className="flex items-center space-x-2 text-slate-400">
-                          {contact.email && (
-                            <a 
-                              href={`mailto:${contact.email}`} 
-                              className="hover:text-cyan-400 transition-colors"
-                              title={contact.email}
-                            >
-                              <Mail className="w-3.5 h-3.5" />
-                            </a>
-                          )}
-                          {contact.linkedin && (
-                            <a 
-                              href={`https://${contact.linkedin}`} 
-                              target="_blank" 
-                              rel="noreferrer" 
-                              className="hover:text-blue-400 transition-colors"
-                              title="LinkedIn"
-                            >
-                              <Linkedin className="w-3.5 h-3.5" />
-                            </a>
-                          )}
-                          {contact.twitter && (
-                            <a 
-                              href={`https://x.com/${contact.twitter.replace('@', '')}`} 
-                              target="_blank" 
-                              rel="noreferrer" 
-                              className="hover:text-sky-400 transition-colors"
-                              title="X / Twitter"
-                            >
-                              <Twitter className="w-3.5 h-3.5" />
-                            </a>
-                          )}
-                        </div>
-
-                        <div className="flex items-center space-x-1.5">
-                          <button
-                            onClick={() => handleExportVCard(contact)}
-                            className="px-2.5 py-1 bg-[#232323] hover:bg-amber-950/60 border border-slate-700 hover:border-[#FDCC0D] text-[#FDCC0D] font-bold text-[10px] flex items-center space-x-1 transition-colors"
-                            title={es ? 'Guardar directo en tus contactos del celular' : 'Save directly to your phone contacts'}
-                          >
-                            <Phone className="w-3 h-3" />
-                            <span>{es ? 'AÑADIR A CONTACTOS (.VCF)' : 'ADD TO CONTACTS (.VCF)'}</span>
-                          </button>
-
-                          <button
-                            onClick={() => handleDeleteContact(contact.id)}
-                            className="p-1 text-slate-500 hover:text-rose-400 transition-colors"
-                            title={es ? 'Eliminar de libreta' : 'Remove from contact book'}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+            ) : (
+              <div className="sgx-m-grid">
+                {filteredContacts.map((contact) => (
+                  <article key={contact.id} className="sgx-m-card">
+                    <div className="sgx-m-row" style={{ alignItems: 'flex-start', flexWrap: 'nowrap', gap: 10 }}>
+                      {faceOf(contact)}
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <h3 className="sgx-m-h" style={{ fontSize: '0.9rem', overflowWrap: 'anywhere' }}>{contact.name}</h3>
+                        <p className="sgx-m-kicker" style={{ marginTop: 2, letterSpacing: '0.06em' }}>{loc(contact, 'role', language)}</p>
+                        <p className="sgx-m-fine">{loc(contact, 'company', language)}</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="p-3 bg-black border-t border-[var(--sgx-secondary)] flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-slate-400">
-          <span className="flex items-center space-x-1.5">
-            <Award className="w-3.5 h-3.5 text-amber-400" />
-            <span>{es ? 'Los contactos y notas se guardan de forma privada en tu dispositivo y perfil.' : 'Contacts and notes are saved privately on your device and profile.'}</span>
-          </span>
-
-          <button
-            onClick={onClose}
-            className="w-full sm:w-auto px-4 py-1.5 bg-[var(--sgx-bg)] border border-slate-700 hover:border-[var(--sgx-neon)] text-white text-xs font-bold transition-colors"
-          >
-            {es ? 'Cerrar' : 'Close'}
-          </button>
-        </div>
+                    <div className="sgx-m-row sgx-m-row--between">
+                      {pillarTag(contact.pillar)}
+                      <span className="sgx-m-fine">{contact.scannedAt}</span>
+                    </div>
+                    {loc(contact, 'notes', language) && <p className="sgx-m-p" style={{ fontSize: '0.82rem' }}>“{loc(contact, 'notes', language)}”</p>}
+                    <div className="sgx-m-row sgx-m-row--between" style={{ marginTop: 'auto', paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                      <div className="sgx-qr__links">
+                        {contact.email && <a href={`mailto:${contact.email}`} aria-label={`${es ? 'Escribir a' : 'Email'} ${contact.email}`} title={contact.email}><Mail size={15} aria-hidden /></a>}
+                        {contact.linkedin && <a href={contact.linkedin.startsWith('http') ? contact.linkedin : `https://${contact.linkedin}`} target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={15} aria-hidden /></a>}
+                        {contact.twitter && <a href={`https://x.com/${contact.twitter.replace('@', '')}`} target="_blank" rel="noreferrer" aria-label="X"><AtSign size={15} aria-hidden /></a>}
+                      </div>
+                      <div className="sgx-m-row" style={{ gap: 6 }}>
+                        <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => handleExportVCard(contact)} title={es ? 'Guardar en los contactos del celular' : 'Save to your phone contacts'}>
+                          <Phone size={14} aria-hidden /> .vcf
+                        </button>
+                        <button type="button" className="sgx-m-iconbtn sgx-m-iconbtn--danger" onClick={() => handleDeleteContact(contact.id)} aria-label={es ? `Quitar a ${contact.name} de la libreta` : `Remove ${contact.name} from contacts`}>
+                          <Trash2 size={15} aria-hidden />
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </div>
-    </div>
+    </SgxDialog>
   );
 };

@@ -1,47 +1,57 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import confetti from 'canvas-confetti';
-import { 
-  Zap, 
-  Flame, 
-  Sparkles, 
-  Heart, 
-  HelpCircle, 
-  Trophy, 
-  ChevronDown, 
-  ChevronUp, 
-  Radio, 
-  CheckCircle2, 
-  Vote, 
-  Maximize2, 
-  Minimize2,
-  Share2
-} from 'lucide-react';
+import { CheckCircle2, Minimize2, Radio, Sparkles, Vote } from 'lucide-react';
 import { playCyberBurstSound, playUiChirp } from '../../lib/cyberAudioEngine';
 import { useAuth } from '../../context/AuthContext';
 import { collection, doc, onSnapshot, query, serverTimestamp, setDoc, where, limit } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
+import { SgxBolt } from '../../immersion/SgxSymbols';
+import './sgxModals.css';
 
 import { POLLS, useLiveList } from '../../lib/content/liveLists';
 export type { KeynotePoll, KeynotePollOption } from '../../lib/content/liveLists';
 
+/* KEYNOTE PULSE: a small floating console (not a modal) with reactions that
+   play on your own screen and the live poll, whose votes are shared through
+   Firestore. It sits left of the Missions rail so it never covers it. */
+
+type ReactionType = 'FIREWORKS' | 'QUANTUM' | 'FLAME' | 'HEART' | 'MIND_BLOWN' | 'KUDOS';
+
 interface FloatingReactionParticle {
   id: string;
-  emoji: string;
+  type: ReactionType;
   color: string;
-  x: number;
   label: string;
 }
 
 interface KeynotePulseReactionsProps {
   onAwardXp?: (amount: number, reason: string) => void;
   className?: string;
+  currentSessionTitle?: string;
 }
+
+/* SGX reaction marks: monoline, drawn on a 24 grid, colored by currentColor. */
+const ReactionIcon: React.FC<{ type: ReactionType; size?: number }> = ({ type, size = 26 }) => {
+  if (type === 'QUANTUM') return <SgxBolt size={size} />;
+  const p = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      {type === 'FIREWORKS' && (<g {...p}><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8" /><rect x="10" y="10" width="4" height="4" transform="rotate(45 12 12)" fill="currentColor" /></g>)}
+      {type === 'FLAME' && (<g {...p}><path d="M12 21c-3.9 0-6.5-2.6-6.5-6.2 0-3.3 2.4-5.4 3.6-8.3.4 1.9 1.4 3 2.6 3.6C11.6 7 12.7 4.6 14.6 3c.2 3.1 3.9 5.4 3.9 10.2C18.5 17.9 16 21 12 21z" /><path d="M12 21c-1.6 0-2.7-1.2-2.7-2.8 0-1.8 1.6-2.6 2.2-4.2 1 1 3.2 2.1 3.2 4.2 0 1.6-1.1 2.8-2.7 2.8z" /></g>)}
+      {type === 'KUDOS' && (<g {...p}><path d="M7 4h10v4.5a5 5 0 0 1-10 0z" /><path d="M7 6H4.5v1.5A3 3 0 0 0 7.5 10.5M17 6h2.5v1.5a3 3 0 0 1-3 3M12 13.5V17M8.5 20h7l-1-3h-5z" /></g>)}
+      {type === 'HEART' && (<g {...p}><path d="M12 20 4.2 12.2a4.6 4.6 0 0 1 6.5-6.5L12 7l1.3-1.3a4.6 4.6 0 0 1 6.5 6.5z" /><path d="M9 11h6M12 8v6" /></g>)}
+      {type === 'MIND_BLOWN' && (<g {...p}><circle cx="12" cy="13" r="5" /><path d="M12 2v3M5.2 4.6l1.9 2.3M18.8 4.6l-1.9 2.3M2.5 11h2.8M18.7 11h2.8" /><path d="M10 13h.01M14 13h.01M10.5 15.5h3" /></g>)}
+    </svg>
+  );
+};
 
 export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
   onAwardXp,
-  className = ''
+  className = '',
+  currentSessionTitle,
 }) => {
   const { language } = useLanguage();
   const es = language === 'es';
@@ -60,6 +70,18 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
   const [totalReactionsCount, setTotalReactionsCount] = useState<number>(0);
   const [floatingParticles, setFloatingParticles] = useState<FloatingReactionParticle[]>([]);
   const [justEarnedXp, setJustEarnedXp] = useState<string | null>(null);
+  const fabRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+
+  const REACTIONS: { type: ReactionType; color: string; name: [string, string]; sub: [string, string] }[] = [
+    { type: 'FIREWORKS', color: '#00DDFF', name: ['Fuegos digitales', 'Digital fireworks'], sub: ['Los 6 pilares', 'All 6 pillars'] },
+    { type: 'FLAME', color: '#FFBB00', name: ['Llamarada', 'Flare'], sub: ['Lluvia de brasas', 'Ember shower'] },
+    { type: 'KUDOS', color: '#FDCC0D', name: ['Aplausos', 'Kudos'], sub: ['Lluvia dorada', 'Golden rain'] },
+    { type: 'QUANTUM', color: '#FDCC0D', name: ['Onda de choque', 'Shockwave'], sub: ['Onda de energía', 'Energy wave'] },
+    { type: 'HEART', color: '#5D86C6', name: ['Me encanta', 'Love it'], sub: ['Resonancia', 'Resonance'] },
+    { type: 'MIND_BLOWN', color: '#00DDFF', name: ['Impresionante', 'Mind blown'], sub: ['Lluvia holográfica', 'Holo rain'] },
+  ];
+  const L = (pair: [string, string]) => pair[es ? 0 : 1];
 
   // Load user vote history from local storage
   useEffect(() => {
@@ -104,25 +126,32 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
     return () => clearTimeout(timer);
   }, [floatingParticles]);
 
-  const addFloatingReaction = (emoji: string, color: string, label: string) => {
-    const newP: FloatingReactionParticle = {
-      id: `${Date.now()}_${Math.random()}`,
-      emoji,
-      color,
-      x: 70 + (Math.random() * 25 - 12.5), // near right edge
-      label
+  // Escape minimizes the console and gives focus back to its button.
+  useEffect(() => {
+    if (!isExpanded) return undefined;
+    const t = window.setTimeout(() => panelRef.current?.querySelector<HTMLElement>('button')?.focus({ preventScroll: true }), 30);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || document.querySelector('[role="dialog"][aria-modal="true"]')) return;
+      setIsExpanded(false);
+      window.setTimeout(() => fabRef.current?.focus({ preventScroll: true }), 0);
     };
+    window.addEventListener('keydown', onKey);
+    return () => { window.clearTimeout(t); window.removeEventListener('keydown', onKey); };
+  }, [isExpanded]);
+
+  const minimize = () => {
+    setIsExpanded(false);
+    window.setTimeout(() => fabRef.current?.focus({ preventScroll: true }), 0);
+  };
+
+  const addFloatingReaction = (type: ReactionType, color: string, label: string) => {
+    const newP: FloatingReactionParticle = { id: `${Date.now()}_${Math.random()}`, type, color, label };
     setFloatingParticles(prev => [...prev.slice(-8), newP]);
   };
 
-  const handleTriggerReaction = (
-    type: 'FIREWORKS' | 'QUANTUM' | 'FLAME' | 'HEART' | 'MIND_BLOWN' | 'KUDOS',
-    label: string,
-    emoji: string
-  ) => {
+  const handleTriggerReaction = (type: ReactionType, label: string, color: string) => {
     setTotalReactionsCount(prev => prev + 1);
 
-    // Trigger audio
     if (type === 'FIREWORKS') {
       playCyberBurstSound('spark');
     } else if (type === 'QUANTUM') {
@@ -135,68 +164,24 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
       playUiChirp(960);
     }
 
-    addFloatingReaction(emoji, '#00DDFF', label);
+    addFloatingReaction(type, color, label);
 
-    // Canvas confetti particle burst
-    if (type === 'FIREWORKS') {
-      confetti({
-        particleCount: 50,
-        spread: 80,
-        origin: { x: 0.85, y: 0.8 },
-        colors: ['#00DDFF', '#10B981', '#FDCC0D', '#5F86B4', '#F43F5E', '#3B82F6'],
-        shapes: ['circle', 'square'],
-        scalar: 1.1,
-        disableForReducedMotion: true
-      });
-    } else if (type === 'FLAME') {
-      confetti({
-        particleCount: 40,
-        spread: 45,
-        origin: { x: 0.85, y: 0.8 },
-        colors: ['#F43F5E', '#FF5500', '#FDCC0D', '#FF0055'],
-        startVelocity: 35,
-        scalar: 0.9,
-      });
-    } else if (type === 'KUDOS') {
-      confetti({
-        particleCount: 65,
-        spread: 90,
-        origin: { x: 0.85, y: 0.8 },
-        colors: ['#FDCC0D', '#F59E0B', '#FBBF24', '#FFFFFF'],
-        scalar: 1.2
-      });
-    } else if (type === 'HEART') {
-      confetti({
-        particleCount: 35,
-        spread: 60,
-        origin: { x: 0.85, y: 0.8 },
-        colors: ['#EC4899', '#F43F5E', '#5F86B4'],
-        scalar: 1.0
-      });
-    } else if (type === 'QUANTUM') {
-      confetti({
-        particleCount: 45,
-        spread: 120,
-        origin: { x: 0.85, y: 0.8 },
-        colors: ['#00DDFF', '#38BDF8', '#818CF8', '#C084FC'],
-        startVelocity: 25,
-        scalar: 0.8
-      });
-    } else {
-      confetti({
-        particleCount: 40,
-        spread: 70,
-        origin: { x: 0.85, y: 0.8 },
-        colors: ['#5F86B4', '#F43F5E', '#FDCC0D'],
-        scalar: 1.0
-      });
-    }
+    const origin = { x: 0.85, y: 0.8 };
+    const burst: Record<ReactionType, confetti.Options> = {
+      FIREWORKS: { particleCount: 50, spread: 80, colors: ['#00DDFF', '#FDCC0D', '#FFBB00', '#5D86C6', '#32527B', '#B87000'], shapes: ['circle', 'square'], scalar: 1.1 },
+      FLAME: { particleCount: 40, spread: 45, colors: ['#FF5500', '#FFBB00', '#FDCC0D', '#B87000'], startVelocity: 35, scalar: 0.9 },
+      KUDOS: { particleCount: 65, spread: 90, colors: ['#FDCC0D', '#FFBB00', '#FFF9E2', '#FFFFFF'], scalar: 1.2 },
+      HEART: { particleCount: 35, spread: 60, colors: ['#5D86C6', '#00DDFF', '#FDCC0D'], scalar: 1.0 },
+      QUANTUM: { particleCount: 45, spread: 120, colors: ['#00DDFF', '#5D86C6', '#FDCC0D'], startVelocity: 25, scalar: 0.8 },
+      MIND_BLOWN: { particleCount: 40, spread: 70, colors: ['#5D86C6', '#00DDFF', '#FDCC0D'], scalar: 1.0 },
+    };
+    confetti({ ...burst[type], origin, disableForReducedMotion: true });
   };
 
   const handleVotePoll = async (pollId: string, optionId: string) => {
     if (userVotedPolls[pollId]) return;
     if (!user?.uid) {
-      setVoteError('Conectando tu pase… inténtalo en unos segundos.');
+      setVoteError(es ? 'Conectando tu pase… inténtalo en unos segundos.' : 'Connecting your pass… try again in a few seconds.');
       return;
     }
     setVoteError(null);
@@ -215,20 +200,19 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
       delete reverted[pollId];
       setUserVotedPolls(reverted);
       try { localStorage.setItem('sgx_keynote_poll_votes', JSON.stringify(reverted)); } catch {}
-      setVoteError('No se pudo registrar tu voto. Revisa tu conexión e inténtalo de nuevo.');
+      setVoteError(es ? 'No se pudo registrar tu voto. Revisa tu conexión e inténtalo de nuevo.' : "Your vote couldn't be recorded. Check your connection and try again.");
       return;
     }
 
-    // Audio & Confetti burst
     playCyberBurstSound('kudos');
     confetti({
       particleCount: 55,
       spread: 75,
       origin: { x: 0.85, y: 0.75 },
-      colors: ['#10B981', '#00DDFF', '#FDCC0D']
+      colors: ['#FDCC0D', '#00DDFF', '#FFBB00'],
+      disableForReducedMotion: true,
     });
 
-    // Award +25 XP
     const earnedXp = 25;
     if (onAwardXp) {
       onAwardXp(earnedXp, (es ? 'Voto en Encuesta de Keynote' : 'Keynote Poll Vote'));
@@ -240,370 +224,129 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
       });
     }
 
-    setJustEarnedXp((es ? `+${earnedXp} XP Voto Registrado` : `+${earnedXp} XP Vote Recorded`));
+    setJustEarnedXp((es ? `+${earnedXp} XP · voto registrado` : `+${earnedXp} XP · vote recorded`));
     setTimeout(() => setJustEarnedXp(null), 3200);
   };
 
   const currentPoll = polls[selectedPollIndex] || polls[0];
-  const totalPollVotes = currentPoll.options.reduce((acc, o) => acc + o.votes, 0);
+  const totalPollVotes = currentPoll ? currentPoll.options.reduce((acc, o) => acc + o.votes, 0) : 0;
   const allPollVotes = polls.reduce((acc, p) => acc + p.options.reduce((a, o) => a + o.votes, 0), 0);
   // The bar shows how far ahead the leading option of the current poll is (real votes only).
-  const leadingShare = totalPollVotes ? Math.round((Math.max(...currentPoll.options.map((o) => o.votes)) / totalPollVotes) * 100) : 0;
-  const userVoteForCurrent = userVotedPolls[currentPoll.id];
+  const leadingShare = totalPollVotes && currentPoll ? Math.round((Math.max(...currentPoll.options.map((o) => o.votes)) / totalPollVotes) * 100) : 0;
+  const userVoteForCurrent = currentPoll ? userVotedPolls[currentPoll.id] : undefined;
+  const title = es ? 'Pulso en vivo' : 'Live pulse';
+  const fabLabel = es ? 'Keynote Pulse: reacciones y encuesta en vivo' : 'Keynote Pulse: live reactions and poll';
 
-  return (
+  // Portaled to <body> so the page's stacking contexts can't bury it.
+  return createPortal(
     <>
-      {/* On-screen floating reaction bubbles */}
-      <div className="fixed bottom-24 right-4 pointer-events-none z-50 flex flex-col items-end space-y-2">
+      <div className="sgx-kpulse__floats" aria-hidden="true">
         {floatingParticles.map(p => (
-          <div
-            key={p.id}
-            className="animate-bounce font-mono text-xs font-black px-2.5 py-1 bg-black/80 border border-[var(--sgx-secondary)] text-white shadow-xl flex items-center space-x-1.5 backdrop-blur-md transition-opacity duration-1000"
-            style={{
-              clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)',
-              borderColor: p.color
-            }}
-          >
-            <span className="text-base">{p.emoji}</span>
-            <span className="text-[11px] font-bold text-slate-200">{p.label}</span>
-          </div>
+          <span key={p.id} className="sgx-kpulse__float" style={{ ['--r' as string]: p.color }}>
+            <ReactionIcon type={p.type} size={16} />{p.label}
+          </span>
         ))}
       </div>
 
-      {/* Persistent Floating Widget Button (Bottom Right) */}
-      <div className={`sgx-pulse-widget fixed bottom-4 right-4 z-40 ${className}`}>
+      <div className={`sgx-kpulse ${isExpanded ? 'is-open' : ''} ${className}`}>
         {!isExpanded ? (
-          <div className="flex items-center space-x-2">
-            {/* Main Trigger Button */}
-            <button
-              onClick={() => {
-                setIsExpanded(true);
-                playUiChirp(780);
-              }}
-              className="group relative p-2.5 2xl:px-3.5 bg-[#121212]/95 border border-[var(--sgx-neon)] hover:border-[var(--sgx-accent)] text-white font-mono text-xs font-black shadow-2xl flex items-center space-x-2 transition-colors"
-              style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-              title={es ? 'Keynote Pulse: reacciones y encuesta en vivo' : 'Keynote Pulse: live reactions and poll'}
-              aria-label={es ? 'Keynote Pulse: reacciones y encuesta en vivo' : 'Keynote Pulse: live reactions and poll'}
-            >
-              <div className="relative flex items-center justify-center">
-                <Radio className="w-4 h-4 text-[var(--sgx-neon)] animate-pulse" />
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#FDCC0D] rounded-full animate-ping" />
-              </div>
-              {/* Compact by default so it never covers content; the label shows on very wide screens. */}
-              <div className="hidden 2xl:flex flex-col text-left">
-                <span className="text-[10px] text-slate-400 font-normal leading-none">KEYNOTE PULSE</span>
-                <span className="text-xs font-black tracking-wide text-cyan-300 group-hover:text-amber-300">
-                  {es ? 'REACCIONES & ENCUESTA' : 'REACTIONS & POLL'}
-                </span>
-              </div>
-              <span className="hidden 2xl:inline px-1.5 py-0.5 bg-cyan-950 text-cyan-400 border border-cyan-800 text-[10px] font-mono">
-                {allPollVotes.toLocaleString()} votos
-              </span>
-            </button>
-          </div>
+          <button ref={fabRef} type="button" className="sgx-kpulse__fab" onClick={() => { setIsExpanded(true); playUiChirp(780); }} title={fabLabel} aria-label={fabLabel} aria-expanded={false}>
+            <Radio size={18} color="var(--SGX_Cyan)" aria-hidden />
+            <span className="sgx-kpulse__fab-label">Keynote Pulse<b>{es ? 'Reacciones y encuesta' : 'Reactions & poll'}</b></span>
+          </button>
         ) : (
-          /* Expanded Floating Cyber Console */
-          <div 
-            className="w-96 max-w-[calc(100vw-2rem)] bg-[#0e0e0e]/95 border-2 border-[var(--sgx-neon)] backdrop-blur-xl shadow-2xl flex flex-col font-mono text-xs overflow-hidden"
-            style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
-          >
-            {/* Header */}
-            <div className="p-3 bg-gradient-to-r from-cyan-950/60 via-[#1B1B1B] to-black border-b border-[var(--sgx-secondary)] flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Radio className="w-4 h-4 text-[var(--sgx-neon)] animate-spin" style={{ animationDuration: '6s' }} />
-                <div>
-                  <div className="text-[11px] font-black text-white tracking-wider flex items-center space-x-1.5">
-                    <span>KEYNOTE LIVE PULSE</span>
-                    <span className="px-1.5 py-0.2 bg-[#FDCC0D]/20 text-[#FDCC0D] border border-[#FDCC0D]/60 text-[9px] font-bold">{es ? 'EN VIVO' : 'LIVE'}</span>
-                  </div>
-                  <div className="text-[10px] text-slate-400 font-sans">
-                    {es ? 'Fuegos artificiales, reacciones y encuestas en tiempo real' : 'Real-time fireworks, reactions and polls'}
-                  </div>
-                </div>
+          <section ref={panelRef} className="sgx-kpulse__panel" role="region" aria-label={`Keynote Pulse: ${title}`}>
+            <header className="sgx-kpulse__head">
+              <img className="sgx-m-mark" src="/holo/stage.png" alt="" />
+              <div>
+                <h2>{title}</h2>
+                <p className="sgx-m-clamp2">{currentSessionTitle || (es ? 'Reacciones y encuesta de la keynote' : 'Keynote reactions and poll')}</p>
               </div>
+              <button type="button" className="sgx-m-iconbtn" onClick={minimize} aria-label={es ? 'Minimizar' : 'Minimize'} title={es ? 'Minimizar (Esc)' : 'Minimize (Esc)'}>
+                <Minimize2 size={16} aria-hidden />
+              </button>
+            </header>
 
-              <button
-                onClick={() => setIsExpanded(false)}
-                className="p-1 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-                title={es ? 'Minimizar panel' : 'Minimize panel'}
-              >
-                <Minimize2 className="w-4 h-4" />
+            <div className="sgx-kpulse__meter">
+              <div className="sgx-m-row sgx-m-row--between">
+                <span className="sgx-m-fine">{es ? 'Votos de la audiencia' : 'Audience votes'}: <b style={{ color: 'var(--SGX_Cyan)' }}>{allPollVotes.toLocaleString()}</b></span>
+                <span className="sgx-m-fine">{es ? 'Tus reacciones' : 'Your reactions'}: <b style={{ color: 'var(--SGX_Yellow)' }}>{totalReactionsCount}</b></span>
+              </div>
+              <div className="sgx-kpulse__bar" aria-hidden="true"><span style={{ width: `${leadingShare}%` }} /></div>
+              {justEarnedXp && <p className="sgx-m-tag sgx-m-tag--solid" role="status" style={{ marginTop: 8 }}>{justEarnedXp}</p>}
+            </div>
+
+            <div className="sgx-m-tabs" role="tablist" aria-label={title}>
+              <button type="button" role="tab" aria-selected={activeTab === 'REACTIONS'} onClick={() => { setActiveTab('REACTIONS'); playUiChirp(600); }}>
+                <Sparkles size={14} aria-hidden />{es ? 'Reacciones' : 'Reactions'}
+              </button>
+              <button type="button" role="tab" aria-selected={activeTab === 'POLL'} onClick={() => { setActiveTab('POLL'); playUiChirp(600); }}>
+                <Vote size={14} aria-hidden />{es ? 'Encuesta · +25 XP' : 'Poll · +25 XP'}
               </button>
             </div>
 
-            {/* Audience Pulse Energy Meter */}
-            <div className="p-3 bg-black/60 border-b border-[var(--sgx-secondary)]/60">
-              <div className="flex items-center justify-between text-[11px] mb-1.5">
-                <span className="text-slate-400 flex items-center space-x-1">
-                  <Zap className="w-3.5 h-3.5 text-amber-400" />
-                  <span>{es ? 'Audiencia en vivo:' : 'Live audience:'}</span>
-                </span>
-                <span className="font-bold text-cyan-300">
-                  {allPollVotes.toLocaleString()} votos • {totalReactionsCount.toLocaleString()} {totalReactionsCount === 1 ? 'pulso tuyo' : 'pulsos tuyos'}
-                </span>
-              </div>
-              <div className="w-full bg-slate-900 h-2 border border-slate-700 overflow-hidden relative">
-                <div 
-                  className="h-full bg-gradient-to-r from-cyan-500 via-amber-400 to-rose-500 transition-all duration-500"
-                  style={{ width: `${leadingShare}%` }}
-                />
-              </div>
-
-              {/* Toast alert when XP is earned */}
-              {justEarnedXp && (
-                <div className="mt-2 p-1.5 bg-amber-950/80 border border-[#FDCC0D] text-[#FDCC0D] text-center font-bold text-[10px] animate-pulse">
-                  🎉 {justEarnedXp}
-                </div>
-              )}
-            </div>
-
-            {/* Tabs Selector */}
-            <div className="grid grid-cols-2 bg-[#161616] border-b border-[var(--sgx-secondary)] text-[11px]">
-              <button
-                onClick={() => {
-                  setActiveTab('REACTIONS');
-                  playUiChirp(600);
-                }}
-                className={`py-2 text-center font-bold flex items-center justify-center space-x-1.5 border-b-2 transition-colors ${
-                  activeTab === 'REACTIONS'
-                    ? 'border-[var(--sgx-neon)] text-[var(--sgx-neon)] bg-cyan-950/20'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{es ? 'LANZAR REACCIONES' : 'SEND REACTIONS'}</span>
-              </button>
-              <button
-                onClick={() => {
-                  setActiveTab('POLL');
-                  playUiChirp(600);
-                }}
-                className={`py-2 text-center font-bold flex items-center justify-center space-x-1.5 border-b-2 transition-colors ${
-                  activeTab === 'POLL'
-                    ? 'border-amber-400 text-amber-300 bg-amber-950/20'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <Vote className="w-3.5 h-3.5" />
-                <span>{es ? 'ENCUESTA EN VIVO (+25 XP)' : 'LIVE POLL (+25 XP)'}</span>
-              </button>
-            </div>
-
-            {/* Tab 1: Reactions Launcher */}
-            {activeTab === 'REACTIONS' && (
-              <div className="p-3 space-y-3">
-                <div className="text-[11px] text-slate-300">
-                  {es ? 'Haz clic para detonar partículas e interactuar con la pantalla de la keynote:' : 'Click to trigger particles and interact with the keynote screen:'}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => handleTriggerReaction('FIREWORKS', (es ? 'Fuegos Artificiales' : 'Fireworks'), '🎆')}
-                    className="p-2.5 bg-[#1C1C1C] border border-cyan-500/40 hover:border-cyan-400 text-left hover:bg-cyan-950/30 transition-all flex items-center space-x-2 active:scale-95 group"
-                  >
-                    <span className="text-xl">🎆</span>
-                    <div>
-                      <div className="font-bold text-cyan-300 text-[11px]">{es ? 'Fuegos Digitales' : 'Digital Fireworks'}</div>
-                      <div className="text-[9px] text-slate-400">{es ? 'Pirotecnia 6 Pilares' : '6 Pillars Pyrotechnics'}</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => handleTriggerReaction('FLAME', 'Cyber Flame', '🔥')}
-                    className="p-2.5 bg-[#1C1C1C] border border-orange-500/40 hover:border-orange-400 text-left hover:bg-orange-950/30 transition-all flex items-center space-x-2 active:scale-95 group"
-                  >
-                    <span className="text-xl">🔥</span>
-                    <div>
-                      <div className="font-bold text-orange-300 text-[11px]">{es ? 'Llama Volcánica' : 'Volcanic Flame'}</div>
-                      <div className="text-[9px] text-slate-400">{es ? 'Erupción de Brasas' : 'Ember Eruption'}</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => handleTriggerReaction('KUDOS', 'Spatial Kudos', '🏆')}
-                    className="p-2.5 bg-[#1C1C1C] border border-amber-500/40 hover:border-amber-400 text-left hover:bg-amber-950/30 transition-all flex items-center space-x-2 active:scale-95 group"
-                  >
-                    <span className="text-xl">🏆</span>
-                    <div>
-                      <div className="font-bold text-amber-300 text-[11px]">Spatial Kudos</div>
-                      <div className="text-[9px] text-slate-400">{es ? 'Lluvia de Oro' : 'Golden Rain'}</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => handleTriggerReaction('QUANTUM', (es ? 'Pulso Cuántico' : 'Quantum Pulse'), '⚡')}
-                    className="p-2.5 bg-[#1C1C1C] border border-[#32527B] hover:border-[#FDCC0D] text-left hover:bg-[#32527B]/30 transition-all flex items-center space-x-2 active:scale-95 group"
-                  >
-                    <span className="text-xl">⚡</span>
-                    <div>
-                      <div className="font-bold text-[#FDCC0D] text-[11px]">Shockwave</div>
-                      <div className="text-[9px] text-slate-400">{es ? 'Onda de Energía' : 'Energy Wave'}</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => handleTriggerReaction('HEART', 'Hologram Love', '💛')}
-                    className="p-2.5 bg-[#1C1C1C] border border-[#FDCC0D]/40 hover:border-[#FDCC0D] text-left hover:bg-[#FDCC0D]/10 transition-all flex items-center space-x-2 active:scale-95 group"
-                  >
-                    <span className="text-xl">💛</span>
-                    <div>
-                      <div className="font-bold text-[#FDCC0D] text-[11px]">Holo Love</div>
-                      <div className="text-[9px] text-slate-400">{es ? 'Resonancia Oro' : 'Gold Resonance'}</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => handleTriggerReaction('MIND_BLOWN', 'Mind Blown', '🤯')}
-                    className="p-2.5 bg-[#1C1C1C] border border-[#32527B] hover:border-[#FDCC0D] text-left hover:bg-[#32527B]/30 transition-all flex items-center space-x-2 active:scale-95 group"
-                  >
-                    <span className="text-xl">🤯</span>
-                    <div>
-                      <div className="font-bold text-slate-200 text-[11px]">Mind Blown</div>
-                      <div className="text-[9px] text-slate-400">{es ? 'Lluvia holográfica' : 'Holo rain'}</div>
-                    </div>
-                  </button>
-                </div>
-
-                <div className="p-2 bg-slate-900/60 border border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">
-                  <span>{es ? 'Tus reacciones se ven en tu pantalla. Los votos de la encuesta se suman en vivo para toda la audiencia.' : 'Your reactions show on your screen. Poll votes add up live for the whole audience.'}</span>
-                  <button
-                    onClick={() => {
-                      handleTriggerReaction('FIREWORKS', (es ? 'Máximo Pulso' : 'Maximum Pulse'), '🎆');
-                    }}
-                    className="text-cyan-400 hover:underline font-bold"
-                  >
-                    {es ? 'Sobrecargar' : 'Overload'}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Tab 2: Real-time Keynote Poll */}
-            {activeTab === 'POLL' && (
-              <div className="p-3 space-y-3">
-                {/* Question Selector Carousel */}
-                <div className="flex items-center justify-between bg-black/50 p-1.5 border border-[var(--sgx-secondary)]">
-                  <div className="text-[10px] text-slate-400">
-                    {es ? 'Pregunta ' : 'Question '}{selectedPollIndex + 1} de {polls.length}
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    {polls.map((p, idx) => (
-                      <button
-                        key={p.id}
-                        onClick={() => setSelectedPollIndex(idx)}
-                        className={`w-5 h-5 text-[10px] font-bold border transition-colors ${
-                          selectedPollIndex === idx
-                            ? 'bg-amber-500 text-black border-amber-400'
-                            : 'bg-slate-900 text-slate-400 border-slate-700 hover:text-white'
-                        }`}
-                      >
-                        {idx + 1}
+            <div className="sgx-kpulse__body sgx-m">
+              {activeTab === 'REACTIONS' && (
+                <>
+                  <div className="sgx-kpulse__reactions">
+                    {REACTIONS.map((r) => (
+                      <button key={r.type} type="button" className="sgx-kpulse__react" style={{ ['--r' as string]: r.color }} onClick={() => handleTriggerReaction(r.type, L(r.name), r.color)}>
+                        <ReactionIcon type={r.type} />
+                        <span><b>{L(r.name)}</b><small>{L(r.sub)}</small></span>
                       </button>
                     ))}
                   </div>
-                </div>
+                  <p className="sgx-m-fine">{es ? 'Tus reacciones se ven en tu pantalla. Los votos de la encuesta se suman en vivo para toda la audiencia.' : 'Your reactions show on your screen. Poll votes add up live for the whole audience.'}</p>
+                </>
+              )}
 
-                {/* Question Info */}
-                <div className="space-y-1">
-                  <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">
-                    {loc(currentPoll, 'sessionTitle', language)}
+              {activeTab === 'POLL' && currentPoll && (
+                <>
+                  <div className="sgx-m-row sgx-m-row--between">
+                    <span className="sgx-m-fine">{es ? `Pregunta ${selectedPollIndex + 1} de ${polls.length}` : `Question ${selectedPollIndex + 1} of ${polls.length}`}</span>
+                    <div className="sgx-kpulse__qnav">
+                      {polls.map((p, idx) => (
+                        <button key={p.id} type="button" aria-pressed={selectedPollIndex === idx} aria-label={es ? `Pregunta ${idx + 1}` : `Question ${idx + 1}`} onClick={() => setSelectedPollIndex(idx)}>{idx + 1}</button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="text-xs font-black text-white leading-snug">
-                    {loc(currentPoll, 'question', language)}
+                  <div>
+                    <p className="sgx-m-kicker" style={{ color: 'var(--SGX_Yellow)' }}>{loc(currentPoll, 'sessionTitle', language)}</p>
+                    <h3 className="sgx-m-h" style={{ textTransform: 'none', fontSize: '0.95rem', marginTop: 4 }}>{loc(currentPoll, 'question', language)}</h3>
                   </div>
-                </div>
-
-                {/* Options / Live Results */}
-                <div className="space-y-2">
-                  {currentPoll.options.map((opt) => {
-                    const pct = totalPollVotes > 0 ? Math.round((opt.votes / totalPollVotes) * 100) : 0;
-                    const hasVoted = Boolean(userVoteForCurrent);
-                    const isSelected = userVoteForCurrent === opt.id;
-
-                    return (
-                      <button
-                        key={opt.id}
-                        onClick={() => handleVotePoll(currentPoll.id, opt.id)}
-                        disabled={hasVoted}
-                        className={`w-full p-2 text-left border transition-all relative overflow-hidden group ${
-                          isSelected
-                            ? 'border-[#FDCC0D] bg-amber-950/40 text-white'
-                            : hasVoted
-                            ? 'border-slate-800 bg-slate-950/50 text-slate-300'
-                            : 'border-slate-700 hover:border-amber-400 bg-[#1A1A1A] hover:bg-[#212121] text-white active:scale-[0.99]'
-                        }`}
-                      >
-                        {/* Progress bar background when voted */}
-                        {hasVoted && (
-                          <div
-                            className="absolute top-0 bottom-0 left-0 opacity-25 transition-all duration-700"
-                            style={{ width: `${pct}%`, backgroundColor: opt.color }}
-                          />
-                        )}
-
-                        <div className="relative z-10 flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            {isSelected ? (
-                              <CheckCircle2 className="w-3.5 h-3.5 text-[#FDCC0D] shrink-0" />
-                            ) : (
-                              <span 
-                                className="w-2.5 h-2.5 rounded-full shrink-0" 
-                                style={{ backgroundColor: opt.color }} 
-                              />
-                            )}
-                            <span className="text-[11px] font-bold">{loc(opt, 'label', language)}</span>
-                          </div>
-
-                          {hasVoted && (
-                            <span className="text-[11px] font-mono font-black text-slate-300 shrink-0 ml-2">
-                              {pct}% <span className="text-[9px] text-slate-400 font-normal">({opt.votes})</span>
-                            </span>
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {voteError && (
-                  <p role="alert" className="p-2 text-[11px] text-red-300 border border-red-500/50 bg-red-950/40">{voteError}</p>
-                )}
-
-                {/* Voting Status / Reward Note */}
-                <div className="p-2 bg-[#161616] border border-[var(--sgx-secondary)] text-[10px] flex items-center justify-between">
-                  <div className="text-slate-400">
-                    {userVoteForCurrent ? (
-                      <span className="text-[#FDCC0D] font-bold flex items-center space-x-1">
-                        <CheckCircle2 className="w-3 h-3 inline" />
-                        <span>{es ? '¡Tu voto está computado en vivo!' : 'Your vote is counted live!'}</span>
-                      </span>
-                    ) : (
-                      <span>{es ? 'Vota para recibir ' : 'Vote to get '}<strong className="text-amber-300">+25 XP</strong></span>
-                    )}
+                  <div className="sgx-m-stack" style={{ gap: 6 }}>
+                    {currentPoll.options.map((opt) => {
+                      const pct = totalPollVotes > 0 ? Math.round((opt.votes / totalPollVotes) * 100) : 0;
+                      const hasVoted = Boolean(userVoteForCurrent);
+                      const isSelected = userVoteForCurrent === opt.id;
+                      return (
+                        <button key={opt.id} type="button" className={`sgx-kpulse__opt ${isSelected ? 'is-mine' : ''}`} onClick={() => handleVotePoll(currentPoll.id, opt.id)} disabled={hasVoted} aria-pressed={isSelected}>
+                          {hasVoted && <i style={{ width: `${pct}%`, background: opt.color }} />}
+                          <span>
+                            {isSelected ? <CheckCircle2 size={14} color="var(--SGX_Yellow)" aria-hidden /> : <span className="sgx-kpulse__dot" style={{ background: opt.color }} />}
+                            {loc(opt, 'label', language)}
+                          </span>
+                          {hasVoted && <span className="sgx-m-fine">{pct}% ({opt.votes})</span>}
+                        </button>
+                      );
+                    })}
                   </div>
-                  <span className="text-slate-400 font-mono">
-                    {totalPollVotes.toLocaleString()}{es ? ' votos totales' : ' total votes'}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Footer */}
-            <div className="p-2 bg-black border-t border-[var(--sgx-secondary)] flex items-center justify-between text-[10px] text-slate-400">
-              <span className="flex items-center space-x-1">
-                <Radio className="w-3 h-3 text-cyan-400" />
-                <span>Spatialgineers Broadcast Audio-Visual Mesh</span>
-              </span>
-              <button
-                onClick={() => setIsExpanded(false)}
-                className="text-slate-300 hover:text-white underline font-mono"
-              >
-                {es ? 'Cerrar' : 'Close'}
-              </button>
+                  {voteError && <p role="alert" className="sgx-m-err">{voteError}</p>}
+                  <div className="sgx-m-row sgx-m-row--between">
+                    <span className="sgx-m-fine">
+                      {userVoteForCurrent
+                        ? (es ? 'Tu voto ya cuenta en vivo.' : 'Your vote counts live.')
+                        : (es ? 'Vota y gana +25 XP.' : 'Vote and earn +25 XP.')}
+                    </span>
+                    <span className="sgx-m-fine">{totalPollVotes.toLocaleString()} {es ? 'votos' : 'votes'}</span>
+                  </div>
+                </>
+              )}
             </div>
-          </div>
+          </section>
         )}
       </div>
-    </>
+    </>,
+    document.body,
   );
 };

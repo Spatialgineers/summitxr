@@ -52,6 +52,7 @@ const SummitPrivacyPolicyModal = lazy(() => import('./SummitPrivacyPolicyModal')
 const LiveSocialStream = lazy(() => import('./LiveSocialStream').then((m) => ({ default: m.LiveSocialStream })));
 const SgxPillarsManifestoSection = lazy(() => import('./SgxPillarsManifestoSection').then((m) => ({ default: m.SgxPillarsManifestoSection })));
 const SummitRunOfShowTimeline = lazy(() => import('./SummitRunOfShowTimeline').then((m) => ({ default: m.SummitRunOfShowTimeline })));
+const SummitSponsorsGrid = lazy(() => import('./SummitSponsorsGrid').then((m) => ({ default: m.SummitSponsorsGrid })));
 const SummitSpeakersDeck = lazy(() => import('./SummitSpeakersDeck').then((m) => ({ default: m.SummitSpeakersDeck })));
 const SummitSponsorshipMatrix = lazy(() => import('./SummitSponsorshipMatrix').then((m) => ({ default: m.SummitSponsorshipMatrix })));
 const SummitContentAuditModal = lazy(() => import('./SummitContentAuditModal').then((m) => ({ default: m.SummitContentAuditModal })));
@@ -282,7 +283,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
   // Modal States
   const [selectedSessionModal, setSelectedSessionModal] = useState<SummitSession | null>(null);
-  const [selectedSpeakerModal, setSelectedSpeakerModal] = useState<SummitSpeaker | null>(null);
   const [selectedMapNodeId, setSelectedMapNodeId] = useState<string>('node_chroma_studios');
   const [rewardsStoreModalOpen, setRewardsStoreModalOpen] = useState<boolean>(false);
   const [qrScannerModalOpen, setQrScannerModalOpen] = useState<boolean>(false);
@@ -408,7 +408,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
   const closePrivacy = useCallback(() => setPrivacyModalOpen(false), []);
   const closeTimeCapsules = useCallback(() => setTimeCapsulesModalOpen(false), []);
   const closeSessionModal = useCallback(() => setSelectedSessionModal(null), []);
-  const closeSpeakerModal = useCallback(() => setSelectedSpeakerModal(null), []);
   const closeAnalytics = useCallback(() => setAnalyticsModalOpen(false), []);
 
   return (
@@ -810,7 +809,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <SummitSpeakersDeck
               speakers={speakers}
               sessions={sessions}
-              onSelectSpeaker={(spk) => setSelectedSpeakerModal(spk)}
               onOpenSessionModal={(sess) => setSelectedSessionModal(sess)}
               onOpenSpeakerPortal={() => setSpeakerPortalOpen(true)}
             />
@@ -908,69 +906,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               onOpenInquiryModal={(tierId) => handleOpenSponsorModal(tierId || 'tier_4')}
             />
             
-            {/* Approved Brand Landings Grid */}
-            <div 
-              className="bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] p-6 space-y-4"
-              style={{ clipPath: 'polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)' }}
-            >
-              <div className="border-b border-[var(--sgx-secondary)]/60 pb-3">
-                <div className="flex items-center space-x-2">
-                  <Sparkles className="w-5 h-5 text-[var(--sgx-neon)]" />
-                  <h3 className="text-base font-bold text-white uppercase font-['Orbitron',sans-serif]">
-                    {es ? 'PATROCINADORES Y BRAND SHOWCASES ACTIVOS (' : 'ACTIVE SPONSORS & BRAND SHOWCASES ('}{approvedSponsors.length})
-                  </h3>
-                </div>
-                <p className="text-xs text-slate-400 font-mono mt-0.5">
-                  {es ? 'Haz clic en cualquier marca para abrir su landing interactivo oficial con ofertas exclusivas, códigos promocionales y activación en el evento.' : 'Click any brand to open its official interactive landing with exclusive offers, promo codes and its activation at the event.'}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {approvedSponsors.map((sp) => (
-                  <div
-                    key={sp.id}
-                    onClick={() => setSelectedBrandShowcase(sp)}
-                    className="p-4 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)] cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between space-y-3"
-                    style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
-                  >
-                    <div className="flex items-start space-x-3">
-                      <div 
-                        className="w-14 h-14 bg-[#121212] border border-[var(--sgx-neon)]/60 p-1 flex items-center justify-center overflow-hidden shrink-0"
-                        style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-                      >
-                        <img 
-                          src={sp.logoUrl} 
-                          alt={sp.companyName} 
-                          className="w-full h-full object-contain"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/brand/sgx-bolt.svg';
-                          }}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-bold text-white uppercase font-['Orbitron',sans-serif] break-words leading-snug">
-                          {sp.companyName}
-                        </h4>
-                        <span 
-                          className="text-[9px] px-1.5 py-0.5 bg-[var(--sgx-accent)]/10 text-[var(--sgx-accent)] border border-[var(--sgx-accent)]/40 font-bold inline-block mt-0.5"
-                          style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                        >
-                          {loc(sp, 'tierName', language).split('(')[0]}
-                        </span>
-                        <p className="text-[11px] text-slate-300 font-mono line-clamp-2 mt-1">{loc(sp, 'tagline', language)}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-2 border-t border-[var(--sgx-secondary)]/40 text-[11px] font-mono text-[var(--sgx-neon)] font-bold">
-                      <span>{es ? 'VER LANDING DE MARCA ➔' : 'VIEW BRAND LANDING ➔'}</span>
-                      {sp.specialOfferCode && (
-                        <span className="text-[9px] text-[var(--sgx-accent)] font-bold">PROMO: {sp.specialOfferCode}</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <SummitSponsorsGrid sponsors={approvedSponsors} onOpen={setSelectedBrandShowcase} />
 
             {/* Sponsorship Inquiry Form */}
             <SummitSponsorInquiryForm 
@@ -1045,55 +981,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       })()}
 
       {/* 7. Speaker detail */}
-      {selectedSpeakerModal && (() => {
-        const spk = selectedSpeakerModal;
-        const pillar = findPillar(spk.pillarId);
-        return (
-          <SgxDialog
-            size="sm"
-            onClose={closeSpeakerModal}
-            accent={pillar ? pillarInk(pillar.key) : undefined}
-            title={spk.name}
-            kicker={loc(spk, 'role', language)}
-            icon={spk.avatarUrl ? (
-              <img
-                src={spk.avatarUrl}
-                alt=""
-                className="w-12 h-12 object-cover shrink-0"
-                style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
-              />
-            ) : (
-              <span
-                aria-hidden="true"
-                className="w-12 h-12 shrink-0 flex items-center justify-center bg-[#32527B]/40 text-[#00DDFF] font-['Orbitron',sans-serif] font-bold"
-                style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
-              >
-                {spk.name.substring(0, 2).toUpperCase()}
-              </span>
-            )}
-            footer={
-              <button
-                type="button"
-                className="sgx-btn sgx-btn--sm"
-                onClick={() => {
-                  setSelectedSpeakerModal(null);
-                  handleSelectSection('NETWORKING');
-                }}
-              >
-                {es ? 'Conectar en los foros' : 'Connect in the forums'}
-              </button>
-            }
-          >
-            <div className="space-y-3">
-              {spk.organization && <p className="text-sm font-mono text-[#FDCC0D]">{spk.organization}</p>}
-              <p className="text-sm text-slate-300 leading-relaxed">{loc(spk, 'bio', language)}</p>
-              {pillar && (
-                <p className="text-sm font-mono" style={{ color: pillarInk(pillar.key) }}>{pillar.name} · {bi(pillar.title, language)}</p>
-              )}
-            </div>
-          </SgxDialog>
-        );
-      })()}
 
       {/* 8. Brand Showcase Landing Modal */}
       {selectedBrandShowcase && (

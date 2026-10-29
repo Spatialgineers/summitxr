@@ -892,27 +892,11 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
         {/* TAB 7: SPONSORS HUB & INQUIRY */}
         {activeSection === 'SPONSORS_HUB' && getSectionStatus('SPONSORS_HUB') === 'ACTIVE' && (
-          <div className="space-y-8">
-            <SummitSectionBanner
-              sectionKey="SPONSORS_HUB"
-              title={(es ? `Directorio de Patrocinadores & Marcas Aliadas (${approvedSponsors.length})` : `Sponsors & Partner Brands Directory (${approvedSponsors.length})`)}
-              subtitle={es ? 'Marcas de vanguardia que hacen posible el Spatialgineers Summit 2026. Conoce sus stands y beneficios.' : 'Cutting-edge brands that make the Spatialgineers Summit 2026 possible. Discover their booths and benefits.'}
-              pillarBadge="SGX.SHOWCASE"
-              pillarIconUrl={pillarIcon('SHOWCASE')}
-            />
-            {/* 5-Tier Sponsorship Matrix & Dossier */}
-            <SummitSponsorshipMatrix
-              tiers={sponsors}
-              onOpenInquiryModal={(tierId) => handleOpenSponsorModal(tierId || 'tier_4')}
-            />
-            
-            <SummitSponsorsGrid sponsors={approvedSponsors} onOpen={setSelectedBrandShowcase} />
-
-            {/* Sponsorship Inquiry Form */}
-            <SummitSponsorInquiryForm 
-              initialTierId={selectedSponsorTierId} 
-            />
-          </div>
+          <SummitSponsorshipMatrix
+            tiers={sponsors}
+            onOpenInquiryModal={(tierId) => handleOpenSponsorModal(tierId || 'tier_2')}
+            partners={<SummitSponsorsGrid sponsors={approvedSponsors} onOpen={setSelectedBrandShowcase} onApply={() => handleOpenSponsorModal('tier_2')} />}
+          />
         )}
 
         {/* TAB: SGX PASS + HOLO CARD STUDIO (visitante · speaker · initiate · sponsor) */}

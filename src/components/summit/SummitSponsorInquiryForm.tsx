@@ -46,7 +46,8 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
   const [email, setEmail] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [websiteUrl, setWebsiteUrl] = useState<string>('');
-  const [estimatedBudget, setEstimatedBudget] = useState<string>('$250 – $500');
+  // The budget follows the tier the visitor picked on the sponsors page.
+  const [estimatedBudget, setEstimatedBudget] = useState<string>(() => SPONSORSHIP_TIERS.find((t) => t.id === initialTierId)?.priceRange || '$250 – $500');
   const [selectedGoals, setSelectedGoals] = useState<string[]>([
     '4K_STREAM_OVERLAY',
     'DRONE_MINIGAME_BRANDING'
@@ -307,7 +308,7 @@ This summary is not a binding offer. The short sponsorship contract signed by bo
           <span className="sgx-spn__step"><b>1</b>{es ? 'Elige tu nivel' : 'Pick your tier'}</span>
           <span className="sgx-m-fine">{es ? 'Precios en USD' : 'Prices in USD'}</span>
         </legend>
-        <div className="sgx-spn__tiers">
+        <div className="sgx-spn__tiers" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 180px), 1fr))' }}>
           {SPONSORSHIP_TIERS.map((tier) => {
             const isSelected = selectedTierId === tier.id;
             return (

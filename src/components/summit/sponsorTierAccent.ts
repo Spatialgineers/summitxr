@@ -1,9 +1,9 @@
-/* One accent per sponsorship tier, shared by the tier matrix, the brand cards
-   and the brand showcase dialog. */
+/* One accent per sponsorship tier, shared by the sponsors page, the brand
+   cards and the brand showcase dialog: a ladder from cyan to cream. */
 const TIER_ACCENT: Record<string, string> = {
   tier_1: '#00DDFF',
-  tier_2: '#FDCC0D',
-  tier_3: '#FFBB00',
+  tier_2: '#7FB2E5',
+  tier_3: '#F29A1D',
   tier_4: '#FDCC0D',
   tier_5: '#FFF9E2',
   media_partner: '#00DDFF',

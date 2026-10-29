@@ -9,7 +9,7 @@ import {
 import { loadAllRewards, saveReward, deleteReward } from '../rewardsStore';
 import { loadInitiateEmails, saveInitiateEmails } from '../../identity/credentials';
 import { REACTOR_MISSIONS } from '../../identity/reactor';
-import { POLLS, CAPSULES, GALLERY, MISSION_OVERRIDES, applyMissionOverrides, type KeynotePoll, type WeeklyCapsule, type GalleryPhoto } from '../content/liveLists';
+import { POLLS, GALLERY, MISSION_OVERRIDES, applyMissionOverrides, type KeynotePoll, type GalleryPhoto } from '../content/liveLists';
 import { PILLAR_BY_KEY, findPillar } from '../sgxPillars';
 
 /* One CSV definition per data set, column for column with the real fields. */
@@ -255,6 +255,7 @@ export const POLLS_CSV: CsvEntity<KeynotePoll> = {
   note: 'Los votos van por id de opción: si cambias el texto de una opción se conservan sus votos; si cambias el orden, no.',
   cols: [
     ID('poll_day1_open'),
+    { field: 'open', help: 'Abierta para votar (true/false)', kind: 'bool' },
     ...bi('sessionTitle', 'Sesión (ej: Día 1 · Apertura)'),
     ...bi('speaker', 'Quién la lanza'),
     ...bi('question', 'Pregunta', true),
@@ -276,29 +277,6 @@ export const POLLS_CSV: CsvEntity<KeynotePoll> = {
       get: (p) => p.options.map((o) => o.labelEn || ''),
       set: (p, v) => { ((v as string[]) || []).forEach((l, i) => { if (p.options[i]) p.options[i].labelEn = l || undefined; }); },
     },
-  ],
-};
-
-export const CAPSULES_CSV: CsvEntity<WeeklyCapsule> = {
-  key: 'capsules', label: 'Cápsulas semanales', file: 'sgx_capsulas', idPrefix: 'cap',
-  load: () => CAPSULES.load(),
-  save: (items) => CAPSULES.save(items),
-  blank: () => ({ category: 'LORE', badgeColor: '#FDCC0D', isUnlockedDefault: false, xpReward: 50, summary: '', fullTransmission: '', relatedSectionKey: 'OVERVIEW', relatedActionLabel: 'Ver más' }),
-  cols: [
-    ID('cap_w1'),
-    { field: 'weekNumber', help: 'Número de semana', kind: 'number', required: true },
-    ...bi('dateRange', 'Rango de fechas mostrado'),
-    { field: 'unlockDate', help: 'Fecha en que se abre (ISO, ej: 2026-11-02T10:00:00-04:00)', required: true },
-    ...bi('title', 'Título', true),
-    { field: 'category', help: 'Tipo', kind: { oneOf: ['LORE', 'BLUEPRINT', 'TECH', 'SPEAKERS', 'SPONSORS', 'VIP'] } },
-    { field: 'badgeColor', help: 'Color (hex)' },
-    { field: 'isUnlockedDefault', help: 'Abierta desde el principio', kind: 'bool' },
-    { field: 'xpReward', help: 'XP al abrirla', kind: 'number' },
-    ...bi('summary', 'Resumen'),
-    ...bi('fullTransmission', 'Texto completo'),
-    { field: 'blueprintUrl', help: 'Enlace o imagen' },
-    { field: 'relatedSectionKey', help: 'Sección a la que lleva (ej: AGENDA)' },
-    ...bi('relatedActionLabel', 'Texto del botón'),
   ],
 };
 
@@ -351,7 +329,6 @@ export const CSV_ENTITIES = {
   embeds: EMBEDS_CSV,
   rewards: REWARDS_CSV,
   polls: POLLS_CSV,
-  capsules: CAPSULES_CSV,
   gallery: GALLERY_CSV,
   missions: MISSIONS_CSV,
 };

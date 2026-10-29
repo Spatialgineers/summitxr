@@ -193,7 +193,6 @@ interface SgxOrbitalCore3DProps {
   onSelectPillar: (pillarId: SgxCorePillarId) => void;
   activePillarModules?: HolographicDrawerModule[];
   onQuickLaunchPrimaryModule?: (pillarId: SgxCorePillarId) => void;
-  onOpenTimeCapsules?: () => void;
   onSelectSection?: (section: any) => void;
   onOpenTickets?: () => void;
   onOpenCredential?: () => void;
@@ -413,7 +412,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   noSelection = false,
   onSelectPillar,
   activePillarModules = [],
-  onOpenTimeCapsules,
   onSelectSection,
   onOpenTickets,
   onOpenCredential,
@@ -2084,7 +2082,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
             countdown={countdown}
             youtubeUrl={SGX_YOUTUBE}
             onDial={(hz, label) => handlePlayHarmonicNote(hz, label)}
-            onOpenTimeCapsules={onOpenTimeCapsules}
           />
         )}
 
@@ -2420,7 +2417,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         {/* Bottom Status Bar / Mobile Bottom Sheet Launcher inside 3D Viewport */}
         <div className="sgx-calm-hide absolute bottom-2.5 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-auto text-xs font-mono text-slate-200">
           <div className="px-3 py-1.5 bg-[#050505]/85 backdrop-blur-md border border-[#32527B]/70 pointer-events-none hidden sm:block">
-            {es ? 'Toca cualquier escultura ' : 'Tap any '}<strong className="text-[#FDCC0D]">.GLB</strong>{es ? ' o los orbes en 3D · Arrastra para orbitar el espacio' : ' sculpture or the 3D orbs · Drag to orbit the space'}
+            {es ? 'Toca un pilar 3D' : 'Tap a 3D pillar'}
           </div>
 
           {!drawerOpen && !noSelection && (

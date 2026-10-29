@@ -180,6 +180,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
 
   const handleVotePoll = async (pollId: string, optionId: string) => {
     if (userVotedPolls[pollId]) return;
+    if (!polls.find((p) => p.id === pollId)?.open) return;
     if (!user?.uid) {
       setVoteError(es ? 'Conectando tu pase… inténtalo en unos segundos.' : 'Connecting your pass… try again in a few seconds.');
       return;
@@ -314,13 +315,17 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                     <p className="sgx-m-kicker" style={{ color: 'var(--SGX_Yellow)' }}>{loc(currentPoll, 'sessionTitle', language)}</p>
                     <h3 className="sgx-m-h" style={{ textTransform: 'none', fontSize: '0.95rem', marginTop: 4 }}>{loc(currentPoll, 'question', language)}</h3>
                   </div>
+                  {!currentPoll.open && (
+                    <p className="sgx-m-tag" role="status">{es ? 'Encuesta cerrada · se abre en vivo durante la sesión' : 'Poll closed · it opens live during the session'}</p>
+                  )}
                   <div className="sgx-m-stack" style={{ gap: 6 }}>
                     {currentPoll.options.map((opt) => {
                       const pct = totalPollVotes > 0 ? Math.round((opt.votes / totalPollVotes) * 100) : 0;
                       const hasVoted = Boolean(userVoteForCurrent);
+                      const closed = !currentPoll.open;
                       const isSelected = userVoteForCurrent === opt.id;
                       return (
-                        <button key={opt.id} type="button" className={`sgx-kpulse__opt ${isSelected ? 'is-mine' : ''}`} onClick={() => handleVotePoll(currentPoll.id, opt.id)} disabled={hasVoted} aria-pressed={isSelected}>
+                        <button key={opt.id} type="button" className={`sgx-kpulse__opt ${isSelected ? 'is-mine' : ''}`} onClick={() => handleVotePoll(currentPoll.id, opt.id)} disabled={hasVoted || closed} aria-pressed={isSelected}>
                           {hasVoted && <i style={{ width: `${pct}%`, background: opt.color }} />}
                           <span>
                             {isSelected ? <CheckCircle2 size={14} color="var(--SGX_Yellow)" aria-hidden /> : <span className="sgx-kpulse__dot" style={{ background: opt.color }} />}

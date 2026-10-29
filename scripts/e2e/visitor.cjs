@@ -83,9 +83,13 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
   if (pulseBtn) {
     await pulseBtn.click(); await p.waitForTimeout(600);
     const pollTab = await p.$('[role=tab] >> text=/Encuesta|Poll/i'); if (pollTab) { await pollTab.click(); await p.waitForTimeout(400); }
-    const opt = await p.$('.sgx-kpulse__opt:not([disabled])'); if (opt) { await opt.click(); await p.waitForTimeout(2500); }
+    // Polls start closed (the team opens them live from Admin → Encuestas): no vote may go through.
+    const closedNote = await p.$('text=/Encuesta cerrada|Poll closed/');
+    const enabled = await p.$('.sgx-kpulse__opt:not([disabled])');
+    check('closed poll says so and its options are disabled', !!closedNote && !enabled, `(widget found: ${!!pulseBtn || pollOk})`);
+    const opt = await p.$('.sgx-kpulse__opt'); if (opt) { await opt.click({ force: true }).catch(() => {}); await p.waitForTimeout(1500); }
   }
-  check('poll vote reached Firestore', (await list('summit_poll_votes')).length > votesBefore, `(widget found: ${!!pulseBtn || pollOk})`);
+  check('no vote reaches Firestore while the poll is closed', (await list('summit_poll_votes')).length === votesBefore);
 
   // 4. Networking chat message + reaction
   await p.goto(APP + '/?tab=networking', { waitUntil: 'domcontentloaded' });

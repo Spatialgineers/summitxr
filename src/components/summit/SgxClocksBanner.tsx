@@ -3,7 +3,7 @@ import { ArrowRight, ChevronDown, ChevronUp, Clock } from 'lucide-react';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 
 /* SUMMIT CLOCKS as a thin full-width band over the 3D core: date, the
-   one-line format, four small dials and the capsules shortcut. One tap hides
+   one-line format, four small dials. One tap hides
    it to a small tab (remembered on this device). */
 
 const KEY = 'sgx_clockbar_hidden_v1';
@@ -13,10 +13,9 @@ interface Props {
   countdown: { days: number; hours: number; minutes: number; seconds: number };
   youtubeUrl: string;
   onDial?: (hz: number, label: string) => void;
-  onOpenTimeCapsules?: () => void;
 }
 
-export const SgxClocksBanner: React.FC<Props> = ({ es, countdown, youtubeUrl, onDial, onOpenTimeCapsules }) => {
+export const SgxClocksBanner: React.FC<Props> = ({ es, countdown, youtubeUrl, onDial }) => {
   const [hidden, setHidden] = useState(() => { try { return localStorage.getItem(KEY) === '1'; } catch { return false; } });
   const toggle = (v: boolean) => {
     playUiChirp(v ? 520 : 760);
@@ -66,12 +65,6 @@ export const SgxClocksBanner: React.FC<Props> = ({ es, countdown, youtubeUrl, on
           );
         })}
       </div>
-      {onOpenTimeCapsules && (
-        <button type="button" className="sgx-clockbar__caps" aria-label={es ? 'Cápsulas y retos' : 'Capsules and challenges'} onClick={() => { playUiChirp(820); onOpenTimeCapsules(); }}>
-          <span>{es ? 'Cápsulas & retos' : 'Capsules & challenges'}</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </button>
-      )}
       <button type="button" className="sgx-clockbar__hide" onClick={() => toggle(true)} aria-label={es ? 'Esconder relojes' : 'Hide clocks'} title={es ? 'Esconder' : 'Hide'}>
         <ChevronUp className="w-4 h-4" />
       </button>

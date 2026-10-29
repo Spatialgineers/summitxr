@@ -3,7 +3,7 @@ import { PILLAR_BY_KEY } from '../sgxPillars';
 import { makeLiveList, OFFICIAL_BRAND_ASSETS } from '../summitData';
 
 /* Lists that used to be hard-coded and are now editable from the admin (and by
-   CSV): keynote polls, weekly capsules and the retrospective gallery. Each one
+   CSV): keynote polls and the retrospective gallery. Each one
    keeps its bundled defaults until an admin publishes to summit_content. */
 
 /* ---------- keynote polls (summit_content/polls) ---------- */
@@ -25,6 +25,8 @@ export interface KeynotePoll {
   speakerEn?: string;
   sessionTitleEn?: string;
   options: KeynotePollOption[];
+  /** Votes are accepted only while the team has it open (Admin → Encuestas). */
+  open?: boolean;
 }
 
 // Polls tied to the real Run of Show. Speakers are named only when confirmed in writing.
@@ -71,176 +73,6 @@ export const DEFAULT_POLLS: KeynotePoll[] = [
 
 
 export const POLLS = makeLiveList<KeynotePoll>('polls', 'sgx_summit_polls_v1', () => DEFAULT_POLLS);
-
-/* ---------- weekly capsules (summit_content/capsules) ---------- */
-
-export interface WeeklyCapsule {
-  id: string;
-  weekNumber: number;
-  dateRange: string;
-  unlockDate: string; // ISO 8601 string
-  title: string;
-  category: 'LORE' | 'BLUEPRINT' | 'TECH' | 'SPEAKERS' | 'SPONSORS' | 'VIP';
-  badgeColor: string;
-  isUnlockedDefault: boolean;
-  xpReward: number;
-  summary: string;
-  fullTransmission: string;
-  blueprintUrl?: string;
-  relatedSectionKey: string;
-  relatedActionLabel: string;
-  dateRangeEn?: string;
-  titleEn?: string;
-  summaryEn?: string;
-  fullTransmissionEn?: string;
-  relatedActionLabelEn?: string;
-}
-
-export const DEFAULT_CAPSULES: WeeklyCapsule[] = [
-  {
-    id: 'capsule_w1',
-    weekNumber: 1,
-    dateRange: 'Semana 1 · 25 Oct - 31 Oct',
-    dateRangeEn: 'Week 1 · Oct 25 - Oct 31',
-    unlockDate: '2026-10-25T00:00:00-04:00',
-    title: 'Cápsula Alpha: El Manifiesto SGX',
-    titleEn: 'Alpha Capsule: The SGX Manifesto',
-    category: 'LORE',
-    badgeColor: '#FDCC0D',
-    isUnlockedDefault: false,
-    xpReward: 30,
-    summary: 'La génesis de la computación espacial en el Caribe y el manifiesto de soberanía creativa.',
-    summaryEn: 'The genesis of spatial computing in the Caribbean and the manifesto of creative sovereignty.',
-    fullTransmission: `MANIFIESTO SGX:
-"En 2026, Puerto Rico no es un espectador de la revolución espacial; es su laboratorio. El Spatialgineers Summit regresa del 11 al 13 de diciembre: dos días digitales por YouTube Live y el SGX Showcase del Día 3, híbrido y por invitación. Unimos la ingeniería de software con la producción virtual para crear eventos donde la audiencia es co-directora.
-
-El Núcleo 3D de Spatialgineers no es solo un visualizador; es la puerta de entrada a todo el Summit: la agenda, los seis pilares, el mundo de Roblox y el Día 3 en Chroma."`,
-    fullTransmissionEn: 'SGX MANIFESTO:\n"In 2026, Puerto Rico isn\'t a spectator of the spatial revolution; it\'s its lab. The Spatialgineers Summit returns December 11 to 13: two digital days on YouTube Live and the Day 3 SGX Showcase, hybrid and by invitation. We bring software engineering and virtual production together to create events where the audience is co-director.\n\nThe Spatialgineers 3D Core isn\'t just a visualizer; it\'s the front door to the whole Summit: the agenda, the six pillars, the Roblox world and Day 3 at Chroma."',
-    relatedSectionKey: 'PILLARS_MANIFESTO',
-    relatedActionLabel: 'Ver Manifiesto 6 Pilares',
-    relatedActionLabelEn: 'View the 6 Pillars Manifesto',
-  },
-  {
-    id: 'capsule_w2',
-    weekNumber: 2,
-    dateRange: 'Semana 2 · 01 Nov - 07 Nov',
-    dateRangeEn: 'Week 2 · Nov 01 - Nov 07',
-    unlockDate: '2026-11-01T00:00:00-04:00',
-    title: 'Cápsula Beta: Blueprint del Mundo Virtual en Roblox',
-    titleEn: 'Beta Capsule: Blueprint of the Virtual World in Roblox',
-    category: 'BLUEPRINT',
-    badgeColor: '#00DDFF',
-    isUnlockedDefault: false,
-    xpReward: 30,
-    summary: 'Planos esquemáticos del espacio en Roblox para las presentaciones de artistas: zona de artistas, circuito aéreo de drones y hubs de teletransporte.',
-    summaryEn: 'Schematic plans of the Roblox space for the artist performances: artist zone, aerial drone circuit and teleport hubs.',
-    fullTransmission: `PLANO ARQUITECTÓNICO // MUNDO VIRTUAL SGX ROBLOX:
-• Coordenadas del Núcleo Central: (0, 100, 0)
-• Zona de Artistas: espacio para los intermedios de artistas invitados del Día 1 (por anunciar).
-• Estado: embed opcional; YouTube Live es el canal principal del Summit.`,
-    fullTransmissionEn: 'ARCHITECTURAL BLUEPRINT // SGX ROBLOX VIRTUAL WORLD:\n• Central Core coordinates: (0, 100, 0)\n• Artist Zone: space for the Day 1 guest artist interludes (TBA).\n• Status: optional embed; YouTube Live is the Summit\'s main channel.',
-    relatedSectionKey: 'EMBEDS_GAMES',
-    relatedActionLabel: 'Probar Simulador de Dron 3D',
-    relatedActionLabelEn: 'Try the 3D Drone Simulator',
-  },
-  {
-    id: 'capsule_w3',
-    weekNumber: 3,
-    dateRange: 'Semana 3 · 08 Nov - 14 Nov',
-    dateRangeEn: 'Week 3 · Nov 08 - Nov 14',
-    unlockDate: '2026-11-08T00:00:00-04:00',
-    title: 'Cápsula Gamma: El Venue del SGX Showcase',
-    titleEn: 'Gamma Capsule: The SGX Showcase Venue',
-    category: 'TECH',
-    badgeColor: '#32527B',
-    isUnlockedDefault: false,
-    xpReward: 30,
-    summary: 'Chroma Space Studios en San Juan: venue del Día 3.',
-    summaryEn: 'Chroma Space Studios in San Juan: the Day 3 venue.',
-    fullTransmission: `DOCUMENTO TÉCNICO // SGX SHOWCASE (DÍA 3):
-• Venue: Chroma Space Studios, San Juan, PR.
-• Equipo integrado del estudio: luces, proyectores y cámaras.
-• Aforo: por invitación y cupo limitado, 40 a 60 personas como máximo.
-• Horario: 10:00 a.m. a 4:00 p.m., con transmisión por YouTube Live. Apertura de puertas: por anunciar.`,
-    fullTransmissionEn: 'TECHNICAL DOCUMENT // SGX SHOWCASE (DAY 3):\n• Venue: Chroma Space Studios, San Juan, PR.\n• Built-in studio equipment: lights, projectors and cameras.\n• Capacity: by invitation, limited to 40 to 60 people maximum.\n• Schedule: 10:00 a.m. to 4:00 p.m., streamed on YouTube Live. Doors open: TBA.',
-    relatedSectionKey: 'MAP_360',
-    relatedActionLabel: 'Explorar el recorrido 360°',
-    relatedActionLabelEn: 'Explore the 360° tour',
-  },
-  {
-    id: 'capsule_w4',
-    weekNumber: 4,
-    dateRange: 'Semana 4 · 15 Nov - 21 Nov',
-    dateRangeEn: 'Week 4 · Nov 15 - Nov 21',
-    unlockDate: '2026-11-15T00:00:00-04:00',
-    title: 'Cápsula Delta: Artistas & Speakers del Summit',
-    titleEn: 'Delta Capsule: Summit Artists & Speakers',
-    category: 'SPEAKERS',
-    badgeColor: '#FFBB00',
-    isUnlockedDefault: false,
-    xpReward: 30,
-    summary: 'Cómo se integran los artistas y las personas invitadas en el programa. Solo se anuncian los confirmados por escrito.',
-    summaryEn: 'How artists and guests fit into the program. Only those confirmed in writing are announced.',
-    fullTransmission: `LINEUP // ARTISTAS & SPEAKERS:
-• Día 1: un artista invitado de 15 minutos antes de cada uno de los seis pilares (por anunciar).
-• Día 2: una persona invitada por pilar en conversaciones de 45 minutos (por anunciar).
-• Día 3: Danelson con su avatar y captura facial en tiempo real, y dos artistas invitados (por confirmar).
-• La dinámica de interacción libre del Día 3 se define el 1 de noviembre.`,
-    fullTransmissionEn: 'LINEUP // ARTISTS & SPEAKERS:\n• Day 1: a 15-minute guest artist before each of the six pillars (TBA).\n• Day 2: one guest per pillar in 45-minute conversations (TBA).\n• Day 3: Danelson with his avatar and real-time facial capture, and two guest artists (TBC).\n• The Day 3 open-interaction format is set on November 1.',
-    relatedSectionKey: 'SPEAKERS',
-    relatedActionLabel: 'Ver Speakers y Artistas 3D',
-    relatedActionLabelEn: 'View 3D Speakers and Artists',
-  },
-  {
-    id: 'capsule_w5',
-    weekNumber: 5,
-    dateRange: 'Semana 5 · 22 Nov - 28 Nov',
-    dateRangeEn: 'Week 5 · Nov 22 - Nov 28',
-    unlockDate: '2026-11-22T00:00:00-04:00',
-    title: 'Cápsula Epsilon: Estaciones Holográficas y Patrocinadores',
-    titleEn: 'Epsilon Capsule: Holographic Stations and Sponsors',
-    category: 'SPONSORS',
-    badgeColor: '#FDCC0D',
-    isUnlockedDefault: false,
-    xpReward: 40,
-    summary: 'Estaciones 3D interactivas para las marcas de los cinco Tiers de auspicio.',
-    summaryEn: 'Interactive 3D stations for brands in the five sponsorship Tiers.',
-    fullTransmission: `REGISTRO // ALIADOS DEL SUMMIT:
-• En vez de un muro estático de logotipos, cada patrocinador cuenta con una estación 3D en el Núcleo.
-• Los asistentes escanean las estaciones para ganar XP y descubrir los beneficios de cada marca.
-• Tiers oficiales: Tier 1 Digital Presence ($50–$100), Tier 2 Gamified ($250–$500), Tier 3 Experience ($750–$1,000), Tier 4 Signature Experience ($1,500–$2,500, licencia de 365 días desde noviembre) y Tier 5 a convenir, sin precio público (a convenir, sin precio público).`,
-    fullTransmissionEn: 'LOG // SUMMIT PARTNERS:\n• Instead of a static logo wall, each sponsor gets a 3D station in the Core.\n• Attendees scan the stations to earn XP and discover each brand\'s benefits.\n• Official Tiers: Tier 1 Digital Presence ($50–$100), Tier 2 Gamified ($250–$500), Tier 3 Experience ($750–$1,000), Tier 4 Signature Experience ($1,500–$2,500, 365-day license starting in November) and Tier 5 to be agreed, with no public price.',
-    relatedSectionKey: 'SPONSORS_HUB',
-    relatedActionLabel: 'Explorar Patrocinios y Tiers',
-    relatedActionLabelEn: 'Explore Sponsorships and Tiers',
-  },
-  {
-    id: 'capsule_w6',
-    weekNumber: 6,
-    dateRange: 'Semana 6 · 29 Nov - 11 Dic',
-    dateRangeEn: 'Week 6 · Nov 29 - Dec 11',
-    unlockDate: '2026-11-29T00:00:00-04:00',
-    title: 'Cápsula Omega: Cuenta Final & Premios del Summit',
-    titleEn: 'Omega Capsule: Final Countdown & Summit Prizes',
-    category: 'VIP',
-    badgeColor: '#FFFFFF',
-    isUnlockedDefault: false,
-    xpReward: 50,
-    summary: 'Desbloqueo final antes del Día 1: insignia del SGX Pass y la escalera de premios del Summit.',
-    summaryEn: 'The final unlock before Day 1: the SGX Pass badge and the Summit prize ladder.',
-    fullTransmission: `CUENTA FINAL:
-• 11 de diciembre de 2026 · 10:00 AM AST: apertura por YouTube Live.
-• 12 de diciembre: Día de la Industria por YouTube Live.
-• 13 de diciembre: SGX Showcase en Chroma Space Studios (por invitación).
-• Premios: cupón de descuento de un auspiciador, suscripción de 3 meses a nuestras plataformas, sesión "Grit" con artistas (por confirmar) y el premio mayor "Spatialgineers activa tu evento".`,
-    fullTransmissionEn: 'FINAL COUNTDOWN:\n• December 11, 2026 · 10:00 AM AST: opening on YouTube Live.\n• December 12: Industry Day on YouTube Live.\n• December 13: SGX Showcase at Chroma Space Studios (by invitation).\n• Prizes: a sponsor discount coupon, a 3-month subscription to our platforms, a "Grit" session with artists (TBC) and the grand prize "Spatialgineers activa tu evento" (Spatialgineers activates your event).',
-    relatedSectionKey: 'OVERVIEW',
-    relatedActionLabel: 'Ver mi SGX Pass',
-    relatedActionLabelEn: 'View my SGX Pass',
-  }
-];
-
-export const CAPSULES = makeLiveList<WeeklyCapsule>('capsules', 'sgx_summit_capsules_v1', () => DEFAULT_CAPSULES);
 
 /* ---------- retrospective gallery (summit_content/gallery) ---------- */
 

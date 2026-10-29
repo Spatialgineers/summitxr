@@ -56,7 +56,6 @@ const SummitSponsorsGrid = lazy(() => import('./SummitSponsorsGrid').then((m) =>
 const SummitSpeakersDeck = lazy(() => import('./SummitSpeakersDeck').then((m) => ({ default: m.SummitSpeakersDeck })));
 const SummitSponsorshipMatrix = lazy(() => import('./SummitSponsorshipMatrix').then((m) => ({ default: m.SummitSponsorshipMatrix })));
 const SummitContentAuditModal = lazy(() => import('./SummitContentAuditModal').then((m) => ({ default: m.SummitContentAuditModal })));
-const SummitTimeCapsulesDialog = lazy(() => import('./SummitTimeCapsulesDialog').then((m) => ({ default: m.SummitTimeCapsulesDialog })));
 const SummitAnalyticsView = lazy(() => import('../analytics/SummitAnalyticsView').then((m) => ({ default: m.SummitAnalyticsView })));
 const SgxPassSection = lazy(() => import('../../identity/SgxPassSection').then((m) => ({ default: m.SgxPassSection })));
 const SummitVisitRadar = lazy(() => import('./SummitVisitRadar').then((m) => ({ default: m.SummitVisitRadar })));
@@ -240,7 +239,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     };
   }, []);
 
-  const [timeCapsulesModalOpen, setTimeCapsulesModalOpen] = useState<boolean>(false);
 
   // Initial Auto-scroll to section if opened via direct URL link
   useEffect(() => {
@@ -406,7 +404,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
   // Stable close handlers: SgxDialog re-binds Escape whenever onClose changes.
   const openPrivacy = useCallback(() => setPrivacyModalOpen(true), []);
   const closePrivacy = useCallback(() => setPrivacyModalOpen(false), []);
-  const closeTimeCapsules = useCallback(() => setTimeCapsulesModalOpen(false), []);
   const closeSessionModal = useCallback(() => setSelectedSessionModal(null), []);
   const closeAnalytics = useCallback(() => setAnalyticsModalOpen(false), []);
 
@@ -509,24 +506,11 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               onOpenPassport={() => window.dispatchEvent(new CustomEvent('sgx:open_passport'))}
               onOpenSpeakerPortal={() => setSpeakerPortalOpen(true)}
               onOpenTour={() => window.dispatchEvent(new CustomEvent('sgx:open_tour'))}
-              onOpenTimeCapsules={() => setTimeCapsulesModalOpen(true)}
               sponsorCount={approvedSponsors.length}
             />
 
             <SummitCoreFooterBar onOpenPrivacy={openPrivacy} />
 
-            {/* Lore capsules and challenges (opened from the Summit clocks band) */}
-            {timeCapsulesModalOpen && (
-              <LazyBoundary fallback={<LazyFallback />}>
-              <SummitTimeCapsulesDialog
-                onClose={closeTimeCapsules}
-                onNavigateToSection={(sec) => {
-                  setTimeCapsulesModalOpen(false);
-                  handleSelectSection(sec);
-                }}
-              />
-              </LazyBoundary>
-            )}
           </div>
         )}
 

@@ -104,6 +104,7 @@ import {
   playNotificationChime,
   fetchSponsorInquiriesRemote,
   deleteSponsorInquiryRemote,
+  publishContent,
 } from '../../lib/summitData';
 
 interface AdminDashboardProps {
@@ -130,7 +131,7 @@ export type AdminSubpage =
   // En vivo
   | 'DIRECTOR' | 'ANNOUNCE' | 'POLLS' | 'ERRORS'
   // Contenido
-  | 'AGENDA' | 'SPEAKERS' | 'SPONSORS' | 'TIERS' | 'INITIATES' | 'MAP' | 'EMBEDS' | 'CAPSULES' | 'GALLERY' | 'SOCIAL'
+  | 'AGENDA' | 'SPEAKERS' | 'SPONSORS' | 'TIERS' | 'INITIATES' | 'MAP' | 'EMBEDS' | 'GALLERY' | 'SOCIAL'
   // Personas
   | 'REGISTRATIONS' | 'AUDIENCE_LEADS' | 'ENTREPRENEUR_MATCH'
   // Juego
@@ -154,7 +155,6 @@ const ADMIN_NAV: { id: string; label: string; items: NavItem[] }[] = [
     { id: 'INITIATES', label: 'Guild Initiates', icon: Sparkle, keywords: 'guild iniciados' },
     { id: 'MAP', label: 'Mapa 360', icon: MapIcon, keywords: 'tour chroma nodos' },
     { id: 'EMBEDS', label: 'Apps embebidas', icon: AppWindow, keywords: 'juegos widgets' },
-    { id: 'CAPSULES', label: 'Cápsulas semanales', icon: Package, keywords: 'transmisiones' },
     { id: 'GALLERY', label: 'Galería', icon: Images, keywords: 'fotos retrospectiva' },
     { id: 'SOCIAL', label: 'Redes sociales', icon: Instagram, keywords: 'instagram reels' },
   ] },
@@ -208,6 +208,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const searchRef = React.useRef<HTMLInputElement>(null);
   const [csvRev, setCsvRev] = useState(0);
   const bumpCsv = () => setCsvRev((n) => n + 1);
+  // Opening a poll goes live right away: save + publish, so visitors can vote only while it's open.
+  const togglePollOpen = async (id: string) => {
+    const previous = await Promise.resolve(CSV_ENTITIES.polls.load());
+    const items = previous.map((p) => (p.id === id ? { ...p, open: !p.open } : p));
+    await Promise.resolve(CSV_ENTITIES.polls.save?.(items, previous));
+    await publishContent('polls', items);
+    bumpCsv();
+  };
 
   // Interactive Simulation Weights State for Active Question Options
   const activeQ = questions[currentQuestionIndex];
@@ -854,6 +862,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {activeSubpage === 'POLLS' && (
             <AdminSection title="Encuestas del keynote" desc="Las encuestas del panel de reacciones. Los votos se guardan por id de opción." publishKeys={['polls']} csv={[CSV_ENTITIES.polls]} onCsvApplied={bumpCsv}>
               <LiveListTable entity={CSV_ENTITIES.polls} version={csvRev} columns={[
+                { label: 'Estado', get: (p: any) => (
+                  <button type="button" className={`sgx-btn sgx-btn--sm ${p.open ? '' : 'sgx-btn--ground'}`} onClick={() => togglePollOpen(p.id)}>
+                    {p.open ? 'Abierta · cerrar' : 'Cerrada · abrir'}
+                  </button>
+                ) },
                 { label: 'Sesión', get: (p: any) => p.sessionTitle },
                 { label: 'Pregunta', get: (p: any) => p.question },
                 { label: 'Opciones', get: (p: any) => p.options.map((o: any) => o.label).join(' · ') },
@@ -919,16 +932,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </AdminSection>
           )}
 
-          {activeSubpage === 'CAPSULES' && (
-            <AdminSection title="Cápsulas semanales" desc="Las transmisiones que se abren cada semana antes del Summit." publishKeys={['capsules']} csv={[CSV_ENTITIES.capsules]} onCsvApplied={bumpCsv}>
-              <LiveListTable entity={CSV_ENTITIES.capsules} version={csvRev} columns={[
-                { label: 'Semana', get: (c: any) => c.weekNumber },
-                { label: 'Título', get: (c: any) => c.title },
-                { label: 'Se abre', get: (c: any) => new Date(c.unlockDate).toLocaleString('es-PR', { dateStyle: 'medium', timeStyle: 'short' }) },
-                { label: 'XP', get: (c: any) => c.xpReward },
-              ]} />
-            </AdminSection>
-          )}
 
           {activeSubpage === 'GALLERY' && (
             <AdminSection title="Galería retrospectiva" desc="Fotos de ediciones anteriores y del equipo." publishKeys={['gallery']} csv={[CSV_ENTITIES.gallery]} onCsvApplied={bumpCsv}>

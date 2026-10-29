@@ -92,7 +92,6 @@
   .sgx-clockbar__dial svg { width: 32px; height: 32px; }
   .sgx-clockbar__dial b { position: absolute; left: 3px; width: 32px; text-align: center; font-family: var(--font-mono); font-size: 11px; color: #fff; font-variant-numeric: tabular-nums; }
   .sgx-clockbar__dial small { font-family: var(--font-display); font-size: 9px; font-weight: 800; letter-spacing: 0.1em; }
-  .sgx-clockbar__caps { display: inline-flex; align-items: center; gap: 6px; flex: none; min-height: 36px; padding: 0 12px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--SGX_Yellow); background: transparent; border: 1px solid rgba(253, 204, 13, 0.6); cursor: pointer; }
   .sgx-clockbar__hide { display: grid; place-items: center; flex: none; width: 36px; height: 36px; color: var(--SGX_Cyan); background: transparent; border: 1px solid rgba(0, 221, 255, 0.4); cursor: pointer; }
   .sgx-clockbar-tab { position: absolute; top: 8px; left: 10px; z-index: 25; display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 10px; font-family: var(--font-mono); font-size: 11px; color: #fff; font-variant-numeric: tabular-nums; background: rgba(5, 5, 5, 0.9); border: 1px solid rgba(253, 204, 13, 0.7); cursor: pointer; }
   .sgx-clockbar-tab svg { color: var(--SGX_Yellow); }
@@ -100,8 +99,6 @@
   @media (max-width: 640px) {
     .sgx-clockbar { gap: 8px; padding: 6px 6px 6px 10px; }
     .sgx-clockbar__who { display: none; }
-    .sgx-clockbar__caps { padding: 0 10px; }
-    .sgx-clockbar__caps span { display: none; }
     .sgx-clockbar__dials { flex: 1; justify-content: space-between; }
     .sgx-clockbar__dial { padding-right: 6px; gap: 3px; }
     .sgx-clockbar__dial small { font-size: 8px; }

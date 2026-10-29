@@ -184,12 +184,9 @@ interface PilotProfileContextType {
   setIsProfileModalOpen: (open: boolean) => void;
   isRoleModalOpen: boolean;
   setIsRoleModalOpen: (open: boolean) => void;
-  isCapsulesModalOpen: boolean;
-  setIsCapsulesModalOpen: (open: boolean) => void;
   liteMode: boolean;
   setLiteMode: (enabled: boolean | ((prev: boolean) => boolean)) => void;
   selectPilotRole: (role: 'CREATOR' | 'SPONSOR' | 'STUDENT' | 'VISIONARY') => void;
-  unlockWeeklyCapsule: (capsuleId: string, xpReward: number, title: string) => boolean;
   recordActivity: (category: WeekendActivityCategory, title: string, details: string, xpEarned: number, highlightColor?: string) => void;
   recordDroneTrick: (trick: DroneTrickType) => number; // returns XP earned
   recordDroneFlight: (score: number, packages: number, tricks: number) => void;
@@ -210,7 +207,6 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const es = language === 'es';
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
-  const [isCapsulesModalOpen, setIsCapsulesModalOpen] = useState(false);
   const [liteMode, setLiteModeState] = useState<boolean>(() => {
     try {
       return localStorage.getItem(LITE_MODE_STORAGE_KEY) === 'true';
@@ -806,44 +802,6 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
     });
   }, [pushToLeaderboard]);
 
-  // Unlock Lore / Countdown Capsule
-  const unlockWeeklyCapsule = useCallback((capsuleId: string, xpReward: number, title: string): boolean => {
-    let unlocked = false;
-    setProfile(prev => {
-      const alreadyUnlocked = prev.unlockedCapsules?.includes(capsuleId);
-      if (alreadyUnlocked) return prev;
-
-      unlocked = true;
-      playUiChirp(920);
-      const newXp = prev.totalXp + xpReward;
-      const { level, rankTitle } = calculateRankAndLevel(newXp);
-      const updatedCapsules = [...(prev.unlockedCapsules || []), capsuleId];
-
-      const activityItem: WeekendActivityItem = {
-        id: 'act_capsule_' + Date.now(),
-        category: 'tour_complete',
-        title: (es ? `Cápsula Cuántica Revelada: ${title}` : `Quantum Capsule Revealed: ${title}`),
-        details: (es ? `Has interceptado la transmisión de lore del Summit. +${xpReward} XP acreditados.` : `You've intercepted the Summit's lore transmission. +${xpReward} XP credited.`),
-        xpEarned: xpReward,
-        day: getCurrentWeekendDay(),
-        timestamp: Date.now(),
-        highlightColor: '#00DDFF',
-      };
-
-      const nextProf: PilotProfile = {
-        ...prev,
-        unlockedCapsules: updatedCapsules,
-        totalXp: newXp,
-        level,
-        rankTitle,
-        weekendActivity: [activityItem, ...prev.weekendActivity.slice(0, 49)],
-        lastActive: Date.now(),
-      };
-      pushToLeaderboard(nextProf);
-      return nextProf;
-    });
-    return unlocked;
-  }, [pushToLeaderboard]);
 
   // Refresh Leaderboard
   const refreshLeaderboard = useCallback(async () => {
@@ -871,12 +829,9 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setIsProfileModalOpen,
       isRoleModalOpen,
       setIsRoleModalOpen,
-      isCapsulesModalOpen,
-      setIsCapsulesModalOpen,
       liteMode,
       setLiteMode,
       selectPilotRole,
-      unlockWeeklyCapsule,
       recordActivity,
       recordDroneTrick,
       recordDroneFlight,

@@ -58,7 +58,6 @@ interface SummitExperienceHubProps {
   onOpenPassport?: () => void;
   onOpenSpeakerPortal?: () => void;
   onOpenTour?: () => void;
-  onOpenTimeCapsules?: () => void;
   sponsorCount: number;
 }
 
@@ -92,7 +91,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
   onOpenQrScanner,
   onOpenPassport,
   onOpenSpeakerPortal,
-  onOpenTimeCapsules,
   sponsorCount,
 }) => {
   const { language } = useLanguage();
@@ -488,7 +486,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         noSelection={!pillarChosen}
         onSelectPillar={handleDockPillar}
         activePillarModules={activeStation.modules}
-        onOpenTimeCapsules={onOpenTimeCapsules}
         onSelectSection={onSelectSection}
         onOpenTickets={onOpenTickets}
         onOpenCredential={() => onSelectSection('CREDENTIAL_GENERATOR')}

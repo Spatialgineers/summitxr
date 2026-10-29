@@ -1,5 +1,6 @@
 import { auth } from '../lib/firebase';
 import { useDialogFocus } from '../lib/useDialogFocus';
+import { SgxHoloCardImage } from './SgxHoloCardImage';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../context/AuthContext';
@@ -10,7 +11,6 @@ import { PILLAR_ACCENT, type PassTier } from './sgxIdentity';
 import { useSgxIdentity } from './SgxIdentityContext';
 import { PilotBuilder } from './PilotBuilder';
 import { randomPilot, type PilotConfig } from './pilotAvatar';
-import { SgxPassCard } from './SgxPassCard';
 import { HoloGlass } from '../immersion/shaders/HoloGlass';
 import { checkEmailClaim, findMyRegistration, type MyRegistration } from './passNetwork';
 
@@ -354,7 +354,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
         {(step === 'print' || step === 'done') && (
           <section className="sgx-forge__stage sgx-forge__print">
             {step === 'print' && <div className="sgx-forge__strike" aria-hidden="true"><img src="/brand/sgx-bolt.svg" alt="" /></div>}
-            <SgxPassCard printing={step === 'print'} />
+            <SgxHoloCardImage printing={step === 'print'} />
             {step === 'done' && (
               <>
                 <h2 className="sgx-forge__done">{es ? 'Pase forjado' : 'Pass forged'}</h2>

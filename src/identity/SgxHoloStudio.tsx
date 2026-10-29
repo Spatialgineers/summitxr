@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import { PILLAR_ACCENT } from './sgxIdentity';
 import { useSgxIdentity } from './SgxIdentityContext';
-import { usePassQr } from './SgxPassCard';
+import { usePassQr } from './usePassQr';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
 import { ROLE_COPY, useHoloCredentials, type CredentialRole, type HoloCredential } from './credentials';
 import { CARD_H, CARD_W, drawCardBack, drawCardFront, loadImage, renderFormat, svgElementToImage, useHoloAssets, type CardArt, type HoloFormat } from './holoCardCanvas';

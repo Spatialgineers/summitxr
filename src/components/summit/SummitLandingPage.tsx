@@ -123,7 +123,6 @@ const SummitContentAuditModal = lazy(() => import('./SummitContentAuditModal').t
 const SummitWeeklyCapsules = lazy(() => import('./SummitWeeklyCapsules').then((m) => ({ default: m.SummitWeeklyCapsules })));
 const SummitAnalyticsView = lazy(() => import('../analytics/SummitAnalyticsView').then((m) => ({ default: m.SummitAnalyticsView })));
 const SgxPassSection = lazy(() => import('../../identity/SgxPassSection').then((m) => ({ default: m.SgxPassSection })));
-const SgxHoloStudioPanel = lazy(() => import('../../identity/SgxPassSection').then((m) => ({ default: m.SgxHoloStudioPanel })));
 const SummitVisitRadar = lazy(() => import('./SummitVisitRadar').then((m) => ({ default: m.SummitVisitRadar })));
 const SummitEmbedsHub = lazy(() => import('./SummitEmbedsHub').then((m) => ({ default: m.SummitEmbedsHub })));
 const MatchModule = lazy(() => import('../../modules/match/MatchModule').then((m) => ({ default: m.MatchModule })));
@@ -1562,15 +1561,14 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div className="space-y-6">
             <SummitSectionBanner
               sectionKey="CREDENTIAL_GENERATOR"
-              title="SGX Pass & Holo Card Studio"
+              title={language === 'es' ? 'Tu SGX Pass' : 'Your SGX Pass'}
               subtitle={language === 'es'
-                ? 'Tu SGX Pass es tu registro, QR y entrada. El Holo Card Studio crea la credencial 3D para visitantes, speakers, initiates y sponsors, con el mismo código y QR del pase.'
-                : 'Your SGX Pass is your registration, QR and entrance. The Holo Card Studio makes the 3D credential for visitors, speakers, initiates and sponsors, with the same pass code and QR.'}
+                ? 'Tu SGX Pass es tu Holo Card: al frente, tú; al reverso, el programa y tu QR de entrada al Día 3. Una sola tarjeta para registrarte, entrar y compartir como tarjeta 3D, post o story.'
+                : 'Your SGX Pass is your Holo Card: you on the front; the program and your Day 3 entrance QR on the back. One card to register, get in and share as a 3D card, post or story.'}
               pillarBadge="SGX.SYSTEM"
               pillarIconUrl={pillarIcon('SYSTEM')}
             />
             <SgxPassSection />
-            <SgxHoloStudioPanel />
           </div>
         )}
 

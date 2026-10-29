@@ -4,106 +4,6 @@
    ========================================================================= */
 
 @layer components {
-  /* ---------- SGX PASS ---------- */
-  .sgx-pass {
-    --pass-accent: var(--SGX_Yellow);
-    --pass-cut: 18px;
-    position: relative;
-    width: min(100%, 560px);
-    aspect-ratio: 1.62;
-    perspective: 1400px;
-    margin-inline: auto;
-    font-family: var(--font-hud);
-    color: var(--SGX_White);
-  }
-  .sgx-pass--compact { width: min(100%, 420px); }
-  .sgx-pass__inner {
-    position: absolute; inset: 0;
-    transform-style: preserve-3d;
-    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  .sgx-pass.is-flipped .sgx-pass__inner { transform: rotateY(180deg); }
-  .sgx-pass__face {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    padding: clamp(10px, 2.4vw, 18px) clamp(12px, 2.8vw, 22px);
-    backface-visibility: hidden;
-    background:
-      radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--pass-accent) 16%, transparent), transparent 60%),
-      linear-gradient(160deg, #15181e 0%, var(--SGX_Metal_Dark) 45%, var(--SGX_Black_Base) 100%);
-    clip-path: polygon(var(--pass-cut) 0, 100% 0, 100% calc(100% - var(--pass-cut)), calc(100% - var(--pass-cut)) 100%, 0 100%, 0 var(--pass-cut));
-    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--pass-accent) 70%, transparent);
-    overflow: hidden;
-  }
-  .sgx-pass__face::before {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
-  }
-  .sgx-pass__face::after {
-    /* the 45° cut edges, drawn */
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    background:
-      linear-gradient(135deg, transparent calc(50% - 1px), var(--pass-accent) calc(50% - 1px), var(--pass-accent) calc(50% + 1px), transparent calc(50% + 1px)) top left / var(--pass-cut) var(--pass-cut) no-repeat,
-      linear-gradient(135deg, transparent calc(50% - 1px), var(--pass-accent) calc(50% - 1px), var(--pass-accent) calc(50% + 1px), transparent calc(50% + 1px)) bottom right / var(--pass-cut) var(--pass-cut) no-repeat;
-  }
-  .sgx-pass__back { transform: rotateY(180deg); }
-  .sgx-pass__holo {
-    position: absolute; inset: -40%; pointer-events: none; mix-blend-mode: screen; opacity: 0.22;
-    background: conic-gradient(from 0deg, transparent, var(--SGX_Cyan), transparent 30%, var(--SGX_Yellow), transparent 60%, var(--SGX_Cyan), transparent);
-    animation: sgx-pass-holo 9s linear infinite;
-  }
-  @keyframes sgx-pass-holo { to { transform: rotate(360deg); } }
-
-  .sgx-pass__head { position: relative; display: flex; align-items: center; gap: 10px; }
-  .sgx-pass__bolt { width: clamp(18px, 3.4vw, 26px); height: auto; filter: drop-shadow(0 0 6px var(--SGX_Yellow)); }
-  .sgx-pass__brand { font-family: var(--font-display); font-weight: 800; font-size: clamp(0.85rem, 2.4vw, 1.15rem); letter-spacing: 0.14em; color: var(--SGX_Yellow); }
-  .sgx-pass__event { font-family: var(--font-mono); font-size: clamp(0.5rem, 1.4vw, 0.62rem); letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.6); }
-  .sgx-pass__serial { margin-left: auto; font-family: var(--font-mono); font-size: clamp(1rem, 3.4vw, 1.6rem); color: var(--pass-accent); text-shadow: 0 0 12px color-mix(in srgb, var(--pass-accent) 60%, transparent); }
-
-  .sgx-pass__body { position: relative; flex: 1; display: grid; grid-template-columns: auto 1fr auto; gap: clamp(8px, 2vw, 16px); align-items: center; min-height: 0; padding-block: 6px; }
-  .sgx-pass__portrait { position: relative; display: grid; place-items: center; width: clamp(64px, 17vw, 112px); aspect-ratio: 5 / 6; background: #0b0d12; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pass-accent) 60%, transparent); clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
-  .sgx-pass__portrait img, .sgx-pass__portrait svg { width: 100%; height: 100%; object-fit: cover; }
-  .sgx-pass__tier { position: absolute; left: 0; right: 0; bottom: 0; padding: 2px 4px; font-family: var(--font-mono); font-size: clamp(0.42rem, 1.2vw, 0.55rem); text-align: center; letter-spacing: 0.06em; background: var(--pass-accent); color: var(--SGX_Black_Base); font-weight: 700; }
-  .sgx-pass__who { min-width: 0; }
-  .sgx-pass__label { font-family: var(--font-mono); font-size: clamp(0.5rem, 1.3vw, 0.6rem); color: rgba(255, 255, 255, 0.5); letter-spacing: 0.12em; text-transform: uppercase; }
-  .sgx-pass__name { font-family: var(--font-display); font-weight: 700; font-size: clamp(0.85rem, 2.8vw, 1.35rem); line-height: 1.1; text-transform: uppercase; overflow-wrap: anywhere; }
-  .sgx-pass__callsign { font-family: var(--font-mono); font-size: clamp(0.65rem, 1.8vw, 0.85rem); color: var(--SGX_Cyan); margin-top: 2px; }
-  .sgx-pass__pillar { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; padding: 2px 8px 2px 3px; font-size: clamp(0.55rem, 1.5vw, 0.72rem); letter-spacing: 0.08em; text-transform: uppercase; color: var(--pass-accent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pass-accent) 50%, transparent); }
-  .sgx-pass__pillar img { width: 16px; height: 16px; object-fit: contain; }
-  .sgx-pass__rank { margin-top: 4px; font-family: var(--font-mono); font-size: clamp(0.5rem, 1.3vw, 0.62rem); color: rgba(255, 255, 255, 0.55); text-transform: uppercase; }
-  .sgx-pass__qr { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-  .sgx-pass__qr img, .sgx-pass__qr-wait { width: clamp(64px, 18vw, 116px); aspect-ratio: 1; image-rendering: pixelated; box-shadow: 0 0 18px color-mix(in srgb, var(--SGX_Yellow) 35%, transparent); }
-  .sgx-pass__qr-wait { background: repeating-linear-gradient(45deg, #222 0 4px, #111 4px 8px); }
-  .sgx-pass__qr code { font-family: var(--font-mono); font-size: clamp(0.45rem, 1.2vw, 0.58rem); color: rgba(255, 255, 255, 0.7); letter-spacing: 0.04em; }
-
-  .sgx-pass__stamps { position: relative; display: flex; gap: clamp(4px, 1vw, 8px); align-items: center; }
-  .sgx-pass__stamp { display: grid; place-items: center; width: clamp(22px, 5vw, 32px); aspect-ratio: 1; opacity: 0.22; filter: grayscale(1); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25); clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px); transition: opacity 0.4s, filter 0.4s; }
-  .sgx-pass__stamp img { width: 72%; height: 72%; object-fit: contain; }
-  .sgx-pass__stamp.is-on { opacity: 1; filter: none; box-shadow: inset 0 0 0 1px var(--pass-accent), 0 0 10px color-mix(in srgb, var(--pass-accent) 45%, transparent); animation: sgx-stamp-in 0.6s cubic-bezier(0.2, 1.6, 0.4, 1); }
-  .sgx-pass__stamp--chroma { width: auto; aspect-ratio: auto; height: clamp(22px, 5vw, 32px); padding-inline: 8px; margin-left: auto; font-family: var(--font-mono); font-size: clamp(0.5rem, 1.3vw, 0.62rem); letter-spacing: 0.12em; }
-  .sgx-pass__stamp--chroma.is-on { color: var(--SGX_Black_Base); background: var(--SGX_Yellow); }
-  @keyframes sgx-stamp-in { from { transform: scale(1.8) rotate(-12deg); opacity: 0; } }
-  .sgx-pass__pending { position: absolute; right: 18px; bottom: calc(clamp(22px, 5vw, 32px) + clamp(14px, 3vw, 22px)); padding: 1px 8px; font-family: var(--font-mono); font-size: clamp(0.45rem, 1.2vw, 0.55rem); letter-spacing: 0.1em; text-transform: uppercase; color: var(--SGX_Neon_Orange); background: rgba(5, 5, 5, 0.85); white-space: nowrap; }
-
-  .sgx-pass__stats { position: relative; flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
-  .sgx-pass__stats div { padding: 6px 8px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12); }
-  .sgx-pass__stats dt { font-family: var(--font-mono); font-size: clamp(0.5rem, 1.3vw, 0.62rem); color: rgba(255, 255, 255, 0.5); text-transform: uppercase; letter-spacing: 0.1em; }
-  .sgx-pass__stats dd { margin: 0; font-family: var(--font-display); font-size: clamp(0.9rem, 2.8vw, 1.3rem); color: var(--pass-accent); }
-  .sgx-pass__fine { position: relative; font-family: var(--font-body); font-size: clamp(0.55rem, 1.5vw, 0.72rem); line-height: 1.35; color: rgba(255, 255, 255, 0.62); margin: 0; }
-  .sgx-pass__issued { position: relative; margin-top: 6px; font-family: var(--font-mono); font-size: 0.6rem; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; }
-
-  .sgx-pass__flip { position: absolute; right: 10px; bottom: -34px; padding: 4px 10px; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--SGX_Cyan); background: transparent; border: 1px solid color-mix(in srgb, var(--SGX_Cyan) 50%, transparent); cursor: pointer; }
-  .sgx-pass__flip:hover { background: color-mix(in srgb, var(--SGX_Cyan) 14%, transparent); }
-
-  /* the ceremony: the pass prints in from a scan line */
-  .sgx-pass.is-printing .sgx-pass__front { animation: sgx-pass-print 2.1s cubic-bezier(0.6, 0, 0.2, 1) both; }
-  .sgx-pass.is-printing .sgx-pass__front::before { background: linear-gradient(180deg, transparent 0 calc(var(--scan, 0%) - 2%), var(--SGX_Yellow) var(--scan, 0%), transparent calc(var(--scan, 0%) + 1%)); }
-  @keyframes sgx-pass-print {
-    0% { clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); filter: brightness(2.2); }
-    80% { filter: brightness(1.3); }
-    100% { clip-path: polygon(var(--pass-cut) 0, 100% 0, 100% calc(100% - var(--pass-cut)), calc(100% - var(--pass-cut)) 100%, 0 100%, 0 var(--pass-cut)); filter: none; }
-  }
-
   /* ---------- FORJA DE IDENTIDAD ---------- */
   .sgx-forge {
     --pass-accent: var(--SGX_Yellow);
@@ -342,15 +242,8 @@
     .sgx-pass-section__ghost { width: 100%; max-width: 280px; margin-inline: auto; }
     .sgx-passchip__label small { display: none; }
   }
-  @media (max-width: 420px) {
-    .sgx-pass { --pass-cut: 12px; }
-    .sgx-pass__body { grid-template-columns: auto 1fr; }
-    .sgx-pass__qr { display: none; }
-    .sgx-hangar__day3 .sgx-pass__qr { display: flex; }
-  }
   @media (prefers-reduced-motion: reduce) {
-    .sgx-pass__holo, .sgx-pass.is-printing .sgx-pass__front, .sgx-forge__strike img, .sgx-pass__stamp.is-on { animation: none; }
-    .sgx-pass__inner { transition: none; }
+    .sgx-forge__strike img { animation: none; }
   }
 }
 
@@ -474,7 +367,6 @@
 }
 @layer components {
   .sgx-pilot-glyph svg { display: block; width: 100%; height: 100%; }
-  .sgx-pass__portrait .sgx-pilot-glyph { width: 100% !important; height: 100% !important; }
 }
 
 /* ---------- PILOT BUILDER ---------- */
@@ -633,3 +525,16 @@
    column would otherwise collapse to a thin line when the content is tall. */
 .sgx-hangar__head, .sgx-hangar__tabs { flex-shrink: 0; }
 .sgx-hangar__tabs { min-height: 44px; }
+
+/* One card: the SGX Pass section shows the Holo Card studio, then stamps + actions. */
+.sgx-pass-section--one { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.sgx-pass-section--one .sgx-pass-section__side { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 860px) { .sgx-pass-section--one .sgx-pass-section__side { grid-template-columns: minmax(0, 1fr); } }
+
+/* The Holo Card as an image (Forge reveal) */
+.sgx-holoimg { width: min(100%, 560px); margin: 0 auto; aspect-ratio: 1050 / 660; }
+.sgx-holoimg img { display: block; width: 100%; height: auto; filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.55)); }
+.sgx-holoimg__wait { width: 100%; height: 100%; background: repeating-linear-gradient(135deg, rgba(253, 204, 13, 0.06) 0 8px, transparent 8px 16px); box-shadow: inset 0 0 0 1px rgba(253, 204, 13, 0.3); }
+.sgx-holoimg.is-printing img { animation: sgx-holo-print 2.1s cubic-bezier(0.6, 0, 0.2, 1) both; }
+@keyframes sgx-holo-print { 0% { clip-path: inset(0 0 100% 0); filter: brightness(2.2); } 80% { filter: brightness(1.3); } 100% { clip-path: inset(0 0 0 0); filter: none; } }
+@media (prefers-reduced-motion: reduce) { .sgx-holoimg.is-printing img { animation: none; } }

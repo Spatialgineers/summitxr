@@ -10,7 +10,7 @@ import { playUiChirp } from '../lib/cyberAudioEngine';
 import { PILLAR_ACCENT } from './sgxIdentity';
 import { useSgxIdentity } from './SgxIdentityContext';
 import { isDay3Open, missionsOfPillar, type ReactorMission } from './reactor';
-import { usePassQr } from './SgxPassCard';
+import { usePassQr } from './usePassQr';
 import { SgxHoloStudio } from './SgxHoloStudio';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
 import { SgxConstellation } from './SgxConstellation';

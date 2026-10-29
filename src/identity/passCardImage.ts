@@ -13,7 +13,7 @@ export async function renderPassCardImage(id: SgxIdentity, opts: { es: boolean; 
   const qrUrl = passQrUrl({ c: pass.code, n: pass.fullName, s: id.callsign, p: id.affinity, r: pass.roleTitle, o: pass.organization });
   const [qrData, pilotData] = await Promise.all([
     QRCode.toDataURL(qrUrl, { margin: 1, width: 360, errorCorrectionLevel: 'M', color: { dark: '#050505', light: '#FDCC0D' } }).catch(() => null),
-    id.avatar.png ? Promise.resolve(id.avatar.png) : pilotPng(id.avatar.pilot || configFromSeed(id.avatar.seed, accent), 480).catch(() => null),
+    pilotPng(id.avatar.pilot || configFromSeed(id.avatar.seed, accent), 480).catch(() => null),
   ]);
   const [qr, portrait] = await Promise.all([loadImage(qrData), loadImage(pilotData), loadHoloAssets()]);
   const k = opts.scale ?? 0.6;
@@ -24,7 +24,7 @@ export async function renderPassCardImage(id: SgxIdentity, opts: { es: boolean; 
   drawCardFront(ctx, {
     cred: { role: 'visitor', status: 'official', name: pass.fullName, handle: id.callsign, pillar: id.affinity, org: pass.organization },
     es: opts.es, accent, serial: pass.serial, code: pass.code, passTier: pass.tier, passStatus: pass.status,
-    rank: opts.rank, portrait, fit: id.avatar.png ? 'cover' : 'contain', qr, foil: 0.6,
+    rank: opts.rank, portrait, fit: 'contain', qr, foil: 0.6,
   });
   try { return c.toDataURL('image/jpeg', 0.85); } catch { return null; }
 }

@@ -10,7 +10,7 @@ export const SgxHoloCardImage: React.FC<{ printing?: boolean; className?: string
   const es = language === 'es';
   const { identity } = useSgxIdentity();
   const [src, setSrc] = useState<string | null>(null);
-  const key = [identity.pass?.code, identity.pass?.fullName, identity.callsign, identity.affinity, JSON.stringify(identity.avatar.pilot || identity.avatar.seed), identity.avatar.png?.length || 0, language].join('|');
+  const key = [identity.pass?.code, identity.pass?.fullName, identity.callsign, identity.affinity, JSON.stringify(identity.avatar.pilot || identity.avatar.seed), language].join('|');
 
   useEffect(() => {
     let alive = true;

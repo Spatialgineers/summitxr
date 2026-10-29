@@ -148,9 +148,7 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
             title="Mi SGX Pass"
           >
             <div className="w-9 h-9 bg-[var(--sgx-bg)] border border-[var(--sgx-accent)]/70 group-hover:border-[var(--sgx-neon)] flex items-center justify-center overflow-hidden shadow-md transition-colors shrink-0" style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}>
-              {sgx?.identity.avatar.png ? (
-                <img src={sgx.identity.avatar.png} alt="" className="w-full h-full object-cover" />
-              ) : sgx?.isForged ? (
+              {sgx?.isForged ? (
                 <SgxPilotGlyph seed={sgx.identity.avatar.seed} config={sgx.identity.avatar.pilot} accent={sgx.identity.affinity ? PILLAR_ACCENT[sgx.identity.affinity] : '#FDCC0D'} size={26} />
               ) : (
                 <span>{user.avatar || '🚀'}</span>

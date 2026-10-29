@@ -218,9 +218,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentPage, onNavigate })
               title={es ? 'Tu cuenta: Estudio, pase y sesión' : 'Your account: Studio, pass and sign-in'}
             >
               <span className="sgx-passchip__face">
-                {sgxId?.identity.avatar.png ? (
-                  <img src={sgxId.identity.avatar.png} alt="" />
-                ) : sgxId?.isForged ? (
+                {sgxId?.isForged ? (
                   <SgxPilotGlyph seed={sgxId.identity.avatar.seed} config={sgxId.identity.avatar.pilot} accent={sgxId.identity.affinity ? PILLAR_ACCENT[sgxId.identity.affinity] : '#FDCC0D'} size={20} />
                 ) : isAdmin ? (
                   <ShieldCheck className="w-3.5 h-3.5" />

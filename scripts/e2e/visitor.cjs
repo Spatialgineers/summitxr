@@ -79,11 +79,11 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
     return !!btn;
   });
   // Open the widget, go to the poll tab, vote the first option.
-  const pulseBtn = await p.$('button:has(svg.lucide-radio)');
+  const pulseBtn = await p.$('.sgx-kpulse__fab');
   if (pulseBtn) {
     await pulseBtn.click(); await p.waitForTimeout(600);
-    const pollTab = await p.$('text=/ENCUESTA|POLL/'); if (pollTab) { await pollTab.click(); await p.waitForTimeout(400); }
-    const opt = await p.$('text=/SGX\\.Story/'); if (opt) { await opt.click(); await p.waitForTimeout(2500); }
+    const pollTab = await p.$('[role=tab] >> text=/Encuesta|Poll/i'); if (pollTab) { await pollTab.click(); await p.waitForTimeout(400); }
+    const opt = await p.$('.sgx-kpulse__opt:not([disabled])'); if (opt) { await opt.click(); await p.waitForTimeout(2500); }
   }
   check('poll vote reached Firestore', (await list('summit_poll_votes')).length > votesBefore, `(widget found: ${!!pulseBtn || pollOk})`);
 
@@ -102,13 +102,13 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
   await p.waitForTimeout(7000);
   await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_sponsor_modal')));
   await p.waitForTimeout(1500);
-  const form = await p.$('input[placeholder="sponsor@empresa.com"]');
+  const form = await p.$('input[autocomplete="email"][type="email"]');
   if (form) {
-    await p.fill('input[placeholder*="CyberCraft"]', 'ACME Prueba');
-    await p.fill('input[placeholder*="Nombre y Apellidos"], input[placeholder*="First and Last"]', 'Ana Prueba');
-    await p.fill('input[placeholder="sponsor@empresa.com"]', SPONSOR_EMAIL);
-    await p.fill('input[placeholder="+1 (787) 555-0100"]', '7875550000');
-    await p.$eval('input[placeholder="sponsor@empresa.com"]', (e) => e.closest('form').requestSubmit());
+    await p.fill('input[autocomplete="organization"]', 'ACME Prueba');
+    await p.fill('input[autocomplete="name"]', 'Ana Prueba');
+    await p.fill('input[autocomplete="email"][type="email"]', SPONSOR_EMAIL);
+    await p.fill('input[autocomplete="tel"]', '7875550000');
+    await p.$eval('input[autocomplete="email"][type="email"]', (e) => e.closest('form').requestSubmit());
     await p.waitForTimeout(3500);
   }
   const inq = await list('sponsor_inquiries');

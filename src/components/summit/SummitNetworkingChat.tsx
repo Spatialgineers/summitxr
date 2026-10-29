@@ -25,7 +25,7 @@ const ChatAvatar: React.FC<{ src?: string; seed: string; alt: string; className?
   const [broken, setBroken] = useState(false);
   const usable = !!src && !broken && !/images\.unsplash\.com/.test(src) && (/^https:\/\//.test(src) || /^data:image\//.test(src));
   return (
-    <span className={`sgx-avatar ${className}`} style={{ ['--avatar-accent' as string]: accent }} role="img" aria-label={alt}>
+    <span className={`sgx-avatar ${className}`} style={{ ['--avatar-accent' as string]: accent }} {...(alt ? { role: 'img', 'aria-label': alt } : { 'aria-hidden': true })}>
       {usable
         ? <img src={src} alt="" onError={() => setBroken(true)} />
         : <SgxPilotGlyph seed={seed || 'sgx'} accent={accent} size={28} />}

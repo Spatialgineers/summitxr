@@ -50,8 +50,8 @@ async function openForgeToName(p) {
   await a.keyboard.press('Escape');
   // 2. edit details: one form, no ceremony, same code
   await a.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } })));
-  await a.waitForSelector(".sgx-hangar", { timeout: 20000 }); await a.waitForTimeout(1200);
-  await a.click('.sgx-hangar button:has-text("Editar mi pase")');
+  await a.waitForSelector("#sgx-studio-page", { timeout: 20000 }); await a.waitForTimeout(1200);
+  await a.click('#sgx-studio-page button:has-text("Editar mi pase")');
   await a.waitForTimeout(800);
   check('edit opens one form', await a.evaluate(() => /Edita tus datos/i.test(document.querySelector('.sgx-forge')?.innerText || '')));
   check('edit shows no step-by-step forge', !(await a.$('.sgx-forge__pillars')) && !(await a.$('.sgx-forge__steps:not([hidden])')));
@@ -62,7 +62,7 @@ async function openForgeToName(p) {
   const after = await a.evaluate(() => JSON.parse(localStorage.getItem('sgx_identity_v1') || '{}').pass);
   check('edit keeps the same pass code', after?.code === code, after?.code);
   check('edit saved the new organization', after?.organization === 'Estudio Editado');
-  check('edit lands back in the Hangar', !!(await a.$('.sgx-hangar')) && !(await a.$('.sgx-forge')));
+  check('edit lands back in the Studio page', !!(await a.$('#sgx-studio-page')) && !(await a.$('.sgx-forge')));
   const regs = (await list('ticket_inquiries')).filter((d) => d.fields?.email?.stringValue === EMAIL);
   check('one registration for the email', regs.length === 1, String(regs.length));
   // 3. another device / person, same email: refused

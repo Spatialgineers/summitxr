@@ -54,7 +54,7 @@ const pass1 = (p) => p.evaluate(() => JSON.parse(localStorage.getItem('sgx_ident
   check('restored pass keeps the same code', back?.code === guestPass?.code, `${back?.code} vs ${guestPass?.code}`);
 
   // The account menu offers Studio and sign-out.
-  for (let i = 0; i < 3 && await p2.$('.sgx-hangar, .sgx-forge'); i++) { await p2.keyboard.press('Escape'); await p2.waitForTimeout(500); }
+  for (let i = 0; i < 3 && await p2.$('.sgx-forge'); i++) { await p2.keyboard.press('Escape'); await p2.waitForTimeout(500); }
   await p2.screenshot({ path: require('path').join(__dirname, 'out', 'recover_before_menu.png') });
   await p2.click('.sgx-passchip', { timeout: 8000 }); await p2.waitForTimeout(400);
   await p2.screenshot({ path: require('path').join(__dirname, 'out', 'recover_menu.png') });

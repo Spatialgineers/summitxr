@@ -4,6 +4,7 @@ import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { SgxStandby } from '../../immersion/SgxStandby';
 import React, { useState, useEffect, useCallback, lazy } from 'react';
 import { LazyBoundary } from '../common/LazyBoundary';
+import { takeStudioTab } from '../../identity/studioNav';
 import { LazyFallback } from '../common/LazyFallback';
 import { BarChart3, Clock, Download, ExternalLink, Instagram, Sliders, Sparkles, Video } from 'lucide-react';
 import type { SummitSession, SummitSpeaker, Map360Node, EmbedWidget, SponsorshipTier, SummitNotification, ApprovedSponsor } from '../../types/summit';
@@ -57,7 +58,7 @@ const SummitSpeakersDeck = lazy(() => import('./SummitSpeakersDeck').then((m) =>
 const SummitSponsorshipMatrix = lazy(() => import('./SummitSponsorshipMatrix').then((m) => ({ default: m.SummitSponsorshipMatrix })));
 const SummitContentAuditModal = lazy(() => import('./SummitContentAuditModal').then((m) => ({ default: m.SummitContentAuditModal })));
 const SummitAnalyticsView = lazy(() => import('../analytics/SummitAnalyticsView').then((m) => ({ default: m.SummitAnalyticsView })));
-const SgxPassSection = lazy(() => import('../../identity/SgxPassSection').then((m) => ({ default: m.SgxPassSection })));
+const SgxHangar = lazy(() => import('../../identity/SgxHangar').then((m) => ({ default: m.SgxHangar })));
 const SummitVisitRadar = lazy(() => import('./SummitVisitRadar').then((m) => ({ default: m.SummitVisitRadar })));
 const SummitEmbedsHub = lazy(() => import('./SummitEmbedsHub').then((m) => ({ default: m.SummitEmbedsHub })));
 const MatchModule = lazy(() => import('../../modules/match/MatchModule').then((m) => ({ default: m.MatchModule })));
@@ -888,14 +889,16 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div className="space-y-6">
             <SummitSectionBanner
               sectionKey="CREDENTIAL_GENERATOR"
-              title={language === 'es' ? 'Tu SGX Pass' : 'Your SGX Pass'}
+              title={language === 'es' ? 'Tu Estudio · SGX Pass' : 'Your Studio · SGX Pass'}
               subtitle={language === 'es'
                 ? 'Tu SGX Pass es tu Holo Card: al frente, tú; al reverso, el programa y tu QR de entrada al Día 3. Una sola tarjeta para registrarte, entrar y compartir como tarjeta 3D, post o story.'
                 : 'Your SGX Pass is your Holo Card: you on the front; the program and your Day 3 entrance QR on the back. One card to register, get in and share as a 3D card, post or story.'}
               pillarBadge="SGX.SYSTEM"
               pillarIconUrl={pillarIcon('SYSTEM')}
             />
-            <SgxPassSection />
+            <div id="sgx-studio-page">
+              <SgxHangar asPage initialTab={takeStudioTab()} onClose={() => {}} onForge={() => window.dispatchEvent(new CustomEvent('sgx:open_forge', { detail: { tier: 'DIGITAL' } }))} />
+            </div>
           </div>
         )}
 

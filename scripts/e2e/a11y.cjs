@@ -20,7 +20,7 @@ const SCREENS = [
   ['sgx-live', '/?page=play', null],
   ['admin-login', '/?page=admin', null],
   // with a pass (forged once per viewport below)
-  ['estudio', '/?estudio=pass', async (p) => { await p.waitForSelector('.sgx-hangar', { timeout: 20000 }); }],
+  ['estudio', '/?estudio=pass', async (p) => { await p.waitForSelector('#sgx-studio-page', { timeout: 20000 }); }],
   ['networking', '/?tab=networking', null],
   ['guild', '/?tab=guild', null],
   ['mapa-360', '/?tab=map', null],
@@ -75,10 +75,10 @@ async function keyboard(p, vpName) {
   check(`${vpName} keyboard: 25 Tab stops visible with a focus ring`, bad.length === 0, JSON.stringify(bad.slice(0, 4)));
   // modals close with Escape and take focus
   await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } })));
-  await p.waitForSelector('.sgx-hangar', { timeout: 20000 }); await p.waitForTimeout(600);
-  check(`${vpName} keyboard: Hangar takes focus`, await p.evaluate(() => !!document.querySelector('.sgx-hangar')?.contains(document.activeElement)));
+  await p.waitForSelector('#sgx-studio-page', { timeout: 20000 }); await p.waitForTimeout(600);
+  check(`${vpName} keyboard: Studio tabs are reachable`, await p.evaluate(() => !!document.querySelector('#sgx-studio-page [role=tab]')));
   await p.keyboard.press('Escape'); await p.waitForTimeout(500);
-  check(`${vpName} keyboard: Escape closes the Hangar`, !(await p.$('.sgx-hangar')));
+  check(`${vpName} keyboard: Studio is a page (no dialog to trap focus)`, !(await p.$('#sgx-studio-page [role=dialog]')));
 }
 
 (async () => {

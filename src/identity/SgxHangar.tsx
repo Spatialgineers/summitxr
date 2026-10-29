@@ -31,9 +31,19 @@ interface Props {
   onClose: () => void;
   onForge: () => void;
   initialTab?: HangarTab;
+  /** Rendered as the SGX Pass page (no dialog): the page banner carries the title. */
+  asPage?: boolean;
 }
 
-export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pass' }) => {
+/** Page frame with the dialog's slots, so the Studio reads like the other sections. */
+const PageShell: React.FC<{ headerExtra?: React.ReactNode; toolbar?: React.ReactNode; className?: string; children: React.ReactNode } & Record<string, unknown>> = ({ headerExtra, toolbar, className, children }) => (
+  <section className={`${className || ''} sgx-studio--page`}>
+    <div className="sgx-studio__pagebar">{toolbar}{headerExtra}</div>
+    <div className="sgx-studio__pagebody">{children}</div>
+  </section>
+);
+
+export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pass', asPage = false }) => {
   const { language } = useLanguage();
   const es = language === 'es';
   const { profile, leaderboard } = usePilotProfile();
@@ -54,6 +64,11 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   const done = missions.filter((m) => isDone(m.id)).length;
 
   useEffect(() => { setTab(initialTab); }, [initialTab]);
+  useEffect(() => {
+    const onTab = (e: Event) => { const t = (e as CustomEvent<{ tab?: HangarTab }>).detail?.tab; if (t) setTab(t); };
+    window.addEventListener('sgx:studio_tab', onTab);
+    return () => window.removeEventListener('sgx:studio_tab', onTab);
+  }, []);
 
   const goMission = (m: ReactorMission) => {
     playUiChirp(700);
@@ -110,8 +125,9 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
 
   const scan = () => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_qr_scanner')), 80); };
 
+  const Shell = (asPage ? PageShell : SgxDialog) as React.FC<any>;
   return (
-    <SgxDialog
+    <Shell
       onClose={onClose}
       size="lg"
       className="sgx-studio"
@@ -372,7 +388,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
               </section>
             </div>
           )}
-    </SgxDialog>
+    </Shell>
   );
 };
 

@@ -9,12 +9,12 @@ import { parsePassQr, PILLAR_ACCENT, type PassQrPayload, type PassTier } from '.
 import { CHECKIN_CODE_KEY, useSgxIdentity, type CheckinResult } from './SgxIdentityContext';
 import { useImmersion } from '../immersion/ImmersionContext';
 import type { HangarTab } from './SgxHangar';
+import { openStudioPage } from './studioNav';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
 import { FORGE_AFTER_SWITCH, SIGNED_IN_EVENT } from './accountSlots';
 
 // The pass surfaces download the first time they open.
 const SgxForge = lazy(() => import('./SgxForge').then((m) => ({ default: m.SgxForge })));
-const SgxHangar = lazy(() => import('./SgxHangar').then((m) => ({ default: m.SgxHangar })));
 const SgxHoloCardGeneratorModal = lazy(() => import('../components/summit/SgxHoloCardGeneratorModal').then((m) => ({ default: m.SgxHoloCardGeneratorModal })));
 const SgxHoloViewer = lazy(() => import('./SgxHoloViewer').then((m) => ({ default: m.SgxHoloViewer })));
 const PilotBuilderModal = lazy(() => import('./PilotBuilderModal').then((m) => ({ default: m.PilotBuilderModal })));
@@ -64,7 +64,11 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
   const [viewCard, setViewCard] = useState<HoloCredential | null>(null);
   const [pilotStudio, setPilotStudio] = useState(false);
   const [forge, setForge] = useState<{ tier: PassTier } | null>(null);
-  const [hangar, setHangar] = useState<HangarTab | null>(null);
+  // Your Studio is a page now (the SGX Pass section): "opening" it navigates there on a tab.
+  const setHangar = useCallback((t: HangarTab | null) => {
+    if (!t) return;
+    openStudioPage(t);
+  }, []);
   const [incoming, setIncoming] = useState<PassQrPayload | null>(null);
   const [incomingResult, setIncomingResult] = useState<string>('');
   const forgedRef = useRef(isForged);
@@ -287,13 +291,6 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
             initialTier={forge.tier}
             onClose={closeForge}
             onOpenHangar={() => { setForge(null); setHangar(pendingCheckin.current ? 'day3' : 'pass'); }}
-          />
-        )}
-        {hangar && (
-          <SgxHangar
-            initialTab={hangar}
-            onClose={() => setHangar(null)}
-            onForge={() => { setHangar(null); setForge({ tier: 'DIGITAL' }); }}
           />
         )}
       </LazyBoundary>

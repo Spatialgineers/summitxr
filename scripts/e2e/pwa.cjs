@@ -69,23 +69,23 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
   check('pass forged online', !!code, code);
   // open the pass once while online, so its pieces are cached
   await p.goto(APP + '/?estudio=pass', { waitUntil: 'domcontentloaded' });
-  await p.waitForSelector('.sgx-hangar', { timeout: 20000 }).catch(() => {});
+  await p.waitForSelector('#sgx-studio-page', { timeout: 20000 }).catch(() => {});
   await p.waitForTimeout(4000);
 
   // 4. No signal (Chroma, Day 3)
   await ctx.setOffline(true);
   await p.goto(APP + '/?hangar=pass', { waitUntil: 'domcontentloaded' }).catch(() => {});
-  const opened = await p.waitForSelector('.sgx-hangar', { timeout: 20000 }).then(() => true).catch(() => false);
+  const opened = await p.waitForSelector('#sgx-studio-page', { timeout: 20000 }).then(() => true).catch(() => false);
   check('offline: app opens from the cache', await p.evaluate(() => !!document.getElementById('root')?.children.length));
   check('offline: the pass (Estudio) opens', opened);
   await p.waitForTimeout(2500);
   check('offline: pass still on the device', await p.evaluate((c) => JSON.parse(localStorage.getItem('sgx_identity_v1') || '{}').pass?.code === c, code), code);
   // the QR is on the back of the Holo Card
-  await p.click('.sgx-hangar button:has-text("Reverso")').catch(() => {});
+  await p.click('#sgx-studio-page button:has-text("Reverso")').catch(() => {});
   await p.waitForTimeout(1500);
   const qr = await p.evaluate(() => {
-    const imgs = Array.from(document.querySelectorAll('.sgx-hangar img')).filter((i) => /^data:image/.test(i.src) && i.naturalWidth > 50);
-    const canv = Array.from(document.querySelectorAll('.sgx-hangar canvas')).filter((c) => c.width > 50);
+    const imgs = Array.from(document.querySelectorAll('#sgx-studio-page img')).filter((i) => /^data:image/.test(i.src) && i.naturalWidth > 50);
+    const canv = Array.from(document.querySelectorAll('#sgx-studio-page canvas')).filter((c) => c.width > 50);
     return imgs.length + canv.length;
   });
   check('offline: QR / card drawn', qr > 0, `(${qr})`);

@@ -61,7 +61,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
   useEffect(() => {
     if (!googleUser || identity.pass) return;
     let alive = true;
-    findMyRegistration(googleUser.uid).then((reg) => {
+    findMyRegistration(googleUser.uid, googleUser.emailVerified ? googleUser.email : null).then((reg) => {
       if (!alive || !reg) return;
       setFound(reg);
       setFullName(reg.fullName);
@@ -122,9 +122,12 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
     const emailChanged = !editing || email.trim().toLowerCase() !== (identity.pass?.email || '').trim().toLowerCase();
     if (emailChanged && !found) {
       setChecking(true);
-      const claim = await checkEmailClaim(email, myUid);
-      setChecking(false);
-      if (claim.state === 'taken') { setError(takenMsg); return; }
+      let claim: Awaited<ReturnType<typeof checkEmailClaim>> = { state: 'unknown' };
+      try { claim = await checkEmailClaim(email, myUid); } finally { setChecking(false); }
+      // Your own Google-verified email (e.g. a pass forged earlier as a guest): it's yours, keep its code.
+      const ownEmail = !!googleUser?.emailVerified && (googleUser.email || '').trim().toLowerCase() === email.trim().toLowerCase();
+      if (claim.state === 'taken' && ownEmail) { if (!editing && claim.code) setReuseCode(claim.code); }
+      else if (claim.state === 'taken') { setError(takenMsg); return; }
       if (claim.state === 'mine' && !editing) setReuseCode(claim.code);
     }
     if (editing) { saveEdit(); return; }

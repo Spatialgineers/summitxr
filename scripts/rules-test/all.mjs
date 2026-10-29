@@ -299,6 +299,27 @@ await no('visitor cannot edit a report', setDoc(doc(anon, 'client_errors', 'e1')
 await ok('admin lists error reports', getDocs(collection(admin, 'client_errors')));
 await ok('admin clears a report', deleteDoc(doc(admin, 'client_errors', 'e1')));
 
+// A guest pass taken back by Google sign-in with the same verified email
+{
+  const { createHash } = await import('node:crypto');
+  const EM = 'dan@example.com';
+  const KD = createHash('sha256').update(EM).digest('hex');
+  const guest = ctx('guest-dan');
+  const dan = ctx('google-dan', { email: EM, email_verified: true });
+  const danUnverified = ctx('google-dan2', { email: EM, email_verified: false });
+  const eve = ctx('google-eve', { email: 'eve@example.com', email_verified: true });
+  await ok('guest claims an email', setDoc(doc(guest, 'pass_emails', KD), { code: 'SGX-DAN-0001', userId: 'guest-dan', at: serverTimestamp() }));
+  await ok('guest registers the pass', setDoc(doc(guest, 'ticket_inquiries', 'SGX-DAN-0001'), { ...reg, email: EM, userId: 'guest-dan', referenceCode: 'SGX-DAN-0001' }));
+  await no('unverified email cannot take the claim', setDoc(doc(danUnverified, 'pass_emails', KD), { code: 'SGX-DAN-0001', userId: 'google-dan2', at: serverTimestamp() }));
+  await no('another verified email cannot take the claim', setDoc(doc(eve, 'pass_emails', KD), { code: 'SGX-DAN-0001', userId: 'google-eve', at: serverTimestamp() }));
+  await ok('same verified email takes the claim', setDoc(doc(dan, 'pass_emails', KD), { code: 'SGX-DAN-0001', userId: 'google-dan', at: serverTimestamp() }));
+  await ok('same verified email finds the registration', getDocs(query(collection(dan, 'ticket_inquiries'), where('email', '==', EM))));
+  await no('another verified email cannot list it', getDocs(query(collection(eve, 'ticket_inquiries'), where('email', '==', EM))));
+  await ok('same verified email moves the registration to itself', updateDoc(doc(dan, 'ticket_inquiries', 'SGX-DAN-0001'), { userId: 'google-dan', fullName: 'Dan', timestamp: serverTimestamp() }));
+  await no('…but cannot set the status', updateDoc(doc(dan, 'ticket_inquiries', 'SGX-DAN-0001'), { userId: 'google-dan', status: 'CONFIRMED', timestamp: serverTimestamp() }));
+  await no('another verified email cannot move it', updateDoc(doc(eve, 'ticket_inquiries', 'SGX-DAN-0001'), { userId: 'google-eve', timestamp: serverTimestamp() }));
+}
+
 console.log(`RESULT ${n} passed, ${failed} failed`);
 await env.cleanup();
 process.exit(failed ? 1 : 0);

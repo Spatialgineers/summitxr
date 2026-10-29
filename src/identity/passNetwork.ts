@@ -2,6 +2,7 @@ import {
   addDoc, collection, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, where, writeBatch,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { reportError } from '../lib/errorMonitor';
 import type { PassQrPayload, SgxPass } from './sgxIdentity';
 import type { PillarKey } from '../lib/sgxPillars';
 
@@ -43,10 +44,25 @@ export interface MyRegistration {
   affinity?: PillarKey | null;
 }
 
-/** A pass forged on another device while signed in with this Google account (rules: owner can read it). */
-export async function findMyRegistration(uid: string): Promise<MyRegistration | null> {
+/** A Firestore read that never hangs the UI: after `ms` it gives up (and reports it). */
+function bounded<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const t = window.setTimeout(() => {
+      reportError('manual', new Error(`Firestore read timed out: ${what}`));
+      reject(new Error('timeout'));
+    }, ms);
+    p.then((v) => { window.clearTimeout(t); resolve(v); }, (e) => { window.clearTimeout(t); reject(e); });
+  });
+}
+
+/** A pass of this Google account: forged on another device while signed in, or forged
+    earlier as a guest with the same (Google-verified) email. Rules allow both reads. */
+export async function findMyRegistration(uid: string, verifiedEmail?: string | null): Promise<MyRegistration | null> {
   try {
-    const snap = await getDocs(query(collection(db, 'ticket_inquiries'), where('userId', '==', uid), limit(1)));
+    let snap = await bounded(getDocs(query(collection(db, 'ticket_inquiries'), where('userId', '==', uid), limit(1))), 6000, 'registration by uid');
+    if (snap.empty && verifiedEmail) {
+      snap = await bounded(getDocs(query(collection(db, 'ticket_inquiries'), where('email', '==', verifiedEmail), limit(1))), 6000, 'registration by email');
+    }
     const d = snap.docs[0];
     if (!d) return null;
     const v = d.data();
@@ -77,16 +93,18 @@ async function emailKey(email: string): Promise<string> {
   return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export type EmailClaim = { state: 'free' } | { state: 'mine'; code: string } | { state: 'taken'; userId?: string } | { state: 'unknown' };
+export type EmailClaim = { state: 'free' } | { state: 'mine'; code: string } | { state: 'taken'; userId?: string; code?: string } | { state: 'unknown' };
 
 export async function checkEmailClaim(email: string, uid: string | null): Promise<EmailClaim> {
   try {
-    const snap = await getDoc(doc(db, 'pass_emails', await emailKey(email)));
+    const snap = await bounded(getDoc(doc(db, 'pass_emails', await emailKey(email))), 6000, 'pass email claim');
     if (!snap.exists()) return { state: 'free' };
     const v = snap.data();
-    return uid && v.userId === uid ? { state: 'mine', code: String(v.code) } : { state: 'taken', userId: v.userId ? String(v.userId) : undefined };
+    return uid && v.userId === uid
+      ? { state: 'mine', code: String(v.code) }
+      : { state: 'taken', userId: v.userId ? String(v.userId) : undefined, code: v.code ? String(v.code) : undefined };
   } catch {
-    // Offline or rules not deployed yet: do not block the forge.
+    // Offline, slow, or rules not deployed yet: do not block the forge.
     return { state: 'unknown' };
   }
 }

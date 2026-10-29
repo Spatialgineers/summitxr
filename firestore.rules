@@ -18,6 +18,12 @@ service cloud.firestore {
       return request.auth.uid;
     }
 
+    // A Google-verified email on the token (a guest who forged a pass with this email
+    // can take it back by signing in with Google with that same email).
+    function hasVerifiedEmail() {
+      return isSignedIn() && request.auth.token.email is string && request.auth.token.email_verified == true;
+    }
+
     // Super admins: the two team accounts, with a verified address or a
     // Google sign-in. An unverified account typed with the same email is not one.
     function isSuperAdmin() {
@@ -218,7 +224,9 @@ service cloud.firestore {
         request.resource.data.userId == me() &&
         isShortString(request.resource.data.code, 40) &&
         request.resource.data.at == request.time;
-      allow update: if isSignedIn() && resource.data.userId == me() &&
+      allow update: if isSignedIn() &&
+        (resource.data.userId == me() ||
+          (hasVerifiedEmail() && hashing.sha256(request.auth.token.email.lower()).toHexString().lower() == key)) &&
         request.resource.data.keys().hasOnly(['code', 'userId', 'at']) &&
         request.resource.data.userId == me() &&
         isShortString(request.resource.data.code, 40) &&
@@ -257,16 +265,20 @@ service cloud.firestore {
     }
 
     match /ticket_inquiries/{inquiryId} {
-      allow get: if isAdmin() || (isSignedIn() && resource.data.userId == me());
-      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == me());
+      allow get: if isAdmin() || (isSignedIn() && resource.data.userId == me()) ||
+        (hasVerifiedEmail() && resource.data.email == request.auth.token.email);
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == me()) ||
+        (hasVerifiedEmail() && resource.data.email == request.auth.token.email);
       allow create: if isValidTicketInquiry(incoming());
       // Team: invitation status. Owner (same signed-in uid): edit their own details and consent, never the status.
       allow update: if (isAdmin() &&
           changed().hasOnly(['status', 'invitedAt', 'notes']) &&
           incoming().status in ['PENDING', 'INVITED', 'CONFIRMED', 'DECLINED'] &&
           optString(incoming(), 'notes', 500)) ||
-        (isSignedIn() && resource.data.userId == me() && incoming().userId == me() &&
-          changed().hasOnly(['email', 'ticketType', 'fullName', 'roleTitle', 'organization', 'imageConsent', 'consentAt', 'timestamp', 'affinity']) &&
+        (isSignedIn() && incoming().userId == me() &&
+          (resource.data.userId == me() ||
+            (hasVerifiedEmail() && resource.data.email == request.auth.token.email)) &&
+          changed().hasOnly(['email', 'ticketType', 'fullName', 'roleTitle', 'organization', 'imageConsent', 'consentAt', 'timestamp', 'affinity', 'userId']) &&
           isShortString(incoming().email, 150) &&
           incoming().ticketType in ['DIGITAL', 'SHOWCASE_PHYSICAL'] &&
           optString(incoming(), 'fullName', 100) &&

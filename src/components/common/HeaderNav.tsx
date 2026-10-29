@@ -3,7 +3,7 @@ import { SgxPilotGlyph } from '../../identity/SgxPilotGlyph';
 import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  BarChart3, Building2, Check, ShieldCheck, Sparkles, Zap, Ticket, Share2, Menu, X, Sliders, Volume2, VolumeX,
+  BarChart3, Building2, Check, LogOut, ShieldCheck, Sparkles, Zap, Ticket, Share2, Menu, X, Sliders, Volume2, VolumeX,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -13,6 +13,7 @@ import { playUiChirp, getIsAudioMuted, toggleAudioMute } from '../../lib/cyberAu
 import { syncAppUrl } from '../../lib/summitUrlSync';
 import { TransientSponsorSlot } from '../summit/TransientSponsorSlot';
 import { SgxDialog } from './SgxDialog';
+import { AccountMenu } from './AccountMenu';
 import '../summit/sgx-kit.css';
 import './HeaderNav.css';
 
@@ -38,7 +39,9 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentPage, onNavigate })
   const es = language === 'es';
   const { liteMode, setLiteMode } = usePilotProfile();
   const sgxId = useOptionalSgxIdentity();
-  const { isAdmin } = useAuth();
+  const { isAdmin, user, logout } = useAuth();
+  const [acctOpen, setAcctOpen] = useState(false);
+  const chipRef = useRef<HTMLButtonElement | null>(null);
 
   // Admin tools menu: click outside or Escape closes it; arrows move between items.
   useEffect(() => {
@@ -202,16 +205,17 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentPage, onNavigate })
               </div>
             )}
 
-            {/* SGX Pass chip: the one "me" button (pass, Estudio, XP). Unforged = Forge CTA. */}
+            {/* SGX Pass chip: the one "me" button. Opens the account menu (Estudio, Forja, Google sign-in / sign-out). */}
+            <div className="sgx-acct-wrap">
             <button
+              ref={chipRef}
               type="button"
               data-tour="user-passport-btn"
-              onClick={() => {
-                playUiChirp(840);
-                window.dispatchEvent(new CustomEvent(sgxId?.isForged ? 'sgx:open_hangar' : 'sgx:open_forge', { detail: { tab: 'pass' } }));
-              }}
+              aria-haspopup="menu"
+              aria-expanded={acctOpen}
+              onClick={() => { playUiChirp(840); setAcctOpen((o) => !o); }}
               className={`sgx-passchip ${sgxId?.isForged ? '' : 'sgx-passchip--forge'}`}
-              title={sgxId?.isForged ? (es ? 'Abrir Tu Estudio (SGX Pass, Reactor, Rolodex)' : 'Open Your Studio (SGX Pass, Reactor, Rolodex)') : (es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass')}
+              title={es ? 'Tu cuenta: Estudio, pase y sesión' : 'Your account: Studio, pass and sign-in'}
             >
               <span className="sgx-passchip__face">
                 {sgxId?.identity.avatar.png ? (
@@ -235,6 +239,8 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentPage, onNavigate })
                 )}
               </span>
             </button>
+            <AccountMenu open={acctOpen} onClose={() => setAcctOpen(false)} anchorRef={chipRef} />
+            </div>
 
             <button
               type="button"
@@ -279,6 +285,11 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentPage, onNavigate })
               <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={() => { closeMenu(); window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } })); }}>
                 <Sparkles aria-hidden />{es ? 'Tu Estudio' : 'Your Studio'}
               </button>
+              {user && !user.isAnonymous && (
+                <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={() => { closeMenu(); playUiChirp(420); logout(); }}>
+                  <LogOut aria-hidden />{es ? 'Cerrar sesión' : 'Sign out'}
+                </button>
+              )}
               {isAdmin && (
                 <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={() => { closeMenu(); window.dispatchEvent(new CustomEvent('sgx:open_audit_modal')); }}>
                   <Sliders aria-hidden />{es ? 'Módulos' : 'Modules'}

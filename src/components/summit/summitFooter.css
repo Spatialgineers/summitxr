@@ -1,0 +1,117 @@
+/* ---------- Summit footer (SummitFooter.tsx) ---------- */
+.sgx-foot {
+  position: relative;
+  background: var(--SGX_Black_Base, #050505);
+  border-top: 1px solid rgba(0, 221, 255, 0.35);
+  box-shadow: inset 0 1px 0 rgba(253, 204, 13, 0.18);
+  padding: 32px 16px 20px;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.sgx-foot__grid {
+  max-width: 1200px; margin: 0 auto;
+  display: grid; gap: 28px;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1.2fr);
+}
+.sgx-foot__brand { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+.sgx-foot__brand img { width: 72px; height: auto; }
+.sgx-foot__title {
+  margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #fff;
+}
+.sgx-foot__tag { margin: 4px 0 0; font-family: var(--font-hud); font-size: 0.8rem; letter-spacing: 0.04em; color: var(--SGX_Yellow, #fdcc0d); }
+.sgx-foot__head {
+  margin: 0 0 10px; padding-bottom: 6px;
+  font-family: var(--font-hud); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--SGX_Cyan, #00ddff); border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.sgx-foot__pillars, .sgx-foot__facts { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.sgx-foot__pillar {
+  display: inline-flex; align-items: baseline; gap: 8px; min-height: 28px; padding: 2px 0;
+  background: none; border: 0; cursor: pointer; color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-hud); font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.sgx-foot__pillar:hover, .sgx-foot__pillar:focus-visible { color: var(--pillar, #fdcc0d); }
+.sgx-foot__idx { font-family: var(--font-mono); font-size: 0.75rem; color: var(--pillar, #fdcc0d); }
+.sgx-foot__facts strong { color: #fff; font-weight: 600; }
+.sgx-foot a, .sgx-foot__link {
+  color: var(--SGX_Cyan, #00ddff); text-decoration: none; background: none; border: 0; padding: 0;
+  font: inherit; cursor: pointer; text-align: left; overflow-wrap: anywhere;
+}
+.sgx-foot a:hover, .sgx-foot__link:hover { color: var(--SGX_Yellow, #fdcc0d); text-decoration: underline; }
+.sgx-foot__pillar:focus-visible, .sgx-foot a:focus-visible, .sgx-foot__link:focus-visible {
+  outline: 2px solid var(--focus-ring, #00ddff); outline-offset: 2px;
+}
+.sgx-foot__social { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 12px; }
+.sgx-foot__social a {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 10px 4px 8px;
+  font-family: var(--font-hud); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #fff; box-shadow: inset 0 0 0 1px rgba(0, 221, 255, 0.4);
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+.sgx-foot__social a:hover { color: #050505; background: var(--SGX_Cyan, #00ddff); text-decoration: none; }
+.sgx-foot__social svg { width: 16px; height: 16px; fill: currentColor; }
+.sgx-foot__hash { font-family: var(--font-mono); font-size: 0.78rem; color: rgba(255, 255, 255, 0.6); }
+.sgx-foot__base {
+  max-width: 1200px; margin: 24px auto 0; padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+}
+.sgx-foot__legal { margin: 0; font-family: var(--font-mono); font-size: 0.78rem; color: rgba(255, 255, 255, 0.62); max-width: 640px; }
+.sgx-foot__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+@media (max-width: 1023px) {
+  .sgx-foot__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 639px) {
+  .sgx-foot { padding: 24px 16px 16px; }
+  .sgx-foot__grid { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  .sgx-foot__brand { flex-direction: row; align-items: center; }
+  .sgx-foot__brand img { width: 56px; }
+  .sgx-foot__pillars { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sgx-foot__actions { width: 100%; }
+  .sgx-foot__actions .sgx-btn { flex: 1 1 0; min-height: 44px; }
+}
+
+/* ---------- Slim bar under the 3D core ---------- */
+.sgx-corefoot {
+  flex-shrink: 0; position: relative; z-index: 31;
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px 18px;
+  min-height: 30px; padding: 4px 16px;
+  background: var(--SGX_Black_Base, #050505);
+  border-top: 1px solid rgba(50, 82, 123, 0.6);
+  font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255, 255, 255, 0.6);
+}
+.sgx-corefoot__link {
+  background: none; border: 0; padding: 4px 0; cursor: pointer; font: inherit;
+  color: var(--SGX_Cyan, #00ddff); text-decoration: none;
+}
+.sgx-corefoot__link:hover { color: var(--SGX_Yellow, #fdcc0d); text-decoration: underline; }
+.sgx-corefoot__link:focus-visible { outline: 2px solid var(--focus-ring, #00ddff); outline-offset: 2px; }
+/* Phones: sit just above the fixed dock (the dock hides while the hero is calm). */
+@media (max-width: 639px) {
+  .sgx-corefoot { gap: 2px 14px; margin-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+  .sgx-corefoot__copy { display: none; }
+  html.sgx-calm .sgx-corefoot { margin-bottom: 0; }
+}
+
+/* ---------- Privacy policy (SummitPrivacyPolicyModal.tsx) ---------- */
+.sgx-privacy { display: grid; gap: 18px; font-family: var(--font-body); font-size: 0.95rem; line-height: 1.6; color: rgba(255, 255, 255, 0.82); }
+.sgx-privacy__lead {
+  margin: 0; padding: 12px 14px; color: #fff;
+  border-left: 3px solid var(--SGX_Yellow, #fdcc0d); background: rgba(253, 204, 13, 0.06);
+}
+.sgx-privacy__sec h3 {
+  display: flex; align-items: baseline; gap: 10px; margin: 0 0 6px;
+  font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #fff;
+}
+.sgx-privacy__sec h3 span { font-family: var(--font-mono); font-size: 0.8rem; color: var(--SGX_Cyan, #00ddff); }
+.sgx-privacy__sec p { margin: 0 0 6px; }
+.sgx-privacy__sec ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; list-style: square; }
+.sgx-privacy__sec li::marker { color: var(--SGX_Cyan, #00ddff); }
+/* The core's viewport has a fixed 100dvh-based height; under the slim bar let
+   it take the space that is left instead, so the pillar strip stays visible. */
+#summit-section-overview #summit-experience-hub > div { min-height: 0 !important; }
+html #summit-section-overview .sgx-core-viewport { flex: 1 1 0 !important; height: auto !important; min-height: 240px !important; }

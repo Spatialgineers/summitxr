@@ -1,47 +1,39 @@
-import { pillarIcon } from '../../lib/sgxPillars';
-import { pillarInk } from '../../lib/sgxPillars';
-import React, { useState, useEffect, lazy } from 'react';
+import React, { useState, useEffect, useCallback, lazy } from 'react';
 import {
-  Sparkles,
   Orbit,
-  ArrowRight,
   User,
   Tv,
   Zap,
-  Activity,
   Building2,
-  Layers,
   Boxes,
   Gamepad2,
   Trophy,
   Calendar,
   Users,
   Award,
-  Ticket,
   ScanLine,
   Radio,
   MessageSquare,
   Instagram,
   Globe,
   ShieldCheck,
-  Sliders,
   Volume2,
-  Eye,
+  BarChart3,
 } from 'lucide-react';
 import type { SummitSectionKey } from './sectionKeys';
-import { useTenantTheme, hexToRgbStr } from '../../context/TenantThemeContext';
+import { useTenantTheme } from '../../context/TenantThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { playUiChirp, playPillarDockSound, playCyberBurstSound } from '../../lib/cyberAudioEngine';
+import { playUiChirp, playPillarDockSound, getIsAudioMuted } from '../../lib/cyberAudioEngine';
 import { usePilotProfile } from '../../context/PilotProfileContext';
 import type { SgxCorePillarId } from './SgxOrbitalCore3D';
 import { LazyBoundary } from '../common/LazyBoundary';
 import { LazyFallback } from '../common/LazyFallback';
-// three.js and the core arrive after the page shell has painted.
-const SummitAnalyticsView = lazy(() => import('../analytics/SummitAnalyticsView').then((m) => ({ default: m.SummitAnalyticsView })));
-const SgxOrbitalCore3D = lazy(() => import('./SgxOrbitalCore3D').then((m) => ({ default: m.SgxOrbitalCore3D })));
+import { SgxDialog } from '../common/SgxDialog';
 import { useSummitFeatures } from '../../context/SummitFeatureContext';
-import { PILLAR_BY_KEY, PillarKey } from '../../lib/sgxPillars';
+import { PILLAR_BY_KEY, PillarKey, bi } from '../../lib/sgxPillars';
 import { navigateToPillar } from '../../immersion/navigation';
+// three.js and the core arrive after the page shell has painted.
+const SgxOrbitalCore3D = lazy(() => import('./SgxOrbitalCore3D').then((m) => ({ default: m.SgxOrbitalCore3D })));
 
 export interface PillarModuleItem {
   id: string;
@@ -52,19 +44,6 @@ export interface PillarModuleItem {
   actionLabel: string;
   icon: React.ElementType;
   onLaunch: () => void;
-}
-
-export interface PillarStationDefinition {
-  id: SgxCorePillarId;
-  name: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  icon: React.ElementType;
-  iconUrl: string;
-  themeColor: string;
-  physicsDescription: string;
-  modules: PillarModuleItem[];
 }
 
 interface SummitExperienceHubProps {
@@ -82,6 +61,14 @@ interface SummitExperienceHubProps {
   onOpenTimeCapsules?: () => void;
   sponsorCount: number;
 }
+
+/* The tone desk: four pads, each a short Web Audio tone. */
+const TONES: { hz: number; label: { es: string; en: string } }[] = [
+  { hz: 288, label: { es: 'Grave', en: 'Low' } },
+  { hz: 432, label: { es: 'Base', en: 'Base' } },
+  { hz: 528, label: { es: 'Brillante', en: 'Bright' } },
+  { hz: 648, label: { es: 'Agudo', en: 'High' } },
+];
 
 function resolvePillarFromTenantId(raw?: string): SgxCorePillarId {
   if (!raw) return 'STORY';
@@ -105,16 +92,14 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
   onOpenQrScanner,
   onOpenPassport,
   onOpenSpeakerPortal,
-  onOpenTour,
   onOpenTimeCapsules,
   sponsorCount,
 }) => {
   const { language } = useLanguage();
   const es = language === 'es';
   const { tenant, selectPillar } = useTenantTheme();
-  const { t } = useLanguage();
-  const { setIsProfileModalOpen, recordActivity } = usePilotProfile();
-  const { isHubModuleVisible, getHubModuleStatus } = useSummitFeatures();
+  const { setIsProfileModalOpen } = usePilotProfile();
+  const { isHubModuleVisible } = useSummitFeatures();
 
   const [activePillarId, setActivePillarId] = useState<SgxCorePillarId>(() =>
     resolvePillarFromTenantId(tenant.pillarId || tenant.id)
@@ -123,12 +108,9 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
   const [pillarChosen, setPillarChosen] = useState<boolean>(() => {
     try { return !!new URLSearchParams(window.location.search).get('pillar'); } catch { return false; }
   });
-  const [viewMode, setViewMode] = useState<'CLOSED_3D_ONLY' | 'DOCKED_STATION' | 'ALL_PILLARS_MATRIX'>('CLOSED_3D_ONLY');
-  const [activeHoloSandbox, setActiveHoloSandbox] = useState<
-    'NONE' | 'HARMONIC_SYNTH_LAB' | 'TELEMETRY_MATRIX' | 'RELIC_INSPECTOR'
-  >('NONE');
-  const [synthFreq, setSynthFreq] = useState<number>(432);
-  const [telemetryPulseCount, setTelemetryPulseCount] = useState<number>(0);
+  const [synthOpen, setSynthOpen] = useState(false);
+  const [synthHz, setSynthHz] = useState<number | null>(null);
+  const closeSynth = useCallback(() => setSynthOpen(false), []);
 
   // Keep active pillar synchronized with global tenant changes
   useEffect(() => {
@@ -144,27 +126,11 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
     window.dispatchEvent(new CustomEvent('sgx:pillar_docked', { detail: { pillarId } }));
   };
 
-  const triggerSynthFrequency = (hz: number, label: string) => {
-    setSynthFreq(hz);
-    playUiChirp(hz);
-    playCyberBurstSound();
-    recordActivity('pillar_explore', `Sintetizador Espacial ${label}`, `Frecuencia ${hz}Hz disparada en el SGX Core`, 20);
-  };
-
   // Strict logical separation of all modules into their 6 SGX Pillars in official v2026.10 order:
   // 1. STORY -> 2. SHOWCASE -> 3. SPARK -> 4. STAGE -> 5. SYSTEM -> 6. SYNTHESIZE
-  const rawPillarStations: PillarStationDefinition[] = [
+  const rawPillarStations: { id: SgxCorePillarId; modules: PillarModuleItem[] }[] = [
     {
       id: 'STORY',
-      name: 'SGX.STORY',
-      title: (es ? 'Identidad, Narrativa & Reliquias 3D' : 'Identity, Narrative & 3D Relics'),
-      subtitle: (es ? 'Story opt.glb • Manifiesto • Avatar Studio 3D (+200 XP) • SGX Pass' : 'Story opt.glb • Manifesto • 3D Avatar Studio (+200 XP) • SGX Pass'),
-      description:
-        (es ? 'El origen conceptual de Spatialgineers ("Ingeniando Imaginación, Construyendo Realidades"). Inspecciona la escultura oficial Story opt.glb, construye tu avatar (+200 XP) y desbloquea sellos en tu SGX Pass.' : 'The conceptual origin of Spatialgineers ("Engineering Imagination, Building Realities"). Inspect the official Story opt.glb sculpture, build your avatar (+200 XP) and unlock stamps on your SGX Pass.'),
-      icon: Boxes,
-      iconUrl: pillarIcon('STORY'),
-      themeColor: pillarInk('STORY'),
-      physicsDescription: (es ? 'Física: Brasas Doradas Ascendentes · Audio: Acorde Lydian 432Hz' : 'Physics: Rising Golden Embers · Audio: 432Hz Lydian Chord'),
       modules: [
         {
           id: 'mod_manifesto',
@@ -211,7 +177,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           subtitle: (es ? 'Estadísticas del Fin de Semana' : 'Weekend Stats'),
           description:
             (es ? 'Consulta tu nivel actual, historial de interacciones en vivo y desglose de puntos acumulados.' : 'Check your current level, live interaction history and a breakdown of your points.'),
-          xpReward: (es ? 'PERFIL ACTIVO' : 'ACTIVE PROFILE'),
           actionLabel: (es ? 'Ver Bitácora' : 'View Log'),
           icon: ShieldCheck,
           onLaunch: () => {
@@ -219,33 +184,10 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
             setIsProfileModalOpen(true);
           },
         },
-        {
-          id: 'mod_relic_studio',
-          title: (es ? 'Inspector Holográfico de Reliquias .GLB' : 'Holographic .GLB Relic Inspector'),
-          subtitle: (es ? 'Laboratorio de Materiales PBR & Shaders' : 'PBR Materials & Shaders Lab'),
-          description:
-            (es ? 'Inspecciona las esculturas 3D oficiales de Spatialgineers sin salir del visor, alternando entre Cristal PBR, Wireframe y Oro Solar.' : 'Inspect the official Spatialgineers 3D sculptures without leaving the viewer, switching between PBR Crystal, Wireframe and Solar Gold.'),
-          xpReward: '+40 XP',
-          actionLabel: (es ? 'Activar Inspector 3D' : 'Activate 3D Inspector'),
-          icon: Eye,
-          onLaunch: () => {
-            playCyberBurstSound();
-            setActiveHoloSandbox('RELIC_INSPECTOR');
-          },
-        },
       ],
     },
     {
       id: 'SHOWCASE',
-      name: 'SGX.SHOWCASE',
-      title: (es ? 'Exposición 360°, SGX.Match & Alianzas Oficiales' : '360° Exhibition, SGX.Match & Official Partnerships'),
-      subtitle: (es ? 'Showcase opt.glb • Recorrido 360° Chroma • Speed Pitching • QR (+50 XP)' : 'Showcase opt.glb • Chroma 360° Tour • Speed Pitching • QR (+50 XP)'),
-      description:
-        (es ? 'Donde los proyectos, marcas aliadas y fundadores se conectan con el mundo. Recorre en 360° Chroma Space Studios, la sede del Día 3, haz matchmaking estratégico y escanea códigos QR (+50 XP).' : 'Where projects, partner brands and founders connect with the world. Tour Chroma Space Studios, the Day 3 venue, in 360°, do strategic matchmaking and scan QR codes (+50 XP).'),
-      icon: Building2,
-      iconUrl: pillarIcon('SHOWCASE'),
-      themeColor: pillarInk('SHOWCASE'),
-      physicsDescription: (es ? 'Física: Galería Holográfica Panorámica · Audio: Resonancia Cristalina Cian' : 'Physics: Panoramic Holographic Gallery · Audio: Cyan Crystal Resonance'),
       modules: [
         {
           id: 'mod_map_360',
@@ -320,24 +262,15 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
     },
     {
       id: 'SPARK',
-      name: 'SGX.SPARK',
-      title: (es ? 'Simulación de Dron con Colisiones 3D & Gamificación' : 'Drone Simulation with 3D Collisions & Gamification'),
-      subtitle: (es ? 'Spark Opt.glb • Dron 3D con Física Box3 • Premios XP • Votación Kahoot (+25 XP)' : 'Spark Opt.glb • 3D Drone with Box3 Physics • XP Prizes • Kahoot Voting (+25 XP)'),
-      description:
-        (es ? 'Exploración creativa y dinámicas participativas. Pilotea el dron táctico, participa en las rondas de votación estilo Kahoot (+25 XP) y canjea premios oficiales del Summit.' : 'Creative exploration and participatory dynamics. Fly the tactical drone, join the Kahoot-style voting rounds (+25 XP) and redeem official Summit prizes.'),
-      icon: Zap,
-      iconUrl: pillarIcon('SPARK'),
-      themeColor: pillarInk('SPARK'),
-      physicsDescription: (es ? 'Física: Vórtice Cinético Centrífugo · Audio: Sintetizador Arpegiado Ámbar' : 'Physics: Centrifugal Kinetic Vortex · Audio: Amber Arpeggiated Synth'),
       modules: [
         {
           id: 'mod_drone_sim',
-          title: (es ? 'Simulador de Dron 3D (Motor de Colisiones Box3)' : '3D Drone Simulator (Box3 Collision Engine)'),
-          subtitle: (es ? 'Colisiones contra Edificios, Islas, Túneles & Barrel Roll [Q]' : 'Collisions with Buildings, Islands, Tunnels & Barrel Roll [Q]'),
+          title: (es ? 'Simulador de dron 3D' : '3D drone simulator'),
+          subtitle: (es ? 'Colisiones reales, trucos y ranking' : 'Real collisions, tricks and a leaderboard'),
           description:
-            (es ? 'Vuela a través de San Juan Cyberpunk, Archipiélago Tropical y Túnel Cuántico con colisiones físicas reales, rebote vectorial y chispas 3D.' : 'Fly through Cyberpunk San Juan, the Tropical Archipelago and the Quantum Tunnel with real physical collisions, vector bounce and 3D sparks.'),
+            (es ? 'Maneja el dron entre edificios e islas con colisiones reales, haz trucos y sube en el ranking.' : 'Steer the drone between buildings and islands with real collisions, pull off tricks and climb the leaderboard.'),
           xpReward: '+250 XP',
-          actionLabel: (es ? 'Volar Dron 3D Ahora' : 'Fly the 3D Drone Now'),
+          actionLabel: (es ? 'Jugar con el dron' : 'Play the drone game'),
           icon: Gamepad2,
           onLaunch: () => onSelectSection('EMBEDS_GAMES'),
         },
@@ -373,15 +306,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
     },
     {
       id: 'STAGE',
-      name: 'SGX.STAGE',
-      title: (es ? 'Transmisión, escenario & sintetizador en vivo' : 'Live broadcast, stage & synthesizer'),
-      subtitle: (es ? 'Stage opt.glb • Agenda Run of Show • Salas de transmisión • Speakers' : 'Stage opt.glb • Run of Show Agenda • Broadcast rooms • Speakers'),
-      description:
-        (es ? 'La energía del espectáculo en tiempo real. Consulta el Run of Show oficial de los 3 días, entra a las salas de transmisión (YouTube Live, con Los Mismos TV transmitiendo junto a nosotros) y dispara frecuencias armónicas en vivo.' : 'The energy of the show in real time. Check the official 3-day Run of Show, enter the broadcast rooms (YouTube Live, with Los Mismos TV streaming alongside us) and trigger harmonic frequencies live.'),
-      icon: Tv,
-      iconUrl: pillarIcon('STAGE'),
-      themeColor: pillarInk('STAGE'),
-      physicsDescription: (es ? 'Física: Ondas Acústicas Rítmicas · Audio: Armónicos de Escenario en Vivo' : 'Physics: Rhythmic Acoustic Waves · Audio: Live Stage Harmonics'),
       modules: [
         {
           id: 'mod_agenda',
@@ -400,7 +324,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           subtitle: 'YouTube Live • LinkedIn Live • Facebook Live • Los Mismos TV',
           description:
             (es ? 'Sintoniza los canales de transmisión en vivo, cámaras multicámara del escenario y cobertura oficial.' : 'Tune in to the live broadcast channels, multi-camera stage feeds and official coverage.'),
-          xpReward: (es ? 'EN VIVO' : 'LIVE'),
           actionLabel: (es ? 'Entrar a las salas' : 'Enter the rooms'),
           icon: Radio,
           onLaunch: () => onSelectSection('BROADCAST_ROOMS'),
@@ -422,7 +345,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           subtitle: (es ? 'Motor Visual Three.js en Tiempo Real' : 'Real-Time Three.js Visual Engine'),
           description:
             (es ? 'Visualizador escénico de pantalla completa sincronizado con la música en vivo y las reacciones de la audiencia.' : 'Full-screen stage visualizer synced with the live music and audience reactions.'),
-          xpReward: 'THREE.JS LIVE',
           actionLabel: (es ? 'Abrir Escenario 3D' : 'Open 3D Stage'),
           icon: Tv,
           onLaunch: () => {
@@ -432,31 +354,18 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_stage_synth',
-          title: (es ? 'Mesa de Frecuencias & Pulso Acústico 432Hz' : 'Frequency Desk & 432Hz Acoustic Pulse'),
-          subtitle: (es ? 'Sintetizador Espacial Web Audio en Directo' : 'Live Web Audio Spatial Synthesizer'),
+          title: (es ? 'Mesa de tonos' : 'Tone desk'),
+          subtitle: (es ? 'Cuatro tonos con Web Audio' : 'Four tones with Web Audio'),
           description:
-            (es ? 'Modula en tiempo real las ondas armónicas del universo 3D y sincroniza destellos lumínicos con el núcleo SGX.' : 'Modulate the 3D universe\'s harmonic waves in real time and sync light flashes with the SGX core.'),
-          xpReward: '+65 XP',
-          actionLabel: (es ? 'Abrir Sintetizador' : 'Open Synthesizer'),
+            (es ? 'Toca cuatro tonos (288, 432, 528 y 648 Hz) generados en vivo por tu navegador.' : 'Play four tones (288, 432, 528 and 648 Hz) generated live by your browser.'),
+          actionLabel: (es ? 'Abrir mesa de tonos' : 'Open the tone desk'),
           icon: Volume2,
-          onLaunch: () => {
-            playCyberBurstSound();
-            setActiveHoloSandbox('HARMONIC_SYNTH_LAB');
-          },
+          onLaunch: () => setSynthOpen(true),
         },
       ],
     },
     {
       id: 'SYSTEM',
-      name: 'SGX.SYSTEM',
-      title: (es ? 'SGX Guild Ranked Trials, Telemetría & Datos' : 'SGX Guild Ranked Trials, Telemetry & Data'),
-      subtitle: (es ? 'System opt.glb • 8 Initiates Activos (Día 1) • 6 Presentan en el Día 3' : 'System opt.glb • 8 Active Initiates (Day 1) • 6 Present on Day 3'),
-      description:
-        (es ? 'La columna vertebral de ingeniería y talento técnico. Audita los portafolios de los 8 Initiates activos del Día 1 (8 min c/u) y sigue la selección de los 6 Initiates que presentan en el Día 3 (5 min c/u).' : 'The backbone of engineering and technical talent. Review the portfolios of the 8 active Initiates on Day 1 (8 min each) and follow the selection of the 6 Initiates who present on Day 3 (5 min each).'),
-      icon: Activity,
-      iconUrl: pillarIcon('SYSTEM'),
-      themeColor: pillarInk('SYSTEM'),
-      physicsDescription: (es ? 'Física: retícula de precisión · Audio: Pulso Cuántico de Telemetría' : 'Physics: precision grid · Audio: Quantum Telemetry Pulse'),
       modules: [
         {
           id: 'mod_guild_trials',
@@ -499,31 +408,18 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_telemetry_sandbox',
-          title: (es ? 'Simulador de Telemetría & Nodos Cuánticos' : 'Telemetry & Quantum Nodes Simulator'),
-          subtitle: (es ? 'Diagnóstico en Vivo del SGX Framework' : 'Live SGX Framework Diagnostics'),
+          title: (es ? 'Analíticas del Summit' : 'Summit analytics'),
+          subtitle: (es ? 'Visitas, pases y actividad' : 'Visits, passes and activity'),
           description:
-            (es ? 'Ejecuta pruebas de pulso de red, latencia de los 7 nodos GLB y calibración gravitacional en tiempo real.' : 'Run network pulse tests, latency checks on the 7 GLB nodes and real-time gravitational calibration.'),
-          xpReward: '+55 XP',
-          actionLabel: (es ? 'Abrir Telemetría' : 'Open Telemetry'),
-          icon: Sliders,
-          onLaunch: () => {
-            playCyberBurstSound();
-            setActiveHoloSandbox('TELEMETRY_MATRIX');
-          },
+            (es ? 'Los números reales del Summit: visitas por región, pases forjados y actividad en la app.' : 'The Summit\'s real numbers: visits by region, forged passes and activity in the app.'),
+          actionLabel: (es ? 'Ver analíticas' : 'View analytics'),
+          icon: BarChart3,
+          onLaunch: () => window.dispatchEvent(new CustomEvent('sgx:open_analytics')),
         },
       ],
     },
     {
       id: 'SYNTHESIZE',
-      name: 'SGX.SYNTHESIZE',
-      title: (es ? 'Convergencia Maestra, Comunidad & Registro' : 'Master Convergence, Community & Registration'),
-      subtitle: (es ? 'Synthesize opt.glb • Foros de Networking • SGX Pass' : 'Synthesize opt.glb • Networking Forums • SGX Pass'),
-      description:
-        (es ? 'La unión armónica de los 6 Pilares en un solo organismo vivo. Únete a los foros de conversación en tiempo real, descarga tu pase oficial en PDF y sincroniza tu participación.' : 'The harmonious union of the 6 Pillars in a single living organism. Join the real-time conversation forums, download your official pass as a PDF and sync your participation.'),
-      icon: Layers,
-      iconUrl: pillarIcon('SYNTHESIZE'),
-      themeColor: pillarInk('SYNTHESIZE'),
-      physicsDescription: (es ? 'Física: Convergencia Dual Cobre/Oro · Audio: Sinfonía Maestra Unificada' : 'Physics: Dual Copper/Gold Convergence · Audio: Unified Master Symphony'),
       modules: [
         {
           id: 'mod_networking_chat',
@@ -552,11 +448,10 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
   ];
 
   // Each hub module lives in the same home pillar the menus use (lib/sgxPillars), and every
-  // pillar opens with a door to its full station page.
+  // pillar opens with a door to its full station page. Modules the admin disabled are left out.
   const HUB_MODULE_HOME: Record<string, SgxCorePillarId> = {
     mod_passport: 'SPARK',
     mod_pilot_profile: 'SPARK',
-    mod_relic_studio: 'SHOWCASE',
     mod_sponsor_apply: 'SHOWCASE',
     mod_social_stream: 'STORY',
     mod_qr_scanner: 'SYSTEM',
@@ -566,37 +461,28 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
     mod_guild_trials: 'SYNTHESIZE',
   };
   const allHubModules = rawPillarStations.flatMap((st) => st.modules.map((m) => ({ m, from: st.id })));
-  const pillarStations: PillarStationDefinition[] = rawPillarStations.map((st) => {
+  const pillarStations = rawPillarStations.map((st) => {
     const def = PILLAR_BY_KEY[st.id as PillarKey];
-    const modules = allHubModules.filter((x) => (HUB_MODULE_HOME[x.m.id] || x.from) === st.id).map((x) => x.m);
+    const modules = allHubModules
+      .filter((x) => (HUB_MODULE_HOME[x.m.id] || x.from) === st.id && isHubModuleVisible(x.m.id))
+      .map((x) => x.m);
     const door: PillarModuleItem = {
       id: `mod_station_${def.slug}`,
       title: (es ? `Estación 0${def.index} · ${def.name}` : `Station 0${def.index} · ${def.name}`),
       subtitle: (es ? 'Programa de los 3 días, módulos y tu progreso' : 'The 3-day program, modules and your progress'),
-      description: `${def.line.es} ${def.scope.es}`,
+      description: `${bi(def.line, language)} ${bi(def.scope, language)}`,
       actionLabel: (es ? 'Entrar a la estación' : 'Enter the station'),
       icon: Orbit,
       onLaunch: () => navigateToPillar(def.slug),
     };
-    return {
-      ...st,
-      name: def.id,
-      title: def.title.es,
-      subtitle: modules.slice(0, 4).map((m) => m.title.split(' (')[0]).join(' • '),
-      description: `${def.line.es} ${def.scope.es}`,
-      iconUrl: def.iconUrl,
-      modules: [door, ...modules],
-    };
+    return { id: st.id, modules: [door, ...modules] };
   });
 
-  const activeStation =
-    pillarStations.find(s => s.id === activePillarId) || pillarStations[0];
-  const activeColorRgb = hexToRgbStr(activeStation.themeColor);
+  const activeStation = pillarStations.find((s) => s.id === activePillarId) || pillarStations[0];
 
   return (
     <div id="summit-experience-hub" className="w-full h-full flex-1 min-h-0 flex flex-col overflow-hidden">
-      {/* 1. Full-Bleed Interactive 3D Orbital Core Reactor with 4 Circular 3D Clocks & Angled HUD Wings */}
-      <LazyBoundary fallback={<LazyFallback fullScreen label="Cargando núcleo 3D…" />}>
+      <LazyBoundary fallback={<LazyFallback fullScreen label={es ? 'Cargando núcleo 3D…' : 'Loading the 3D core…'} />}>
       <SgxOrbitalCore3D
         activePillarId={activePillarId}
         noSelection={!pillarChosen}
@@ -607,417 +493,41 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         onOpenTickets={onOpenTickets}
         onOpenCredential={() => onSelectSection('CREDENTIAL_GENERATOR')}
         onOpen360Tour={() => onSelectSection('MAP_360')}
-        onQuickLaunchPrimaryModule={pillarId => {
-          const st = pillarStations.find(s => s.id === pillarId);
-          if (st && st.modules[0]) {
-            st.modules[0].onLaunch();
-          }
+        onQuickLaunchPrimaryModule={(pillarId) => {
+          const st = pillarStations.find((s) => s.id === pillarId);
+          st?.modules[0]?.onLaunch();
         }}
       />
       </LazyBoundary>
 
-      {/* Compact On-Demand Expansion Bar (Only shown when expanded, keeping default 3D core full-screen) */}
-      {viewMode !== 'CLOSED_3D_ONLY' && (
-        <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 bg-[#0D0D0D]/90 border border-white/10 backdrop-blur-md font-mono text-xs">
-        <div className="flex items-center gap-2 text-slate-300">
-          <Boxes className="w-3.5 h-3.5 text-[#00DDFF] shrink-0" />
-          <span className="text-[11px]">
-            {es ? 'Toca cualquier escultura ' : 'Tap any '}<strong className="text-[#FDCC0D]">.GLB</strong>{es ? ' en el visor 3D o despliega el catálogo completo bajo demanda:' : ' sculpture in the 3D viewer or open the full catalog on demand:'}
-          </span>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => {
-              playUiChirp(640);
-              setViewMode(prev => (prev === 'DOCKED_STATION' ? 'CLOSED_3D_ONLY' : 'DOCKED_STATION'));
-            }}
-            className={`px-3 py-1.5 font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0 text-[11px] border ${
-              viewMode === 'DOCKED_STATION'
-                ? 'bg-[#FDCC0D] text-black border-[#FDCC0D]'
-                : 'bg-slate-900/90 text-slate-300 hover:text-white border-white/15'
-            }`}
-          >
-            {viewMode === 'DOCKED_STATION'
-              ? (es ? `Ocultar Estación ${activeStation.id} ▲` : `Hide Station ${activeStation.id} ▲`)
-              : (es ? `Tarjetas de ${activeStation.name} (${activeStation.modules.length}) ▼` : `${activeStation.name} Cards (${activeStation.modules.length}) ▼`)}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              playUiChirp(720);
-              setViewMode(prev => (prev === 'ALL_PILLARS_MATRIX' ? 'CLOSED_3D_ONLY' : 'ALL_PILLARS_MATRIX'));
-            }}
-            className={`px-3 py-1.5 font-bold transition-colors cursor-pointer whitespace-nowrap shrink-0 text-[11px] border ${
-              viewMode === 'ALL_PILLARS_MATRIX'
-                ? 'bg-[#00DDFF] text-black border-[#00DDFF]'
-                : 'bg-slate-900/90 text-slate-300 hover:text-white border-white/15'
-            }`}
-          >
-            {viewMode === 'ALL_PILLARS_MATRIX'
-              ? (es ? 'Ocultar Mapa de 6 Pilares ▲' : 'Hide 6 Pillars Map ▲')
-              : (es ? 'Mapa Completo (27 Módulos) ▼' : 'Full Map (27 Modules) ▼')}
-          </button>
-        </div>
-      </div>
-      )}
-
-      {/* Optional Interactive Holographic Micro-Sandbox (Opens inline without scrolling the page) */}
-      {activeHoloSandbox !== 'NONE' && (
-        <div className="sgx-crystal-card p-5 sm:p-6 border-2 border-cyan-400 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-white/10">
-            <div className="flex items-center gap-2.5">
-              <Sparkles className="w-5 h-5 text-[#FDCC0D]" />
-              <div>
-                <div className="text-[10px] font-mono text-cyan-300 uppercase tracking-wider">
-                  {es ? 'LABORATORIO INTERACTIVO EN VIVO · SIN SALTO DE PÁGINA' : 'LIVE INTERACTIVE LAB · NO PAGE JUMP'}
-                </div>
-                <h3 className="text-base sm:text-lg font-black text-white font-['Orbitron',sans-serif]">
-                  {activeHoloSandbox === 'HARMONIC_SYNTH_LAB'
-                    ? (es ? 'Mesa de Sintetizador Espacial 432Hz & Ondas Armónicas' : '432Hz Spatial Synth Desk & Harmonic Waves')
-                    : activeHoloSandbox === 'TELEMETRY_MATRIX'
-                    ? (es ? 'Diagnóstico Cuántico de Nodos .GLB & Telemetría SGX' : 'Quantum .GLB Node Diagnostics & SGX Telemetry')
-                    : (es ? 'Estudio Holográfico de Reliquias 3D (.GLB)' : 'Holographic 3D Relics Studio (.GLB)')}
-                </h3>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setActiveHoloSandbox('NONE')}
-              className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-white/20 text-xs font-mono text-slate-200 cursor-pointer"
-            >
-              {es ? 'Cerrar Laboratorio ✕' : 'Close Lab ✕'}
-            </button>
-          </div>
-
-          {activeHoloSandbox === 'HARMONIC_SYNTH_LAB' && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
-              {[
-                { hz: 288, name: (es ? 'Raíz Cósmica (D4)' : 'Cosmic Root (D4)'), desc: (es ? 'Sub-bajo gravitacional' : 'Gravitational sub-bass') },
-                { hz: 432, name: (es ? 'Armónico Solar (A4)' : 'Solar Harmonic (A4)'), desc: (es ? 'Sintonía base SGX.STORY' : 'SGX.STORY base tuning') },
-                { hz: 528, name: (es ? 'Resonancia Cian (C5)' : 'Cyan Resonance (C5)'), desc: (es ? 'Pulso cristalino SHOWCASE' : 'SHOWCASE crystal pulse') },
-                { hz: 648, name: (es ? 'Quinta (E5)' : 'Fifth (E5)'), desc: (es ? 'Expansión de anillos 3D' : '3D ring expansion') },
-              ].map(pad => (
-                <button
-                  key={pad.hz}
-                  type="button"
-                  onClick={() => triggerSynthFrequency(pad.hz, pad.name)}
-                  className={`p-4 border text-left transition-all cursor-pointer ${
-                    synthFreq === pad.hz
-                      ? 'bg-cyan-950/90 border-[#FDCC0D] text-white shadow-lg'
-                      : 'bg-black/60 border-white/15 text-slate-300 hover:border-cyan-400'
-                  }`}
-                >
-                  <div className="text-lg font-black text-[#FDCC0D] tabular-nums">{pad.hz} Hz</div>
-                  <div className="font-bold text-white mt-1">{pad.name}</div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">{pad.desc}</div>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {activeHoloSandbox === 'TELEMETRY_MATRIX' && (
-            <div className="space-y-5">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs p-3.5 bg-black/50 border border-cyan-500/30">
-                <div className="space-y-1 text-slate-300">
-                  <div>{es ? 'Pulsos de Calibración Emitidos: ' : 'Calibration Pulses Sent: '}<strong className="text-[#FDCC0D] tabular-nums">{telemetryPulseCount}</strong></div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTelemetryPulseCount(c => c + 1);
-                    playCyberBurstSound();
-                    recordActivity('pillar_explore', 'Pulso de Telemetría SGX.SYSTEM', 'Sincronización de los 7 núcleos .GLB', 30);
-                  }}
-                  className="px-4 py-2.5 bg-[#FDCC0D] text-black font-extrabold cursor-pointer hover:brightness-110 transition-all"
-                >
-                  {es ? 'Emitir Pulso de Diagnóstico (+30 XP)' : 'Send Diagnostic Pulse (+30 XP)'}
-                </button>
-              </div>
-
-              {/* Embedded Full Live Summit Analytics & Telemetry View */}
-              <LazyBoundary fallback={<LazyFallback />}>
-                <SummitAnalyticsView />
-              </LazyBoundary>
-            </div>
-          )}
-
-          {activeHoloSandbox === 'RELIC_INSPECTOR' && (
-            <div className="text-xs font-mono text-slate-300 leading-relaxed">
-              {es ? 'Usa la pestaña ' : 'Use the '}<strong className="text-[#FDCC0D]">{es ? 'Laboratorio 3D' : '3D Lab'}</strong>{es ? ' dentro del Panel Holográfico derecho del visor 3D superior para explorar los 7 archivos ' : ' tab inside the right Holographic Panel of the 3D viewer above to explore the 7 files '}<code className="text-cyan-300">.glb</code>{es ? ' en su color e iluminación original.' : ' in their original color and lighting.'}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* 2. On-Demand Docked Pillar Command Station (Only rendered when user explicitly clicks to expand) */}
-      {viewMode === 'DOCKED_STATION' && (
-        <div
-          className="sgx-glass-relief p-5 sm:p-7 space-y-6 transition-all duration-300"
-          style={{
-            borderColor: activeStation.themeColor,
-            boxShadow: `0 16px 48px -8px rgba(0, 0, 0, 0.9), 0 0 34px rgba(${activeColorRgb}, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.28)`,
-          }}
+      {synthOpen && (
+        <SgxDialog
+          size="sm"
+          onClose={closeSynth}
+          title={es ? 'Mesa de tonos' : 'Tone desk'}
+          kicker={es ? 'SGX.Stage · toca un pad' : 'SGX.Stage · tap a pad'}
+          icon={<Volume2 className="w-5 h-5 text-[#FDCC0D] shrink-0" aria-hidden="true" />}
         >
-          {/* Station Header Banner */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-white/10">
-            <div className="flex items-start gap-4">
-              <div
-                className="w-14 h-14 sm:w-16 sm:h-16 border-2 flex items-center justify-center p-2 shrink-0 bg-[#111111]"
-                style={{
-                  borderColor: activeStation.themeColor,
-                  boxShadow: `0 0 22px rgba(${activeColorRgb}, 0.35)`,
-                  clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)',
-                }}
-              >
-                <img
-                  src={activeStation.iconUrl}
-                  alt={activeStation.name}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex flex-wrap items-center gap-2 text-xs font-mono">
-                  <span className="font-extrabold tracking-wider" style={{ color: activeStation.themeColor }}>
-                    {es ? 'ESTACIÓN ACOPLADA: ' : 'DOCKED STATION: '}{activeStation.name}
-                  </span>
-                  <span aria-hidden="true" className="text-slate-500">·</span>
-                  <span className="text-slate-300">{activeStation.physicsDescription}</span>
-                </div>
-                <h3 className="text-xl sm:text-2xl font-black text-white font-['Orbitron',sans-serif]">
-                  {activeStation.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed font-mono">
-                  {activeStation.description}
-                </p>
-              </div>
-            </div>
-
-            {/* Pillar Station Cycle Controls */}
-            <div className="flex items-center gap-2 shrink-0 font-mono text-xs">
+          {getIsAudioMuted() && (
+            <p className="mb-3 text-sm font-mono text-[#FDCC0D]">
+              {es ? 'El sonido está apagado. Enciéndelo con el botón de sonido de la barra superior.' : 'Sound is off. Turn it on with the sound button in the top bar.'}
+            </p>
+          )}
+          <div className="grid grid-cols-2 gap-3" role="group" aria-label={es ? 'Tonos' : 'Tones'}>
+            {TONES.map((tone) => (
               <button
+                key={tone.hz}
                 type="button"
-                onClick={() => {
-                  const idx = pillarStations.findIndex(p => p.id === activePillarId);
-                  const next = pillarStations[(idx + 1) % pillarStations.length];
-                  handleDockPillar(next.id);
-                }}
-                className="px-4 py-2.5 bg-slate-900/90 hover:bg-slate-800 border border-white/20 text-white font-bold flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap shrink-0"
-                style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
+                aria-pressed={synthHz === tone.hz}
+                onClick={() => { setSynthHz(tone.hz); playUiChirp(tone.hz, 'triangle', 0.35); }}
+                className="sgx-btn flex-col !items-start !whitespace-normal min-h-[88px]"
               >
-                <span>{es ? 'Siguiente pilar' : 'Next pillar'}</span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#FDCC0D]" />
+                <span className="text-xl font-bold tabular-nums">{tone.hz} Hz</span>
+                <span className="text-xs">{bi(tone.label, language)}</span>
               </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('CLOSED_3D_ONLY')}
-                className="px-3 py-2.5 bg-slate-950 hover:bg-slate-800 border border-white/20 text-slate-300 font-bold cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
+            ))}
           </div>
-
-          {/* Exclusively Separated Modules Grid for the Active Pillar */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {activeStation.modules
-              .filter((mod) => isHubModuleVisible(mod.id))
-              .map((mod, idx) => {
-                const ModIcon = mod.icon;
-                const modStatus = getHubModuleStatus(mod.id);
-                const isMaintenance = modStatus === 'MAINTENANCE';
-
-                return (
-                  <div
-                    key={mod.id}
-                    onClick={() => {
-                      if (isMaintenance) {
-                        playUiChirp(380);
-                        return;
-                      }
-                      playUiChirp(740);
-                      mod.onLaunch();
-                    }}
-                    className={`sgx-crystal-card p-5 flex flex-col justify-between gap-4 group ${
-                      isMaintenance ? 'opacity-80 cursor-not-allowed border-[#FDCC0D]/40' : 'cursor-pointer'
-                    }`}
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div
-                            className="w-10 h-10 bg-slate-950/90 border flex items-center justify-center shrink-0 transition-transform group-hover:scale-110"
-                            style={{
-                              borderColor: activeStation.themeColor,
-                              color: activeStation.themeColor,
-                              clipPath:
-                                'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
-                            }}
-                          >
-                            <ModIcon className="w-5 h-5" />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="text-[11px] font-mono text-slate-400">
-                              0{idx + 1} · {activeStation.name}
-                            </div>
-                            <h4 className="text-base font-extrabold text-white font-['Orbitron',sans-serif] group-hover:text-[#FDCC0D] transition-colors leading-snug">
-                              {mod.title}
-                            </h4>
-                          </div>
-                        </div>
-
-                        {isMaintenance ? (
-                          <span className="px-2 py-0.5 bg-[#FDCC0D]/15 border border-[#FDCC0D] text-[#FDCC0D] text-[10px] font-mono font-bold uppercase shrink-0">
-                            {es ? '⏳ PRÓXIMAMENTE' : '⏳ COMING SOON'}
-                          </span>
-                        ) : (
-                          mod.xpReward && (
-                            <span
-                              className="text-[11px] font-mono font-bold tabular-nums shrink-0"
-                              style={{ color: activeStation.themeColor }}
-                            >
-                              {mod.xpReward}
-                            </span>
-                          )
-                        )}
-                      </div>
-
-                      <p className="text-xs text-slate-300 font-mono leading-relaxed">
-                        {mod.description}
-                      </p>
-                    </div>
-
-                    <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs font-mono">
-                      <span className="text-slate-400 truncate">{mod.subtitle}</span>
-                      {isMaintenance ? (
-                        <span className="font-bold text-[#FDCC0D] whitespace-nowrap shrink-0">
-                          {es ? 'En Calibración' : 'Calibrating'}
-                        </span>
-                      ) : (
-                        <span
-                          className="font-extrabold flex items-center gap-1.5 whitespace-nowrap shrink-0 group-hover:translate-x-1 transition-transform"
-                          style={{ color: activeStation.themeColor }}
-                        >
-                          <span>{mod.actionLabel}</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
-        </div>
-      )}
-
-      {/* 3. Complete 6-Pillar Matrix View (Only rendered when user explicitly clicks to expand) */}
-      {viewMode === 'ALL_PILLARS_MATRIX' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {pillarStations.map((station) => {
-            const cardColorRgb = hexToRgbStr(station.themeColor);
-            const isActive = station.id === activePillarId;
-            const visibleModules = station.modules.filter((m) => isHubModuleVisible(m.id));
-
-            return (
-              <div
-                key={station.id}
-                className="sgx-crystal-card p-5 sm:p-6 flex flex-col justify-between space-y-5"
-                style={{
-                  borderColor: isActive ? station.themeColor : `rgba(${cardColorRgb}, 0.45)`,
-                }}
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={station.iconUrl}
-                        alt={station.name}
-                        referrerPolicy="no-referrer"
-                        className="w-10 h-10 object-contain shrink-0"
-                      />
-                      <div>
-                        <div
-                          className="text-xs font-mono font-extrabold tracking-wider"
-                          style={{ color: station.themeColor }}
-                        >
-                          {station.name}
-                        </div>
-                        <h3 className="text-base font-bold text-white font-['Orbitron',sans-serif]">
-                          {station.title}
-                        </h3>
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-slate-300 font-mono leading-relaxed">
-                    {station.description}
-                  </p>
-
-                  {/* Clickable Module List inside each Pillar */}
-                  <div className="space-y-1.5 pt-2">
-                    <div className="text-[11px] font-mono text-slate-400 font-bold">
-                      {es ? 'Módulos Activos (' : 'Active Modules ('}{visibleModules.length}):
-                    </div>
-                    {visibleModules.map((m) => {
-                      const MIcon = m.icon;
-                      const mStatus = getHubModuleStatus(m.id);
-                      const isMaint = mStatus === 'MAINTENANCE';
-                      return (
-                        <button
-                          key={m.id}
-                          type="button"
-                          onClick={() => {
-                            if (isMaint) {
-                              playUiChirp(380);
-                              return;
-                            }
-                            handleDockPillar(station.id);
-                            m.onLaunch();
-                          }}
-                          className={`w-full px-3 py-2 bg-black/50 hover:bg-slate-900 border border-white/10 hover:border-cyan-400/60 flex items-center justify-between gap-2 text-left text-xs font-mono text-slate-200 hover:text-white transition-colors ${
-                            isMaint ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <MIcon className="w-3.5 h-3.5 shrink-0" style={{ color: station.themeColor }} />
-                            <span className="truncate">{m.title}</span>
-                          </div>
-                          {isMaint ? (
-                            <span className="text-[9px] text-[#FDCC0D] font-bold shrink-0">{es ? 'PRÓX.' : 'SOON'}</span>
-                          ) : (
-                            <ArrowRight className="w-3 h-3 shrink-0 text-slate-400" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleDockPillar(station.id);
-                      setViewMode('DOCKED_STATION');
-                    }}
-                    className="w-full py-2 px-3 text-xs font-mono font-extrabold text-black flex items-center justify-center gap-1.5 cursor-pointer transition-transform hover:scale-[1.02]"
-                    style={{
-                      backgroundColor: station.themeColor,
-                      clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
-                    }}
-                  >
-                    <span>{es ? 'Acoplar Estación ' : 'Dock Station '}{station.name}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        </SgxDialog>
       )}
     </div>
   );

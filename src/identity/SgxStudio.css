@@ -1,0 +1,72 @@
+/* TU ESTUDIO (SgxHangar, PilotBuilderModal): the same look as the SGX Pass
+   section. Dark solid panels, thin cyan/neutral edges, no glow on the frame;
+   yellow only for XP and the primary action. */
+
+.sgx-studio.sgx-dialog .sgx-dialog__frame {
+  width: min(100%, 1180px) !important;
+  min-height: min(760px, calc(100dvh - 32px));
+  background: #0b0b0b;
+  box-shadow: inset 0 0 0 1px rgba(0, 221, 255, 0.35);
+}
+.sgx-studio .sgx-hangar__title img { filter: none; }
+.sgx-studio .sgx-hangar__title h2 { color: var(--SGX_White); }
+.sgx-studio .sgx-hangar__close { border-color: rgba(255, 255, 255, 0.16); }
+.sgx-studio .sgx-hangar__close:hover { color: var(--SGX_Black_Base); background: var(--SGX_Cyan); border-color: var(--SGX_Cyan); }
+.sgx-studio .sgx-hangar__close:focus-visible { outline: 2px solid var(--SGX_Cyan); outline-offset: 2px; }
+
+/* Tabs: one row on desktop and iPad, a 3 × 2 grid on phones. Never scroll, never shrink. */
+.sgx-studio .sgx-dialog__toolbar { padding: 0 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.sgx-studio__tabs { display: flex; flex-wrap: wrap; gap: 2px; }
+.sgx-studio__tabs button {
+  flex: none; min-height: 44px; padding: 10px 14px;
+  font-family: var(--font-mono); font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
+  color: rgba(255, 255, 255, 0.6); background: transparent; border: 0; border-bottom: 2px solid transparent; cursor: pointer;
+}
+.sgx-studio__tabs button:hover { color: var(--SGX_White); }
+.sgx-studio__tabs button.is-on { color: var(--SGX_Cyan); border-bottom-color: var(--SGX_Cyan); }
+.sgx-studio__tabs button:focus-visible { outline: 2px solid var(--SGX_Cyan); outline-offset: -2px; }
+
+.sgx-studio .sgx-dialog__body { padding: 18px clamp(14px, 2.4vw, 24px) 24px; }
+
+/* Account strip: a neutral panel like the Holo Card side panels. */
+.sgx-studio .sgx-hangar__account { background: #0d0f13; border: 1px solid rgba(255, 255, 255, 0.08); }
+.sgx-studio .sgx-hangar__account.is-linked { border-color: rgba(0, 221, 255, 0.3); background: #0d0f13; }
+
+/* Pass tab: the SGX Pass board, then your 3D avatar and SGX Live. */
+.sgx-studio__pass { display: flex; flex-direction: column; gap: 18px; }
+.sgx-studio__pass > .sgx-hangar__note { max-width: none; text-align: left; }
+.sgx-studio .sgx-pass-section { padding-bottom: 0; }
+.sgx-studio__extras { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: stretch; }
+.sgx-studio__text { margin: 0; font-family: var(--font-body); font-size: 0.88rem; line-height: 1.45; color: rgba(255, 255, 255, 0.68); }
+.sgx-studio__avatar3d { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 12px; }
+.sgx-studio__wait { height: 220px; display: grid; place-items: center; font-family: var(--font-mono); font-size: 0.75rem; color: var(--SGX_Cyan); }
+.sgx-studio__live { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.sgx-studio__live .sgx-panel__title { margin: 0; }
+.sgx-studio__live dl { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.sgx-studio__live dl div { padding: 8px 10px; background: #0d0f13; border: 1px solid rgba(255, 255, 255, 0.08); }
+.sgx-studio__live dt { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5); }
+.sgx-studio__live dd { margin: 2px 0 0; font-family: var(--font-hud); font-weight: 700; font-size: 1.15rem; font-variant-numeric: tabular-nums; color: var(--SGX_White); }
+
+/* Other tabs: same panel treatment, no glows. */
+.sgx-studio .sgx-hangar__empty h3,
+.sgx-studio .sgx-hangar__day3-info h3 { color: var(--SGX_White); }
+.sgx-studio .sgx-hangar__pillar { background: #0d0f13; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+.sgx-studio .sgx-hangar__pillar.is-stamped { box-shadow: inset 0 0 0 1px var(--pillar-accent); }
+.sgx-studio .sgx-hangar__contacts li { background: #0d0f13; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+.sgx-studio .sgx-hangar__stamp.is-big { box-shadow: none; }
+.sgx-studio .sgx-hangar__bigqr { box-shadow: none; }
+.sgx-studio .sgx-hangar__day3-info,
+.sgx-studio .sgx-hangar__log > section { padding: 14px; background: #0d0f13; border: 1px solid rgba(255, 255, 255, 0.08); }
+.sgx-studio .sgx-hangar__empty--sm { background: #0d0f13; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+
+@media (max-width: 860px) {
+  .sgx-studio__extras { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .sgx-studio .sgx-dialog__toolbar { padding: 0 10px; }
+}
+@media (max-width: 560px) {
+  .sgx-studio__tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sgx-studio__tabs button { padding: 8px 4px; font-size: 0.7rem; letter-spacing: 0.06em; text-align: center; overflow: hidden; text-overflow: ellipsis; }
+  .sgx-studio__avatar3d { grid-template-columns: minmax(0, 1fr); }
+}

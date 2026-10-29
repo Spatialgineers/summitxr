@@ -51,7 +51,7 @@ async function openForgeToName(p) {
   // 2. edit details: one form, no ceremony, same code
   await a.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } })));
   await a.waitForSelector(".sgx-hangar", { timeout: 20000 }); await a.waitForTimeout(1200);
-  await a.click('.sgx-hangar button:has-text("Editar datos")');
+  await a.click('.sgx-hangar button:has-text("Editar mi pase")');
   await a.waitForTimeout(800);
   check('edit opens one form', await a.evaluate(() => /Edita tus datos/i.test(document.querySelector('.sgx-forge')?.innerText || '')));
   check('edit shows no step-by-step forge', !(await a.$('.sgx-forge__pillars')) && !(await a.$('.sgx-forge__steps:not([hidden])')));

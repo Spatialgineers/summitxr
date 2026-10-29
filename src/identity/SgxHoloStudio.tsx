@@ -13,15 +13,20 @@ import { CARD_H, CARD_W, drawCardBack, drawCardFront, loadImage, renderFormat, s
 /* HOLO CARD STUDIO. Your Holo Card is your SGX Pass: same name, pilot, QR
    and stamps. The data comes from your registration (Forge, speaker portal,
    sponsor form, Guild roster); here you only pick the format and adjust the
-   small things: portrait, framing, foil and backdrop. */
+   small things: foil and backdrop. The portrait is always your avatar. */
 
-type Portrait = 'pilot' | 'photo' | 'role';
-interface Style { portrait: Portrait; zoom: number; x: number; y: number; foil: number; backdrop: 0 | 1 | 2 }
+interface Style { foil: number; backdrop: 0 | 1 | 2 }
 const STYLE_KEY = 'sgx_holo_style_v1';
-const DEFAULT_STYLE: Style = { portrait: 'pilot', zoom: 1, x: 0, y: 0, foil: 0.7, backdrop: 0 };
+const DEFAULT_STYLE: Style = { foil: 0.7, backdrop: 0 };
 
 function loadStyle(): Style {
-  try { return { ...DEFAULT_STYLE, ...(JSON.parse(localStorage.getItem(STYLE_KEY) || '{}') || {}) }; } catch { return DEFAULT_STYLE; }
+  try {
+    const saved = JSON.parse(localStorage.getItem(STYLE_KEY) || '{}') || {};
+    return {
+      foil: typeof saved.foil === 'number' ? saved.foil : DEFAULT_STYLE.foil,
+      backdrop: [0, 1, 2].includes(saved.backdrop) ? saved.backdrop : DEFAULT_STYLE.backdrop,
+    };
+  } catch { return DEFAULT_STYLE; }
 }
 
 const fire = (name: string, detail?: unknown) => window.dispatchEvent(new CustomEvent(name, { detail }));
@@ -29,11 +34,9 @@ const fire = (name: string, detail?: unknown) => window.dispatchEvent(new Custom
 interface Props {
   initialRole?: CredentialRole;
   onClose?: () => void;
-  /** Inside your Studio: the card first, the adjustments folded away. */
-  compact?: boolean;
 }
 
-export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose, compact = false }) => {
+export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
   const { language } = useLanguage();
   const es = language === 'es';
   const { profile, recordActivity } = usePilotProfile();
@@ -66,8 +69,6 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose, compact =
   /* ---- images ---- */
   const glyphRef = useRef<HTMLDivElement | null>(null);
   const [pilotImg, setPilotImg] = useState<HTMLImageElement | null>(null);
-  const [photoImg, setPhotoImg] = useState<HTMLImageElement | null>(null);
-  const [roleImg, setRoleImg] = useState<HTMLImageElement | null>(null);
   const [qrImg, setQrImg] = useState<HTMLImageElement | null>(null);
   const pilotKey = JSON.stringify(identity.avatar.pilot || identity.avatar.seed) + accent;
 
@@ -79,13 +80,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose, compact =
     }, 30);
     return () => { alive = false; window.clearTimeout(t); };
   }, [pilotKey]);
-  useEffect(() => { let a = true; loadImage(identity.avatar.png).then((i) => a && setPhotoImg(i)); return () => { a = false; }; }, [identity.avatar.png]);
-  useEffect(() => { let a = true; loadImage(cred?.photo).then((i) => a && setRoleImg(i)); return () => { a = false; }; }, [cred?.photo]);
   useEffect(() => { let a = true; loadImage(qr).then((i) => a && setQrImg(i)); return () => { a = false; }; }, [qr]);
-
-  const portraitChoice: Portrait = style.portrait === 'photo' && !photoImg ? 'pilot'
-    : style.portrait === 'role' && !roleImg ? 'pilot' : style.portrait;
-  const portrait = portraitChoice === 'photo' ? photoImg : portraitChoice === 'role' ? roleImg : pilotImg;
 
   /* ---- art ---- */
   const pass = identity.pass;
@@ -99,9 +94,8 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose, compact =
       passStatus: pass?.status,
       xp: profile.totalXp,
       rank: `${rankLabel(profile.level, es)} · LV ${profile.level}`,
-      portrait,
-      frame: portraitChoice === 'pilot' ? undefined : { zoom: style.zoom, x: style.x, y: style.y },
-      fit: portraitChoice === 'pilot' ? 'contain' : 'cover',
+      portrait: pilotImg,
+      fit: 'contain',
       qr: pass ? qrImg : null,
       foil: style.foil,
       // the foil sweep follows the tilt
@@ -109,7 +103,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose, compact =
     };
     // assetsReady: redraw once the card art has loaded
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cred, es, accent, pass, profile.totalXp, profile.level, portrait, portraitChoice, style, qrImg, tilt.y, assetsReady]);
+  }, [cred, es, accent, pass, profile.totalXp, profile.level, pilotImg, style.foil, qrImg, tilt.y, assetsReady]);
 
   const headline = cred ? (cred.role === 'visitor'
     ? (es ? 'YA TENGO MI SGX PASS' : 'I GOT MY SGX PASS')
@@ -176,7 +170,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose, compact =
       exported();
       setBanner(es ? 'Descargada. Ya está también en tu Estudio.' : 'Downloaded. It is in your Studio too.');
     } catch {
-      setBanner(es ? 'No se pudo exportar una de las imágenes. Prueba con otra foto.' : 'One of the images could not be exported. Try another photo.');
+      setBanner(es ? 'No se pudo exportar la imagen. Inténtalo otra vez.' : 'The image could not be exported. Try again.');
     }
   };
 
@@ -198,28 +192,6 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose, compact =
       await navigator.clipboard?.writeText(text);
       setBanner(es ? 'Texto copiado. Descarga la imagen y súbela con ese texto.' : 'Text copied. Download the image and post it with that text.');
     } catch { /* share cancelled */ }
-  };
-
-  const onPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const src = String(reader.result || '');
-      // Downscale so it fits the pass storage, then it is your pass photo too.
-      loadImage(src).then((img) => {
-        if (!img) return;
-        const k = Math.min(1, 640 / Math.max(img.naturalWidth, img.naturalHeight));
-        const c = document.createElement('canvas');
-        c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
-        c.getContext('2d')!.drawImage(img, 0, 0, c.width, c.height);
-        const png = c.toDataURL('image/jpeg', 0.86);
-        fire('sgx:avatar_saved', { png });
-        setStyle({ portrait: 'photo', zoom: 1, x: 0, y: 0 });
-      });
-    };
-    reader.readAsDataURL(file);
   };
 
   const editData = () => {
@@ -246,7 +218,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose, compact =
   const roleName = (r: CredentialRole) => (r === 'visitor' ? (es ? 'SGX Pass' : 'SGX Pass') : ROLE_COPY[r].label[es ? 0 : 1]);
 
   return (
-    <div className={`sgx-hstudio${compact ? ' sgx-hstudio--compact' : ''}`}>
+    <div className="sgx-hstudio">
       <div ref={glyphRef} className="sgx-hstudio__glyph" aria-hidden="true">
         <SgxPilotGlyph seed={identity.avatar.seed} config={identity.avatar.pilot} accent={accent} size={300} />
       </div>
@@ -304,8 +276,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose, compact =
           {banner && <p className="sgx-hstudio__banner" role="status">{banner}</p>}
         </div>
 
-        <details className="sgx-hstudio__panel" open={!compact || undefined}>
-          <summary>{es ? 'Personalizar: retrato, foil y datos' : 'Customize: portrait, foil and details'}</summary>
+        <div className="sgx-hstudio__panel">
           <section>
             <h4>{es ? 'Datos' : 'Details'}</h4>
             <dl className="sgx-hstudio__data">
@@ -337,26 +308,13 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose, compact =
 
           <section>
             <h4>{es ? 'Retrato' : 'Portrait'}</h4>
-            <div className="sgx-hstudio__seg">
-              <button type="button" className={portraitChoice === 'pilot' ? 'is-on' : ''} onClick={() => setStyle({ portrait: 'pilot' })}>{es ? 'Mi avatar' : 'My avatar'}</button>
-              {photoImg && <button type="button" className={portraitChoice === 'photo' ? 'is-on' : ''} onClick={() => setStyle({ portrait: 'photo' })}>{es ? 'Mi foto' : 'My photo'}</button>}
-              {roleImg && cred.role !== 'visitor' && <button type="button" className={portraitChoice === 'role' ? 'is-on' : ''} onClick={() => setStyle({ portrait: 'role' })}>{es ? 'Foto del registro' : 'Registration photo'}</button>}
-              <label className="sgx-hstudio__upload">
-                {es ? 'Subir foto' : 'Upload photo'}
-                <input type="file" accept="image/*" onChange={onPhoto} />
-              </label>
+            <div className="sgx-hstudio__portrait">
+              <span className="sgx-hstudio__face" aria-hidden="true">
+                <SgxPilotGlyph seed={identity.avatar.seed} config={identity.avatar.pilot} accent={accent} size={64} />
+              </span>
+              <p className="sgx-hstudio__hint">{es ? 'Tu retrato es siempre tu avatar XR. Cámbialo y tu Holo Card se actualiza sola.' : 'Your portrait is always your XR avatar. Change it and your Holo Card updates itself.'}</p>
             </div>
-            {portraitChoice !== 'pilot' && (
-              <div className="sgx-hstudio__sliders">
-                <label>{es ? 'Zoom' : 'Zoom'}<input type="range" min={1} max={2.2} step={0.02} value={style.zoom} onChange={(e) => setStyle({ zoom: Number(e.target.value) })} /></label>
-                <label>{es ? 'Horizontal' : 'Horizontal'}<input type="range" min={-1} max={1} step={0.02} value={style.x} onChange={(e) => setStyle({ x: Number(e.target.value) })} /></label>
-                <label>{es ? 'Vertical' : 'Vertical'}<input type="range" min={-1} max={1} step={0.02} value={style.y} onChange={(e) => setStyle({ y: Number(e.target.value) })} /></label>
-              </div>
-            )}
-            {portraitChoice === 'pilot' && (
-              <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => { onClose?.(); window.setTimeout(() => fire('sgx:open_avatar'), 80); }}>{es ? 'Editar mi piloto' : 'Edit my pilot'}</button>
-            )}
-            <p className="sgx-hstudio__hint">{es ? 'Tu foto se queda en tu dispositivo y también aparece en tu pase.' : 'Your photo stays on your device and also shows on your pass.'}</p>
+            <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => { onClose?.(); window.setTimeout(() => fire('sgx:open_avatar'), 80); }}>{es ? 'Editar mi avatar' : 'Edit my avatar'}</button>
           </section>
 
           <section>
@@ -378,7 +336,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose, compact =
               {es ? '¿Eres Initiate del SGX Guild? Inicia sesión con Google (desde tu Estudio) con el email que registró el equipo y tu Holo Card de Initiate aparece aquí.' : 'Are you an SGX Guild Initiate? Sign in with Google (from your Studio) with the email the team registered and your Initiate Holo Card shows up here.'}
             </p>
           )}
-        </details>
+        </div>
       </div>
       {!isForged && cred.role !== 'visitor' && (
         <p className="sgx-hstudio__hint">{es ? 'Forja tu SGX Pass para que esta tarjeta lleve tu QR y tus sellos.' : 'Forge your SGX Pass so this card carries your QR and stamps.'}</p>

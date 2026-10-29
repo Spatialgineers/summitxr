@@ -75,8 +75,8 @@ export async function exportPassPdf(id: SgxIdentity, qrDataUrl: string | null, r
   doc.text(`#${pass.serial}`, 196, 17, { align: 'right' });
 
   // portrait
-  let portrait = id.avatar.png || null;
-  if (!portrait && portraitSvg) portrait = await svgToPng(portraitSvg);
+  // the portrait is always the avatar
+  const portrait = portraitSvg ? await svgToPng(portraitSvg) : null;
   if (portrait) {
     try { doc.addImage(portrait, 'PNG', 14, 28, 34, 40.8); } catch { /* bad image */ }
   }

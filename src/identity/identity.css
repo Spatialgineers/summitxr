@@ -129,8 +129,6 @@
   .sgx-hangar__empty h3 { margin: 0; font-family: var(--font-display); text-transform: uppercase; color: var(--SGX_Yellow); }
   .sgx-hangar__empty p { margin: 0; max-width: 52ch; font-family: var(--font-body); color: rgba(255, 255, 255, 0.72); }
   .sgx-hangar__empty--sm { padding: 24px; font-family: var(--font-mono); font-size: 0.8rem; color: rgba(255, 255, 255, 0.55); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); }
-  .sgx-hangar__pass { display: flex; flex-direction: column; align-items: center; gap: 46px; }
-  .sgx-hangar__pass > div:first-child { width: 100%; }
   .sgx-hangar__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
   .sgx-hangar__account { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 0 0 16px; padding: 10px 14px; border: 1px solid rgba(253, 204, 13, 0.35); background: rgba(253, 204, 13, 0.06); }
   .sgx-hangar__account p { margin: 0; flex: 1 1 240px; font-family: var(--font-body); font-size: 0.85rem; color: rgba(255, 255, 255, 0.75); overflow-wrap: anywhere; }
@@ -322,7 +320,7 @@
   .sgx-hstudio--empty h3 { margin: 0; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.06em; }
   .sgx-hstudio--empty p { margin: 0; max-width: 46ch; color: rgba(255, 255, 255, 0.7); font-family: var(--font-body); }
   .sgx-hstudio__roles, .sgx-hstudio__formats, .sgx-hstudio__seg { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-  .sgx-hstudio__roles button, .sgx-hstudio__formats button, .sgx-hstudio__seg button, .sgx-hstudio__upload {
+  .sgx-hstudio__roles button, .sgx-hstudio__formats button, .sgx-hstudio__seg button {
     min-height: 40px; padding: 8px 14px; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
     color: rgba(255, 255, 255, 0.75); background: #111317; border: 1px solid rgba(255, 255, 255, 0.16); cursor: pointer;
     clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
@@ -334,7 +332,6 @@
   .sgx-hstudio__pill { padding: 1px 6px; font-family: var(--font-mono); font-size: 0.62rem; color: var(--SGX_Neon_Orange); border: 1px solid currentColor; }
   .sgx-hstudio__roles button.is-on .sgx-hstudio__pill { color: var(--SGX_Black_Base); }
   .sgx-hstudio__flip { margin-left: auto; color: var(--SGX_Cyan) !important; border-color: color-mix(in srgb, var(--SGX_Cyan) 50%, transparent) !important; }
-  .sgx-hstudio__upload input { display: none; }
   .sgx-hstudio__grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 20px; align-items: start; }
   .sgx-hstudio__stage { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
   .sgx-hstudio__preview { display: grid; place-items: center; padding: 22px; min-height: 220px; background: radial-gradient(circle at 50% 40%, rgba(0, 221, 255, 0.08), transparent 70%), #07080b; border: 1px solid rgba(255, 255, 255, 0.08); touch-action: pan-y; }
@@ -409,10 +406,6 @@
   .sgx-pilotb__swatches { display: flex; flex-wrap: wrap; gap: 8px; }
   .sgx-pilotb__swatches > button { width: 40px; height: 40px; border: 2px solid rgba(255, 255, 255, 0.18); cursor: pointer; clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px); }
   .sgx-pilotb__swatches > button.is-on { border-color: #fff; box-shadow: inset 0 0 0 2px #050505; }
-  .sgx-pilotb__photo { display: flex; align-items: center; gap: 10px; margin: 14px 0 0; font-family: var(--font-body); font-size: 0.85rem; color: rgba(255, 255, 255, 0.75); }
-  .sgx-pilotb__photo input { width: 20px; height: 20px; accent-color: var(--SGX_Yellow); }
-  .sgx-pilotb-modal { width: min(1040px, calc(100vw - 24px)); }
-  .sgx-pilotb-modal .sgx-forge__actions { margin-top: 16px; justify-content: flex-end; }
   /* inside the Forge */
   .sgx-pilotb--compact { grid-template-columns: minmax(250px, 290px) minmax(0, 1fr); gap: 14px; margin: 8px 0 14px; text-align: left; }
   .sgx-pilotb--compact .sgx-pilotb__rolls { flex-wrap: nowrap; gap: 6px; }
@@ -426,7 +419,6 @@
     .sgx-pilotb__tabs { gap: 4px; }
     .sgx-pilotb__tabs button { min-height: 36px; padding: 6px 8px; font-size: 0.66rem; letter-spacing: 0.04em; }
   }
-  .sgx-pilotb-modal .sgx-hangar__title { flex: 1 1 0; }
   @media (prefers-reduced-motion: reduce) {
     .sgx-pilotb__preview, .sgx-pilotb__preview.is-rolling, .sgx-pilotb__preview .pg-scan, .sgx-pilotb__preview .pg-eye { animation: none; }
   }
@@ -467,34 +459,12 @@
   .sgx-passgate__note { margin: 4px 0 0; max-width: 46ch; font-family: var(--font-body); font-size: 0.8rem; color: rgba(255, 255, 255, 0.55); }
 }
 
-@layer components {
-  .sgx-hangar__live { display: grid; grid-template-columns: 1fr auto; gap: 12px 18px; align-items: center; padding: 14px 16px; border: 1px solid rgba(0, 221, 255, 0.3); background: rgba(0, 221, 255, 0.05); }
-  .sgx-hangar__live h4 { margin: 0 0 4px; font-family: var(--font-display); font-size: 0.95rem; text-transform: uppercase; color: var(--SGX_Cyan); }
-  .sgx-hangar__live p { margin: 0; font-family: var(--font-body); font-size: 0.85rem; color: rgba(255, 255, 255, 0.72); }
-  .sgx-hangar__live dl { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; }
-  .sgx-hangar__live dl div { padding: 8px 10px; background: rgba(5, 5, 5, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); }
-  .sgx-hangar__live dt { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.55); }
-  .sgx-hangar__live dd { margin: 2px 0 0; font-family: var(--font-hud); font-weight: 700; font-size: 1.15rem; font-variant-numeric: tabular-nums; color: #fff; }
-  .sgx-hangar__live .sgx-btn { grid-column: 1 / -1; justify-self: start; }
-}
-
-/* Holo Card in the Hangar (compact Studio) and the turn-over. */
+/* Holo Card turn-over. */
 @layer components {
   .sgx-hstudio__preview canvas { cursor: pointer; }
   .sgx-hstudio__preview canvas.is-flipping { transition: transform 0.16s ease-in; }
-  .sgx-hstudio__panel > summary { display: none; }
-  .sgx-hstudio--compact .sgx-hstudio__grid { grid-template-columns: 1fr; }
-  .sgx-hstudio--compact .sgx-hstudio__preview { min-height: 0; padding: 18px 12px; }
-  .sgx-hstudio--compact .sgx-hstudio__preview canvas { width: min(100%, 720px); margin: 0 auto; }
-  .sgx-hstudio--compact .sgx-hstudio__panel > summary {
-    display: block; cursor: pointer; padding: 10px 14px; list-style: none;
-    font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--SGX_Cyan); background: #0d0f13; border: 1px solid rgba(0, 221, 255, 0.25);
-  }
-  .sgx-hstudio--compact .sgx-hstudio__panel > summary::-webkit-details-marker { display: none; }
-  .sgx-hstudio--compact .sgx-hstudio__panel > summary::before { content: '▸ '; }
-  .sgx-hstudio--compact .sgx-hstudio__panel[open] > summary::before { content: '▾ '; }
-  .sgx-hstudio--compact .sgx-hstudio__panel[open] { gap: 12px; }
+  .sgx-hstudio__portrait { display: flex; align-items: center; gap: 12px; }
+  .sgx-hstudio__face { flex: none; display: grid; place-items: center; width: 64px; height: 64px; overflow: hidden; background: #07080b; box-shadow: inset 0 0 0 1px rgba(0, 221, 255, 0.25); clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
 }
 
 /* Pillar chips in the pass edit form. */
@@ -518,11 +488,6 @@
 .sgx-pilotb__preview--3d { width: 100%; min-height: 200px; display: grid; place-items: center; }
 .sgx-pilotb__loading { font-family: var(--font-mono); font-size: 0.75rem; color: var(--SGX_Cyan); }
 
-.sgx-hangar__avatar3d { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: center; gap: 12px; margin-top: 14px; padding: 12px 14px; background: radial-gradient(circle at 70% 60%, rgba(0, 221, 255, 0.08), transparent 60%), #07080b; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
-.sgx-hangar__avatar3d h4 { margin: 0 0 4px; font-family: var(--font-display); font-size: 0.95rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--SGX_Yellow); }
-.sgx-hangar__avatar3d p { margin: 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.72); }
-.sgx-hangar__avatar3d-wait { height: 240px; display: grid; place-items: center; font-family: var(--font-mono); font-size: 0.75rem; color: var(--SGX_Cyan); }
-@media (max-width: 560px) { .sgx-hangar__avatar3d { grid-template-columns: 1fr; } }
 
 /* The Hangar header and tabs never shrink: a scrollable tab row in a flex
    column would otherwise collapse to a thin line when the content is tall. */

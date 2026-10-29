@@ -1,6 +1,5 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { configFromSeed } from './pilotAvatar';
-import { useDialogFocus } from '../lib/useDialogFocus';
 import { useLanguage } from '../context/LanguageContext';
 import { rankLabel, usePilotProfile } from '../context/PilotProfileContext';
 import { navigateToSection } from '../immersion/navigation';
@@ -11,18 +10,20 @@ import { PILLAR_ACCENT } from './sgxIdentity';
 import { useSgxIdentity } from './SgxIdentityContext';
 import { isDay3Open, missionsOfPillar, type ReactorMission } from './reactor';
 import { usePassQr } from './usePassQr';
-import { SgxHoloStudio } from './SgxHoloStudio';
+import { SgxPassBoard } from './SgxPassSection';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
 import { SgxConstellation } from './SgxConstellation';
-import { HoloGlass } from '../immersion/shaders/HoloGlass';
 import { useAuth } from '../context/AuthContext';
 import { GoogleSignInButton } from '../components/common/GoogleSignInButton';
+import { SgxDialog } from '../components/common/SgxDialog';
+import './SgxStudio.css';
 
 const SgxPilot3D = lazy(() => import('./SgxPilot3D').then((m) => ({ default: m.SgxPilot3D })));
 
 /* TU ESTUDIO: the one screen for "me". It replaces the profile modal,
    the passport drawer and the passport modal. Pass in front, everything you
-   did behind it: Reactor missions per pillar, Rolodex, Day 3 and telemetry. */
+   did behind it: Reactor missions per pillar, Rolodex, Day 3 and telemetry.
+   The Pass tab is the same board as the SGX Pass section (SgxPassBoard). */
 
 export type HangarTab = 'pass' | 'reactor' | 'stars' | 'rolodex' | 'day3' | 'log';
 
@@ -35,8 +36,6 @@ interface Props {
 export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pass' }) => {
   const { language } = useLanguage();
   const es = language === 'es';
-  const dialogRef = useRef<HTMLDivElement | null>(null);
-  useDialogFocus(dialogRef);
   const { profile, leaderboard } = usePilotProfile();
   const liveXp = useMemo(
     () => profile.weekendActivity
@@ -55,14 +54,6 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   const done = missions.filter((m) => isDone(m.id)).length;
 
   useEffect(() => { setTab(initialTab); }, [initialTab]);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
-  }, [onClose]);
 
   const goMission = (m: ReactorMission) => {
     playUiChirp(700);
@@ -117,34 +108,32 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
     { id: 'log', label: es ? 'Telemetría' : 'Telemetry' },
   ];
 
-  return (
-    <div ref={dialogRef} tabIndex={-1} className="sgx-hangar" role="dialog" aria-modal="true" aria-label={es ? 'Tu Estudio' : 'Your Studio'} onClick={onClose}>
-      <div className="sgx-hangar__frame" onClick={(e) => e.stopPropagation()}>
-        <HoloGlass pillar={identity.affinity} />
-        <header className="sgx-hangar__head">
-          <div className="sgx-hangar__title">
-            <img src="/brand/sgx-bolt.svg" alt="" />
-            <div>
-              <h2>{es ? 'Tu Estudio' : 'Your Studio'}</h2>
-              <p>{isForged ? `${identity.pass!.fullName} · ${identity.callsign}` : (es ? 'Sin pase todavía' : 'No pass yet')}</p>
-            </div>
-          </div>
-          <div className="sgx-hangar__xp">
-            <span><b>{profile.totalXp.toLocaleString('es-PR')}</b> XP</span>
-            <span className="sgx-hangar__xp-sub">{xpBalance.toLocaleString('es-PR')} {es ? 'para gastar' : 'to spend'} · {rankLabel(profile.level, es)}</span>
-          </div>
-          <button type="button" className="sgx-hangar__close" onClick={onClose} aria-label={es ? 'Cerrar' : 'Close'}>✕</button>
-        </header>
+  const scan = () => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_qr_scanner')), 80); };
 
-        <nav className="sgx-hangar__tabs" role="tablist">
+  return (
+    <SgxDialog
+      onClose={onClose}
+      size="lg"
+      className="sgx-studio"
+      icon={<img src="/brand/sgx-bolt.svg" alt="" />}
+      title={es ? 'Tu Estudio' : 'Your Studio'}
+      kicker={isForged ? `${identity.pass!.fullName} · ${identity.callsign}` : (es ? 'Sin pase todavía' : 'No pass yet')}
+      headerExtra={(
+        <div className="sgx-hangar__xp">
+          <span><b>{profile.totalXp.toLocaleString('es-PR')}</b> XP</span>
+          <span className="sgx-hangar__xp-sub">{xpBalance.toLocaleString('es-PR')} {es ? 'para gastar' : 'to spend'} · {rankLabel(profile.level, es)}</span>
+        </div>
+      )}
+      toolbar={(
+        <nav className="sgx-studio__tabs" role="tablist" aria-label={es ? 'Secciones de tu Estudio' : 'Studio sections'}>
           {tabs.map((t) => (
             <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} className={tab === t.id ? 'is-on' : ''} onClick={() => { playUiChirp(560); setTab(t.id); }}>
               {t.label}
             </button>
           ))}
         </nav>
-
-        <div className="sgx-hangar__body">
+      )}
+    >
           {/* Account: same Google sign-in the old profile drawer had. */}
           <div className={`sgx-hangar__account ${googleEmail ? 'is-linked' : ''}`}>
             {googleEmail ? (
@@ -168,48 +157,51 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
           ) : null}
 
           {isForged && tab === 'pass' && (
-            <div className="sgx-hangar__pass">
-              {/* The Holo Card is the pass: tap it to see the back with the event and your QR. */}
-              <SgxHoloStudio compact onClose={onClose} />
+            <div className="sgx-studio__pass">
+              {/* Same board as the SGX Pass section: tap the card to see the back with the event and your QR. */}
+              <SgxPassBoard
+                onClose={onClose}
+                actions={(
+                  <>
+                    <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={downloadPdf}>{es ? 'Pase en PDF' : 'Pass as PDF'}</button></span>
+                    <button type="button" className="sgx-btn sgx-btn--ground" onClick={copyCode}>{copied ? (es ? 'Copiado' : 'Copied') : (es ? 'Copiar código' : 'Copy code')}</button>
+                    <button type="button" className="sgx-btn sgx-btn--ground" onClick={scan}>{es ? 'Escanear pase' : 'Scan pass'}</button>
+                  </>
+                )}
+              />
               <div ref={cardRef} hidden aria-hidden="true">
                 <SgxPilotGlyph seed={identity.avatar.seed} config={identity.avatar.pilot} accent={identity.affinity ? PILLAR_ACCENT[identity.affinity] : '#FDCC0D'} size={300} />
               </div>
-              <div className="sgx-hangar__actions">
-                <button type="button" className="sgx-btn sgx-btn--ground" onClick={downloadPdf}>{es ? 'Pase en PDF' : 'Pass as PDF'}</button>
-                <button type="button" className="sgx-btn sgx-btn--ground" onClick={copyCode}>{copied ? (es ? 'Copiado' : 'Copied') : (es ? 'Copiar código' : 'Copy code')}</button>
-                <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_avatar')), 80); }}>{es ? 'Mi avatar' : 'My avatar'}</button>
-                <button type="button" className="sgx-btn sgx-btn--ground" onClick={onForge}>{es ? 'Editar datos' : 'Edit details'}</button>
-              </div>
-              <section className="sgx-hangar__avatar3d" aria-label={es ? 'Tu avatar XR en 3D' : 'Your XR avatar in 3D'}>
-                <div>
-                  <h4>{es ? 'Tu avatar XR' : 'Your XR avatar'}</h4>
-                  <p>{es ? 'El mismo que diseñaste, en 3D. Arrástralo para girarlo; también aparece junto al núcleo.' : 'The one you designed, in 3D. Drag to turn it; it also appears next to the core.'}</p>
-                </div>
-                <Suspense fallback={<div className="sgx-hangar__avatar3d-wait">{es ? 'Cargando 3D…' : 'Loading 3D…'}</div>}>
-                  <SgxPilot3D
-                    config={identity.avatar.pilot || configFromSeed(identity.avatar.seed, identity.affinity ? PILLAR_ACCENT[identity.affinity] : '#FDCC0D')}
-                    height={240}
-                    label={es ? 'Tu avatar XR en 3D. Arrastra para girarlo.' : 'Your XR avatar in 3D. Drag to turn it.'}
-                  />
-                </Suspense>
-              </section>
-              <div className="sgx-hangar__live">
-                <div>
-                  <h4>SGX Live</h4>
-                  <p>
+              <div className="sgx-studio__extras">
+                <section className="sgx-panel sgx-studio__avatar3d" aria-label={es ? 'Tu avatar XR en 3D' : 'Your XR avatar in 3D'}>
+                  <div>
+                    <h3 className="sgx-panel__title">{es ? 'Tu avatar XR' : 'Your XR avatar'}</h3>
+                    <p className="sgx-studio__text">{es ? 'El mismo de tu Holo Card, en 3D. Arrástralo para girarlo; también aparece junto al núcleo.' : 'The one on your Holo Card, in 3D. Drag to turn it; it also appears next to the core.'}</p>
+                  </div>
+                  <Suspense fallback={<div className="sgx-studio__wait">{es ? 'Cargando 3D…' : 'Loading 3D…'}</div>}>
+                    <SgxPilot3D
+                      config={identity.avatar.pilot || configFromSeed(identity.avatar.seed, identity.affinity ? PILLAR_ACCENT[identity.affinity] : '#FDCC0D')}
+                      height={220}
+                      label={es ? 'Tu avatar XR en 3D. Arrastra para girarlo.' : 'Your XR avatar in 3D. Drag to turn it.'}
+                    />
+                  </Suspense>
+                </section>
+                <section className="sgx-panel sgx-studio__live">
+                  <h3 className="sgx-panel__title">SGX Live</h3>
+                  <p className="sgx-studio__text">
                     {es
                       ? 'Tu perfil de jugador vive en este pase: tu callsign sale en el escenario y cada voto y reacción suma XP aquí.'
                       : 'Your player profile lives on this pass: your callsign shows on the stage and every vote and reaction adds XP here.'}
                   </p>
-                </div>
-                <dl>
-                  <div><dt>{es ? 'Votos' : 'Votes'}</dt><dd>{profile.weekendStats.votesSubmitted}</dd></div>
-                  <div><dt>{es ? 'Reacciones' : 'Reactions'}</dt><dd>{profile.weekendStats.reactionsSent}</dd></div>
-                  <div><dt>{es ? 'XP en vivo' : 'Live XP'}</dt><dd>{liveXp.toLocaleString('es-PR')}</dd></div>
-                </dl>
-                <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => { onClose(); window.dispatchEvent(new CustomEvent('sgx:navigate_page', { detail: { page: 'play' } })); }}>
-                  {es ? 'Ir a SGX Live' : 'Go to SGX Live'} →
-                </button>
+                  <dl>
+                    <div><dt>{es ? 'Votos' : 'Votes'}</dt><dd>{profile.weekendStats.votesSubmitted}</dd></div>
+                    <div><dt>{es ? 'Reacciones' : 'Reactions'}</dt><dd>{profile.weekendStats.reactionsSent}</dd></div>
+                    <div><dt>{es ? 'XP en vivo' : 'Live XP'}</dt><dd>{liveXp.toLocaleString('es-PR')}</dd></div>
+                  </dl>
+                  <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => { onClose(); window.dispatchEvent(new CustomEvent('sgx:navigate_page', { detail: { page: 'play' } })); }}>
+                    {es ? 'Ir a SGX Live' : 'Go to SGX Live'} →
+                  </button>
+                </section>
               </div>
               <p className="sgx-hangar__note">
                 {es
@@ -276,13 +268,13 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
           )}
 
           {isForged && tab === 'stars' && (
-            <SgxConstellation onScan={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_qr_scanner')), 80); }} />
+            <SgxConstellation onScan={scan} />
           )}
 
           {isForged && tab === 'rolodex' && (
             <div className="sgx-hangar__rolodex">
               <div className="sgx-hangar__actions">
-                <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_qr_scanner')), 80); }}>
+                <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={scan}>
                   {es ? 'Escanear un pase' : 'Scan a pass'}
                 </button></span>
                 {identity.contacts.length > 0 && <button type="button" className="sgx-btn sgx-btn--ground" onClick={exportVcards}>{es ? 'Exportar vCard' : 'Export vCard'}</button>}
@@ -380,9 +372,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
               </section>
             </div>
           )}
-        </div>
-      </div>
-    </div>
+    </SgxDialog>
   );
 };
 

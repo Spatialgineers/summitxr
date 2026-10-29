@@ -14,7 +14,7 @@ const fire = (name: string, detail?: unknown) => window.dispatchEvent(new Custom
 export const SgxPassSection: React.FC = () => {
   const { language } = useLanguage();
   const es = language === 'es';
-  const { identity, isForged, missions, isDone } = useSgxIdentity();
+  const { isForged } = useSgxIdentity();
 
   if (!isForged) {
     return (
@@ -41,9 +41,29 @@ export const SgxPassSection: React.FC = () => {
   }
 
   return (
+    <SgxPassBoard
+      actions={(
+        <>
+          <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => fire('sgx:open_hangar', { tab: 'pass' })}>{es ? 'Abrir Estudio' : 'Open Studio'}</button></span>
+          <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => fire('sgx:open_hangar', { tab: 'reactor' })}>Reactor</button>
+          <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => fire('sgx:open_qr_scanner')}>{es ? 'Escanear pase' : 'Scan pass'}</button>
+          <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => fire('sgx:open_hangar', { tab: 'day3' })}>{es ? 'Día 3' : 'Day 3'}</button>
+        </>
+      )}
+    />
+  );
+};
+
+/* The forged pass: Holo Card studio, pillar stamps and the actions of the
+   place it lives in (this section or the Pass tab of your Studio). */
+export const SgxPassBoard: React.FC<{ actions: React.ReactNode; onClose?: () => void }> = ({ actions, onClose }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
+  const { identity, missions, isDone } = useSgxIdentity();
+  return (
     <div className="sgx-pass-section sgx-pass-section--one">
       <div className="sgx-pass-section__card">
-        <SgxHoloStudio />
+        <SgxHoloStudio onClose={onClose} />
       </div>
       <div className="sgx-pass-section__side">
         <div className="sgx-panel">
@@ -63,12 +83,7 @@ export const SgxPassSection: React.FC = () => {
             })}
           </ul>
         </div>
-        <div className="sgx-forge__actions">
-          <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => fire('sgx:open_hangar', { tab: 'pass' })}>{es ? 'Abrir Estudio' : 'Open Studio'}</button></span>
-          <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => fire('sgx:open_hangar', { tab: 'reactor' })}>Reactor</button>
-          <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => fire('sgx:open_qr_scanner')}>{es ? 'Escanear pase' : 'Scan pass'}</button>
-          <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => fire('sgx:open_hangar', { tab: 'day3' })}>{es ? 'Día 3' : 'Day 3'}</button>
-        </div>
+        <div className="sgx-forge__actions">{actions}</div>
       </div>
     </div>
   );

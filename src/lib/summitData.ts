@@ -1055,7 +1055,6 @@ export const INITIAL_MAP_360_NODES: Map360Node[] = [
     capacityInfo: 'Presentaciones de artistas',
     capacityInfoEn: 'Artist performances',
     connectedNodeIds: ['node_chroma_studios', 'node_awaken_gallery', 'node_drone_bay'],
-    embedUrl: 'https://www.roblox.com',
     hotspots: [
       {
         id: 'hs_rbx_1',

@@ -103,7 +103,7 @@ export const SGX_PILLARS: SgxPillar[] = [
       { day: 3, time: '2:00–3:30 PM', label: { es: 'Interacción libre: demos y Roblox', en: 'Free interaction: demos and Roblox' } },
     ],
     modules: [
-      { kind: 'section', key: 'EMBEDS_GAMES', icon: Gamepad2, label: { es: 'Simulador de dron 3D', en: '3D drone simulator' }, desc: { es: 'Vuela entre conferencias, haz trucos y gana XP.', en: 'Fly between talks, pull tricks and earn XP.' } },
+      { kind: 'section', key: 'EMBEDS_GAMES', icon: Gamepad2, label: { es: 'Juegos y laboratorios', en: 'Games & labs' }, desc: { es: 'Dron 3D, shaders, sintetizador y más. Juega y gana XP.', en: '3D drone, shaders, synth and more. Play and earn XP.' } },
       { kind: 'page', page: 'play', icon: Vote, label: { es: 'Arena de votación en vivo', en: 'Live voting arena' }, desc: { es: 'Votación estilo Kahoot durante la transmisión (+25 XP).', en: 'Kahoot-style voting during the stream (+25 XP).' } },
       { kind: 'action', event: 'sgx:open_passport', icon: MapIcon, label: { es: 'Reactor de misiones', en: 'Mission reactor' }, desc: { es: 'Misiones por pilar; cada pilar completo sella tu SGX Pass.', en: 'Missions per pillar; every finished pillar stamps your SGX Pass.' } },
       { kind: 'action', event: 'sgx:open_rewards', icon: Gift, label: { es: 'Tienda del Reactor', en: 'Reactor store' }, desc: { es: 'Gasta el mismo XP que ganas, sin bajar de rango.', en: 'Spend the same XP you earn, without losing rank.' } },

@@ -152,7 +152,7 @@
   .sgx-sp__share { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
   .sgx-sp__share p { display: flex; align-items: center; gap: 8px; margin: 0; font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255, 255, 255, 0.7); }
   .sgx-sp__face { width: 72px; height: 86px; flex: none; object-fit: cover; background: #0b0d12; box-shadow: inset 0 0 0 1px var(--SGX_Cyan); clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
-  .sgx-sp__face--contain { object-fit: contain; padding: 8px; }
+  .sgx-sp__face svg { width: 100%; height: 100%; display: block; }
   .sgx-sp__marks { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
   .sgx-sp__marks button { display: grid; place-items: center; aspect-ratio: 1; padding: 6px; background: #0b0d12; border: 0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14); clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px); }
   .sgx-sp__marks button:hover { box-shadow: inset 0 0 0 1px var(--SGX_Cyan); }

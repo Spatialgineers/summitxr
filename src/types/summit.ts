@@ -70,6 +70,8 @@ export interface SummitSpeaker {
     instagram?: string;
     github?: string;
     portfolio?: string;
+    /** Link to the speaker or project logo (no uploads). */
+    logo?: string;
     roblox?: string;
   };
 }

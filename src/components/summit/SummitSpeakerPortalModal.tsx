@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
-import { Check, Copy, Share2, CheckCircle2, AlertTriangle, Upload, UserRound, ArrowLeft, MessageCircle, Send } from 'lucide-react';
+import { Check, Copy, Share2, CheckCircle2, AlertTriangle, UserRound, ArrowLeft, MessageCircle, Send } from 'lucide-react';
 import { SummitSpeaker, SummitPillarId } from '../../types/summit';
 import { registerSpeakerProfile, playNotificationChime } from '../../lib/summitData';
 import { SGX_PILLARS, bi, findPillar } from '../../lib/sgxPillars';
 import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
 import { savePendingCredential } from '../../identity/credentials';
 import { PilotBuilder } from '../../identity/PilotBuilder';
-import { configFromSeed, pilotImage, type PilotConfig } from '../../identity/pilotAvatar';
+import { configFromSeed, pilotImage, pilotSvg, type PilotConfig } from '../../identity/pilotAvatar';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { SgxDialog } from '../common/SgxDialog';
 import './sgxModals.css';
 
-/* SPEAKER & ARTIST PORTAL: self-service application. The photo can be a real
-   upload, an avatar from the SGX avatar builder or one of the pillar marks;
-   it travels as `avatarUrl` (small data URL or a local mark path). */
+/* SPEAKER & ARTIST PORTAL: self-service application. Every person in the
+   Summit (visitors, speakers, artists) is shown with an avatar from the SGX
+   avatar builder, never an uploaded photo; it travels as `avatarUrl` (a small
+   JPEG). A brand or project logo can be shared as a link. */
 
 interface SummitSpeakerPortalModalProps {
   isOpen: boolean;
@@ -24,17 +25,8 @@ interface SummitSpeakerPortalModalProps {
   initialSpeaker?: SummitSpeaker | null;
 }
 
-const MARK_KEYS = ['stage', 'showcase', 'spark', 'story', 'system', 'synthesize'] as const;
-export const PRESET_AVATARS = MARK_KEYS.map((k) => ({ key: k, url: `/holo/${k}.png` }));
-
-/** Old CDN insignias (now 404) → the local marks. */
-const LEGACY_MARK = /Pillars\/Spat%20(Stage|Showcase|Spark|Story|System|Synthesize)%20Icon/i;
-const normalizeAvatar = (url?: string | null) => {
-  const m = url?.match(LEGACY_MARK);
-  return m ? `/holo/${m[1].toLowerCase()}.png` : url || '';
-};
-
-const isMark = (url: string) => url.startsWith('/holo/');
+/** Only a rendered avatar is kept (old photos and pillar marks are replaced by one). */
+const keepAvatar = (url?: string | null) => (url && url.startsWith('data:image/jpeg') ? url : '');
 
 /** Downscale to a small JPEG so the application stays well under Firestore's doc limit. */
 function toSmallJpeg(img: CanvasImageSource, w: number, h: number, max = 480, bg?: string): string {
@@ -64,9 +56,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
   const [bio, setBio] = useState<string>(initialSpeaker?.bio || '');
   const [day, setDay] = useState<number>(initialSpeaker?.day || 1);
   const [pillarId, setPillarId] = useState<SummitPillarId>(initialSpeaker?.pillarId || 'SGX.STORY');
-  const [avatarUrl, setAvatarUrl] = useState<string>(
-    normalizeAvatar(initialSpeaker?.avatarUrl) || authUser?.photoURL || PRESET_AVATARS[0].url
-  );
+  const [avatarUrl, setAvatarUrl] = useState<string>(keepAvatar(initialSpeaker?.avatarUrl));
   const isKeynote = initialSpeaker?.isKeynote || false; // set only by the organizers
   const [isAwakenInitiate, setIsAwakenInitiate] = useState<boolean>(initialSpeaker?.isAwakenInitiate ?? true);
   const awakenRank = initialSpeaker?.awakenRank || 'AWAKEN_STATUS';
@@ -76,6 +66,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
   const instagram = initialSpeaker?.socialLinks?.instagram || '';
   const [github, setGithub] = useState<string>(initialSpeaker?.socialLinks?.github || '');
   const [portfolio, setPortfolio] = useState<string>(initialSpeaker?.socialLinks?.portfolio || '');
+  const [logo, setLogo] = useState<string>(initialSpeaker?.socialLinks?.logo || '');
   const roblox = initialSpeaker?.socialLinks?.roblox || '';
 
   // Avatar builder view (inside the same dialog)
@@ -110,27 +101,10 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
-    if (!file.type.startsWith('image/')) { setPhotoError(es ? 'Ese archivo no es una imagen.' : 'That file is not an image.'); return; }
-    setPhotoError(null);
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      try { setAvatarUrl(toSmallJpeg(img, img.naturalWidth, img.naturalHeight)); playUiChirp(880); }
-      catch { setPhotoError(es ? 'No pudimos leer esa foto. Prueba con otra.' : "We couldn't read that photo. Try another one."); }
-      URL.revokeObjectURL(url);
-    };
-    img.onerror = () => { setPhotoError(es ? 'No pudimos leer esa foto. Prueba con otra.' : "We couldn't read that photo. Try another one."); URL.revokeObjectURL(url); };
-    img.src = url;
-  };
-
+  const renderAvatar = async (c: PilotConfig) => toSmallJpeg(await pilotImage(c, 400), 400, 480, 400, '#0b0d12');
   const applyPilot = async () => {
     try {
-      const img = await pilotImage(pilot, 400);
-      setAvatarUrl(toSmallJpeg(img, 400, 480, 400, '#0b0d12'));
+      setAvatarUrl(await renderAvatar(pilot));
       playUiChirp(980);
       setBuilding(false);
     } catch {
@@ -157,7 +131,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
         handle: handle.trim() ? (handle.startsWith('@') ? handle.trim() : `@${handle.trim()}`) : undefined,
         role: role.trim(),
         organization: organization.trim(),
-        avatarUrl: avatarUrl || PRESET_AVATARS[0].url,
+        avatarUrl: avatarUrl || await renderAvatar(pilot),
         bio: bio.trim() || (es ? 'Postulación pendiente de confirmación.' : 'Application pending confirmation.'),
         pillarId,
         day,
@@ -170,6 +144,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
           instagram: instagram.trim() || undefined,
           github: github.trim() || undefined,
           portfolio: portfolio.trim() || undefined,
+          logo: logo.trim() || undefined,
           roblox: roblox.trim() || undefined,
         }
       };
@@ -193,7 +168,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
 
   const dayDate = day === 1 ? '11' : day === 2 ? '12' : '13';
   const face = (url: string, alt: string) => (
-    <img className={`sgx-sp__face ${isMark(url) ? 'sgx-sp__face--contain' : ''}`} src={url} alt={alt} />
+    <img className="sgx-sp__face" src={url} alt={alt} />
   );
 
   // ---------- Avatar builder view ----------
@@ -203,7 +178,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
         key="builder"
         onClose={() => setBuilding(false)}
         title={es ? 'Arma tu avatar' : 'Build your avatar'}
-        kicker={es ? 'Para tu perfil de speaker. Puedes volver a tu foto cuando quieras.' : 'For your speaker profile. You can switch back to a photo any time.'}
+        kicker={es ? 'Tu imagen en el Summit: la misma para visitantes, speakers y artistas.' : 'Your picture in the Summit: the same for visitors, speakers and artists.'}
         icon={<img src="/holo/bolt.png" alt="" />}
         accent={accent}
         size="lg"
@@ -360,37 +335,27 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
                 <input className="sgx-m-input" type="url" value={twitter} onChange={(e) => setTwitter(e.target.value)} aria-label={es ? 'Perfil de X' : 'X profile'} placeholder={es ? 'Perfil de X (URL)' : 'X profile (URL)'} />
                 <input className="sgx-m-input" type="url" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} aria-label={es ? 'Perfil de LinkedIn' : 'LinkedIn profile'} placeholder={es ? 'Perfil de LinkedIn (URL)' : 'LinkedIn profile (URL)'} />
                 <input className="sgx-m-input" type="url" value={github} onChange={(e) => setGithub(e.target.value)} aria-label={es ? 'GitHub o ArtStation' : 'GitHub or ArtStation'} placeholder={es ? 'GitHub o ArtStation (URL)' : 'GitHub or ArtStation (URL)'} />
+                <input className="sgx-m-input" type="url" value={logo} onChange={(e) => setLogo(e.target.value)} aria-label={es ? 'Enlace a tu logo o el de tu proyecto' : 'Link to your or your project logo'} placeholder={es ? 'Enlace a tu logo (https://…, PNG o SVG)' : 'Link to your logo (https://…, PNG or SVG)'} />
               </div>
             </fieldset>
           </div>
 
           <div className="sgx-sp__col">
             <div className="sgx-m-card">
-              <p className="sgx-m-kicker">{es ? 'Tu imagen' : 'Your picture'}</p>
+              <p className="sgx-m-kicker">{es ? 'Tu avatar' : 'Your avatar'}</p>
+              <p className="sgx-m-fine">{es ? 'En el Summit todos aparecen con su avatar SGX. Ármalo a tu gusto; si tienes un logo, pon su enlace arriba.' : 'Everyone in the Summit appears with their SGX avatar. Build yours; if you have a logo, add its link above.'}</p>
               <div className="sgx-sp__avatar-actions">
-                <label className="sgx-btn sgx-btn--sm sgx-sp__upload">
-                  <Upload size={14} aria-hidden /> {es ? 'Subir foto' : 'Upload photo'}
-                  <input type="file" accept="image/*" onChange={handlePhoto} aria-label={es ? 'Subir foto' : 'Upload photo'} />
-                </label>
-                <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" data-probe="avatar-builder" onClick={() => { playUiChirp(760); setBuilding(true); }}>
-                  <UserRound size={14} aria-hidden /> {es ? 'Arma tu avatar' : 'Build an avatar'}
+                <button type="button" className="sgx-btn sgx-btn--sm" data-probe="avatar-builder" onClick={() => { playUiChirp(760); setBuilding(true); }}>
+                  <UserRound size={14} aria-hidden /> {avatarUrl ? (es ? 'Editar mi avatar' : 'Edit my avatar') : (es ? 'Arma tu avatar' : 'Build your avatar')}
                 </button>
               </div>
               {photoError && <p className="sgx-m-err" role="alert">{photoError}</p>}
-              <p className="sgx-m-label">{es ? 'O usa la marca de un pilar' : 'Or use a pillar mark'}</p>
-              <div className="sgx-sp__marks" role="group" aria-label={es ? 'Marcas de los pilares' : 'Pillar marks'}>
-                {PRESET_AVATARS.map((p) => (
-                  <button key={p.key} type="button" aria-pressed={avatarUrl === p.url} onClick={() => setAvatarUrl(p.url)} aria-label={`SGX.${p.key.charAt(0).toUpperCase()}${p.key.slice(1)}`} title={`SGX.${p.key.charAt(0).toUpperCase()}${p.key.slice(1)}`}>
-                    <img src={p.url} alt="" />
-                  </button>
-                ))}
-              </div>
             </div>
 
             <div className="sgx-m-card sgx-m-card--cyan" aria-label={es ? 'Vista previa' : 'Preview'}>
               <p className="sgx-m-kicker">{es ? 'Vista previa' : 'Preview'}</p>
               <div className="sgx-m-row" style={{ alignItems: 'flex-start', flexWrap: 'nowrap', gap: 14 }}>
-                {face(avatarUrl || PRESET_AVATARS[0].url, name || 'Speaker')}
+                {avatarUrl ? face(avatarUrl, name || 'Speaker') : <span className="sgx-sp__face" aria-hidden="true" dangerouslySetInnerHTML={{ __html: pilotSvg(pilot, { size: 96 }) }} />}
                 <div style={{ minWidth: 0 }}>
                   <h3 className="sgx-m-h" style={{ overflowWrap: 'anywhere' }}>{name || (es ? 'Tu nombre' : 'Your name')}</h3>
                   {handle && <p className="sgx-m-fine">{handle}</p>}

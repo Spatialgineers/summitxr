@@ -183,7 +183,7 @@ export const MATCH_I18N: Record<'es' | 'en', MatchI18nStrings> = {
     deckEmpty: 'Ya viste a todos por ahora. Vuelve cuando entren más builders.',
     deckEmptyCta: 'Editar mi perfil',
 
-    hitTitle: '¡ES UN MATCH! ✨',
+    hitTitle: '¡Es un match!',
     hitSubtitle: '+100 XP para los dos',
     hitSaveVcard: 'Guardar contacto',
     hitAddNote: 'Añadir nota privada',
@@ -286,7 +286,7 @@ export const MATCH_I18N: Record<'es' | 'en', MatchI18nStrings> = {
     deckEmpty: "You've seen everyone for now. Check back as more builders join.",
     deckEmptyCta: 'Edit my profile',
 
-    hitTitle: "IT'S A MATCH! ✨",
+    hitTitle: "It's a match!",
     hitSubtitle: '+100 XP for both of you',
     hitSaveVcard: 'Save contact',
     hitAddNote: 'Add private note',

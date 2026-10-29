@@ -26,7 +26,7 @@ export const triggerMatchConfetti = (primaryColor: string = '#00DDFF', secondary
       ...defaults,
       ...opts,
       particleCount: Math.floor(count * particleRatio),
-      colors: [primaryColor, secondaryColor, '#9945FF', '#10b981', '#ffffff']
+      colors: [primaryColor, secondaryColor, '#FFBB00', '#32527B', '#ffffff']
     });
   }
 

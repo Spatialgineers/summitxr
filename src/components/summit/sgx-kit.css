@@ -1,0 +1,105 @@
+/* =========================================================================
+   SGX KIT: small shared pieces for the Summit sections (cards, chips, inputs,
+   icon buttons). Built on the design-system tokens; same clipped corners and
+   thin inset edges as Tu Estudio. Imported by the components that use it.
+   Unlayered on purpose: in dev these files can load before the Tailwind
+   layers are declared, and a layered rule would then lose to preflight.
+   ========================================================================= */
+
+.sgx-kicker { margin: 0; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--SGX_Cyan); }
+.sgx-h { margin: 0; font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.15; color: var(--SGX_White); overflow-wrap: anywhere; }
+.sgx-copy { margin: 0; font-family: var(--font-body); font-size: 0.95rem; line-height: 1.5; color: rgba(255, 255, 255, 0.78); }
+.sgx-fine { margin: 0; font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.45; color: rgba(255, 255, 255, 0.55); }
+
+/* Card: clipped HUD panel with a thin inset edge in its accent. */
+.sgx-card {
+  --card-accent: rgba(0, 221, 255, 0.32);
+  --card-cut: 12px;
+  position: relative; min-width: 0; padding: 14px 16px; color: var(--SGX_White);
+  background: linear-gradient(180deg, rgba(26, 26, 26, 0.88), rgba(8, 8, 8, 0.92));
+  box-shadow: inset 0 0 0 1px var(--card-accent);
+  clip-path: polygon(var(--card-cut) 0, 100% 0, 100% calc(100% - var(--card-cut)), calc(100% - var(--card-cut)) 100%, 0 100%, 0 var(--card-cut));
+}
+.sgx-card--sm { --card-cut: 8px; padding: 10px 12px; }
+.sgx-card.is-on { box-shadow: inset 0 0 0 1.5px var(--card-accent); background: linear-gradient(180deg, color-mix(in srgb, var(--card-accent) 10%, #161616), rgba(8, 8, 8, 0.94)); }
+/* Accent stripe along the top edge (pillar / tier color). */
+.sgx-card--stripe::before { content: ""; position: absolute; top: 0; left: var(--card-cut); right: 0; height: 2px; background: var(--card-accent); }
+button.sgx-card, a.sgx-card, .sgx-card--btn {
+  display: block; width: 100%; text-align: left; font: inherit; border: 0; cursor: pointer; text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+button.sgx-card:hover, a.sgx-card:hover, .sgx-card--btn:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 1.5px var(--card-accent), 0 0 0 0 transparent; }
+button.sgx-card:focus-visible, a.sgx-card:focus-visible, .sgx-card--btn:focus-visible { outline: 2px solid var(--SGX_Cyan); outline-offset: -4px; }
+
+/* Chip: tag / status / filter. As a button it toggles with aria-pressed. */
+.sgx-chip {
+  --chip: var(--SGX_Cyan);
+  display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 3px 8px;
+  font-family: var(--font-mono); font-size: 0.7rem; line-height: 1.3; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--chip); background: color-mix(in srgb, var(--chip) 10%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--chip) 55%, transparent);
+  clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sgx-chip svg { width: 12px; height: 12px; flex: none; }
+.sgx-chip--solid { color: var(--SGX_Black_Base); background: var(--chip); box-shadow: none; font-weight: 700; }
+.sgx-chip--ghost { --chip: rgba(255, 255, 255, 0.6); }
+button.sgx-chip { border: 0; cursor: pointer; padding: 6px 10px; transition: background 0.2s, color 0.2s; }
+button.sgx-chip:hover { background: color-mix(in srgb, var(--chip) 22%, transparent); }
+button.sgx-chip[aria-pressed="true"] { color: var(--SGX_Black_Base); background: var(--chip); box-shadow: none; font-weight: 700; }
+button.sgx-chip:focus-visible { outline: 2px solid var(--SGX_White); outline-offset: -3px; }
+.sgx-chip__n { padding: 0 5px; color: inherit; background: rgba(0, 0, 0, 0.35); font-variant-numeric: tabular-nums; }
+.sgx-chip-row { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+
+/* Square icon button. */
+.sgx-iconbtn {
+  display: inline-grid; place-items: center; flex: none; width: 34px; height: 34px; padding: 0;
+  color: rgba(255, 255, 255, 0.75); background: rgba(5, 5, 5, 0.6); border: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.sgx-iconbtn svg { width: 16px; height: 16px; }
+.sgx-iconbtn:hover, .sgx-iconbtn[aria-pressed="true"] { color: var(--SGX_Black_Base); background: var(--SGX_Yellow); border-color: var(--SGX_Yellow); }
+.sgx-iconbtn:focus-visible { outline: 2px solid var(--SGX_Cyan); outline-offset: -4px; }
+.sgx-iconbtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Inputs. */
+.sgx-input {
+  width: 100%; min-width: 0; padding: 10px 12px; font-family: var(--font-body); font-size: 0.95rem; color: var(--SGX_White);
+  background: rgba(5, 5, 5, 0.85); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 0; outline: none;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+.sgx-input::placeholder { color: rgba(255, 255, 255, 0.4); }
+.sgx-input:focus { border-color: var(--SGX_Yellow); box-shadow: inset 0 0 0 1px var(--SGX_Yellow); }
+textarea.sgx-input { resize: none; line-height: 1.45; }
+select.sgx-input { appearance: auto; font-family: var(--font-mono); font-size: 0.8rem; }
+.sgx-search { position: relative; min-width: 0; }
+.sgx-search > svg { position: absolute; left: 11px; top: 50%; width: 15px; height: 15px; transform: translateY(-50%); color: rgba(255, 255, 255, 0.45); pointer-events: none; }
+.sgx-search > .sgx-input { padding-left: 34px; }
+
+/* Clipped square avatar / logo frame. */
+.sgx-avatar {
+  --avatar-accent: rgba(255, 255, 255, 0.2);
+  flex: none; display: grid; place-items: center; overflow: hidden; width: 48px; height: 48px;
+  background: #0b0d12; box-shadow: inset 0 0 0 1px var(--avatar-accent);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  font-family: var(--font-display); font-weight: 700; color: var(--avatar-accent);
+}
+.sgx-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.sgx-avatar--contain img { object-fit: contain; padding: 4px; }
+
+/* Status LED (honest: on only when the thing really is live). */
+.sgx-dot { display: inline-block; flex: none; width: 7px; height: 7px; background: rgba(255, 255, 255, 0.35); }
+.sgx-dot.is-live { background: var(--SGX_Cyan); box-shadow: 0 0 6px var(--SGX_Cyan); }
+
+/* SgxDialog header that keeps the close button on the title row and lets the kicker wrap. */
+.sgx-dialog--fit .sgx-hangar__head { flex-wrap: nowrap; align-items: flex-start; }
+.sgx-dialog--fit .sgx-hangar__title { flex: 1 1 0; }
+.sgx-dialog--fit .sgx-hangar__title p { white-space: normal; }
+.sgx-dialog--fit .sgx-hangar__title .sgx-avatar { width: 52px; height: 52px; }
+.sgx-dialog--fit .sgx-hangar__title .sgx-avatar img { width: 100%; filter: none; }
+
+/* Buttons that should stretch or wrap on phones. */
+.sgx-btn.is-wide { width: 100%; }
+.sgx-btn.is-wrap { white-space: normal; text-align: center; }
+.sgx-btn svg { width: 15px; height: 15px; flex: none; }

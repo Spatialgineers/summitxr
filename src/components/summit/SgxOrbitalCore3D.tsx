@@ -50,6 +50,9 @@ import { usePilotProfile } from '../../context/PilotProfileContext';
 import { SPONSORSHIP_TIERS } from '../../lib/summitData';
 import { SgxHeroOverlay } from './SgxHeroOverlay';
 import { SgxClocksBanner } from './SgxClocksBanner';
+import { sponsorTierAccent } from './sponsorTierAccent';
+import './sgx-kit.css';
+import './SgxCoreDrawer.css';
 import { explore, startCalm } from '../../immersion/calmMode';
 
 export type SgxCorePillarId = 'STORY' | 'SHOWCASE' | 'SPARK' | 'STAGE' | 'SYSTEM' | 'SYNTHESIZE';
@@ -427,6 +430,21 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const drawerOpenRef = useRef(false);
   drawerOpenRef.current = drawerOpen;
+  const drawerRef = useRef<HTMLElement>(null);
+  const isPhoneDrawer = typeof window !== 'undefined' && window.innerWidth < 768;
+  // Pillar panel: focus moves in when it opens, Escape closes it, focus returns where it was.
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const before = document.activeElement as HTMLElement | null;
+    const t = window.setTimeout(() => drawerRef.current?.querySelector<HTMLElement>('button')?.focus({ preventScroll: true }), 30);
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); setDrawerOpen(false); } };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener('keydown', onKey);
+      if (before && document.contains(before)) before.focus({ preventScroll: true });
+    };
+  }, [drawerOpen]);
   const [zenImmersionMode, setZenImmersionMode] = useState<boolean>(false);
   const [optionsMenuOpen, setOptionsMenuOpen] = useState<boolean>(false);
   const [activeDrawerTab, setActiveDrawerTab] = useState<'MODULES' | 'INTERACTIVE_LAB' | 'SPONSORS'>('MODULES');
@@ -2188,481 +2206,213 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
             );
           })}
 
-        {/* ROOMY & COMFORTABLE INSPECTION MODAL/SHEET (Responsive: Fixed backdrop sheet on mobile, sleek right dock on desktop) */}
+        {/* Pillar panel: bottom sheet over a scrim on phones, docked on the right of the 3D view on desktop. */}
         {drawerOpen && (
-          <div
-            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col justify-end md:static md:contents"
-            onClick={() => setDrawerOpen(false)}
-          >
+          <div className="sgx-core-drawer__scrim" onClick={() => setDrawerOpen(false)}>
             <aside
+              ref={drawerRef}
               data-holographic-drawer="true"
+              role="dialog"
+              aria-modal={isPhoneDrawer ? true : undefined}
+              aria-labelledby="sgx-core-drawer-title"
+              tabIndex={-1}
               onClick={e => e.stopPropagation()}
-              className="relative w-full h-[90vh] max-h-[90vh] md:h-auto md:max-h-none md:absolute md:z-40 md:top-4 md:bottom-14 md:left-auto md:right-4 md:w-[490px] lg:w-[520px] bg-[#111111] border-t-4 md:border-2 border-[#FDCC0D] flex flex-col overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.98)] pointer-events-auto transition-all duration-300"
-              style={{
-                borderColor: readableAccent,
-                clipPath: typeof window !== 'undefined' && window.innerWidth >= 768
-                  ? 'polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px)'
-                  : undefined,
-              }}
+              className="sgx-core-drawer"
+              style={{ ['--drawer-accent' as string]: readableAccent }}
             >
-              {/* Mobile Top Grabber & Quick Close Bar */}
-              <div className="md:hidden flex items-center justify-between px-4 py-2.5 bg-[#050505] border-b border-[#32527B]/60 shrink-0">
-                <span className="text-[11px] font-mono font-bold text-[#FDCC0D] uppercase tracking-wider">
-                  {es ? 'MODAL DE INSPECCIÓN NÚCLEO 3D' : '3D CORE INSPECTION MODAL'}
+              <header className="sgx-core-drawer__head">
+                <span className="sgx-avatar sgx-avatar--contain" style={{ ['--avatar-accent' as string]: readableAccent }}>
+                  <img src={activeNode.iconUrl} alt="" referrerPolicy="no-referrer" />
                 </span>
+                <div className="sgx-core-drawer__title">
+                  <p className="sgx-kicker">{activeNode.code}</p>
+                  <h2 id="sgx-core-drawer-title">{loc(activeNode, 'title', language)}</h2>
+                </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    playUiChirp(680);
-                    setDrawerOpen(false);
-                  }}
-                  className="px-2.5 py-1 bg-[#1A1A1A] hover:bg-[#FDCC0D] hover:text-black border border-[#FDCC0D]/60 text-xs font-['Orbitron',sans-serif] font-bold text-[#FDCC0D] transition-colors cursor-pointer flex items-center gap-1"
+                  className="sgx-iconbtn"
+                  onClick={() => { playUiChirp(640); setDrawerOpen(false); }}
+                  aria-label={es ? 'Cerrar panel y volver al 3D' : 'Close panel and go back to 3D'}
                 >
-                  <X className="w-3.5 h-3.5" />
-                  <span>{es ? 'Volver al 3D' : 'Back to 3D'}</span>
+                  <X aria-hidden />
                 </button>
+              </header>
+
+              <div className="sgx-core-drawer__tabs" role="tablist" aria-label={es ? 'Contenido del pilar' : 'Pillar content'}>
+                {([
+                  ['MODULES', es ? `Módulos (${activePillarModules.length})` : `Modules (${activePillarModules.length})`, 680],
+                  ['SPONSORS', es ? 'Patrocinios' : 'Sponsors', 760],
+                  ['INTERACTIVE_LAB', es ? 'Laboratorio' : 'Lab', 760],
+                ] as const).map(([id, label, tone]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    role="tab"
+                    aria-selected={activeDrawerTab === id}
+                    className={activeDrawerTab === id ? 'is-on' : ''}
+                    onClick={() => { playUiChirp(tone); setActiveDrawerTab(id); }}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
 
-              {/* Modal Header & Navigation Tabs */}
-              <div className="p-3.5 sm:p-5 border-b border-[#32527B]/60 bg-[#050505]/95 space-y-3 shrink-0">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div
-                      className="w-10 h-10 sm:w-11 sm:h-11 bg-[#1A1A1A] border flex items-center justify-center p-1.5 shrink-0"
-                      style={{
-                        borderColor: readableAccent,
-                        clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)',
-                      }}
-                    >
-                      <img
-                        src={activeNode.iconUrl}
-                        alt={activeNode.code}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <div
-                        className="text-[11px] font-mono font-bold uppercase tracking-wider"
-                        style={{ color: readableAccent }}
-                      >
-                        {es ? 'ESTACIÓN ACOPLADA · ' : 'DOCKED STATION · '}{activeNode.code}
-                      </div>
-                      <h4
-                        className="font-black text-white font-['Orbitron',sans-serif] truncate"
-                        style={{ fontSize: 'clamp(1rem, 1.4vw, 1.25rem)' }}
-                      >
-                        {loc(activeNode, 'title', language)}
-                      </h4>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playUiChirp(640);
-                      setDrawerOpen(false);
-                    }}
-                    className="hidden md:flex px-3 py-1.5 bg-[#1A1A1A] hover:bg-[#FDCC0D] hover:text-[#050505] border border-[#32527B] text-xs font-['Orbitron',sans-serif] font-bold text-white transition-colors cursor-pointer shrink-0 items-center gap-1.5"
-                    style={{
-                      clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)',
-                    }}
-                    title={es ? 'Cerrar panel y despejar vista 3D' : 'Close panel and clear the 3D view'}
-                  >
-                    <X className="w-3.5 h-3.5" />
-                    <span>{es ? 'Cerrar' : 'Close'}</span>
-                  </button>
-                </div>
-
-                {/* 3 Main Navigation Tabs */}
-                <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#050505] border border-[#32527B]/60 font-['Orbitron',sans-serif] text-xs">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playUiChirp(680);
-                      setActiveDrawerTab('MODULES');
-                    }}
-                    className={`py-2 px-1 font-bold transition-colors cursor-pointer text-center truncate ${
-                      activeDrawerTab === 'MODULES'
-                        ? 'bg-[#FDCC0D] text-[#050505]'
-                        : 'text-slate-300 hover:text-white hover:bg-[#1A1A1A]'
-                    }`}
-                  >
-                    {es ? 'Módulos (' : 'Modules ('}{activePillarModules.length})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playUiChirp(760);
-                      setActiveDrawerTab('SPONSORS');
-                    }}
-                    className={`py-2 px-1 font-bold transition-colors cursor-pointer text-center truncate ${
-                      activeDrawerTab === 'SPONSORS'
-                        ? 'bg-[#FFBB00] text-[#050505]'
-                        : 'text-slate-300 hover:text-white hover:bg-[#1A1A1A]'
-                    }`}
-                  >
-                    Sponsors 3D
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playUiChirp(760);
-                      setActiveDrawerTab('INTERACTIVE_LAB');
-                    }}
-                    className={`py-2 px-1 font-bold transition-colors cursor-pointer text-center truncate ${
-                      activeDrawerTab === 'INTERACTIVE_LAB'
-                        ? 'bg-[#00DDFF] text-[#050505]'
-                        : 'text-slate-300 hover:text-white hover:bg-[#1A1A1A]'
-                    }`}
-                  >
-                    Lab 3D
-                  </button>
-                </div>
-              </div>
-
-              {/* Scrollable Content Body with Plenty of Reading Space (Space Grotesk Prose & High Contrast) */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 custom-scrollbar bg-[#111111]">
-                {/* TAB 1: MODULES & EXPERIENCES */}
+              <div className="sgx-core-drawer__body" role="tabpanel">
                 {activeDrawerTab === 'MODULES' &&
                   activePillarModules.map((mod, idx) => {
                     const ModIcon = mod.icon;
                     return (
-                      <div
+                      <button
                         key={mod.id}
-                        onClick={() => {
-                          playUiChirp(780);
-                          mod.onLaunch();
-                        }}
-                        className="w-full p-4 sm:p-4.5 bg-[#1D1D1D] hover:bg-[#2A2A2A] border border-[#32527B]/80 hover:border-[#FDCC0D] text-left transition-all cursor-pointer group flex flex-col gap-3 shadow-lg"
-                        style={{
-                          clipPath:
-                            'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
-                        }}
+                        type="button"
+                        className="sgx-card sgx-core-drawer__mod"
+                        style={{ ['--card-accent' as string]: `color-mix(in srgb, ${readableAccent} 45%, transparent)` }}
+                        onClick={() => { playUiChirp(780); mod.onLaunch(); }}
                       >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div
-                              className="w-8 h-8 bg-[#050505] border flex items-center justify-center shrink-0"
-                              style={{ borderColor: readableAccent }}
-                            >
-                              <ModIcon className="w-4 h-4" style={{ color: readableAccent }} />
-                            </div>
-                            <h5
-                              className="font-extrabold text-white font-['Orbitron',sans-serif] group-hover:text-[#FDCC0D] leading-snug"
-                              style={{ fontSize: 'clamp(0.95rem, 1.2vw, 1.08rem)' }}
-                            >
-                              0{idx + 1}. {mod.title}
-                            </h5>
-                          </div>
-                          {mod.xpReward && (
-                            <span
-                              className="px-2.5 py-0.5 bg-[#050505] border font-mono font-bold tabular-nums shrink-0"
-                              style={{
-                                fontSize: 'clamp(0.75rem, 0.9vw, 0.85rem)',
-                                color: readableAccent,
-                                borderColor: `${readableAccent}60`,
-                              }}
-                            >
-                              {mod.xpReward}
-                            </span>
-                          )}
-                        </div>
-
-                        <p
-                          className="text-slate-100 font-body leading-relaxed text-sm sm:text-base"
-                        >
-                          {mod.description}
-                        </p>
-
-                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#32527B]/40">
-                          <span className="text-xs font-mono text-slate-300 truncate">
-                            {mod.subtitle}
-                          </span>
-                          <span className="sgx-btn px-3 py-1.5 text-xs flex items-center gap-1.5 shrink-0">
-                            <span>{mod.actionLabel}</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </span>
-                        </div>
-                      </div>
+                        <span className="sgx-core-drawer__mod-head">
+                          <span className="sgx-core-drawer__mod-icon"><ModIcon className="w-4 h-4" /></span>
+                          <strong>{String(idx + 1).padStart(2, '0')}. {mod.title}</strong>
+                          {/* Only real XP rewards; status words like "EN VIVO" are not shown (nothing is live yet). */}
+                          {mod.xpReward && /XP/.test(mod.xpReward) && <span className="sgx-chip" style={{ ['--chip' as string]: readableAccent }}>{mod.xpReward}</span>}
+                        </span>
+                        <span className="sgx-core-drawer__mod-text">{mod.description}</span>
+                        <span className="sgx-core-drawer__mod-foot">
+                          <small>{mod.subtitle}</small>
+                          <span className="sgx-btn sgx-btn--sm">{mod.actionLabel}<ArrowRight aria-hidden /></span>
+                        </span>
+                      </button>
                     );
                   })}
 
-                {/* TAB 2: SPONSORS 3D ROTATING STATIONS */}
                 {activeDrawerTab === 'SPONSORS' && (
-                  <div className="space-y-4">
-                    <div
-                      className="p-4 bg-[#1D1D1D] border border-[#FDCC0D] space-y-2 shadow-lg"
-                      style={{
-                        clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
-                      }}
-                    >
-                      <div className="flex items-center justify-between text-[#FDCC0D] font-['Orbitron',sans-serif] font-bold text-xs sm:text-sm">
-                        <span className="flex items-center gap-2">
-                          <Building2 className="w-4 h-4 text-[#FDCC0D]" />
-                          <span>{es ? '4 ÁREAS DE PATROCINIO 3D EN EL NÚCLEO' : '4 3D SPONSOR AREAS IN THE CORE'}</span>
-                        </span>
-                        <span className="font-mono text-xs text-[#00DDFF]">{es ? '+25 XP / VISITA' : '+25 XP / VISIT'}</span>
-                      </div>
-                      <p className="text-slate-200 font-body text-xs sm:text-sm leading-relaxed">
-                        {es ? 'Toca cualquier monolito rotando en la arena 3D o pulsa ' : 'Tap any rotating monolith in the 3D arena or press '}<strong className="text-[#FDCC0D]">{es ? '"Enfocar en 3D"' : '"Focus in 3D"'}</strong>{es ? ' para volar la cámara hacia esa estación de patrocinio oficial.' : ' to fly the camera to that official sponsor station.'}
+                  <>
+                    <section className="sgx-card" style={{ ['--card-accent' as string]: 'rgba(253, 204, 13, 0.5)' }}>
+                      <p className="sgx-kicker sgx-core-drawer__kicker"><Building2 aria-hidden />{es ? `${SGX_3D_SPONSOR_STATIONS.length} espacios de marca en el núcleo` : `${SGX_3D_SPONSOR_STATIONS.length} brand spaces in the core`}</p>
+                      <p className="sgx-copy">
+                        {es ? 'Toca un monolito en la escena o usa ' : 'Tap a monolith in the scene or use '}<b>{es ? 'Enfocar en 3D' : 'Focus in 3D'}</b>{es ? ' para llevar la cámara hasta ese espacio.' : ' to take the camera to that space.'}
                       </p>
-                    </div>
+                    </section>
 
-                    {/* The 4 Rotating 3D Sponsor Stations */}
-                    <div className="space-y-3">
-                      <div className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider px-1">
-                        {es ? 'Estaciones 3D Activas en el Espacio:' : 'Active 3D Stations in the Space:'}
-                      </div>
-
-                      {SGX_3D_SPONSOR_STATIONS.map((station, sIdx) => {
-                        const isFocused = focusedSponsorId === station.id;
-                        return (
-                          <div
-                            key={station.id}
-                            className={`p-4 bg-[#1D1D1D] border transition-all space-y-2.5 ${
-                              isFocused ? 'border-[#FDCC0D] shadow-[0_0_20px_rgba(253,204,13,0.3)]' : 'border-[#32527B] hover:border-slate-400'
-                            }`}
-                            style={{
-                              clipPath:
-                                'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
-                            }}
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <span
-                                className="px-2.5 py-0.5 text-xs font-mono font-bold uppercase"
-                                style={{
-                                  backgroundColor: `${station.colorHex}18`,
-                                  color: station.colorHex,
-                                  border: `1px solid ${station.colorHex}60`,
-                                }}
-                              >
-                                {loc(station, 'tierLabel', language)}
-                              </span>
-                              {isFocused && (
-                                <span className="px-2 py-0.5 bg-[#FDCC0D] text-black font-['Orbitron',sans-serif] font-black text-[10px]">
-                                  {es ? 'ENFOCADO EN 3D ⚡' : 'FOCUSED IN 3D ⚡'}
-                                </span>
-                              )}
-                            </div>
-
-                            <div className="text-white font-extrabold text-base font-['Orbitron',sans-serif]">
-                              0{sIdx + 1}. {loc(station, 'name', language)}
-                            </div>
-
-                            <p className="text-slate-200 font-body text-sm leading-relaxed">
-                              {loc(station, 'roleSubtitle', language)}
-                            </p>
-
-                            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-[#32527B]/40">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setDrawerOpen(false);
-                                  handleFocusSponsor(station.id);
-                                }}
-                                className="sgx-btn px-3 py-1.5 text-xs flex items-center gap-1.5 font-bold cursor-pointer"
-                              >
-                                <Eye className="w-3.5 h-3.5" />
-                                <span>{es ? 'Enfocar en 3D' : 'Focus in 3D'}</span>
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  playUiChirp(840);
-                                  setFloatingXpNotice((es ? `+25 XP · ESTACIÓN ${station.name.toUpperCase()} REGISTRADA` : `+25 XP · STATION ${station.name.toUpperCase()} LOGGED`));
-                                  setTimeout(() => setFloatingXpNotice(null), 2000);
-                                  recordActivity('tour_complete', `Estación Sponsor 3D: ${station.name}`, station.tierLabel, 25);
-                                }}
-                                className="px-3 py-1.5 bg-[#1A1A1A] hover:bg-[#00DDFF] hover:text-black border border-[#00DDFF]/60 text-xs font-mono text-[#00DDFF] font-bold cursor-pointer transition-colors"
-                              >
-                                {es ? '+25 XP Descubrir' : '+25 XP Discover'}
-                              </button>
-                            </div>
+                    {SGX_3D_SPONSOR_STATIONS.map((station, sIdx) => {
+                      const isFocused = focusedSponsorId === station.id;
+                      return (
+                        <section key={station.id} className={`sgx-card sgx-card--stripe ${isFocused ? 'is-on' : ''}`} style={{ ['--card-accent' as string]: station.colorHex }}>
+                          <div className="sgx-chip-row">
+                            <span className="sgx-chip" style={{ ['--chip' as string]: station.colorHex }}>{loc(station, 'tierLabel', language)}</span>
+                            {isFocused && <span className="sgx-chip sgx-chip--solid" style={{ ['--chip' as string]: 'var(--SGX_Yellow)' }}>{es ? 'En foco' : 'In focus'}</span>}
                           </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Official Sponsorship Packages (Tiers 1–5) */}
-                    <div className="space-y-3 pt-3 border-t border-[#32527B]/60">
-                      <div className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider px-1">
-                        {es ? 'Paquetes Oficiales de Alianza (Tiers 1 al 5):' : 'Official Partnership Packages (Tiers 1 to 5):'}
-                      </div>
-
-                      {SPONSORSHIP_TIERS.map(tier => {
-                        const tierColor =
-                          tier.tierNumber === 1
-                            ? '#00DDFF'
-                            : tier.tierNumber === 2
-                            ? '#FDCC0D'
-                            : tier.tierNumber === 3
-                            ? '#FFBB00'
-                            : '#FDCC0D';
-
-                        const primarySponsor = tier.sponsors && tier.sponsors[0];
-                        const sponsorName = primarySponsor ? primarySponsor.name : `Tier ${tier.tierNumber} · ${tier.name}`;
-
-                        return (
-                          <div
-                            key={tier.id}
-                            className="p-4 bg-[#1D1D1D] border border-[#32527B] hover:border-[#FDCC0D] space-y-2.5"
-                            style={{
-                              clipPath:
-                                'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
-                            }}
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <span
-                                className="px-2.5 py-0.5 text-xs font-mono font-bold uppercase"
-                                style={{
-                                  backgroundColor: `${tierColor}18`,
-                                  color: tierColor,
-                                  border: `1px solid ${tierColor}60`,
-                                }}
-                              >
-                                TIER {tier.tierNumber} · {loc(tier, 'priceRange', language)}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  playUiChirp(840);
-                                  setFloatingXpNotice((es ? `+15 XP · BALIZA ${tier.name.toUpperCase()} ESCANEADA` : `+15 XP · BEACON ${tier.name.toUpperCase()} SCANNED`));
-                                  setTimeout(() => setFloatingXpNotice(null), 2000);
-                                  recordActivity('tour_complete', `Baliza Sponsor: ${tier.name}`, tier.priceRange, 15);
-                                }}
-                                className="text-xs font-mono font-bold text-[#00DDFF] hover:text-[#FDCC0D] underline cursor-pointer"
-                              >
-                                {es ? 'Escanear (+15 XP)' : 'Scan (+15 XP)'}
-                              </button>
-                            </div>
-
-                            <div className="text-white font-bold text-sm font-['Orbitron',sans-serif]">
-                              {sponsorName}
-                            </div>
-
-                            <p className="text-slate-200 font-body text-xs sm:text-sm leading-relaxed">
-                              {tier.keyBenefit}
-                            </p>
-
+                          <h3 className="sgx-core-drawer__h">{String(sIdx + 1).padStart(2, '0')}. {loc(station, 'name', language)}</h3>
+                          <p className="sgx-copy">{loc(station, 'roleSubtitle', language)}</p>
+                          <div className="sgx-core-drawer__row">
+                            <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => { setDrawerOpen(false); handleFocusSponsor(station.id); }}>
+                              <Eye aria-hidden />{es ? 'Enfocar en 3D' : 'Focus in 3D'}
+                            </button>
                             <button
                               type="button"
+                              className="sgx-btn sgx-btn--ground sgx-btn--sm"
                               onClick={() => {
-                                playUiChirp(700);
-                                window.dispatchEvent(new CustomEvent('sgx:open_sponsor_modal'));
+                                playUiChirp(840);
+                                setFloatingXpNotice(es ? `+25 XP · Visitaste ${loc(station, 'name', language)}` : `+25 XP · You visited ${loc(station, 'name', language)}`);
+                                setTimeout(() => setFloatingXpNotice(null), 2000);
+                                recordActivity('tour_complete', `Estación Sponsor 3D: ${station.name}`, station.tierLabel, 25);
                               }}
-                              className="sgx-btn w-full py-2 text-xs flex items-center justify-center gap-1.5 font-bold"
                             >
-                              <span>{es ? 'Ver Detalles Completos de Tier ' : 'View Full Tier Details '}{tier.tierNumber}</span>
-                              <ArrowRight className="w-3.5 h-3.5" />
+                              {es ? 'Descubrir (+25 XP)' : 'Discover (+25 XP)'}
                             </button>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                        </section>
+                      );
+                    })}
+
+                    <p className="sgx-kicker sgx-core-drawer__sub">{es ? 'Paquetes de auspicio (Tiers 1 al 5)' : 'Sponsorship packages (Tiers 1 to 5)'}</p>
+                    {SPONSORSHIP_TIERS.map(tier => {
+                      const tierColor = sponsorTierAccent(tier.id);
+                      const primarySponsor = tier.sponsors && tier.sponsors[0];
+                      return (
+                        <section key={tier.id} className="sgx-card sgx-card--sm" style={{ ['--card-accent' as string]: `color-mix(in srgb, ${tierColor} 40%, transparent)` }}>
+                          <div className="sgx-core-drawer__row sgx-core-drawer__row--split">
+                            <span className="sgx-chip" style={{ ['--chip' as string]: tierColor }}>Tier {tier.tierNumber} · {loc(tier, 'priceRange', language)}</span>
+                            <button
+                              type="button"
+                              className="sgx-core-drawer__link"
+                              onClick={() => {
+                                playUiChirp(840);
+                                setFloatingXpNotice(es ? `+15 XP · Conociste ${loc(tier, 'name', language)}` : `+15 XP · You checked out ${loc(tier, 'name', language)}`);
+                                setTimeout(() => setFloatingXpNotice(null), 2000);
+                                recordActivity('tour_complete', `Baliza Sponsor: ${tier.name}`, tier.priceRange, 15);
+                              }}
+                            >
+                              {es ? 'Marcar visto (+15 XP)' : 'Mark seen (+15 XP)'}
+                            </button>
+                          </div>
+                          <h3 className="sgx-core-drawer__h">{primarySponsor ? primarySponsor.name : loc(tier, 'name', language)}</h3>
+                          <p className="sgx-copy">{loc(tier, 'keyBenefit', language)}</p>
+                          <button
+                            type="button"
+                            className="sgx-btn sgx-btn--sm is-wide"
+                            onClick={() => { playUiChirp(700); window.dispatchEvent(new CustomEvent('sgx:open_sponsor_modal')); }}
+                          >
+                            {es ? `Ver el Tier ${tier.tierNumber} completo` : `See all of Tier ${tier.tierNumber}`}<ArrowRight aria-hidden />
+                          </button>
+                        </section>
+                      );
+                    })}
+                  </>
                 )}
 
-                {/* TAB 3: INTERACTIVE 3D LAB */}
                 {activeDrawerTab === 'INTERACTIVE_LAB' && (
-                  <div className="space-y-4">
-                    <div
-                      className="p-4 bg-[#1D1D1D] border border-[#32527B] space-y-2"
-                      style={{
-                        clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
-                      }}
-                    >
-                      <div className="flex items-center justify-between text-[#00DDFF] font-['Orbitron',sans-serif] font-bold text-xs sm:text-sm">
-                        <span className="flex items-center gap-2">
-                          <Sliders className="w-4 h-4" />
-                          <span>{es ? 'FIDELIDAD .GLB & SHADER 3D' : '.GLB & 3D SHADER FIDELITY'}</span>
-                        </span>
-                        <span className="font-mono text-xs text-[#FDCC0D]">
-                          {loadedModelsCount}/7 GLBs Activos
-                        </span>
-                      </div>
-                      <p className="text-slate-200 font-body text-xs sm:text-sm leading-relaxed">
-                        {es ? 'El domo volumétrico GLSL, las partículas cuánticas circulares y las 4 áreas de sponsors giran en tiempo real respetando los materiales nativos PBR de cada escultura ' : 'The volumetric GLSL dome, the circular quantum particles and the 4 sponsor areas rotate in real time, keeping each sculpture\'s native PBR materials '}<strong className="text-[#FDCC0D]">.glb</strong>.
+                  <>
+                    <section className="sgx-card">
+                      <p className="sgx-kicker sgx-core-drawer__kicker"><Sliders aria-hidden />{es ? 'Modelos 3D' : '3D models'}</p>
+                      <p className="sgx-copy">
+                        {es
+                          ? `${loadedModelsCount} de 7 esculturas .glb cargadas. El domo, las partículas y los espacios de marca giran en tiempo real con los materiales originales de cada escultura.`
+                          : `${loadedModelsCount} of 7 .glb sculptures loaded. The dome, the particles and the brand spaces rotate in real time with each sculpture's original materials.`}
                       </p>
-                    </div>
+                    </section>
 
-                    {/* Live 432Hz Harmonic Synthesizer Pad */}
-                    <div
-                      className="p-4 bg-[#1D1D1D] border border-[#32527B] space-y-3"
-                      style={{
-                        clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
-                      }}
-                    >
-                      <div className="flex items-center justify-between text-[#FDCC0D] font-['Orbitron',sans-serif] font-bold text-xs sm:text-sm">
-                        <span className="flex items-center gap-2">
-                          <Volume2 className="w-4 h-4" />
-                          <span>{es ? 'SINTETIZADOR ARMÓNICO 432Hz' : '432Hz HARMONIC SYNTHESIZER'}</span>
-                        </span>
-                        <span className="font-mono text-xs text-slate-300">{es ? 'Ondas 3D' : '3D Waves'}</span>
-                      </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <section className="sgx-card">
+                      <p className="sgx-kicker sgx-core-drawer__kicker"><Volume2 aria-hidden />{es ? 'Sintetizador armónico' : 'Harmonic synthesizer'}</p>
+                      <div className="sgx-core-drawer__pads">
                         {[
                           { mult: 0.5, label: '216Hz' },
                           { mult: 1.0, label: '432Hz' },
                           { mult: 1.25, label: '540Hz' },
                           { mult: 1.5, label: '648Hz' },
                         ].map(pad => (
-                          <button
-                            key={pad.label}
-                            type="button"
-                            onClick={() => handlePlayHarmonicNote(pad.mult, pad.label)}
-                            className="sgx-btn py-2.5 text-xs font-bold"
-                          >
+                          <button key={pad.label} type="button" onClick={() => handlePlayHarmonicNote(pad.mult, pad.label)} className="sgx-btn sgx-btn--sm">
                             {pad.label}
                           </button>
                         ))}
                       </div>
-                    </div>
+                    </section>
 
-                    {/* Orbital Velocity Overdrive Slider */}
-                    <div
-                      className="p-4 bg-[#1D1D1D] border border-[#32527B] space-y-2.5"
-                      style={{
-                        clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
-                      }}
-                    >
-                      <div className="flex items-center justify-between text-white font-['Orbitron',sans-serif] font-bold text-xs sm:text-sm">
-                        <span>{es ? 'VELOCIDAD DE REACTOR ORBITAL' : 'ORBITAL REACTOR SPEED'}</span>
-                        <span className="font-mono text-[#00DDFF] tabular-nums">
-                          {orbitSpeedMultiplier.toFixed(1)}x
-                        </span>
-                      </div>
+                    <section className="sgx-card">
+                      <label htmlFor="sgx-core-speed" className="sgx-field">
+                        <span className="sgx-field__label">{es ? 'Velocidad de giro' : 'Rotation speed'}</span>
+                        <span className="sgx-field__value">{orbitSpeedMultiplier.toFixed(1)}x</span>
+                      </label>
                       <input
+                        id="sgx-core-speed"
                         type="range"
                         min="0.2"
                         max="3.5"
                         step="0.1"
                         value={orbitSpeedMultiplier}
                         onChange={e => setOrbitSpeedMultiplier(parseFloat(e.target.value))}
-                        className="w-full accent-[#FDCC0D] cursor-pointer"
+                        className="sgx-range"
                       />
-                    </div>
-                  </div>
+                    </section>
+                  </>
                 )}
               </div>
 
-              {/* Modal Footer Telemetry */}
-              <div className="px-4 py-2.5 bg-[#050505] border-t border-[#32527B]/60 flex items-center justify-between text-xs font-mono text-slate-300 shrink-0">
-                <span>
-                  {es ? 'Orbes 3D: ' : '3D Orbs: '}<strong className="text-[#FDCC0D] tabular-nums">{xpOrbsCollected}</strong>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    playUiChirp(680);
-                    setDrawerOpen(false);
-                  }}
-                  className="text-xs text-[#00DDFF] hover:text-[#FDCC0D] font-bold underline cursor-pointer"
-                >
-                  {es ? 'Volver al Visor 3D ✕' : 'Back to the 3D Viewer ✕'}
+              <footer className="sgx-core-drawer__foot">
+                <span className="sgx-fine">{es ? 'Orbes recogidos: ' : 'Orbs collected: '}<b>{xpOrbsCollected}</b></span>
+                <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={() => { playUiChirp(680); setDrawerOpen(false); }}>
+                  <X aria-hidden />{es ? 'Volver al 3D' : 'Back to 3D'}
                 </button>
-              </div>
+              </footer>
             </aside>
           </div>
         )}
@@ -2688,13 +2438,13 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               }}
             >
               <span className="flex items-center gap-1.5">
-                <img src={activeNode.iconUrl} alt={activeNode.code} className="w-3.5 h-3.5 object-contain" />
-                <span className="font-['Orbitron',sans-serif] text-[11px]">
-                  PANEL {activeNode.code} ({activePillarModules.length})
+                <img src={activeNode.iconUrl} alt="" className="w-3.5 h-3.5 object-contain" />
+                <span className="font-display text-[11px]">
+                  {activeNode.code} ({activePillarModules.length})
                 </span>
               </span>
-              <span className="px-1.5 py-0.5 bg-[#FDCC0D] text-[#050505] text-[9px] font-['Orbitron',sans-serif] font-extrabold">
-                {es ? 'EXPLORAR ↑' : 'EXPLORE ↑'}
+              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[var(--SGX_Yellow)] text-[var(--SGX_Black_Base)] text-[10px] font-hud font-bold uppercase">
+                {es ? 'Explorar' : 'Explore'}<ChevronUp className="w-3 h-3" aria-hidden />
               </span>
             </button>
           )}

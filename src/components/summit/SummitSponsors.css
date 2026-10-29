@@ -1,0 +1,53 @@
+/* Sponsorship tier matrix (SummitSponsorshipMatrix) and brand cards (SummitSponsorsGrid) */
+.sgx-tiers { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.sgx-tiers__head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 24px; align-items: start; padding: clamp(16px, 2.4vw, 24px); }
+.sgx-tiers__intro { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.sgx-tiers__title { font-size: clamp(1.15rem, 2.6vw, 1.7rem); }
+.sgx-tiers__intro .sgx-copy { max-width: 70ch; }
+.sgx-tiers__actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.sgx-tiers__callout { grid-column: 1 / -1; display: flex; gap: 10px; align-items: flex-start; margin: 0; padding: 10px 14px; font-family: var(--font-body); font-size: 0.88rem; line-height: 1.45; color: rgba(255, 255, 255, 0.8); background: rgba(253, 204, 13, 0.06); box-shadow: inset 2px 0 0 var(--SGX_Yellow); }
+.sgx-tiers__callout b { color: var(--SGX_Yellow); font-weight: 600; }
+.sgx-tiers__callout svg { flex: none; width: 18px; height: 18px; margin-top: 1px; color: var(--SGX_Yellow); }
+
+.sgx-tiers__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 12px; align-items: stretch; }
+.sgx-tier { display: flex; flex-direction: column; gap: 10px; padding: 18px 16px 16px; cursor: pointer; transition: background 0.2s, box-shadow 0.2s; }
+.sgx-tier:hover { box-shadow: inset 0 0 0 1px var(--tier-accent); }
+.sgx-tier__name { font-size: 1rem; }
+.sgx-tier__price { margin: 0; font-family: var(--font-mono); font-size: 1.25rem; color: var(--tier-accent); font-variant-numeric: tabular-nums; }
+.sgx-tier__key { margin: 0; font-family: var(--font-body); font-size: 0.88rem; line-height: 1.4; color: rgba(255, 255, 255, 0.85); }
+.sgx-tier__list { flex: 1; margin: 0; padding: 10px 0 0; list-style: none; display: grid; gap: 7px; align-content: start; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.sgx-tier__list li { display: grid; grid-template-columns: 14px 1fr; gap: 8px; font-family: var(--font-body); font-size: 0.8rem; line-height: 1.4; color: rgba(255, 255, 255, 0.68); }
+.sgx-tier__list svg { width: 14px; height: 14px; margin-top: 2px; color: var(--tier-accent); }
+.sgx-tier__who { color: var(--tier-accent); }
+
+.sgx-tiers__table-wrap { padding: 0; overflow-x: auto; }
+.sgx-tiers__table { width: 100%; min-width: 640px; border-collapse: collapse; font-family: var(--font-body); font-size: 0.85rem; }
+.sgx-tiers__table th, .sgx-tiers__table td { padding: 10px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.07); }
+.sgx-tiers__table thead th { font-family: var(--font-hud); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; text-align: center; vertical-align: bottom; background: rgba(5, 5, 5, 0.6); }
+.sgx-tiers__table thead th:first-child { text-align: left; color: rgba(255, 255, 255, 0.6); }
+.sgx-tiers__table thead small { display: block; margin-top: 2px; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0; text-transform: none; color: rgba(255, 255, 255, 0.55); }
+.sgx-tiers__table tbody th { text-align: left; font-weight: 400; color: rgba(255, 255, 255, 0.82); }
+.sgx-tiers__table td { text-align: center; color: rgba(255, 255, 255, 0.3); }
+.sgx-tiers__table td svg { width: 16px; height: 16px; margin: 0 auto; }
+.sgx-tiers__table tr.is-key { background: rgba(253, 204, 13, 0.06); }
+.sgx-tiers__table tr.is-key th { color: var(--SGX_Yellow); }
+
+.sgx-tiers__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+
+.sgx-brands { display: flex; flex-direction: column; gap: 14px; padding: clamp(16px, 2.4vw, 22px); }
+.sgx-brands__head { display: flex; flex-direction: column; gap: 6px; }
+.sgx-brands__head h3 { font-size: clamp(1rem, 2vw, 1.2rem); }
+.sgx-brands__head h3 span { color: var(--SGX_Cyan); }
+.sgx-brands__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.sgx-brands .sgx-brands__card { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; height: 100%; padding: 16px 14px 14px; }
+.sgx-brands__card .sgx-avatar { width: 52px; height: 52px; }
+.sgx-brands__info { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; min-width: 0; }
+.sgx-brands__info strong { font-family: var(--font-display); font-size: 0.9rem; text-transform: uppercase; color: var(--SGX_White); overflow-wrap: anywhere; }
+.sgx-brands__info small { font-family: var(--font-body); font-size: 0.8rem; line-height: 1.35; color: rgba(255, 255, 255, 0.65); }
+.sgx-brands__go { grid-column: 1 / -1; display: inline-flex; align-items: center; gap: 6px; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08); font-family: var(--font-hud); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--card-accent); }
+.sgx-brands__go svg { width: 14px; height: 14px; }
+
+@media (max-width: 720px) {
+  .sgx-tiers__head { grid-template-columns: minmax(0, 1fr); }
+  .sgx-tiers__actions { justify-content: flex-start; }
+}

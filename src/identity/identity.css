@@ -628,3 +628,8 @@
 .sgx-hangar__avatar3d p { margin: 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.72); }
 .sgx-hangar__avatar3d-wait { height: 240px; display: grid; place-items: center; font-family: var(--font-mono); font-size: 0.75rem; color: var(--SGX_Cyan); }
 @media (max-width: 560px) { .sgx-hangar__avatar3d { grid-template-columns: 1fr; } }
+
+/* The Hangar header and tabs never shrink: a scrollable tab row in a flex
+   column would otherwise collapse to a thin line when the content is tall. */
+.sgx-hangar__head, .sgx-hangar__tabs { flex-shrink: 0; }
+.sgx-hangar__tabs { min-height: 44px; }

@@ -149,6 +149,16 @@ export async function buildPilot3D(raw: PilotConfig): Promise<Pilot3D> {
     }
   }
 
+  // suit trims: collar, belt, cuffs (reads as a designed suit, not a blob)
+  body.add(torsoRing(0.6, 0.27, trim, 0.045));
+  body.add(torsoRing(-0.52, 0.66, trim, 0.03));
+  for (const s of [-1, 1]) {
+    const cuff = mesh(new THREE.TorusGeometry(0.18, 0.035, 10, 28), trim, 0.92 * s, -0.48, 0.01);
+    cuff.rotation.x = Math.PI / 2;
+    cuff.rotation.y = 0.14 * s;
+    body.add(cuff);
+  }
+
   // chest plate + emblem
   if (assets.emblemUrl) {
     body.add(mesh(new RoundedBoxGeometry(0.46, 0.46, 0.06, 2, 0.04), trim, 0, 0.08, chestZ + 0.03));
@@ -196,6 +206,19 @@ export async function buildPilot3D(raw: PilotConfig): Promise<Pilot3D> {
       head.add(mesh(new THREE.SphereGeometry(0.625, 16, 12), keep(new THREE.MeshBasicMaterial({ color: c.glow, wireframe: true, transparent: true, opacity: 0.45, toneMapped: false }))));
       head.add(mesh(new THREE.IcosahedronGeometry(0.16, 0), glow, 0, 0.05, 0));
       break;
+    }
+  }
+
+  // XR ear pods with a lit ring (heads without headphones)
+  const SIDE_X = [0.62, 0.57, 0.58, 0.62, 0.55, 0.64, 0, 0];
+  if (SIDE_X[c.helmet] && ![1, 2, 3].includes(c.crest)) {
+    for (const s of [-1, 1]) {
+      const pod = mesh(new THREE.CylinderGeometry(0.15, 0.17, 0.12, 28), dark, (SIDE_X[c.helmet] + 0.01) * s, 0, -0.02);
+      pod.rotation.z = Math.PI / 2;
+      head.add(pod);
+      const ringPod = mesh(new THREE.TorusGeometry(0.12, 0.022, 8, 28), glow, (SIDE_X[c.helmet] + 0.075) * s, 0, -0.02);
+      ringPod.rotation.y = Math.PI / 2;
+      head.add(ringPod);
     }
   }
 

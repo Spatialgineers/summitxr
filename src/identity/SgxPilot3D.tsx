@@ -36,6 +36,7 @@ export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, l
     renderer.setSize(w(), height);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.NeutralToneMapping;
+    renderer.toneMappingExposure = 1.12;
     host.appendChild(renderer.domElement);
     renderer.domElement.style.touchAction = 'pan-y';
 
@@ -44,7 +45,7 @@ export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, l
     const pmrem = new THREE.PMREMGenerator(renderer);
     const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
     scene.environment = envTex;
-    scene.environmentIntensity = 0.55;
+    scene.environmentIntensity = 0.8;
 
     const camera = new THREE.PerspectiveCamera(30, w() / height, 0.1, 100);
     camera.position.set(0, 1.0, 7.4);
@@ -65,7 +66,20 @@ export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, l
     const padMat = new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false });
     const pad = new THREE.Mesh(new THREE.CircleGeometry(1.0, 6), padMat);
     pad.rotation.x = -Math.PI / 2; pad.position.y = 0.115;
-    podium.add(base, ring, pad);
+    // soft contact shadow under the figure
+    const shCanvas = document.createElement('canvas');
+    shCanvas.width = shCanvas.height = 128;
+    const shCtx = shCanvas.getContext('2d')!;
+    const grad = shCtx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    grad.addColorStop(0, 'rgba(0,0,0,0.75)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    shCtx.fillStyle = grad;
+    shCtx.fillRect(0, 0, 128, 128);
+    const shTex = new THREE.CanvasTexture(shCanvas);
+    const shadow = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.2), new THREE.MeshBasicMaterial({ map: shTex, transparent: true, depthWrite: false }));
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.position.y = 0.125;
+    podium.add(base, ring, pad, shadow);
     podium.rotation.y = Math.PI / 6;
     podium.position.y = -0.88;
     scene.add(podium);
@@ -122,7 +136,8 @@ export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, l
       avatar?.dispose();
       envTex.dispose();
       pmrem.dispose();
-      [base, ring, pad].forEach((m) => { m.geometry.dispose(); (m.material as THREE.Material).dispose(); });
+      [base, ring, pad, shadow].forEach((m) => { m.geometry.dispose(); (m.material as THREE.Material).dispose(); });
+      shTex.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     };

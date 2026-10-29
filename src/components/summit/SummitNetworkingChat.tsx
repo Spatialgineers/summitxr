@@ -1,75 +1,68 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  MessageSquare, 
-  Send, 
-  Users, 
-  Hash, 
-  Sparkles, 
-  Pin, 
-  ShieldCheck, 
-  Search, 
-  Filter,
-  ExternalLink,
-  Radio,
-  Globe,
-  ChevronDown,
-  ArrowRight,
-  Flame,
-  Rocket,
-  Heart,
-  ThumbsUp,
-  Volume2,
-  VolumeX,
-  Share2,
-  Code,
-  HelpCircle,
-  Award,
-  MapPin,
-  Briefcase,
-  CheckCircle2,
-  X
+import {
+  MessageSquare, Send, Users, Hash, Pin, ShieldCheck, Radio, Volume2, VolumeX, Code, HelpCircle, Award, MapPin,
+  AtSign, Flame, Zap, Gem, ThumbsUp, Sparkles, type LucideIcon,
 } from 'lucide-react';
 import { ChatMessage, AttendeeProfile, SummitPillarId } from '../../types/summit';
 import { INITIAL_CHAT_MESSAGES, INITIAL_ATTENDEE_PROFILES, playNotificationChime } from '../../lib/summitData';
 import { db } from '../../lib/firebase';
 import { collection, addDoc, onSnapshot, query, orderBy, limit, doc, updateDoc, increment } from 'firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
-import { useTenantTheme } from '../../context/TenantThemeContext';
 import { SgxPilotGlyph } from '../../identity/SgxPilotGlyph';
+import { useLanguage } from '../../context/LanguageContext';
+import { loc } from '../../lib/localize';
+import { SGX_PILLARS, findPillar, pillarInk, type PillarKey } from '../../lib/sgxPillars';
+import { SgxDialog } from '../common/SgxDialog';
+import './sgx-kit.css';
+import './SummitNetworkingChat.css';
 
 /** Only small, remote avatars travel in chat docs (rules cap ~150 KB). */
 const isShareableAvatar = (src?: string) =>
   !!src && /^https:\/\//.test(src) && src.length <= 1000 && !/images\.unsplash\.com/.test(src);
 
-/** A real photo when there is one, otherwise the in-house pilot glyph. */
-const ChatAvatar: React.FC<{ src?: string; seed: string; alt: string; className: string; style?: React.CSSProperties }> = ({ src, seed, alt, className, style }) => {
+/** A real photo when there is one, otherwise the in-house avatar glyph. */
+const ChatAvatar: React.FC<{ src?: string; seed: string; alt: string; className?: string; accent?: string }> = ({ src, seed, alt, className = '', accent = '#00DDFF' }) => {
   const [broken, setBroken] = useState(false);
   const usable = !!src && !broken && !/images\.unsplash\.com/.test(src) && (/^https:\/\//.test(src) || /^data:image\//.test(src));
-  if (usable) {
-    return <img src={src} alt={alt} className={className} style={style} onError={() => setBroken(true)} />;
-  }
   return (
-    <div className={`${className} bg-black flex items-center justify-center overflow-hidden`} style={style} role="img" aria-label={alt}>
-      <SgxPilotGlyph seed={seed || 'sgx'} accent="#00DDFF" size={28} />
-    </div>
+    <span className={`sgx-avatar ${className}`} style={{ ['--avatar-accent' as string]: accent }} role="img" aria-label={alt}>
+      {usable
+        ? <img src={src} alt="" onError={() => setBroken(true)} />
+        : <SgxPilotGlyph seed={seed || 'sgx'} accent={accent} size={28} />}
+    </span>
   );
 };
-import { useLanguage } from '../../context/LanguageContext';
-import { loc } from '../../lib/localize';
+
+/* Reaction keys stay the stored strings (Firestore docs already use them); they render as icons. */
+const REACTIONS: { key: string; icon: LucideIcon; es: string; en: string }[] = [
+  { key: '🔥', icon: Flame, es: 'Fuego', en: 'Fire' },
+  { key: '🚀', icon: Zap, es: 'Impulso', en: 'Boost' },
+  { key: '💎', icon: Gem, es: 'Joya', en: 'Gem' },
+  { key: '👏', icon: ThumbsUp, es: 'Aplausos', en: 'Applause' },
+];
+const reactionMeta = (key: string) => REACTIONS.find((r) => r.key === key) || { key, icon: Sparkles, es: 'Reacción', en: 'Reaction' };
+
+const ROLE_LABEL: Record<string, { es: string; en: string }> = {
+  ORGANIZER: { es: 'Organización', en: 'Organizer' },
+  SPEAKER: { es: 'Speaker', en: 'Speaker' },
+  DIRECTOR: { es: 'Dirección', en: 'Director' },
+  INITIATE: { es: 'Initiate', en: 'Initiate' },
+  VIP: { es: 'VIP', en: 'VIP' },
+};
 
 export interface ForumChannel {
   id: string;
   name: string;
   topic: string;
   desc: string;
-  icon: React.ElementType;
-  color: string;
+  icon: LucideIcon;
+  /** Pillar whose color marks the channel. */
+  accent: PillarKey;
   badge: string;
   nameEn?: string;
   topicEn?: string;
   descEn?: string;
   badgeEn?: string;
-  pillar?: SummitPillarId;
   readOnly?: boolean;
 }
 
@@ -83,7 +76,7 @@ const PUBLIC_FORUM_CHANNELS: ForumChannel[] = [
     desc: 'Espacio abierto para comentar impresiones, expectativas y reflexiones generales sobre el Spatialgineers Summit 2026.',
     descEn: 'An open space to share impressions, expectations and general thoughts about the Spatialgineers Summit 2026.',
     icon: Hash, 
-    color: 'text-[var(--sgx-neon)]',
+    accent: 'SYNTHESIZE',
     badge: 'PRINCIPAL',
     badgeEn: 'MAIN',
   },
@@ -96,7 +89,7 @@ const PUBLIC_FORUM_CHANNELS: ForumChannel[] = [
     desc: 'Canal de comunicados emitidos por el equipo organizador de Spatialgineers, directores de producción y speakers.',
     descEn: 'Channel for announcements from the Spatialgineers organizing team, production directors and speakers.',
     icon: ShieldCheck, 
-    color: 'text-amber-400',
+    accent: 'STORY',
     badge: 'OFICIAL',
     badgeEn: 'OFFICIAL',
   },
@@ -109,7 +102,7 @@ const PUBLIC_FORUM_CHANNELS: ForumChannel[] = [
     desc: 'Comenta en directo lo que está ocurriendo en el escenario principal, las transiciones visuales y los sets de los artistas.',
     descEn: 'Comment live on what\'s happening on the main stage, the visual transitions and the artists\' sets.',
     icon: Radio, 
-    color: 'text-rose-400',
+    accent: 'STAGE',
     badge: 'EN VIVO',
     badgeEn: 'LIVE',
   },
@@ -122,7 +115,7 @@ const PUBLIC_FORUM_CHANNELS: ForumChannel[] = [
     desc: 'Publica tus dudas para que los moderadores las seleccionen durante las rondas de Q&A en vivo de cada charla.',
     descEn: 'Post your questions so the moderators can pick them during each talk\'s live Q&A rounds.',
     icon: HelpCircle, 
-    color: 'text-[#FDCC0D]',
+    accent: 'STAGE',
     badge: 'Q&A'
   },
   { 
@@ -134,7 +127,7 @@ const PUBLIC_FORUM_CHANNELS: ForumChannel[] = [
     desc: 'Espacio dedicado a comentar los portafolios de los Initiates y compartir feedback sobre sus presentaciones en vivo.',
     descEn: 'A space to comment on the Initiates\' portfolios and share feedback on their live presentations.',
     icon: Award, 
-    color: 'text-[#FDCC0D]',
+    accent: 'SPARK',
     badge: 'GUILD'
   },
   { 
@@ -146,7 +139,7 @@ const PUBLIC_FORUM_CHANNELS: ForumChannel[] = [
     desc: 'Comparte snippets, recursos y resuelve dudas técnicas de los workshops y demostraciones prácticas del evento.',
     descEn: 'Share snippets and resources and solve technical questions from the event\'s workshops and hands-on demos.',
     icon: Code, 
-    color: 'text-cyan-400',
+    accent: 'SYSTEM',
     badge: 'TECH'
   },
   { 
@@ -158,7 +151,7 @@ const PUBLIC_FORUM_CHANNELS: ForumChannel[] = [
     desc: 'Preséntate, muestra tu portafolio y conecta con otros desarrolladores, diseñadores o marcas para futuros proyectos.',
     descEn: 'Introduce yourself, show your portfolio and connect with other developers, designers or brands for future projects.',
     icon: Users, 
-    color: 'text-[#FDCC0D]',
+    accent: 'SYNTHESIZE',
     badge: 'NETWORKING'
   },
   { 
@@ -170,7 +163,7 @@ const PUBLIC_FORUM_CHANNELS: ForumChannel[] = [
     desc: 'Foro para las personas invitadas al SGX Showcase del Día 3 en San Juan: puntos de encuentro, transporte y agenda presencial.',
     descEn: 'Forum for guests invited to the Day 3 SGX Showcase in San Juan: meeting points, transportation and the in-person agenda.',
     icon: MapPin, 
-    color: 'text-[#FDCC0D]',
+    accent: 'SHOWCASE',
     badge: 'SAN JUAN'
   }
 ];
@@ -190,7 +183,6 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
   const { language } = useLanguage();
   const es = language === 'es';
   const { user: authUser } = useAuth();
-  const { tenant } = useTenantTheme();
 
   const currentUser = {
     id: propUser?.id || authUser?.uid || 'user_attendee_live',
@@ -236,7 +228,8 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
       const unsubscribe = onSnapshot(
         q,
         (snapshot) => {
-          setIsLiveConnected(true);
+          // Live only when the data really came from the server, not the offline cache.
+          setIsLiveConnected(!snapshot.metadata.fromCache);
           if (!snapshot.empty) {
             const firestoreMsgs: ChatMessage[] = snapshot.docs.map((docSnap) => {
               const data = docSnap.data();
@@ -399,590 +392,266 @@ export const SummitNetworkingChat: React.FC<SummitNetworkingChatProps> = ({
     return true;
   });
 
+  const accentOf = (ch: ForumChannel) => pillarInk(ch.accent);
+  const pillarChip = (p: SummitPillarId) => {
+    const pillar = findPillar(p);
+    return <span key={p} className="sgx-chip" style={{ ['--chip' as string]: pillar ? pillarInk(pillar.key) : 'var(--SGX_Cyan)' }}>{pillar?.name || p}</span>;
+  };
+  const mention = (name: string) => {
+    setSelectedAttendeeProfile(null);
+    setActiveTab('FORUMS');
+    setActiveChannelId('#matchmaking-proyectos');
+    setInputText(`@${name} `);
+  };
+  const statusLabel = isLiveConnected ? (es ? 'En vivo' : 'Live') : (es ? 'Sin conexión · guardado local' : 'Offline · saved locally');
+
+  const soundToggle = (
+    <button
+      type="button"
+      className="sgx-iconbtn"
+      aria-pressed={soundEnabled}
+      onClick={() => setSoundEnabled((prev) => !prev)}
+      aria-label={soundEnabled ? (es ? 'Silenciar sonidos del foro' : 'Mute forum sounds') : (es ? 'Activar sonidos del foro' : 'Turn forum sounds on')}
+    >
+      {soundEnabled ? <Volume2 aria-hidden /> : <VolumeX aria-hidden />}
+    </button>
+  );
+
+  const tabs = (
+    <div className="sgx-hangar__tabs sgx-net__tabs" role="tablist" aria-label={es ? 'Foros' : 'Forums'}>
+      <button type="button" role="tab" aria-selected={activeTab === 'FORUMS'} className={activeTab === 'FORUMS' ? 'is-on' : ''} onClick={() => setActiveTab('FORUMS')}>
+        {es ? 'Canales' : 'Channels'} <span className="sgx-net__n">{PUBLIC_FORUM_CHANNELS.length}</span>
+      </button>
+      <button type="button" role="tab" aria-selected={activeTab === 'COMMUNITY_ROSTER'} className={activeTab === 'COMMUNITY_ROSTER' ? 'is-on' : ''} onClick={() => setActiveTab('COMMUNITY_ROSTER')}>
+        {es ? 'Comunidad' : 'Community'} <span className="sgx-net__n">{attendees.length}</span>
+      </button>
+    </div>
+  );
+
   return (
-    <div className="bg-[var(--sgx-card-bg)] border-2 border-[var(--sgx-secondary)] rounded-2xl flex flex-col md:flex-row min-h-[620px] h-[82vh] md:h-[720px] overflow-hidden shadow-2xl">
-      
-      {/* 1. Mobile Top Channel Bar (Only visible on < md screens) */}
-      <div className="md:hidden bg-[#121212] border-b border-[var(--sgx-secondary)] shrink-0 flex flex-col">
-        
-        {/* Mobile Header Bar */}
-        <div className="p-3 flex items-center justify-between border-b border-[var(--sgx-secondary)]/40 bg-[var(--sgx-card-bg)]">
-          <div className="flex items-center space-x-2">
-            <CurrentChannelIcon className={`w-4 h-4 ${currentChannel.color}`} />
-            <div className="text-left">
-              <span className="text-[9px] text-slate-400 block font-mono">{es ? 'FORO PÚBLICO' : 'PUBLIC FORUM'}</span>
-              <span className="text-xs font-bold text-white font-mono uppercase truncate max-w-[170px] block leading-none">
-                {activeTab === 'COMMUNITY_ROSTER' ? (es ? 'DIRECTORIO COMUNIDAD' : 'COMMUNITY DIRECTORY') : loc(currentChannel, 'name', language)}
-              </span>
-            </div>
+    <div className="sgx-net" style={{ ['--net-accent' as string]: accentOf(currentChannel) }}>
+      {/* Desktop sidebar: channels and community */}
+      <aside className="sgx-net__side" aria-label={es ? 'Canales del foro' : 'Forum channels'}>
+        <div className="sgx-net__side-head">
+          <div>
+            <p className="sgx-kicker">{es ? 'Foros del Summit' : 'Summit forums'}</p>
+            <p className="sgx-fine">{es ? 'Todo es público y moderado' : 'Everything is public and moderated'}</p>
           </div>
-
-          <div className="flex items-center space-x-1.5">
-            <button
-              onClick={() => setSoundEnabled(prev => !prev)}
-              className={`p-1.5 border text-xs ${soundEnabled ? 'text-[var(--sgx-neon)] border-[var(--sgx-neon)]/50' : 'text-slate-500 border-slate-700'}`}
-              title={soundEnabled ? (es ? 'Sonido activado' : 'Sound on') : (es ? 'Sonido silenciado' : 'Sound muted')}
-            >
-              {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-            </button>
-
-            <button
-              onClick={() => setActiveTab(activeTab === 'COMMUNITY_ROSTER' ? 'FORUMS' : 'COMMUNITY_ROSTER')}
-              className={`px-2.5 py-1 text-[10px] font-mono font-bold border transition-colors ${
-                activeTab === 'COMMUNITY_ROSTER'
-                  ? 'bg-[var(--sgx-accent)] text-black border-[var(--sgx-accent)]'
-                  : 'bg-[var(--sgx-bg)] text-slate-300 border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)]'
-              }`}
-              style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-            >
-              {activeTab === 'COMMUNITY_ROSTER' ? (es ? '💬 VER FOROS' : '💬 VIEW FORUMS') : (es ? `👥 COMUNIDAD (${attendees.length})` : `👥 COMMUNITY (${attendees.length})`)}
-            </button>
-          </div>
+          {soundToggle}
         </div>
-
-        {/* Mobile Horizontal Scrollable Channel Chips */}
-        {activeTab === 'FORUMS' && (
-          <div className="flex items-center space-x-2 px-3 py-2.5 overflow-x-auto no-scrollbar bg-[#161616]">
-            {PUBLIC_FORUM_CHANNELS.map((ch) => {
-              const isActive = activeChannelId === ch.id;
-              const Icon = ch.icon;
-              return (
-                <button
-                  key={ch.id}
-                  onClick={() => {
-                    setActiveChannelId(ch.id);
-                    setActiveTab('FORUMS');
-                  }}
-                  className={`px-3 py-1.5 text-xs font-mono font-bold whitespace-nowrap flex items-center space-x-1.5 shrink-0 transition-all ${
-                    isActive
-                      ? 'bg-[var(--sgx-neon)] text-black shadow-md shadow-[var(--sgx-neon)]/20'
-                      : 'bg-[var(--sgx-bg)] text-slate-400 border border-[var(--sgx-secondary)]/80 hover:text-white'
-                  }`}
-                  style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-                >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-black' : ch.color}`} />
-                  <span>{ch.id}</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* 2. Desktop Left Sidebar: Public Thematic Channels & Community Directory */}
-      <div className="hidden md:flex w-80 bg-[#151515] border-r border-[var(--sgx-secondary)] flex-col justify-between shrink-0">
-        
-        {/* Top Header & Tabs */}
-        <div>
-          <div className="p-3 bg-[var(--sgx-card-bg)] border-b border-[var(--sgx-secondary)]/60 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <MessageSquare className="w-4 h-4 text-[var(--sgx-neon)]" />
-              <div>
-                <h3 className="font-extrabold text-xs text-white font-['Orbitron',sans-serif] uppercase">
-                  {es ? 'FOROS DEL SUMMIT' : 'SUMMIT FORUMS'}
-                </h3>
-                <span className="text-[9px] text-slate-400 font-mono">{es ? 'Discusión 100% Pública' : '100% Public Discussion'}</span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setSoundEnabled(prev => !prev)}
-              className={`p-1 border text-xs transition-colors ${soundEnabled ? 'text-[var(--sgx-neon)] border-[var(--sgx-neon)]/50' : 'text-slate-500 border-slate-700'}`}
-              title={soundEnabled ? (es ? 'Silenciar sonidos' : 'Mute sounds') : (es ? 'Activar sonido' : 'Turn sound on')}
-            >
-              {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-            </button>
-          </div>
-
-          <div className="p-2 border-b border-[var(--sgx-secondary)]/60 flex items-center space-x-1.5 font-mono text-[11px]">
-            <button
-              onClick={() => setActiveTab('FORUMS')}
-              className={`flex-1 py-1.5 font-bold transition-all text-center ${
-                activeTab === 'FORUMS' ? 'bg-[var(--sgx-neon)] text-black font-extrabold shadow-sm' : 'text-slate-400 hover:text-white hover:bg-[var(--sgx-bg)]'
-              }`}
-              style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-            >
-              {es ? 'CANALES (' : 'CHANNELS ('}{PUBLIC_FORUM_CHANNELS.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('COMMUNITY_ROSTER')}
-              className={`flex-1 py-1.5 font-bold transition-all text-center ${
-                activeTab === 'COMMUNITY_ROSTER' ? 'bg-[var(--sgx-accent)] text-black font-extrabold shadow-sm' : 'text-slate-400 hover:text-white hover:bg-[var(--sgx-bg)]'
-              }`}
-              style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-            >
-              {es ? 'ASISTENTES (' : 'ATTENDEES ('}{attendees.length})
-            </button>
-          </div>
-        </div>
-
-        {/* Channels List / Forum Navigation */}
-        <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+        {tabs}
+        <div className="sgx-net__list">
           {activeTab === 'FORUMS' ? (
             PUBLIC_FORUM_CHANNELS.map((ch) => {
               const Icon = ch.icon;
               const isActive = activeChannelId === ch.id;
-              const msgCount = getChannelMessageCount(ch.id);
-
               return (
                 <button
                   key={ch.id}
-                  onClick={() => { 
-                    setActiveChannelId(ch.id); 
-                    setActiveTab('FORUMS'); 
-                  }}
-                  className={`w-full text-left p-2.5 border transition-all flex items-start space-x-2.5 text-xs group ${
-                    isActive
-                      ? 'border-[var(--sgx-neon)] bg-[var(--sgx-neon)]/15 text-white font-bold shadow-md shadow-[var(--sgx-neon)]/10'
-                      : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-[#1D1D1D] hover:border-[var(--sgx-secondary)]/50'
-                  }`}
-                  style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
+                  type="button"
+                  className={`sgx-net__chan ${isActive ? 'is-on' : ''}`}
+                  style={{ ['--chan' as string]: accentOf(ch) }}
+                  aria-current={isActive ? 'true' : undefined}
+                  onClick={() => { setActiveChannelId(ch.id); setActiveTab('FORUMS'); }}
                 >
-                  <div className={`p-1 rounded shrink-0 mt-0.5 ${isActive ? 'bg-[var(--sgx-neon)] text-black' : 'bg-black/60 text-slate-400 group-hover:text-white'}`}>
-                    <Icon className="w-3.5 h-3.5" />
-                  </div>
-                  <div className="truncate flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="truncate text-white font-semibold text-xs">{loc(ch, 'name', language)}</span>
-                      <span className={`text-[8px] font-mono px-1 py-0.2 border rounded ml-1 ${isActive ? 'bg-black/80 text-[var(--sgx-neon)] border-[var(--sgx-neon)]/60' : 'bg-black/40 text-slate-400 border-[var(--sgx-secondary)]/40'}`}>
-                        {loc(ch, 'badge', language)}
-                      </span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 font-mono truncate mt-0.5">{loc(ch, 'topic', language)}</div>
-                  </div>
+                  <span className="sgx-net__chan-icon"><Icon aria-hidden /></span>
+                  <span className="sgx-net__chan-text">
+                    <strong>{loc(ch, 'name', language)}</strong>
+                    <small>{loc(ch, 'topic', language)}</small>
+                  </span>
+                  <span className="sgx-net__chan-n" aria-label={es ? 'mensajes' : 'messages'}>{getChannelMessageCount(ch.id)}</span>
                 </button>
               );
             })
+          ) : attendees.length === 0 ? (
+            <p className="sgx-fine sgx-net__pad">{es ? 'El directorio se llena cuando las personas publican su perfil.' : 'The directory fills up as people publish their profile.'}</p>
           ) : (
-            /* Community Roster list */
-            <div className="space-y-1.5 p-1">
-              <span className="text-[10px] text-slate-400 uppercase font-mono px-1 block font-bold">
-                {es ? 'Participantes Registrados:' : 'Registered Participants:'}
-              </span>
-              {attendees.map((att) => (
-                <div
-                  key={att.id}
-                  onClick={() => setSelectedAttendeeProfile(att)}
-                  className="w-full text-left p-2 border border-transparent hover:border-[var(--sgx-secondary)] hover:bg-[var(--sgx-bg)] transition-all flex items-center space-x-2.5 text-xs cursor-pointer group"
-                  style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
+            attendees.map((att) => (
+              <button key={att.id} type="button" className="sgx-net__chan" onClick={() => setSelectedAttendeeProfile(att)}>
+                <ChatAvatar src={att.avatar} seed={att.id} alt="" className="sgx-net__ava-sm" />
+                <span className="sgx-net__chan-text">
+                  <strong>{att.name}</strong>
+                  <small>{att.title}</small>
+                </span>
+              </button>
+            ))
+          )}
+        </div>
+        <div className="sgx-net__me">
+          <ChatAvatar src={currentUser.avatar} seed={currentUser.id} alt={currentUser.name} className="sgx-net__ava-sm" />
+          <span>
+            <strong>{currentUser.name}</strong>
+            <small><span className={`sgx-dot ${isLiveConnected ? 'is-live' : ''}`} />{isLiveConnected ? (es ? 'Conectado al foro' : 'Connected to the forum') : (es ? 'Sin conexión: tus mensajes se guardan aquí' : 'Offline: your messages are kept here')}</small>
+          </span>
+        </div>
+      </aside>
+
+      <section className="sgx-net__main">
+        {/* Phone bar: tabs, sound and channel chips */}
+        <div className="sgx-net__mobilebar">
+          <div className="sgx-net__mobilebar-row">{tabs}{soundToggle}</div>
+          {activeTab === 'FORUMS' && (
+            <div className="sgx-net__chips">
+              {PUBLIC_FORUM_CHANNELS.map((ch) => (
+                <button
+                  key={ch.id}
+                  type="button"
+                  className="sgx-chip"
+                  style={{ ['--chip' as string]: accentOf(ch) }}
+                  aria-pressed={activeChannelId === ch.id}
+                  onClick={() => setActiveChannelId(ch.id)}
                 >
-                  <div className="relative shrink-0">
-                    <img 
-                      src={att.avatar} 
-                      alt={att.name} 
-                      className="w-8 h-8 object-cover border border-[var(--sgx-secondary)]" 
-                      style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-                    />
-                    {att.isOnline && <div className="w-2 h-2 bg-[#FDCC0D] absolute bottom-0 right-0 border border-[#151515]" />}
-                  </div>
-                  <div className="truncate flex-1">
-                    <div className="font-bold truncate text-white group-hover:text-[var(--sgx-neon)]">{att.name}</div>
-                    <div className="text-[10px] text-slate-400 truncate font-mono">{att.title}</div>
-                  </div>
-                </div>
+                  {ch.id}
+                </button>
               ))}
             </div>
           )}
         </div>
 
-        {/* Current User Info Footer */}
-        <div className="p-3 bg-[var(--sgx-card-bg)] border-t border-[var(--sgx-secondary)]/60 flex items-center space-x-3">
-          <ChatAvatar 
-            src={currentUser.avatar} 
-            seed={currentUser.id} 
-            alt={currentUser.name} 
-            className="w-8 h-8 object-cover border border-[var(--sgx-neon)] shrink-0" 
-            style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-          />
-          <div className="truncate text-left flex-1 min-w-0">
-            <span className="text-xs font-bold text-white block truncate">{currentUser.name}</span>
-            <span className="text-[10px] text-[#FDCC0D] font-mono flex items-center space-x-1">
-              <span className="w-1.5 h-1.5 bg-[#FDCC0D] animate-pulse rounded-full" />
-              <span>{es ? 'Conectado al Foro Público' : 'Connected to the Public Forum'}</span>
-            </span>
-          </div>
-        </div>
-
-      </div>
-
-      {/* 3. Main Forum Feed & Discussion Area */}
-      <div className="flex-1 flex flex-col justify-between overflow-hidden bg-[#0d0d0d]">
-        
         {activeTab === 'COMMUNITY_ROSTER' ? (
-          /* Public Community Directory (No DMs, only public bios & pillars) */
-          <div className="flex-1 flex flex-col p-4 sm:p-6 overflow-y-auto space-y-4 custom-scrollbar">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--sgx-secondary)]/60 pb-4">
+          <div className="sgx-net__roster">
+            <div className="sgx-net__roster-head">
               <div>
-                <h3 className="text-sm sm:text-base font-bold text-white uppercase font-['Orbitron',sans-serif]">
-                  {es ? 'DIRECTORIO PÚBLICO DE ASISTENTES & CREADORES' : 'PUBLIC DIRECTORY OF ATTENDEES & CREATORS'}
-                </h3>
-                <p className="text-xs text-slate-400 font-mono mt-0.5">
-                  {es ? 'Conoce a los creadores, ponentes e ingenieros espaciales que participan en los foros del Summit 2026.' : 'Meet the creators, speakers and spatial engineers taking part in the Summit 2026 forums.'}
-                </p>
+                <h3 className="sgx-h">{es ? 'Directorio de la comunidad' : 'Community directory'}</h3>
+                <p className="sgx-copy">{es ? 'Creadores, speakers y marcas que participan en los foros. Sin mensajes privados: se conversa en público.' : 'Creators, speakers and brands taking part in the forums. No private messages: conversations are public.'}</p>
               </div>
-
-              {/* Filters */}
-              <div className="flex items-center space-x-2">
-                <select
-                  value={selectedPillarFilter}
-                  onChange={(e) => setSelectedPillarFilter(e.target.value as any)}
-                  className="bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-3 py-1.5 text-xs font-mono text-white focus:outline-none focus:border-[var(--sgx-neon)]"
-                  style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                >
-                  <option value="ALL">{es ? 'TODOS LOS PILARES' : 'ALL PILLARS'}</option>
-                  <option value="SGX.STORY">SGX.STORY</option>
-                  <option value="SGX.SHOWCASE">SGX.SHOWCASE</option>
-                  <option value="SGX.SPARK">SGX.SPARK</option>
-                  <option value="SGX.STAGE">SGX.STAGE</option>
-                  <option value="SGX.SYSTEM">SGX.SYSTEM</option>
-                  <option value="SGX.SYNTHESIZE">SGX.SYNTHESIZE</option>
+              <label className="sgx-net__filter">
+                <span className="sr-only">{es ? 'Filtrar por pilar' : 'Filter by pillar'}</span>
+                <select className="sgx-input" value={selectedPillarFilter} onChange={(e) => setSelectedPillarFilter(e.target.value as SummitPillarId | 'ALL')}>
+                  <option value="ALL">{es ? 'Todos los pilares' : 'All pillars'}</option>
+                  {SGX_PILLARS.map((p) => <option key={p.key} value={p.id}>{p.name}</option>)}
                 </select>
-              </div>
+              </label>
             </div>
-
-            {/* Attendees Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-              {filteredAttendees.map((att) => (
-                <div 
-                  key={att.id}
-                  className="p-4 bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)]/80 hover:border-[var(--sgx-neon)] transition-all flex flex-col justify-between space-y-3 shadow-lg"
-                  style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 100%)' }}
-                >
-                  <div className="flex items-start space-x-3.5">
-                    <img 
-                      src={att.avatar} 
-                      alt={att.name} 
-                      className="w-12 h-12 object-cover border-2 border-[var(--sgx-neon)] shrink-0" 
-                      style={{ clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-bold text-white truncate font-['Orbitron',sans-serif]">{att.name}</h4>
-                        <span 
-                          className="text-[9px] px-2 py-0.5 bg-[var(--sgx-secondary)]/50 text-[var(--sgx-neon)] font-mono uppercase font-bold"
-                          style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-                        >
-                          {att.ticketType.replace('_', ' ')}
-                        </span>
+            {filteredAttendees.length === 0 ? (
+              <p className="sgx-fine">{es ? 'Todavía no hay perfiles públicos con ese filtro.' : 'No public profiles with that filter yet.'}</p>
+            ) : (
+              <ul className="sgx-net__people">
+                {filteredAttendees.map((att) => (
+                  <li key={att.id} className="sgx-card">
+                    <div className="sgx-net__person">
+                      <ChatAvatar src={att.avatar} seed={att.id} alt="" />
+                      <div>
+                        <strong>{att.name}</strong>
+                        <small>{att.title} · {att.company}</small>
                       </div>
-                      <div className="text-xs text-[var(--sgx-accent)] font-mono mt-0.5">{att.title} • {att.company}</div>
-                      <p className="text-xs text-slate-300 mt-2 leading-relaxed line-clamp-2">{att.bio}</p>
                     </div>
-                  </div>
-
-                  {/* Pillars & Public Contribution Action */}
-                  <div className="flex items-center justify-between pt-3 border-t border-[var(--sgx-secondary)]/40">
-                    <div className="flex items-center space-x-1.5 flex-wrap gap-y-1">
-                      {att.pillars.map(p => (
-                        <span 
-                          key={p} 
-                          className="text-[9px] font-mono px-1.5 py-0.5 bg-black border border-[var(--sgx-secondary)] text-slate-300"
-                          style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
-                        >
-                          {p.replace('SGX.', '')}
-                        </span>
-                      ))}
+                    <p className="sgx-copy sgx-net__bio">{att.bio}</p>
+                    <div className="sgx-chip-row">{att.pillars.map(pillarChip)}</div>
+                    <div className="sgx-net__person-actions">
+                      <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={() => setSelectedAttendeeProfile(att)}>{es ? 'Ver perfil' : 'View profile'}</button>
+                      <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => mention(att.name)}><AtSign aria-hidden />{es ? 'Mencionar' : 'Mention'}</button>
                     </div>
-
-                    <button
-                      onClick={() => {
-                        setActiveTab('FORUMS');
-                        setActiveChannelId('#matchmaking-proyectos');
-                        setInputText(`@${att.name} `);
-                      }}
-                      className="px-3 py-1.5 bg-[var(--sgx-bg)] hover:bg-[var(--sgx-neon)] hover:text-black border border-[var(--sgx-secondary)] text-xs font-mono font-bold text-slate-200 transition-colors flex items-center space-x-1.5"
-                      style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                      title={es ? 'Mencionar en el foro público de matchmaking' : 'Mention in the public matchmaking forum'}
-                    >
-                      <Share2 className="w-3.5 h-3.5" />
-                      <span>{es ? 'MENCIONAR EN FORO' : 'MENTION IN FORUM'}</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         ) : (
-          /* Public Channel Forum View */
           <>
-            {/* Desktop Forum Channel Top Header with Guideline Notice */}
-            <div className="p-3 sm:p-4 bg-[var(--sgx-card-bg)] border-b border-[var(--sgx-secondary)] space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2.5">
-                  <div 
-                    className={`p-1.5 bg-black/60 border border-[var(--sgx-secondary)] ${currentChannel.color}`}
-                    style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-                  >
-                    <CurrentChannelIcon className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm font-bold text-white font-['Orbitron',sans-serif] uppercase tracking-wide">
-                        {loc(currentChannel, 'name', language)}
-                      </span>
-                      <span className="text-[9px] font-mono px-1.5 py-0.2 border border-[var(--sgx-secondary)] text-[var(--sgx-neon)] bg-black/50 rounded">
-                        {currentChannel.id}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-300 font-mono hidden sm:block">
-                      {loc(currentChannel, 'desc', language)}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Firestore Real-Time Indicator & Search */}
-                <div className="flex items-center space-x-2.5 text-[10px] text-slate-400 font-mono shrink-0">
-                  <div 
-                    className="flex items-center space-x-1.5 px-2.5 py-1 bg-amber-950/60 border border-[#FDCC0D]/50 text-[#FDCC0D]"
-                    style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                  >
-                    <span className="w-2 h-2 bg-[#FDCC0D] animate-pulse rounded-full" />
-                    <span className="font-bold">{isLiveConnected ? (es ? 'EN VIVO' : 'LIVE') : (es ? 'SIN CONEXIÓN · GUARDADO LOCAL' : 'OFFLINE · SAVED LOCALLY')}</span>
-                  </div>
-                  <span className="hidden lg:inline">{displayedMessages.length}{es ? ' MENSAJES' : ' MESSAGES'}</span>
-                </div>
+            <header className="sgx-net__head">
+              <span className="sgx-net__head-icon"><CurrentChannelIcon aria-hidden /></span>
+              <div className="sgx-net__head-text">
+                <h3 className="sgx-h">{loc(currentChannel, 'name', language)}</h3>
+                <p className="sgx-fine">{loc(currentChannel, 'desc', language)}</p>
               </div>
-
-              {/* Forum Guidelines Callout */}
-              <div className="px-3 py-1.5 bg-black/50 border border-[var(--sgx-secondary)]/60 text-[10px] text-slate-400 font-mono flex items-center justify-between gap-2 rounded">
-                <div className="flex items-center space-x-1.5 truncate">
-                  <Sparkles className="w-3.5 h-3.5 text-[#FDCC0D] shrink-0" />
-                  <span className="text-slate-300 font-bold truncate">{es ? 'Regla del Foro:' : 'Forum Rule:'}</span>
-                  <span className="truncate">{es ? 'Todos los mensajes son públicos y visibles para todos los asistentes y conferencistas.' : 'All messages are public and visible to every attendee and speaker.'}</span>
-                </div>
-                <span className="text-[#FDCC0D] shrink-0 font-bold hidden sm:inline">{es ? '100% Moderado' : '100% Moderated'}</span>
+              <div className="sgx-net__head-status">
+                <span className="sgx-chip sgx-chip--ghost"><span className={`sgx-dot ${isLiveConnected ? 'is-live' : ''}`} />{statusLabel}</span>
+                <span className="sgx-fine">{displayedMessages.length} {es ? 'mensajes' : 'messages'}</span>
               </div>
-            </div>
+            </header>
 
-            {/* Messages Scroll Area */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-5 md:p-6 space-y-4 sm:space-y-5 custom-scrollbar">
+            <div className="sgx-net__feed" aria-live="polite">
               {displayedMessages.length === 0 ? (
-                <div className="text-center py-16 text-slate-500 font-mono text-xs max-w-sm mx-auto space-y-2">
-                  <MessageSquare className="w-10 h-10 mx-auto text-slate-600 opacity-60" />
-                  <p className="text-slate-300 font-bold text-sm font-['Orbitron',sans-serif]">{es ? 'FORO PÚBLICO DISPONIBLE' : 'PUBLIC FORUM AVAILABLE'}</p>
-                  <p className="text-[11px] text-slate-400 leading-relaxed">
-                    {es ? 'Sé el primero en iniciar la conversación en el canal ' : 'Be the first to start the conversation in '}<span className="text-[var(--sgx-neon)] font-bold">{currentChannel.id}</span>{es ? '. Tu mensaje será visible para todos los asistentes del Summit.' : '. Your message will be visible to every Summit attendee.'}
+                <div className="sgx-net__empty">
+                  <MessageSquare aria-hidden />
+                  <p className="sgx-copy">
+                    {es ? 'Nadie ha escrito en ' : 'Nobody has posted in '}<b>{currentChannel.id}</b>{es ? ' todavía. Tu mensaje lo ve todo el Summit.' : ' yet. Your message is seen by the whole Summit.'}
                   </p>
                 </div>
               ) : (
                 displayedMessages.map((msg) => {
                   const isMe = msg.senderId === currentUser.id;
-                  const isOfficial = msg.senderRole === 'ORGANIZER' || msg.senderRole === 'SPEAKER' || msg.senderRole === 'DIRECTOR';
-
+                  const isOfficial = msg.senderRole === 'ORGANIZER' || msg.senderRole === 'SPEAKER' || (msg.senderRole as string) === 'DIRECTOR';
+                  const role = msg.senderRole && msg.senderRole !== 'ATTENDEE' ? ROLE_LABEL[msg.senderRole] : undefined;
                   return (
-                    <div 
-                      key={msg.id}
-                      className={`flex items-start space-x-3 sm:space-x-3.5 ${isMe ? 'flex-row-reverse space-x-reverse' : ''}`}
-                    >
-                      {/* Avatar */}
-                      <ChatAvatar 
-                        src={msg.senderAvatar} 
-                        seed={msg.senderId} 
-                        alt={msg.senderName} 
-                        className={`w-8 h-8 sm:w-9 sm:h-9 object-cover border shrink-0 mt-1 shadow-md ${
-                          isOfficial ? 'border-amber-400' : 'border-[var(--sgx-secondary)]'
-                        }`} 
-                        style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-                      />
-
-                      <div className={`max-w-[85%] sm:max-w-[75%] space-y-1.5 ${isMe ? 'items-end text-right' : 'text-left'}`}>
-                        
-                        {/* Sender Name, Badge & Timestamp */}
-                        <div className={`flex items-center space-x-2 text-[10px] sm:text-[11px] font-mono ${isMe ? 'justify-end' : ''}`}>
-                          <span className="font-bold text-white tracking-wide">{msg.senderName}</span>
-                          
-                          {msg.senderRole && msg.senderRole !== 'ATTENDEE' && (
-                            <span 
-                              className={`px-1.5 py-0.5 text-[8px] font-bold border ${
-                                isOfficial 
-                                  ? 'bg-amber-500/20 border-amber-400 text-amber-300' 
-                                  : 'bg-[var(--sgx-neon)]/20 border-[var(--sgx-neon)]/60 text-[var(--sgx-neon)]'
-                              }`}
-                              style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
-                            >
-                              {msg.senderRole}
-                            </span>
-                          )}
-
-                          {msg.isPinned && (
-                            <span className="flex items-center space-x-0.5 text-amber-400 text-[9px] font-bold">
-                              <Pin className="w-3 h-3 rotate-45" />
-                              <span>{es ? 'FIJADO' : 'PINNED'}</span>
-                            </span>
-                          )}
-
-                          <span className="text-slate-500 text-[10px]">
-                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
+                    <article key={msg.id} className={`sgx-net__msg ${isMe ? 'is-me' : ''} ${isOfficial ? 'is-official' : ''}`}>
+                      <ChatAvatar src={msg.senderAvatar} seed={msg.senderId} alt="" className="sgx-net__ava" accent={isOfficial ? '#FDCC0D' : '#00DDFF'} />
+                      <div className="sgx-net__msg-body">
+                        <div className="sgx-net__meta">
+                          <strong>{msg.senderName}</strong>
+                          {role && <span className="sgx-chip" style={{ ['--chip' as string]: isOfficial ? 'var(--SGX_Yellow)' : 'var(--SGX_Cyan)' }}>{es ? role.es : role.en}</span>}
+                          {msg.isPinned && <span className="sgx-chip" style={{ ['--chip' as string]: 'var(--SGX_Yellow)' }}><Pin aria-hidden />{es ? 'Fijado' : 'Pinned'}</span>}
+                          <time dateTime={new Date(msg.timestamp).toISOString()}>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</time>
                         </div>
-
-                        {/* Message Box */}
-                        <div 
-                          className={`p-3.5 text-xs sm:text-xs leading-relaxed shadow-md font-sans ${
-                            isMe 
-                              ? 'bg-[var(--sgx-neon)]/20 border border-[var(--sgx-neon)]/80 text-white' 
-                              : isOfficial
-                              ? 'bg-[#202020] border-2 border-amber-400/60 text-slate-100 shadow-amber-500/10'
-                              : 'bg-[#1A1A1A] border border-[var(--sgx-secondary)] text-slate-200'
-                          }`}
-                          style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
-                        >
-                          {loc(msg, 'text', language)}
+                        <div className="sgx-net__bubble">{loc(msg, 'text', language)}</div>
+                        <div className="sgx-net__reacts">
+                          {msg.reactions && Object.entries(msg.reactions).map(([key, count]) => {
+                            const r = reactionMeta(key);
+                            const Icon = r.icon;
+                            return (
+                              <button key={key} type="button" className="sgx-net__react is-count" onClick={() => handleAddReaction(msg.id, key)} aria-label={`${es ? r.es : r.en}: ${count}`}>
+                                <Icon aria-hidden /><span>{count}</span>
+                              </button>
+                            );
+                          })}
+                          {REACTIONS.map((r) => {
+                            const Icon = r.icon;
+                            return (
+                              <button key={r.key} type="button" className="sgx-net__react" onClick={() => handleAddReaction(msg.id, r.key)} aria-label={es ? `Reaccionar: ${r.es}` : `React: ${r.en}`} title={es ? r.es : r.en}>
+                                <Icon aria-hidden />
+                              </button>
+                            );
+                          })}
                         </div>
-
-                        {/* Public Reactions Bar */}
-                        <div className={`flex items-center space-x-1.5 pt-0.5 ${isMe ? 'justify-end' : ''}`}>
-                          {msg.reactions && Object.entries(msg.reactions).map(([emoji, count]) => (
-                            <button
-                              key={emoji}
-                              onClick={() => handleAddReaction(msg.id, emoji)}
-                              className="px-2 py-1 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)] text-slate-300 text-xs flex items-center space-x-1 shadow-sm transition-colors"
-                              style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-                            >
-                              <span>{emoji}</span>
-                              <span className="font-bold font-mono text-[10px] text-white">{count}</span>
-                            </button>
-                          ))}
-                          
-                          {/* Quick Emoji Reaction Buttons */}
-                          <button
-                            onClick={() => handleAddReaction(msg.id, '🔥')}
-                            className="px-1.5 py-1 text-slate-400 hover:text-white hover:bg-[var(--sgx-bg)] text-xs transition-colors"
-                            title={es ? 'Reaccionar con 🔥' : 'React with 🔥'}
-                          >
-                            🔥
-                          </button>
-                          <button
-                            onClick={() => handleAddReaction(msg.id, '🚀')}
-                            className="px-1.5 py-1 text-slate-400 hover:text-white hover:bg-[var(--sgx-bg)] text-xs transition-colors"
-                            title={es ? 'Reaccionar con 🚀' : 'React with 🚀'}
-                          >
-                            🚀
-                          </button>
-                          <button
-                            onClick={() => handleAddReaction(msg.id, '💎')}
-                            className="px-1.5 py-1 text-slate-400 hover:text-white hover:bg-[var(--sgx-bg)] text-xs transition-colors"
-                            title={es ? 'Reaccionar con 💎' : 'React with 💎'}
-                          >
-                            💎
-                          </button>
-                          <button
-                            onClick={() => handleAddReaction(msg.id, '👏')}
-                            className="px-1.5 py-1 text-slate-400 hover:text-white hover:bg-[var(--sgx-bg)] text-xs transition-colors"
-                            title={es ? 'Reaccionar con 👏' : 'React with 👏'}
-                          >
-                            👏
-                          </button>
-                        </div>
-
                       </div>
-                    </div>
+                    </article>
                   );
                 })
               )}
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Bar */}
-            <form onSubmit={handleSendMessage} className="p-3 sm:p-4 bg-[var(--sgx-card-bg)] border-t border-[var(--sgx-secondary)] flex items-center space-x-2.5">
+            <form onSubmit={handleSendMessage} className="sgx-net__form">
+              <label className="sr-only" htmlFor="sgx-net-input">{es ? 'Mensaje' : 'Message'}</label>
               <input
+                id="sgx-net-input"
                 type="text"
+                className="sgx-input"
                 value={inputText}
+                maxLength={1000}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder={(es ? `Comenta públicamente en ${currentChannel.id}...` : `Comment publicly in ${currentChannel.id}...`)}
-                className="flex-1 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-4 py-3 sm:py-2.5 min-h-[46px] text-xs sm:text-xs text-white placeholder-slate-500 font-mono focus:outline-none focus:border-[var(--sgx-neon)] shadow-inner"
-                style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
+                placeholder={es ? `Escribe en ${currentChannel.id} (público)` : `Write in ${currentChannel.id} (public)`}
               />
-              <button
-                type="submit"
-                disabled={!inputText.trim()}
-                aria-label={es ? 'Publicar' : 'Post'}
-                className="sgx-btn-cyan px-5 py-3 sm:py-2.5 min-h-[46px] text-xs font-bold font-mono flex items-center justify-center space-x-1.5 disabled:opacity-50 shrink-0 shadow-lg shadow-[var(--sgx-neon)]/20 transition-all hover:scale-105"
-                style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-              >
-                <Send className="w-4 h-4" />
-                <span className="hidden sm:inline">{es ? 'PUBLICAR' : 'POST'}</span>
+              <button type="submit" className="sgx-btn sgx-btn--sm" disabled={!inputText.trim()} aria-label={es ? 'Publicar' : 'Post'}>
+                <Send aria-hidden /><span className="sgx-net__send-label">{es ? 'Publicar' : 'Post'}</span>
               </button>
             </form>
           </>
         )}
+      </section>
 
-      </div>
-
-      {/* Attendee Profile Quick Modal */}
       {selectedAttendeeProfile && (
-        <div 
-          className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-          onClick={() => setSelectedAttendeeProfile(null)}
+        <SgxDialog
+          onClose={() => setSelectedAttendeeProfile(null)}
+          size="sm"
+          className="sgx-dialog--fit"
+          title={selectedAttendeeProfile.name}
+          kicker={`${selectedAttendeeProfile.title} · ${selectedAttendeeProfile.company}`}
+          icon={<ChatAvatar src={selectedAttendeeProfile.avatar} seed={selectedAttendeeProfile.id} alt="" />}
+          footer={
+            <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => mention(selectedAttendeeProfile.name)}>
+              <AtSign aria-hidden />{es ? 'Mencionar en el foro' : 'Mention in the forum'}
+            </button>
+          }
         >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md bg-[#151515] border-2 border-[var(--sgx-neon)] p-5 space-y-4 shadow-2xl font-mono text-xs"
-            style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-3">
-                <img 
-                  src={selectedAttendeeProfile.avatar} 
-                  alt={selectedAttendeeProfile.name} 
-                  className="w-14 h-14 object-cover border-2 border-[var(--sgx-neon)]"
-                  style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                />
-                <div>
-                  <h3 className="text-base font-bold text-white font-['Orbitron',sans-serif]">{selectedAttendeeProfile.name}</h3>
-                  <div className="text-[11px] text-[var(--sgx-accent)] font-bold">{selectedAttendeeProfile.title}</div>
-                  <div className="text-[10px] text-slate-400">{selectedAttendeeProfile.company}</div>
-                </div>
-              </div>
-              <button 
-                type="button"
-                onClick={() => setSelectedAttendeeProfile(null)}
-                aria-label="Cerrar perfil"
-                className="text-slate-400 hover:text-white p-1"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <p className="text-slate-300 leading-relaxed text-xs">
-              {selectedAttendeeProfile.bio}
-            </p>
-
-            <div className="space-y-1 pt-2 border-t border-[var(--sgx-secondary)]/60">
-              <span className="text-[10px] text-slate-400 uppercase font-bold">{es ? 'Pilares de Interés:' : 'Pillars of Interest:'}</span>
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {selectedAttendeeProfile.pillars.map(p => (
-                  <span key={p} className="px-2 py-0.5 bg-black border border-[var(--sgx-secondary)] text-[var(--sgx-neon)] text-[10px] font-bold">
-                    {p}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-[var(--sgx-secondary)]/60 flex items-center justify-between">
-              <span className="text-[#FDCC0D] flex items-center space-x-1 text-[10px]">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#FDCC0D]" />
-                <span>{es ? 'Pase ' : 'Pass '}{selectedAttendeeProfile.ticketType.replace('_', ' ')}</span>
-              </span>
-              <button
-                onClick={() => {
-                  const targetName = selectedAttendeeProfile.name;
-                  setSelectedAttendeeProfile(null);
-                  setActiveTab('FORUMS');
-                  setActiveChannelId('#matchmaking-proyectos');
-                  setInputText(`@${targetName} `);
-                }}
-                className="px-3 py-1.5 bg-[var(--sgx-neon)] text-black font-extrabold text-xs flex items-center space-x-1"
-                style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              >
-                <span>{es ? 'MENCIONAR EN FORO' : 'MENTION IN FORUM'}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          <div className="sgx-net__profile">
+            <p className="sgx-copy">{selectedAttendeeProfile.bio}</p>
+            <p className="sgx-kicker">{es ? 'Pilares' : 'Pillars'}</p>
+            <div className="sgx-chip-row">{selectedAttendeeProfile.pillars.map(pillarChip)}</div>
           </div>
-        </div>
+        </SgxDialog>
       )}
-
     </div>
   );
 };

@@ -1,20 +1,7 @@
 // SGX Entrepreneur Match - Master Module Container
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Sparkles, 
-  Layers, 
-  Users, 
-  User, 
-  Zap, 
-  ShieldAlert, 
-  Edit3,
-  Award,
-  ArrowRight,
-  Share2,
-  Check,
-  Copy
-} from 'lucide-react';
+import { Layers, Users, User, Zap, ShieldAlert, Share2, Check } from 'lucide-react';
 import { 
   MatchProfile, 
   MatchCandidate, 
@@ -36,6 +23,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { usePilotProfile } from '../../context/PilotProfileContext';
 import { useTenantTheme } from '../../context/TenantThemeContext';
+import '../../components/summit/sgx-kit.css';
+import './match.css';
 import { playUiChirp, playScanSuccessSound } from '../../lib/cyberAudioEngine';
 import { syncAppUrl, copyUnifiedLinkToClipboard, getAppRouteAndSectionFromUrl } from '../../lib/summitUrlSync';
 
@@ -53,7 +42,7 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
   const { user, playerProfile, savePlayerProfile } = useAuth();
   const { language } = useLanguage();
   const es = language === 'es';
-  const { tenant, styles } = useTenantTheme();
+  const { tenant } = useTenantTheme();
   const { recordActivity, syncMatchDetails } = usePilotProfile();
   const lang = (language === 'en' ? 'en' : 'es') as 'es' | 'en';
   const strings = MATCH_I18N[lang] || MATCH_I18N.es;
@@ -232,15 +221,11 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
   // Check Kill Switch
   if (!isModuleEnabled) {
     return (
-      <div className="w-full max-w-xl mx-auto py-16 px-4 text-center text-white">
-        <div className="w-16 h-16 rounded-2xl bg-amber-950/40 border border-amber-500/40 mx-auto flex items-center justify-center mb-4 text-amber-400">
-          <ShieldAlert className="w-8 h-8" />
-        </div>
-        <h3 className="text-xl font-bold font-sans mb-2">
-          {es ? 'Módulo en Mantenimiento Táctico' : 'Module in Tactical Maintenance'}
-        </h3>
-        <p className="text-xs text-slate-400 max-w-md mx-auto">
-          {es ? 'El módulo de Entrepreneur Match está pausado temporalmente por la dirección técnica del evento. Regresa en unos minutos.' : 'The Entrepreneur Match module is temporarily paused by the event\'s technical team. Come back in a few minutes.'}
+      <div className="sgx-card sgx-match__empty">
+        <ShieldAlert aria-hidden />
+        <h3 className="sgx-h">{es ? 'SGX.Match está en pausa' : 'SGX.Match is paused'}</h3>
+        <p className="sgx-copy">
+          {es ? 'El equipo técnico pausó el módulo por un momento. Vuelve en unos minutos.' : 'The technical team paused the module for a moment. Come back in a few minutes.'}
         </p>
       </div>
     );
@@ -248,14 +233,9 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
 
   if (loadingProfile) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-center">
-        <div 
-          className="w-12 h-12 rounded-full border-2 border-t-transparent animate-spin mb-4"
-          style={{ borderColor: `var(--sgx-neon)` }}
-        />
-        <p className="text-xs font-mono text-slate-400">
-          {es ? 'Verificando credenciales de fundador...' : 'Verifying founder credentials...'}
-        </p>
+      <div className="sgx-match__state" role="status">
+        <span className="sgx-match__spinner" aria-hidden />
+        <p className="sgx-fine">{es ? 'Cargando tu perfil…' : 'Loading your profile…'}</p>
       </div>
     );
   }
@@ -263,7 +243,7 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
   // Gate Check: If user does not have a profile, show the onboarding wizard
   if (!myProfile || isWizardOpen) {
     return (
-      <div className="py-6 px-3">
+      <div className="sgx-match">
         <MatchProfileWizard
           initialProfile={myProfile}
           userUid={myUid}
@@ -286,141 +266,39 @@ export const MatchModule: React.FC<MatchModuleProps> = ({
     profile: myProfile
   };
 
+  const tabItems: { id: MatchModuleTab; label: string; icon: typeof Layers; count?: number }[] = [
+    { id: 'deck', label: strings.tabDeck, icon: Layers },
+    { id: 'matches', label: strings.tabMatches, icon: Users, count: matchCount },
+    { id: 'profile', label: strings.tabProfile, icon: User },
+  ];
+
   return (
-    <div id="summit-section-match" className="w-full max-w-4xl mx-auto py-4 px-2 sm:px-4 space-y-6">
-      {/* Module Navigation Tabs Header */}
-      <div 
-        className="bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)]/70 p-2 sm:p-3 flex items-center justify-between shadow-xl flex-wrap gap-2 transition-all"
-        style={{
-          clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)',
-          boxShadow: `0 0 20px ${tenant.branding.glowShadow || 'rgba(0,0,0,0.5)'}`
-        }}
-      >
-        {/* Brand glyph */}
-        <div className="flex items-center gap-2.5 px-3">
-          <div 
-            className="w-8 h-8 rounded-xl flex items-center justify-center border transition-all"
-            style={{
-              backgroundColor: `rgba(var(--sgx-primary-rgb), 0.15)`,
-              borderColor: `var(--sgx-primary)`,
-              color: `var(--sgx-primary)`
-            }}
-          >
-            <Zap className="w-4 h-4 fill-current" />
-          </div>
+    <div id="summit-section-match" className="sgx-match">
+      <div className="sgx-card sgx-card--sm sgx-match__nav">
+        <div className="sgx-match__brand">
+          <span className="sgx-match__glyph" aria-hidden><Zap /></span>
           <div>
-            <div className="flex items-center gap-1.5">
-              <span 
-                className="text-xs font-mono font-bold tracking-wider"
-                style={{ color: `var(--sgx-neon)` }}
-              >
-                {strings.navGlyphLabel}
-              </span>
-              <span 
-                className="w-1.5 h-1.5 rounded-full animate-ping"
-                style={{ backgroundColor: `var(--sgx-neon)` }}
-              />
-            </div>
-            <h2 className="text-sm font-bold text-white font-['Orbitron',sans-serif]">
-              {strings.navTitle}
-            </h2>
+            <p className="sgx-kicker">{strings.navGlyphLabel}</p>
+            <h2 className="sgx-h">{strings.navTitle}</h2>
           </div>
         </div>
-
-        {/* Action Controls & Tab Switcher */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Direct Copy Link Button */}
-          <button
-            onClick={handleCopyShareLink}
-            type="button"
-            className="px-2.5 py-1.5 rounded-xl border border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)] text-[11px] font-mono flex items-center gap-1.5 text-slate-300 hover:text-white transition-all bg-[var(--sgx-bg)]/80 cursor-pointer"
-            title={es ? 'Copiar enlace directo a este módulo de Matchmaking' : 'Copy a direct link to this Matchmaking module'}
-          >
-            {copiedLink ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400 font-bold">{es ? '¡Enlace Copiado!' : 'Link Copied!'}</span>
-              </>
-            ) : (
-              <>
-                <Share2 className="w-3.5 h-3.5 text-[var(--sgx-neon)]" />
-                <span className="hidden sm:inline">{es ? 'Compartir Match' : 'Share Match'}</span>
-              </>
-            )}
-          </button>
-
-          {/* Tab Controls */}
-          <div className="flex items-center gap-1 bg-[#101010] border border-[var(--sgx-secondary)]/60 p-1 rounded-2xl">
-            {/* Deck Tab */}
-            <button
-              onClick={() => handleSelectTab('deck')}
-              style={activeTab === 'deck' ? {
-                backgroundColor: `var(--sgx-primary)`,
-                color: '#000000',
-                boxShadow: `0 0 12px var(--sgx-glow)`
-              } : undefined}
-              className={`py-2 px-3 sm:px-4 rounded-xl font-mono text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
-                activeTab === 'deck'
-                  ? 'font-bold'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>{strings.tabDeck}</span>
-            </button>
-
-            {/* Matches Tab */}
-            <button
-              onClick={() => handleSelectTab('matches')}
-              style={activeTab === 'matches' ? {
-                backgroundColor: `var(--sgx-primary)`,
-                color: '#000000',
-                boxShadow: `0 0 12px var(--sgx-glow)`
-              } : undefined}
-              className={`py-2 px-3 sm:px-4 rounded-xl font-mono text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
-                activeTab === 'matches'
-                  ? 'font-bold'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>{strings.tabMatches}</span>
-              {matchCount > 0 && (
-                <span 
-                  className="text-[10px] px-1.5 py-0.2 rounded-full font-bold transition-all"
-                  style={{
-                    backgroundColor: activeTab === 'matches' ? '#000000' : `var(--sgx-neon)`,
-                    color: activeTab === 'matches' ? `var(--sgx-neon)` : '#000000'
-                  }}
-                >
-                  {matchCount}
-                </span>
-              )}
-            </button>
-
-            {/* My Profile Tab */}
-            <button
-              onClick={() => handleSelectTab('profile')}
-              style={activeTab === 'profile' ? {
-                backgroundColor: `var(--sgx-primary)`,
-                color: '#000000',
-                boxShadow: `0 0 12px var(--sgx-glow)`
-              } : undefined}
-              className={`py-2 px-3 sm:px-4 rounded-xl font-mono text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
-                activeTab === 'profile'
-                  ? 'font-bold'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-              }`}
-            >
-              <User className="w-3.5 h-3.5" />
-              <span>{strings.tabProfile}</span>
-            </button>
-          </div>
+        <div className="sgx-hangar__tabs sgx-match__tabs" role="tablist" aria-label={strings.navTitle}>
+          {tabItems.map((t) => {
+            const Icon = t.icon;
+            return (
+              <button key={t.id} type="button" role="tab" aria-selected={activeTab === t.id} className={activeTab === t.id ? 'is-on' : ''} onClick={() => handleSelectTab(t.id)}>
+                <Icon aria-hidden />{t.label}{t.count ? <span className="sgx-match__n">{t.count}</span> : null}
+              </button>
+            );
+          })}
         </div>
+        <button type="button" className="sgx-iconbtn" onClick={handleCopyShareLink} aria-label={es ? 'Copiar enlace a SGX.Match' : 'Copy link to SGX.Match'} title={copiedLink ? (es ? 'Enlace copiado' : 'Link copied') : undefined}>
+          {copiedLink ? <Check aria-hidden /> : <Share2 aria-hidden />}
+        </button>
       </div>
 
       {/* Main Tab Content */}
-      <div className="pt-2">
+      <div>
         {activeTab === 'deck' && (
           <MatchDeck
             myUid={myUid}

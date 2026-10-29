@@ -1,0 +1,19 @@
+/* Brand showcase dialog (SummitBrandShowcaseModal) */
+.sgx-brand__body { display: flex; flex-direction: column; gap: 16px; }
+.sgx-brand__body .sgx-kicker { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; color: var(--brand-accent, var(--SGX_Cyan)); }
+.sgx-brand__body .sgx-kicker svg { width: 14px; height: 14px; }
+.sgx-brand__banner { height: clamp(110px, 22vw, 180px); overflow: hidden; clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); }
+.sgx-brand__banner img { width: 100%; height: 100%; object-fit: cover; }
+.sgx-brand__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px; margin: 0; }
+.sgx-brand__facts > div { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: start; }
+.sgx-brand__facts svg { grid-row: span 2; width: 18px; height: 18px; margin-top: 2px; color: var(--brand-accent, var(--SGX_Cyan)); }
+.sgx-brand__facts dt { font-family: var(--font-hud); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.55); }
+.sgx-brand__facts dd { margin: 0; font-family: var(--font-body); font-size: 0.9rem; color: var(--SGX_White); overflow-wrap: anywhere; }
+.sgx-brand__facts a { color: var(--SGX_Cyan); text-decoration: underline; text-underline-offset: 3px; }
+.sgx-brand__list { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.sgx-brand__list li { display: flex; align-items: baseline; gap: 12px; padding: 8px 0; border-top: 1px solid rgba(255, 255, 255, 0.08); font-family: var(--font-body); font-size: 0.92rem; color: rgba(255, 255, 255, 0.85); }
+.sgx-brand__list li span { flex: none; font-family: var(--font-mono); font-size: 0.75rem; color: var(--brand-accent, var(--SGX_Yellow)); }
+.sgx-brand__offer { display: flex; flex-direction: column; gap: 10px; }
+.sgx-brand__offer .sgx-kicker { margin: 0; }
+.sgx-brand__code { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.sgx-brand__code code { padding: 6px 12px; font-family: var(--font-mono); font-size: 1rem; letter-spacing: 0.1em; color: var(--brand-accent, var(--SGX_Yellow)); box-shadow: inset 0 0 0 1px currentColor; }

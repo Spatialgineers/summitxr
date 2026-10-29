@@ -1,18 +1,7 @@
 // SGX Entrepreneur Match - Deck Swiper Component
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Sparkles, 
-  RotateCcw, 
-  Layers, 
-  Info, 
-  ShieldAlert, 
-  Check, 
-  Zap, 
-  ArrowLeft, 
-  ArrowRight,
-  UserCheck
-} from 'lucide-react';
+import { RotateCcw, Layers, Check, UserCheck } from 'lucide-react';
 import { 
   MatchProfile, 
   MatchCandidate, 
@@ -30,6 +19,7 @@ import { rankCandidatesDeck } from './matchScore';
 import { playUiChirp, playScanSuccessSound } from '../../lib/cyberAudioEngine';
 import { triggerMatchConfetti } from './MatchBurstFX';
 import { useLanguage } from '../../context/LanguageContext';
+import { SgxDialog } from '../../components/common/SgxDialog';
 
 interface MatchDeckProps {
   myUid: string;
@@ -116,6 +106,7 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't trigger if user is typing in an input
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
+      if (reportingCandidate) return;
       if (e.key === 'ArrowLeft') {
         handlePass();
       } else if (e.key === 'ArrowRight') {
@@ -124,7 +115,7 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handlePass, handleConnect]);
+  }, [handlePass, handleConnect, reportingCandidate]);
 
   // Handle Report confirmation
   const handleConfirmReport = async () => {
@@ -141,11 +132,9 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-center">
-        <div className="w-12 h-12 rounded-full border-2 border-[#00DDFF] border-t-transparent animate-spin mb-4" />
-        <p className="text-sm font-mono text-slate-400">
-          {es ? 'Sincronizando fundadores en Chroma Space...' : 'Syncing founders at Chroma Space...'}
-        </p>
+      <div className="sgx-match__state" role="status">
+        <span className="sgx-match__spinner" aria-hidden />
+        <p className="sgx-fine">{es ? 'Cargando perfiles…' : 'Loading profiles…'}</p>
       </div>
     );
   }
@@ -153,119 +142,71 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
   // Empty deck state
   if (!currentCandidate) {
     return (
-      <div className="w-full max-w-md mx-auto bg-[#0f0f0f] border border-slate-800 rounded-3xl p-8 text-center shadow-xl">
-        <div className="w-16 h-16 rounded-2xl bg-cyan-950/40 border border-[#00DDFF]/30 mx-auto flex items-center justify-center mb-4 text-[#00DDFF]">
-          <UserCheck className="w-8 h-8" />
-        </div>
-        <h3 className="text-lg font-bold text-white mb-2 font-sans">
-          {es ? 'Mazo al día' : 'Deck up to date'}
-        </h3>
-        <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-          {strings.deckEmpty}
-        </p>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button
-            onClick={onEditProfile}
-            className="w-full sm:w-auto py-2.5 px-5 rounded-xl bg-[#00DDFF] hover:bg-[#00d0e0] text-black font-mono font-bold text-xs shadow-md transition-all cursor-pointer"
-          >
-            {strings.deckEmptyCta}
-          </button>
-          <button
-            onClick={loadDeck}
-            className="w-full sm:w-auto py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-mono text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>{es ? 'Recargar mazo' : 'Reload deck'}</span>
+      <div className="sgx-card sgx-match__empty">
+        <UserCheck aria-hidden />
+        <h3 className="sgx-h">{es ? 'Mazo al día' : 'Deck up to date'}</h3>
+        <p className="sgx-copy">{strings.deckEmpty}</p>
+        <div className="sgx-match__row">
+          <button type="button" className="sgx-btn sgx-btn--sm" onClick={onEditProfile}>{strings.deckEmptyCta}</button>
+          <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={loadDeck}>
+            <RotateCcw aria-hidden />{es ? 'Recargar mazo' : 'Reload deck'}
           </button>
         </div>
       </div>
     );
   }
 
+  const reasons = [
+    { id: 'spam', label: es ? 'Spam o contenido comercial abusivo' : 'Spam or abusive commercial content' },
+    { id: 'inappropriate', label: es ? 'Lenguaje o conducta inapropiada' : 'Inappropriate language or conduct' },
+    { id: 'not-an-entrepreneur', label: es ? 'No es un asistente ni un creador' : 'Not an attendee or creator' },
+  ];
+
   return (
-    <div className="flex flex-col items-center justify-center relative w-full">
-      {/* Deck Remaining Count & Keyboard hints */}
-      <div className="flex items-center justify-between w-full max-w-[420px] mb-3 px-1 text-[11px] font-mono text-slate-400">
-        <span className="flex items-center gap-1.5">
-          <Layers className="w-3.5 h-3.5 text-[#00DDFF]" />
-          <span>{deck.length}{es ? ' perfiles restantes' : ' profiles left'}</span>
-        </span>
-        <span className="hidden sm:inline text-slate-500">
-          {es ? 'Usa teclas [← Pasar] / [→ Conectar]' : 'Use keys [← Pass] / [→ Connect]'}
-        </span>
+    <div className="sgx-match__deck">
+      <div className="sgx-match__deckbar">
+        <span><Layers aria-hidden />{deck.length}{es ? ' perfiles restantes' : ' profiles left'}</span>
+        <span className="sgx-match__keys">{es ? 'Teclado: ← pasar · → conectar' : 'Keyboard: ← pass · → connect'}</span>
       </div>
 
-      {/* Primary Top Card */}
-      <div className="w-full flex justify-center">
-        <MatchCard
-          candidate={currentCandidate}
-          lang={lang}
-          isProcessing={isProcessing}
-          onPass={handlePass}
-          onConnect={handleConnect}
-          onReport={candidate => setReportingCandidate(candidate)}
-        />
-      </div>
+      <MatchCard
+        candidate={currentCandidate}
+        lang={lang}
+        isProcessing={isProcessing}
+        onPass={handlePass}
+        onConnect={handleConnect}
+        onReport={candidate => setReportingCandidate(candidate)}
+      />
 
-      {/* Moderation / Report Dialog Modal */}
       {reportingCandidate && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-sm bg-[#151515] border border-slate-700 rounded-2xl p-5 shadow-2xl text-white">
-            <div className="flex items-center gap-2 mb-3 text-rose-400">
-              <ShieldAlert className="w-5 h-5" />
-              <h4 className="font-bold text-sm">{es ? 'Reportar perfil' : 'Report profile'}</h4>
-            </div>
-            <p className="text-xs text-slate-400 mb-4">
-              {es ? '¿Por qué deseas reportar a ' : 'Why do you want to report '}<strong className="text-white">{reportingCandidate.displayName}</strong>?
-            </p>
-
-            {reportSent ? (
-              <div className="p-3 bg-emerald-950/50 border border-emerald-500/50 rounded-xl text-emerald-300 text-xs text-center flex items-center justify-center gap-2">
-                <Check className="w-4 h-4" />{es ? ' Reporte enviado para revisión.' : ' Report sent for review.'}
-              </div>
-            ) : (
-              <>
-                <div className="space-y-2 mb-5">
-                  {[
-                    { id: 'spam', label: (es ? 'Spam o contenido comercial abusivo' : 'Spam or abusive commercial content') },
-                    { id: 'inappropriate', label: (es ? 'Lenguaje o conducta inapropiada' : 'Inappropriate language or conduct') },
-                    { id: 'not-an-entrepreneur', label: (es ? 'No es un asistente o fundador' : 'Not an attendee or founder') }
-                  ].map(opt => (
-                    <label 
-                      key={opt.id} 
-                      className="flex items-center gap-2 p-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 cursor-pointer hover:border-slate-700"
-                    >
-                      <input
-                        type="radio"
-                        name="report_reason"
-                        checked={reportReason === opt.id}
-                        onChange={() => setReportReason(opt.id)}
-                        className="accent-[#00DDFF]"
-                      />
-                      <span>{opt.label}</span>
-                    </label>
-                  ))}
-                </div>
-
-                <div className="flex items-center justify-end gap-2">
-                  <button
-                    onClick={() => setReportingCandidate(null)}
-                    className="py-1.5 px-3 rounded-lg border border-slate-700 text-xs text-slate-400 hover:text-white"
-                  >
-                    {es ? 'Cancelar' : 'Cancel'}
-                  </button>
-                  <button
-                    onClick={handleConfirmReport}
-                    className="py-1.5 px-3 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-mono text-xs font-semibold"
-                  >
-                    {es ? 'Enviar reporte' : 'Send report'}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+        <SgxDialog
+          onClose={() => setReportingCandidate(null)}
+          size="sm"
+          accent="#FFBB00"
+          className="sgx-dialog--fit"
+          title={es ? 'Reportar perfil' : 'Report profile'}
+          kicker={reportingCandidate.displayName}
+          footer={reportSent ? undefined : (
+            <>
+              <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={() => setReportingCandidate(null)}>{es ? 'Cancelar' : 'Cancel'}</button>
+              <button type="button" className="sgx-btn sgx-btn--sm" onClick={handleConfirmReport}>{es ? 'Enviar reporte' : 'Send report'}</button>
+            </>
+          )}
+        >
+          {reportSent ? (
+            <p className="sgx-copy sgx-match__ok" role="status"><Check aria-hidden />{es ? 'Reporte enviado para revisión.' : 'Report sent for review.'}</p>
+          ) : (
+            <fieldset className="sgx-match__reasons">
+              <legend className="sgx-copy">{es ? '¿Por qué reportas este perfil?' : 'Why are you reporting this profile?'}</legend>
+              {reasons.map(opt => (
+                <label key={opt.id} className={reportReason === opt.id ? 'is-on' : ''}>
+                  <input type="radio" name="report_reason" checked={reportReason === opt.id} onChange={() => setReportReason(opt.id)} />
+                  <span>{opt.label}</span>
+                </label>
+              ))}
+            </fieldset>
+          )}
+        </SgxDialog>
       )}
     </div>
   );

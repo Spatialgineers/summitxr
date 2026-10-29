@@ -2,57 +2,19 @@ import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import { SgxPilotGlyph } from '../../identity/SgxPilotGlyph';
 import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Radio, 
-  Smartphone, 
-  Tv, 
-  BarChart3, 
-  Database, 
-  LayoutGrid, 
-  Building2,
-  Copy,
-  Check,
-  ShieldCheck, 
-  ShieldAlert, 
-  LogIn, 
-  LogOut, 
-  User, 
-  Vote, 
-  Compass, 
-  Globe,
-  ChevronDown,
-  Sparkles,
-  Trophy,
-  Calendar,
-  Users,
-  Layers,
-  Zap,
-  Ticket,
-  HelpCircle,
-  Share2,
-  Menu,
-  X,
-  Gamepad2,
-  Award,
-  Flame,
-  UserCheck,
-  MessageSquare,
-  Boxes,
-  Rocket,
-  Sliders,
-  Volume2,
-  VolumeX
+import {
+  BarChart3, Building2, Check, ShieldCheck, Sparkles, Zap, Ticket, Share2, Menu, X, Sliders, Volume2, VolumeX,
 } from 'lucide-react';
-import { INITIAL_TENANTS } from '../../lib/schemas';
 import { useAuth } from '../../context/AuthContext';
-import { useTenantTheme, hexToRgbStr } from '../../context/TenantThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { HeaderPillarNav, PillarDirectoryGrid } from './SgxPillarNav';
 import { usePilotProfile } from '../../context/PilotProfileContext';
 import { playUiChirp, getIsAudioMuted, toggleAudioMute } from '../../lib/cyberAudioEngine';
-import { syncAppUrl, getAppRouteAndSectionFromUrl } from '../../lib/summitUrlSync';
-import type { SummitSectionKey } from '../summit/sectionKeys';
+import { syncAppUrl } from '../../lib/summitUrlSync';
 import { TransientSponsorSlot } from '../summit/TransientSponsorSlot';
+import { SgxDialog } from './SgxDialog';
+import '../summit/sgx-kit.css';
+import './HeaderNav.css';
 
 export type PageRoute = 'summit' | 'multiview' | 'admin' | 'play' | 'stage' | 'analytics' | 'schema';
 
@@ -65,136 +27,48 @@ interface HeaderNavProps {
   isConnected: boolean;
 }
 
-interface NavTabItem {
-  id: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
-  type: 'SUMMIT_SECTION' | 'PAGE' | 'ACTION';
-  sectionKey?: SummitSectionKey;
-  pageRoute?: PageRoute;
-  actionKey?: 'open_passport' | 'open_avatar';
-  isActive: boolean;
-}
-
-const PILLARS_CONFIG = [
-  {
-    id: 'SGX.STORY',
-    slug: 'story',
-    name: 'SGX.STORY',
-    title: 'Historias que mueven ideas',
-    accentColor: '#FDCC0D',
-    badgeText: 'AMARILLO NEÓN',
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Story%20Icon%20BY.png',
-  },
-  {
-    id: 'SGX.SHOWCASE',
-    slug: 'showcase',
-    name: 'SGX.SHOWCASE',
-    title: 'Visuales que comunican innovación',
-    accentColor: '#00DDFF',
-    badgeText: 'CYAN SHOWCASE',
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Showcase%20Icon%20BY.png',
-  },
-  {
-    id: 'SGX.SPARK',
-    slug: 'spark',
-    name: 'SGX.SPARK',
-    title: 'Experiencias que activan la conexión',
-    accentColor: '#FFBB00',
-    badgeText: 'NARANJA SPARK',
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Spark%20Icon%20BY.png',
-  },
-  {
-    id: 'SGX.STAGE',
-    slug: 'stage',
-    name: 'SGX.STAGE',
-    title: 'Creatividad en tiempo real',
-    accentColor: '#FFFFFF',
-    badgeText: 'BLANCO PURO',
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Stage%20Icon%20BY.png',
-  },
-  {
-    id: 'SGX.SYSTEM',
-    slug: 'system',
-    name: 'SGX.SYSTEM',
-    title: 'Tecnología que soluciona',
-    accentColor: '#32527B',
-    badgeText: 'AZUL SGX',
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20System%20Icon%20BY.png',
-  },
-  {
-    id: 'SGX.SYNTHESIZE',
-    slug: 'synthesize',
-    name: 'SGX.SYNTHESIZE',
-    title: 'Innovación que une disciplinas',
-    accentColor: '#FDCC0D',
-    badgeText: 'AMARILLO / AZUL SGX',
-    iconUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Synthesize%20Icon%20BY.png',
-  },
-];
-
-export const HeaderNav: React.FC<HeaderNavProps> = ({
-  currentPage,
-  onNavigate,
-  selectedTenantId,
-  selectedEventId,
-  onSelectTenant,
-  isConnected,
-}) => {
+export const HeaderNav: React.FC<HeaderNavProps> = ({ currentPage, onNavigate }) => {
   const [copiedPath, setCopiedPath] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSystemMenuOpen, setIsSystemMenuOpen] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState<boolean>(() => getIsAudioMuted());
   const systemMenuRef = useRef<HTMLDivElement>(null);
-  const [activeSummitSection, setActiveSummitSection] = useState<string>('OVERVIEW');
-  const { tenant, tenants, selectTenant, selectPillar, styles } = useTenantTheme();
-  const { language, setLanguage, t } = useLanguage();
+  const systemTriggerRef = useRef<HTMLButtonElement>(null);
+  const { language, setLanguage } = useLanguage();
   const es = language === 'es';
-  const { profile, liteMode, setLiteMode } = usePilotProfile();
+  const { liteMode, setLiteMode } = usePilotProfile();
   const sgxId = useOptionalSgxIdentity();
+  const { isAdmin } = useAuth();
 
-  const { 
-    user, 
-    playerProfile,
-    isAdmin, 
-    isSuperAdmin, 
-    signInWithGoogle, 
-    logout, 
-    loading
-  } = useAuth();
-
-  // Close system menu on click outside
+  // Admin tools menu: click outside or Escape closes it; arrows move between items.
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (systemMenuRef.current && !systemMenuRef.current.contains(e.target as Node)) {
+    if (!isSystemMenuOpen) return;
+    const items = (): HTMLElement[] => Array.from(systemMenuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
+    const t = window.setTimeout(() => items()[0]?.focus(), 20);
+    const onDown = (e: MouseEvent) => {
+      if (systemMenuRef.current && !systemMenuRef.current.contains(e.target as Node)) setIsSystemMenuOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
         setIsSystemMenuOpen(false);
+        systemTriggerRef.current?.focus();
+        return;
       }
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      e.preventDefault();
+      const list = items();
+      const i = list.indexOf(document.activeElement as HTMLElement);
+      const next = e.key === 'ArrowDown' ? (i + 1) % list.length : (i - 1 + list.length) % list.length;
+      list[next]?.focus();
     };
-    if (isSystemMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isSystemMenuOpen]);
-
-  // Track active summit section from URL / events
-  useEffect(() => {
-    const updateFromUrl = () => {
-      const parsed = getAppRouteAndSectionFromUrl();
-      if (parsed.summitSection) {
-        setActiveSummitSection(parsed.summitSection);
-      } else if (parsed.page === 'summit') {
-        setActiveSummitSection('OVERVIEW');
-      }
-    };
-
-    updateFromUrl();
-    window.addEventListener('popstate', updateFromUrl);
-    window.addEventListener('hashchange', updateFromUrl);
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
     return () => {
-      window.removeEventListener('popstate', updateFromUrl);
-      window.removeEventListener('hashchange', updateFromUrl);
+      window.clearTimeout(t);
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
     };
-  }, []);
+  }, [isSystemMenuOpen]);
 
   useEffect(() => {
     const handleOpenDrawer = () => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } }));
@@ -203,399 +77,141 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   }, []);
 
   useEffect(() => {
-    const handleOpenMainMenu = () => setIsMobileMenuOpen(true);
+    const handleOpenMainMenu = () => setIsMenuOpen(true);
     window.addEventListener('sgx:open_main_menu', handleOpenMainMenu);
     return () => window.removeEventListener('sgx:open_main_menu', handleOpenMainMenu);
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isMobileMenuOpen) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isMobileMenuOpen]);
-
-  const handleDirectorySectionClick = (sectionKey: SummitSectionKey) => {
-    playUiChirp(700);
-    setIsMobileMenuOpen(false);
-    if (currentPage !== 'summit') {
-      onNavigate('summit');
-    }
-    setActiveSummitSection(sectionKey);
-    syncAppUrl({ page: 'summit', section: sectionKey, replace: false });
-    window.dispatchEvent(new CustomEvent('sgx:switch_summit_section', {
-      detail: { section: sectionKey }
-    }));
-  };
-
-  const handleDirectoryPageClick = (pageRoute: PageRoute) => {
-    playUiChirp(700);
-    setIsMobileMenuOpen(false);
-    onNavigate(pageRoute);
-  };
-
   const handleCopyCurrentURL = () => {
-    const fullUrl = window.location.href;
-    navigator.clipboard.writeText(fullUrl);
+    navigator.clipboard?.writeText(window.location.href).catch(() => {});
     setCopiedPath(true);
     playUiChirp(880);
     setTimeout(() => setCopiedPath(false), 2000);
   };
 
-  const displayName = playerProfile?.nickname || user?.displayName || (user && !user.isAnonymous ? user.email?.split('@')[0] : (es ? 'Invitado' : 'Guest'));
-  const userAvatar = playerProfile?.avatar || (user as any)?.photoURL;
-
-  // Identify current pillar config
-  const currentPillarId = tenant?.pillarId?.toUpperCase() || 'SGX.SYNTHESIZE';
-  const currentPillarMeta = PILLARS_CONFIG.find(p => p.id === currentPillarId) || PILLARS_CONFIG[5];
-
-  const handlePillarChange = (pillarId: string) => {
-    playUiChirp(780);
-    selectPillar(pillarId);
+  const handleToggleAudio = () => {
+    const muted = toggleAudioMute();
+    setIsAudioMuted(muted);
+    if (!muted) playUiChirp(840);
   };
 
-  // Dynamic Navigation Tabs filtered strictly by the Active SGX Pillar
-  const getPillarTabs = (pillarId: string): NavTabItem[] => {
-    switch (pillarId) {
-      case 'SGX.STORY':
-        return [
-          { id: 'summit_overview', label: (es ? 'INICIO' : 'HOME'), icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
-          { id: 'summit_pillars', label: (es ? 'MANIFIESTO & 6 PILARES' : 'MANIFESTO & 6 PILLARS'), icon: Layers, type: 'SUMMIT_SECTION', sectionKey: 'PILLARS_MANIFESTO', isActive: currentPage === 'summit' && activeSummitSection === 'PILLARS_MANIFESTO' },
-          { id: 'summit_speakers', label: 'SPEAKERS & LORE', icon: Users, type: 'SUMMIT_SECTION', sectionKey: 'SPEAKERS', isActive: currentPage === 'summit' && activeSummitSection === 'SPEAKERS' },
-          { id: 'summit_passport', label: 'SGX PASS & REACTOR', icon: Sparkles, type: 'ACTION', actionKey: 'open_passport', isActive: false },
-        ];
+  const closeMenu = () => setIsMenuOpen(false);
 
-      case 'SGX.STAGE':
-        return [
-          { id: 'summit_overview', label: (es ? 'INICIO' : 'HOME'), icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
-          { id: 'summit_agenda', label: 'RUN OF SHOW & AGENDA', icon: Calendar, type: 'SUMMIT_SECTION', sectionKey: 'AGENDA', isActive: currentPage === 'summit' && activeSummitSection === 'AGENDA' },
-          { id: 'summit_broadcast', label: (es ? 'SALAS DE TRANSMISIÓN' : 'BROADCAST ROOMS'), icon: Tv, type: 'SUMMIT_SECTION', sectionKey: 'BROADCAST_ROOMS', isActive: currentPage === 'summit' && activeSummitSection === 'BROADCAST_ROOMS' },
-          { id: 'summit_speakers', label: 'SPEAKERS', icon: Users, type: 'SUMMIT_SECTION', sectionKey: 'SPEAKERS', isActive: currentPage === 'summit' && activeSummitSection === 'SPEAKERS' },
-          { id: 'page_play', label: (es ? 'ARENA 3D EN VIVO' : 'LIVE 3D ARENA'), icon: Vote, type: 'PAGE', pageRoute: 'play', isActive: currentPage === 'play' },
-        ];
+  const systemItem = (label: string, Icon: typeof Sliders, run: () => void) => (
+    <button
+      type="button"
+      role="menuitem"
+      className="sgx-hdr__menuitem"
+      onClick={() => { setIsSystemMenuOpen(false); playUiChirp(720); run(); }}
+    >
+      <Icon aria-hidden />{label}
+    </button>
+  );
 
-      case 'SGX.SPARK':
-        return [
-          { id: 'summit_overview', label: (es ? 'INICIO' : 'HOME'), icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
-          { id: 'summit_drones', label: (es ? 'SIMULADOR DE DRONES 3D' : '3D DRONE SIMULATOR'), icon: Gamepad2, type: 'SUMMIT_SECTION', sectionKey: 'EMBEDS_GAMES', isActive: currentPage === 'summit' && activeSummitSection === 'EMBEDS_GAMES' },
-          { id: 'summit_match', label: 'SGX.MATCH', icon: Flame, type: 'SUMMIT_SECTION', sectionKey: 'ENTREPRENEUR_MATCH', isActive: currentPage === 'summit' && activeSummitSection === 'ENTREPRENEUR_MATCH' },
-          { id: 'page_play', label: (es ? 'ARENA 3D GAMIFICADA' : 'GAMIFIED 3D ARENA'), icon: Vote, type: 'PAGE', pageRoute: 'play', isActive: currentPage === 'play' },
-        ];
-
-      case 'SGX.SYSTEM':
-        return [
-          { id: 'summit_overview', label: (es ? 'INICIO' : 'HOME'), icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
-          { id: 'summit_guild', label: 'SGX GUILD INITIATES', icon: Award, type: 'SUMMIT_SECTION', sectionKey: 'GUILD', isActive: currentPage === 'summit' && activeSummitSection === 'GUILD' },
-          { id: 'page_play', label: (es ? 'TELEMETRÍA & ARENA 3D' : 'TELEMETRY & 3D ARENA'), icon: Vote, type: 'PAGE', pageRoute: 'play', isActive: currentPage === 'play' },
-        ];
-
-      case 'SGX.SHOWCASE':
-        return [
-          { id: 'summit_overview', label: (es ? 'INICIO' : 'HOME'), icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && activeSummitSection === 'OVERVIEW' },
-          { id: 'summit_map', label: (es ? 'RECORRIDO 360° CHROMA' : 'CHROMA 360° TOUR'), icon: Globe, type: 'SUMMIT_SECTION', sectionKey: 'MAP_360', isActive: currentPage === 'summit' && activeSummitSection === 'MAP_360' },
-          { id: 'summit_match', label: 'SGX.MATCH (PITCHING)', icon: Flame, type: 'SUMMIT_SECTION', sectionKey: 'ENTREPRENEUR_MATCH', isActive: currentPage === 'summit' && activeSummitSection === 'ENTREPRENEUR_MATCH' },
-          { id: 'summit_sponsors', label: (es ? 'PATROCINADORES & MARCAS' : 'SPONSORS & BRANDS'), icon: Building2, type: 'SUMMIT_SECTION', sectionKey: 'SPONSORS_HUB', isActive: currentPage === 'summit' && activeSummitSection === 'SPONSORS_HUB' },
-          { id: 'summit_credential', label: 'SGX PASS', icon: Award, type: 'SUMMIT_SECTION', sectionKey: 'CREDENTIAL_GENERATOR', isActive: currentPage === 'summit' && activeSummitSection === 'CREDENTIAL_GENERATOR' },
-          { id: 'summit_social', label: 'LIVE STREAM', icon: MessageSquare, type: 'SUMMIT_SECTION', sectionKey: 'SOCIAL_STREAM', isActive: currentPage === 'summit' && activeSummitSection === 'SOCIAL_STREAM' },
-        ];
-
-      case 'SGX.SYNTHESIZE':
-      default:
-        return [
-          { id: 'summit_overview', label: (es ? 'INICIO' : 'HOME'), icon: Compass, type: 'SUMMIT_SECTION', sectionKey: 'OVERVIEW', isActive: currentPage === 'summit' && (activeSummitSection === 'OVERVIEW' || !activeSummitSection) },
-          { id: 'summit_agenda', label: 'RUN OF SHOW', icon: Calendar, type: 'SUMMIT_SECTION', sectionKey: 'AGENDA', isActive: currentPage === 'summit' && activeSummitSection === 'AGENDA' },
-          { id: 'summit_pillars', label: (es ? '6 PILARES' : '6 PILLARS'), icon: Layers, type: 'SUMMIT_SECTION', sectionKey: 'PILLARS_MANIFESTO', isActive: currentPage === 'summit' && activeSummitSection === 'PILLARS_MANIFESTO' },
-          { id: 'summit_speakers', label: 'SPEAKERS', icon: Users, type: 'SUMMIT_SECTION', sectionKey: 'SPEAKERS', isActive: currentPage === 'summit' && activeSummitSection === 'SPEAKERS' },
-          { id: 'summit_match', label: 'SGX.MATCH', icon: Flame, type: 'SUMMIT_SECTION', sectionKey: 'ENTREPRENEUR_MATCH', isActive: currentPage === 'summit' && activeSummitSection === 'ENTREPRENEUR_MATCH' },
-          { id: 'summit_map', label: (es ? 'RECORRIDO 360°' : '360° TOUR'), icon: Globe, type: 'SUMMIT_SECTION', sectionKey: 'MAP_360', isActive: currentPage === 'summit' && activeSummitSection === 'MAP_360' },
-          { id: 'page_play', label: 'ARENA 3D', icon: Vote, type: 'PAGE', pageRoute: 'play', isActive: currentPage === 'play' },
-        ];
-    }
-  };
-
-  const primaryTabs: NavTabItem[] = [
-    ...getPillarTabs(tenant.pillarId),
-    ...(isAdmin ? [
-      { 
-        id: 'page_admin', 
-        label: 'DIRECTOR STUDIO', 
-        icon: ShieldCheck, 
-        type: 'PAGE' as const,
-        pageRoute: 'admin' as PageRoute,
-        isActive: currentPage === 'admin'
-      }
-    ] : [])
-  ];
-
-  const handleTabClick = (tab: NavTabItem) => {
-    playUiChirp(650);
-    setIsMobileMenuOpen(false);
-
-    if (tab.type === 'ACTION') {
-      if (tab.actionKey === 'open_passport') {
-        window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } }));
-      }
-    } else if (tab.type === 'PAGE') {
-      if (tab.pageRoute) {
-        onNavigate(tab.pageRoute);
-      }
-    } else if (tab.type === 'SUMMIT_SECTION') {
-      if (currentPage !== 'summit') {
-        onNavigate('summit');
-      }
-      setActiveSummitSection(tab.sectionKey || 'OVERVIEW');
-      syncAppUrl({ page: 'summit', section: tab.sectionKey, replace: false });
-      
-      // Dispatch global section switch
-      window.dispatchEvent(new CustomEvent('sgx:switch_summit_section', {
-        detail: { section: tab.sectionKey }
-      }));
-    }
-  };
-
-  const primaryColor = tenant.branding.primaryColor || '#FDCC0D';
-  const isSynthesize = currentPillarId === 'SGX.SYNTHESIZE';
+  const langSwitch = (extra = '') => (
+    <div className={`sgx-hdr__lang ${extra}`} role="group" aria-label={es ? 'Idioma' : 'Language'} data-tour="language-toggle">
+      <button type="button" aria-pressed={language === 'es'} onClick={() => setLanguage('es')} lang="es" title="Español">ES</button>
+      <button type="button" aria-pressed={language === 'en'} onClick={() => setLanguage('en')} lang="en" title="English">EN</button>
+    </div>
+  );
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[var(--sgx-bg)]/95 backdrop-blur-xl border-b px-3 sm:px-6 py-2 transition-colors duration-300 shadow-lg" style={{ borderColor: tenant.branding.borderColor }}>
-        <div className="max-w-[1750px] mx-auto flex items-center justify-between gap-2 sm:gap-4">
-          
-          {/* 1. Brand Logo & Title */}
-          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
-            <button 
-              data-tour="brand-logo"
-              onClick={() => {
-                playUiChirp(700);
-                if (currentPage !== 'summit') onNavigate('summit');
-                setActiveSummitSection('OVERVIEW');
-                syncAppUrl({ page: 'summit', section: 'OVERVIEW' });
-                window.dispatchEvent(new CustomEvent('sgx:switch_summit_section', {
-                  detail: { section: 'OVERVIEW' }
-                }));
-              }} 
-              className="flex items-center gap-1.5 sm:gap-2 hover:opacity-90 transition-opacity cursor-pointer text-left"
-            >
-              <img 
-                src="https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG" 
-                alt="Spatialgineers Logo" 
-                className="h-7 sm:h-8 w-auto max-w-[120px] object-contain overflow-hidden"
-              />
-              <img 
-                src="https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png" 
-                alt="Summit Icon Logo" 
-                className="h-6 sm:h-7 w-auto max-w-[44px] object-contain overflow-hidden"
-              />
-              <div className="hidden min-[1800px]:block">
-                <span className="font-extrabold text-xs tracking-wider text-white uppercase font-['Orbitron',sans-serif] block">
-                  SPATIALGINEERS SUMMIT 2026
-                </span>
-                <span 
-                  className="text-[9px] font-mono font-bold block -mt-0.5 tracking-wider uppercase"
-                  style={{ color: primaryColor }}
-                >
-                  LIVE ENGINE • PUERTO RICO
-                </span>
-              </div>
-            </button>
-          </div>
+      <header className="sgx-hdr">
+        <div className="sgx-hdr__inner">
+          <button
+            type="button"
+            data-tour="brand-logo"
+            className="sgx-hdr__brand"
+            onClick={() => {
+              playUiChirp(700);
+              if (currentPage !== 'summit') onNavigate('summit');
+              syncAppUrl({ page: 'summit', section: 'OVERVIEW' });
+              window.dispatchEvent(new CustomEvent('sgx:switch_summit_section', { detail: { section: 'OVERVIEW' } }));
+            }}
+            aria-label={es ? 'Spatialgineers Summit 2026: inicio' : 'Spatialgineers Summit 2026: home'}
+          >
+            <img src="https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG" alt="" className="sgx-hdr__logo" />
+            <img src="https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png" alt="" className="sgx-hdr__mark" />
+            <span className="sgx-hdr__brand-text">
+              <b>Spatialgineers Summit 2026</b>
+              <small>{es ? '11–13 dic · Puerto Rico' : 'Dec 11–13 · Puerto Rico'}</small>
+            </span>
+          </button>
 
-
-
-          {/* 2. The six SGX pillars, always one click away */}
-          <div className="hidden xl:flex flex-1 justify-center min-w-0">
+          {/* The six SGX pillars, always one click away */}
+          <div className="sgx-hdr__pillars">
             <HeaderPillarNav />
           </div>
 
-          {/* 3. Transient Sponsor Logo with 10s rotation and a sponsor call to action */}
-          <div className="hidden md:flex xl:hidden min-[1600px]:flex items-center shrink-0">
+          <div className="sgx-hdr__sponsor">
             <TransientSponsorSlot slotId="header_main" variant="compact" showSubtitleLink={true} />
           </div>
 
-          {/* 4. Fast Actions: Language + Registration CTA + System Popover + User Passport */}
-          <div className="flex items-center space-x-1.5 sm:space-x-2 font-mono shrink-0 min-w-0">
+          <div className="sgx-hdr__actions">
+            {langSwitch('sgx-hdr__wide')}
 
-            {/* Language Selector (ES | EN) */}
-            <div data-tour="language-toggle" className="hidden sm:flex items-center bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-0.5" style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}>
-              <button
-                onClick={() => setLanguage('es')}
-                className={`px-1.5 py-0.5 text-[10px] font-bold transition-all ${
-                  language === 'es' ? 'bg-[var(--sgx-neon)] text-black font-extrabold' : 'text-slate-400 hover:text-white'
-                }`}
-                title="Español"
-              >
-                ES
-              </button>
-              <button
-                onClick={() => setLanguage('en')}
-                className={`px-1.5 py-0.5 text-[10px] font-bold transition-all ${
-                  language === 'en' ? 'bg-[var(--sgx-neon)] text-black font-extrabold' : 'text-slate-400 hover:text-white'
-                }`}
-                title="English"
-              >
-                EN
-              </button>
-            </div>
-
-            {/* Master Audio Mute/Unmute Toggle */}
             <button
-              onClick={() => {
-                const muted = toggleAudioMute();
-                setIsAudioMuted(muted);
-                if (!muted) playUiChirp(840);
-              }}
-              className={`hidden sm:inline-flex p-1.5 text-[10px] font-bold transition-all cursor-pointer border ${
-                isAudioMuted
-                  ? 'bg-slate-900/90 border-slate-700 text-slate-500 hover:text-white'
-                  : 'bg-slate-900/90 border-cyan-500/50 text-cyan-300 hover:border-cyan-400'
-              }`}
-              style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title={isAudioMuted ? (es ? 'Activar efectos de sonido y ambiente espacial' : 'Turn on sound effects and spatial ambience') : (es ? 'Silenciar audio espacial (Mute SFX)' : 'Mute spatial audio (Mute SFX)')}
+              type="button"
+              className="sgx-iconbtn sgx-hdr__icon sgx-hdr__wide"
+              aria-pressed={!isAudioMuted}
+              onClick={handleToggleAudio}
+              aria-label={isAudioMuted ? (es ? 'Activar sonido' : 'Turn sound on') : (es ? 'Silenciar sonido' : 'Mute sound')}
+              title={isAudioMuted ? (es ? 'Activar sonido' : 'Turn sound on') : (es ? 'Silenciar sonido' : 'Mute sound')}
             >
-              {isAudioMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+              {isAudioMuted ? <VolumeX aria-hidden /> : <Volume2 aria-hidden />}
             </button>
 
-            {/* Lite Mode Toggle */}
             <button
-              onClick={() => {
-                playUiChirp(820);
-                setLiteMode(prev => !prev);
-              }}
-              className={`hidden sm:flex items-center space-x-1 px-2 py-1 text-[10px] font-bold transition-all cursor-pointer border ${
-                liteMode
-                  ? 'bg-amber-400 text-black border-amber-300 font-extrabold shadow-sm'
-                  : 'bg-slate-900/90 border-slate-700 hover:border-amber-400 text-amber-300'
-              }`}
-              style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title={liteMode ? (es ? 'Modo ligero activo: toca para volver a los efectos 3D' : 'Lite mode on: tap to go back to 3D effects') : (es ? 'Efectos 3D activos: toca para el modo ligero (ahorra batería)' : '3D effects on: tap for lite mode (saves battery)')}
+              type="button"
+              className="sgx-hdr__fx sgx-hdr__wide"
               aria-pressed={liteMode}
+              onClick={() => { playUiChirp(820); setLiteMode(prev => !prev); }}
+              title={liteMode ? (es ? 'Modo ligero activo: toca para volver a los efectos 3D' : 'Lite mode on: tap to go back to 3D effects') : (es ? 'Efectos 3D activos: toca para el modo ligero (ahorra batería)' : '3D effects on: tap for lite mode (saves battery)')}
             >
-              <Zap className={`w-3 h-3 ${liteMode ? 'fill-black' : 'text-amber-400'}`} />
-              <span>{liteMode ? (es ? 'LIGERO' : 'LITE') : 'FX'}</span>
+              <Zap aria-hidden />{liteMode ? (es ? 'Ligero' : 'Lite') : 'FX'}
             </button>
 
-            {/* System Utilities Popover (admin control plane: hidden for attendees) */}
+            {/* Admin tools (hidden for attendees) */}
             {isAdmin && (
-            <div className="relative" ref={systemMenuRef}>
-              <button
-                onClick={() => {
-                  playUiChirp(680);
-                  setIsSystemMenuOpen(!isSystemMenuOpen);
-                }}
-                className={`px-2 py-1 border transition-all cursor-pointer flex items-center space-x-1 text-xs font-mono font-bold ${
-                  isSystemMenuOpen 
-                    ? 'bg-cyan-500 text-black border-cyan-400' 
-                    : 'bg-[#111111] border-[#00DDFF]/50 text-[#00DDFF] hover:bg-[#00DDFF] hover:text-black'
-                }`}
-                style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-                title={es ? 'Herramientas del Sistema, Módulos y Admin' : 'System Tools, Modules and Admin'}
-              >
-                <Sliders className="w-3.5 h-3.5" />
-                <span className="hidden xl:inline text-[10px]">{es ? 'SISTEMA' : 'SYSTEM'}</span>
-              </button>
-
-              {isSystemMenuOpen && (
-                <div 
-                  className="absolute right-0 mt-2 w-56 bg-[#101010]/98 border-2 border-cyan-400 text-white shadow-2xl p-2 space-y-1 z-50 animate-fadeIn"
-                  style={{
-                    clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)',
-                    boxShadow: '0 0 25px rgba(0, 221, 255, 0.4)'
-                  }}
+              <div className="sgx-hdr__sys" ref={systemMenuRef}>
+                <button
+                  ref={systemTriggerRef}
+                  type="button"
+                  className="sgx-iconbtn sgx-hdr__icon"
+                  aria-haspopup="menu"
+                  aria-expanded={isSystemMenuOpen}
+                  aria-pressed={isSystemMenuOpen}
+                  onClick={() => { playUiChirp(680); setIsSystemMenuOpen(!isSystemMenuOpen); }}
+                  aria-label={es ? 'Herramientas de administración' : 'Admin tools'}
+                  title={es ? 'Herramientas de administración' : 'Admin tools'}
                 >
-                  <div className="px-2 py-1 text-[9px] font-mono text-cyan-300 uppercase tracking-wider border-b border-white/10 font-bold">
-                    {es ? 'Control Plane & Herramientas' : 'Control Plane & Tools'}
+                  <Sliders aria-hidden />
+                </button>
+                {isSystemMenuOpen && (
+                  <div className="sgx-hdr__menu" role="menu" aria-label={es ? 'Herramientas de administración' : 'Admin tools'}>
+                    <p className="sgx-kicker">{es ? 'Administración' : 'Admin'}</p>
+                    {systemItem(es ? 'Módulos y visibilidad' : 'Modules and visibility', Sliders, () => window.dispatchEvent(new CustomEvent('sgx:open_audit_modal')))}
+                    {systemItem(es ? 'Panel de administración' : 'Admin panel', ShieldCheck, () => onNavigate('admin'))}
+                    {systemItem(es ? 'Analíticas' : 'Analytics', BarChart3, () => window.dispatchEvent(new CustomEvent('sgx:open_analytics')))}
+                    {systemItem(es ? 'Mi SGX Pass' : 'My SGX Pass', Sparkles, () => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } })))}
+                    {systemItem(es ? 'Ser patrocinador' : 'Become a sponsor', Building2, () => window.dispatchEvent(new CustomEvent('sgx:open_sponsor_modal')))}
+                    {systemItem(liteMode ? (es ? 'Modo 3D completo' : 'Full 3D mode') : (es ? 'Modo ligero' : 'Lite mode'), Zap, () => setLiteMode(prev => !prev))}
                   </div>
-
-                  <button
-                    onClick={() => {
-                      setIsSystemMenuOpen(false);
-                      playUiChirp(720);
-                      window.dispatchEvent(new CustomEvent('sgx:open_audit_modal'));
-                    }}
-                    className="w-full text-left px-2.5 py-1.5 hover:bg-cyan-950/70 text-slate-200 hover:text-cyan-300 text-xs font-mono flex items-center space-x-2 transition-colors cursor-pointer"
-                  >
-                    <Sliders className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>{es ? 'Módulos & Visibilidad' : 'Modules & Visibility'}</span>
-                  </button>
-
-                  {isAdmin && (
-                    <button
-                      onClick={() => {
-                        setIsSystemMenuOpen(false);
-                        playUiChirp(720);
-                        onNavigate('admin');
-                      }}
-                      className="w-full text-left px-2.5 py-1.5 hover:bg-cyan-950/70 text-slate-200 hover:text-cyan-300 text-xs font-mono flex items-center space-x-2 transition-colors cursor-pointer"
-                    >
-                      <ShieldCheck className="w-3.5 h-3.5 text-[#FDCC0D]" />
-                      <span>Admin Control Panel</span>
-                    </button>
-                  )}
-
-                  <button
-                    onClick={() => {
-                      setIsSystemMenuOpen(false);
-                      playUiChirp(680);
-                      window.dispatchEvent(new CustomEvent('sgx:open_analytics'));
-                    }}
-                    className="w-full text-left px-2.5 py-1.5 hover:bg-cyan-950/70 text-slate-200 hover:text-cyan-300 text-xs font-mono flex items-center space-x-2 transition-colors cursor-pointer"
-                  >
-                    <BarChart3 className="w-3.5 h-3.5 text-[#FDCC0D]" />
-                    <span>{es ? 'Analíticas & Telemetría' : 'Analytics & Telemetry'}</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setIsSystemMenuOpen(false);
-                      playUiChirp(840);
-                      window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } }));
-                    }}
-                    className="w-full text-left px-2.5 py-1.5 hover:bg-cyan-950/70 text-cyan-300 hover:text-white text-xs font-mono flex items-center space-x-2 transition-colors cursor-pointer"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>{es ? 'Mi SGX Pass' : 'My SGX Pass'}</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setIsSystemMenuOpen(false);
-                      playUiChirp(650);
-                      window.dispatchEvent(new CustomEvent('sgx:open_sponsor_modal'));
-                    }}
-                    className="w-full text-left px-2.5 py-1.5 hover:bg-cyan-950/70 text-slate-200 hover:text-cyan-300 text-xs font-mono flex items-center space-x-2 transition-colors cursor-pointer"
-                  >
-                    <Building2 className="w-3.5 h-3.5 text-orange-400" />
-                    <span>{es ? 'Ser Patrocinador' : 'Become a Sponsor'}</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setIsSystemMenuOpen(false);
-                      playUiChirp(820);
-                      setLiteMode(prev => !prev);
-                    }}
-                    className="w-full text-left px-2.5 py-1.5 hover:bg-cyan-950/70 text-slate-200 hover:text-amber-300 text-xs font-mono flex items-center space-x-2 transition-colors cursor-pointer"
-                  >
-                    <Zap className={`w-3.5 h-3.5 ${liteMode ? 'text-amber-400 fill-amber-400' : 'text-slate-400'}`} />
-                    <span>{liteMode ? (es ? 'Modo 3D Completo' : 'Full 3D Mode') : (es ? 'Modo Ligero (Ahorro)' : 'Lite Mode (Saver)')}</span>
-                  </button>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
             )}
 
-            {/* SGX Pass chip: the one "me" button (pass, Hangar, XP). Unforged = Forge CTA. */}
+            {/* SGX Pass chip: the one "me" button (pass, Estudio, XP). Unforged = Forge CTA. */}
             <button
+              type="button"
               data-tour="user-passport-btn"
               onClick={() => {
                 playUiChirp(840);
                 window.dispatchEvent(new CustomEvent(sgxId?.isForged ? 'sgx:open_hangar' : 'sgx:open_forge', { detail: { tab: 'pass' } }));
               }}
               className={`sgx-passchip ${sgxId?.isForged ? '' : 'sgx-passchip--forge'}`}
-              title={sgxId?.isForged ? (es ? 'Abrir mi Estudio (SGX Pass, Reactor, Rolodex)' : 'Open my Studio (SGX Pass, Reactor, Rolodex)') : (es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass')}
+              title={sgxId?.isForged ? (es ? 'Abrir Tu Estudio (SGX Pass, Reactor, Rolodex)' : 'Open Your Studio (SGX Pass, Reactor, Rolodex)') : (es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass')}
             >
               <span className="sgx-passchip__face">
                 {sgxId?.identity.avatar.png ? (
@@ -615,151 +231,76 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                     <small>#{sgxId.identity.pass!.serial} · {sgxId.xpEarned.toLocaleString('es-PR')} XP</small>
                   </>
                 ) : (
-                  <b>{language === 'es' ? 'FORJAR PASE' : 'FORGE PASS'}</b>
+                  <b>{es ? 'FORJAR PASE' : 'FORGE PASS'}</b>
                 )}
               </span>
             </button>
 
-            {/* Share / Copy Link Button */}
             <button
+              type="button"
               data-tour="share-btn"
+              className="sgx-iconbtn sgx-hdr__icon sgx-hdr__wide"
               onClick={handleCopyCurrentURL}
-              className="hidden sm:inline-flex p-1.5 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] hover:border-[var(--sgx-neon)] text-[var(--sgx-neon)] transition-colors cursor-pointer"
-              style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title={es ? 'Copiar enlace directo' : 'Copy direct link'}
+              aria-label={copiedPath ? (es ? 'Enlace copiado' : 'Link copied') : (es ? 'Copiar enlace' : 'Copy link')}
+              title={es ? 'Copiar enlace' : 'Copy link'}
             >
-              {copiedPath ? <Check className="w-3.5 h-3.5 text-[#FDCC0D]" /> : <Share2 className="w-3.5 h-3.5" />}
+              {copiedPath ? <Check aria-hidden /> : <Share2 aria-hidden />}
             </button>
 
-            {/* Global Navigation Menu Trigger (Visible on Desktop Full Screen, Tablet, and Mobile) */}
             <button
-              onClick={() => {
-                playUiChirp(700);
-                setIsMobileMenuOpen(!isMobileMenuOpen);
-              }}
-              className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 bg-slate-900 hover:bg-[#32527B] border border-cyan-400/60 hover:border-cyan-300 text-white transition-all cursor-pointer text-xs font-mono font-bold shadow-sm"
-              style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-              title={es ? 'Abrir Directorio de Estaciones del Summit' : 'Open the Summit Stations Directory'}
+              type="button"
+              className="sgx-hdr__menubtn"
+              aria-haspopup="dialog"
+              aria-expanded={isMenuOpen}
+              onClick={() => { playUiChirp(700); setIsMenuOpen(!isMenuOpen); }}
             >
-              {isMobileMenuOpen ? (
-                <X className="w-4 h-4 text-cyan-300" />
-              ) : (
-                <Menu className="w-4 h-4 text-cyan-300" />
-              )}
-              <span className="font-extrabold uppercase tracking-wider text-[11px]">{es ? 'MENÚ' : 'MENU'}</span>
+              {isMenuOpen ? <X aria-hidden /> : <Menu aria-hidden />}
+              <span>{es ? 'Menú' : 'Menu'}</span>
             </button>
-
           </div>
-
         </div>
-
       </header>
 
-      {/* Global Navigation Directory Modal (Desktop Full Screen, Tablet, Mobile) */}
-      {isMobileMenuOpen && (
-        <div 
-          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-start sm:items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fadeIn"
-          onClick={() => setIsMobileMenuOpen(false)}
-        >
-          <div 
-            className="max-w-6xl w-full bg-[#111111] border border-[#FDCC0D]/60 p-4 sm:p-6 shadow-2xl relative space-y-6 my-auto text-slate-100 font-mono"
-            style={{ clipPath: 'polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-                  <h3 className="text-base sm:text-lg font-black text-white uppercase font-['Orbitron',sans-serif] tracking-wider">
-                    {es ? 'LOS 6 PILARES · SPATIALGINEERS SUMMIT 2026' : 'THE 6 PILLARS · SPATIALGINEERS SUMMIT 2026'}
-                  </h3>
-                </div>
-                <p className="text-xs text-slate-400">
-                  {es ? 'Todo el Summit vive dentro de los seis pilares del SGX Framework, en su orden oficial. Teclas 1 a 6.' : 'The whole Summit lives inside the six pillars of the SGX Framework, in their official order. Keys 1 to 6.'}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  playUiChirp(450);
-                  setIsMobileMenuOpen(false);
-                }}
-                className="p-1.5 bg-slate-900 hover:bg-red-950 border border-slate-700 hover:border-red-500 text-slate-300 hover:text-white transition-colors cursor-pointer"
-                title={es ? 'Cerrar menú (Esc)' : 'Close menu (Esc)'}
-              >
-                <X className="w-5 h-5" />
+      {/* Main menu: the whole event divided into the six SGX pillars (single source: lib/sgxPillars) */}
+      <SgxDialog
+        open={isMenuOpen}
+        onClose={() => { playUiChirp(450); closeMenu(); }}
+        size="lg"
+        accent="rgba(253, 204, 13, 0.6)"
+        className="sgx-dialog--fit sgx-hdr-dlg"
+        title={es ? 'Los 6 pilares' : 'The 6 pillars'}
+        kicker={es ? 'Todo el Summit vive dentro de los seis pilares del SGX Framework, en su orden oficial.' : 'The whole Summit lives inside the six pillars of the SGX Framework, in their official order.'}
+        footer={
+          <div className="sgx-hdr-dlg__foot">
+            <div className="sgx-hdr-dlg__quick">
+              <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => { closeMenu(); playUiChirp(880); window.dispatchEvent(new CustomEvent('sgx:open_tickets')); }}>
+                <Ticket aria-hidden />SGX Pass
+              </button>
+              <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={() => { closeMenu(); window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } })); }}>
+                <Sparkles aria-hidden />{es ? 'Tu Estudio' : 'Your Studio'}
+              </button>
+              {isAdmin && (
+                <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={() => { closeMenu(); window.dispatchEvent(new CustomEvent('sgx:open_audit_modal')); }}>
+                  <Sliders aria-hidden />{es ? 'Módulos' : 'Modules'}
+                </button>
+              )}
+            </div>
+            {/* On phones the header keeps only the pass chip and Menú; language, sound and link live here. */}
+            <div className="sgx-hdr-dlg__quick sgx-hdr__narrow">
+              {langSwitch()}
+              <button type="button" className="sgx-iconbtn" aria-pressed={!isAudioMuted} onClick={handleToggleAudio} aria-label={isAudioMuted ? (es ? 'Activar sonido' : 'Turn sound on') : (es ? 'Silenciar sonido' : 'Mute sound')}>
+                {isAudioMuted ? <VolumeX aria-hidden /> : <Volume2 aria-hidden />}
+              </button>
+              <button type="button" className="sgx-iconbtn" onClick={handleCopyCurrentURL} aria-label={copiedPath ? (es ? 'Enlace copiado' : 'Link copied') : (es ? 'Copiar enlace' : 'Copy link')}>
+                {copiedPath ? <Check aria-hidden /> : <Share2 aria-hidden />}
               </button>
             </div>
-
-            {/* The whole event divided into the six SGX pillars (single source: lib/sgxPillars) */}
-            <PillarDirectoryGrid onDone={() => setIsMobileMenuOpen(false)} />
-
-            {/* Quick Actions Footer */}
-            <div className="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
-              <div className="flex flex-wrap items-center gap-2">
-                {/* On phones the header keeps only the pass chip and MENÚ; language, sound and link live here. */}
-                <div className="sgx-seg sm:hidden" role="group" aria-label={es ? 'Idioma' : 'Language'}>
-                  <button type="button" className="sgx-btn sgx-btn--sm" aria-pressed={language === 'es'} onClick={() => setLanguage('es')}>ES</button>
-                  <button type="button" className="sgx-btn sgx-btn--sm" aria-pressed={language === 'en'} onClick={() => setLanguage('en')}>EN</button>
-                </div>
-                <button type="button" className="sgx-btn sgx-btn--sm sm:hidden" onClick={() => { const muted = toggleAudioMute(); setIsAudioMuted(muted); }}>
-                  {isAudioMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                </button>
-                <button type="button" className="sgx-btn sgx-btn--sm sm:hidden" onClick={handleCopyCurrentURL}>
-                  <Share2 className="w-3.5 h-3.5" /> {copiedPath ? (es ? 'Copiado' : 'Copied') : (es ? 'Enlace' : 'Link')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    playUiChirp(880);
-                    window.dispatchEvent(new CustomEvent('sgx:open_tickets'));
-                  }}
-                  className="px-3 py-1.5 bg-[#FDCC0D] hover:bg-yellow-300 text-black font-extrabold flex items-center gap-1 cursor-pointer"
-                  style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-                >
-                  <Ticket className="w-3.5 h-3.5 fill-black" />
-                  <span>SGX PASS</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } }));
-                  }}
-                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold flex items-center gap-1 cursor-pointer"
-                  style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>{es ? 'MI ESTUDIO' : 'MY STUDIO'}</span>
-                </button>
-                {isAdmin && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    window.dispatchEvent(new CustomEvent('sgx:open_audit_modal'));
-                  }}
-                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold flex items-center gap-1 cursor-pointer"
-                  style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-                >
-                  <Sliders className="w-3.5 h-3.5 text-[#FDCC0D]" />
-                  <span>{es ? 'GESTOR DE MÓDULOS' : 'MODULE MANAGER'}</span>
-                </button>
-                )}
-              </div>
-
-              <div className="text-slate-500 text-[11px]">
-                {es ? 'Pulsa ' : 'Press '}<kbd className="px-1 py-0.5 bg-slate-900 border border-slate-700 text-slate-300 rounded text-[10px]">ESC</kbd>{es ? ' para cerrar' : ' to close'}
-              </div>
-            </div>
-
+            <p className="sgx-fine sgx-hdr__wide">{es ? 'Esc para cerrar' : 'Esc to close'}</p>
           </div>
-        </div>
-      )}
-
+        }
+      >
+        <PillarDirectoryGrid onDone={closeMenu} />
+      </SgxDialog>
     </>
   );
 };
-

@@ -2,8 +2,8 @@ import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'rea
 import { useLanguage } from '../context/LanguageContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import {
-  PART_COUNTS, PART_NAMES, PILOT_SWATCHES, SHELL_SWATCHES,
-  pilotSvg, randomPilot, varyPilot, type PilotConfig, type PilotPart,
+  HAIR_CRESTS, HAIR_SWATCHES, PART_COUNTS, PART_NAMES, PILOT_SWATCHES, SHELL_SWATCHES,
+  normalizePilot, pilotSvg, randomPilot, varyPilot, type PilotConfig, type PilotPart,
 } from './pilotAvatar';
 
 // three.js only loads when someone opens the 3D view.
@@ -14,17 +14,23 @@ const SgxPilot3D = lazy(() => import('./SgxPilot3D').then((m) => ({ default: m.S
    "Sorpresa" rolls a whole new avatar and "Variar" nudges one or two parts. */
 
 type Tab = PilotPart | 'colors';
-const TABS: Tab[] = ['helmet', 'visor', 'eyes', 'crest', 'armor', 'emblem', 'pattern', 'colors'];
+const TABS: Tab[] = ['helmet', 'hair', 'visor', 'eyes', 'crest', 'armor', 'emblem', 'pattern', 'colors'];
 const TAB_LABEL: Record<Tab, [string, string]> = {
-  helmet: ['Cabeza', 'Head'], visor: ['Visor XR', 'XR headset'], eyes: ['Interfaz', 'Interface'], crest: ['Accesorio', 'Gear'],
+  helmet: ['Cabeza', 'Head'], hair: ['Cabello', 'Hair'], visor: ['Visor XR', 'XR headset'], eyes: ['Interfaz', 'Interface'], crest: ['Accesorio', 'Gear'],
   armor: ['Ropa', 'Outfit'], emblem: ['Emblema', 'Emblem'], pattern: ['Textura', 'Texture'], colors: ['Colores', 'Colors'],
 };
-const COLOR_ROWS: { key: 'primary' | 'secondary' | 'glow' | 'shell'; label: [string, string] }[] = [
-  { key: 'primary', label: ['Trazo y emblema', 'Trim and emblem'] },
-  { key: 'secondary', label: ['Detalles', 'Details'] },
-  { key: 'glow', label: ['Luz del visor', 'Visor light'] },
-  { key: 'shell', label: ['Visor y ropa', 'Headset and outfit'] },
+const COLOR_ROWS: { key: 'primary' | 'secondary' | 'glow' | 'shell' | 'hairColor'; label: [string, string]; swatches: string[] }[] = [
+  { key: 'primary', label: ['Trazo y emblema', 'Trim and emblem'], swatches: PILOT_SWATCHES },
+  { key: 'secondary', label: ['Detalles', 'Details'], swatches: PILOT_SWATCHES },
+  { key: 'glow', label: ['Luz del visor', 'Visor light'], swatches: PILOT_SWATCHES },
+  { key: 'shell', label: ['Cabeza y ropa', 'Head and outfit'], swatches: SHELL_SWATCHES },
+  { key: 'hairColor', label: ['Cabello', 'Hair'], swatches: HAIR_SWATCHES },
 ];
+const HAIR_TONE_NAMES: Record<string, [string, string]> = {
+  '#121212': ['Negro', 'Black'], '#2E1D14': ['Castaño oscuro', 'Dark brown'], '#5A3622': ['Castaño', 'Brown'], '#8A4A24': ['Cobrizo', 'Auburn'],
+  '#B87000': ['Cobre SGX', 'SGX copper'], '#D9D4C7': ['Canoso', 'Silver gray'], '#FDCC0D': ['Amarillo SGX', 'SGX yellow'], '#00DDFF': ['Cian SGX', 'SGX cyan'],
+  '#5D86C6': ['Azul SGX', 'SGX blue'], '#FFF9E2': ['Platino', 'Platinum'],
+};
 
 interface Props {
   value: PilotConfig;
@@ -40,7 +46,9 @@ const Svg: React.FC<{ c: PilotConfig; size: number; className?: string; animate?
   return <span className={className} style={{ display: 'block', width: size, height: size * 1.2, lineHeight: 0 }} dangerouslySetInnerHTML={{ __html: html }} />;
 };
 
-export const PilotBuilder: React.FC<Props> = ({ value, onChange, accent, callsign, compact = false }) => {
+export const PilotBuilder: React.FC<Props> = ({ value: raw, onChange, accent, callsign, compact = false }) => {
+  // avatars saved before a part existed (hair) get its default here
+  const value = useMemo(() => normalizePilot(raw, accent) || raw, [raw, accent]);
   const { language } = useLanguage();
   const es = language === 'es';
   const L = (pair: [string, string]) => pair[es ? 0 : 1];
@@ -61,9 +69,16 @@ export const PilotBuilder: React.FC<Props> = ({ value, onChange, accent, callsig
     setCanUndo(history.current.length > 0);
     if (prev) { playUiChirp(420); onChange(prev); }
   };
+  // a hairstyle and a hair-like accessory (mohawk, spikes) never stack: the newest wins
+  const withPart = (part: PilotPart, i: number): PilotConfig => {
+    const next = { ...value, [part]: i };
+    if (part === 'hair' && i && HAIR_CRESTS.includes(next.crest)) next.crest = 0;
+    if (part === 'crest' && HAIR_CRESTS.includes(i)) next.hair = 0;
+    return next;
+  };
   const step = (part: PilotPart, dir: 1 | -1) => {
     const n = PART_COUNTS[part];
-    set({ ...value, [part]: (value[part] + dir + n) % n });
+    set(withPart(part, (value[part] + dir + n) % n));
   };
   const surprise = () => {
     setRolling(true);
@@ -136,9 +151,9 @@ export const PilotBuilder: React.FC<Props> = ({ value, onChange, accent, callsig
                   aria-selected={value[tab] === i}
                   title={PART_NAMES[tab][es ? 'es' : 'en'][i]}
                   className={value[tab] === i ? 'is-on' : ''}
-                  onClick={() => set({ ...value, [tab]: i })}
+                  onClick={() => set(withPart(tab, i))}
                 >
-                  <Svg c={{ ...value, [tab]: i }} size={thumbSize} />
+                  <Svg c={withPart(tab, i)} size={thumbSize} />
                   <span>{PART_NAMES[tab][es ? 'es' : 'en'][i]}</span>
                 </button>
               ))}
@@ -150,13 +165,14 @@ export const PilotBuilder: React.FC<Props> = ({ value, onChange, accent, callsig
               <div key={row.key} className="sgx-pilotb__colorrow">
                 <span className="sgx-pilotb__colorlabel">{L(row.label)}</span>
                 <div className="sgx-pilotb__swatches">
-                  {(row.key === 'shell' ? SHELL_SWATCHES : PILOT_SWATCHES).map((hex) => (
+                  {row.swatches.map((hex) => (
                     <button
                       key={hex}
                       type="button"
                       className={value[row.key].toUpperCase() === hex.toUpperCase() ? 'is-on' : ''}
                       style={{ background: hex }}
-                      aria-label={hex}
+                      aria-label={row.key === 'hairColor' && HAIR_TONE_NAMES[hex] ? L(HAIR_TONE_NAMES[hex]) : hex}
+                      aria-pressed={value[row.key].toUpperCase() === hex.toUpperCase()}
                       onClick={() => set({ ...value, [row.key]: hex })}
                     />
                   ))}

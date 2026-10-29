@@ -99,7 +99,9 @@
   @media (max-width: 1100px) { .sgx-clockbar__info { display: none; } }
   @media (max-width: 640px) {
     .sgx-clockbar { gap: 8px; padding: 6px 6px 6px 10px; }
-    .sgx-clockbar__who, .sgx-clockbar__caps { display: none; }
+    .sgx-clockbar__who { display: none; }
+    .sgx-clockbar__caps { padding: 0 10px; }
+    .sgx-clockbar__caps span { display: none; }
     .sgx-clockbar__dials { flex: 1; justify-content: space-between; }
     .sgx-clockbar__dial { padding-right: 6px; gap: 3px; }
     .sgx-clockbar__dial small { font-size: 8px; }

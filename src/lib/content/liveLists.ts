@@ -103,19 +103,19 @@ export const DEFAULT_CAPSULES: WeeklyCapsule[] = [
     dateRange: 'Semana 1 · 25 Oct - 31 Oct',
     dateRangeEn: 'Week 1 · Oct 25 - Oct 31',
     unlockDate: '2026-10-25T00:00:00-04:00',
-    title: 'Cápsula Alpha: El Manifiesto SGX y el Origen Cuántico',
-    titleEn: 'Alpha Capsule: The SGX Manifesto and the Quantum Origin',
+    title: 'Cápsula Alpha: El Manifiesto SGX',
+    titleEn: 'Alpha Capsule: The SGX Manifesto',
     category: 'LORE',
     badgeColor: '#FDCC0D',
     isUnlockedDefault: false,
     xpReward: 30,
     summary: 'La génesis de la computación espacial en el Caribe y el manifiesto de soberanía creativa.',
     summaryEn: 'The genesis of spatial computing in the Caribbean and the manifesto of creative sovereignty.',
-    fullTransmission: `TRANSMISIÓN INTERCEPTADA // FRECUENCIA SGX-432Hz:
+    fullTransmission: `MANIFIESTO SGX:
 "En 2026, Puerto Rico no es un espectador de la revolución espacial; es su laboratorio. El Spatialgineers Summit regresa del 11 al 13 de diciembre: dos días digitales por YouTube Live y el SGX Showcase del Día 3, híbrido y por invitación. Unimos la ingeniería de software con la producción virtual para crear eventos donde la audiencia es co-directora.
 
-El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre los mundos físicos de fibra óptica y los archipiélagos virtuales de Roblox."`,
-    fullTransmissionEn: 'INTERCEPTED TRANSMISSION // FREQUENCY SGX-432Hz:\n"In 2026, Puerto Rico isn\'t a spectator of the spatial revolution; it\'s its lab. The Spatialgineers Summit returns December 11 to 13: two digital days on YouTube Live and the Day 3 SGX Showcase, hybrid and by invitation. We bring software engineering and virtual production together to create events where the audience is co-director.\n\nThe Spatialgineers 3D Core isn\'t just a visualizer; it\'s a bridge between the physical worlds of fiber optics and the virtual archipelagos of Roblox."',
+El Núcleo 3D de Spatialgineers no es solo un visualizador; es la puerta de entrada a todo el Summit: la agenda, los seis pilares, el mundo de Roblox y el Día 3 en Chroma."`,
+    fullTransmissionEn: 'SGX MANIFESTO:\n"In 2026, Puerto Rico isn\'t a spectator of the spatial revolution; it\'s its lab. The Spatialgineers Summit returns December 11 to 13: two digital days on YouTube Live and the Day 3 SGX Showcase, hybrid and by invitation. We bring software engineering and virtual production together to create events where the audience is co-director.\n\nThe Spatialgineers 3D Core isn\'t just a visualizer; it\'s the front door to the whole Summit: the agenda, the six pillars, the Roblox world and Day 3 at Chroma."',
     relatedSectionKey: 'PILLARS_MANIFESTO',
     relatedActionLabel: 'Ver Manifiesto 6 Pilares',
     relatedActionLabelEn: 'View the 6 Pillars Manifesto',
@@ -228,13 +228,12 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     xpReward: 50,
     summary: 'Desbloqueo final antes del Día 1: insignia del SGX Pass y la escalera de premios del Summit.',
     summaryEn: 'The final unlock before Day 1: the SGX Pass badge and the Summit prize ladder.',
-    fullTransmission: `SECUENCIA FINAL // LANZAMIENTO GLOBAL:
+    fullTransmission: `CUENTA FINAL:
 • 11 de diciembre de 2026 · 10:00 AM AST: apertura por YouTube Live.
 • 12 de diciembre: Día de la Industria por YouTube Live.
 • 13 de diciembre: SGX Showcase en Chroma Space Studios (por invitación).
-• Premios: cupón de descuento de un auspiciador, suscripción de 3 meses a nuestras plataformas, sesión "Grit" con artistas (por confirmar) y el premio mayor "Spatialgineers activa tu evento".
-• Los creadores que desbloquearon las 6 cápsulas reciben la Insignia Legendaria "Pionero Cuántico" en su SGX Pass.`,
-    fullTransmissionEn: 'FINAL SEQUENCE // GLOBAL LAUNCH:\n• December 11, 2026 · 10:00 AM AST: opening on YouTube Live.\n• December 12: Industry Day on YouTube Live.\n• December 13: SGX Showcase at Chroma Space Studios (by invitation).\n• Prizes: a sponsor discount coupon, a 3-month subscription to our platforms, a "Grit" session with artists (TBC) and the grand prize "Spatialgineers activa tu evento" (Spatialgineers activates your event).\n• Pilots who unlocked all 6 capsules get the Legendary "Quantum Pioneer" Badge on their SGX Pass.',
+• Premios: cupón de descuento de un auspiciador, suscripción de 3 meses a nuestras plataformas, sesión "Grit" con artistas (por confirmar) y el premio mayor "Spatialgineers activa tu evento".`,
+    fullTransmissionEn: 'FINAL COUNTDOWN:\n• December 11, 2026 · 10:00 AM AST: opening on YouTube Live.\n• December 12: Industry Day on YouTube Live.\n• December 13: SGX Showcase at Chroma Space Studios (by invitation).\n• Prizes: a sponsor discount coupon, a 3-month subscription to our platforms, a "Grit" session with artists (TBC) and the grand prize "Spatialgineers activa tu evento" (Spatialgineers activates your event).',
     relatedSectionKey: 'OVERVIEW',
     relatedActionLabel: 'Ver mi SGX Pass',
     relatedActionLabelEn: 'View my SGX Pass',

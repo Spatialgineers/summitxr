@@ -67,7 +67,7 @@ export const SgxClocksBanner: React.FC<Props> = ({ es, countdown, youtubeUrl, on
         })}
       </div>
       {onOpenTimeCapsules && (
-        <button type="button" className="sgx-clockbar__caps" onClick={() => { playUiChirp(820); onOpenTimeCapsules(); }}>
+        <button type="button" className="sgx-clockbar__caps" aria-label={es ? 'Cápsulas y retos' : 'Capsules and challenges'} onClick={() => { playUiChirp(820); onOpenTimeCapsules(); }}>
           <span>{es ? 'Cápsulas & retos' : 'Capsules & challenges'}</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>

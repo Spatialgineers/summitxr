@@ -1,938 +1,562 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Gamepad2, 
-  ExternalLink, 
-  Code2, 
-  Eye, 
-  Play, 
-  Layers, 
-  Sparkles, 
-  Globe, 
-  Maximize2, 
-  Minimize2,
-  Share2,
-  Tv,
-  Box,
-  Compass,
-  Plus,
-  RefreshCw,
-  Trash2,
-  Edit3,
-  Check,
-  AlertCircle,
-  X,
-  Radio,
-  FileCode,
-  Laptop,
-  CheckCircle2
-} from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ChevronRight, ExternalLink, Maximize2, Pencil, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { EmbedWidget, EmbedCategory } from '../../types/summit';
 import { SummitDroneMiniGame } from './SummitDroneMiniGame';
+import { EmbedArt, EmbedArtKind } from './EmbedArt';
+import { SgxDialog } from '../common/SgxDialog';
 import { saveAllEmbedWidgets, loadAllEmbedWidgets } from '../../lib/summitData';
+import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { loc } from '../../lib/localize';
+import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
+import './SummitEmbedsHub.css';
 
 interface SummitEmbedsHubProps {
   embeds?: EmbedWidget[];
   onOpenCreateEmbedModal?: () => void;
 }
 
-// Utility to convert user links into embed-ready iframe URLs
+/** How an embed is shown: native React game, sandboxed HTML, framed site, link out, or not published yet. */
+type EmbedMode = 'native' | 'code' | 'frame' | 'link' | 'soon';
+
+const NATIVE_GAMES = new Set(['embed_drone_game']);
+// Sites that refuse to be framed (X-Frame-Options / frame-ancestors) open in a new tab instead.
+const NO_FRAME_HOSTS = /(^|\.)(roblox\.com|instagram\.com|tiktok\.com|x\.com|twitter\.com|facebook\.com|linkedin\.com|github\.com)$/i;
+const IFRAME_SNIPPET = /^\s*<iframe\b[^>]*\ssrc\s*=\s*["']([^"']+)["'][^>]*>\s*(<\/iframe>)?\s*$/i;
+// Admin HTML runs with scripts only: no same-origin, so it cannot reach the Summit page, storage or session.
+const CODE_SANDBOX = 'allow-scripts';
+const CODE_ALLOW = 'autoplay; fullscreen';
+const FRAME_ALLOW = 'autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-write; xr-spatial-tracking; accelerometer; gyroscope';
+
+const SEED_ART: Record<string, EmbedArtKind> = {
+  embed_drone_game: 'drone', embed_youtube_stream: 'stream', embed_shader_lab: 'shader',
+  embed_cyber_synth: 'synth', embed_roblox_world: 'world', embed_whiteboard: 'board',
+};
+const CATEGORY_ART: Record<EmbedCategory, EmbedArtKind> = {
+  MINI_GAME: 'game', METAVERSE_ROBLOX: 'world', WEBGL_XR: 'shader', WEBAPP: 'board', STREAM_VIDEO: 'stream', CUSTOM_CODE: 'code',
+};
+const CATEGORY_LABEL: Record<EmbedCategory, { es: string; en: string }> = {
+  MINI_GAME: { es: 'Minijuego', en: 'Mini-game' },
+  METAVERSE_ROBLOX: { es: 'Mundo virtual', en: 'Virtual world' },
+  WEBGL_XR: { es: '3D / XR', en: '3D / XR' },
+  WEBAPP: { es: 'Herramienta', en: 'Tool' },
+  STREAM_VIDEO: { es: 'Transmisión', en: 'Stream' },
+  CUSTOM_CODE: { es: 'Laboratorio', en: 'Lab' },
+};
+const CATEGORY_ORDER: EmbedCategory[] = ['MINI_GAME', 'CUSTOM_CODE', 'WEBGL_XR', 'STREAM_VIDEO', 'METAVERSE_ROBLOX', 'WEBAPP'];
+
+// Turns a pasted link into an embed-ready iframe URL (YouTube, Vimeo, Google Docs).
 function parseEmbedUrl(url: string): string {
-  if (!url) return '';
-  const trimmed = url.trim();
-
-  // YouTube standard watch: youtube.com/watch?v=ID
-  const ytWatchMatch = trimmed.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/live\/)([a-zA-Z0-9_-]{11})/i);
-  if (ytWatchMatch && ytWatchMatch[1]) {
-    return `https://www.youtube-nocookie.com/embed/${ytWatchMatch[1]}?autoplay=1&rel=0&enablejsapi=1`;
-  }
-
-  // Vimeo: vimeo.com/ID
-  const vimeoMatch = trimmed.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+)/i);
-  if (vimeoMatch && vimeoMatch[3]) {
-    return `https://player.vimeo.com/video/${vimeoMatch[3]}`;
-  }
-
-  // Spline 3D: my.spline.design/ID
-  if (trimmed.includes('my.spline.design')) {
-    return trimmed;
-  }
-
-  // Google Docs / Sheets / Slides preview
-  if (trimmed.includes('docs.google.com') && !trimmed.includes('/preview') && !trimmed.includes('/embed')) {
-    return trimmed.replace(/\/edit.*$/, '/preview');
-  }
-
-  // If already full URL, return
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-    return trimmed;
-  }
-
+  const trimmed = (url || '').trim();
+  if (!trimmed) return '';
+  const yt = trimmed.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/live\/)([a-zA-Z0-9_-]{11})/i);
+  if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}?rel=0`;
+  const vimeo = trimmed.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+)/i);
+  if (vimeo && vimeo[3]) return `https://player.vimeo.com/video/${vimeo[3]}`;
+  if (trimmed.includes('docs.google.com') && !trimmed.includes('/preview') && !trimmed.includes('/embed')) return trimmed.replace(/\/edit.*$/, '/preview');
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
   return `https://${trimmed}`;
 }
 
-export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({
-  embeds: initialEmbedsProp,
-}) => {
+function hostOf(url: string): string {
+  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return ''; }
+}
+
+function sourceOf(e: EmbedWidget): string {
+  return (e.embedUrl || e.externalUrl || '').trim();
+}
+
+function embedMode(e: EmbedWidget): EmbedMode {
+  if (NATIVE_GAMES.has(e.id)) return 'native';
+  if (e.customCode?.trim()) return 'code';
+  const raw = sourceOf(e);
+  if (!raw) return 'soon';
+  const url = parseEmbedUrl(raw);
+  const host = hostOf(url);
+  if (!host || NO_FRAME_HOSTS.test(host)) return 'link';
+  // YouTube only frames single videos and live ids, not channel pages.
+  if (/(^|\.)(youtube\.com|youtube-nocookie\.com|youtu\.be)$/.test(host) && !url.includes('/embed/')) return 'link';
+  return 'frame';
+}
+
+/** Third-party sites keep their own origin (storage, login); our own origin never gets it with scripts. */
+function frameSandbox(url: string): string {
+  let sameOrigin = true;
+  try { sameOrigin = new URL(url, window.location.href).origin === window.location.origin; } catch { /* keep strict */ }
+  return `allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation allow-downloads${sameOrigin ? '' : ' allow-same-origin'}`;
+}
+
+/** Sandboxed pages read <html lang> to show their own labels in the visitor's language. */
+function withLang(code: string, language: string): string {
+  return code.replace(/<html(?![^>]*\blang=)/i, `<html lang="${language}"`);
+}
+
+function linkLabel(url: string, es: boolean): string {
+  const host = hostOf(url);
+  if (/youtube|youtu\.be/.test(host)) return es ? 'Abrir en YouTube' : 'Open on YouTube';
+  if (/roblox/.test(host)) return es ? 'Abrir en Roblox' : 'Open in Roblox';
+  return es ? `Abrir ${host}` : `Open ${host}`;
+}
+
+function statusText(mode: EmbedMode, e: EmbedWidget, es: boolean, short: boolean): string {
+  switch (mode) {
+    case 'native': return short ? (es ? 'Nativo' : 'Native') : (es ? 'Nativo · se juega aquí' : 'Native · plays here');
+    case 'code': return short ? 'Sandbox' : (es ? 'Sandbox · corre en tu navegador' : 'Sandbox · runs in your browser');
+    case 'frame': return short ? (es ? 'Embebido' : 'Embedded') : `${es ? 'Embebido' : 'Embedded'} · ${hostOf(parseEmbedUrl(sourceOf(e)))}`;
+    case 'link': return short ? (es ? 'Externo' : 'External') : (es ? 'Externo · abre en pestaña nueva' : 'External · opens in a new tab');
+    default: return es ? 'Próximamente' : 'Coming soon';
+  }
+}
+
+const Thumb: React.FC<{ embed: EmbedWidget; className?: string }> = ({ embed, className }) => {
+  const seedArt = SEED_ART[embed.id];
+  if (!seedArt && embed.thumbnailUrl) return <img src={embed.thumbnailUrl} alt="" className={className} loading="lazy" />;
+  return <EmbedArt kind={seedArt || CATEGORY_ART[embed.category] || 'code'} className={className} />;
+};
+
+interface EmbedForm {
+  title: string;
+  titleEn: string;
+  category: EmbedCategory;
+  embedType: 'URL' | 'CODE';
+  sourceValue: string;
+  description: string;
+  descriptionEn: string;
+  author: string;
+  tags: string;
+}
+
+const BLANK_FORM: EmbedForm = {
+  title: '', titleEn: '', category: 'WEBAPP', embedType: 'URL', sourceValue: '',
+  description: '', descriptionEn: '', author: 'Spatialgineers', tags: '',
+};
+
+export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({ embeds: initialEmbedsProp }) => {
   const { language } = useLanguage();
   const { isAdmin } = useAuth();
   const es = language === 'es';
+  const stageRef = useRef<HTMLElement | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
+
   const [embedList, setEmbedList] = useState<EmbedWidget[]>(() => {
-    try {
-      const saved = loadAllEmbedWidgets();
-      if (saved && saved.length > 0) return saved;
-    } catch {}
-    return initialEmbedsProp && initialEmbedsProp.length > 0 ? initialEmbedsProp : [];
+    const saved = loadAllEmbedWidgets();
+    if (saved.length > 0) return saved;
+    return initialEmbedsProp ?? [];
   });
 
   // Published CMS changes arrive through the shared 'storage' refresh.
   useEffect(() => {
     const onStorage = () => {
       const saved = loadAllEmbedWidgets();
-      if (saved && saved.length > 0) setEmbedList(saved);
+      if (saved.length > 0) setEmbedList(saved);
     };
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  const [selectedEmbedId, setSelectedEmbedId] = useState<string>(() => embedList[0]?.id || 'embed_drone_game');
-  const [selectedCategory, setSelectedCategory] = useState<EmbedCategory | 'ALL'>('ALL');
-  const [iframeKey, setIframeKey] = useState<number>(0);
-  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-  const [heightMode, setHeightMode] = useState<'STANDARD' | 'EXPANDED' | 'CINEMATIC'>('EXPANDED');
-  const [copiedToast, setCopiedToast] = useState<boolean>(false);
+  const [selectedId, setSelectedId] = useState<string>(() => embedList[0]?.id || 'embed_drone_game');
+  const [filter, setFilter] = useState<EmbedCategory | 'ALL'>('ALL');
+  const [frameKey, setFrameKey] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Modal State for Adding / Editing Custom App
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [editingEmbedId, setEditingEmbedId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<{
-    title: string;
-    category: EmbedCategory;
-    embedType: 'URL' | 'CODE';
-    sourceValue: string;
-    description: string;
-    author: string;
-    tags: string;
-  }>({
-    title: '',
-    category: 'WEBAPP',
-    embedType: 'URL',
-    sourceValue: '',
-    description: '',
-    author: 'Spatialgineer Dev',
-    tags: 'WebApp, Spatial, Interactive'
-  });
-  const [modalPreviewTab, setModalPreviewTab] = useState<'FORM' | 'PREVIEW'>('FORM');
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState<EmbedForm>(BLANK_FORM);
+  const [formTab, setFormTab] = useState<'FORM' | 'PREVIEW'>('FORM');
 
-  // Keep selectedEmbed valid
-  const activeEmbed = embedList.find(e => e.id === selectedEmbedId) || embedList[0];
+  const active = embedList.find((e) => e.id === selectedId) || embedList[0];
+  const activeMode = active ? embedMode(active) : 'soon';
+  const activeTitle = active ? loc(active, 'title', language) : '';
+  const categories = CATEGORY_ORDER.filter((c) => embedList.some((e) => e.category === c));
+  const visible = embedList.filter((e) => filter === 'ALL' || e.category === filter);
+  const accent = PILLAR_ACCENT.SPARK;
+  const canExpand = activeMode === 'native' || activeMode === 'code' || activeMode === 'frame';
 
-  const filteredEmbeds = embedList.filter(e => {
-    if (selectedCategory !== 'ALL' && e.category !== selectedCategory) return false;
-    return true;
-  });
-
-  const handleReloadIframe = () => {
-    setIframeKey(prev => prev + 1);
+  const selectEmbed = (id: string) => {
+    setSelectedId(id);
+    setFrameKey((k) => k + 1);
+    stageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const handleCopyLink = () => {
-    const url = activeEmbed?.embedUrl || activeEmbed?.externalUrl || window.location.href;
-    navigator.clipboard?.writeText(url);
-    setCopiedToast(true);
-    setTimeout(() => setCopiedToast(false), 2500);
+  const openAddForm = () => {
+    setEditingId(null);
+    setForm(BLANK_FORM);
+    setFormTab('FORM');
+    setIsFormOpen(true);
   };
 
-  const handleOpenAddModal = () => {
-    setEditingEmbedId(null);
-    setFormData({
-      title: '',
-      category: 'WEBAPP',
-      embedType: 'URL',
-      sourceValue: '',
-      description: '',
-      author: 'Spatialgineer Creator',
-      tags: 'WebApp, Tool, Interactive'
-    });
-    setModalPreviewTab('FORM');
-    setIsModalOpen(true);
-  };
-
-  const handleOpenEditModal = (emb: EmbedWidget) => {
-    setEditingEmbedId(emb.id);
-    const isCode = emb.embedType === 'CODE' || Boolean(emb.customCode);
-    setFormData({
+  const openEditForm = (emb: EmbedWidget) => {
+    const isCode = Boolean(emb.customCode);
+    setEditingId(emb.id);
+    setForm({
       title: emb.title,
+      titleEn: emb.titleEn || '',
       category: emb.category,
       embedType: isCode ? 'CODE' : 'URL',
-      sourceValue: isCode ? (emb.customCode || '') : (emb.embedUrl || emb.externalUrl || ''),
+      sourceValue: isCode ? (emb.customCode || '') : sourceOf(emb),
       description: emb.description || '',
-      author: emb.author || 'Spatialgineer Creator',
-      tags: (emb.tags || []).join(', ')
+      descriptionEn: emb.descriptionEn || '',
+      author: emb.author || '',
+      tags: (emb.tags || []).join(', '),
     });
-    setModalPreviewTab('FORM');
-    setIsModalOpen(true);
+    setFormTab('FORM');
+    setIsFormOpen(true);
   };
 
-  const handleDeleteEmbed = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (confirm((es ? '¿Estás seguro de que deseas eliminar esta aplicación integrada?' : 'Are you sure you want to remove this embedded app?'))) {
-      const updated = embedList.filter(item => item.id !== id);
-      setEmbedList(updated);
-      saveAllEmbedWidgets(updated);
-      if (selectedEmbedId === id && updated.length > 0) {
-        setSelectedEmbedId(updated[0].id);
-      }
-    }
+  const deleteEmbed = (id: string) => {
+    if (!confirm(es ? '¿Eliminar esta experiencia del hub?' : 'Remove this experience from the hub?')) return;
+    const updated = embedList.filter((item) => item.id !== id);
+    setEmbedList(updated);
+    saveAllEmbedWidgets(updated);
+    if (selectedId === id && updated.length > 0) setSelectedId(updated[0].id);
   };
 
-  const handleSaveEmbed = (e: React.FormEvent) => {
+  const saveEmbed = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim() || !formData.sourceValue.trim()) return;
+    const source = form.sourceValue.trim();
+    if (!form.title.trim() || !source) return;
+    // A pasted <iframe src="…"> snippet is stored as a plain link so it is framed with the URL rules.
+    const snippetSrc = form.embedType === 'CODE' ? source.match(IFRAME_SNIPPET)?.[1] : undefined;
+    const isCode = form.embedType === 'CODE' && !snippetSrc;
+    const url = isCode ? undefined : (snippetSrc || source);
+    const tags = form.tags.split(',').map((t) => t.trim()).filter(Boolean);
+    const previous = embedList.find((item) => item.id === editingId);
 
-    const isCode = formData.embedType === 'CODE' || formData.sourceValue.includes('<');
-    const tagsArray = formData.tags
-      .split(',')
-      .map(t => t.trim())
-      .filter(Boolean);
-
-    const parsedUrl = !isCode ? parseEmbedUrl(formData.sourceValue) : undefined;
-
-    const newWidget: EmbedWidget = {
-      id: editingEmbedId || `custom_embed_${Date.now()}`,
-      title: formData.title.trim(),
-      category: formData.category,
+    const widget: EmbedWidget = {
+      id: editingId || `custom_embed_${Date.now()}`,
+      title: form.title.trim(),
+      titleEn: form.titleEn.trim() || undefined,
+      category: form.category,
       embedType: isCode ? 'CODE' : 'URL',
-      description: formData.description.trim() || (es ? 'Aplicación integrada personalizada en Spatialgineers Summit.' : 'Custom app embedded in the Spatialgineers Summit.'),
-      thumbnailUrl: '',
-      embedUrl: isCode ? undefined : parsedUrl,
-      externalUrl: isCode ? undefined : formData.sourceValue.trim(),
-      customCode: isCode ? formData.sourceValue.trim() : undefined,
-      author: formData.author.trim() || 'Custom Developer',
-      tags: tagsArray.length > 0 ? tagsArray : ['Custom', 'App'],
-      rating: 5.0,
-      featured: true,
-      isCustomUserApp: true
+      description: form.description.trim(),
+      descriptionEn: form.descriptionEn.trim() || undefined,
+      thumbnailUrl: previous?.thumbnailUrl || '',
+      embedUrl: url ? parseEmbedUrl(url) : undefined,
+      externalUrl: url,
+      customCode: isCode ? source : undefined,
+      author: form.author.trim() || 'Spatialgineers',
+      tags,
+      isCustomUserApp: true,
     };
 
-    let updatedList: EmbedWidget[];
-    if (editingEmbedId) {
-      updatedList = embedList.map(item => item.id === editingEmbedId ? newWidget : item);
-    } else {
-      updatedList = [newWidget, ...embedList];
-    }
-
-    setEmbedList(updatedList);
-    saveAllEmbedWidgets(updatedList);
-    setSelectedEmbedId(newWidget.id);
-    setIsModalOpen(false);
+    const updated = editingId ? embedList.map((item) => (item.id === editingId ? widget : item)) : [widget, ...embedList];
+    setEmbedList(updated);
+    saveAllEmbedWidgets(updated);
+    setSelectedId(widget.id);
+    setFrameKey((k) => k + 1);
+    setIsFormOpen(false);
   };
 
-  // Determine current active rendering source
-  const isCustomCode = activeEmbed?.embedType === 'CODE' || Boolean(activeEmbed?.customCode);
-  const activeUrl = !isCustomCode ? parseEmbedUrl(activeEmbed?.embedUrl || activeEmbed?.externalUrl || '') : '';
+  const submitForm = () => {
+    if (formTab !== 'FORM') {
+      setFormTab('FORM');
+      requestAnimationFrame(() => formRef.current?.requestSubmit());
+    } else formRef.current?.requestSubmit();
+  };
 
-  const containerHeightClasses = {
-    CINEMATIC: 'h-[480px] sm:h-[520px] lg:h-[560px]',
-    STANDARD: 'h-[520px] sm:h-[560px] lg:h-[600px]',
-    EXPANDED: 'h-[580px] sm:h-[640px] lg:h-[680px]',
-  }[heightMode];
+  const renderStage = (emb: EmbedWidget, mode: EmbedMode, where: 'inline' | 'full') => {
+    if (mode === 'native') return <SummitDroneMiniGame />;
+    if (mode === 'code') {
+      return (
+        <iframe
+          key={`code_${emb.id}_${frameKey}_${language}`}
+          srcDoc={withLang(emb.customCode || '', language)}
+          title={loc(emb, 'title', language)}
+          className="sgx-embeds__frame"
+          sandbox={CODE_SANDBOX}
+          allow={CODE_ALLOW}
+        />
+      );
+    }
+    if (mode === 'frame') {
+      const url = parseEmbedUrl(sourceOf(emb));
+      return (
+        <iframe
+          key={`url_${emb.id}_${frameKey}`}
+          src={url}
+          title={loc(emb, 'title', language)}
+          className="sgx-embeds__frame"
+          sandbox={frameSandbox(url)}
+          allow={FRAME_ALLOW}
+          allowFullScreen
+          loading={where === 'inline' ? 'lazy' : undefined}
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+      );
+    }
+    const href = emb.externalUrl || emb.embedUrl || '';
+    return (
+      <div className="sgx-embeds__away">
+        <Thumb embed={emb} className="sgx-embeds__away-art" />
+        <div className="sgx-embeds__away-copy">
+          <p className="sgx-embeds__kicker">{mode === 'soon' ? (es ? 'Próximamente' : 'Coming soon') : (es ? 'Vive en otro sitio' : 'Lives on another site')}</p>
+          <h3>{loc(emb, 'title', language)}</h3>
+          <p>{loc(emb, 'description', language)}</p>
+          {mode === 'link' ? (
+            <>
+              <p className="sgx-embeds__note">
+                {es ? `${hostOf(href)} no se puede mostrar dentro de esta página, así que se abre en una pestaña nueva.` : `${hostOf(href)} can't be shown inside this page, so it opens in a new tab.`}
+              </p>
+              <a className="sgx-btn" href={href} target="_blank" rel="noopener noreferrer">
+                {linkLabel(href, es)} <ExternalLink className="w-4 h-4" aria-hidden="true" />
+                <span className="sr-only">{es ? '(abre en pestaña nueva)' : '(opens in a new tab)'}</span>
+              </a>
+            </>
+          ) : (
+            <>
+              <p className="sgx-embeds__note">{es ? 'Anunciaremos el enlace en el canal de YouTube de Spatialgineers.' : 'We will announce the link on the Spatialgineers YouTube channel.'}</p>
+              <a className="sgx-btn sgx-btn--ground" href={SGX_YOUTUBE} target="_blank" rel="noopener noreferrer">
+                {es ? 'Seguir en YouTube' : 'Follow on YouTube'} <ExternalLink className="w-4 h-4" aria-hidden="true" />
+                <span className="sr-only">{es ? '(abre en pestaña nueva)' : '(opens in a new tab)'}</span>
+              </a>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const crumbs = (
+    <>
+      <span>SGX.Spark</span>
+      <ChevronRight className="w-3 h-3" aria-hidden="true" />
+      <span>{es ? 'Juegos y laboratorios' : 'Games & labs'}</span>
+      <ChevronRight className="w-3 h-3" aria-hidden="true" />
+    </>
+  );
+
+  const formSource = form.sourceValue.trim();
+  const formSnippet = formSource.match(IFRAME_SNIPPET)?.[1];
+  const formPreview: EmbedWidget = {
+    id: 'preview', title: form.title || (es ? 'Vista previa' : 'Preview'), category: form.category, description: form.description,
+    thumbnailUrl: '', author: form.author, tags: [],
+    ...(form.embedType === 'CODE' && !formSnippet ? { customCode: formSource } : { embedUrl: formSnippet || formSource }),
+  };
+  const formPreviewMode = formSource ? embedMode(formPreview) : null;
+
+  if (!active) return null;
 
   return (
-    <div className="space-y-6">
-      {/* 1. FULL-WIDTH 100% CORNER-TO-CORNER GAME / EXPERIENCE STAGE ON TOP (ZERO SCROLL) */}
-      <div
-        className="w-full bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] overflow-hidden flex flex-col shadow-2xl sgx-crystal-card"
-        style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
-      >
-        {/* Compact Top Bar for Active Game / Experience */}
-        <div className="bg-[#0F0F0F] border-b border-[var(--sgx-secondary)]/60 px-4 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2.5">
-          <div className="flex items-center space-x-2.5 max-w-full">
-            <Gamepad2 className="w-4 h-4 text-[#FDCC0D] shrink-0" />
-            <span className="text-xs sm:text-sm font-extrabold text-white font-['Orbitron',sans-serif] uppercase tracking-wider break-words">
-              {activeEmbed && loc(activeEmbed, 'title', language)}
-            </span>
-            <span
-              className="text-[9px] px-2 py-0.5 bg-[#32527B]/40 border border-[#00DDFF]/60 text-[#00DDFF] font-mono shrink-0 font-bold"
-              style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
-            >
-              {activeEmbed?.category}
-            </span>
-            <span className="hidden md:inline-block text-[10px] font-mono text-slate-400">
-              {es ? '• VISOR 100% ESQUINA A ESQUINA SIN SCROLL' : '• 100% EDGE-TO-EDGE VIEWER, NO SCROLL'}
-            </span>
-            {activeEmbed?.isCustomUserApp && (
-              <span
-                className="text-[8px] px-1.5 py-0.2 bg-[#FDCC0D] text-black font-bold font-mono shrink-0 uppercase"
-                style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
-              >
-                USER APP
-              </span>
-            )}
+    <div className="sgx-embeds">
+      {/* Stage: the open experience */}
+      <section ref={stageRef} className="sgx-embeds__stage" aria-labelledby="sgx-embeds-stage-title">
+        <header className="sgx-embeds__bar">
+          <div className="sgx-embeds__bar-main">
+            <nav className="sgx-embeds__crumbs" aria-label={es ? 'Ubicación' : 'Location'}>
+              {crumbs}
+              <span aria-current="page" className="sgx-embeds__crumb-on">{activeTitle}</span>
+            </nav>
+            <div className="sgx-embeds__bar-title">
+              <h2 id="sgx-embeds-stage-title">{activeTitle}</h2>
+              <span className={`sgx-embeds__chip sgx-embeds__chip--${activeMode}`}>{statusText(activeMode, active, es, false)}</span>
+            </div>
           </div>
-
-          {/* Action Controls: Height Mode (for external iframes), Reload, Share, Fullscreen, External Link */}
-          <div className="flex items-center space-x-1.5">
-            {activeEmbed?.id !== 'embed_drone_game' && (
-              <div
-                className="hidden sm:flex items-center bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-0.5 text-[10px] font-mono"
-                style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              >
-                <button
-                  onClick={() => setHeightMode('CINEMATIC')}
-                  className={`px-2 py-0.5 transition-colors cursor-pointer ${heightMode === 'CINEMATIC' ? 'bg-[#00DDFF] text-black font-bold' : 'text-slate-400 hover:text-white'}`}
-                  style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
-                  title={es ? 'Modo Cine 16:9' : '16:9 Cinema Mode'}
-                >
-                  16:9
-                </button>
-                <button
-                  onClick={() => setHeightMode('STANDARD')}
-                  className={`px-2 py-0.5 transition-colors cursor-pointer ${heightMode === 'STANDARD' ? 'bg-[#00DDFF] text-black font-bold' : 'text-slate-400 hover:text-white'}`}
-                  style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
-                  title={es ? 'Modo Estándar' : 'Standard Mode'}
-                >
-                  {es ? 'ESTÁNDAR' : 'STANDARD'}
-                </button>
-                <button
-                  onClick={() => setHeightMode('EXPANDED')}
-                  className={`px-2 py-0.5 transition-colors cursor-pointer ${heightMode === 'EXPANDED' ? 'bg-[#00DDFF] text-black font-bold' : 'text-slate-400 hover:text-white'}`}
-                  style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
-                  title={es ? 'Modo Extendido' : 'Extended Mode'}
-                >
-                  {es ? 'EXPANDIDO' : 'EXPANDED'}
-                </button>
-              </div>
+          <div className="sgx-embeds__actions">
+            {(activeMode === 'code' || activeMode === 'frame') && (
+              <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={() => setFrameKey((k) => k + 1)}>
+                <RefreshCw className="w-4 h-4" aria-hidden="true" /> {es ? 'Recargar' : 'Reload'}
+              </button>
             )}
-
-            <button
-              onClick={handleReloadIframe}
-              className="p-1.5 bg-[var(--sgx-bg)] hover:bg-[#32527B] text-slate-300 hover:text-white border border-[var(--sgx-secondary)] transition-colors cursor-pointer"
-              style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title={es ? 'Recargar App Embebida' : 'Reload Embedded App'}
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-            </button>
-
-            <button
-              onClick={handleCopyLink}
-              className="p-1.5 bg-[var(--sgx-bg)] hover:bg-[#32527B] text-slate-300 hover:text-white border border-[var(--sgx-secondary)] transition-colors relative cursor-pointer"
-              style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title={es ? 'Copiar Enlace de la App' : 'Copy App Link'}
-            >
-              <Share2 className="w-3.5 h-3.5" />
-              {copiedToast && (
-                <span
-                  className="absolute -top-7 right-0 bg-[#FDCC0D] text-black text-[9px] font-bold font-mono px-2 py-0.5 whitespace-nowrap shadow-lg"
-                  style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-                >
-                  {es ? '¡Copiado!' : 'Copied!'}
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => setIsFullscreen(true)}
-              className="px-2.5 py-1 bg-[#32527B]/60 hover:bg-[#00DDFF] hover:text-black text-[#00DDFF] border border-[#00DDFF]/60 text-[10px] font-mono font-bold flex items-center gap-1 transition-colors cursor-pointer"
-              style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title={es ? 'Pantalla Completa Inmersiva' : 'Immersive Fullscreen'}
-            >
-              <Maximize2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{es ? 'PANTALLA COMPLETA' : 'FULLSCREEN'}</span>
-            </button>
-
-            {(activeEmbed?.externalUrl || activeEmbed?.embedUrl) && (
-              <a
-                href={activeEmbed.externalUrl || activeEmbed.embedUrl}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={es ? 'Abrir en una pestaña nueva' : 'Open in a new tab'}
-                className="sgx-btn-cyan px-2.5 py-1 text-[10px] font-bold font-mono flex items-center space-x-1 shadow-md shadow-[var(--sgx-neon)]/15 shrink-0"
-              >
-                <span className="hidden sm:inline">{es ? 'NUEVA PESTAÑA' : 'NEW TAB'}</span>
-                <ExternalLink className="w-3 h-3" />
+            {activeMode === 'frame' && (
+              <a className="sgx-btn sgx-btn--ground sgx-btn--sm" href={active.externalUrl || active.embedUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="w-4 h-4" aria-hidden="true" /> {es ? 'Pestaña nueva' : 'New tab'}
               </a>
             )}
-          </div>
-        </div>
-
-        {/* Full-Width Corner-to-Corner Viewport with ZERO Scroll */}
-        {activeEmbed?.id === 'embed_drone_game' ? (
-          <div className="w-full overflow-hidden">
-            <SummitDroneMiniGame />
-          </div>
-        ) : (
-          <div className={`relative w-full ${containerHeightClasses} bg-black flex items-center justify-center overflow-hidden transition-all duration-300`}>
-            {isCustomCode ? (
-              <iframe
-                key={`custom_code_${activeEmbed?.id}_${iframeKey}`}
-                srcDoc={activeEmbed?.customCode}
-                title={activeEmbed?.title || 'SGX Custom Code Sandbox'}
-                className="w-full h-full border-0 bg-[#0A0A0A]"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-downloads allow-modals"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; xr-spatial-tracking; fullscreen; camera; microphone"
-                allowFullScreen
-              />
-            ) : activeUrl ? (
-              <div className="w-full h-full relative bg-slate-950">
-                <iframe
-                  key={`url_frame_${activeEmbed?.id}_${iframeKey}`}
-                  src={activeUrl}
-                  title={activeEmbed?.title || 'SGX Embedded App'}
-                  className="w-full h-full border-0"
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-downloads allow-modals"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; xr-spatial-tracking; fullscreen; camera; microphone"
-                  allowFullScreen
-                  loading="lazy"
-                />
-              </div>
-            ) : (
-              <div className="w-full h-full bg-slate-950 flex flex-col items-center justify-center p-6 text-center space-y-4">
-                <img
-                  src={activeEmbed?.thumbnailUrl || '/brand/sgx-bolt.svg'}
-                  alt={activeEmbed?.title}
-                  className="w-28 h-28 object-cover border border-[var(--sgx-secondary)] mb-2"
-                  style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-                />
-                <span className="text-base font-bold text-white font-['Orbitron',sans-serif]">{activeEmbed && loc(activeEmbed, 'title', language)}</span>
-                <p className="text-xs text-slate-400 max-w-md font-mono">{activeEmbed && loc(activeEmbed, 'description', language)}</p>
-                {activeEmbed?.externalUrl && (
-                  <a
-                    href={activeEmbed.externalUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="sgx-btn px-5 py-2.5 text-xs font-bold flex items-center space-x-2"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>{es ? 'ABRIR ENLACE EN NUEVA PESTAÑA' : 'OPEN LINK IN NEW TAB'}</span>
-                  </a>
-                )}
-              </div>
+            {canExpand && (
+              <button type="button" className="sgx-btn sgx-btn--sm sgx-embeds__fs" onClick={() => setIsFullscreen(true)}>
+                <Maximize2 className="w-4 h-4" aria-hidden="true" /> {es ? 'Pantalla completa' : 'Fullscreen'}
+              </button>
             )}
           </div>
-        )}
+        </header>
 
-        {/* Compact Description & Author Footer Bar */}
-        <div className="px-4 py-2.5 bg-[#0F0F0F] border-t border-[var(--sgx-secondary)]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-300 font-mono">
-            <span className="line-clamp-1">{activeEmbed && loc(activeEmbed, 'description', language)}</span>
-            <span className="text-slate-500">•</span>
-            <span className="text-[11px] text-slate-400">
-              {es ? 'Autor: ' : 'Author: '}<strong className="text-[#FDCC0D]">{activeEmbed?.author}</strong>
-            </span>
-          </div>
-
-          <div className="flex items-center space-x-2 shrink-0">
-            {isAdmin && <button
-              onClick={() => handleOpenEditModal(activeEmbed)}
-              className="px-2.5 py-1 bg-[var(--sgx-bg)] hover:bg-[#32527B] text-slate-300 hover:text-white border border-[var(--sgx-secondary)] text-[11px] font-mono flex items-center space-x-1.5 transition-colors cursor-pointer"
-              style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              title={es ? 'Editar Configuración de la App' : 'Edit App Settings'}
-            >
-              <Edit3 className="w-3 h-3" />
-              <span>{es ? 'CONFIGURAR' : 'CONFIGURE'}</span>
-            </button>}
-          </div>
-        </div>
-      </div>
-
-      {/* 2. EMBEDDED EXPERIENCES HUB CATALOG BELOW IN A 4-COLUMN 3D GRID */}
-      <div
-        className="bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] p-4 sm:p-5 shadow-xl sgx-crystal-card space-y-4"
-        style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
-      >
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[var(--sgx-secondary)]/50 pb-4">
-          <div>
-            <div className="flex items-center space-x-2.5">
-              <Box className="w-5 h-5 text-[#FDCC0D]" />
-              <h3 className="text-sm sm:text-base font-extrabold text-white uppercase tracking-wider font-['Orbitron',sans-serif]">
-                {es ? 'HUB DE EXPERIENCIAS EMBEBIDAS, MINIJUEGOS & SANDBOX (' : 'EMBEDDED EXPERIENCES, MINI-GAMES & SANDBOX HUB ('}{filteredEmbeds.length})
-              </h3>
+        <div className={`sgx-embeds__view sgx-embeds__view--${activeMode}`}>
+          {isFullscreen ? (
+            <div className="sgx-embeds__parked">
+              <p>{es ? 'Abierto en pantalla completa.' : 'Open in fullscreen.'}</p>
+              <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => setIsFullscreen(false)}>{es ? 'Volver aquí' : 'Bring it back here'}</button>
             </div>
-            <p className="text-xs text-slate-300 mt-1 font-mono">
-              {es ? 'Selecciona cualquier experiencia del catálogo inferior para lanzarla arriba de esquina a esquina, o integra tu propio juego/código WebGL.' : 'Pick any experience from the catalog below to launch it edge to edge above, or embed your own WebGL game/code.'}
+          ) : renderStage(active, activeMode, 'inline')}
+        </div>
+
+        <footer className="sgx-embeds__foot">
+          {activeMode !== 'link' && activeMode !== 'soon' && <p>{loc(active, 'description', language)}</p>}
+          <div className="sgx-embeds__foot-meta">
+            <span>{es ? 'Por' : 'By'} <b>{active.author}</b></span>
+            {isAdmin && activeMode !== 'native' && (
+              <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={() => openEditForm(active)}>
+                <Pencil className="w-4 h-4" aria-hidden="true" /> {es ? 'Editar' : 'Edit'}
+              </button>
+            )}
+          </div>
+        </footer>
+      </section>
+
+      {/* Catalog */}
+      <section className="sgx-embeds__catalog" aria-labelledby="sgx-embeds-catalog-title">
+        <header className="sgx-embeds__catalog-head">
+          <div>
+            <p className="sgx-embeds__kicker">{es ? 'Módulo 03.1 · SGX.Spark' : 'Module 03.1 · SGX.Spark'}</p>
+            <h2 id="sgx-embeds-catalog-title">{es ? 'Juegos y laboratorios' : 'Games & labs'} <span className="sgx-embeds__count">{embedList.length}</span></h2>
+            <p className="sgx-embeds__lede">
+              {es
+                ? 'Lo nativo y los laboratorios corren aquí mismo; lo que vive en otro sitio se abre en una pestaña nueva.'
+                : 'Native games and labs run right here; whatever lives on another site opens in a new tab.'}
             </p>
           </div>
-
-          {/* Categories Bar & Quick Add Button */}
-          <div className="flex items-center flex-wrap gap-2">
-            <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 sm:pb-0">
-              <button
-                onClick={() => setSelectedCategory('ALL')}
-                className={`px-3 py-1.5 text-xs font-mono font-bold transition-all cursor-pointer ${
-                  selectedCategory === 'ALL'
-                    ? 'bg-[#FDCC0D] text-black font-extrabold shadow-md'
-                    : 'bg-[var(--sgx-bg)] text-slate-300 border border-[var(--sgx-secondary)] hover:text-white'
-                }`}
-                style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-              >
-                {es ? 'TODOS (' : 'ALL ('}{embedList.length})
-              </button>
-              <button
-                onClick={() => setSelectedCategory('MINI_GAME')}
-                className={`px-3 py-1.5 text-xs font-mono font-bold transition-all cursor-pointer ${
-                  selectedCategory === 'MINI_GAME'
-                    ? 'bg-[#FFBB00] text-black font-extrabold shadow-md'
-                    : 'bg-[var(--sgx-bg)] text-slate-300 border border-[var(--sgx-secondary)] hover:text-white'
-                }`}
-                style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-              >
-                {es ? 'MINIJUEGOS' : 'MINI-GAMES'}
-              </button>
-              <button
-                onClick={() => setSelectedCategory('WEBGL_XR')}
-                className={`px-3 py-1.5 text-xs font-mono font-bold transition-all cursor-pointer ${
-                  selectedCategory === 'WEBGL_XR'
-                    ? 'bg-[#00DDFF] text-black font-extrabold shadow-md'
-                    : 'bg-[var(--sgx-bg)] text-slate-300 border border-[var(--sgx-secondary)] hover:text-white'
-                }`}
-                style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-              >
-                SPLINE 3D / XR
-              </button>
-              <button
-                onClick={() => setSelectedCategory('STREAM_VIDEO')}
-                className={`px-3 py-1.5 text-xs font-mono font-bold transition-all cursor-pointer ${
-                  selectedCategory === 'STREAM_VIDEO'
-                    ? 'bg-[#32527B] text-white border border-[#00DDFF] font-extrabold shadow-md'
-                    : 'bg-[var(--sgx-bg)] text-slate-300 border border-[var(--sgx-secondary)] hover:text-white'
-                }`}
-                style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-              >
-                {es ? 'STREAMS EN VIVO' : 'LIVE STREAMS'}
-              </button>
-              <button
-                onClick={() => setSelectedCategory('CUSTOM_CODE')}
-                className={`px-3 py-1.5 text-xs font-mono font-bold transition-all cursor-pointer ${
-                  selectedCategory === 'CUSTOM_CODE'
-                    ? 'bg-[#32527B] text-white border border-[#FDCC0D] font-extrabold shadow-md'
-                    : 'bg-[var(--sgx-bg)] text-slate-300 border border-[var(--sgx-secondary)] hover:text-white'
-                }`}
-                style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-              >
-                {es ? 'SANDBOX / CÓDIGO' : 'SANDBOX / CODE'}
-              </button>
+          <div className="sgx-embeds__tools">
+            <div className="sgx-embeds__filters" role="group" aria-label={es ? 'Filtrar por tipo' : 'Filter by type'}>
+              <button type="button" aria-pressed={filter === 'ALL'} onClick={() => setFilter('ALL')}>{es ? 'Todo' : 'All'}</button>
+              {categories.map((c) => (
+                <button key={c} type="button" aria-pressed={filter === c} onClick={() => setFilter(c)}>{CATEGORY_LABEL[c][es ? 'es' : 'en']}</button>
+              ))}
             </div>
-
-            {isAdmin && <button
-              onClick={handleOpenAddModal}
-              className="sgx-btn px-4 py-2 text-xs font-bold font-mono flex items-center space-x-1.5 shadow-lg shadow-[var(--sgx-accent)]/20 hover:scale-105 transition-all cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>{es ? '＋ INTEGRAR APP O CÓDIGO' : '＋ EMBED APP OR CODE'}</span>
-            </button>}
+            {isAdmin && (
+              <button type="button" className="sgx-btn sgx-btn--sm" onClick={openAddForm}>
+                <Plus className="w-4 h-4" aria-hidden="true" /> {es ? 'Añadir' : 'Add'}
+              </button>
+            )}
           </div>
-        </div>
+        </header>
 
-        {/* 4-Column Responsive Catalog Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {filteredEmbeds.map(emb => {
-            const isSelected = emb.id === selectedEmbedId;
+        <ul className="sgx-embeds__grid">
+          {visible.map((emb) => {
+            const mode = embedMode(emb);
+            const on = emb.id === active.id;
             return (
-              <div
-                key={emb.id}
-                onClick={() => setSelectedEmbedId(emb.id)}
-                className={`w-full text-left p-3.5 border transition-all flex flex-col justify-between gap-3 cursor-pointer group relative sgx-spatial-card ${
-                  isSelected
-                    ? 'border-[#FDCC0D] bg-[#FDCC0D]/10 shadow-lg ring-1 ring-[#FDCC0D]'
-                    : 'border-[#32527B]/70 bg-[var(--sgx-bg)] hover:border-[#00DDFF]'
-                }`}
-                style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
-              >
-                <div className="flex items-start space-x-3">
-                  <img
-                    src={emb.thumbnailUrl || '/brand/sgx-bolt.svg'}
-                    alt={emb.title}
-                    className="w-14 h-14 object-cover border border-[#32527B] shrink-0 group-hover:border-[#00DDFF] transition-colors"
-                    style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                  />
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-1">
-                      <span className="text-xs font-bold text-white truncate font-['Orbitron',sans-serif] group-hover:text-[#FDCC0D]">
-                        {loc(emb, 'title', language)}
-                      </span>
-                      {emb.featured && (
-                        <span
-                          className="text-[8px] bg-[#FDCC0D] text-black font-bold px-1.5 py-0.2 uppercase shrink-0"
-                          style={{ clipPath: 'polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px)' }}
-                        >
-                          {es ? 'ACTIVO' : 'ACTIVE'}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center space-x-1.5 mt-0.5">
-                      <span className="text-[9px] text-[#00DDFF] font-mono uppercase font-bold">
-                        {emb.category}
-                      </span>
-                      {emb.isCustomUserApp && (
-                        <span className="text-[8px] text-[#FDCC0D] font-mono">• USER</span>
-                      )}
-                    </div>
-
-                    <p className="text-[11px] text-slate-300 line-clamp-2 mt-1 font-mono leading-snug">
-                      {loc(emb, 'description', language)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-2 border-t border-white/10 text-[10px] font-mono">
-                  <span className="text-slate-400 truncate">{emb.author}</span>
-                  <span className={`font-bold ${isSelected ? 'text-[#FDCC0D]' : 'text-[#00DDFF]'}`}>
-                    {isSelected ? (es ? 'EN PANTALLA ARRIBA ▲' : 'ON SCREEN ABOVE ▲') : (es ? 'CARGAR EN VISOR ▲' : 'LOAD IN VIEWER ▲')}
+              <li key={emb.id} className="sgx-embeds__item">
+                <button type="button" className={`sgx-embeds__card${on ? ' is-on' : ''}`} data-embed={emb.id} aria-pressed={on} onClick={() => selectEmbed(emb.id)}>
+                  <span className="sgx-embeds__thumb"><Thumb embed={emb} /></span>
+                  <span className="sgx-embeds__card-body">
+                    <span className="sgx-embeds__card-meta">
+                      <span>{CATEGORY_LABEL[emb.category]?.[es ? 'es' : 'en'] ?? emb.category}</span>
+                      <span className={`sgx-embeds__chip sgx-embeds__chip--${mode}`}>{statusText(mode, emb, es, true)}</span>
+                    </span>
+                    <span className="sgx-embeds__card-title">{loc(emb, 'title', language)}</span>
+                    <span className="sgx-embeds__card-desc">{loc(emb, 'description', language)}</span>
+                    <span className="sgx-embeds__card-foot">{on ? (es ? 'En pantalla' : 'On screen') : (es ? 'Abrir' : 'Open')}</span>
                   </span>
-                </div>
-
+                </button>
                 {isAdmin && emb.isCustomUserApp && (
-                  <button
-                    onClick={e => handleDeleteEmbed(emb.id, e)}
-                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-400 transition-opacity absolute top-2 right-2 cursor-pointer"
-                    title={es ? 'Eliminar esta app personalizada' : 'Remove this custom app'}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="sgx-embeds__admin">
+                    <button type="button" onClick={() => openEditForm(emb)} aria-label={`${es ? 'Editar' : 'Edit'} ${loc(emb, 'title', language)}`}><Pencil className="w-4 h-4" aria-hidden="true" /></button>
+                    <button type="button" onClick={() => deleteEmbed(emb.id)} aria-label={`${es ? 'Eliminar' : 'Remove'} ${loc(emb, 'title', language)}`}><Trash2 className="w-4 h-4" aria-hidden="true" /></button>
+                  </div>
                 )}
-              </div>
+              </li>
             );
           })}
-        </div>
-      </div>
+        </ul>
+      </section>
 
-      {/* 3. Fullscreen Immersive Modal */}
-      {isFullscreen && (
-        <div className="fixed inset-0 z-50 bg-black flex flex-col">
-          {/* Floating Header */}
-          <div className="bg-[#131313]/95 backdrop-blur-md border-b border-[var(--sgx-secondary)] px-6 py-3 flex items-center justify-between z-10">
-            <div className="flex items-center space-x-3">
-              <Box className="w-5 h-5 text-[var(--sgx-neon)]" />
-              <span className="text-sm font-bold text-white font-mono uppercase tracking-wider">
-                {activeEmbed && loc(activeEmbed, 'title', language)}
-              </span>
-              <span 
-                className="text-[10px] px-2 py-0.5 bg-[var(--sgx-neon)]/20 border border-[var(--sgx-neon)] text-[var(--sgx-neon)] font-mono"
-                style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              >
-                {es ? 'PANTALLA COMPLETA' : 'FULLSCREEN'}
-              </span>
-            </div>
-
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={handleReloadIframe}
-                className="p-2 bg-[var(--sgx-bg)] hover:bg-[var(--sgx-secondary)] text-white border border-[var(--sgx-secondary)] text-xs font-mono flex items-center space-x-1.5"
-                style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              >
-                <RefreshCw className="w-4 h-4" />
-                <span>{es ? 'RECARGAR' : 'RELOAD'}</span>
-              </button>
-
-              <button
-                onClick={() => setIsFullscreen(false)}
-                className="sgx-btn px-4 py-2 text-xs font-bold font-mono flex items-center space-x-1.5"
-              >
-                <Minimize2 className="w-4 h-4" />
-                <span>{es ? 'SALIR DE PANTALLA COMPLETA' : 'EXIT FULLSCREEN'}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Fullscreen Iframe Canvas */}
-          <div className="flex-1 w-full h-full bg-black relative">
-            {activeEmbed?.id === 'embed_drone_game' ? (
-              <SummitDroneMiniGame />
-            ) : isCustomCode ? (
-              <iframe
-                key={`fs_code_${activeEmbed?.id}_${iframeKey}`}
-                srcDoc={activeEmbed?.customCode}
-                title={activeEmbed?.title}
-                className="w-full h-full border-0"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-downloads allow-modals"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; xr-spatial-tracking; fullscreen; camera; microphone"
-                allowFullScreen
-              />
-            ) : activeUrl ? (
-              <iframe
-                key={`fs_url_${activeEmbed?.id}_${iframeKey}`}
-                src={activeUrl}
-                title={activeEmbed?.title}
-                className="w-full h-full border-0"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-downloads allow-modals"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; xr-spatial-tracking; fullscreen; camera; microphone"
-                allowFullScreen
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-white font-mono">
-                {es ? 'Sin contenido disponible.' : 'No content available.'}
-              </div>
-            )}
-          </div>
-        </div>
+      {isFullscreen && canExpand && (
+        <SgxDialog
+          onClose={() => setIsFullscreen(false)}
+          size="full"
+          accent={accent}
+          dismissable={false}
+          className="sgx-embeds-dialog"
+          icon={<img src="/holo/spark.png" alt="" />}
+          title={activeTitle}
+          kicker={statusText(activeMode, active, es, false)}
+          headerExtra={activeMode !== 'native' ? (
+            <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={() => setFrameKey((k) => k + 1)}>
+              <RefreshCw className="w-4 h-4" aria-hidden="true" /> <span className="sgx-embeds__hide-sm">{es ? 'Recargar' : 'Reload'}</span>
+            </button>
+          ) : undefined}
+        >
+          <div className={`sgx-embeds__full sgx-embeds__view--${activeMode}`}>{renderStage(active, activeMode, 'full')}</div>
+        </SgxDialog>
       )}
 
-      {/* 4. Modal for Integrating ANY Custom App (Link or Code) */}
-      {isAdmin && isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div 
-            className="bg-[var(--sgx-card-bg)] border-2 border-[var(--sgx-neon)] max-w-2xl w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto"
-            style={{ 
-              clipPath: 'polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)',
-              boxShadow: '0 0 35px rgba(0, 221, 255, 0.18)' 
-            }}
-          >
-            
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-[var(--sgx-secondary)]/60 pb-3">
-              <div className="flex items-center space-x-2.5">
-                <Code2 className="w-6 h-6 text-[var(--sgx-neon)]" />
-                <h3 className="text-base sm:text-lg font-bold text-white uppercase font-['Orbitron',sans-serif]">
-                  {editingEmbedId ? (es ? 'EDITAR EXPERIENCIA EMBEBIDA' : 'EDIT EMBEDDED EXPERIENCE') : (es ? 'INTEGRAR NUEVA APP O CÓDIGO EMBEBIDO' : 'EMBED A NEW APP OR CODE')}
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white transition-colors"
-                style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
-              >
-                <X className="w-5 h-5" />
-              </button>
+      {isAdmin && isFormOpen && (
+        <SgxDialog
+          onClose={() => setIsFormOpen(false)}
+          size="md"
+          accent={accent}
+          dismissable={false}
+          className="sgx-embeds-form"
+          title={editingId ? (es ? 'Editar experiencia' : 'Edit experience') : (es ? 'Añadir experiencia' : 'Add experience')}
+          kicker={es ? 'Solo admins · se publica en el hub' : 'Admins only · published to the hub'}
+          toolbar={(
+            <div className="sgx-hangar__tabs" role="tablist" aria-label={es ? 'Secciones' : 'Sections'}>
+              <button type="button" role="tab" aria-selected={formTab === 'FORM'} className={formTab === 'FORM' ? 'is-on' : ''} onClick={() => setFormTab('FORM')}>{es ? 'Datos' : 'Details'}</button>
+              <button type="button" role="tab" aria-selected={formTab === 'PREVIEW'} className={formTab === 'PREVIEW' ? 'is-on' : ''} onClick={() => setFormTab('PREVIEW')}>{es ? 'Vista previa' : 'Preview'}</button>
             </div>
-
-            {/* Mode Switcher: Form vs Live Preview */}
-            <div className="flex items-center space-x-2 border-b border-[var(--sgx-secondary)]/40 pb-2">
-              <button
-                type="button"
-                onClick={() => setModalPreviewTab('FORM')}
-                className={`px-3 py-1.5 text-xs font-mono font-bold transition-colors ${
-                  modalPreviewTab === 'FORM' ? 'bg-[var(--sgx-neon)] text-black' : 'bg-[var(--sgx-bg)] text-slate-400 border border-[var(--sgx-secondary)]'
-                }`}
-                style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-              >
-                {es ? '⚙️ CONFIGURACIÓN' : '⚙️ SETTINGS'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setModalPreviewTab('PREVIEW')}
-                className={`px-3 py-1.5 text-xs font-mono font-bold transition-colors ${
-                  modalPreviewTab === 'PREVIEW' ? 'bg-[var(--sgx-accent)] text-black' : 'bg-[var(--sgx-bg)] text-slate-400 border border-[var(--sgx-secondary)]'
-                }`}
-                style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-              >
-                {es ? '👁️ VISTA PREVIA EN VIVO' : '👁️ LIVE PREVIEW'}
-              </button>
+          )}
+          footer={(
+            <>
+              <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={() => setIsFormOpen(false)}>{es ? 'Cancelar' : 'Cancel'}</button>
+              <button type="button" className="sgx-btn sgx-btn--sm" onClick={submitForm}>{editingId ? (es ? 'Guardar cambios' : 'Save changes') : (es ? 'Añadir al hub' : 'Add to hub')}</button>
+            </>
+          )}
+        >
+          <form ref={formRef} onSubmit={saveEmbed} className="sgx-embeds__form" hidden={formTab !== 'FORM'}>
+            <label>
+              <span>{es ? 'Título (español) *' : 'Title (Spanish) *'}</span>
+              <input type="text" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+            </label>
+            <label>
+              <span>{es ? 'Título (inglés)' : 'Title (English)'}</span>
+              <input type="text" value={form.titleEn} onChange={(e) => setForm({ ...form, titleEn: e.target.value })} />
+            </label>
+            <div className="sgx-embeds__form-row">
+              <label>
+                <span>{es ? 'Tipo' : 'Type'}</span>
+                <select value={form.embedType} onChange={(e) => setForm({ ...form, embedType: e.target.value as EmbedForm['embedType'] })}>
+                  <option value="URL">{es ? 'Enlace (URL)' : 'Link (URL)'}</option>
+                  <option value="CODE">{es ? 'Código HTML' : 'HTML code'}</option>
+                </select>
+              </label>
+              <label>
+                <span>{es ? 'Categoría' : 'Category'}</span>
+                <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as EmbedCategory })}>
+                  {CATEGORY_ORDER.map((c) => <option key={c} value={c}>{CATEGORY_LABEL[c][es ? 'es' : 'en']}</option>)}
+                </select>
+              </label>
             </div>
-
-            {modalPreviewTab === 'FORM' ? (
-              <form onSubmit={handleSaveEmbed} className="space-y-4">
-                
-                {/* Title */}
-                <div>
-                  <label className="block text-xs font-bold text-white font-mono mb-1">
-                    {es ? 'TÍTULO DE LA APLICACIÓN / EXPERIENCIA *' : 'APP / EXPERIENCE TITLE *'}
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder={es ? 'Ej. Mi Tablero Miro, Escena Spline 3D, Stream YouTube, Juego HTML5...' : 'E.g. My Miro Board, Spline 3D Scene, YouTube Stream, HTML5 Game...'}
-                    className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[var(--sgx-neon)]"
-                    style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                  />
-                </div>
-
-                {/* Integration Type: URL vs Raw Code */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-white font-mono mb-1">
-                      {es ? 'TIPO DE INTEGRACIÓN' : 'INTEGRATION TYPE'}
-                    </label>
-                    <select
-                      value={formData.embedType}
-                      onChange={(e) => setFormData({ ...formData, embedType: e.target.value as any })}
-                      className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-3 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[var(--sgx-neon)]"
-                      style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                    >
-                      <option value="URL">{es ? '🌐 Enlace Web Directo (URL / Iframe Link)' : '🌐 Direct Web Link (URL / Iframe Link)'}</option>
-                      <option value="CODE">{es ? '💻 Código HTML / Snippet Iframe / Canvas' : '💻 HTML Code / Iframe Snippet / Canvas'}</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-white font-mono mb-1">
-                      {es ? 'CATEGORÍA' : 'CATEGORY'}
-                    </label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                      className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-3 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[var(--sgx-neon)]"
-                      style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                    >
-                      <option value="WEBAPP">{es ? 'WebApp / Herramienta' : 'Web App / Tool'}</option>
-                      <option value="MINI_GAME">{es ? 'Minijuego 2D/3D' : '2D/3D Mini-Game'}</option>
-                      <option value="WEBGL_XR">WebGL / WebXR / Spline 3D</option>
-                      <option value="STREAM_VIDEO">Stream / Video (YouTube)</option>
-                      <option value="METAVERSE_ROBLOX">{es ? 'Mundo Virtual / Roblox Portal' : 'Virtual World / Roblox Portal'}</option>
-                      <option value="CUSTOM_CODE">{es ? 'Sandbox de Código Personalizado' : 'Custom Code Sandbox'}</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Source Input: URL or Code */}
-                <div>
-                  <label className="block text-xs font-bold text-white font-mono mb-1">
-                    {formData.embedType === 'URL' ? (es ? 'ENLACE URL DE LA APP O STREAM *' : 'APP OR STREAM URL *') : (es ? 'CÓDIGO HTML / IFRAME SNIPPET *' : 'HTML CODE / IFRAME SNIPPET *')}
-                  </label>
-                  
-                  {formData.embedType === 'URL' ? (
-                    <input
-                      type="url"
-                      required
-                      value={formData.sourceValue}
-                      onChange={(e) => setFormData({ ...formData, sourceValue: e.target.value })}
-                      placeholder="https://my.spline.design/... o https://youtube.com/watch?v=... o https://excalidraw.com..."
-                      className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-[var(--sgx-neon)]"
-                      style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                    />
-                  ) : (
-                    <textarea
-                      required
-                      rows={6}
-                      value={formData.sourceValue}
-                      onChange={(e) => setFormData({ ...formData, sourceValue: e.target.value })}
-                      placeholder={es ? '<iframe src=\'...\' width=\'100%\' height=\'500\'></iframe> o <!DOCTYPE html><html>...</html>' : '<iframe src=\'...\' width=\'100%\' height=\'500\'></iframe> or <!DOCTYPE html><html>...</html>'}
-                      className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-3 text-xs text-white font-mono focus:outline-none focus:border-[var(--sgx-neon)] font-mono leading-relaxed"
-                      style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-                    />
-                  )}
-                  <p className="text-[10px] text-slate-400 font-mono mt-1">
-                    {formData.embedType === 'URL'
-                      ? (es ? 'Soporta enlaces directos, YouTube, Vimeo, Spline 3D, Google Docs, Excalidraw, etc. Convertimos automáticamente enlaces para renderizado óptimo.' : 'Supports direct links, YouTube, Vimeo, Spline 3D, Google Docs, Excalidraw, etc. Links are converted automatically for optimal rendering.')
-                      : (es ? 'Puedes pegar una etiqueta <iframe> completa o un documento HTML/JS interactivo completo. Se ejecuta en un sandbox seguro con scripts habilitados.' : 'You can paste a full <iframe> tag or a complete interactive HTML/JS document. It runs in a secure sandbox with scripts enabled.')}
-                  </p>
-                </div>
-
-                {/* Description */}
-                <div>
-                  <label className="block text-xs font-bold text-white font-mono mb-1">
-                    {es ? 'DESCRIPCIÓN DE LA EXPERIENCIA' : 'EXPERIENCE DESCRIPTION'}
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder={es ? 'Describe qué hace esta app o experiencia para los participantes del Summit...' : 'Describe what this app or experience does for Summit participants...'}
-                    className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] p-3 text-xs text-white font-mono focus:outline-none focus:border-[var(--sgx-neon)]"
-                    style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                  />
-                </div>
-
-                {/* Author & Tags */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-white font-mono mb-1">
-                      {es ? 'AUTOR / ESTUDIO' : 'AUTHOR / STUDIO'}
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.author}
-                      onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                      placeholder={es ? 'Nombre del creador' : 'Creator name'}
-                      className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-3 py-2 text-xs text-white font-mono"
-                      style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white font-mono mb-1">
-                      {es ? 'TAGS (SEPARADOS POR COMA)' : 'TAGS (COMMA-SEPARATED)'}
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.tags}
-                      onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                      placeholder="3D, Tool, AI, Shader..."
-                      className="w-full bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] px-3 py-2 text-xs text-white font-mono"
-                      style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                    />
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center justify-end space-x-3 pt-3 border-t border-[var(--sgx-secondary)]/60">
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2.5 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] text-slate-300 text-xs font-mono hover:text-white"
-                    style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                  >
-                    {es ? 'CANCELAR' : 'CANCEL'}
-                  </button>
-                  <button
-                    type="submit"
-                    className="sgx-btn-cyan px-6 py-2.5 text-xs font-bold font-mono shadow-lg shadow-[var(--sgx-neon)]/20"
-                    style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-                  >
-                    {editingEmbedId ? (es ? 'GUARDAR CAMBIOS' : 'SAVE CHANGES') : (es ? 'GUARDAR E INTEGRAR APP' : 'SAVE AND EMBED APP')}
-                  </button>
-                </div>
-
-              </form>
-            ) : (
-              /* Live Preview Tab in Modal */
-              <div className="space-y-3">
-                <div 
-                  className="h-[360px] bg-black border border-[var(--sgx-secondary)] overflow-hidden relative"
-                  style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
-                >
-                  {formData.sourceValue ? (
-                    formData.embedType === 'CODE' || formData.sourceValue.includes('<') ? (
-                      <iframe
-                        srcDoc={formData.sourceValue}
-                        title="Modal Live Preview"
-                        className="w-full h-full border-0"
-                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-downloads"
-                        allowFullScreen
-                      />
-                    ) : (
-                      <iframe
-                        src={parseEmbedUrl(formData.sourceValue)}
-                        title="Modal Live Preview"
-                        className="w-full h-full border-0"
-                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-downloads"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; xr-spatial-tracking; fullscreen"
-                        allowFullScreen
-                      />
-                    )
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 font-mono text-xs p-4 text-center">
-                      <Code2 className="w-8 h-8 mb-2 opacity-50" />
-                      <span>{es ? 'Ingresa un enlace URL o código HTML en la pestaña de configuración para previsualizarlo en vivo.' : 'Enter a URL or HTML code in the settings tab to preview it live.'}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-[10px] text-slate-400 font-mono">
-                    {es ? 'Vista previa renderizada en tiempo real mediante sandbox iframe.' : 'Preview rendered in real time in an iframe sandbox.'}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleSaveEmbed}
-                    disabled={!formData.title.trim() || !formData.sourceValue.trim()}
-                    className="sgx-btn px-5 py-2 text-xs font-bold font-mono disabled:opacity-50"
-                  >
-                    {es ? 'GUARDAR APP' : 'SAVE APP'}
-                  </button>
-                </div>
-              </div>
-            )}
-
-          </div>
-        </div>
+            <label>
+              <span>{form.embedType === 'URL' ? (es ? 'Enlace *' : 'Link *') : (es ? 'Código HTML *' : 'HTML code *')}</span>
+              {form.embedType === 'URL' ? (
+                <input type="url" required value={form.sourceValue} onChange={(e) => setForm({ ...form, sourceValue: e.target.value })} placeholder="https://" />
+              ) : (
+                <textarea required rows={6} value={form.sourceValue} onChange={(e) => setForm({ ...form, sourceValue: e.target.value })} placeholder="<!DOCTYPE html>…" />
+              )}
+              <small>
+                {form.embedType === 'URL'
+                  ? (es ? 'Videos de YouTube o Vimeo y documentos de Google se convierten solos. Los sitios que no se dejan mostrar (Roblox, redes sociales, canales de YouTube) se ofrecen como botón a pestaña nueva.' : 'YouTube or Vimeo videos and Google docs are converted automatically. Sites that refuse to be shown (Roblox, social networks, YouTube channels) are offered as a new-tab button.')
+                  : (es ? 'Corre aislado: puede usar scripts, pero no la sesión, el almacenamiento ni la página del Summit. Un <iframe src> pegado se guarda como enlace.' : 'Runs isolated: it can use scripts, but not the Summit session, storage or page. A pasted <iframe src> is saved as a link.')}
+              </small>
+            </label>
+            <label>
+              <span>{es ? 'Descripción (español)' : 'Description (Spanish)'}</span>
+              <textarea rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            </label>
+            <label>
+              <span>{es ? 'Descripción (inglés)' : 'Description (English)'}</span>
+              <textarea rows={2} value={form.descriptionEn} onChange={(e) => setForm({ ...form, descriptionEn: e.target.value })} />
+            </label>
+            <div className="sgx-embeds__form-row">
+              <label>
+                <span>{es ? 'Autor / estudio' : 'Author / studio'}</span>
+                <input type="text" value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} />
+              </label>
+              <label>
+                <span>{es ? 'Etiquetas (separadas por coma)' : 'Tags (comma-separated)'}</span>
+                <input type="text" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} />
+              </label>
+            </div>
+          </form>
+          {formTab === 'PREVIEW' && (
+            <div className={`sgx-embeds__preview sgx-embeds__view--${formPreviewMode || 'soon'}`}>
+              {formPreviewMode
+                ? renderStage(formPreview, formPreviewMode, 'full')
+                : <p className="sgx-embeds__note">{es ? 'Escribe un enlace o código en Datos para verlo aquí.' : 'Enter a link or code in Details to see it here.'}</p>}
+            </div>
+          )}
+        </SgxDialog>
       )}
-
     </div>
   );
 };

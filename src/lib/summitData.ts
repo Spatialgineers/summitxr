@@ -16,6 +16,8 @@ import {
 } from '../types/summit';
 import { auth, db } from './firebase';
 import { withEnTwins } from './localize';
+import { SGX_YOUTUBE } from './sgxLinks';
+import { SHADER_LAB_HTML, SYNTH_LAB_HTML } from './embedSandboxes';
 import { 
   collection, 
   doc, 
@@ -1233,255 +1235,112 @@ export const INITIAL_CHAT_MESSAGES: ChatMessage[] = [
 // Real attendees appear as they join; no sample people shown as real.
 export const INITIAL_ATTENDEE_PROFILES: AttendeeProfile[] = [];
 
-// Interactive Embed Widgets (Mini-Games, Roblox, WebGL Sandboxes, WebXR)
+// Games hub (SGX.Spark 03.1): the native drone game, two sandboxes that run here, and honest links to what lives elsewhere.
 export const INITIAL_EMBED_WIDGETS: EmbedWidget[] = [
   {
     id: 'embed_drone_game',
-    title: 'SGX Drone Point-to-Point Simulator',
+    title: 'Dron SGX: anillos sobre San Juan',
+    titleEn: 'SGX Drone: rings over San Juan',
     category: 'MINI_GAME',
-    embedType: 'CODE',
-    description: 'Minijuego interactivo nativo desarrollado en Canvas 2D/WebGL. Controla el dron espacial con controles táctiles o teclado (WASD/flechas), recoge cajas de patrocinadores y compite por el récord de tiempo.',
-    descriptionEn: 'Native interactive mini-game built in Canvas 2D/WebGL. Control the space drone with touch controls or the keyboard (WASD/arrows), pick up sponsor crates and compete for the best time.',
-    thumbnailUrl: pillarIcon('SPARK'),
-    externalUrl: 'https://spatialgineers.com/drone-simulator',
-    author: 'Spatialgineers Spark Team',
-    tags: ['Drone', 'Mini-Game', 'Playable', 'Canvas', 'Physics'],
-    rating: 4.9,
-    featured: true,
-  },
-  {
-    id: 'embed_spline_3d',
-    title: 'Spline 3D Interactive Spatial Environment',
-    category: 'WEBGL_XR',
-    embedType: 'URL',
-    embedUrl: 'https://my.spline.design/interactivecube-953e5e49ad0808b260f38b0ad45ca5d3/',
-    externalUrl: 'https://spline.design',
-    description: 'Escenario 3D interactivo en tiempo real renderizado mediante WebGL / WebXR. Arrastra con el cursor o el dedo para rotar la geometría espacial, activar luces dinámicas e interactuar con la escena.',
-    descriptionEn: 'Real-time interactive 3D scene rendered with WebGL / WebXR. Drag with the cursor or your finger to rotate the spatial geometry, trigger dynamic lights and interact with the scene.',
-    thumbnailUrl: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png',
-    author: 'SGX Showcase & Spline 3D',
-    tags: ['Spline', '3D Scene', 'WebGL', 'Interactive', 'WebXR'],
-    rating: 5.0,
+    description: 'Juego 3D nativo (Three.js). Guía el dron por los anillos, esquiva torres y recoge las cajas de patrocinadores para sumar puntos y recargar batería. Tres escenarios; teclado (WASD o flechas) o controles táctiles.',
+    descriptionEn: 'Native 3D game (Three.js). Steer the drone through the rings, dodge towers and grab the sponsor crates to score points and recharge the battery. Three scenes; keyboard (WASD or arrows) or touch controls.',
+    thumbnailUrl: '',
+    author: 'Spatialgineers · SGX.Spark',
+    tags: ['Dron', 'Three.js', 'Juego'],
+    tagsEn: ['Drone', 'Three.js', 'Game'],
     featured: true,
   },
   {
     id: 'embed_youtube_stream',
-    title: 'YouTube Live: escenario y conciertos del Summit',
-    titleEn: 'YouTube Live: Summit stage and concerts',
+    title: 'Spatialgineers en YouTube Live',
+    titleEn: 'Spatialgineers on YouTube Live',
     category: 'STREAM_VIDEO',
     embedType: 'URL',
-    embedUrl: 'https://www.youtube.com/embed/jfKfPfyJRdk',
-    externalUrl: 'https://www.youtube.com/@spatialgineers',
-    description: 'Transmisión en vivo oficial del Summit por YouTube Live con visualizadores de escenario. Sintoniza los portafolios de los 8 Initiates y los intermedios de artistas invitados.',
-    descriptionEn: 'The Summit\'s official YouTube Live stream with stage visualizers. Tune in to the 8 Initiates\' portfolios and the guest artist interludes.',
-    thumbnailUrl: pillarIcon('STAGE'),
-    author: 'Spatialgineers Broadcast & Los Mismos TV',
-    tags: ['YouTube', 'Live Stream', 'Concert'],
-    rating: 4.9,
+    externalUrl: SGX_YOUTUBE,
+    description: 'Los días 1 y 2 del Summit (11 y 12 de diciembre) se transmiten gratis en el canal de YouTube de Spatialgineers, junto a Los Mismos TV. Suscríbete para recibir el aviso cuando empiece.',
+    descriptionEn: 'Days 1 and 2 of the Summit (December 11 and 12) stream free on the Spatialgineers YouTube channel, together with Los Mismos TV. Subscribe to get notified when it starts.',
+    thumbnailUrl: '',
+    author: 'Spatialgineers · Los Mismos TV',
+    tags: ['YouTube', 'En vivo'],
+    tagsEn: ['YouTube', 'Live'],
     featured: true,
   },
   {
     id: 'embed_shader_lab',
-    title: 'Interactive Live GLSL Cyber Matrix Shader Canvas',
+    title: 'Laboratorio de shaders WebGL',
+    titleEn: 'WebGL shader lab',
     category: 'CUSTOM_CODE',
     embedType: 'CODE',
-    description: 'Sandbox interactivo de shaders procedurales GLSL / Canvas 2D en tiempo real con efecto Matrix Cyberpunk reactivo y controles de velocidad y color.',
-    descriptionEn: 'Interactive sandbox of real-time procedural GLSL / Canvas 2D shaders with a reactive Cyberpunk Matrix effect and speed and color controls.',
-    thumbnailUrl: pillarIcon('SYNTHESIZE'),
-    customCode: `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #0A0A0A; color: #00DDFF; font-family: monospace; overflow: hidden; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-    .hud { position: relative; z-index: 10; background: rgba(10, 15, 29, 0.85); border: 1px solid #00DDFF; padding: 18px 24px; border-radius: 8px; text-align: center; backdrop-filter: blur(8px); box-shadow: 0 0 25px rgba(0, 221, 255,0.25); max-width: 480px; }
-    h1 { font-size: 18px; margin-bottom: 8px; text-shadow: 0 0 10px #00DDFF; letter-spacing: 2px; }
-    p { font-size: 11px; color: #94A3B8; margin-bottom: 14px; }
-    .controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-    button { background: #00DDFF; color: #000; border: none; padding: 8px 14px; font-weight: bold; font-family: monospace; font-size: 11px; cursor: pointer; border-radius: 4px; transition: all 0.2s; }
-    button:hover { background: #FDCC0D; transform: scale(1.05); }
-    .status { font-size: 10px; color: #10B981; margin-top: 10px; }
-  </style>
-</head>
-<body>
-  <canvas id="matrix"></canvas>
-  <div class="hud">
-    <h1>SGX MATRIX SHADER ENGINE</h1>
-    <p>Renderizado procedural en tiempo real • GLSL Canvas Shader</p>
-    <div class="controls">
-      <button onclick="toggleColor('#00DDFF')">NEON CYAN</button>
-      <button onclick="toggleColor('#FDCC0D')">SGX GOLD</button>
-      <button onclick="toggleColor('#FF0055')">CYBER MAGENTA</button>
-      <button onclick="toggleSpeed()">SPEED BOOST</button>
-    </div>
-    <div class="status" id="fps">FPS: 60 • ACTIVE PARTICLES: 1,024</div>
-  </div>
-
-  <script>
-    const canvas = document.getElementById('matrix');
-    const ctx = canvas.getContext('2d');
-    let width = canvas.width = window.innerWidth;
-    let height = canvas.height = window.innerHeight;
-    let primaryColor = '#00DDFF';
-    let speedMult = 1;
-
-    window.addEventListener('resize', () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    });
-
-    const characters = 'SPATIALGINEERS0123456789XR3DGLSLWEBGLROBLOX';
-    const fontSize = 14;
-    const columns = Math.floor(width / fontSize);
-    const drops = Array(columns).fill(1);
-
-    function draw() {
-      ctx.fillStyle = 'rgba(5, 8, 17, 0.1)';
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.fillStyle = primaryColor;
-      ctx.font = fontSize + 'px monospace';
-
-      for (let i = 0; i < drops.length; i++) {
-        const text = characters.charAt(Math.floor(Math.random() * characters.length));
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-        if (drops[i] * fontSize > height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i] += speedMult;
-      }
-      requestAnimationFrame(draw);
-    }
-    draw();
-
-    function toggleColor(color) { primaryColor = color; }
-    function toggleSpeed() { speedMult = speedMult === 1 ? 2.5 : 1; }
-  </script>
-</body>
-</html>`,
-    author: 'SGX Spark Shaders',
-    tags: ['GLSL', 'Shaders', 'WebGL', 'Live Code', 'Matrix'],
-    rating: 4.9,
+    description: 'Un fragment shader GLSL real corriendo en tu GPU con los colores SGX. Mueve el cursor o el dedo para deformar el campo y cambia paleta y velocidad. El contador de FPS mide tu equipo de verdad.',
+    descriptionEn: 'A real GLSL fragment shader running on your GPU in SGX colors. Move the cursor or your finger to bend the field and change palette and speed. The FPS counter really measures your device.',
+    thumbnailUrl: '',
+    customCode: SHADER_LAB_HTML,
+    author: 'Spatialgineers · SGX.Spark',
+    tags: ['GLSL', 'WebGL', 'Shader'],
+  },
+  {
+    id: 'embed_cyber_synth',
+    title: 'Sintetizador Web Audio',
+    titleEn: 'Web Audio synth',
+    category: 'CUSTOM_CODE',
+    embedType: 'CODE',
+    description: 'Toca con el teclado (A a K) o la pantalla. Cuatro formas de onda, un filtro paso bajo real con corte y resonancia, y un osciloscopio que dibuja la señal que estás escuchando.',
+    descriptionEn: 'Play with the keyboard (A to K) or the screen. Four waveforms, a real low-pass filter with cutoff and resonance, and an oscilloscope that draws the signal you are hearing.',
+    thumbnailUrl: '',
+    customCode: SYNTH_LAB_HTML,
+    author: 'Spatialgineers · SGX.Spark',
+    tags: ['Web Audio', 'Sintetizador'],
+    tagsEn: ['Web Audio', 'Synth'],
   },
   {
     id: 'embed_roblox_world',
-    title: 'Roblox Spatialgineers Live Stage',
+    title: 'Spatialgineers en Roblox',
+    titleEn: 'Spatialgineers in Roblox',
     category: 'METAVERSE_ROBLOX',
-    embedType: 'URL',
-    embedUrl: 'https://www.roblox.com',
-    externalUrl: '',
-    description: 'Espacio multijugador en Roblox para las presentaciones de los artistas invitados durante el Summit 2026. Entra con tu avatar o mira la transmisión en vivo.',
-    descriptionEn: 'Multiplayer space in Roblox for the guest artist performances during Summit 2026. Join with your avatar or watch the live stream.',
-    thumbnailUrl: 'https://cdn.spatialgineers.com/Branding/Guild/Guild%20color.png',
-    author: 'Spatialgineers Roblox Guild',
-    tags: ['Roblox', 'Concerts', 'Multiplayer', 'Virtual World'],
-    rating: 5.0,
-    featured: true,
+    description: 'Un espacio de Spatialgineers en Roblox para las presentaciones de los artistas invitados. Todavía no está publicado.',
+    descriptionEn: 'A Spatialgineers space in Roblox for the guest artist performances. It is not published yet.',
+    thumbnailUrl: '',
+    author: 'Spatialgineers',
+    tags: ['Roblox', 'Próximamente'],
+    tagsEn: ['Roblox', 'Coming soon'],
   },
   {
     id: 'embed_whiteboard',
-    title: 'Collaborative Spatial Whiteboard & Architecture Canvas',
+    title: 'Pizarra Excalidraw',
+    titleEn: 'Excalidraw whiteboard',
     category: 'WEBAPP',
     embedType: 'URL',
     embedUrl: 'https://excalidraw.com',
     externalUrl: 'https://excalidraw.com',
-    description: 'Pizarra colaborativa interactiva embebida para diagramar arquitecturas espaciales, bocetar wireframes 3D y compartir ideas de diseño durante los talleres del Summit.',
-    descriptionEn: 'Embedded interactive collaborative whiteboard to diagram spatial architectures, sketch 3D wireframes and share design ideas during the Summit workshops.',
-    thumbnailUrl: 'https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG',
-    author: 'Spatialgineers System Team',
-    tags: ['Whiteboard', 'Architecture', 'Tool', 'Excalidraw'],
-    rating: 4.8,
+    description: 'Pizarra libre de Excalidraw para bocetar ideas y diagramas en los talleres. Lo que dibujes se guarda solo en este navegador; para dibujar con otras personas, abre una sesión en vivo desde el menú de Excalidraw.',
+    descriptionEn: 'Excalidraw\'s free whiteboard to sketch ideas and diagrams during the workshops. What you draw is saved only in this browser; to draw with other people, start a live session from the Excalidraw menu.',
+    thumbnailUrl: '',
+    author: 'Excalidraw',
+    tags: ['Pizarra', 'Excalidraw'],
+    tagsEn: ['Whiteboard', 'Excalidraw'],
   },
-  {
-    id: 'embed_cyber_synth',
-    title: 'WebAudio Reactive Spatial Synthesizer',
-    category: 'CUSTOM_CODE',
-    embedType: 'CODE',
-    description: 'Sintetizador WebAudio interactivo en tiempo real con oscilador de frecuencia, filtro paso-bajo y visualizador osciloscópico reactivo.',
-    descriptionEn: 'Real-time interactive WebAudio synthesizer with a frequency oscillator, low-pass filter and reactive oscilloscope visualizer.',
-    thumbnailUrl: pillarIcon('SYNTHESIZE'),
-    customCode: `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #121212; color: #FFF; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; }
-    .synth-panel { background: #1B1B1B; border: 2px solid #00DDFF; border-radius: 12px; padding: 24px; width: 100%; max-width: 520px; box-shadow: 0 0 30px rgba(0, 221, 255,0.2); }
-    h2 { font-size: 16px; color: #00DDFF; text-align: center; margin-bottom: 12px; letter-spacing: 2px; }
-    canvas { width: 100%; height: 120px; background: #0A0A0A; border: 1px solid #32527B; border-radius: 6px; margin-bottom: 16px; }
-    .keys { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 12px; }
-    .key-btn { background: #2B2B2B; border: 1px solid #00DDFF; color: #00DDFF; padding: 14px 4px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; text-align: center; transition: all 0.1s; user-select: none; }
-    .key-btn:active { background: #FDCC0D; color: #000; transform: translateY(2px); }
-    .controls { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 11px; color: #94A3B8; }
-  </style>
-</head>
-<body>
-  <div class="synth-panel">
-    <h2>SGX SPATIAL AUDIO SYNTHESIZER</h2>
-    <div class="controls">
-      <span>OSCILLATOR: SINE / SAWTOOTH</span>
-      <span>STATUS: READY</span>
-    </div>
-    <canvas id="scope"></canvas>
-    <div class="keys">
-      <button class="key-btn" onclick="playNote(261.63)">C4</button>
-      <button class="key-btn" onclick="playNote(293.66)">D4</button>
-      <button class="key-btn" onclick="playNote(329.63)">E4</button>
-      <button class="key-btn" onclick="playNote(349.23)">F4</button>
-      <button class="key-btn" onclick="playNote(392.00)">G4</button>
-      <button class="key-btn" onclick="playNote(440.00)">A4</button>
-      <button class="key-btn" onclick="playNote(493.88)">B4</button>
-    </div>
-  </div>
-
-  <script>
-    let audioCtx;
-    const canvas = document.getElementById('scope');
-    const ctx = canvas.getContext('2d');
-    canvas.width = 480;
-    canvas.height = 120;
-
-    function playNote(freq) {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.5);
-      drawWave(freq);
-    }
-
-    function drawWave(freq) {
-      ctx.fillStyle = '#0A0A0A';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = '#00DDFF';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      for (let x = 0; x < canvas.width; x++) {
-        const y = 60 + Math.sin(x * 0.05 * (freq / 200)) * 35;
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
-    drawWave(440);
-  </script>
-</body>
-</html>`,
-    author: 'SGX Synthesize Audio Team',
-    tags: ['WebAudio', 'Synthesizer', 'Spatial Audio', 'Interactive'],
-    rating: 4.9,
-  }
 ];
+
+/* Built-in embeds rebuilt in v2026.10.2. A saved or published copy that still has an
+   untouched old seed title is swapped for the new seed (or dropped if it was retired). */
+const RETIRED_EMBED_TITLES = new Set([
+  'SGX Drone Point-to-Point Simulator',
+  'Spline 3D Interactive Spatial Environment',
+  'YouTube Live: escenario y conciertos del Summit',
+  'Interactive Live GLSL Cyber Matrix Shader Canvas',
+  'Roblox Spatialgineers Live Stage',
+  'Collaborative Spatial Whiteboard & Architecture Canvas',
+  'WebAudio Reactive Spatial Synthesizer',
+]);
+
+function refreshEmbedSeeds(stored: EmbedWidget[]): EmbedWidget[] {
+  const seeds = new Map(INITIAL_EMBED_WIDGETS.map((s) => [s.id, s]));
+  return stored.flatMap((item) => {
+    if (!item || item.isCustomUserApp || !RETIRED_EMBED_TITLES.has(item.title)) return item ? [item] : [];
+    const seed = seeds.get(item.id);
+    return seed ? [seed] : [];
+  });
+}
 
 // Sponsorship Tiers (Dossier de Auspicio v2026.10.1). Each Tier includes everything in the one before it.
 // Payment in full by Nov 14, 2026 (Tiers 4 and 5 may pay in two installments). Materials by Nov 30, 2026.
@@ -2242,7 +2101,7 @@ export function loadAllEmbedWidgets(): EmbedWidget[] {
     const raw = localStorage.getItem(STORAGE_KEY_CUSTOM_EMBEDS);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return withEnTwins(parsed, INITIAL_EMBED_WIDGETS);
+      if (Array.isArray(parsed) && parsed.length > 0) return withEnTwins(refreshEmbedSeeds(parsed), INITIAL_EMBED_WIDGETS);
     }
   } catch {}
   return INITIAL_EMBED_WIDGETS;

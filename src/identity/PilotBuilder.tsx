@@ -1,10 +1,13 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import {
   PART_COUNTS, PART_NAMES, PILOT_SWATCHES, SHELL_SWATCHES,
   pilotSvg, randomPilot, varyPilot, type PilotConfig, type PilotPart,
 } from './pilotAvatar';
+
+// three.js only loads when someone opens the 3D view.
+const SgxPilot3D = lazy(() => import('./SgxPilot3D').then((m) => ({ default: m.SgxPilot3D })));
 
 /* PILOT BUILDER: the visitor builds their XR avatar part by part. Every part
    has a visual picker, colors come only from the official SGX palette,
@@ -32,8 +35,8 @@ interface Props {
   compact?: boolean;
 }
 
-const Svg: React.FC<{ c: PilotConfig; size: number; className?: string }> = ({ c, size, className }) => {
-  const html = useMemo(() => pilotSvg(c, { size }), [c, size]);
+const Svg: React.FC<{ c: PilotConfig; size: number; className?: string; animate?: boolean }> = ({ c, size, className, animate }) => {
+  const html = useMemo(() => pilotSvg(c, { size, animate }), [c, size, animate]);
   return <span className={className} style={{ display: 'block', width: size, height: size * 1.2, lineHeight: 0 }} dangerouslySetInnerHTML={{ __html: html }} />;
 };
 
@@ -45,6 +48,7 @@ export const PilotBuilder: React.FC<Props> = ({ value, onChange, accent, callsig
   const history = useRef<PilotConfig[]>([]);
   const [canUndo, setCanUndo] = useState(false);
   const [rolling, setRolling] = useState(false);
+  const [view3d, setView3d] = useState(false);
 
   const set = (next: PilotConfig, sound = 760) => {
     history.current = [...history.current.slice(-24), value];
@@ -83,10 +87,22 @@ export const PilotBuilder: React.FC<Props> = ({ value, onChange, accent, callsig
   return (
     <div className={`sgx-pilotb ${compact ? 'sgx-pilotb--compact' : ''}`} style={{ ['--pilot-accent' as string]: value.primary }}>
       <div className="sgx-pilotb__stage">
-        <div className={`sgx-pilotb__preview ${rolling ? 'is-rolling' : ''}`}>
-          <Svg c={value} size={compact ? 150 : 210} />
-          <span className="sgx-pilotb__floor" aria-hidden="true" />
+        <div className="sgx-pilotb__view" role="group" aria-label={es ? 'Vista' : 'View'}>
+          <button type="button" aria-pressed={!view3d} className={!view3d ? 'is-on' : ''} onClick={() => setView3d(false)}>2D</button>
+          <button type="button" aria-pressed={view3d} className={view3d ? 'is-on' : ''} onClick={() => { playUiChirp(700); setView3d(true); }}>3D</button>
         </div>
+        {view3d ? (
+          <div className="sgx-pilotb__preview sgx-pilotb__preview--3d">
+            <Suspense fallback={<span className="sgx-pilotb__loading">{es ? 'Cargando 3D…' : 'Loading 3D…'}</span>}>
+              <SgxPilot3D config={value} height={compact ? 200 : 270} label={es ? 'Tu avatar XR en 3D. Arrastra para girarlo.' : 'Your XR avatar in 3D. Drag to turn it.'} />
+            </Suspense>
+          </div>
+        ) : (
+          <div className={`sgx-pilotb__preview ${rolling ? 'is-rolling' : ''}`}>
+            <Svg c={value} size={compact ? 150 : 210} animate />
+            <span className="sgx-pilotb__floor" aria-hidden="true" />
+          </div>
+        )}
         {callsign && <p className="sgx-pilotb__callsign">{callsign}</p>}
         <div className="sgx-pilotb__rolls">
           <button type="button" className="sgx-btn sgx-btn--sm" onClick={surprise}>⚄ {es ? 'Sorpresa' : 'Surprise me'}</button>

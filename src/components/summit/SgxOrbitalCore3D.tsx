@@ -9,6 +9,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { VisitCounterChip } from './VisitCounterChip';
 import { navigateToSection } from '../../immersion/navigation';
 import { createPilotOrbit, type PilotCardInfo, type PilotOrbit } from '../../identity/pilotOrbit3D';
+import { configFromSeed } from '../../identity/pilotAvatar';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
 import { renderPassCardImage } from '../../identity/passCardImage';
@@ -495,6 +496,12 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   const pilotKey = `${pilotInfo.forged}|${pilotInfo.image?.length || 0}|${pilotInfo.name}|${pilotInfo.callsign}|${pilotInfo.accent}`;
   useEffect(() => { pilotOrbitRef.current?.setCard(pilotInfoRef.current); }, [pilotKey]);
   useEffect(() => { pilotOrbitRef.current?.setCrowd(crowdRef.current); }, [checkins?.length]);
+  // The 3D avatar flies with the card once the visitor has a pass.
+  const avatarCfg = sgxId?.isForged ? (sgxId.identity.avatar.pilot || configFromSeed(sgxId.identity.avatar.seed, pilotInfo.accent || '#FDCC0D')) : null;
+  const avatarCfgRef = useRef(avatarCfg);
+  avatarCfgRef.current = avatarCfg;
+  const avatarCfgKey = avatarCfg ? JSON.stringify(avatarCfg) : '';
+  useEffect(() => { pilotOrbitRef.current?.setAvatar(avatarCfgRef.current); }, [avatarCfgKey]);
   const autoRotateRef = useRef<boolean>(autoRotate);
   const cameraFocusedRef = useRef<boolean>(cameraFocusedOnPillar);
   const focusedSponsorRef = useRef<string | null>(focusedSponsorId);
@@ -1217,6 +1224,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     pilotOrbitRef.current = pilotOrbit;
     pilotOrbit.setCard(pilotInfoRef.current);
     pilotOrbit.setCrowd(crowdRef.current);
+    pilotOrbit.setAvatar(avatarCfgRef.current);
 
     const raycaster = new THREE.Raycaster();
     const pointerNdc = new THREE.Vector2();

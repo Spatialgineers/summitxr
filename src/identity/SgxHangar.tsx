@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { configFromSeed } from './pilotAvatar';
 import { useDialogFocus } from '../lib/useDialogFocus';
 import { useLanguage } from '../context/LanguageContext';
 import { usePilotProfile } from '../context/PilotProfileContext';
@@ -16,6 +17,8 @@ import { SgxConstellation } from './SgxConstellation';
 import { HoloGlass } from '../immersion/shaders/HoloGlass';
 import { useAuth } from '../context/AuthContext';
 import { GoogleSignInButton } from '../components/common/GoogleSignInButton';
+
+const SgxPilot3D = lazy(() => import('./SgxPilot3D').then((m) => ({ default: m.SgxPilot3D })));
 
 /* HANGAR DEL PILOTO: the one screen for "me". It replaces the profile modal,
    the passport drawer and the passport modal. Pass in front, everything you
@@ -177,6 +180,19 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_avatar')), 80); }}>{es ? 'Mi piloto' : 'My pilot'}</button>
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={onForge}>{es ? 'Editar datos' : 'Edit details'}</button>
               </div>
+              <section className="sgx-hangar__avatar3d" aria-label={es ? 'Tu avatar XR en 3D' : 'Your XR avatar in 3D'}>
+                <div>
+                  <h4>{es ? 'Tu avatar XR' : 'Your XR avatar'}</h4>
+                  <p>{es ? 'El mismo que diseñaste, en 3D. Arrástralo para girarlo; también orbita el núcleo.' : 'The one you designed, in 3D. Drag to turn it; it also orbits the core.'}</p>
+                </div>
+                <Suspense fallback={<div className="sgx-hangar__avatar3d-wait">{es ? 'Cargando 3D…' : 'Loading 3D…'}</div>}>
+                  <SgxPilot3D
+                    config={identity.avatar.pilot || configFromSeed(identity.avatar.seed, identity.affinity ? PILLAR_ACCENT[identity.affinity] : '#FDCC0D')}
+                    height={240}
+                    label={es ? 'Tu avatar XR en 3D. Arrastra para girarlo.' : 'Your XR avatar in 3D. Drag to turn it.'}
+                  />
+                </Suspense>
+              </section>
               <div className="sgx-hangar__live">
                 <div>
                   <h4>SGX Live</h4>

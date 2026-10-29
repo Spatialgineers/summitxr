@@ -11,12 +11,14 @@ interface Props {
   size?: number;
   className?: string;
   config?: PilotConfig | null;
+  /** Idle animation (breathing, visor glow). Off in lists and small chips. */
+  animate?: boolean;
 }
 
-export const SgxPilotGlyph: React.FC<Props> = ({ seed, accent, size = 160, className, config }) => {
+export const SgxPilotGlyph: React.FC<Props> = ({ seed, accent, size = 160, className, config, animate = false }) => {
   const html = useMemo(
-    () => pilotSvg(config || configFromSeed(seed, accent), { size }),
-    [config, seed, accent, size],
+    () => pilotSvg(config || configFromSeed(seed, accent), { size, animate }),
+    [config, seed, accent, size, animate],
   );
   return (
     <span

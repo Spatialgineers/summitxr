@@ -615,3 +615,16 @@
   .sgx-forge__affinity button img { width: 20px; height: 20px; object-fit: contain; }
   .sgx-forge__affinity button.is-on { border-color: var(--pillar-accent); box-shadow: 0 0 0 1px var(--pillar-accent) inset; color: var(--pillar-accent); }
 }
+
+/* 2D / 3D switch on the avatar preview */
+.sgx-pilotb__view { display: inline-flex; gap: 4px; align-self: center; margin-bottom: 6px; }
+.sgx-pilotb__view button { min-width: 44px; min-height: 32px; padding: 4px 10px; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; color: rgba(255, 255, 255, 0.75); background: #111317; border: 1px solid rgba(255, 255, 255, 0.16); cursor: pointer; }
+.sgx-pilotb__view button.is-on { color: #050505; background: var(--SGX_Yellow); border-color: var(--SGX_Yellow); }
+.sgx-pilotb__preview--3d { width: 100%; min-height: 200px; display: grid; place-items: center; }
+.sgx-pilotb__loading { font-family: var(--font-mono); font-size: 0.75rem; color: var(--SGX_Cyan); }
+
+.sgx-hangar__avatar3d { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: center; gap: 12px; margin-top: 14px; padding: 12px 14px; background: radial-gradient(circle at 70% 60%, rgba(0, 221, 255, 0.08), transparent 60%), #07080b; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+.sgx-hangar__avatar3d h4 { margin: 0 0 4px; font-family: var(--font-display); font-size: 0.95rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--SGX_Yellow); }
+.sgx-hangar__avatar3d p { margin: 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.72); }
+.sgx-hangar__avatar3d-wait { height: 240px; display: grid; place-items: center; font-family: var(--font-mono); font-size: 0.75rem; color: var(--SGX_Cyan); }
+@media (max-width: 560px) { .sgx-hangar__avatar3d { grid-template-columns: 1fr; } }

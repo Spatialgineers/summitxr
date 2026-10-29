@@ -237,6 +237,25 @@ export async function inlineSvgImages(svg: SVGSVGElement): Promise<void> {
   }));
 }
 
+/** What the 3D avatar (pilot3d.ts) needs from a config: the emblem and texture
+    images, the texture gain, and the lens interface as a standalone SVG. */
+export function pilotAssets3D(raw: PilotConfig) {
+  const c = normalizePilot(raw) as PilotConfig;
+  const lensBox = '20 38 60 26';
+  const lens = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${lensBox}" width="512" height="222">`
+    + `<defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c.glow}"/><stop offset="1" stop-color="${c.secondary}"/></linearGradient></defs>`
+    + `<rect x="0" y="0" width="100" height="120" fill="url(#lg)"/>`
+    + `<rect x="0" y="0" width="100" height="120" fill="#000" opacity="0.18"/>`
+    + lensSvg(c.eyes, c.glow, c.secondary)
+    + `</svg>`;
+  return {
+    emblemUrl: EMBLEMS[c.emblem]?.src || '',
+    textureUrl: texUrl(c.pattern),
+    textureGain: PILOT_TEXTURES[c.pattern]?.gain ?? 1,
+    lensSvg: lens,
+  };
+}
+
 /* ---------- geometry (viewBox 0 0 100 120) ---------- */
 
 const HEADS = [
@@ -321,7 +340,7 @@ function outfitSvg(i: number, fill: string, p: string, s: string, glow: string, 
 let uidCounter = 0;
 
 /** The pilot as a standalone SVG string. */
-export function pilotSvg(raw: PilotConfig, opts: { size?: number; idPrefix?: string; title?: string } = {}): string {
+export function pilotSvg(raw: PilotConfig, opts: { size?: number; idPrefix?: string; title?: string; animate?: boolean; flat?: boolean } = {}): string {
   const c = normalizePilot(raw) as PilotConfig;
   const id = opts.idPrefix || `pl${(uidCounter = (uidCounter + 1) % 1e6)}`;
   const size = opts.size || 160;
@@ -332,8 +351,27 @@ export function pilotSvg(raw: PilotConfig, opts: { size?: number; idPrefix?: str
   const emblem = EMBLEMS[c.emblem]?.src || '';
   const fill = tex ? `url(#${id}-t)` : c.shell;
   const holo = c.helmet === 7;
-  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 120" width="${size}" height="${Math.round(size * 1.2)}" role="img" aria-label="${(opts.title || 'SGX pilot').replace(/"/g, '')}">`
+  // Volume (light from above-left, rim light from the right, lens gloss). `flat` skips it (3D build: real lights do that job).
+  const shade = !opts.flat;
+  const anim = !!opts.animate;
+  const style = anim ? `<style>`
+    + `#${id} .pga-head{animation:sgxPilotBreath 4.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}`
+    + `#${id} .pga-glow{animation:sgxPilotGlow 2.6s ease-in-out infinite}`
+    + `#${id} .pga-sweep{animation:sgxPilotSweep 3.4s linear infinite}`
+    + `#${id} .pga-led{animation:sgxPilotLed 1.6s steps(2,end) infinite}`
+    + `@keyframes sgxPilotBreath{0%,100%{transform:translateY(0)}50%{transform:translateY(-0.9px)}}`
+    + `@keyframes sgxPilotGlow{0%,100%{opacity:.45}50%{opacity:.8}}`
+    + `@keyframes sgxPilotSweep{0%{transform:translateX(-70px)}60%,100%{transform:translateX(70px)}}`
+    + `@keyframes sgxPilotLed{0%{opacity:1}100%{opacity:.25}}`
+    + `@media (prefers-reduced-motion:reduce){#${id} *{animation:none!important}}`
+    + `</style>` : '';
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="${id}" viewBox="0 0 100 120" width="${size}" height="${Math.round(size * 1.2)}" role="img" aria-label="${(opts.title || 'SGX pilot').replace(/"/g, '')}">`
+    + style
     + `<defs>`
+    + `<radialGradient id="${id}-h" cx="0.36" cy="0.3" r="0.8"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.26"/><stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.04"/><stop offset="1" stop-color="#000000" stop-opacity="0.45"/></radialGradient>`
+    + `<linearGradient id="${id}-r" x1="0" y1="0" x2="1" y2="0"><stop offset="0.55" stop-color="${c.glow}" stop-opacity="0"/><stop offset="1" stop-color="${c.glow}" stop-opacity="0.9"/></linearGradient>`
+    + `<linearGradient id="${id}-o" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.16"/><stop offset="0.35" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity="0.5"/></linearGradient>`
+    + `<filter id="${id}-sh" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="2.4"/></filter>`
     + `<linearGradient id="${id}-v" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c.glow}" stop-opacity="0.95"/><stop offset="1" stop-color="${c.secondary}" stop-opacity="0.75"/></linearGradient>`
     + `<linearGradient id="${id}-s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.12"/><stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity="0.35"/></linearGradient>`
     + (tex ? `<filter id="${id}-b" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="linear" slope="${gain}"/><feFuncG type="linear" slope="${gain}"/><feFuncB type="linear" slope="${gain}"/></feComponentTransfer></filter>`
@@ -343,19 +381,27 @@ export function pilotSvg(raw: PilotConfig, opts: { size?: number; idPrefix?: str
     + `</defs>`
     + crestBack(c.crest, c.primary, c.secondary, fill)
     + outfitSvg(c.armor, fill, c.primary, c.secondary, c.glow, c.shell)
+    + (shade ? `<path d="${TORSO}" fill="url(#${id}-o)"/><path d="${TORSO}" fill="none" stroke="url(#${id}-r)" stroke-width="1.4"/>` : '')
     + (emblem ? `<path d="M41 100 L59 100 L59 112 L55 116 L41 116 Z" fill="#050505" stroke="${c.primary}" stroke-width="1"/><image href="${asset(emblem)}" xlink:href="${asset(emblem)}" x="43" y="101" width="14" height="14" preserveAspectRatio="xMidYMid meet"/>` : '')
     + `<rect x="44" y="78" width="12" height="12" fill="${c.shell}"/><rect x="44" y="78" width="12" height="12" fill="#000" opacity="0.3"/>`
+    + (shade ? `<ellipse cx="50" cy="90" rx="20" ry="3.6" fill="#000" opacity="0.5" filter="url(#${id}-sh)"/>` : '')
+    + `<g class="pga-head">`
     + `<path d="${head}" fill="${c.shell}" ${holo ? 'fill-opacity="0.35"' : ''}/>`
-    + `<path d="${head}" fill="url(#${id}-s)"/>`
+    + (shade ? `<path d="${head}" fill="url(#${id}-h)"/>` : '')
     + (holo ? `<g fill="none" stroke="${c.glow}" stroke-opacity="0.55" stroke-width="0.6"><ellipse cx="50" cy="52" rx="26" ry="10"/><ellipse cx="50" cy="52" rx="26" ry="20"/><ellipse cx="50" cy="52" rx="10" ry="30"/><ellipse cx="50" cy="52" rx="19" ry="30"/></g>` : '')
     + `<path d="${head}" fill="none" stroke="${c.primary}" stroke-width="1.6" stroke-linejoin="round"/>`
+    + (shade ? `<path d="${head}" fill="none" stroke="url(#${id}-r)" stroke-width="1.2" stroke-linejoin="round" transform="translate(0.6 0)"/>` : '')
     + (set.strap ? `<path d="M14 51 L22 51 M78 51 L86 51" stroke="#1A1A1A" stroke-width="4"/>` : '')
     + `<g fill="#141414" stroke="${c.primary}" stroke-width="1.2">${set.body}</g>`
-    + `<g fill="${c.glow}" opacity="0.55" filter="url(#${id}-g)">${set.lens}</g>`
+    + `<g class="pga-glow" fill="${c.glow}" opacity="0.55" filter="url(#${id}-g)">${set.lens}</g>`
     + `<g fill="url(#${id}-v)">${set.lens}</g>`
-    + `<g clip-path="url(#${id}-c)">${lensSvg(c.eyes, c.glow, c.secondary)}</g>`
+    + `<g clip-path="url(#${id}-c)">${lensSvg(c.eyes, c.glow, c.secondary)}`
+    + (shade ? `<path d="M18 30 L40 30 L22 72 L0 72 Z" fill="#FFFFFF" opacity="0.16"/>` : '')
+    + (anim ? `<rect class="pga-sweep" x="40" y="30" width="6" height="45" fill="#FFFFFF" opacity="0.28" transform="skewX(-18)"/>` : '')
+    + `</g>`
     + (c.visor === 3 ? `<g fill="#050505" stroke="${c.glow}" stroke-width="0.8"><circle cx="31" cy="64" r="2.2"/><circle cx="69" cy="64" r="2.2"/></g>` : '')
-    + crestFront(c.crest, c.primary, c.secondary, c.glow)
+    + crestFront(c.crest, c.primary, c.secondary, c.glow).replace('<circle cx="74.5" cy="5" r="3"', '<circle class="pga-led" cx="74.5" cy="5" r="3"')
+    + `</g>`
     + `</svg>`;
 }
 

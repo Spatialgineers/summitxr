@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { buildPilot3D, type Pilot3D } from './pilot3d';
+import type { PilotConfig } from './pilotAvatar';
 
 /* PILOTO EN ÓRBITA: your Holo Card (or your SGX Pass when you haven't
    exported one) flies around the 3D core and drifts toward the pillar you
@@ -97,6 +99,15 @@ export function createPilotOrbit(scene: THREE.Scene) {
   cardRig.add(glow, card);
   group.add(cardRig);
 
+  // The pilot's 3D avatar flies next to the card.
+  const avatarRig = new THREE.Group();
+  avatarRig.position.set(CARD_W / 2 + 6, -2.5, 2);
+  avatarRig.scale.setScalar(5);
+  avatarRig.userData = { type: 'PILOT_CARD' };
+  cardRig.add(avatarRig);
+  let avatar: Pilot3D | null = null;
+  let avatarKey = '';
+
   // Tether from the core to the card, like a pillar beam
   const tetherGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
   const tetherMat = new THREE.LineBasicMaterial({ color: 0xfdcc0d, transparent: true, opacity: 0.35 });
@@ -140,6 +151,19 @@ export function createPilotOrbit(scene: THREE.Scene) {
         });
       }
     },
+    /** The visitor's avatar (null: no pass yet, no figure). */
+    setAvatar(cfg: PilotConfig | null) {
+      const k = cfg ? JSON.stringify(cfg) : '';
+      if (k === avatarKey) return;
+      avatarKey = k;
+      if (avatar) { avatarRig.remove(avatar.group); avatar.dispose(); avatar = null; }
+      if (!cfg) return;
+      buildPilot3D(cfg).then((p) => {
+        if (disposed || avatarKey !== k) { p.dispose(); return; }
+        avatar = p;
+        avatarRig.add(p.group);
+      }).catch(() => undefined);
+    },
     setCrowd(n: number) {
       crowdCount = Math.max(0, Math.min(MAX_CROWD, n));
       crowd.count = crowdCount;
@@ -160,6 +184,10 @@ export function createPilotOrbit(scene: THREE.Scene) {
       cardRig.scale.setScalar(aspect < 0.8 ? 0.55 : 1);
       cardRig.rotateZ(Math.sin(elapsed * 0.9) * 0.05);
       glowMat.opacity = 0.14 + Math.sin(elapsed * 2.4) * 0.06;
+      if (avatar) {
+        avatar.update(elapsed);
+        avatarRig.rotation.y = -0.35 + Math.sin(elapsed * 0.5) * 0.35;
+      }
       const p = tetherGeo.attributes.position as THREE.BufferAttribute;
       p.setXYZ(1, pos.x, pos.y - CARD_H / 2, pos.z);
       p.needsUpdate = true;
@@ -176,13 +204,14 @@ export function createPilotOrbit(scene: THREE.Scene) {
       if (crowdCount) crowd.instanceMatrix.needsUpdate = true;
     },
     hit(raycaster: THREE.Raycaster): boolean {
-      return raycaster.intersectObject(card, false).length > 0;
+      return raycaster.intersectObject(card, false).length > 0 || (!!avatar && raycaster.intersectObject(avatarRig, true).length > 0);
     },
     worldPosition(out: THREE.Vector3) {
       return out.copy(pos);
     },
     dispose() {
       disposed = true;
+      avatar?.dispose();
       scene.remove(group);
       texture?.dispose();
       cardGeo.dispose(); cardMat.dispose(); glowGeo.dispose(); glowMat.dispose();

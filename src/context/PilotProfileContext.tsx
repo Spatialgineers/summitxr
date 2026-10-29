@@ -19,7 +19,7 @@ import { useLanguage } from './LanguageContext';
 const DEFAULT_ACHIEVEMENTS: PilotAchievement[] = [
   {
     id: 'ach_first_flight',
-    title: 'Primer Despegue',
+    title: 'Primer vuelo de dron',
     description: 'Completa tu primer vuelo en el simulador de drones.',
     category: 'flight',
     icon: '🚁',
@@ -103,7 +103,7 @@ function toCloudProfile(prof: PilotProfile, uid: string): Record<string, unknown
     if (v !== undefined) out[k] = v;
   }
   out.uid = uid;
-  out.nickname = capStr(prof.nickname, 60) || 'Piloto';
+  out.nickname = capStr(prof.nickname, 60) || 'Creador';
   if (prof.callsign !== undefined) out.callsign = capStr(prof.callsign, 30);
   out.avatarSeed = capStr(prof.avatarSeed, 80);
   out.avatarColor = capStr(prof.avatarColor, 20);
@@ -151,14 +151,19 @@ export function calculateRankAndLevel(xp: number): { level: number; rankTitle: s
   const currentLevelBaseXp = (level - 1) * XP_PER_LEVEL;
   const nextLevelXp = level * XP_PER_LEVEL;
 
-  let rankTitle = 'Cadete Espacial';
-  if (level >= 10) rankTitle = 'Soberano Espacial';
-  else if (level >= 7) rankTitle = 'Comandante de Flota';
-  else if (level >= 5) rankTitle = 'Piloto Veterano';
-  else if (level >= 3) rankTitle = 'Oficial de Vuelo';
-  else if (level >= 2) rankTitle = 'Explorador Iniciado';
+  return { level, rankTitle: rankLabel(level, true), nextLevelXp, currentLevelBaseXp };
+}
 
-  return { level, rankTitle, nextLevelXp, currentLevelBaseXp };
+/** Creator rank for a level, in the visitor's language. Derived from the level
+    (not the stored rankTitle) so profiles saved with older rank names show the
+    current ones. */
+export function rankLabel(level: number, es: boolean): string {
+  if (level >= 10) return 'Visionario';
+  if (level >= 7) return es ? 'Director Creativo' : 'Creative Director';
+  if (level >= 5) return es ? 'Creador Pro' : 'Pro Creator';
+  if (level >= 3) return es ? 'Creador' : 'Creator';
+  if (level >= 2) return es ? 'Explorador XR' : 'XR Explorer';
+  return es ? 'Visitante' : 'Visitor';
 }
 
 // Determine current weekend day
@@ -242,13 +247,13 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const defaultUid = 'pilot_' + Math.random().toString(36).substring(2, 9);
     const initialProfile: PilotProfile = {
       uid: defaultUid,
-      nickname: 'Cadete ' + Math.floor(100 + Math.random() * 900),
+      nickname: 'Creador ' + Math.floor(100 + Math.random() * 900),
       callsign: 'SGX-01',
       avatarSeed: 'pilot-avatar-' + Math.floor(Math.random() * 100),
       avatarColor: '#00DDFF',
       level: 1,
       totalXp: 150,
-      rankTitle: 'Cadete Espacial',
+      rankTitle: 'Visitante',
       createdAt: Date.now(),
       lastActive: Date.now(),
       weekendStats: {
@@ -264,8 +269,8 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
         {
           id: 'act_init_' + Date.now(),
           category: 'tour_complete',
-          title: (es ? 'Credencial de Vuelo Activada' : 'Flight Credential Activated'),
-          details: (es ? 'Bienvenido al Spatialgineers Summit 2026. Tu perfil de piloto está enlazado.' : 'Welcome to the Spatialgineers Summit 2026. Your pilot profile is linked.'),
+          title: (es ? 'Perfil de creador activado' : 'Creator profile activated'),
+          details: (es ? 'Bienvenido al Spatialgineers Summit 2026. Tu perfil de creador está enlazado.' : 'Welcome to the Spatialgineers Summit 2026. Your creator profile is linked.'),
           xpEarned: 150,
           day: getCurrentWeekendDay(),
           timestamp: Date.now(),
@@ -408,7 +413,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
       if (!uid) return;
       const entry: LeaderboardEntry = {
         uid,
-        nickname: capStr(prof.nickname, 60) || 'Piloto',
+        nickname: capStr(prof.nickname, 60) || 'Creador',
         avatarSeed: capStr(prof.avatarSeed, 80),
         avatarColor: capStr(prof.avatarColor, 20),
         rankTitle: capStr(prof.rankTitle, 60),
@@ -775,7 +780,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const activityItem: WeekendActivityItem = {
         id: 'act_role_' + Date.now(),
         category: 'avatar_customized',
-        title: (es ? `Ruta de Piloto: ${roleLabels[role] || role}` : `Pilot Route: ${roleLabels[role] || role}`),
+        title: (es ? `Ruta de Creador: ${roleLabels[role] || role}` : `Creator Route: ${roleLabels[role] || role}`),
         details: isFirstTime
           ? (es ? `Has sintonizado tu sendero táctico en el Summit. +${xpReward} XP otorgados.` : `You've tuned in your tactical path at the Summit. +${xpReward} XP awarded.`)
           : (es ? `Has recalibrado tu ruta de exploración a ${roleLabels[role] || role}. +${xpReward} XP.` : `You've recalibrated your exploration route to ${roleLabels[role] || role}. +${xpReward} XP.`),

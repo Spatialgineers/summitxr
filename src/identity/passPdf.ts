@@ -87,7 +87,7 @@ export async function exportPassPdf(id: SgxIdentity, qrDataUrl: string | null, r
   doc.setTextColor(150, 150, 150);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
-  doc.text('PILOTO', 54, 32);
+  doc.text('CREADOR', 54, 32);
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(15);

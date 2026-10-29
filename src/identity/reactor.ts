@@ -37,8 +37,8 @@ export interface ReactorMission {
 export const REACTOR_MISSIONS: ReactorMission[] = [
   // SGX.Story
   { id: 'm_story_forge', pillar: 'STORY', xp: 120, trigger: { flag: 'forged' },
-    es: { title: 'Forja tu SGX Pass', hint: 'Tu nombre, tu pilar y tu piloto en tu pase.' },
-    en: { title: 'Forge your SGX Pass', hint: 'Your name, your pillar and your pilot on your pass.' },
+    es: { title: 'Forja tu SGX Pass', hint: 'Tu nombre, tu pilar y tu avatar en tu pase.' },
+    en: { title: 'Forge your SGX Pass', hint: 'Your name, your pillar and your avatar on your pass.' },
     go: { event: 'sgx:open_forge' } },
   { id: 'm_story_manifesto', pillar: 'STORY', xp: 60, trigger: { visit: ['PILLARS_MANIFESTO'] },
     es: { title: 'Lee el manifiesto', hint: 'La historia detrás de los 6 pilares.' },
@@ -116,8 +116,8 @@ export const REACTOR_MISSIONS: ReactorMission[] = [
     es: { title: 'Presente en Chroma', hint: 'Día 3: escanea el QR de entrada en Chroma Space Studios.' },
     en: { title: 'Present at Chroma', hint: 'Day 3: scan the entrance QR at Chroma Space Studios.' } },
   { id: 'm_syn_constellation', pillar: 'SYNTHESIZE', xp: 300, trigger: { flag: 'constellation' }, secret: true,
-    es: { title: 'Constelación completa', hint: 'Tu Rolodex conecta pilotos de los 6 pilares.' },
-    en: { title: 'Full constellation', hint: 'Your Rolodex links pilots from all 6 pillars.' },
+    es: { title: 'Red completa', hint: 'Tu Rolodex conecta creadores de los 6 pilares.' },
+    en: { title: 'Full network', hint: 'Your Rolodex links creators from all 6 pillars.' },
     go: { event: 'sgx:open_hangar', detail: { tab: 'stars' } } },
 ];
 

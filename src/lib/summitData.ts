@@ -1153,8 +1153,8 @@ export const INITIAL_MAP_360_NODES: Map360Node[] = [
     hotspots: [
       {
         id: 'hs_drn_1',
-        title: 'Lanzadera de Vuelo Virtual',
-        titleEn: 'Virtual Flight Launchpad',
+        title: 'Estación del simulador de dron',
+        titleEn: 'Drone simulator station',
         description: 'Inicia el minijuego de drones en el canvas interactivo.',
         descriptionEn: 'Start the drone mini-game on the interactive canvas.',
         yaw: -45,

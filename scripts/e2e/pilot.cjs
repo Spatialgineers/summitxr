@@ -53,7 +53,7 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
     await p.waitForSelector(".sgx-pilotb-modal .sgx-pilotb", { timeout: 20000 }).catch(() => {});
     check(`${name}: Avatar Studio opens the builder`, !!(await p.$('.sgx-pilotb-modal .sgx-pilotb')));
     await p.click('.sgx-pilotb-modal .sgx-pilotb__rolls button >> nth=1'); // vary
-    await p.click('.sgx-pilotb-modal button:has-text("Guardar piloto")');
+    await p.click('.sgx-pilotb-modal button:has-text("Guardar avatar")');
     await p.waitForTimeout(600);
     const stored2 = await p.evaluate(() => JSON.parse(localStorage.getItem('sgx_identity_v1') || '{}').avatar?.pilot || null);
     check(`${name}: saving from Avatar Studio updates the pass`, JSON.stringify(stored2) !== JSON.stringify(stored));

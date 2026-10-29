@@ -28,8 +28,8 @@ export const SgxPassSection: React.FC = () => {
           <h3 className="sgx-panel__title">{es ? 'Todavía no tienes pase' : "You don't have a pass yet"}</h3>
           <p className="sgx-panel__body">
             {es
-              ? 'Tu Holo Card, tu QR de networking y tu acceso al Summit. Forja tu SGX Pass en un minuto: nombre, pilar, piloto y listo.'
-              : 'Your Holo Card, your networking QR and your access to the Summit. Forge your SGX Pass in a minute: name, pillar, pilot, done.'}
+              ? 'Tu Holo Card, tu QR de networking y tu acceso al Summit. Forja tu SGX Pass en un minuto: nombre, pilar, avatar y listo.'
+              : 'Your Holo Card, your networking QR and your access to the Summit. Forge your SGX Pass in a minute: name, pillar, avatar, done.'}
           </p>
           <div className="sgx-forge__actions">
             <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => fire('sgx:open_forge')}>[ ⚡ {es ? 'Forjar mi SGX Pass' : 'Forge my SGX Pass'} ]</button></span>
@@ -64,7 +64,7 @@ export const SgxPassSection: React.FC = () => {
           </ul>
         </div>
         <div className="sgx-forge__actions">
-          <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => fire('sgx:open_hangar', { tab: 'pass' })}>{es ? 'Abrir Hangar' : 'Open Hangar'}</button></span>
+          <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => fire('sgx:open_hangar', { tab: 'pass' })}>{es ? 'Abrir Estudio' : 'Open Studio'}</button></span>
           <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => fire('sgx:open_hangar', { tab: 'reactor' })}>Reactor</button>
           <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => fire('sgx:open_qr_scanner')}>{es ? 'Escanear pase' : 'Scan pass'}</button>
           <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => fire('sgx:open_hangar', { tab: 'day3' })}>{es ? 'Día 3' : 'Day 3'}</button>

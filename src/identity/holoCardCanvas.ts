@@ -8,7 +8,7 @@ import { inlineSvgImages } from './pilotAvatar';
    gear-and-bolt pattern, a brushed-blue stub with the role in big type and
    the "Una producción de" plate, a holographic foil, and a back with the
    event: the 3-day program, dates, Chroma Space Studios and your QR.
-   Used by the Hangar, the Holo Card Studio, the share formats and the 3D
+   Used by your Studio, the Holo Card Studio, the share formats and the 3D
    orbit card. */
 
 export const CARD_W = 1050;
@@ -340,7 +340,7 @@ function roleCopy(art: CardArt) {
       chip: invited ? (es ? 'INVITADO DÍA 3' : 'DAY 3 GUEST') : showcase ? (es ? 'DÍA 3 SOLICITADO' : 'DAY 3 REQUESTED') : (es ? 'CONFIRMADO' : 'CONFIRMED'),
       eyebrow: showcase ? (es ? 'SGX PASS · DÍA 3 CHROMA' : 'SGX PASS · DAY 3 CHROMA') : (es ? 'SGX PASS · DIGITAL GLOBAL' : 'SGX PASS · GLOBAL DIGITAL'),
       name,
-      line2: joinTitleOrg || art.rank || (es ? 'Piloto del Summit' : 'Summit pilot'),
+      line2: joinTitleOrg || art.rank || (es ? 'Creador del Summit' : 'Summit creator'),
       handle: cred.handle || '',
       blockLabel: es ? 'AFINIDAD' : 'AFFINITY',
       blockWord: pillar ? pillar.key : (es ? 'POR ELEGIR' : 'TO PICK'),
@@ -350,7 +350,7 @@ function roleCopy(art: CardArt) {
         { k: es ? 'DÍA 3' : 'DAY 3', v: invited ? 'CHROMA' : (es ? 'POR INVITACIÓN' : 'BY INVITATION'), f: 1.1 },
         { k: 'XP', v: (art.xp ?? 0).toLocaleString('es-PR'), color: C.cyan, fam: MONO, weight: 400, big: 19, f: 0.9 },
       ] as Cell[],
-      stub: es ? 'PILOTO' : 'PILOT',
+      stub: es ? 'CREADOR' : 'CREATOR',
       myDays: (invited ? ['d1', 'd2', 'd3'] : ['d1', 'd2']) as DayKey[],
     };
   }

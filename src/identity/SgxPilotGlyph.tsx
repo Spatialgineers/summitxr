@@ -25,7 +25,7 @@ export const SgxPilotGlyph: React.FC<Props> = ({ seed, accent, size = 160, class
       className={`sgx-pilot-glyph ${className || ''}`}
       style={{ display: 'inline-block', width: size, height: size * 1.2, lineHeight: 0 }}
       role="img"
-      aria-label="Pilot avatar"
+      aria-label="Avatar"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

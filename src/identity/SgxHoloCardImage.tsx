@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useSgxIdentity } from './SgxIdentityContext';
 import { renderPassCardImage } from './passCardImage';
 
-/* The SGX Pass as it really is: the Holo Card (same drawing as the Hangar and
+/* The SGX Pass as it really is: the Holo Card (same drawing as your Studio and
    the core). `printing` plays the Forge reveal: the card prints in from a scan line. */
 export const SgxHoloCardImage: React.FC<{ printing?: boolean; className?: string }> = ({ printing = false, className }) => {
   const { language } = useLanguage();

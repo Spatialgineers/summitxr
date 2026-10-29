@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { usePilotProfile } from '../context/PilotProfileContext';
+import { rankLabel, usePilotProfile } from '../context/PilotProfileContext';
 import { useLanguage } from '../context/LanguageContext';
 import { playScanSuccessSound, playUiChirp, playCyberBurstSound, getIsAudioMuted } from '../lib/cyberAudioEngine';
 import { recordEvent } from '../lib/telemetry';
@@ -351,7 +351,7 @@ export const ImmersionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       pushToast({
         tag: 'LEVEL UP',
         title: `${langRef.current === 'es' ? 'Nivel' : 'Level'} ${lvl}`,
-        detail: profile.rankTitle,
+        detail: rankLabel(lvl, langRef.current === 'es'),
         tone: 'action',
       });
       if (!getIsAudioMuted()) playUiChirp(660, 'triangle', 0.25);
@@ -359,7 +359,7 @@ export const ImmersionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       window.dispatchEvent(new CustomEvent('sgx:level_up', { detail: { level: lvl } }));
     }
     lastLevelRef.current = lvl;
-  }, [profile?.level, profile?.rankTitle, pushToast]);
+  }, [profile?.level, pushToast]);
 
   const questProgress = useCallback((questId: string) => {
     const q = QUEST_BY_ID[questId];

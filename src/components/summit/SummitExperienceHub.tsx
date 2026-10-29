@@ -180,7 +180,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         {
           id: 'mod_avatar',
           title: 'Avatar Studio 3D',
-          subtitle: (es ? 'Generador Oficial de Identidad de Piloto' : 'Official Pilot Identity Generator'),
+          subtitle: (es ? 'Generador oficial de tu avatar XR' : 'Official XR avatar generator'),
           description:
             (es ? 'Personaliza tu insignia y avatar cibernético para las salas de networking, leaderboard y acreditación oficial del Summit.' : 'Customize your badge and cyber avatar for the networking rooms, the leaderboard and official Summit accreditation.'),
           xpReward: '+200 XP',
@@ -207,7 +207,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_pilot_profile',
-          title: (es ? 'Bitácora de Piloto & Rango XP' : 'Pilot Log & XP Rank'),
+          title: (es ? 'Perfil de creador y rango XP' : 'Creator profile & XP rank'),
           subtitle: (es ? 'Estadísticas del Fin de Semana' : 'Weekend Stats'),
           description:
             (es ? 'Consulta tu nivel actual, historial de interacciones en vivo y desglose de puntos acumulados.' : 'Check your current level, live interaction history and a breakdown of your points.'),
@@ -310,7 +310,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           title: 'SGX Pass',
           subtitle: (es ? 'Registro + Holo Card + credencial en uno' : 'Registration + Holo Card + credential in one'),
           description:
-            (es ? 'Forja tu pase en un minuto: nombre, pilar y piloto. Gana sellos completando las misiones de cada pilar.' : 'Forge your pass in a minute: name, pillar and pilot. Earn stamps by completing each pillar\'s missions.'),
+            (es ? 'Forja tu pase en un minuto: nombre, pilar y avatar. Gana sellos completando las misiones de cada pilar.' : 'Forge your pass in a minute: name, pillar and avatar. Earn stamps by completing each pillar\'s missions.'),
           xpReward: '+120 XP',
           actionLabel: (es ? 'Abrir mi pase' : 'Open my pass'),
           icon: Award,
@@ -456,7 +456,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
       icon: Activity,
       iconUrl: pillarIcon('SYSTEM'),
       themeColor: pillarInk('SYSTEM'),
-      physicsDescription: (es ? 'Física: Retícula Orbital de Precisión · Audio: Pulso Cuántico de Telemetría' : 'Physics: Precision Orbital Grid · Audio: Quantum Telemetry Pulse'),
+      physicsDescription: (es ? 'Física: retícula de precisión · Audio: Pulso Cuántico de Telemetría' : 'Physics: precision grid · Audio: Quantum Telemetry Pulse'),
       modules: [
         {
           id: 'mod_guild_trials',
@@ -485,7 +485,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         },
         {
           id: 'mod_leaderboard_stats',
-          title: (es ? 'Leaderboard & Métricas de Piloto' : 'Leaderboard & Pilot Metrics'),
+          title: (es ? 'Leaderboard y métricas de creador' : 'Leaderboard & creator metrics'),
           subtitle: (es ? 'Clasificación General de Participación' : 'Overall Participation Ranking'),
           description:
             (es ? 'Verifica tu posición en la tabla de líderes del ecosistema Spatialgineers rumbo a los premios mayores del Día 3.' : 'Check your position on the Spatialgineers ecosystem leaderboard on the road to the Day 3 grand prizes.'),
@@ -530,7 +530,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           title: (es ? 'Foros del Summit & Chat de Comunidad' : 'Summit Forums & Community Chat'),
           subtitle: (es ? 'Canales Temáticos en Tiempo Real' : 'Real-Time Themed Channels'),
           description:
-            (es ? 'Debate con otros pilotos, comparte recursos de Roblox/WebXR y coordina colaboraciones en directo.' : 'Talk with other pilots, share Roblox/WebXR resources and coordinate collaborations live.'),
+            (es ? 'Debate con otros creadores, comparte recursos de Roblox/WebXR y coordina colaboraciones en directo.' : 'Talk with other creators, share Roblox/WebXR resources and coordinate collaborations live.'),
           xpReward: '+80 XP',
           actionLabel: (es ? 'Entrar al Foro Chat' : 'Enter the Forum Chat'),
           icon: MessageSquare,
@@ -698,7 +698,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
                 { hz: 288, name: (es ? 'Raíz Cósmica (D4)' : 'Cosmic Root (D4)'), desc: (es ? 'Sub-bajo gravitacional' : 'Gravitational sub-bass') },
                 { hz: 432, name: (es ? 'Armónico Solar (A4)' : 'Solar Harmonic (A4)'), desc: (es ? 'Sintonía base SGX.STORY' : 'SGX.STORY base tuning') },
                 { hz: 528, name: (es ? 'Resonancia Cian (C5)' : 'Cyan Resonance (C5)'), desc: (es ? 'Pulso cristalino SHOWCASE' : 'SHOWCASE crystal pulse') },
-                { hz: 648, name: (es ? 'Quinta Orbital (E5)' : 'Orbital Fifth (E5)'), desc: (es ? 'Expansión de anillos 3D' : '3D ring expansion') },
+                { hz: 648, name: (es ? 'Quinta (E5)' : 'Fifth (E5)'), desc: (es ? 'Expansión de anillos 3D' : '3D ring expansion') },
               ].map(pad => (
                 <button
                   key={pad.hz}
@@ -809,7 +809,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
                 className="px-4 py-2.5 bg-slate-900/90 hover:bg-slate-800 border border-white/20 text-white font-bold flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap shrink-0"
                 style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
               >
-                <span>{es ? 'Siguiente Pilar Orbital' : 'Next Orbital Pillar'}</span>
+                <span>{es ? 'Siguiente pilar' : 'Next pillar'}</span>
                 <ArrowRight className="w-3.5 h-3.5 text-[#FDCC0D]" />
               </button>
               <button

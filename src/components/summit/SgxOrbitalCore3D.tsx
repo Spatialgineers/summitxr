@@ -1255,12 +1255,12 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           setXpOrbsCollected(c => c + 1);
           setFloatingXpNotice((es ? '+25 XP • ORBE CUÁNTICO RECOLECTADO' : '+25 XP • QUANTUM ORB COLLECTED'));
           setTimeout(() => setFloatingXpNotice(null), 2200);
-          recordActivity('easter_egg', 'Orbe Cuántico 3D Recolectado', 'Núcleo Orbital SGX', 25);
+          recordActivity('easter_egg', 'Orbe Cuántico 3D Recolectado', 'Núcleo SGX', 25);
           return;
         }
       }
 
-      // 1b. Your own card in orbit opens the Hangar (or the Forge).
+      // 1b. Your own card in orbit opens your Studio (or the Forge).
       if (pilotOrbit.hit(raycaster)) {
         const wp = pilotOrbit.worldPosition(new THREE.Vector3());
         spawnShockwave(wp, 0xFDCC0D);
@@ -1297,7 +1297,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         let first = false;
         try { first = !localStorage.getItem(GUILD_EGG_KEY); localStorage.setItem(GUILD_EGG_KEY, '1'); } catch { /* ignore */ }
         if (first) {
-          recordActivity('easter_egg', 'Logo del SGX Guild encontrado', 'Núcleo Orbital SGX', 50);
+          recordActivity('easter_egg', 'Logo del SGX Guild encontrado', 'Núcleo SGX', 50);
           setFloatingXpNotice(es ? '+50 XP • ENCONTRASTE EL SGX GUILD' : '+50 XP • YOU FOUND THE SGX GUILD');
         } else {
           setFloatingXpNotice(es ? 'SGX GUILD · YA LO ENCONTRASTE' : 'SGX GUILD · ALREADY FOUND');
@@ -1882,7 +1882,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
             }}
             className="px-2 py-1.5 bg-[#1A1A1A] hover:bg-[#32527B]/60 border border-[#32527B] text-white flex items-center gap-1 cursor-pointer text-xs font-bold"
             style={{ clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}
-            title={autoRotate ? (es ? 'Pausar rotación de órbita' : 'Pause orbit rotation') : (es ? 'Girar órbita' : 'Rotate orbit')}
+            title={autoRotate ? (es ? 'Pausar rotación' : 'Pause rotation') : (es ? 'Girar' : 'Rotate')}
           >
             {autoRotate ? <Pause className="w-3.5 h-3.5 text-[#00DDFF]" /> : <Play className="w-3.5 h-3.5 text-[#FDCC0D]" />}
             <span className="hidden sm:inline">{autoRotate ? (es ? 'Pausa' : 'Pause') : (es ? 'Girar' : 'Rotate')}</span>
@@ -1950,7 +1950,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                   className="w-full px-2.5 py-1.5 bg-[#1A1A1A] hover:bg-[#FDCC0D] hover:text-black border border-[#32527B] flex items-center gap-2 text-left transition-colors cursor-pointer text-xs text-white"
                 >
                   <RotateCcw className="w-3.5 h-3.5 text-[#FDCC0D]" />
-                  <span>{es ? 'Restablecer Vista Orbital' : 'Reset Orbital View'}</span>
+                  <span>{es ? 'Restablecer vista' : 'Reset view'}</span>
                 </button>
               ) : (
                 <button
@@ -2464,7 +2464,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                                 className="sgx-btn px-3 py-1.5 text-xs flex items-center gap-1.5 font-bold cursor-pointer"
                               >
                                 <Eye className="w-3.5 h-3.5" />
-                                <span>{es ? 'Enfocar en Órbita 3D 🔭' : 'Focus in 3D Orbit 🔭'}</span>
+                                <span>{es ? 'Enfocar en 3D' : 'Focus in 3D'}</span>
                               </button>
 
                               <button

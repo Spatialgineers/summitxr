@@ -272,20 +272,23 @@
 .sgx-constellation { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 22px; align-items: start; }
 .sgx-constellation__map { position: relative; aspect-ratio: 1; width: 100%; max-width: 620px; margin-inline: auto; }
 .sgx-constellation__map svg { width: 100%; height: 100%; overflow: visible; }
-.sgx-constellation__ring { fill: none; stroke: rgba(0, 221, 255, 0.12); stroke-dasharray: 2 8; }
+.sgx-constellation__ring { fill: none; stroke: rgba(0, 221, 255, 0.16); stroke-dasharray: 6 6; }
+.sgx-constellation__frame { fill: #050505; stroke: var(--pillar-accent); stroke-width: 2; }
 .sgx-constellation__sector line { stroke: rgba(255, 255, 255, 0.08); }
 .sgx-constellation__sector text { font-family: var(--font-hud); font-size: 24px; letter-spacing: 2px; fill: rgba(255, 255, 255, 0.28); }
 .sgx-constellation__sector.is-on text { fill: var(--pillar-accent); }
 .sgx-constellation__sector.is-on line { stroke: color-mix(in srgb, var(--pillar-accent) 35%, transparent); }
 .sgx-constellation__link { stroke: rgba(0, 221, 255, 0.16); stroke-width: 1; }
 .sgx-constellation__chain { stroke: var(--pillar-accent); stroke-width: 1.6; stroke-opacity: 0.7; }
-.sgx-constellation__star { animation: sgx-twinkle 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.sgx-constellation__star { animation: sgx-node-pulse 3.2s ease-in-out infinite; }
+@keyframes sgx-node-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.72; } }
 .sgx-constellation__star text, .sgx-constellation__me text { font-family: var(--font-mono); font-size: 22px; fill: rgba(255, 255, 255, 0.75); }
-.sgx-constellation__halo { fill: var(--pillar-accent); opacity: 0.45; }
+.sgx-constellation__halo { fill: var(--pillar-accent); opacity: 0.32; }
 .sgx-constellation__core { fill: var(--pillar-accent); }
 .sgx-constellation__me text { font-family: var(--font-display); font-size: 22px; fill: var(--pillar-accent); letter-spacing: 1px; }
 @keyframes sgx-twinkle { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
-.sgx-constellation__empty { position: absolute; inset: auto 8% 6% 8%; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.sgx-constellation__col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.sgx-constellation__empty { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; max-width: 620px; margin-inline: auto; }
 .sgx-constellation__empty p { margin: 0; font-family: var(--font-body); font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); }
 .sgx-constellation__side { display: flex; flex-direction: column; gap: 12px; }
 .sgx-constellation__side h4 { margin: 6px 0 0; font-family: var(--font-hud); font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); }

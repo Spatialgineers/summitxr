@@ -225,7 +225,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
       features: [
         {
           title: (es ? 'Simulador de Dron 3D' : '3D Drone Simulator'),
-          desc: (es ? 'Entorno de vuelo táctico WebGL con físicas de gravedad cero y colisiones.' : 'Tactical WebGL flight environment with zero-gravity physics and collisions.'),
+          desc: (es ? 'Simulador de dron WebGL con física real y colisiones.' : 'WebGL drone simulator with real physics and collisions.'),
           actionLabel: (es ? 'Lanzar Simulador de Dron' : 'Launch the Drone Simulator'),
           icon: Rocket,
           onClick: onOpenDroneSimulator,
@@ -867,7 +867,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
             },
             {
               title: (es ? 'Simulador Dron' : 'Drone Simulator'),
-              desc: (es ? 'Vuelo acrobático 3D y retos con XP' : '3D aerobatic flight and XP challenges'),
+              desc: (es ? 'Dron acrobático 3D y retos con XP' : '3D aerobatic drone and XP challenges'),
               icon: Rocket,
               color: '#00DDFF',
               badge: 'SGX.SPARK',

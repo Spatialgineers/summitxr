@@ -160,7 +160,7 @@ const ADMIN_NAV: { id: string; label: string; items: NavItem[] }[] = [
   ] },
   { id: 'people', label: 'Personas', items: [
     { id: 'REGISTRATIONS', label: 'Inscritos y Día 3', icon: Ticket, keywords: 'registro check-in propuestas' },
-    { id: 'AUDIENCE_LEADS', label: 'Audiencia y leads', icon: Users2, keywords: 'pilotos emails' },
+    { id: 'AUDIENCE_LEADS', label: 'Audiencia y leads', icon: Users2, keywords: 'creadores emails' },
     { id: 'ENTREPRENEUR_MATCH', label: 'Entrepreneur Match', icon: Briefcase, keywords: 'match perfiles' },
   ] },
   { id: 'game', label: 'Juego', items: [
@@ -992,14 +992,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           {/* SUBPAGE 7: AUDIENCE & LEADS (CSV) */}
           {activeSubpage === 'AUDIENCE_LEADS' && (
-            <AdminSection title="Audiencia y leads" desc="Pilotos registrados y personas en la sala en vivo. Exporta en CSV o JSON.">
+            <AdminSection title="Audiencia y leads" desc="Creadores registrados y personas en la sala en vivo. Exporta en CSV o JSON.">
 
             <div className="sgx-panel space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--sgx-secondary)] pb-2">
                 <div>
                   <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
                     <Users className="w-4 h-4 text-[var(--sgx-neon)]" />
-                    <span>Pilotos y audiencia ({combinedLeads.length})</span>
+                    <span>Creadores y audiencia ({combinedLeads.length})</span>
                   </h3>
                   <p className="text-[10px] text-slate-400 font-mono">
                     Real-time audience participant database synchronized with Firebase Firestore.
@@ -1042,7 +1042,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <thead className="bg-[#121212] border-b border-[var(--sgx-secondary)] text-[10px] text-[var(--sgx-neon)] uppercase">
                     <tr>
                       <th className="p-2">#</th>
-                      <th className="p-2">Piloto</th>
+                      <th className="p-2">Creador</th>
                       <th className="p-2">Email</th>
                       <th className="p-2">Puntos</th>
                       <th className="p-2">Racha</th>
@@ -1089,7 +1089,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           )}
 
           {activeSubpage === 'REWARDS' && (
-            <AdminSection title="Tienda del Reactor" desc="Premios que los pilotos canjean con su XP. Un premio inactivo no se puede canjear." csv={[CSV_ENTITIES.rewards]} onCsvApplied={bumpCsv}>
+            <AdminSection title="Tienda del Reactor" desc="Premios que los creadores canjean con su XP. Un premio inactivo no se puede canjear." csv={[CSV_ENTITIES.rewards]} onCsvApplied={bumpCsv}>
               <AdminRewardsManager key={csvRev} />
             </AdminSection>
           )}

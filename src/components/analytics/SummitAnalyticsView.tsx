@@ -151,7 +151,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = () => {
     playUiChirp(760);
     const rows: (string | number)[][] = [
       ['Metric', 'Value'],
-      ['Active pilots', live.pilots ?? ''],
+      ['Active creators', live.pilots ?? ''],
       ['Platform visits', live.visits ?? ''],
       ['Unique visitors', live.uniqueVisitors ?? ''],
       ['Poll votes', live.votes ?? ''],
@@ -160,7 +160,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = () => {
       ['Registrations', live.registrations ?? ''],
       ['Registrations Day 3', live.registrationsDay3 ?? ''],
       ['Prizes redeemed', live.prizes ?? ''],
-      ...SGX_PILLARS.map((p) => [`Pilots with ${p.name} affinity`, live.pillars[p.key] || 0]),
+      ...SGX_PILLARS.map((p) => [`Creators with ${p.name} affinity`, live.pillars[p.key] || 0]),
       ...live.countries.map((c) => [`Visits from ${c.code}`, c.count]),
       ['Exported at', new Date().toISOString()],
     ];
@@ -178,7 +178,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = () => {
   const maxPillar = Math.max(1, ...SGX_PILLARS.map((p) => live.pillars[p.key] || 0));
 
   const tiles: { icon: React.ElementType; label: string; value: string; note: string; color: string }[] = [
-    { icon: Users, label: es ? 'Pilotos activos' : 'Active pilots', value: fmt(live.pilots), note: es ? 'En el ranking global' : 'On the global ranking', color: '#00DDFF' },
+    { icon: Users, label: es ? 'Creadores activos' : 'Active creators', value: fmt(live.pilots), note: es ? 'En el ranking global' : 'On the global ranking', color: '#00DDFF' },
     { icon: Eye, label: es ? 'Visitas a la plataforma' : 'Platform visits', value: fmt(live.visits), note: `${fmt(live.uniqueVisitors)} ${es ? 'visitantes únicos' : 'unique visitors'}`, color: '#FDCC0D' },
     { icon: Vote, label: es ? 'Votos en encuestas' : 'Poll votes', value: fmt(live.votes), note: es ? 'Encuestas del keynote' : 'Keynote polls', color: '#FDCC0D' },
     { icon: MessageSquare, label: es ? 'Mensajes en el chat' : 'Chat messages', value: fmt(live.chats), note: es ? 'Networking del Summit' : 'Summit networking', color: '#00DDFF' },
@@ -261,10 +261,10 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = () => {
             <div className="flex items-center gap-2">
               <Layers className="w-4 h-4 text-[#00DDFF]" />
               <span className="text-xs font-bold text-white uppercase font-['Orbitron',sans-serif]">
-                {es ? 'Pilotos por pilar de afinidad' : 'Pilots by affinity pillar'}
+                {es ? 'Creadores por pilar de afinidad' : 'Creators by affinity pillar'}
               </span>
             </div>
-            <span className="text-[11px] text-slate-400 font-mono">{es ? 'Constelaciones' : 'Constellations'}</span>
+            <span className="text-[11px] text-slate-400 font-mono">{es ? 'Redes' : 'Networks'}</span>
           </div>
           <div className="space-y-3.5">
             {SGX_PILLARS.map((p) => {
@@ -277,7 +277,7 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = () => {
                       <span className="w-2 h-2 inline-block" style={{ backgroundColor: p.color }} />
                       {p.name}
                     </span>
-                    <span className="text-slate-300 tabular-nums">{val.toLocaleString()} {es ? 'pilotos' : 'pilots'}</span>
+                    <span className="text-slate-300 tabular-nums">{val.toLocaleString()} {es ? 'creadores' : 'creators'}</span>
                   </div>
                   <div className="w-full h-2.5 bg-black/70 border border-[#32527B]/70 overflow-hidden">
                     <div className="h-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: p.color }} />
@@ -344,14 +344,14 @@ export const SummitAnalyticsView: React.FC<SummitAnalyticsViewProps> = () => {
             <div className="flex items-center justify-between text-[11px] font-mono gap-2">
               <span className="text-[#FDCC0D] font-bold flex items-center gap-1">
                 <Zap className="w-3.5 h-3.5" />
-                <span>{es ? 'Top pilotos' : 'Top pilots'}</span>
+                <span>{es ? 'Top creadores' : 'Top creators'}</span>
               </span>
               <button type="button" onClick={() => { playUiChirp(640); setIsProfileModalOpen(true); }} className="text-[#00DDFF] hover:underline cursor-pointer py-2">
                 {es ? 'Ver ranking completo →' : 'Full ranking →'}
               </button>
             </div>
             <div className="space-y-1.5 font-mono text-xs">
-              {!leaderboard.length && <p className="text-slate-400">{es ? 'El ranking empieza con los primeros pilotos.' : 'The ranking starts with the first pilots.'}</p>}
+              {!leaderboard.length && <p className="text-slate-400">{es ? 'El ranking empieza con los primeros creadores.' : 'The ranking starts with the first creators.'}</p>}
               {leaderboard.slice(0, 3).map((entry, idx) => (
                 <div key={entry.uid} className="px-2.5 py-1.5 bg-black/60 border border-white/10 flex items-center justify-between">
                   <div className="flex items-center gap-2 min-w-0">

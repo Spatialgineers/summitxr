@@ -65,7 +65,7 @@ check('Day 3 invite to B', subj.some((s) => s.startsWith(`b${tag}`) && /Día 3/.
 check('Holo Card email to the speaker (email from players)', subj.some((s) => s.startsWith(`c${tag}`) && /Holo Card de Speaker/.test(s)));
 check('exactly 4 emails', run1.sent.length === 4, String(run1.sent.length));
 check('mail_log written', curl('GET', `${DB}/mail_log/confirm_${regA}`).code === 200 && curl('GET', `${DB}/mail_log/invite_${regB}`).code === 200 && curl('GET', `${DB}/mail_log/holo_speaker_${uid}`).code === 200);
-check('html has the pass code and CTA', run1.sent[0].htmlBody.includes('?hangar=pass') && /SGX-[AB]/.test(run1.sent[0].htmlBody));
+check('html has the pass code and CTA', run1.sent[0].htmlBody.includes('?estudio=pass') && /SGX-[AB]/.test(run1.sent[0].htmlBody));
 
 // 2nd run with the same cursors: nothing is sent twice.
 run1.api.processQueue();

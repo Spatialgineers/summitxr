@@ -241,8 +241,8 @@ export const SGX_PORTFOLIO: PortfolioProject[] = [
     nameEn: 'Spatialgineers Summit Platform (this ecosystem)',
     metric: 'Plataforma propia',
     metricEn: 'Our own platform',
-    desc: 'Webapp nativa con base de datos en tiempo real, simulador de vuelo, transmisión multicanal y gamificación con votación en vivo.',
-    descEn: 'A native web app with a real-time database, flight simulator, multichannel streaming and gamification with live voting.',
+    desc: 'Webapp nativa con base de datos en tiempo real, simulador de dron, transmisión multicanal y gamificación con votación en vivo.',
+    descEn: 'A native web app with a real-time database, drone simulator, multichannel streaming and gamification with live voting.',
   },
 ];
 

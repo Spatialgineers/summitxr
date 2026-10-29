@@ -146,8 +146,8 @@ export function serialFromCode(code: string): string {
 }
 
 export function callsignFromName(name: string): string {
-  const first = name.trim().split(/\s+/)[0] || 'PILOTO';
-  const base = first.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8) || 'PILOTO';
+  const first = name.trim().split(/\s+/)[0] || 'CREADOR';
+  const base = first.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8) || 'CREADOR';
   return `${base}-${randomChunk(2)}`;
 }
 
@@ -264,7 +264,7 @@ function fromBase64Url(s: string): string {
   return decodeURIComponent(escape(atob(b + '==='.slice((b.length + 3) % 4))));
 }
 
-/** A URL, so any phone camera opens the Summit straight onto "add this pilot". */
+/** A URL, so any phone camera opens the Summit straight onto "add this avatar". */
 export function passQrUrl(payload: PassQrPayload): string {
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://summit.spatialgineers.com';
   return `${origin}/?pase=${toBase64Url(JSON.stringify(payload))}`;

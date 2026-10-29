@@ -298,7 +298,7 @@ export async function redeemPrize(
 
   // Voucher + inventory step in ONE batch: the rules accept the reward's
   // claimedCount +1 / inventoryCount -1 only together with the creation of
-  // this pilot's own voucher (and vice versa).
+  // this avatar's own voucher (and vice versa).
   try {
     const batch = writeBatch(db);
     batch.set(doc(db, 'redeemed_prizes', redemptionId), JSON.parse(JSON.stringify(redeemedItem)));

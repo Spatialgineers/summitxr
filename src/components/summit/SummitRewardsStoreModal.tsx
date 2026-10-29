@@ -35,7 +35,7 @@ import {
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useAuth } from '../../context/AuthContext';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
-import { usePilotProfile } from '../../context/PilotProfileContext';
+import { calculateRankAndLevel, rankLabel, usePilotProfile } from '../../context/PilotProfileContext';
 import { SgxPilotGlyph } from '../../identity/SgxPilotGlyph';
 
 /** Podium avatar: the in-house pilot glyph (no stock photos). */
@@ -85,7 +85,7 @@ export const SummitRewardsStoreModal: React.FC<SummitRewardsStoreModalProps> = (
     votesCount: p.votesCount || 0,
     questsCount: p.connectionsCount || 0,
     droneHighScore: p.droneHighScore || 0,
-    rankTitle: p.rankTitle,
+    rankTitle: rankLabel(p.level || calculateRankAndLevel(p.totalXp || 0).level, es),
     streak: 0,
     lastActivity: p.updatedAt,
     avatarSeed: p.avatarSeed || p.uid,

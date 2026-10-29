@@ -375,7 +375,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white group-hover:text-[#FDCC0D] transition-colors font-['Orbitron',sans-serif]">
-                    {es ? 'Crea tu Perfil de Piloto Speaker' : 'Create Your Speaker Pilot Profile'}
+                    {es ? 'Crea tu perfil de speaker' : 'Create your speaker profile'}
                   </h3>
                   <div className="text-[10px] font-mono text-slate-400 mt-0.5">
                     Spatial Computing · WebXR · Audio 3D · IA
@@ -384,7 +384,7 @@ export const SummitSpeakersDeck: React.FC<SummitSpeakersDeckProps> = ({
               </div>
 
               <p className="text-xs text-slate-300 mt-3 leading-relaxed font-sans">
-                {es ? 'Por ahora los únicos ponentes confirmados son Danelson y Ricardo. Los demás ponentes deben registrar y calibrar su perfil de piloto para unirse a la agenda oficial.' : 'For now the only confirmed speakers are Danelson and Ricardo. Other speakers must register and calibrate their pilot profile to join the official agenda.'}
+                {es ? 'Por ahora los únicos ponentes confirmados son Danelson y Ricardo. Los demás ponentes deben registrar y configurar su perfil de creador para unirse a la agenda oficial.' : 'For now the only confirmed speakers are Danelson and Ricardo. Other speakers must register and set up their creator profile to join the official agenda.'}
               </p>
             </div>
 

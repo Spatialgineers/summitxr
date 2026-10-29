@@ -258,7 +258,7 @@ function esc_(s) {
 }
 
 function firstName_(full) {
-  return String(full || '').trim().split(/\s+/)[0] || 'piloto';
+  return String(full || '').trim().split(/\s+/)[0] || 'creador';
 }
 
 /* ======================= templates ======================= */
@@ -267,7 +267,7 @@ const DAY3_CAL = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
   + '&text=' + encodeURIComponent('Spatialgineers Summit 2026 · Día 3 · SGX Showcase')
   + '&dates=20261213T140000Z/20261213T200000Z'
   + '&location=' + encodeURIComponent('Chroma Space Studios, San Juan, Puerto Rico')
-  + '&details=' + encodeURIComponent('Tu entrada es el QR de tu SGX Pass: summit.spatialgineers.com/?hangar=day3');
+  + '&details=' + encodeURIComponent('Tu entrada es el QR de tu SGX Pass: summit.spatialgineers.com/?estudio=day3');
 
 const DAY1_CAL = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
   + '&text=' + encodeURIComponent('Spatialgineers Summit 2026 · Día 1 (YouTube Live)')
@@ -324,7 +324,7 @@ const TEMPLATES = {
           : 'Presencial en Chroma Space Studios, San Juan, por invitación.', color: '#FDCC0D' },
         { k: 'Prepárate', v: 'Arma tu agenda con las charlas que no te quieres perder, explora las 6 estaciones y gana XP con las misiones del Reactor.', color: '#B87000' },
       ],
-      cta: { label: 'Abrir mi SGX Pass', href: CONFIG.SITE + '/?hangar=pass' },
+      cta: { label: 'Abrir mi SGX Pass', href: CONFIG.SITE + '/?estudio=pass' },
       cta2: { label: 'Ver la agenda', href: CONFIG.SITE + '/?section=agenda' },
       en: 'English: your SGX Pass is forged. Days 1–2 stream free on YouTube Live (Dec 11–12); Day 3 is in person at Chroma Space Studios, San Juan, by invitation.',
     });
@@ -341,12 +341,12 @@ const TEMPLATES = {
     blocks: [
       { k: 'Cuándo', v: 'Domingo 13 de diciembre de 2026 · 10:00 AM (hora de Puerto Rico). <a href="' + DAY3_CAL + '" style="color:#00DDFF;">Añadir a mi calendario</a>', color: '#FDCC0D' },
       { k: 'Dónde', v: 'Chroma Space Studios · San Juan, Puerto Rico', color: '#FDCC0D' },
-      { k: 'Tu entrada', v: 'El QR de tu SGX Pass. Ábrelo en la app (Hangar → Día 3) y muéstralo en la puerta. Tu pase: <strong style="color:#FDCC0D;">' + esc_(r.referenceCode || r.id) + '</strong>', color: '#00DDFF' },
+      { k: 'Tu entrada', v: 'El QR de tu SGX Pass. Ábrelo en la app (Tu Estudio → Día 3) y muéstralo en la puerta. Tu pase: <strong style="color:#FDCC0D;">' + esc_(r.referenceCode || r.id) + '</strong>', color: '#00DDFF' },
       { k: '¿No puedes ir?', v: 'Contesta este correo para liberar tu espacio para otra persona.', color: '#B87000' },
     ],
-    cta: { label: 'Ver mi entrada', href: CONFIG.SITE + '/?hangar=day3' },
+    cta: { label: 'Ver mi entrada', href: CONFIG.SITE + '/?estudio=day3' },
     cta2: { label: 'Añadir al calendario', href: DAY3_CAL },
-    en: 'English: you are invited to Day 3 (SGX Showcase), Sunday Dec 13, 2026, 10:00 AM, Chroma Space Studios, San Juan. Your entrance is your SGX Pass QR (Hangar → Day 3).',
+    en: 'English: you are invited to Day 3 (SGX Showcase), Sunday Dec 13, 2026, 10:00 AM, Chroma Space Studios, San Juan. Your entrance is your SGX Pass QR (Your Studio → Day 3).',
   }),
 
   holo: (grant, role) => {
@@ -360,11 +360,11 @@ const TEMPLATES = {
       intro: 'El equipo aprobó tu credencial. Ya puedes descargar tu Holo Card oficial en formato post, story o badge y compartirla.',
       introText: 'El equipo aprobó tu credencial. Ya puedes descargar tu Holo Card oficial.',
       blocks: [
-        { k: 'Dónde está', v: 'Entra con la misma cuenta de Google que usaste y abre tu Hangar → Holo Card.', color: '#00DDFF' },
+        { k: 'Dónde está', v: 'Entra con la misma cuenta de Google que usaste y abre Tu Estudio → Holo Card.', color: '#00DDFF' },
         { k: 'Compártela', v: 'Etiqueta a @spatialgineers para que la amplifiquemos.', color: '#FDCC0D' },
       ],
-      cta: { label: 'Abrir mi Holo Card', href: CONFIG.SITE + '/?hangar=pass' },
-      en: 'English: the team approved your ' + label + ' credential. Open your Hangar to download and share your official Holo Card.',
+      cta: { label: 'Abrir mi Holo Card', href: CONFIG.SITE + '/?estudio=pass' },
+      en: 'English: the team approved your ' + label + ' credential. Open Your Studio to download and share your official Holo Card.',
     });
   },
 
@@ -395,10 +395,10 @@ const TEMPLATES = {
     intro: 'Te esperamos el domingo 13 de diciembre a las 10:00 AM en Chroma Space Studios, San Juan.',
     introText: 'Te esperamos el domingo 13 de diciembre a las 10:00 AM en Chroma Space Studios, San Juan.',
     blocks: [
-      { k: 'Tu entrada', v: 'El QR de tu SGX Pass (Hangar → Día 3). Pase <strong style="color:#FDCC0D;">' + esc_(r.referenceCode || r.id) + '</strong>.', color: '#FDCC0D' },
+      { k: 'Tu entrada', v: 'El QR de tu SGX Pass (Tu Estudio → Día 3). Pase <strong style="color:#FDCC0D;">' + esc_(r.referenceCode || r.id) + '</strong>.', color: '#FDCC0D' },
       { k: 'Calendario', v: '<a href="' + DAY3_CAL + '" style="color:#00DDFF;">Añadir a mi calendario</a>', color: '#00DDFF' },
     ],
-    cta: { label: 'Ver mi entrada', href: CONFIG.SITE + '/?hangar=day3' },
+    cta: { label: 'Ver mi entrada', href: CONFIG.SITE + '/?estudio=day3' },
     en: 'English: see you tomorrow, Sunday Dec 13, 10:00 AM at Chroma Space Studios, San Juan. Have your SGX Pass QR ready.',
   }),
 };

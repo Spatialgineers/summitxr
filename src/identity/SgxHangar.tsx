@@ -2,7 +2,7 @@ import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'rea
 import { configFromSeed } from './pilotAvatar';
 import { useDialogFocus } from '../lib/useDialogFocus';
 import { useLanguage } from '../context/LanguageContext';
-import { usePilotProfile } from '../context/PilotProfileContext';
+import { rankLabel, usePilotProfile } from '../context/PilotProfileContext';
 import { navigateToSection } from '../immersion/navigation';
 import { goToMission } from './missionNav';
 import { bi, PILLAR_BY_KEY, SGX_PILLARS, type PillarKey } from '../lib/sgxPillars';
@@ -20,7 +20,7 @@ import { GoogleSignInButton } from '../components/common/GoogleSignInButton';
 
 const SgxPilot3D = lazy(() => import('./SgxPilot3D').then((m) => ({ default: m.SgxPilot3D })));
 
-/* HANGAR DEL PILOTO: the one screen for "me". It replaces the profile modal,
+/* TU ESTUDIO: the one screen for "me". It replaces the profile modal,
    the passport drawer and the passport modal. Pass in front, everything you
    did behind it: Reactor missions per pillar, Rolodex, Day 3 and telemetry. */
 
@@ -75,7 +75,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   const downloadPdf = async () => {
     const svg = cardRef.current?.querySelector('svg') as SVGSVGElement | null;
     const { exportPassPdf } = await import('./passPdf');
-    exportPassPdf(identity, qr, `${profile.rankTitle} · LV ${profile.level}`, svg);
+    exportPassPdf(identity, qr, `${rankLabel(profile.level, es)} · LV ${profile.level}`, svg);
   };
 
   const copyCode = () => {
@@ -111,27 +111,27 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   const tabs: { id: HangarTab; label: string }[] = [
     { id: 'pass', label: es ? 'Pase' : 'Pass' },
     { id: 'reactor', label: `Reactor ${done}/${missions.length}` },
-    { id: 'stars', label: `${es ? 'Constelación' : 'Constellation'} ${identity.contacts.length}★` },
+    { id: 'stars', label: `${es ? 'Red' : 'Network'} ${identity.contacts.length}` },
     { id: 'rolodex', label: `Rolodex ${identity.contacts.length}` },
     { id: 'day3', label: es ? 'Día 3' : 'Day 3' },
     { id: 'log', label: es ? 'Telemetría' : 'Telemetry' },
   ];
 
   return (
-    <div ref={dialogRef} tabIndex={-1} className="sgx-hangar" role="dialog" aria-modal="true" aria-label={es ? 'Hangar del piloto' : 'Pilot hangar'} onClick={onClose}>
+    <div ref={dialogRef} tabIndex={-1} className="sgx-hangar" role="dialog" aria-modal="true" aria-label={es ? 'Tu Estudio' : 'Your Studio'} onClick={onClose}>
       <div className="sgx-hangar__frame" onClick={(e) => e.stopPropagation()}>
         <HoloGlass pillar={identity.affinity} />
         <header className="sgx-hangar__head">
           <div className="sgx-hangar__title">
             <img src="/brand/sgx-bolt.svg" alt="" />
             <div>
-              <h2>{es ? 'Hangar del piloto' : 'Pilot hangar'}</h2>
+              <h2>{es ? 'Tu Estudio' : 'Your Studio'}</h2>
               <p>{isForged ? `${identity.pass!.fullName} · ${identity.callsign}` : (es ? 'Sin pase todavía' : 'No pass yet')}</p>
             </div>
           </div>
           <div className="sgx-hangar__xp">
             <span><b>{profile.totalXp.toLocaleString('es-PR')}</b> XP</span>
-            <span className="sgx-hangar__xp-sub">{xpBalance.toLocaleString('es-PR')} {es ? 'para gastar' : 'to spend'} · {profile.rankTitle}</span>
+            <span className="sgx-hangar__xp-sub">{xpBalance.toLocaleString('es-PR')} {es ? 'para gastar' : 'to spend'} · {rankLabel(profile.level, es)}</span>
           </div>
           <button type="button" className="sgx-hangar__close" onClick={onClose} aria-label={es ? 'Cerrar' : 'Close'}>✕</button>
         </header>
@@ -177,13 +177,13 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
               <div className="sgx-hangar__actions">
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={downloadPdf}>{es ? 'Pase en PDF' : 'Pass as PDF'}</button>
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={copyCode}>{copied ? (es ? 'Copiado' : 'Copied') : (es ? 'Copiar código' : 'Copy code')}</button>
-                <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_avatar')), 80); }}>{es ? 'Mi piloto' : 'My pilot'}</button>
+                <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_avatar')), 80); }}>{es ? 'Mi avatar' : 'My avatar'}</button>
                 <button type="button" className="sgx-btn sgx-btn--ground" onClick={onForge}>{es ? 'Editar datos' : 'Edit details'}</button>
               </div>
               <section className="sgx-hangar__avatar3d" aria-label={es ? 'Tu avatar XR en 3D' : 'Your XR avatar in 3D'}>
                 <div>
                   <h4>{es ? 'Tu avatar XR' : 'Your XR avatar'}</h4>
-                  <p>{es ? 'El mismo que diseñaste, en 3D. Arrástralo para girarlo; también orbita el núcleo.' : 'The one you designed, in 3D. Drag to turn it; it also orbits the core.'}</p>
+                  <p>{es ? 'El mismo que diseñaste, en 3D. Arrástralo para girarlo; también aparece junto al núcleo.' : 'The one you designed, in 3D. Drag to turn it; it also appears next to the core.'}</p>
                 </div>
                 <Suspense fallback={<div className="sgx-hangar__avatar3d-wait">{es ? 'Cargando 3D…' : 'Loading 3D…'}</div>}>
                   <SgxPilot3D
@@ -362,9 +362,9 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                 </ul>
               </section>
               <section>
-                <h4>{es ? 'Leaderboard de pilotos' : 'Pilot leaderboard'}</h4>
+                <h4>{es ? 'Leaderboard de creadores' : 'Creator leaderboard'}</h4>
                 {leaderboard.length === 0 ? (
-                  <p className="sgx-hangar__note">{es ? 'Todavía no hay pilotos en el ranking.' : 'No pilots ranked yet.'}</p>
+                  <p className="sgx-hangar__note">{es ? 'Todavía no hay creadores en el ranking.' : 'No creators ranked yet.'}</p>
                 ) : (
                   <ol className="sgx-hangar__board">
                     {leaderboard.slice(0, 10).map((e, i) => (

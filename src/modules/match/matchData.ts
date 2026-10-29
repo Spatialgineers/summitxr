@@ -97,7 +97,7 @@ export async function saveUserMatchProfile(
       try { pass = JSON.parse(localStorage.getItem('sgx_identity_v1') || 'null')?.pass || null; } catch {}
       await setDoc(doc(db, 'match_profiles', uid), {
         uid,
-        displayName: String(pass?.fullName || pass?.callsign || 'Piloto SGX').slice(0, 80),
+        displayName: String(pass?.fullName || pass?.callsign || 'Creador SGX').slice(0, 80),
         organization: String(pass?.organization || '').slice(0, 120),
         roleTitle: String(pass?.roleTitle || '').slice(0, 80),
         avatarSeed: String(pass?.avatarSeed || uid).slice(0, 80),
@@ -310,7 +310,7 @@ export async function syncRemoteMatches(myUid: string): Promise<MutualMatch[]> {
       const c = card.exists() ? (card.data() as any) : {};
       const other: MatchCandidate = {
         uid: toUid,
-        displayName: c.displayName || 'Piloto SGX',
+        displayName: c.displayName || 'Creador SGX',
         organization: c.organization || '',
         roleTitle: c.roleTitle || '',
         avatarUrl: '',
@@ -372,7 +372,7 @@ export async function fetchCandidatesDeck(
         if (!data?.profile || typeof data.profile.pitch !== 'string' || !data.profile.pitch || data.profile.visible === false || d.id === myUid) return;
         pool.push({
           uid: d.id,
-          displayName: data.displayName || 'Piloto SGX',
+          displayName: data.displayName || 'Creador SGX',
           organization: data.organization || '',
           roleTitle: data.roleTitle || '',
           avatarUrl: '',

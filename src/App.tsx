@@ -1109,7 +1109,7 @@ export default function App() {
         </LazyBoundary>
       </div>
 
-      {/* SGX Pass: Forja de identidad + Hangar del piloto (replaces taquilla, profile, passport, tours) */}
+      {/* SGX Pass: Forja de identidad + Tu Estudio (replaces taquilla, profile, passport, tours) */}
       <SgxPassHost quiet={currentPage === 'stage' || currentPage === 'multiview'} />
 
       {/* SGX Immersion Engine: quests, energy cells, terminal, HUD and FX */}

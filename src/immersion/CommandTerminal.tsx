@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useImmersion } from './ImmersionContext';
 import { useLanguage } from '../context/LanguageContext';
-import { usePilotProfile } from '../context/PilotProfileContext';
+import { rankLabel, usePilotProfile } from '../context/PilotProfileContext';
 import { toggleAudioMute, playUiChirp } from '../lib/cyberAudioEngine';
 import { getAppRouteAndSectionFromUrl } from '../lib/summitUrlSync';
 import { SECTION_META, pillarDisplay } from './sections';
@@ -88,7 +88,7 @@ export const CommandTerminal: React.FC = () => {
       { id: 'fx', label: `FX ${imm.settings.fx ? 'OFF' : 'ON'}`, group: act, keywords: ['fx', 'efectos', 'effects', 'motion'], run: () => { imm.setSettings({ fx: !imm.settings.fx }); return `FX ${imm.settings.fx ? 'OFF' : 'ON'}`; } },
       { id: 'sfx', label: `SFX ${imm.settings.sfx ? 'OFF' : 'ON'}`, group: act, keywords: ['sfx', 'sonidos', 'sounds'], run: () => { imm.setSettings({ sfx: !imm.settings.sfx }); return `SFX ${imm.settings.sfx ? 'OFF' : 'ON'}`; } },
       { id: 'mute', label: es ? 'Silenciar / activar audio' : 'Mute / unmute audio', group: act, keywords: ['mute', 'silencio', 'audio', 'm'], run: () => (toggleAudioMute() ? 'AUDIO OFF' : 'AUDIO ON') },
-      { id: 'profile', label: es ? 'Hangar del piloto' : 'Pilot hangar', group: open, keywords: ['hangar', 'perfil', 'profile', 'piloto', 'pilot', 'leaderboard', 'rolodex'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_hangar'); } },
+      { id: 'profile', label: es ? 'Tu Estudio' : 'Your Studio', group: open, keywords: ['estudio', 'studio', 'hangar', 'perfil', 'profile', 'piloto', 'pilot', 'leaderboard', 'rolodex'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_hangar'); } },
       { id: 'tickets', label: es ? 'SGX Pass (registro, Holo Card, PDF)' : 'SGX Pass (registration, Holo Card, PDF)', group: open, keywords: ['pase', 'pass', 'boleto', 'ticket', 'registro', 'register', 'pdf', 'forja', 'forge'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_tickets'); } },
       { id: 'passport', label: es ? 'Reactor de misiones' : 'Mission reactor', group: open, keywords: ['reactor', 'misiones', 'missions', 'pasaporte', 'passport', 'sellos', 'stamps'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_passport'); } },
       { id: 'rewards', label: es ? 'Tienda de recompensas' : 'Rewards store', group: open, keywords: ['recompensas', 'rewards', 'tienda', 'store', 'premios'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_rewards'); } },
@@ -97,17 +97,17 @@ export const CommandTerminal: React.FC = () => {
       { id: 'qr', label: es ? 'Escáner QR de networking' : 'Networking QR scanner', group: open, keywords: ['qr', 'scanner', 'escaner', 'escanear'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_qr_scanner'); } },
       { id: 'tour', label: es ? 'Forja de identidad' : 'Identity forge', group: open, keywords: ['tour', 'guia', 'guide', 'onboarding', 'forja', 'forge'], run: () => { setTerminalOpen(false); openSummitModal('sgx:open_forge'); } },
       {
-        id: 'status', label: es ? 'Estado del piloto' : 'Pilot status', group: 'SGX.System', keywords: ['estado', 'status', 'stats', 'whoami'],
+        id: 'status', label: es ? 'Tu estado' : 'Your status', group: 'SGX.System', keywords: ['estado', 'status', 'stats', 'whoami'],
         run: () => [
-          `PILOT ${profile.nickname} · LVL ${profile.level} · ${profile.rankTitle}`,
+          `${es ? 'CREADOR' : 'CREATOR'} ${profile.nickname} · LVL ${profile.level} · ${rankLabel(profile.level, es)}`,
           `XP ${profile.totalXp.toLocaleString()} · ${es ? 'MISIONES' : 'MISSIONS'} ${reactorDone}/${reactorTotal} · ${es ? 'CELDAS' : 'CELLS'} ${imm.state.cells.length}/${TOTAL_CELLS} · ${es ? 'ENERGÍA' : 'ENERGY'} ${Math.round(imm.state.energy)}%`,
         ],
       },
       {
         id: 'help', label: es ? 'Ayuda' : 'Help', group: 'SGX.System', keywords: ['ayuda', 'help', '?', 'comandos', 'commands'],
         run: () => es
-          ? ['Escribe un pilar (story, showcase, spark, stage, system, synthesize), una sección (agenda, dron, mapa…) o una acción:', 'reactor · pase · hangar · holo · pulso · escenario · recompensas · estado · fx · sfx · mute · limpiar', 'Atajos: 1–6 estaciones de pilar · 0 núcleo · P pulso · M audio · F escenario · / terminal · ESC salir', 'Hay códigos escondidos. Los ingenieros saludan diferente.']
-          : ['Type a pillar (story, showcase, spark, stage, system, synthesize), a section (agenda, drone, map…) or an action:', 'reactor · pass · hangar · holo · pulse · stage · rewards · status · fx · sfx · mute · clear', 'Shortcuts: 1–6 pillar stations · 0 core · P pulse · M audio · F stage · / terminal · ESC exit', 'There are hidden codes. Engineers greet differently.'],
+          ? ['Escribe un pilar (story, showcase, spark, stage, system, synthesize), una sección (agenda, dron, mapa…) o una acción:', 'reactor · pase · estudio · holo · pulso · escenario · recompensas · estado · fx · sfx · mute · limpiar', 'Atajos: 1–6 estaciones de pilar · 0 núcleo · P pulso · M audio · F escenario · / terminal · ESC salir', 'Hay códigos escondidos. Los ingenieros saludan diferente.']
+          : ['Type a pillar (story, showcase, spark, stage, system, synthesize), a section (agenda, drone, map…) or an action:', 'reactor · pass · studio · holo · pulse · stage · rewards · status · fx · sfx · mute · clear', 'Shortcuts: 1–6 pillar stations · 0 core · P pulse · M audio · F stage · / terminal · ESC exit', 'There are hidden codes. Engineers greet differently.'],
       },
       { id: 'clear', label: es ? 'Limpiar terminal' : 'Clear terminal', group: 'SGX.System', keywords: ['limpiar', 'clear', 'cls'], run: () => { setLog([]); } },
     );

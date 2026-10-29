@@ -459,7 +459,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
                     <span className="text-xl">🤯</span>
                     <div>
                       <div className="font-bold text-slate-200 text-[11px]">Mind Blown</div>
-                      <div className="text-[9px] text-slate-400">{es ? 'Galaxia Cósmica' : 'Cosmic Galaxy'}</div>
+                      <div className="text-[9px] text-slate-400">{es ? 'Lluvia holográfica' : 'Holo rain'}</div>
                     </div>
                   </button>
                 </div>

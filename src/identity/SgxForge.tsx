@@ -52,7 +52,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
   const [tier, setTier] = useState<PassTier>(identity.pass?.tier || initialTier);
   const [affinity, setAffinity] = useState<PillarKey | null>(identity.affinity);
   const seed = identity.avatar.seed;
-  // Re-forging keeps your pilot; a new pass starts from a random one you then make your own.
+  // Re-forging keeps your avatar; a new pass starts from a random one you then make your own.
   const [pilot, setPilot] = useState<PilotConfig>(() => identity.avatar.pilot || randomPilot(identity.affinity ? PILLAR_ACCENT[identity.affinity] : undefined));
   const [imageConsent, setImageConsent] = useState<boolean>(identity.pass?.imageConsent === true);
   const [error, setError] = useState('');
@@ -245,7 +245,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
         {step === 'name' && (
           <form className="sgx-forge__stage" onSubmit={submitName}>
             <p className="sgx-forge__kicker">{editing ? (es ? `Tu SGX Pass · ${identity.pass?.code}` : `Your SGX Pass · ${identity.pass?.code}`) : `01 · ${es ? 'Identifícate' : 'Identify yourself'}`}</p>
-            <h2>{editing ? (es ? 'Edita tus datos' : 'Edit your details') : (es ? '¿Cómo te llamas, piloto?' : 'What is your name, pilot?')}</h2>
+            <h2>{editing ? (es ? 'Edita tus datos' : 'Edit your details') : (es ? '¿Cómo te llamas?' : 'What is your name?')}</h2>
             <div className="sgx-forge__fields">
               <label className="sgx-forge__field">
                 <span>{es ? 'Nombre completo' : 'Full name'}</span>
@@ -347,7 +347,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
               <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => go('pillar')}>{es ? 'Atrás' : 'Back'}</button>
               <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={print}>[ ⚡ {es ? 'Forjar mi SGX Pass' : 'Forge my SGX Pass'} ]</button></span>
             </div>
-            <p className="sgx-forge__fine">{es ? 'Lo puedes cambiar cuando quieras desde tu Hangar.' : 'You can change it any time from your Hangar.'}</p>
+            <p className="sgx-forge__fine">{es ? 'Lo puedes cambiar cuando quieras desde tu Estudio.' : 'You can change it any time from your Studio.'}</p>
           </section>
         )}
 
@@ -360,11 +360,11 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
                 <h2 className="sgx-forge__done">{es ? 'Pase forjado' : 'Pass forged'}</h2>
                 <p className="sgx-forge__fine">
                   {es
-                    ? 'Está guardado en este dispositivo y en tu Hangar. Completa misiones en los 6 pilares para llenarlo de sellos.'
-                    : 'It lives on this device and in your Hangar. Complete missions across the 6 pillars to fill it with stamps.'}
+                    ? 'Está guardado en este dispositivo y en tu Estudio. Completa misiones en los 6 pilares para llenarlo de sellos.'
+                    : 'It lives on this device and in your Studio. Complete missions across the 6 pillars to fill it with stamps.'}
                 </p>
                 <div className="sgx-forge__actions">
-                  <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={onOpenHangar}>[ {es ? 'Abrir mi Hangar' : 'Open my Hangar'} ]</button></span>
+                  <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={onOpenHangar}>[ {es ? 'Abrir mi Estudio' : 'Open my Studio'} ]</button></span>
                   <a className="sgx-btn sgx-btn--ground" href="https://www.youtube.com/@spatialgineers" target="_blank" rel="noopener noreferrer">{es ? 'Canal de YouTube' : 'YouTube channel'}</a>
                   <button type="button" className="sgx-btn sgx-btn--ground" onClick={onClose}>{es ? 'Seguir explorando' : 'Keep exploring'}</button>
                 </div>

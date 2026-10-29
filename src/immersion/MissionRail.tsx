@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useImmersion } from './ImmersionContext';
 import { useLanguage } from '../context/LanguageContext';
-import { usePilotProfile } from '../context/PilotProfileContext';
+import { rankLabel, usePilotProfile } from '../context/PilotProfileContext';
 import { getIsAudioMuted, toggleAudioMute } from '../lib/cyberAudioEngine';
 import { QUESTS, TOTAL_CELLS } from './quests';
 import { SECTION_META } from './sections';
@@ -123,7 +123,7 @@ export const MissionRail: React.FC = () => {
           <div className="sgx-status sgx-mission__telemetry">
             <span className="sgx-readout"><span className="sgx-readout__k">XP</span>{profile.totalXp.toLocaleString()}</span>
             <span className="sgx-readout"><span className="sgx-readout__k">LVL</span>{profile.level}</span>
-            <span className="sgx-mission__rank">{profile.rankTitle}</span>
+            <span className="sgx-mission__rank">{rankLabel(profile.level, lang === 'es')}</span>
           </div>
 
           <div className="sgx-field sgx-mission__energy">

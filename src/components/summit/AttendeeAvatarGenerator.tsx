@@ -278,7 +278,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
         </g>
       );
     }
-    // Default EVA Flight suit
+    // Default studio suit
     return (
       <g>
         <path d="M 40 155 L 70 145 L 130 145 L 160 155 L 170 200 L 30 200 Z" fill="#2B2B2B" stroke="#434343" strokeWidth="1.5" />
@@ -475,7 +475,7 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
                 </span>
               </div>
               <div className="text-[10px] text-slate-400 font-sans">
-                {es ? 'Personaliza tu astronauta y credencial oficial para el Summit San Juan 2026' : 'Customize your astronaut and official credential for the San Juan Summit 2026'}
+                {es ? 'Personaliza tu avatar y credencial oficial para el Summit San Juan 2026' : 'Customize your avatar and official credential for the San Juan Summit 2026'}
               </div>
             </div>
           </div>
@@ -743,11 +743,11 @@ export const AttendeeAvatarGenerator: React.FC<AttendeeAvatarGeneratorProps> = (
               {activeCategory === 'SUIT' && (
                 <div className="space-y-2">
                   <div className="text-[11px] text-slate-300 font-bold">
-                    {es ? 'Traje de Presión y Exoesqueleto:' : 'Pressure Suit and Exoskeleton:'}
+                    {es ? 'Ropa:' : 'Outfit:'}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { id: 'eva_flight' as const, name: 'EVA Flight Suit', desc: (es ? 'Arnés de gravedad cero con soporte vital' : 'Zero-gravity harness with life support') },
+                      { id: 'eva_flight' as const, name: (es ? 'Traje Studio XR' : 'XR Studio Suit'), desc: (es ? 'Tejido técnico con paneles de luz' : 'Technical fabric with light panels') },
                       { id: 'cyber_jacket' as const, name: (es ? 'Chaqueta Cyber Táctica' : 'Tactical Cyber Jacket'), desc: (es ? 'Cuellos altos de neón y fibra de carbono' : 'High neon collars and carbon fiber') },
                       { id: 'heavy_exo' as const, name: (es ? 'Exo-Armadura de Asalto' : 'Assault Exo-Armor'), desc: (es ? 'Placas de titanio y reactor en el pecho' : 'Titanium plates and a chest reactor') },
                       { id: 'san_juan_linen' as const, name: 'Spatial Linen San Juan', desc: (es ? 'Traje blanco tropical con bordes dorados' : 'Tropical white suit with gold trim') }

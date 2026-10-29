@@ -146,7 +146,7 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
       window.setTimeout(() => pushToast({
         tag: es ? 'SELLO IMPRESO' : 'STAMP PRINTED',
         title: es ? `${pillar.name} sellado en tu SGX Pass` : `${pillar.name} stamped on your SGX Pass`,
-        detail: es ? 'Abre el Hangar para verlo.' : 'Open the Hangar to see it.',
+        detail: es ? 'Abre tu Estudio para verlo.' : 'Open your Studio to see it.',
         tone: 'telemetry',
       }), 900);
     }
@@ -202,7 +202,7 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     window.addEventListener('sgx:quest_complete', onQuest);
     window.addEventListener('sgx:open_brand_showcase', onSponsor);
     window.addEventListener('sgx:avatar_saved', onAvatar);
-    // Holo Card Studio export: the card lives in the Hangar next to the pass.
+    // Holo Card Studio export: the card lives in your Studio next to the pass.
     const onHolo = (e: Event) => {
       const d = (e as CustomEvent<{ role?: string; image?: string }>).detail || {};
       commit((draft) => {
@@ -258,7 +258,7 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     if (pillars.length === 6 && !mine.stamps['constellation:six']) {
       commit((d) => { d.stamps['constellation:six'] = Date.now(); });
       const es = langRef.current === 'es';
-      pushToast({ tag: es ? 'SECRETO' : 'SECRET', title: es ? 'Constelación completa' : 'Full constellation', detail: es ? 'Tu Rolodex conecta los 6 pilares.' : 'Your Rolodex links all 6 pillars.', tone: 'alert' });
+      pushToast({ tag: es ? 'SECRETO' : 'SECRET', title: es ? 'Red completa' : 'Full network', detail: es ? 'Tu Rolodex conecta los 6 pilares.' : 'Your Rolodex links all 6 pillars.', tone: 'alert' });
       flag('constellation');
     }
     if (!myUid || !mine.pass || !mine.contacts.length) return;

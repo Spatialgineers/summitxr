@@ -34,7 +34,7 @@ export interface HoloCredential extends CredentialData {
 }
 
 export const ROLE_COPY: Record<CredentialRole, { label: [string, string]; band: [string, string]; color: string }> = {
-  visitor: { label: ['Piloto', 'Pilot'], band: ['', ''], color: '#FDCC0D' },
+  visitor: { label: ['Creador', 'Creator'], band: ['', ''], color: '#FDCC0D' },
   speaker: { label: ['Speaker', 'Speaker'], band: ['SPEAKER OFICIAL · SGX STAGE', 'OFFICIAL SPEAKER · SGX STAGE'], color: '#FDCC0D' },
   initiate: { label: ['Initiate', 'Initiate'], band: ['SGX GUILD · INITIATE 2026', 'SGX GUILD · INITIATE 2026'], color: '#00DDFF' },
   sponsor: { label: ['Sponsor', 'Sponsor'], band: ['SPONSOR OFICIAL · SUMMIT 2026', 'OFFICIAL SPONSOR · SUMMIT 2026'], color: '#FFBB00' },

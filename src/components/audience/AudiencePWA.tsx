@@ -52,10 +52,10 @@ const VOTING_GUIDE_STEPS: GuideStep[] = [
     ]
   },
   {
-    badge: 'GUÍA 3/3 • SINCRONIZACIÓN PILOTO',
-    title: 'Bitácora de Vuelo del Fin de Semana',
+    badge: 'GUÍA 3/3 • TU PERFIL',
+    title: 'Tu registro del Summit',
     subtitle: 'Cada voto suma a tu nivel y rango',
-    description: 'Tus votos, respuestas correctas y reacciones se registran automáticamente en tu perfil de piloto y tabla de clasificación en tiempo real.',
+    description: 'Tus votos, respuestas correctas y reacciones se registran automáticamente en tu perfil de creador y tabla de clasificación en tiempo real.',
     icon: Trophy,
     tips: [
       'Toca tu avatar superior para abrir el desglose completo del fin de semana.'
@@ -140,7 +140,7 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
       {/* Top Floating Guest Header & Mode Selector (Only 2 Modes: Vote & Live Visualizer) */}
       <header className="p-3 border-b border-[var(--sgx-secondary)]/60 bg-[var(--sgx-bg)]/95 backdrop-blur-md sticky top-0 z-30">
         <div className="flex items-center justify-between">
-          {/* The SGX Pass is your player profile: tap it to open the Hangar. */}
+          {/* The SGX Pass is your player profile: tap it to open your Studio. */}
           <button
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } }))}

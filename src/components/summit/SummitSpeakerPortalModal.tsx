@@ -32,11 +32,11 @@ interface SummitSpeakerPortalModalProps {
 }
 
 export const PRESET_AVATARS = [
-  { label: 'Piloto Stage & MoCap (Oro)', url: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Stage%20Icon%20BY.png' },
-  { label: 'Piloto Systems & Red (Cyan)', url: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Showcase%20Icon%20BY.png' },
-  { label: 'Piloto Spark & Shaders (Naranja)', url: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Spark%20Icon%20BY.png' },
-  { label: 'Piloto Story & Lore (Dorado)', url: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Story%20Icon%20BY.png' },
-  { label: 'Piloto SGX Guild Initiate', url: 'https://cdn.spatialgineers.com/Branding/Guild/Guild%20color.png' },
+  { label: 'Insignia Stage & MoCap (Oro)', url: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Stage%20Icon%20BY.png' },
+  { label: 'Insignia Systems & Red (Cyan)', url: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Showcase%20Icon%20BY.png' },
+  { label: 'Insignia Spark & Shaders (Naranja)', url: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Spark%20Icon%20BY.png' },
+  { label: 'Insignia Story & Lore (Dorado)', url: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Story%20Icon%20BY.png' },
+  { label: 'Insignia SGX Guild Initiate', url: 'https://cdn.spatialgineers.com/Branding/Guild/Guild%20color.png' },
   { label: 'Insignia Spatialgineer Core', url: 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png' },
 ];
 
@@ -505,7 +505,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] text-[var(--sgx-neon)] uppercase font-bold flex items-center space-x-1">
                           <Palette className="w-3.5 h-3.5" />
-                          <span>{es ? 'EDITOR DE PERSONAJE DE PILOTO' : 'PILOT CHARACTER EDITOR'}</span>
+                          <span>{es ? 'EDITOR DE AVATAR' : 'AVATAR EDITOR'}</span>
                         </span>
                         <span className="bg-amber-500/10 text-amber-400 text-[9px] px-2 py-0.5 font-mono font-bold border border-amber-500/30 uppercase">
                           {es ? 'Generador Vectorial' : 'Vector Generator'}
@@ -532,7 +532,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
                       {/* Quick Preset Avatars Picker */}
                       <div>
                         <div className="text-[9px] text-slate-400 uppercase mb-1.5 flex items-center justify-between">
-                          <span>{es ? 'O Elige una Insignia / Piloto Oficial:' : 'Or Choose an Official Badge / Pilot:'}</span>
+                          <span>{es ? 'O elige una insignia oficial:' : 'Or choose an official badge:'}</span>
                         </div>
                         <div className="grid grid-cols-6 gap-1.5">
                           {PRESET_AVATARS.map((p, idx) => (

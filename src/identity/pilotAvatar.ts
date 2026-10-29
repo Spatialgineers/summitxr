@@ -218,7 +218,7 @@ async function inline(url: string): Promise<void> {
   } catch { /* the raster copy simply goes without it */ }
 }
 
-/** Inline the images this pilot uses, so its raster copy carries them. */
+/** Inline the images this avatar uses, so its raster copy carries them. */
 export async function loadPilotAssets(c: PilotConfig): Promise<void> {
   const n = normalizePilot(c) as PilotConfig;
   await Promise.all([inline(EMBLEMS[n.emblem]?.src || ''), inline(texUrl(n.pattern))]);

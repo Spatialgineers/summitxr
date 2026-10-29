@@ -178,7 +178,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="sgx-crystal-card p-4">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 uppercase">PILOTOS EN RANKING</span>
+              <span className="text-[10px] font-mono text-slate-400 uppercase">CREADORES EN RANKING</span>
               <Users className="w-4 h-4 text-[#00DDFF]" />
             </div>
             <div className="text-xl md:text-2xl font-bold font-mono text-white mt-1.5 tabular-nums">
@@ -233,7 +233,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
         <div className="flex flex-wrap items-center gap-2 border-b border-[var(--sgx-secondary)] pb-2">
           {[
             { id: 'SUMMIT_GLOBAL', label: 'SUMMIT 3-DAY ANALYTICS', icon: Globe },
-            { id: 'LEADERBOARD', label: 'PILOT & AUDIENCE LEADERBOARD', icon: Trophy },
+            { id: 'LEADERBOARD', label: 'CREATOR & AUDIENCE LEADERBOARD', icon: Trophy },
             { id: 'CYOA_TREE', label: 'CYOA DECISION GRAPH', icon: GitBranch },
             { id: 'TELEMETRY', label: 'LIVE SESSION TELEMETRY', icon: Activity },
           ].map((tab) => {

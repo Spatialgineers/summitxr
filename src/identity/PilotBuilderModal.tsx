@@ -8,7 +8,7 @@ import { PilotBuilder } from './PilotBuilder';
 import { HoloGlass } from '../immersion/shaders/HoloGlass';
 import { configFromSeed, type PilotConfig } from './pilotAvatar';
 
-/* Avatar Studio: the Pilot Builder outside the Forge (from the Hangar, the
+/* Avatar Studio: the Pilot Builder outside the Forge (from your Studio, the
    Holo Card Studio or the reactor mission). Saving updates the pass, the
    Holo Card and everywhere the pilot shows. */
 
@@ -37,7 +37,7 @@ export const PilotBuilderModal: React.FC<{ onClose: () => void }> = ({ onClose }
   };
 
   return (
-    <div ref={dialogRef} tabIndex={-1} className="sgx-hangar" role="dialog" aria-modal="true" aria-label={es ? 'Constructor de piloto' : 'Pilot builder'} onClick={onClose}>
+    <div ref={dialogRef} tabIndex={-1} className="sgx-hangar" role="dialog" aria-modal="true" aria-label={es ? 'Constructor de avatar' : 'Avatar builder'} onClick={onClose}>
       <div className="sgx-hangar__frame sgx-pilotb-modal" onClick={(e) => e.stopPropagation()}>
         <HoloGlass />
         <header className="sgx-hangar__head">
@@ -55,12 +55,12 @@ export const PilotBuilderModal: React.FC<{ onClose: () => void }> = ({ onClose }
           {identity.avatar.png && (
             <label className="sgx-pilotb__photo">
               <input type="checkbox" checked={usePilot} onChange={(e) => setUsePilot(e.target.checked)} />
-              {es ? 'Usar este piloto en mi pase en vez de mi foto' : 'Use this pilot on my pass instead of my photo'}
+              {es ? 'Usar este avatar en mi pase en vez de mi foto' : 'Use this avatar on my pass instead of my photo'}
             </label>
           )}
           <div className="sgx-forge__actions">
             <button type="button" className="sgx-btn sgx-btn--ground" onClick={onClose}>{es ? 'Cancelar' : 'Cancel'}</button>
-            <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={save}>[ ⚡ {es ? 'Guardar piloto' : 'Save pilot'} ]</button></span>
+            <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={save}>[ ⚡ {es ? 'Guardar avatar' : 'Save avatar'} ]</button></span>
           </div>
         </div>
       </div>

@@ -20,7 +20,7 @@ const SCREENS = [
   ['sgx-live', '/?page=play', null],
   ['admin-login', '/?page=admin', null],
   // with a pass (forged once per viewport below)
-  ['hangar', '/?hangar=pass', async (p) => { await p.waitForSelector('.sgx-hangar', { timeout: 20000 }); }],
+  ['estudio', '/?estudio=pass', async (p) => { await p.waitForSelector('.sgx-hangar', { timeout: 20000 }); }],
   ['networking', '/?tab=networking', null],
   ['guild', '/?tab=guild', null],
   ['mapa-360', '/?tab=map', null],

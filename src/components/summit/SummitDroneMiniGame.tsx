@@ -1972,7 +1972,7 @@ export const SummitDroneMiniGame: React.FC = () => {
               {es ? 'INTEGRIDAD AGOTADA • VUELO FINALIZADO' : 'INTEGRITY DEPLETED • FLIGHT OVER'}
             </h2>
             <p className="text-xs text-slate-400 font-mono mb-6">
-              {es ? 'Telemetría de vuelo y colisiones registrada en tu Bitácora de Piloto SGX.' : 'Flight and collision telemetry saved to your SGX Pilot Log.'}
+              {es ? 'Telemetría de vuelo y colisiones registrada en tu Bitácora SGX.' : 'Flight and collision telemetry saved to your SGX Log.'}
             </p>
 
             <div className="grid grid-cols-4 gap-2.5 w-full max-w-md bg-slate-950/80 border border-slate-800 p-4 mb-6 font-mono text-center">

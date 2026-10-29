@@ -29,7 +29,7 @@ import type { CredentialRole, HoloCredential } from './credentials';
 
 /* Global owner of the identity surfaces. Every legacy entry point (taquilla,
    passport, profile, drawer, tours, credential generator, role selector)
-   lands here and becomes either the Forge or the Hangar. Also handles the
+   lands here and becomes either the Forge or your Studio. Also handles the
    two links the pass QR world produces: ?pase=… (someone's pass) and
    ?checkin=<code> (the Day 3 entrance poster; the code is set in the admin). */
 
@@ -119,7 +119,7 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
     };
   }, [openHangarOrForge]);
 
-  // The profile modal and the role selector are the Hangar and the Forge now.
+  // The profile modal and the role selector are your Studio and the Forge now.
   useEffect(() => {
     if (!isProfileModalOpen) return;
     setIsProfileModalOpen(false);
@@ -152,10 +152,13 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
       if (forgedRef.current) setHangar('day3');
       else setForge({ tier: 'SHOWCASE' });
     }
-    // Email buttons: ?hangar=pass|day3|reactor opens the Hangar on that tab (or the Forge without a pass).
-    const tab = params.get('hangar');
+    // Email buttons: ?estudio=pass|day3|reactor|red opens your Studio on that tab (or the Forge
+    // without a pass). ?hangar= is the older name, kept for emails already sent.
+    const key = params.has('estudio') ? 'estudio' : 'hangar';
+    const raw = params.get(key);
+    const tab = raw === 'red' ? 'stars' : raw;
     if (tab) {
-      stripParam('hangar');
+      stripParam(key);
       const valid = ['pass', 'reactor', 'stars', 'rolodex', 'day3', 'log'];
       window.setTimeout(() => openHangarOrForge((valid.includes(tab) ? tab : 'pass') as HangarTab, tab === 'day3' ? 'SHOWCASE' : 'DIGITAL'), 600);
     }

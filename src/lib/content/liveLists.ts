@@ -203,13 +203,13 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
     badgeColor: '#FDCC0D',
     isUnlockedDefault: false,
     xpReward: 40,
-    summary: 'Satélites orbitales 3D interactivos para las marcas de los cinco Tiers de auspicio.',
-    summaryEn: 'Interactive 3D orbital satellites for brands in the five sponsorship Tiers.',
-    fullTransmission: `REGISTRO DE ÓRBITA // ALIADOS DEL SUMMIT:
-• En vez de un muro estático de logotipos, cada patrocinador cuenta con una baliza orbital 3D o satélite en el Núcleo.
-• Los asistentes escanean las balizas con su HUD para ganar XP y descubrir los beneficios de cada marca.
+    summary: 'Estaciones 3D interactivas para las marcas de los cinco Tiers de auspicio.',
+    summaryEn: 'Interactive 3D stations for brands in the five sponsorship Tiers.',
+    fullTransmission: `REGISTRO // ALIADOS DEL SUMMIT:
+• En vez de un muro estático de logotipos, cada patrocinador cuenta con una estación 3D en el Núcleo.
+• Los asistentes escanean las estaciones para ganar XP y descubrir los beneficios de cada marca.
 • Tiers oficiales: Tier 1 Digital Presence ($50–$100), Tier 2 Gamified ($250–$500), Tier 3 Experience ($750–$1,000), Tier 4 Signature Experience ($1,500–$2,500, licencia de 365 días desde noviembre) y Tier 5 a convenir, sin precio público (a convenir, sin precio público).`,
-    fullTransmissionEn: 'ORBIT LOG // SUMMIT PARTNERS:\n• Instead of a static logo wall, each sponsor gets a 3D orbital beacon or satellite in the Core.\n• Attendees scan the beacons with their HUD to earn XP and discover each brand\'s benefits.\n• Official Tiers: Tier 1 Digital Presence ($50–$100), Tier 2 Gamified ($250–$500), Tier 3 Experience ($750–$1,000), Tier 4 Signature Experience ($1,500–$2,500, 365-day license starting in November) and Tier 5 to be agreed, with no public price.',
+    fullTransmissionEn: 'LOG // SUMMIT PARTNERS:\n• Instead of a static logo wall, each sponsor gets a 3D station in the Core.\n• Attendees scan the stations to earn XP and discover each brand\'s benefits.\n• Official Tiers: Tier 1 Digital Presence ($50–$100), Tier 2 Gamified ($250–$500), Tier 3 Experience ($750–$1,000), Tier 4 Signature Experience ($1,500–$2,500, 365-day license starting in November) and Tier 5 to be agreed, with no public price.',
     relatedSectionKey: 'SPONSORS_HUB',
     relatedActionLabel: 'Explorar Patrocinios y Tiers',
     relatedActionLabelEn: 'Explore Sponsorships and Tiers',
@@ -233,7 +233,7 @@ El Núcleo 3D de Spatialgineers no es solo un visualizador; es un puente entre l
 • 12 de diciembre: Día de la Industria por YouTube Live.
 • 13 de diciembre: SGX Showcase en Chroma Space Studios (por invitación).
 • Premios: cupón de descuento de un auspiciador, suscripción de 3 meses a nuestras plataformas, sesión "Grit" con artistas (por confirmar) y el premio mayor "Spatialgineers activa tu evento".
-• Los pilotos que desbloquearon las 6 cápsulas reciben la Insignia Legendaria "Pionero Cuántico" en su SGX Pass.`,
+• Los creadores que desbloquearon las 6 cápsulas reciben la Insignia Legendaria "Pionero Cuántico" en su SGX Pass.`,
     fullTransmissionEn: 'FINAL SEQUENCE // GLOBAL LAUNCH:\n• December 11, 2026 · 10:00 AM AST: opening on YouTube Live.\n• December 12: Industry Day on YouTube Live.\n• December 13: SGX Showcase at Chroma Space Studios (by invitation).\n• Prizes: a sponsor discount coupon, a 3-month subscription to our platforms, a "Grit" session with artists (TBC) and the grand prize "Spatialgineers activa tu evento" (Spatialgineers activates your event).\n• Pilots who unlocked all 6 capsules get the Legendary "Quantum Pioneer" Badge on their SGX Pass.',
     relatedSectionKey: 'OVERVIEW',
     relatedActionLabel: 'Ver mi SGX Pass',

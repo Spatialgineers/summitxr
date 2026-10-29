@@ -39,7 +39,7 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
   });
   check('manifest linked and valid', mf.href === '/manifest.webmanifest' && mf.m.display === 'standalone' && mf.m.start_url && mf.m.theme_color === '#050505');
   check('icons 192/512/maskable load', mf.icons.length === 3 && mf.icons.every(Boolean) && mf.m.icons.some((i) => i.purpose === 'maskable'));
-  check('Mi SGX Pass shortcut', mf.m.shortcuts.some((s) => s.url.includes('hangar=pass')));
+  check('Mi SGX Pass shortcut', mf.m.shortcuts.some((s) => s.url.includes('estudio=pass')));
 
   // 2. Service worker takes control
   await p.waitForTimeout(6000);
@@ -68,7 +68,7 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
   const code = await p.evaluate(() => JSON.parse(localStorage.getItem('sgx_identity_v1') || '{}').pass?.code);
   check('pass forged online', !!code, code);
   // open the pass once while online, so its pieces are cached
-  await p.goto(APP + '/?hangar=pass', { waitUntil: 'domcontentloaded' });
+  await p.goto(APP + '/?estudio=pass', { waitUntil: 'domcontentloaded' });
   await p.waitForSelector('.sgx-hangar', { timeout: 20000 }).catch(() => {});
   await p.waitForTimeout(4000);
 
@@ -77,7 +77,7 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
   await p.goto(APP + '/?hangar=pass', { waitUntil: 'domcontentloaded' }).catch(() => {});
   const opened = await p.waitForSelector('.sgx-hangar', { timeout: 20000 }).then(() => true).catch(() => false);
   check('offline: app opens from the cache', await p.evaluate(() => !!document.getElementById('root')?.children.length));
-  check('offline: the pass (Hangar) opens', opened);
+  check('offline: the pass (Estudio) opens', opened);
   await p.waitForTimeout(2500);
   check('offline: pass still on the device', await p.evaluate((c) => JSON.parse(localStorage.getItem('sgx_identity_v1') || '{}').pass?.code === c, code), code);
   // the QR is on the back of the Holo Card

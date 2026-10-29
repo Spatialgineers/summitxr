@@ -575,7 +575,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               {es ? 'Esta Estación del Summit se Activará Próximamente' : 'This Summit Station Will Go Live Soon'}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 font-mono leading-relaxed">
-              {es ? 'Nuestro equipo de ingeniería espacial está finalizando los últimos detalles de este módulo para el Spatialgineers Summit 2026. Mientras tanto, explora el Núcleo Orbital 3D.' : 'Our spatial engineering team is putting the finishing touches on this module for the Spatialgineers Summit 2026. Meanwhile, explore the 3D Orbital Core.'}
+              {es ? 'Nuestro equipo de ingeniería espacial está finalizando los últimos detalles de este módulo para el Spatialgineers Summit 2026. Mientras tanto, explora el Núcleo 3D.' : 'Our spatial engineering team is putting the finishing touches on this module for the Spatialgineers Summit 2026. Meanwhile, explore the 3D Core.'}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <button
@@ -1457,7 +1457,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <SummitSectionBanner
               sectionKey="EMBEDS_GAMES"
               title={es ? 'Simulador de Dron & Minijuegos Gamificados' : 'Drone Simulator & Gamified Mini-Games'}
-              subtitle={es ? 'Entorno de simulación de vuelo en tiempo real, colisiones espaciales y retos interactivos con ranking.' : 'Real-time flight simulation, spatial collisions and interactive challenges with a leaderboard.'}
+              subtitle={es ? 'Simulador de dron en tiempo real, colisiones y retos interactivos con ranking.' : 'Real-time drone simulator, collisions and interactive challenges with a leaderboard.'}
               pillarBadge="SGX.SPARK"
               pillarIconUrl={pillarIcon('SPARK')}
             />

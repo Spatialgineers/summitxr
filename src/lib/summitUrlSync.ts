@@ -140,6 +140,8 @@ export const SLUG_TO_SECTION: Record<string, SummitSectionKey> = {
   'sgx-pass': 'CREDENTIAL_GENERATOR',
   pass: 'CREDENTIAL_GENERATOR',
   hangar: 'CREDENTIAL_GENERATOR',
+  estudio: 'CREDENTIAL_GENERATOR',
+  studio: 'CREDENTIAL_GENERATOR',
   credential_generator: 'CREDENTIAL_GENERATOR',
   credentials: 'CREDENTIAL_GENERATOR',
   credencial: 'CREDENTIAL_GENERATOR',

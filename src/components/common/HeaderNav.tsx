@@ -595,7 +595,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                 window.dispatchEvent(new CustomEvent(sgxId?.isForged ? 'sgx:open_hangar' : 'sgx:open_forge', { detail: { tab: 'pass' } }));
               }}
               className={`sgx-passchip ${sgxId?.isForged ? '' : 'sgx-passchip--forge'}`}
-              title={sgxId?.isForged ? (es ? 'Abrir mi Hangar (SGX Pass, Reactor, Rolodex)' : 'Open my Hangar (SGX Pass, Reactor, Rolodex)') : (es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass')}
+              title={sgxId?.isForged ? (es ? 'Abrir mi Estudio (SGX Pass, Reactor, Rolodex)' : 'Open my Studio (SGX Pass, Reactor, Rolodex)') : (es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass')}
             >
               <span className="sgx-passchip__face">
                 {sgxId?.identity.avatar.png ? (
@@ -732,7 +732,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
                 >
                   <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>{es ? 'MI HANGAR' : 'MY HANGAR'}</span>
+                  <span>{es ? 'MI ESTUDIO' : 'MY STUDIO'}</span>
                 </button>
                 {isAdmin && (
                 <button

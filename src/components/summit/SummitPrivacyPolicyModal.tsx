@@ -152,7 +152,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
               </p>
               <ul className="list-disc list-inside space-y-1 text-slate-300 pl-2">
                 <li>{es ? 'Decisiones tomadas en encuestas de conferencias y votaciones de keynotes en vivo.' : 'Choices made in conference polls and live keynote votes.'}</li>
-                <li>{es ? 'Rutas y pilares elegidos en los minijuegos de computación espacial y simulador de vuelo.' : 'Routes and pillars chosen in the spatial computing mini-games and the flight simulator.'}</li>
+                <li>{es ? 'Rutas y pilares elegidos en los minijuegos de computación espacial y el simulador de dron.' : 'Routes and pillars chosen in the spatial computing mini-games and the drone simulator.'}</li>
                 <li>{es ? 'Puntos de interés explorados en el mapa 360° y stands virtuales visitados.' : 'Points of interest explored on the 360° map and virtual booths visited.'}</li>
                 <li>{es ? 'Rendimiento del pipeline gráfico (tasas de cuadros por segundo de WebGL y Three.js, compatibilidad con navegadores y latencia de audio Web Audio API).' : 'Graphics pipeline performance (WebGL and Three.js frame rates, browser compatibility and Web Audio API audio latency).'}</li>
               </ul>

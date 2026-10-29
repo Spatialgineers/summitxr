@@ -1445,101 +1445,6 @@ async function requireAdmin(req, res, next) {
   next();
 }
 
-// src/server/security/appCheck.ts
-import crypto from "crypto";
-var GOOGLE_JWKS_URL = "https://firebaseappcheck.googleapis.com/v1/jwks";
-var JWKS_URL = process.env.NODE_ENV !== "production" && process.env.SGX_APPCHECK_JWKS_URL ? process.env.SGX_APPCHECK_JWKS_URL : GOOGLE_JWKS_URL;
-var JWKS_TTL_MS = 6 * 60 * 60 * 1e3;
-var MAX_TOKEN_LENGTH2 = 4096;
-var PROJECT_NUMBER = String(firebase_applet_config_default.messagingSenderId || "");
-var PROJECT_ID = String(firebase_applet_config_default.projectId || "");
-function appCheckMode() {
-  const m = (process.env.SGX_APPCHECK || "").toLowerCase();
-  return m === "off" || m === "enforce" ? m : "monitor";
-}
-var jwks = null;
-var jwksPending = null;
-async function loadJwks(force = false) {
-  if (!force && jwks && Date.now() - jwks.fetchedAt < JWKS_TTL_MS) return;
-  if (jwksPending) return jwksPending;
-  jwksPending = (async () => {
-    try {
-      const res = await fetch(JWKS_URL, { signal: AbortSignal.timeout(5e3) });
-      if (!res.ok) throw new Error(`jwks ${res.status}`);
-      const data = await res.json();
-      const keys = /* @__PURE__ */ new Map();
-      for (const k of Array.isArray(data?.keys) ? data.keys : []) {
-        if (k?.kid && k?.kty === "RSA") keys.set(k.kid, crypto.createPublicKey({ key: k, format: "jwk" }));
-      }
-      jwks = { keys, fetchedAt: Date.now() };
-    } finally {
-      jwksPending = null;
-    }
-  })();
-  return jwksPending;
-}
-async function jwtVerifier(token) {
-  const parts = token.split(".");
-  if (parts.length !== 3) return false;
-  let header;
-  let claims;
-  try {
-    header = JSON.parse(Buffer.from(parts[0], "base64url").toString("utf8"));
-    claims = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
-  } catch {
-    return false;
-  }
-  if (header?.alg !== "RS256" || header?.typ !== "JWT" || typeof header?.kid !== "string") return false;
-  await loadJwks();
-  let key = jwks?.keys.get(header.kid);
-  if (!key) {
-    await loadJwks(true);
-    key = jwks?.keys.get(header.kid);
-  }
-  if (!key) return false;
-  const ok = crypto.verify("RSA-SHA256", Buffer.from(`${parts[0]}.${parts[1]}`), key, Buffer.from(parts[2], "base64url"));
-  if (!ok) return false;
-  if (typeof claims?.exp !== "number" || claims.exp * 1e3 <= Date.now()) return false;
-  if (claims.iss !== `https://firebaseappcheck.googleapis.com/${PROJECT_NUMBER}`) return false;
-  const aud = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
-  return aud.includes(`projects/${PROJECT_NUMBER}`) || aud.includes(`projects/${PROJECT_ID}`);
-}
-var override = null;
-var stats = { verified: 0, rejected: 0, missing: 0 };
-function appCheckStats() {
-  return { mode: appCheckMode(), ...stats };
-}
-function noteMissingAppCheck() {
-  stats.missing++;
-}
-async function verifyAppCheckToken(token) {
-  if (typeof token !== "string" || !token || token.length > MAX_TOKEN_LENGTH2) {
-    stats.rejected++;
-    return false;
-  }
-  try {
-    const ok = await (override || jwtVerifier)(token);
-    ok ? stats.verified++ : stats.rejected++;
-    return ok;
-  } catch (err) {
-    console.warn("[SGX AppCheck] verification error:", err?.message || err);
-    stats.rejected++;
-    return false;
-  }
-}
-async function appCheckGuard(req, res, next) {
-  const mode = appCheckMode();
-  if (mode === "off") return next();
-  const token = req.headers["x-firebase-appcheck"];
-  if (!token) noteMissingAppCheck();
-  const ok = token ? await verifyAppCheckToken(token) : false;
-  if (!ok && mode === "enforce") {
-    res.status(401).json({ error: "APP_CHECK_REQUIRED" });
-    return;
-  }
-  next();
-}
-
 // src/server/security/rateLimit.ts
 var TokenBucket = class {
   constructor(capacity, refillPerSec) {
@@ -1586,7 +1491,6 @@ function ipRateLimit(opts) {
 }
 
 // src/server/engine/wsHandler.ts
-var APP_CHECKED_MESSAGES = /* @__PURE__ */ new Set(["SUBMIT_VOTE", "VOTE_SUBMIT", "SEND_REACTION", "REACTION_BURST"]);
 var DIRECTOR_MESSAGES = /* @__PURE__ */ new Set([
   "BROADCAST_QUESTION",
   "START_VOTING",
@@ -1689,7 +1593,7 @@ function setupWebSocketEngine(server) {
       const rawUserId = url.searchParams.get("userId");
       const userId = isValidId(rawUserId) ? rawUserId : `user_${Math.random().toString(36).substring(2, 11)}`;
       const nickname = cleanNickname(url.searchParams.get("nickname"));
-      const meta = { tenantId, eventId, userId, role, isAdmin: false, appCheck: false };
+      const meta = { tenantId, eventId, userId, role, isAdmin: false };
       clientMap.set(ws, meta);
       const rk = roomKey(tenantId, eventId);
       if (!roomSockets.has(rk)) roomSockets.set(rk, /* @__PURE__ */ new Set());
@@ -1719,8 +1623,7 @@ function setupWebSocketEngine(server) {
       ws.send(JSON.stringify({ type: "INIT_STATE", tenantId, eventId, timestamp: Date.now(), payload: initStatePayload }));
       ws.send(JSON.stringify({ type: "ROOM_STATE_SYNC", tenantId, eventId, timestamp: Date.now(), payload: initStatePayload }));
       scheduleCountSync(tenantId, eventId);
-      let appCheckPending = null;
-      ws.on("message", async (data, isBinary) => {
+      ws.on("message", (data, isBinary) => {
         try {
           if (!limiter.take()) return;
           const size = Array.isArray(data) ? data.reduce((n, b) => n + b.length, 0) : data.byteLength;
@@ -1739,21 +1642,6 @@ function setupWebSocketEngine(server) {
             authenticate(payload?.token).catch(() => {
             });
             return;
-          }
-          if (messageType === "APP_CHECK") {
-            appCheckPending = verifyAppCheckToken(payload?.token).then((ok) => {
-              meta.appCheck = meta.appCheck || ok;
-              return ok;
-            });
-            return;
-          }
-          if (APP_CHECKED_MESSAGES.has(messageType) && !meta.appCheck && appCheckPending) await appCheckPending;
-          if (APP_CHECKED_MESSAGES.has(messageType) && !meta.appCheck && !meta.isAdmin && appCheckMode() !== "off") {
-            noteMissingAppCheck();
-            if (appCheckMode() === "enforce") {
-              ws.send(JSON.stringify({ type: "ERROR", tenantId, eventId, timestamp: Date.now(), payload: { error: "APP_CHECK_REQUIRED", for: messageType } }));
-              return;
-            }
           }
           if (DIRECTOR_MESSAGES.has(messageType) && !meta.isAdmin) {
             ws.send(JSON.stringify({ type: "ERROR", tenantId, eventId, timestamp: Date.now(), payload: { error: "NOT_AUTHORIZED", for: messageType } }));
@@ -1871,7 +1759,7 @@ function createApiRouter(broadcastToRoom) {
     return r.room;
   };
   router.get("/health", (req, res) => {
-    res.json({ status: "ok", engine: "SGX Live Engine", timestamp: Date.now(), appCheck: appCheckStats() });
+    res.json({ status: "ok", engine: "SGX Live Engine", timestamp: Date.now() });
   });
   router.get("/engine/status", (req, res) => {
     res.json({
@@ -1924,7 +1812,7 @@ function createApiRouter(broadcastToRoom) {
     }
     res.json({ success: true, session: room.session, question });
   });
-  router.post("/vote", appCheckGuard, (req, res) => {
+  router.post("/vote", (req, res) => {
     const room = roomFrom(req, res);
     if (!room) return;
     const voterId = req.body?.userId;
@@ -1936,7 +1824,7 @@ function createApiRouter(broadcastToRoom) {
     const ok = result;
     res.json({ success: true, calculation: ok.calc, summary: computeVoteSummary(room, room.questions[room.currentQuestionIndex]), user: ok.user });
   });
-  router.post("/reaction", appCheckGuard, (req, res) => {
+  router.post("/reaction", (req, res) => {
     const room = roomFrom(req, res);
     if (!room) return;
     const reaction = processAudienceReaction(room, { emoji: req.body?.emoji, color: req.body?.color, userId: isValidId(req.body?.userId) ? req.body.userId : "anon" }, broadcastToRoom);

@@ -4,7 +4,6 @@ import { VISUALIZER_PRESETS, DEFAULT_PRESET } from '../../lib/presets';
 import { VisualizerPresetId } from '../../types/engine';
 import { resolveRoom, RoomState } from '../engine/roomManager';
 import { requireAdmin } from '../security/adminAuth';
-import { appCheckGuard, appCheckStats } from '../security/appCheck';
 import { ipRateLimit } from '../security/rateLimit';
 import { isValidId, LIMITS, validateQuestionList } from '../security/validation';
 import type { Request, Response } from 'express';
@@ -36,7 +35,7 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
 
   // Health check
   router.get('/health', (req, res) => {
-    res.json({ status: 'ok', engine: 'SGX Live Engine', timestamp: Date.now(), appCheck: appCheckStats() });
+    res.json({ status: 'ok', engine: 'SGX Live Engine', timestamp: Date.now() });
   });
 
   // Engine status
@@ -105,7 +104,7 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
   });
 
   // Audience Vote Submission (REST Fallback)
-  router.post('/vote', appCheckGuard as any, (req, res) => {
+  router.post('/vote', (req, res) => {
     const room = roomFrom(req, res);
     if (!room) return;
     const voterId = req.body?.userId;
@@ -120,7 +119,7 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
   });
 
   // Audience Reaction (REST Fallback)
-  router.post('/reaction', appCheckGuard as any, (req, res) => {
+  router.post('/reaction', (req, res) => {
     const room = roomFrom(req, res);
     if (!room) return;
     const reaction = processAudienceReaction(room, { emoji: req.body?.emoji, color: req.body?.color, userId: isValidId(req.body?.userId) ? req.body.userId : 'anon' }, broadcastToRoom);

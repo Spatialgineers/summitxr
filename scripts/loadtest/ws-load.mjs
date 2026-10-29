@@ -311,7 +311,7 @@ function parseArgs(argv) {
     rest: false, adminDualPath: true, adminRestDelayMs: 0, clientsPerIp: 1, slow: 0,
     tenant: 'tenant_spatialgineers', event: 'event_live_main', port: 0, serverJs: false,
     adminToken: process.env.SGX_TEST_ADMIN_TOKEN || null, out: path.join(HERE, 'out'), label: '',
-    allowRemote: false, settleMs: 3000, handshakeTimeoutMs: 15000, serverPid: null, appCheck: 'monitor',
+    allowRemote: false, settleMs: 3000, handshakeTimeoutMs: 15000, serverPid: null,
   };
   const num = (v, k) => { const n = Number(v); if (!Number.isFinite(n)) throw new Error(`--${k} needs a number`); return n; };
   for (let i = 0; i < argv.length; i++) {
@@ -343,7 +343,6 @@ function parseArgs(argv) {
       case 'out': a.out = path.resolve(next()); break;
       case 'label': a.label = next(); break;
       case 'settle-ms': a.settleMs = num(next(), k0); break;
-      case 'appcheck': a.appCheck = next(); break;
       case 'allow-remote-i-am-sure-this-is-not-production': a.allowRemote = true; break;
       case 'help': case 'h':
         console.log(fs.readFileSync(path.join(HERE, 'README.md'), 'utf8')); process.exit(0);
@@ -395,9 +394,6 @@ async function startLocalServer(args, stamp) {
     // Belt and braces: if anything ever tried a real Firebase token lookup it fails against an invalid key.
     FIREBASE_API_KEY: 'loadtest-invalid-key',
     SGX_ADMIN_EMAILS: 'nobody@loadtest.invalid',
-    // Phones without a reCAPTCHA site key send no App Check token; the load test sends none either.
-    // 'monitor' (server default) counts them, 'enforce' would reject every simulated vote/reaction.
-    SGX_APPCHECK: args.appCheck,
   };
   serverChild = spawn(process.execPath, [entry], { cwd: REPO, env, stdio: ['ignore', log, log] });
   serverChild.on('exit', (code, sig) => { if (!shuttingDown) console.error(`[loadtest] server exited unexpectedly code=${code} sig=${sig} (see ${logPath})`); });
@@ -813,7 +809,7 @@ function printSummary(r) {
   const line = (k, v) => console.log('  ' + String(k).padEnd(34) + v);
   const fmtP = (x) => (x && x.n ? `p50 ${x.p50}  p95 ${x.p95}  p99 ${x.p99}  max ${x.max}  (n=${x.n})` : 'n/a');
   console.log('\n================ SGX WS LOAD TEST SUMMARY ================');
-  line('target', `${r.meta.target}  (git ${r.meta.gitHead}, appcheck ${r.config.appCheck})`);
+  line('target', `${r.meta.target}  (git ${r.meta.gitHead})`);
   line('clients requested / ok / failed', `${r.connections.requested} / ${r.connections.ok} / ${r.connections.failed} ${Object.keys(r.connections.failReasons).length ? JSON.stringify(r.connections.failReasons) : ''}`);
   line('ramp', `${r.connections.rampSeconds}s`);
   line('handshake ms', fmtP(r.connections.handshakeMs));

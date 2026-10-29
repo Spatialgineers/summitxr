@@ -44,10 +44,6 @@ Exactamente lo que hace `src/App.tsx`:
    `POST /api/vote` cuando el socket está caído; `--rest` lo fuerza siempre.
 3. Envía reacciones (`SEND_REACTION` por WS; `POST /api/reaction` solo con
    `--rest`) a `--reaction-rate` toques por segundo por persona.
-4. No envía token de App Check (los clientes reales tampoco mientras
-   `recaptchaSiteKey` esté vacío). El servidor local corre con
-   `SGX_APPCHECK=monitor` (cuenta, no bloquea). Con `--appcheck enforce` todos
-   los votos simulados serían rechazados.
 
 Para no compartir un solo límite por IP (1500 sockets por IP), cada cliente
 manda una `X-Forwarded-For` distinta (`--clients-per-ip 1`). Con
@@ -84,7 +80,6 @@ vacía: no habla con Firebase/Firestore de producción.
 | `--admin-rest-delay-ms` | 0 | Retraso del REST del director |
 | `--clients-per-ip` | 1 | Clientes por IP simulada (0 = todos 127.0.0.1) |
 | `--slow` | 0 | Fracción de teléfonos que dejan de leer (Wi-Fi mala) |
-| `--appcheck` | monitor | `SGX_APPCHECK` del servidor local |
 | `--server-js` | — | Usar el `server.js` del repo en vez de empaquetar |
 | `--url` / `--admin-token` / `--server-pid` | — | Servidor local ya levantado |
 | `--label` | — | Sufijo del archivo de resultados |
@@ -132,5 +127,5 @@ Arreglos que salieron de esta prueba:
 - Reconexión con espera exponencial y aleatoria (no todos a la vez tras un deploy).
 - El cliente solo usa REST cuando el socket está caído.
 
-Pendiente: `POST /api/vote` acepta el `userId` del cuerpo; con App Check en
-`enforce` solo la app real puede usarlo.
+Pendiente: `POST /api/vote` acepta el `userId` del cuerpo (lo usa el teléfono
+solo cuando el socket está caído).

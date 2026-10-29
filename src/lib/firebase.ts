@@ -12,13 +12,10 @@ import {
 } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer, connectFirestoreEmulator } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
-import { initAppCheck } from './appCheck';
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 const USE_EMULATORS = (import.meta as any).env?.VITE_USE_EMULATORS === '1' && typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
-// App Check first, so Firestore requests carry the token from the start.
-initAppCheck(app, (firebaseConfig as { recaptchaSiteKey?: string }).recaptchaSiteKey, USE_EMULATORS);
 
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);

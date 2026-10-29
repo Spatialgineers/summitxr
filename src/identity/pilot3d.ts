@@ -32,6 +32,65 @@ function svgTexture(svg: string): Promise<THREE.Texture | null> {
   });
 }
 
+/* ---------- outfit texture: one scale on every piece ----------
+   The outfit is many primitives (torso, arms, hood, pocket, vest, cape) whose
+   UVs span very different sizes, so a UV-mapped tile came out huge on the
+   torso and tiny on the arms. Instead the tile is projected from three sides
+   in the avatar's own space (triplanar), so it has the same size everywhere,
+   matching the 2D avatar (about 4 tiles across the chest). Positions are baked
+   per vertex at build time, so the print sticks to the body when it moves. */
+const TILE = 0.5;
+
+function triplanar(mat: THREE.MeshStandardMaterial, scale: number) {
+  mat.customProgramCacheKey = () => 'sgx-triplanar';  // uTile is a uniform: one program for every scale
+  mat.onBeforeCompile = (sh) => {
+    sh.uniforms.uTile = { value: TILE * scale };
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute vec3 triPos;\nattribute vec3 triNrm;\nvarying vec3 vTriPos;\nvarying vec3 vTriNrm;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvTriPos = triPos;\nvTriNrm = triNrm;');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nuniform float uTile;\nvarying vec3 vTriPos;\nvarying vec3 vTriNrm;')
+      .replace('#include <map_fragment>', `
+        vec3 tn = normalize(vTriNrm);
+        vec3 tw = pow(abs(tn), vec3(5.0));
+        tw /= (tw.x + tw.y + tw.z + 1e-5);
+        vec3 tp = vTriPos / uTile;
+        // each side reads left-to-right from outside (no mirrored prints)
+        vec4 tx = texture2D(map, vec2(-tp.z * (tn.x >= 0.0 ? 1.0 : -1.0), tp.y));
+        vec4 ty = texture2D(map, vec2(tp.x, -tp.z * (tn.y >= 0.0 ? 1.0 : -1.0)));
+        vec4 tz = texture2D(map, vec2(tp.x * (tn.z >= 0.0 ? 1.0 : -1.0), tp.y));
+        diffuseColor *= tx * tw.x + ty * tw.y + tz * tw.z;
+      `);
+  };
+}
+
+/** Bakes avatar-space position and normal into every mesh that wears the outfit. */
+function bakeTriplanar(root: THREE.Object3D, mat: THREE.Material) {
+  root.updateMatrixWorld(true);
+  const toRoot = root.matrixWorld.clone().invert();
+  const rel = new THREE.Matrix4();
+  const nrm = new THREE.Matrix3();
+  const v = new THREE.Vector3();
+  root.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh || m.material !== mat) return;
+    rel.multiplyMatrices(toRoot, m.matrixWorld);
+    nrm.getNormalMatrix(rel);
+    const pos = m.geometry.getAttribute('position');
+    const n = m.geometry.getAttribute('normal');
+    const tp = new Float32Array(pos.count * 3);
+    const tn = new Float32Array(pos.count * 3);
+    for (let i = 0; i < pos.count; i++) {
+      v.fromBufferAttribute(pos, i).applyMatrix4(rel);
+      tp.set([v.x, v.y, v.z], i * 3);
+      if (n) v.fromBufferAttribute(n, i).applyMatrix3(nrm).normalize(); else v.set(0, 0, 1);
+      tn.set([v.x, v.y, v.z], i * 3);
+    }
+    m.geometry.setAttribute('triPos', new THREE.BufferAttribute(tp, 3));
+    m.geometry.setAttribute('triNrm', new THREE.BufferAttribute(tn, 3));
+  });
+}
+
 export async function buildPilot3D(raw: PilotConfig): Promise<Pilot3D> {
   const c = normalizePilot(raw) as PilotConfig;
   const assets = pilotAssets3D(c);
@@ -51,9 +110,10 @@ export async function buildPilot3D(raw: PilotConfig): Promise<Pilot3D> {
   const lens = keep(new THREE.MeshBasicMaterial({ map: lensTex, color: lensTex ? '#ffffff' : c.glow, toneMapped: false, side: THREE.DoubleSide }));
   if (tileTex) {
     tileTex.wrapS = tileTex.wrapT = THREE.RepeatWrapping;
-    tileTex.repeat.set(7, 3);
+    tileTex.anisotropy = 4;
   }
   const outfit = keep(new THREE.MeshStandardMaterial({ map: tileTex, color: tileTex ? new THREE.Color().setScalar(Math.min(2.2, assets.textureGain)) : new THREE.Color(c.shell), roughness: 0.75, metalness: 0.08, side: THREE.DoubleSide }));
+  if (tileTex) triplanar(outfit, assets.textureScale);
 
   const mesh = (geo: THREE.BufferGeometry, mat: THREE.Material, x = 0, y = 0, z = 0) => {
     keep(geo);
@@ -69,7 +129,8 @@ export async function buildPilot3D(raw: PilotConfig): Promise<Pilot3D> {
   root.add(body);
   // a chest (tapering to the waist), shoulders and arms: a figure, not a blob
   const profile = [
-    [0.001, -0.75], [0.6, -0.75], [0.64, -0.55], [0.7, -0.2], [0.76, 0.18], [0.7, 0.42], [0.46, 0.58], [0.22, 0.64], [0.001, 0.65],
+    // [0.606, -0.735] keeps the hem's side normals horizontal (a clean print near the hem)
+    [0.001, -0.75], [0.6, -0.75], [0.606, -0.735], [0.64, -0.55], [0.7, -0.2], [0.76, 0.18], [0.7, 0.42], [0.46, 0.58], [0.22, 0.64], [0.001, 0.65],
   ].map(([x, y]) => new THREE.Vector2(x, y));
   const clothMat = [0, 3, 4].includes(c.armor) ? outfit : shell;
   const torso = mesh(new THREE.LatheGeometry(profile, 56), clothMat);
@@ -400,6 +461,8 @@ export async function buildPilot3D(raw: PilotConfig): Promise<Pilot3D> {
     }
     default: break;
   }
+
+  if (tileTex) bakeTriplanar(root, outfit);
 
   /* ---------- life ---------- */
   const update = (t: number) => {

@@ -4,6 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { playScanSuccessSound, playUiChirp, playCyberBurstSound, getIsAudioMuted } from '../lib/cyberAudioEngine';
 import { recordEvent } from '../lib/telemetry';
 import { QUESTS, QUEST_BY_ID, SECRET_CODES, TOTAL_CELLS } from './quests';
+import { isAccountSwitching } from '../identity/accountSlots';
 import { SECTION_META, normalizePillarId, ALL_PILLARS } from './sections';
 
 /* =========================================================================
@@ -88,6 +89,7 @@ function loadJson<T>(key: string, fallback: T): T {
 }
 
 function saveJson(key: string, value: unknown) {
+  if (isAccountSwitching()) return;
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {}

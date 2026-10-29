@@ -10,6 +10,7 @@ import { CHECKIN_CODE_KEY, useSgxIdentity, type CheckinResult } from './SgxIdent
 import { useImmersion } from '../immersion/ImmersionContext';
 import type { HangarTab } from './SgxHangar';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
+import { FORGE_AFTER_SWITCH, SIGNED_IN_EVENT } from './accountSlots';
 
 // The pass surfaces download the first time they open.
 const SgxForge = lazy(() => import('./SgxForge').then((m) => ({ default: m.SgxForge })));
@@ -163,6 +164,21 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
       window.setTimeout(() => openHangarOrForge((valid.includes(tab) ? tab : 'pass') as HangarTab, tab === 'day3' ? 'SHOWCASE' : 'DIGITAL'), 600);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // A different Google account just signed in (or one without a pass on this
+  // device): open the Forge, which also offers that account's existing pass.
+  useEffect(() => {
+    let fromSwitch = false;
+    try { fromSwitch = sessionStorage.getItem(FORGE_AFTER_SWITCH) === '1'; } catch { /* ignore */ }
+    // The flag is cleared only when the Forge opens (a remount in between keeps it).
+    const t = fromSwitch ? window.setTimeout(() => {
+      try { sessionStorage.removeItem(FORGE_AFTER_SWITCH); } catch { /* ignore */ }
+      if (!forgedRef.current) setForge({ tier: 'DIGITAL' });
+    }, 1200) : 0;
+    const onSignedIn = () => { if (!forgedRef.current) { setHangar(null); setForge({ tier: 'DIGITAL' }); } };
+    window.addEventListener(SIGNED_IN_EVENT, onSignedIn);
+    return () => { window.clearTimeout(t); window.removeEventListener(SIGNED_IN_EVENT, onSignedIn); };
   }, []);
 
   // First visit: a quiet nudge to forge the pass, once per device. It never

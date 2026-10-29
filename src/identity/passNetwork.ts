@@ -77,14 +77,14 @@ async function emailKey(email: string): Promise<string> {
   return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export type EmailClaim = { state: 'free' } | { state: 'mine'; code: string } | { state: 'taken' } | { state: 'unknown' };
+export type EmailClaim = { state: 'free' } | { state: 'mine'; code: string } | { state: 'taken'; userId?: string } | { state: 'unknown' };
 
 export async function checkEmailClaim(email: string, uid: string | null): Promise<EmailClaim> {
   try {
     const snap = await getDoc(doc(db, 'pass_emails', await emailKey(email)));
     if (!snap.exists()) return { state: 'free' };
     const v = snap.data();
-    return uid && v.userId === uid ? { state: 'mine', code: String(v.code) } : { state: 'taken' };
+    return uid && v.userId === uid ? { state: 'mine', code: String(v.code) } : { state: 'taken', userId: v.userId ? String(v.userId) : undefined };
   } catch {
     // Offline or rules not deployed yet: do not block the forge.
     return { state: 'unknown' };

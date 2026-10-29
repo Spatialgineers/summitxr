@@ -12,6 +12,7 @@ import {
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, googleProvider, db, firebaseConfig, handleFirestoreError, OperationType } from '../lib/firebase';
 import { UserProfile } from '../types/engine';
+import { SIGNED_IN_EVENT, syncAccountOwner, watchAccountOwner } from '../identity/accountSlots';
 
 export const AUTHORIZED_SUPER_ADMIN_EMAIL = 'info@spatialgineers.com';
 /** Same list as isSuperAdmin() in firestore.rules and SGX_ADMIN_EMAILS on the server. */
@@ -145,8 +146,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Synchronize Firebase Auth state
   useEffect(() => {
+    watchAccountOwner();
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setAuthError(null);
+      // Another account's pass, XP and avatar must not carry over: swap slots first.
+      if (await syncAccountOwner(currentUser)) return;
 
       if (currentUser) {
         setUser(currentUser);
@@ -203,8 +207,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const result = await signInWithPopup(auth, googleProvider);
       if (result.user) {
+        if (await syncAccountOwner(result.user)) return;
         setUser(result.user);
         await upsertPlayerProfile(result.user);
+        window.dispatchEvent(new Event(SIGNED_IN_EVENT));
       }
     } catch (err: any) {
       console.error('Google Sign-In error:', err);
@@ -232,8 +238,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const credential = GoogleAuthProvider.credential(idToken);
       const result = await signInWithCredential(auth, credential);
       if (result.user) {
+        if (await syncAccountOwner(result.user)) return;
         setUser(result.user);
         await upsertPlayerProfile(result.user);
+        window.dispatchEvent(new Event(SIGNED_IN_EVENT));
       }
     } catch (err: any) {
       console.error('Google Credential Sign-In error:', err);
@@ -246,7 +254,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signInWithEmail = async (email: string, pass: string) => {
     try {
       setAuthError(null);
-      await signInWithEmailAndPassword(auth, email.trim(), pass);
+      const result = await signInWithEmailAndPassword(auth, email.trim(), pass);
+      if (await syncAccountOwner(result.user)) return;
     } catch (err: any) {
       console.error('Email sign-in error:', err);
       const code = err?.code || '';
@@ -312,6 +321,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     try {
       await signOut(auth);
+      // This account's data is parked in its slot; the page reloads as a guest.
+      if (await syncAccountOwner(null)) return;
       setUser(null);
       setIsAdmin(false);
       setPlayerProfile(null);

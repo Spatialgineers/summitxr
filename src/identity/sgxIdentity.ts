@@ -1,4 +1,5 @@
 import type { PilotConfig } from './pilotAvatar';
+import { isAccountSwitching } from './accountSlots';
 import { pillarInk, type PillarKey } from '../lib/sgxPillars';
 
 /* =========================================================================
@@ -212,6 +213,7 @@ export function loadIdentity(): SgxIdentity {
 let warnedFull = false;
 
 export function saveIdentity(id: SgxIdentity) {
+  if (isAccountSwitching()) return; // the page is reloading into another account's slot
   if (!write(IDENTITY_KEY, JSON.stringify(id))) {
     // Storage full: free the big optional blobs (legacy avatar copy, Holo Card image) and retry,
     // so the pass itself never silently stops saving.

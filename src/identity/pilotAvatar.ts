@@ -31,29 +31,31 @@ export interface PilotConfig {
 }
 
 /* Seamless SGX tiles (from the SGX Tile Lab) used as outfit textures. 0 = plain. */
-/* gain lifts the darker tiles so they read on a small outfit. */
-export const PILOT_TEXTURES: { file: string; es: string; en: string; gain?: number }[] = [
+/* gain lifts the darker tiles so they read on a small outfit. scale evens out
+   the motif size: a tile with 5×5 small marks prints bigger, one with two big
+   stripes smaller, so every texture reads at about the same size. */
+export const PILOT_TEXTURES: { file: string; es: string; en: string; gain?: number; scale?: number }[] = [
   { file: '', es: 'Liso', en: 'Plain' },
-  { file: 'sgx-story', es: 'SGX.Story', en: 'SGX.Story', gain: 1.98 },
-  { file: 'sgx-showcase', es: 'SGX.Showcase', en: 'SGX.Showcase', gain: 2.71 },
-  { file: 'sgx-spark', es: 'SGX.Spark', en: 'SGX.Spark', gain: 2.57 },
-  { file: 'sgx-stage', es: 'SGX.Stage', en: 'SGX.Stage', gain: 2.26 },
-  { file: 'sgx-system', es: 'SGX.System', en: 'SGX.System', gain: 2.32 },
-  { file: 'sgx-synthesize', es: 'SGX.Synthesize', en: 'SGX.Synthesize', gain: 2.21 },
-  { file: 'los-seis-pilares', es: 'Seis pilares', en: 'Six pillars', gain: 2.32 },
-  { file: 'engranajes-sgx', es: 'Engranajes SGX', en: 'SGX gears', gain: 0.74 },
-  { file: 'engranaje-g', es: 'Engranaje G', en: 'G gear', gain: 0.72 },
+  { file: 'sgx-story', es: 'SGX.Story', en: 'SGX.Story', gain: 1.98, scale: 1.3 },
+  { file: 'sgx-showcase', es: 'SGX.Showcase', en: 'SGX.Showcase', gain: 2.71, scale: 1.3 },
+  { file: 'sgx-spark', es: 'SGX.Spark', en: 'SGX.Spark', gain: 2.57, scale: 1.3 },
+  { file: 'sgx-stage', es: 'SGX.Stage', en: 'SGX.Stage', gain: 2.26, scale: 1.3 },
+  { file: 'sgx-system', es: 'SGX.System', en: 'SGX.System', gain: 2.32, scale: 1.3 },
+  { file: 'sgx-synthesize', es: 'SGX.Synthesize', en: 'SGX.Synthesize', gain: 2.21, scale: 1.3 },
+  { file: 'los-seis-pilares', es: 'Seis pilares', en: 'Six pillars', gain: 2.32, scale: 1.3 },
+  { file: 'engranajes-sgx', es: 'Engranajes SGX', en: 'SGX gears', gain: 0.74, scale: 1.05 },
+  { file: 'engranaje-g', es: 'Engranaje G', en: 'G gear', gain: 0.72, scale: 1.05 },
   { file: 'engranajes-entrelazados', es: 'Engranajes', en: 'Meshed gears', gain: 0.95 },
   { file: 'rayos-sgx', es: 'Rayos SGX', en: 'SGX bolts', gain: 1.08 },
   { file: 'rayos-nocturnos', es: 'Rayos nocturnos', en: 'Night bolts', gain: 2.32 },
-  { file: 'panel-hud', es: 'Panel HUD', en: 'HUD panel', gain: 1.03 },
-  { file: 'reticula-holodeck', es: 'Holodeck', en: 'Holodeck', gain: 2.88 },
-  { file: 'red-de-energia-sgx', es: 'Red de energía', en: 'Energy grid', gain: 2.57 },
-  { file: 'lineas-de-energia', es: 'Líneas de energía', en: 'Energy lines', gain: 3.2 },
-  { file: 'circuito-futurista', es: 'Circuito', en: 'Circuit', gain: 2.88 },
-  { file: 'escudo-de-energia', es: 'Escudo hex', en: 'Hex shield', gain: 3.2 },
+  { file: 'panel-hud', es: 'Panel HUD', en: 'HUD panel', gain: 1.03, scale: 0.85 },
+  { file: 'reticula-holodeck', es: 'Holodeck', en: 'Holodeck', gain: 2.88, scale: 0.7 },
+  { file: 'red-de-energia-sgx', es: 'Red de energía', en: 'Energy grid', gain: 2.57, scale: 0.7 },
+  { file: 'lineas-de-energia', es: 'Líneas de energía', en: 'Energy lines', gain: 3.2, scale: 0.75 },
+  { file: 'circuito-futurista', es: 'Circuito', en: 'Circuit', gain: 2.88, scale: 0.75 },
+  { file: 'escudo-de-energia', es: 'Escudo hex', en: 'Hex shield', gain: 3.2, scale: 1.5 },
   { file: 'metal-cepillado', es: 'Metal cepillado', en: 'Brushed metal', gain: 0.66 },
-  { file: 'zigzag-sgx', es: 'Zigzag SGX', en: 'SGX zigzag', gain: 0.45 },
+  { file: 'zigzag-sgx', es: 'Zigzag SGX', en: 'SGX zigzag', gain: 0.45, scale: 0.7 },
 ];
 
 /* Chest emblems: official marks only. */
@@ -252,6 +254,7 @@ export function pilotAssets3D(raw: PilotConfig) {
     emblemUrl: EMBLEMS[c.emblem]?.src || '',
     textureUrl: texUrl(c.pattern),
     textureGain: PILOT_TEXTURES[c.pattern]?.gain ?? 1,
+    textureScale: PILOT_TEXTURES[c.pattern]?.scale ?? 1,
     lensSvg: lens,
   };
 }
@@ -348,6 +351,7 @@ export function pilotSvg(raw: PilotConfig, opts: { size?: number; idPrefix?: str
   const set = HEADSETS[c.visor];
   const tex = texUrl(c.pattern);
   const gain = PILOT_TEXTURES[c.pattern]?.gain ?? 1;
+  const tile = +(22 * (PILOT_TEXTURES[c.pattern]?.scale ?? 1)).toFixed(2);
   const emblem = EMBLEMS[c.emblem]?.src || '';
   const fill = tex ? `url(#${id}-t)` : c.shell;
   const holo = c.helmet === 7;
@@ -375,7 +379,7 @@ export function pilotSvg(raw: PilotConfig, opts: { size?: number; idPrefix?: str
     + `<linearGradient id="${id}-v" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c.glow}" stop-opacity="0.95"/><stop offset="1" stop-color="${c.secondary}" stop-opacity="0.75"/></linearGradient>`
     + `<linearGradient id="${id}-s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.12"/><stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity="0.35"/></linearGradient>`
     + (tex ? `<filter id="${id}-b" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="linear" slope="${gain}"/><feFuncG type="linear" slope="${gain}"/><feFuncB type="linear" slope="${gain}"/></feComponentTransfer></filter>`
-      + `<pattern id="${id}-t" patternUnits="userSpaceOnUse" width="22" height="22"><image href="${asset(tex)}" xlink:href="${asset(tex)}" width="22" height="22" preserveAspectRatio="none" filter="url(#${id}-b)"/></pattern>` : '')
+      + `<pattern id="${id}-t" patternUnits="userSpaceOnUse" width="${tile}" height="${tile}"><image href="${asset(tex)}" xlink:href="${asset(tex)}" width="${tile}" height="${tile}" preserveAspectRatio="none" filter="url(#${id}-b)"/></pattern>` : '')
     + `<clipPath id="${id}-c">${set.lens}</clipPath>`
     + `<filter id="${id}-g" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter>`
     + `</defs>`

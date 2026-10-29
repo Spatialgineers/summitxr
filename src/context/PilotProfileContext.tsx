@@ -11,6 +11,7 @@ import {
 import { db, auth } from '../lib/firebase';
 import { doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, limit } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
+import { isAccountSwitching } from '../identity/accountSlots';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import { recordEvent } from '../lib/telemetry';
 import { useLanguage } from './LanguageContext';
@@ -300,6 +301,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Sync to localStorage
   useEffect(() => {
+    if (isAccountSwitching()) return;
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(profile));
     } catch (e) {

@@ -1,8 +1,13 @@
 import * as THREE from 'three';
-import { RINGS_PER_ZONE, ROUTE_COLORS, ZONES, type ZoneKey } from './droneConfig';
+import { ROUTE_COLORS, TUNING, ZONES, type ZoneKey } from './droneConfig';
+import { facadeMaterial, tileTexture } from './droneMaterials';
+import { between, makeRng, type Rng } from './droneRng';
+import { boltGeometry, gearGeometry, loadSgxIcon } from '../../../identity/sgxIcon3d';
 
-/* Three.js world for the drone game: the drone mesh, the three zones with
-   their box colliders, rings, partner crates and mines, plus disposal. */
+/* Three.js world for the drone game: the drone, a seeded course per zone
+   (rings on a smooth path, obstacles that always leave that path open, partner
+   crates, mines), the instanced city around it, the SGX icon landmark and
+   disposal. */
 
 export interface ColliderVolume {
   box: THREE.Box3;
@@ -10,9 +15,9 @@ export interface ColliderVolume {
   lastHitTime: number;
 }
 
-export interface RingItem { mesh: THREE.Group; passed: boolean; rimHitTime: number; z: number; colorIdx: number }
+export interface RingItem { mesh: THREE.Group; passed: boolean; missed: boolean; z: number; colorIdx: number }
 export interface CrateItem { mesh: THREE.Group; collected: boolean; z: number; sponsor: string }
-export interface MineItem { mesh: THREE.Mesh; destroyed: boolean; z: number; rotSpeed: number }
+export interface MineItem { mesh: THREE.Mesh; destroyed: boolean; z: number; spin: number }
 
 export interface ZoneWorld {
   group: THREE.Group;
@@ -20,88 +25,138 @@ export interface ZoneWorld {
   rings: RingItem[];
   crates: CrateItem[];
   mines: MineItem[];
-  /** Tunnel zone keeps the drone inside a cylinder. */
+  /** Isla Verde keeps the drone inside the arch tunnel. */
   tunnel: boolean;
+  gateZ: number;
+  facade: THREE.ShaderMaterial;
+  mineMat: THREE.MeshStandardMaterial;
 }
 
 export interface CrateSkin { name: string; material: THREE.MeshStandardMaterial }
 
-/** Free GPU memory for everything under `root`, except materials marked shared. */
+export const TUNNEL = { cx: 0, cy: 18, r: 21.5 } as const;
+
+/** Free GPU memory under `root`; shared materials and textures stay. */
 export function disposeObject(root: THREE.Object3D) {
   root.traverse((obj) => {
     const o = obj as THREE.Mesh;
-    if (o.geometry) o.geometry.dispose();
+    if (o.geometry && !o.geometry.userData.shared) o.geometry.dispose();
     const mats = o.material ? (Array.isArray(o.material) ? o.material : [o.material]) : [];
     mats.forEach((m) => {
       if (m.userData.shared) return;
-      (m as THREE.MeshStandardMaterial).map?.dispose();
+      const map = (m as THREE.MeshBasicMaterial).map;
+      if (map && !map.userData.shared) map.dispose();
       m.dispose();
     });
   });
 }
 
-export function createDroneMesh(): { group: THREE.Group; rotors: THREE.Mesh[]; shield: THREE.Mesh } {
+/* ---------- Drone ---------- */
+
+export interface DroneRig {
+  group: THREE.Group;
+  /** Tilts with banking; the group itself only moves. */
+  body: THREE.Group;
+  rotors: THREE.Object3D[];
+  shield: THREE.Mesh;
+  /** Trail emitters in body space. */
+  tails: THREE.Object3D[];
+  glow: THREE.PointLight;
+}
+
+export function createDrone(): DroneRig {
   const group = new THREE.Group();
-  const rotors: THREE.Mesh[] = [];
+  const body = new THREE.Group();
+  group.add(body);
+  const graphite = new THREE.MeshStandardMaterial({ color: 0x1a1f27, roughness: 0.35, metalness: 0.85 });
+  const trim = new THREE.MeshStandardMaterial({ color: 0x32527b, roughness: 0.4, metalness: 0.7 });
+  const cyan = new THREE.MeshStandardMaterial({ color: 0x00ddff, emissive: 0x00ddff, emissiveIntensity: 1.6 });
+  const yellow = new THREE.MeshStandardMaterial({ color: 0xfdcc0d, emissive: 0xfdcc0d, emissiveIntensity: 1.4 });
 
-  const bodyGeo = new THREE.ConeGeometry(0.85, 2.3, 6);
-  bodyGeo.rotateX(Math.PI / 2);
-  group.add(new THREE.Mesh(bodyGeo, new THREE.MeshStandardMaterial({ color: 0x14181f, roughness: 0.25, metalness: 0.9 })));
-
-  const core = new THREE.Mesh(new THREE.SphereGeometry(0.45, 16, 16), new THREE.MeshBasicMaterial({ color: 0x00ddff }));
-  core.position.set(0, 0.2, 0.2);
-  group.add(core);
+  const hullGeo = new THREE.CapsuleGeometry(0.62, 1.5, 6, 14);
+  hullGeo.rotateX(Math.PI / 2);
+  hullGeo.scale(1.15, 0.62, 1);
+  body.add(new THREE.Mesh(hullGeo, graphite));
 
   const canopy = new THREE.Mesh(
-    new THREE.BoxGeometry(0.52, 0.36, 0.85),
-    new THREE.MeshStandardMaterial({ color: 0x00ddff, roughness: 0.1, metalness: 0.9, transparent: true, opacity: 0.85 }),
+    new THREE.SphereGeometry(0.5, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2),
+    new THREE.MeshStandardMaterial({ color: 0x0a3540, emissive: 0x00a8c4, emissiveIntensity: 0.6, roughness: 0.05, metalness: 0.3 }),
   );
-  canopy.position.set(0, 0.35, -0.4);
-  group.add(canopy);
+  canopy.scale.set(1, 0.7, 1.5);
+  canopy.position.set(0, 0.22, -0.35);
+  body.add(canopy);
 
-  const armGeo = new THREE.CylinderGeometry(0.06, 0.08, 1.85, 8);
-  const armMat = new THREE.MeshStandardMaterial({ color: 0x2a2f38, metalness: 0.8 });
-  const motorGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.25, 12);
-  const motorMat = new THREE.MeshStandardMaterial({ color: 0x0c0e12, metalness: 0.9 });
-  const bladeGeo = new THREE.BoxGeometry(1.35, 0.03, 0.15);
-  const bladeMat = new THREE.MeshBasicMaterial({ color: 0xfdcc0d, transparent: true, opacity: 0.8 });
-  [
-    { x: 1.2, z: 0.8, rotZ: Math.PI / 4 },
-    { x: -1.2, z: 0.8, rotZ: -Math.PI / 4 },
-    { x: 1.2, z: -0.8, rotZ: Math.PI / 4 },
-    { x: -1.2, z: -0.8, rotZ: -Math.PI / 4 },
-  ].forEach((p) => {
-    const arm = new THREE.Mesh(armGeo, armMat);
-    arm.position.set(p.x * 0.5, 0.05, p.z * 0.5);
-    arm.rotation.z = p.rotZ;
-    group.add(arm);
-    const motor = new THREE.Mesh(motorGeo, motorMat);
-    motor.position.set(p.x, 0.15, p.z);
-    group.add(motor);
-    const blade = new THREE.Mesh(bladeGeo, bladeMat);
-    blade.position.set(p.x, 0.3, p.z);
-    group.add(blade);
-    rotors.push(blade);
-  });
+  // Front LED band and SGX bolt on the back.
+  const band = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.08, 0.08), cyan);
+  band.position.set(0, 0.02, -1.25);
+  body.add(band);
+  const bolt = new THREE.Mesh(boltGeometry(0.62, 0.06), yellow);
+  bolt.rotation.x = -Math.PI / 2;
+  bolt.position.set(0, 0.42, 0.45);
+  body.add(bolt);
 
-  const gunGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.9, 8);
-  gunGeo.rotateX(Math.PI / 2);
-  const gunMat = new THREE.MeshStandardMaterial({ color: 0xfdcc0d, metalness: 0.95 });
-  [-0.7, 0.7].forEach((x) => {
-    const gun = new THREE.Mesh(gunGeo, gunMat);
-    gun.position.set(x, -0.1, -0.6);
-    group.add(gun);
+  const armGeo = new THREE.BoxGeometry(0.16, 0.1, 1.9);
+  const podGeo = new THREE.CylinderGeometry(0.24, 0.2, 0.32, 14);
+  const ringGeo = new THREE.TorusGeometry(0.72, 0.05, 6, 28);
+  ringGeo.rotateX(Math.PI / 2);
+  const discGeo = new THREE.CircleGeometry(0.68, 24);
+  discGeo.rotateX(-Math.PI / 2);
+  const discMat = new THREE.MeshBasicMaterial({ color: 0xfdcc0d, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+  const bladeGeo = new THREE.BoxGeometry(1.25, 0.02, 0.12);
+  const bladeMat = new THREE.MeshBasicMaterial({ color: 0xfdcc0d, transparent: true, opacity: 0.55 });
+  const rotors: THREE.Object3D[] = [];
+  const tails: THREE.Object3D[] = [];
+  [[1, -1], [-1, -1], [1, 1], [-1, 1]].forEach(([sx, sz]) => {
+    const x = sx * 1.25;
+    const z = sz * 0.95;
+    const arm = new THREE.Mesh(armGeo, trim);
+    arm.position.set(x / 2, 0.05, z / 2);
+    arm.rotation.y = Math.atan2(x, z);
+    arm.scale.z = Math.hypot(x, z) / 1.9;
+    body.add(arm);
+    const pod = new THREE.Mesh(podGeo, graphite);
+    pod.position.set(x, 0.12, z);
+    body.add(pod);
+    const guard = new THREE.Mesh(ringGeo, sz > 0 ? yellow : cyan);
+    guard.position.set(x, 0.24, z);
+    body.add(guard);
+    const disc = new THREE.Mesh(discGeo, discMat);
+    disc.position.set(x, 0.26, z);
+    body.add(disc);
+    const rotor = new THREE.Group();
+    rotor.position.set(x, 0.3, z);
+    rotor.add(new THREE.Mesh(bladeGeo, bladeMat));
+    const b2 = new THREE.Mesh(bladeGeo, bladeMat);
+    b2.rotation.y = Math.PI / 2;
+    rotor.add(b2);
+    body.add(rotor);
+    rotors.push(rotor);
+    if (sz > 0) {
+      const tail = new THREE.Object3D();
+      tail.position.set(x, 0.12, z + 0.3);
+      body.add(tail);
+      tails.push(tail);
+      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 6), yellow);
+      lamp.position.copy(tail.position);
+      body.add(lamp);
+    }
   });
 
   const shield = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(2.35, 2),
-    new THREE.MeshBasicMaterial({ color: 0x00ddff, wireframe: true, transparent: true, opacity: 0 }),
+    new THREE.IcosahedronGeometry(2.5, 2),
+    new THREE.MeshBasicMaterial({ color: 0x00ddff, wireframe: true, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }),
   );
   group.add(shield);
-  return { group, rotors, shield };
+
+  const glow = new THREE.PointLight(0x00ddff, 18, 16, 2);
+  glow.position.set(0, -0.8, 0);
+  group.add(glow);
+  return { group, body, rotors, shield, tails, glow };
 }
 
-/* Partner crate face: dark tile, cyan frame, the partner logo and name. */
+/* ---------- Partner crates ---------- */
+
+/* Crate face: dark tile, cyan frame, the partner logo and name. */
 export function createCrateSkin(name: string, logoUrl: string): CrateSkin {
   const size = 256;
   const canvas = document.createElement('canvas');
@@ -150,7 +205,7 @@ export function createCrateSkin(name: string, logoUrl: string): CrateSkin {
     img.src = logoUrl;
   }
 
-  const material = new THREE.MeshStandardMaterial({ map: texture, emissive: 0xffffff, emissiveMap: texture, emissiveIntensity: 0.55, metalness: 0.3, roughness: 0.5 });
+  const material = new THREE.MeshStandardMaterial({ map: texture, emissive: 0xffffff, emissiveMap: texture, emissiveIntensity: 0.7, metalness: 0.3, roughness: 0.5 });
   material.userData.shared = true;
   return { name, material };
 }
@@ -162,166 +217,276 @@ export function disposeCrateSkins(skins: CrateSkin[]) {
   });
 }
 
-export function buildZone(zone: ZoneKey, scene: THREE.Scene, crateSkins: CrateSkin[]): ZoneWorld {
+/* ---------- SGX icon landmark ---------- */
+
+/** The SGX icon (gear + bolt) as a huge beacon past the zone gate. Starts as the
+    procedural mark and swaps in the brand .glb when it arrives. */
+export function createLandmark(): { group: THREE.Group; dispose: () => void } {
   const group = new THREE.Group();
-  const world: ZoneWorld = { group, colliders: [], rings: [], crates: [], mines: [], tunnel: zone === 'ISLA_VERDE' };
-  const cfg = ZONES[zone];
-  scene.fog = new THREE.FogExp2(cfg.fogColor, zone === 'ISLA_VERDE' ? 0.0045 : 0.0055);
-  scene.background = new THREE.Color(cfg.skyColor);
-
-  const addCollider = (size: THREE.Vector3, center: THREE.Vector3, label: ColliderVolume['label']) => {
-    world.colliders.push({ box: new THREE.Box3().setFromCenterAndSize(center, size), label, lastHitTime: 0 });
+  const gearMat = new THREE.MeshStandardMaterial({ color: 0x1b2635, emissive: 0x0a5f73, emissiveIntensity: 0.9, metalness: 0.8, roughness: 0.3, fog: false });
+  const boltMat = new THREE.MeshStandardMaterial({ color: 0xfdcc0d, emissive: 0xfdcc0d, emissiveIntensity: 1.3, metalness: 0.4, roughness: 0.3, fog: false });
+  const gear = new THREE.Mesh(gearGeometry(0.5, 0.42, 12, 0.22, 0.12), gearMat);
+  const bolt = new THREE.Mesh(boltGeometry(0.62, 0.16), boltMat);
+  bolt.position.z = 0.05;
+  group.add(gear, bolt);
+  let alive = true;
+  const owned = [gear.geometry, bolt.geometry];
+  loadSgxIcon().then((icon) => {
+    if (!alive || !icon) return;
+    gear.geometry = icon.gear;
+    bolt.geometry = icon.bolt;
+    bolt.position.z = 0;
+  });
+  return {
+    group,
+    dispose: () => {
+      alive = false;
+      owned.forEach((g) => g.dispose());
+      gearMat.dispose();
+      boltMat.dispose();
+    },
   };
-  const unitBox = new THREE.BoxGeometry(1, 1, 1);
+}
 
-  if (zone === 'CHROMA') {
-    const floorGeo = new THREE.PlaneGeometry(240, 1000);
-    floorGeo.rotateX(-Math.PI / 2);
-    const floor = new THREE.Mesh(floorGeo, new THREE.MeshStandardMaterial({ color: 0x06090f, roughness: 0.4, metalness: 0.7 }));
-    floor.position.set(0, 0, -450);
-    group.add(floor);
+/* ---------- Zone course ---------- */
 
-    [-32, 0, 32].forEach((laneX, idx) => {
-      const stripGeo = new THREE.PlaneGeometry(idx === 1 ? 0.8 : 0.45, 960);
-      stripGeo.rotateX(-Math.PI / 2);
-      const strip = new THREE.Mesh(stripGeo, new THREE.MeshBasicMaterial({ color: idx === 1 ? 0xfdcc0d : 0x00ddff, transparent: true, opacity: idx === 1 ? 0.45 : 0.65 }));
-      strip.position.set(laneX, 0.05, -450);
-      group.add(strip);
+interface BoxSpec { x: number; y: number; z: number; w: number; h: number; d: number; edge: number }
+
+export interface ZoneOptions {
+  crateSkins: CrateSkin[];
+  seed: number;
+  /** 0 for the first zone of a run, +1 for every zone after it. */
+  level: number;
+  /** Fewer side buildings on phones. */
+  lite: boolean;
+}
+
+const RING_GEO = new THREE.TorusGeometry(TUNING.ringRadius, 0.38, 12, 40);
+RING_GEO.userData.shared = true;
+const RING_DISC = new THREE.CircleGeometry(TUNING.ringRadius - 0.3, 32);
+RING_DISC.userData.shared = true;
+const ringMats = ROUTE_COLORS.map((c) => {
+  const col = new THREE.Color(c);
+  // Bright pillars (Stage yellow, Synthesize white) glow less so bloom doesn't wash them out.
+  const lum = col.r * 0.3 + col.g * 0.59 + col.b * 0.11;
+  const m = new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 1.05 - lum * 0.65, roughness: 0.3, metalness: 0.5 });
+  m.userData.shared = true;
+  return m;
+});
+const discMats = ROUTE_COLORS.map((c) => {
+  const m = new THREE.MeshBasicMaterial({ color: new THREE.Color(c), transparent: true, opacity: 0.1, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+  m.userData.shared = true;
+  return m;
+});
+
+/** Smooth ring path for this zone. */
+function makePath(rng: Rng, tunnel: boolean) {
+  const p = [rng() * 6.28, rng() * 6.28, rng() * 6.28, rng() * 6.28];
+  const f = [between(rng, 0.006, 0.01), between(rng, 0.014, 0.02), between(rng, 0.008, 0.013)];
+  const ax = tunnel ? 9 : 17;
+  const ay = tunnel ? 7 : 8;
+  return (z: number) => ({
+    x: Math.sin(z * f[0] + p[0]) * ax + Math.sin(z * f[1] + p[1]) * ax * 0.35,
+    y: (tunnel ? TUNNEL.cy : 17) + Math.sin(z * f[2] + p[2]) * ay + Math.sin(z * f[1] * 1.7 + p[3]) * 2,
+  });
+}
+
+export function buildZone(zone: ZoneKey, scene: THREE.Scene, sky: THREE.ShaderMaterial, opts: ZoneOptions): ZoneWorld {
+  const cfg = ZONES[zone];
+  const rng = makeRng(opts.seed);
+  const tunnel = zone === 'ISLA_VERDE';
+  const len = TUNING.zoneLength;
+  const group = new THREE.Group();
+  const facade = facadeMaterial(cfg.facadeTex, zone === 'VIEJO_SAN_JUAN' ? 0x3a3128 : 0x18202c, zone === 'VIEJO_SAN_JUAN' ? 0x1a1206 : 0x2a2206);
+  const mineMat = new THREE.MeshStandardMaterial({ color: 0xff7a00, emissive: 0xff5a00, emissiveIntensity: 1, roughness: 0.3, metalness: 0.7 });
+  const world: ZoneWorld = { group, colliders: [], rings: [], crates: [], mines: [], tunnel, gateZ: -len + 30, facade, mineMat };
+
+  scene.fog = new THREE.Fog(cfg.fog, 60, 520);
+  (sky.uniforms.top.value as THREE.Color).setHex(cfg.skyTop);
+  (sky.uniforms.horizon.value as THREE.Color).setHex(cfg.skyHorizon);
+  (sky.uniforms.accent.value as THREE.Color).set(cfg.accent);
+
+  const boxes: BoxSpec[] = [];
+  const solid = (b: BoxSpec, label: ColliderVolume['label']) => {
+    boxes.push(b);
+    world.colliders.push({
+      box: new THREE.Box3().setFromCenterAndSize(new THREE.Vector3(b.x, b.y, b.z), new THREE.Vector3(b.w, b.h, b.d)),
+      label,
+      lastHitTime: 0,
     });
+  };
 
-    const buildingMat = new THREE.MeshStandardMaterial({ color: 0x0d1118, roughness: 0.25, metalness: 0.85 });
-    const edgeGeo = new THREE.EdgesGeometry(unitBox);
-    const edgeCyan = new THREE.LineBasicMaterial({ color: 0x00ddff });
-    const edgeYellow = new THREE.LineBasicMaterial({ color: 0xfdcc0d });
+  // Ground (water in Old San Juan), tiled with the SGX texture.
+  const groundTex = tileTexture(cfg.groundTex);
+  const groundMat = new THREE.MeshBasicMaterial({ color: cfg.groundTint, map: groundTex.clone() });
+  groundMat.map!.repeat.set(260 / 9, (len + 500) / 9);
+  groundMat.map!.needsUpdate = true;
+  const groundGeo = new THREE.PlaneGeometry(260, len + 500);
+  groundGeo.rotateX(-Math.PI / 2);
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.position.set(0, 0, -len / 2 + 50);
+  group.add(ground);
 
-    // Towers along the sides and weaving into the lane.
-    for (let i = 1; i <= 44; i++) {
-      const inner = i % 3 === 0;
-      const w = inner ? 10 + (i % 5) * 2 : 16 + (i % 4) * 4;
-      const h = inner ? 24 + (i % 4) * 5 : 46 + (i % 6) * 10;
-      const d = 14 + (i % 3) * 4;
-      const z = -i * 20 - 30;
-      const x = inner ? Math.sin(i * 1.9) * 18 : (i % 2 === 0 ? 1 : -1) * (32 + (i % 3) * 12);
-      const mesh = new THREE.Mesh(unitBox, buildingMat);
-      mesh.scale.set(w, h, d);
-      mesh.position.set(x, h / 2, z);
-      group.add(mesh);
-      const edge = new THREE.LineSegments(edgeGeo, inner ? edgeYellow : edgeCyan);
-      edge.scale.copy(mesh.scale);
-      edge.position.copy(mesh.position);
-      group.add(edge);
-      addCollider(new THREE.Vector3(w, h, d), mesh.position.clone(), inner ? { es: 'Torre Chroma', en: 'Chroma tower' } : { es: 'Edificio', en: 'Building' });
+  // Lane lights on the ground.
+  const stripGeo = new THREE.PlaneGeometry(0.5, len + 400);
+  stripGeo.rotateX(-Math.PI / 2);
+  const stripMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(cfg.accent), transparent: true, opacity: 0.55 });
+  [-TUNING.laneX - 4, TUNING.laneX + 4].forEach((x) => {
+    const s = new THREE.Mesh(stripGeo, stripMat);
+    s.position.set(x, 0.05, -len / 2);
+    group.add(s);
+  });
+
+  // City around the course: visual only, outside the lane.
+  const sideStep = opts.lite ? 30 : 22;
+  for (let z = 40; z > -len - 260; z -= sideStep) {
+    for (const side of [-1, 1]) {
+      const rows = opts.lite ? 1 : 2;
+      for (let row = 0; row < rows; row++) {
+        const low = zone === 'VIEJO_SAN_JUAN';
+        const w = between(rng, 12, 20);
+        const h = low ? between(rng, 8, 22) + row * 8 : between(rng, 24, 70) + row * 30;
+        const d = between(rng, 12, sideStep - 2);
+        const x = side * (TUNING.laneX + 16 + w / 2 + row * 28 + rng() * 6);
+        const edge = cfg.edges[Math.floor(rng() * cfg.edges.length)];
+        boxes.push({ x, y: h / 2, z: z + rng() * 4, w, h, d, edge });
+      }
     }
+  }
+  if (zone === 'VIEJO_SAN_JUAN') {
+    // The old city wall along both sides of the bay.
+    [-1, 1].forEach((side) => boxes.push({ x: side * (TUNING.laneX + 9), y: 3, z: -len / 2, w: 3, h: 6, d: len + 300, edge: 0xffbb00 }));
+  }
 
-    // Light bridges: go under or over them.
-    const bridgeMat = new THREE.MeshStandardMaterial({ color: 0x1a2433, emissive: 0x002a33, metalness: 0.9, roughness: 0.2 });
-    const bridgeEdge = new THREE.LineBasicMaterial({ color: 0xffbb00 });
-    for (let j = 1; j <= 8; j++) {
-      const y = j % 2 === 0 ? 14 : 24;
-      const z = -j * 105 - 40;
-      const mesh = new THREE.Mesh(unitBox, bridgeMat);
-      mesh.scale.set(68, 4.2, 6);
-      mesh.position.set(0, y, z);
-      group.add(mesh);
-      const edge = new THREE.LineSegments(edgeGeo, bridgeEdge);
-      edge.scale.copy(mesh.scale);
-      edge.position.copy(mesh.position);
-      group.add(edge);
-      addCollider(new THREE.Vector3(68, 4.2, 6), mesh.position.clone(), { es: 'Puente de luz', en: 'Light bridge' });
-    }
-  } else if (zone === 'VIEJO_SAN_JUAN') {
-    // Bay water.
-    const waterGeo = new THREE.PlaneGeometry(240, 1000);
-    waterGeo.rotateX(-Math.PI / 2);
-    const water = new THREE.Mesh(waterGeo, new THREE.MeshStandardMaterial({ color: 0x07131c, roughness: 0.3, metalness: 0.6 }));
-    water.position.set(0, 0, -450);
-    group.add(water);
+  // Rings on the path, obstacles between them.
+  const path = makePath(rng, tunnel);
+  const count = Math.floor((len - 100) / TUNING.ringGap);
+  const offset = Math.max(8.5, 14 - opts.level * 1.2);
+  const chance = Math.min(0.92, 0.5 + opts.level * 0.12);
+  for (let i = 0; i < count; i++) {
+    const z = -60 - i * TUNING.ringGap;
+    const pt = path(z);
+    const colorIdx = i % ROUTE_COLORS.length;
+    const ring = new THREE.Group();
+    ring.add(new THREE.Mesh(RING_GEO, ringMats[colorIdx]));
+    ring.add(new THREE.Mesh(RING_DISC, discMats[colorIdx]));
+    ring.position.set(pt.x, pt.y, z);
+    group.add(ring);
+    world.rings.push({ mesh: ring, passed: false, missed: false, z, colorIdx });
 
-    // Wall blocks floating over the bay, each with a ring that shows its hitbox.
-    const blockGeo = new THREE.DodecahedronGeometry(1, 1);
-    const blockMat = new THREE.MeshStandardMaterial({ color: 0x4a3f33, roughness: 0.8, metalness: 0.1 });
-    const auraMat = new THREE.MeshBasicMaterial({ color: 0xffbb00, side: THREE.DoubleSide });
-    for (let i = 1; i <= 32; i++) {
-      const r = 8 + (i % 4) * 2.5;
-      const mesh = new THREE.Mesh(blockGeo, blockMat);
-      mesh.scale.set(r, r * 0.75, r);
-      mesh.position.set(Math.sin(i * 1.65) * 24, 10 + Math.cos(i * 1.35) * 11, -i * 27 - 35);
-      group.add(mesh);
-      const aura = new THREE.Mesh(new THREE.RingGeometry(r * 0.95, r * 1.08, 24), auraMat);
-      aura.position.copy(mesh.position);
-      group.add(aura);
-      addCollider(new THREE.Vector3(r * 1.75, r * 1.35, r * 1.75), mesh.position.clone(), { es: 'Muralla', en: 'City wall' });
-    }
-  } else {
-    // LED arches with light barriers every 60 m.
-    const archGeo = new THREE.RingGeometry(24, 27, 6);
-    const archCyan = new THREE.MeshBasicMaterial({ color: 0x00ddff, side: THREE.DoubleSide });
-    const archYellow = new THREE.MeshBasicMaterial({ color: 0xfdcc0d, side: THREE.DoubleSide });
-    const gateMat = new THREE.MeshStandardMaterial({ color: 0xffbb00, emissive: 0x663f00, roughness: 0.2, metalness: 0.9 });
-    for (let z = -30; z > -900; z -= 30) {
-      const arch = new THREE.Mesh(archGeo, z % 60 === 0 ? archYellow : archCyan);
-      arch.position.set(0, 18, z);
-      arch.rotation.z = z * 0.04;
-      group.add(arch);
-      if (z % 60 === 0) {
-        const vertical = (Math.abs(z) / 60) % 2 === 0;
-        const w = vertical ? 6.5 : 38;
-        const h = vertical ? 32 : 6.5;
-        const x = vertical ? Math.sin(z * 0.03) * 10 : 0;
-        const y = vertical ? 18 : 18 + Math.cos(z * 0.03) * 7;
-        const gate = new THREE.Mesh(unitBox, gateMat);
-        gate.scale.set(w, h, 3.5);
-        gate.position.set(x, y, z);
-        group.add(gate);
-        addCollider(new THREE.Vector3(w, h, 3.5), gate.position.clone(), { es: 'Barrera de luz', en: 'Light barrier' });
+    if (i === 0 || i === count - 1) continue;
+    const oz = z + TUNING.ringGap / 2;
+    const op = path(oz);
+    const passes = rng() < chance ? (rng() < opts.level * 0.15 ? 2 : 1) : 0;
+    for (let k = 0; k < passes; k++) {
+      const kind = rng();
+      const sideSign = rng() < 0.5 ? -1 : 1;
+      const dz = k * 8;
+      if (zone === 'CHROMA') {
+        if (kind < 0.6) {
+          const w = between(rng, 7, 11);
+          const h = between(rng, 26, 46);
+          const x = THREE.MathUtils.clamp(op.x + sideSign * (offset + w / 2), -TUNING.laneX - 4, TUNING.laneX + 4);
+          solid({ x, y: h / 2, z: oz - dz, w, h, d: 8, edge: 0xfdcc0d }, { es: 'Torre Chroma', en: 'Chroma tower' });
+        } else {
+          const over = op.y < 21;
+          const y = over ? op.y + offset * 0.75 : op.y - offset * 0.75;
+          solid({ x: 0, y, z: oz - dz, w: TUNING.laneX * 2 + 24, h: 3.6, d: 5, edge: 0xfdcc0d }, { es: 'Puente de luz', en: 'Light bridge' });
+        }
+      } else if (zone === 'VIEJO_SAN_JUAN') {
+        if (kind < 0.55) {
+          // Wall with a gate around the path.
+          const gw = Math.max(12, 18 - opts.level * 1.5);
+          const gh = Math.max(10, 14 - opts.level);
+          const lw = op.x - gw / 2 + TUNING.laneX + 6;
+          const rw = TUNING.laneX + 6 - (op.x + gw / 2);
+          const top = 34;
+          const label = { es: 'Muralla', en: 'City wall' };
+          if (lw > 0.5) solid({ x: -TUNING.laneX - 6 + lw / 2, y: top / 2, z: oz, w: lw, h: top, d: 4, edge: 0xffbb00 }, label);
+          if (rw > 0.5) solid({ x: TUNING.laneX + 6 - rw / 2, y: top / 2, z: oz, w: rw, h: top, d: 4, edge: 0xffbb00 }, label);
+          const bottom = op.y - gh / 2;
+          if (bottom > 0.5) solid({ x: op.x, y: bottom / 2, z: oz, w: gw, h: bottom, d: 4, edge: 0xffbb00 }, label);
+          const lintel = top - (op.y + gh / 2);
+          if (lintel > 0.5) solid({ x: op.x, y: top - lintel / 2, z: oz, w: gw, h: lintel, d: 4, edge: 0xfdcc0d }, label);
+          break;
+        }
+        const w = between(rng, 5, 7);
+        const x = THREE.MathUtils.clamp(op.x + sideSign * (offset + w / 2), -TUNING.laneX, TUNING.laneX);
+        solid({ x, y: 15, z: oz - dz, w, h: 30, d: w, edge: 0x00ddff }, { es: 'Garita', en: 'Sentry box' });
+      } else {
+        const vertical = kind < 0.5;
+        const t = 4.5;
+        if (vertical) {
+          solid({ x: op.x + sideSign * (offset * 0.8 + t / 2), y: TUNNEL.cy, z: oz - dz, w: t, h: TUNNEL.r * 2 + 4, d: 3, edge: 0xff7ad9 }, { es: 'Barrera de luz', en: 'Light barrier' });
+        } else {
+          const y = op.y + (op.y < TUNNEL.cy ? 1 : -1) * (offset * 0.7 + t / 2);
+          solid({ x: 0, y, z: oz - dz, w: TUNNEL.r * 2 + 4, h: t, d: 3, edge: 0xfdcc0d }, { es: 'Barrera de luz', en: 'Light barrier' });
+        }
       }
     }
   }
 
-  // Rings in pillar order: 18 per zone, three full routes.
-  const ringGeo = new THREE.TorusGeometry(5.6, 0.42, 14, 36);
-  const ringMats = ROUTE_COLORS.map((c) => {
-    const col = new THREE.Color(c);
-    return new THREE.MeshStandardMaterial({ color: col, emissive: col.clone().multiplyScalar(0.55), roughness: 0.2, metalness: 0.6 });
+  // Facades: one instanced draw call for the whole zone.
+  const unit = new THREE.BoxGeometry(1, 1, 1);
+  const blocks = new THREE.InstancedMesh(unit, facade, boxes.length);
+  const m = new THREE.Matrix4();
+  const c = new THREE.Color();
+  boxes.forEach((b, i) => {
+    m.makeScale(b.w, b.h, b.d).setPosition(b.x, b.y, b.z);
+    blocks.setMatrixAt(i, m);
+    blocks.setColorAt(i, c.setHex(b.edge));
   });
-  for (let i = 0; i < RINGS_PER_ZONE; i++) {
-    const colorIdx = i % ROUTE_COLORS.length;
-    const ring = new THREE.Group();
-    ring.add(new THREE.Mesh(ringGeo, ringMats[colorIdx]));
-    const z = -(i + 1) * 46 - 12;
-    ring.position.set(Math.cos((i + 1) * 1.1) * 14, 14 + Math.sin((i + 1) * 1.4) * 6, z);
-    group.add(ring);
-    world.rings.push({ mesh: ring, passed: false, rimHitTime: 0, z, colorIdx });
+  blocks.computeBoundingSphere();
+  group.add(blocks);
+
+  if (tunnel) {
+    // LED arches every 30 m: one instanced ring.
+    const archGeo = new THREE.RingGeometry(TUNNEL.r + 2, TUNNEL.r + 3.4, 6);
+    const archMat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
+    const n = Math.ceil((len + 120) / 30);
+    const arches = new THREE.InstancedMesh(archGeo, archMat, n);
+    for (let i = 0; i < n; i++) {
+      const z = -i * 30;
+      m.makeRotationZ(z * 0.03).setPosition(TUNNEL.cx, TUNNEL.cy, z);
+      arches.setMatrixAt(i, m);
+      arches.setColorAt(i, c.setHex(i % 2 ? 0x00ddff : 0xfdcc0d));
+    }
+    arches.computeBoundingSphere();
+    group.add(arches);
   }
 
-  // Partner crates.
+  // Partner crates, beside the path.
   const crateGeo = new THREE.BoxGeometry(2.6, 2.6, 2.6);
-  for (let i = 1; i <= 12; i++) {
-    const skin = crateSkins[i % crateSkins.length];
+  for (let i = 1; i <= 7; i++) {
+    const skin = opts.crateSkins[(i + opts.level) % opts.crateSkins.length];
+    const z = -i * 105 - 20;
+    const pt = path(z);
     const crate = new THREE.Group();
     crate.add(new THREE.Mesh(crateGeo, skin.material));
-    const z = -i * 68;
-    crate.position.set(Math.sin(i * 2.1) * 16, 12 + Math.cos(i * 1.7) * 7, z);
+    crate.position.set(pt.x + (rng() < 0.5 ? -1 : 1) * between(rng, 4, 7), pt.y + between(rng, -2, 2), z);
     group.add(crate);
     world.crates.push({ mesh: crate, collected: false, z, sponsor: skin.name });
   }
 
-  // Mines.
-  const mineGeo = new THREE.OctahedronGeometry(2.4, 0);
-  const mineMat = new THREE.MeshStandardMaterial({ color: 0xff7a00, emissive: 0x5a2000, roughness: 0.25, metalness: 0.8 });
-  for (let i = 1; i <= 20; i++) {
+  // Mines float near the path: dodge, shoot or pulse them.
+  const mineGeo = new THREE.OctahedronGeometry(1.9, 0);
+  const mines = 8 + opts.level * 3;
+  for (let i = 0; i < mines; i++) {
+    const z = -110 - rng() * (len - 200);
+    const pt = path(z);
     const mine = new THREE.Mesh(mineGeo, mineMat);
-    const z = -i * 42 - 18;
-    mine.position.set(Math.sin(i * 2.5) * 19, 11 + Math.cos(i * 2.2) * 8, z);
+    const a = rng() * Math.PI * 2;
+    const r = between(rng, 2.5, 8);
+    mine.position.set(pt.x + Math.cos(a) * r, Math.max(4, pt.y + Math.sin(a) * r), z);
     group.add(mine);
-    world.mines.push({ mesh: mine, destroyed: false, z, rotSpeed: 0.025 + Math.random() * 0.03 });
+    world.mines.push({ mesh: mine, destroyed: false, z, spin: between(rng, 1.2, 2.6) });
   }
 
-  // Zone gate at the end of the run.
+  // Zone gate.
   const gate = new THREE.Group();
-  gate.add(new THREE.Mesh(new THREE.TorusGeometry(12, 1.2, 16, 40), new THREE.MeshBasicMaterial({ color: 0xfdcc0d })));
-  gate.add(new THREE.Mesh(new THREE.CircleGeometry(11, 32), new THREE.MeshBasicMaterial({ color: 0x1a1404, transparent: true, opacity: 0.8, side: THREE.DoubleSide })));
-  gate.position.set(0, 16, -880);
+  gate.add(new THREE.Mesh(new THREE.TorusGeometry(15, 1.1, 12, 48), new THREE.MeshBasicMaterial({ color: 0xfdcc0d })));
+  gate.add(new THREE.Mesh(new THREE.CircleGeometry(14, 40), new THREE.MeshBasicMaterial({ color: 0xfdcc0d, transparent: true, opacity: 0.12, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide })));
+  gate.position.set(0, tunnel ? TUNNEL.cy : 18, world.gateZ);
   group.add(gate);
 
   scene.add(group);

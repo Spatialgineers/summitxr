@@ -62,12 +62,6 @@ interface SummitExperienceHubProps {
 }
 
 /* The tone desk: four pads, each a short Web Audio tone. */
-const TONES: { hz: number; label: { es: string; en: string } }[] = [
-  { hz: 288, label: { es: 'Grave', en: 'Low' } },
-  { hz: 432, label: { es: 'Base', en: 'Base' } },
-  { hz: 528, label: { es: 'Brillante', en: 'Bright' } },
-  { hz: 648, label: { es: 'Agudo', en: 'High' } },
-];
 
 function resolvePillarFromTenantId(raw?: string): SgxCorePillarId {
   if (!raw) return 'STORY';
@@ -106,9 +100,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
   const [pillarChosen, setPillarChosen] = useState<boolean>(() => {
     try { return !!new URLSearchParams(window.location.search).get('pillar'); } catch { return false; }
   });
-  const [synthOpen, setSynthOpen] = useState(false);
-  const [synthHz, setSynthHz] = useState<number | null>(null);
-  const closeSynth = useCallback(() => setSynthOpen(false), []);
 
   // Keep active pillar synchronized with global tenant changes
   useEffect(() => {
@@ -350,16 +341,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
             else onSelectSection('BROADCAST_ROOMS');
           },
         },
-        {
-          id: 'mod_stage_synth',
-          title: (es ? 'Mesa de tonos' : 'Tone desk'),
-          subtitle: (es ? 'Cuatro tonos con Web Audio' : 'Four tones with Web Audio'),
-          description:
-            (es ? 'Toca cuatro tonos (288, 432, 528 y 648 Hz) generados en vivo por tu navegador.' : 'Play four tones (288, 432, 528 and 648 Hz) generated live by your browser.'),
-          actionLabel: (es ? 'Abrir mesa de tonos' : 'Open the tone desk'),
-          icon: Volume2,
-          onLaunch: () => setSynthOpen(true),
-        },
       ],
     },
     {
@@ -497,35 +478,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
       />
       </LazyBoundary>
 
-      {synthOpen && (
-        <SgxDialog
-          size="sm"
-          onClose={closeSynth}
-          title={es ? 'Mesa de tonos' : 'Tone desk'}
-          kicker={es ? 'SGX.Stage · toca un pad' : 'SGX.Stage · tap a pad'}
-          icon={<Volume2 className="w-5 h-5 text-[#FDCC0D] shrink-0" aria-hidden="true" />}
-        >
-          {getIsAudioMuted() && (
-            <p className="mb-3 text-sm font-mono text-[#FDCC0D]">
-              {es ? 'El sonido está apagado. Enciéndelo con el botón de sonido de la barra superior.' : 'Sound is off. Turn it on with the sound button in the top bar.'}
-            </p>
-          )}
-          <div className="grid grid-cols-2 gap-3" role="group" aria-label={es ? 'Tonos' : 'Tones'}>
-            {TONES.map((tone) => (
-              <button
-                key={tone.hz}
-                type="button"
-                aria-pressed={synthHz === tone.hz}
-                onClick={() => { setSynthHz(tone.hz); playUiChirp(tone.hz, 'triangle', 0.35); }}
-                className="sgx-btn flex-col !items-start !whitespace-normal min-h-[88px]"
-              >
-                <span className="text-xl font-bold tabular-nums">{tone.hz} Hz</span>
-                <span className="text-xs">{bi(tone.label, language)}</span>
-              </button>
-            ))}
-          </div>
-        </SgxDialog>
-      )}
     </div>
   );
 };

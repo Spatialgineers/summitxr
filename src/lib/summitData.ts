@@ -17,7 +17,6 @@ import {
 import { auth, db } from './firebase';
 import { withEnTwins } from './localize';
 import { SGX_YOUTUBE } from './sgxLinks';
-import { SHADER_LAB_HTML, SYNTH_LAB_HTML } from './embedSandboxes';
 import { 
   collection, 
   doc, 
@@ -1249,75 +1248,6 @@ export const INITIAL_EMBED_WIDGETS: EmbedWidget[] = [
     tagsEn: ['Drone', 'Three.js', 'Game'],
     featured: true,
   },
-  {
-    id: 'embed_youtube_stream',
-    title: 'Spatialgineers en YouTube Live',
-    titleEn: 'Spatialgineers on YouTube Live',
-    category: 'STREAM_VIDEO',
-    embedType: 'URL',
-    externalUrl: SGX_YOUTUBE,
-    description: 'Los días 1 y 2 del Summit (11 y 12 de diciembre) se transmiten gratis en el canal de YouTube de Spatialgineers, junto a Los Mismos TV. Suscríbete para recibir el aviso cuando empiece.',
-    descriptionEn: 'Days 1 and 2 of the Summit (December 11 and 12) stream free on the Spatialgineers YouTube channel, together with Los Mismos TV. Subscribe to get notified when it starts.',
-    thumbnailUrl: '',
-    author: 'Spatialgineers · Los Mismos TV',
-    tags: ['YouTube', 'En vivo'],
-    tagsEn: ['YouTube', 'Live'],
-    featured: true,
-  },
-  {
-    id: 'embed_shader_lab',
-    title: 'Laboratorio de shaders WebGL',
-    titleEn: 'WebGL shader lab',
-    category: 'CUSTOM_CODE',
-    embedType: 'CODE',
-    description: 'Un fragment shader GLSL real corriendo en tu GPU con los colores SGX. Mueve el cursor o el dedo para deformar el campo y cambia paleta y velocidad. El contador de FPS mide tu equipo de verdad.',
-    descriptionEn: 'A real GLSL fragment shader running on your GPU in SGX colors. Move the cursor or your finger to bend the field and change palette and speed. The FPS counter really measures your device.',
-    thumbnailUrl: '',
-    customCode: SHADER_LAB_HTML,
-    author: 'Spatialgineers · SGX.Spark',
-    tags: ['GLSL', 'WebGL', 'Shader'],
-  },
-  {
-    id: 'embed_cyber_synth',
-    title: 'Sintetizador Web Audio',
-    titleEn: 'Web Audio synth',
-    category: 'CUSTOM_CODE',
-    embedType: 'CODE',
-    description: 'Toca con el teclado (A a K) o la pantalla. Cuatro formas de onda, un filtro paso bajo real con corte y resonancia, y un osciloscopio que dibuja la señal que estás escuchando.',
-    descriptionEn: 'Play with the keyboard (A to K) or the screen. Four waveforms, a real low-pass filter with cutoff and resonance, and an oscilloscope that draws the signal you are hearing.',
-    thumbnailUrl: '',
-    customCode: SYNTH_LAB_HTML,
-    author: 'Spatialgineers · SGX.Spark',
-    tags: ['Web Audio', 'Sintetizador'],
-    tagsEn: ['Web Audio', 'Synth'],
-  },
-  {
-    id: 'embed_roblox_world',
-    title: 'Spatialgineers en Roblox',
-    titleEn: 'Spatialgineers in Roblox',
-    category: 'METAVERSE_ROBLOX',
-    description: 'Un espacio de Spatialgineers en Roblox para las presentaciones de los artistas invitados. Todavía no está publicado.',
-    descriptionEn: 'A Spatialgineers space in Roblox for the guest artist performances. It is not published yet.',
-    thumbnailUrl: '',
-    author: 'Spatialgineers',
-    tags: ['Roblox', 'Próximamente'],
-    tagsEn: ['Roblox', 'Coming soon'],
-  },
-  {
-    id: 'embed_whiteboard',
-    title: 'Pizarra Excalidraw',
-    titleEn: 'Excalidraw whiteboard',
-    category: 'WEBAPP',
-    embedType: 'URL',
-    embedUrl: 'https://excalidraw.com',
-    externalUrl: 'https://excalidraw.com',
-    description: 'Pizarra libre de Excalidraw para bocetar ideas y diagramas en los talleres. Lo que dibujes se guarda solo en este navegador; para dibujar con otras personas, abre una sesión en vivo desde el menú de Excalidraw.',
-    descriptionEn: 'Excalidraw\'s free whiteboard to sketch ideas and diagrams during the workshops. What you draw is saved only in this browser; to draw with other people, start a live session from the Excalidraw menu.',
-    thumbnailUrl: '',
-    author: 'Excalidraw',
-    tags: ['Pizarra', 'Excalidraw'],
-    tagsEn: ['Whiteboard', 'Excalidraw'],
-  },
 ];
 
 /* Built-in embeds rebuilt in v2026.10.2. A saved or published copy that still has an
@@ -1332,9 +1262,13 @@ const RETIRED_EMBED_TITLES = new Set([
   'WebAudio Reactive Spatial Synthesizer',
 ]);
 
+/** Built-in labs retired from SGX.Spark (tones, synth, shader, whiteboard, Roblox, YouTube). */
+const RETIRED_EMBED_IDS = new Set(['embed_youtube_stream', 'embed_shader_lab', 'embed_cyber_synth', 'embed_roblox_world', 'embed_whiteboard', 'embed_spline_scene']);
+
 function refreshEmbedSeeds(stored: EmbedWidget[]): EmbedWidget[] {
   const seeds = new Map(INITIAL_EMBED_WIDGETS.map((s) => [s.id, s]));
   return stored.flatMap((item) => {
+    if (item && !item.isCustomUserApp && RETIRED_EMBED_IDS.has(item.id)) return [];
     if (!item || item.isCustomUserApp || !RETIRED_EMBED_TITLES.has(item.title)) return item ? [item] : [];
     const seed = seeds.get(item.id);
     return seed ? [seed] : [];

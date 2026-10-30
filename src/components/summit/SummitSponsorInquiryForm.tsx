@@ -7,6 +7,8 @@ import { savePendingCredential } from '../../identity/credentials';
 import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
 import { SgxDialog } from '../common/SgxDialog';
+import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
+import { ForgeFirst } from '../../identity/ForgeFirst';
 import './sgxModals.css';
 
 /* SPONSOR APPLICATION: tier, company, activations and a message. Inline in the
@@ -39,11 +41,13 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
 }) => {
   const { language } = useLanguage();
   const es = language === 'es';
+  const sgx = useOptionalSgxIdentity();
+  const myPass = sgx?.identity.pass || null;
   const [selectedTierId, setSelectedTierId] = useState<string>(initialTierId);
-  const [companyName, setCompanyName] = useState<string>('');
-  const [contactName, setContactName] = useState<string>('');
-  const [roleTitle, setRoleTitle] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
+  const [companyName, setCompanyName] = useState<string>(myPass?.organization || '');
+  const [contactName, setContactName] = useState<string>(myPass?.fullName || '');
+  const [roleTitle, setRoleTitle] = useState<string>(myPass?.roleTitle || '');
+  const [email, setEmail] = useState<string>(myPass?.email || '');
   const [phone, setPhone] = useState<string>('');
   const [websiteUrl, setWebsiteUrl] = useState<string>('');
   // The budget follows the tier the visitor picked on the sponsors page.
@@ -396,6 +400,9 @@ This summary is not a binding offer. The short sponsorship contract signed by bo
       )}
     </form>
   );
+
+  // Every role starts from the pass: no pass yet → forge it first.
+  if (!sgx?.isForged) return <ForgeFirst role="sponsor" onClose={onClose || (() => {})} />;
 
   if (isModal) {
     return (

@@ -165,14 +165,31 @@ service cloud.firestore {
       allow get: if isAdmin() || (isSignedIn() && uid == me());
       allow list: if isAdmin();
       allow create, update: if isAdmin() && isValidId(uid) &&
-        incoming().keys().hasOnly(['speaker', 'sponsor', 'updatedAt']) &&
+        incoming().keys().hasOnly(['speaker', 'sponsor', 'initiate', 'updatedAt']) &&
         (!('speaker' in incoming()) || incoming().speaker is map) &&
-        (!('sponsor' in incoming()) || incoming().sponsor is map);
+        (!('sponsor' in incoming()) || incoming().sponsor is map) &&
+        (!('initiate' in incoming()) || incoming().initiate is map);
       allow delete: if isAdmin();
     }
 
     // Guild initiates: doc id = their email. Only that person, signed in
     // with that verified address (or Google), can read which initiate they are.
+    // A creator asks, from their pass, to be an SGX Guild Initiate. One request per account.
+    match /initiate_requests/{uid} {
+      allow get: if isAdmin() || (isSignedIn() && uid == me());
+      allow list, delete: if isAdmin();
+      allow create, update: if isSignedIn() && uid == me() &&
+        incoming().keys().hasOnly(['uid', 'name', 'email', 'passCode', 'pillar', 'portfolio', 'note', 'at']) &&
+        incoming().uid == me() &&
+        isShortString(incoming().name, 100) && incoming().name.size() > 0 &&
+        isShortString(incoming().email, 150) &&
+        isShortString(incoming().passCode, 40) &&
+        (!('pillar' in incoming()) || incoming().pillar == null || incoming().pillar in ['STORY', 'SHOWCASE', 'SPARK', 'STAGE', 'SYSTEM', 'SYNTHESIZE']) &&
+        optString(incoming(), 'portfolio', 300) &&
+        optString(incoming(), 'note', 600) &&
+        incoming().at == request.time;
+    }
+
     match /initiate_claims/{email} {
       allow get: if isAdmin() ||
         (isSignedIn() &&

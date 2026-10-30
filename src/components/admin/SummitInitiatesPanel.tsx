@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Save, Trash2, UserCheck } from 'lucide-react';
 import { SGX_PILLARS } from '../../lib/sgxPillars';
 import { loadAllInitiates, saveAllInitiates, type SgxInitiate } from '../../lib/summitData';
-import { loadInitiateEmails, saveInitiateEmails } from '../../identity/credentials';
+import { grantCredential, loadInitiateEmails, saveInitiateEmails, type InitiateRequest } from '../../identity/credentials';
+import { collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
+import { PILLAR_BY_KEY, type PillarKey } from '../../lib/sgxPillars';
 
 /* SGX GUILD INITIATES: the roster on the public Guild section and on each
    initiate's Holo Card. The email is private (summit_private + the claim the
@@ -17,6 +20,29 @@ export const SummitInitiatesPanel: React.FC = () => {
   const [prevEmails, setPrevEmails] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Requests sent from visitors' passes ("Tu rol en el Summit" → Initiate).
+  const [requests, setRequests] = useState<InitiateRequest[]>([]);
+  const loadRequests = () => getDocs(collection(db, 'initiate_requests'))
+    .then((snap) => setRequests(snap.docs.map((d) => d.data() as InitiateRequest)))
+    .catch(() => setRequests([]));
+  useEffect(() => { loadRequests(); }, []);
+
+  const approve = async (r: InitiateRequest) => {
+    setMsg(null);
+    try {
+      await grantCredential(r.uid, 'initiate', { name: r.name, title: 'Initiate', org: 'SGX Guild Program 2026', topic: r.note, pillar: r.pillar ?? null });
+      // Also on the public Guild roster (publish with "Guardar y publicar").
+      setRows((x) => [...x, { ...blank(), name: r.name, role: 'Initiate', specialty: r.note || '', email: r.email, pillar: r.pillar ? PILLAR_BY_KEY[r.pillar as PillarKey].id : 'SGX.STORY' }]);
+      await deleteDoc(doc(db, 'initiate_requests', r.uid));
+      setRequests((x) => x.filter((y) => y.uid !== r.uid));
+      setMsg(`${r.name} aprobado: su pase ya dice INITIATE. Revisa su fila abajo y pulsa "Guardar y publicar" para sumarlo al Guild.`);
+    } catch (err: any) { setMsg(`No se pudo aprobar: ${err?.message || err}`); }
+  };
+  const reject = async (r: InitiateRequest) => {
+    if (!window.confirm(`¿Rechazar la solicitud de ${r.name}?`)) return;
+    await deleteDoc(doc(db, 'initiate_requests', r.uid)).catch(() => undefined);
+    setRequests((x) => x.filter((y) => y.uid !== r.uid));
+  };
 
   useEffect(() => {
     const list = loadAllInitiates();
@@ -64,6 +90,22 @@ export const SummitInitiatesPanel: React.FC = () => {
       <p className="text-[11px] text-slate-400 font-mono">
         Lo que pongas aquí sale en la sección Guild y en la Holo Card de cada initiate. El email es privado: cuando ese initiate entra con Google usando ese email, su pase muestra su Holo Card de Initiate.
       </p>
+      {requests.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-[11px] text-[#FDCC0D] font-mono uppercase tracking-wider">Solicitudes desde el pase ({requests.length})</p>
+          {requests.map((r) => (
+            <div key={r.uid} className="p-2 border border-[#FDCC0D]/40 space-y-1">
+              <p className="text-sm text-white"><b>{r.name}</b> · <span className="font-mono text-xs text-slate-300">{r.email} · {r.passCode}{r.pillar ? ` · ${PILLAR_BY_KEY[r.pillar as PillarKey]?.name}` : ''}</span></p>
+              {r.note && <p className="text-xs text-slate-300">{r.note}</p>}
+              {r.portfolio && <a className="text-xs text-[#00DDFF] underline break-all" href={r.portfolio} target="_blank" rel="noopener noreferrer">{r.portfolio}</a>}
+              <div className="flex gap-2 pt-1">
+                <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => approve(r)}>Aprobar</button>
+                <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => reject(r)}>Rechazar</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="space-y-3">
         {rows.map((r) => (
           <div key={r.id} className="grid grid-cols-1 md:grid-cols-4 gap-2 p-2 border border-white/10">

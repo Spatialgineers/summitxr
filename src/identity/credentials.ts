@@ -6,12 +6,13 @@ import { loadAllInitiates } from '../lib/summitData';
 import { useAuth } from '../context/AuthContext';
 import { useSgxIdentity } from './SgxIdentityContext';
 
-/* HOLO CREDENTIALS. The Holo Card is the SGX Pass, seen from each role you
-   really hold. Nobody picks a role:
-   - visitor: your SGX Pass (always, once forged).
-   - speaker / sponsor: what you sent in the speaker portal or the sponsor
-     form. It shows "in review" until the team approves it in the admin,
-     which writes credential_grants/{uid}.
+/* HOLO CREDENTIALS. The Holo Card IS the SGX Pass: one card. Everyone forges
+   a pass first, then can ask for a role from it; once the team approves,
+   that same card switches to the role (its stub and band):
+   - visitor: your SGX Pass (always, once forged): CREADOR.
+   - speaker / sponsor / initiate: what you sent from your pass (speaker
+     portal, sponsor form, initiate request). "In review" until the team
+     approves it in the admin, which writes credential_grants/{uid}.
    - initiate: the team lists the Guild initiates (public card data) and
      their email (private). Signed in with Google with that email, your pass
      carries the Initiate card. */
@@ -44,14 +45,15 @@ export const ROLE_COPY: Record<CredentialRole, { label: [string, string]; band: 
 
 const PENDING_KEY = 'sgx_pending_credentials_v1';
 const CHANGED = 'sgx:credentials_changed';
-type PendingMap = Partial<Record<'speaker' | 'sponsor', CredentialData & { at: number }>>;
+type GrantRole = 'speaker' | 'sponsor' | 'initiate';
+type PendingMap = Partial<Record<GrantRole, CredentialData & { at: number }>>;
 
 function loadPending(): PendingMap {
   try { return JSON.parse(localStorage.getItem(PENDING_KEY) || '{}') || {}; } catch { return {}; }
 }
 
 /** Called by the speaker portal and the sponsor form after a successful send. */
-export function savePendingCredential(role: 'speaker' | 'sponsor', data: CredentialData) {
+export function savePendingCredential(role: GrantRole, data: CredentialData) {
   const next = { ...loadPending(), [role]: { ...data, photo: data.photo && data.photo.length < 400_000 ? data.photo : null, at: Date.now() } };
   try { localStorage.setItem(PENDING_KEY, JSON.stringify(next)); } catch { /* storage full: still shown once granted */ }
   window.dispatchEvent(new Event(CHANGED));
@@ -60,12 +62,12 @@ export function savePendingCredential(role: 'speaker' | 'sponsor', data: Credent
 /* ---------- grants (admin) ---------- */
 
 /** Admin approval: the submitter's Holo Card for that role becomes official. */
-export async function grantCredential(uid: string, role: 'speaker' | 'sponsor', data: CredentialData): Promise<void> {
+export async function grantCredential(uid: string, role: GrantRole, data: CredentialData): Promise<void> {
   const clean = JSON.parse(JSON.stringify({ ...data, photo: data.photo && data.photo.length < 400_000 ? data.photo : null }));
   await setDoc(doc(db, 'credential_grants', uid), { [role]: { ...clean, grantedAt: Date.now() }, updatedAt: serverTimestamp() }, { merge: true });
 }
 
-export async function revokeCredential(uid: string, role: 'speaker' | 'sponsor'): Promise<void> {
+export async function revokeCredential(uid: string, role: GrantRole): Promise<void> {
   await updateDoc(doc(db, 'credential_grants', uid), { [role]: deleteField(), updatedAt: serverTimestamp() });
 }
 
@@ -140,12 +142,12 @@ export function useHoloCredentials(): { credentials: HoloCredential[]; googleEma
         pillar: identity.affinity, handle: identity.callsign,
       });
     }
-    (['speaker', 'sponsor'] as const).forEach((role) => {
+    (['speaker', 'sponsor', 'initiate'] as const).forEach((role) => {
       const granted = grants?.[role];
       if (granted?.name) out.push({ ...(granted as CredentialData), role, status: 'official' });
       else if (pending[role]?.name) out.push({ ...(pending[role] as CredentialData), role, status: 'review' });
     });
-    if (initiateId) {
+    if (initiateId && !out.some((c) => c.role === 'initiate' && c.status === 'official')) {
       const c = initiateCredential(initiateId);
       if (c) out.push(c);
     }
@@ -154,4 +156,24 @@ export function useHoloCredentials(): { credentials: HoloCredential[]; googleEma
   }, [identity.pass, identity.affinity, identity.callsign, pending, grants, initiateId, rosterRev]);
 
   return { credentials, googleEmail };
+}
+
+/* ---------- initiate requests (from your pass) ---------- */
+
+export interface InitiateRequest {
+  uid: string;
+  name: string;
+  email: string;
+  passCode: string;
+  pillar?: PillarKey | null;
+  portfolio?: string;
+  note?: string;
+  at?: unknown;
+}
+
+/** A creator asks to join the SGX Guild as an Initiate. The team approves it in the admin. */
+export async function submitInitiateRequest(req: InitiateRequest): Promise<void> {
+  const clean = JSON.parse(JSON.stringify(req));
+  await setDoc(doc(db, 'initiate_requests', req.uid), { ...clean, at: serverTimestamp() });
+  savePendingCredential('initiate', { name: req.name, pillar: req.pillar ?? null, topic: req.note, org: 'SGX Guild Program 2026' });
 }

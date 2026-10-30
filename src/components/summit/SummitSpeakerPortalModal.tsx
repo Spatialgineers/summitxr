@@ -11,6 +11,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { SgxDialog } from '../common/SgxDialog';
+import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
+import { ForgeFirst } from '../../identity/ForgeFirst';
 import './sgxModals.css';
 
 /* SPEAKER & ARTIST PORTAL: self-service application. Every person in the
@@ -48,11 +50,13 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
   const { language } = useLanguage();
   const es = language === 'es';
   const { user: authUser } = useAuth();
+  const sgx = useOptionalSgxIdentity();
+  const myPass = sgx?.identity.pass || null;
 
-  const [name, setName] = useState<string>(initialSpeaker?.name || authUser?.displayName || '');
+  const [name, setName] = useState<string>(initialSpeaker?.name || myPass?.fullName || authUser?.displayName || '');
   const [handle, setHandle] = useState<string>(initialSpeaker?.handle || '');
-  const [role, setRole] = useState<string>(initialSpeaker?.role || '');
-  const [organization, setOrganization] = useState<string>(initialSpeaker?.organization || '');
+  const [role, setRole] = useState<string>(initialSpeaker?.role || myPass?.roleTitle || '');
+  const [organization, setOrganization] = useState<string>(initialSpeaker?.organization || myPass?.organization || '');
   const [bio, setBio] = useState<string>(initialSpeaker?.bio || '');
   const [day, setDay] = useState<number>(initialSpeaker?.day || 1);
   const [pillarId, setPillarId] = useState<SummitPillarId>(initialSpeaker?.pillarId || 'SGX.STORY');
@@ -73,7 +77,8 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
   const pillar = findPillar(pillarId) || SGX_PILLARS[0];
   const accent = PILLAR_ACCENT[pillar.key];
   const [building, setBuilding] = useState(false);
-  const [pilot, setPilot] = useState<PilotConfig>(() => configFromSeed(initialSpeaker?.id || name || 'speaker', accent));
+  // Your own avatar from the pass, unless you change it here.
+  const [pilot, setPilot] = useState<PilotConfig>(() => sgx?.identity.avatar.pilot || configFromSeed(initialSpeaker?.id || name || 'speaker', accent));
   const [photoError, setPhotoError] = useState<string | null>(null);
 
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -82,6 +87,8 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
   if (!isOpen) return null;
+  // Every role starts from the pass: no pass yet → forge it first.
+  if (!sgx?.isForged) return <ForgeFirst role="speaker" onClose={onClose} />;
 
   const publicPortalUrl = `${window.location.origin}/summit?speaker-register=true`;
 

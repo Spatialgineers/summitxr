@@ -6,6 +6,7 @@ import { playUiChirp } from '../lib/cyberAudioEngine';
 import { PILLAR_ACCENT } from './sgxIdentity';
 import { useSgxIdentity } from './SgxIdentityContext';
 import { usePassQr } from './usePassQr';
+import { SgxRoleRequests } from './SgxRoleRequests';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
 import { ROLE_COPY, useHoloCredentials, type CredentialRole, type HoloCredential } from './credentials';
 import { CARD_H, CARD_W, drawCardBack, drawCardFront, loadImage, renderFormat, svgElementToImage, useHoloAssets, type CardArt, type HoloFormat } from './holoCardCanvas';
@@ -32,11 +33,10 @@ function loadStyle(): Style {
 const fire = (name: string, detail?: unknown) => window.dispatchEvent(new CustomEvent(name, { detail }));
 
 interface Props {
-  initialRole?: CredentialRole;
   onClose?: () => void;
 }
 
-export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
+export const SgxHoloStudio: React.FC<Props> = ({ onClose }) => {
   const { language } = useLanguage();
   const es = language === 'es';
   const { profile, recordActivity } = usePilotProfile();
@@ -46,7 +46,6 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
   const qr = usePassQr();
   const assetsReady = useHoloAssets();
 
-  const [role, setRole] = useState<CredentialRole>(initialRole || 'visitor');
   const [format, setFormat] = useState<HoloFormat>('badge');
   const [back, setBack] = useState(false);
   const [style, setStyleState] = useState<Style>(() => loadStyle());
@@ -59,10 +58,15 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
     return next;
   });
 
-  const cred: HoloCredential | undefined = credentials.find((c) => c.role === role) || credentials[0];
-  useEffect(() => {
-    if (cred && cred.role !== role) setRole(cred.role);
-  }, [cred, role]);
+  // One card: the SGX Pass IS the Holo Card. A role the team approved (speaker,
+  // initiate, sponsor) only changes what YOUR pass says; it is never a second card.
+  const base = credentials.find((c) => c.role === 'visitor');
+  const ROLE_ORDER: CredentialRole[] = ['speaker', 'initiate', 'sponsor'];
+  const officialRole = ROLE_ORDER.map((r) => credentials.find((c) => c.role === r && c.status === 'official')).find(Boolean);
+  const pendingRole = ROLE_ORDER.map((r) => credentials.find((c) => c.role === r && c.status === 'review')).find(Boolean);
+  const cred: HoloCredential | undefined = base && officialRole
+    ? { ...base, role: officialRole.role, status: 'official', title: base.title || officialRole.title, org: base.org || officialRole.org, topic: officialRole.topic }
+    : base;
 
   const accent = cred?.pillar ? PILLAR_ACCENT[cred.pillar] : (identity.affinity ? PILLAR_ACCENT[identity.affinity] : '#FDCC0D');
 
@@ -143,7 +147,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
   };
 
   /* ---- export ---- */
-  const review = cred?.status === 'review';
+  const review = false;
   const fileName = `sgx-holo-card-${cred?.role}-${format}${back ? '-reverso' : ''}.png`;
 
   const exported = () => {
@@ -223,17 +227,6 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
         <SgxPilotGlyph seed={identity.avatar.seed} config={identity.avatar.pilot} accent={accent} size={300} />
       </div>
 
-      {credentials.length > 1 && (
-        <div className="sgx-hstudio__roles" role="tablist" aria-label={es ? 'Tus credenciales' : 'Your credentials'}>
-          {credentials.map((c) => (
-            <button key={c.role} type="button" role="tab" aria-selected={c.role === cred.role} className={c.role === cred.role ? 'is-on' : ''} onClick={() => { playUiChirp(700); setRole(c.role); setBack(false); }}>
-              {roleName(c.role)}
-              {c.status === 'review' && <span className="sgx-hstudio__pill">{es ? 'En revisión' : 'In review'}</span>}
-            </button>
-          ))}
-        </div>
-      )}
-
       <div className="sgx-hstudio__grid">
         <div className="sgx-hstudio__stage">
           <div className="sgx-hstudio__formats" role="tablist">
@@ -262,11 +255,11 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
               role="img"
             />
           </div>
-          {review && (
+          {pendingRole && !officialRole && (
             <p className="sgx-hstudio__review">
-              {cred.role === 'speaker'
-                ? (es ? 'Tu credencial de speaker está en revisión. Cuando el equipo la apruebe, aparece aquí como oficial y la puedes descargar.' : 'Your speaker credential is in review. Once the team approves it, it shows here as official and you can download it.')
-                : (es ? 'Tu credencial de sponsor está en revisión. Cuando el equipo apruebe tu alianza, aparece aquí como oficial y la puedes descargar.' : 'Your sponsor credential is in review. Once the team approves your partnership, it shows here as official and you can download it.')}
+              {pendingRole.role === 'speaker'
+                ? (es ? 'Tu perfil de speaker está en revisión. Cuando el equipo lo apruebe, tu pase dirá SPEAKER.' : 'Your speaker profile is in review. Once the team approves it, your pass will say SPEAKER.')
+                : (es ? 'Tu alianza de sponsor está en revisión. Cuando el equipo la apruebe, tu pase dirá SPONSOR.' : 'Your sponsor partnership is in review. Once the team approves it, your pass will say SPONSOR.')}
             </p>
           )}
           <div className="sgx-hstudio__actions">
@@ -306,6 +299,8 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
             )}
           </section>
 
+          {isForged && <SgxRoleRequests credentials={credentials} current={cred.role} />}
+
           <section>
             <h4>{es ? 'Retrato' : 'Portrait'}</h4>
             <div className="sgx-hstudio__portrait">
@@ -331,16 +326,8 @@ export const SgxHoloStudio: React.FC<Props> = ({ initialRole, onClose }) => {
             )}
           </section>
 
-          {!credentials.some((c) => c.role === 'initiate') && (!user || user.isAnonymous) && (
-            <p className="sgx-hstudio__hint">
-              {es ? '¿Eres Initiate del SGX Guild? Inicia sesión con Google (desde tu Estudio) con el email que registró el equipo y tu Holo Card de Initiate aparece aquí.' : 'Are you an SGX Guild Initiate? Sign in with Google (from your Studio) with the email the team registered and your Initiate Holo Card shows up here.'}
-            </p>
-          )}
         </div>
       </div>
-      {!isForged && cred.role !== 'visitor' && (
-        <p className="sgx-hstudio__hint">{es ? 'Forja tu SGX Pass para que esta tarjeta lleve tu QR y tus sellos.' : 'Forge your SGX Pass so this card carries your QR and stamps.'}</p>
-      )}
     </div>
   );
 };

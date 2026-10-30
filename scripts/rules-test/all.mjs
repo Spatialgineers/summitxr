@@ -249,7 +249,7 @@ const aliceG = ctx('aliceG', { email: 'alice.guild@example.com', email_verified:
 const aliceFake = ctx('aliceF', { email: 'alice.guild@example.com', email_verified: false, firebase: { sign_in_provider: 'password' } });
 await ok('admin grants speaker card', setDoc(doc(admin, 'credential_grants', 'alice'), { speaker: { name: 'Alice', title: 'Keynote', grantedAt: 1 }, updatedAt: serverTimestamp() }, { merge: true }));
 await ok('admin grants sponsor card (merge)', setDoc(doc(admin, 'credential_grants', 'alice'), { sponsor: { name: 'Alice', org: 'ACME', grantedAt: 2 }, updatedAt: serverTimestamp() }, { merge: true }));
-await no('grant with extra role key', setDoc(doc(admin, 'credential_grants', 'bob'), { initiate: { name: 'Bob' } }));
+await no('grant with extra role key', setDoc(doc(admin, 'credential_grants', 'bob'), { vip: { name: 'Bob' } }));
 await no('visitor cannot grant self', setDoc(doc(alice, 'credential_grants', 'alice'), { speaker: { name: 'Alice' } }));
 await ok('owner reads own grant', getDoc(doc(alice, 'credential_grants', 'alice')));
 await ok('owner reads own missing grant', getDoc(doc(bob, 'credential_grants', 'bob')));
@@ -318,6 +318,22 @@ await ok('admin clears a report', deleteDoc(doc(admin, 'client_errors', 'e1')));
   await ok('same verified email moves the registration to itself', updateDoc(doc(dan, 'ticket_inquiries', 'SGX-DAN-0001'), { userId: 'google-dan', fullName: 'Dan', timestamp: serverTimestamp() }));
   await no('…but cannot set the status', updateDoc(doc(dan, 'ticket_inquiries', 'SGX-DAN-0001'), { userId: 'google-dan', status: 'CONFIRMED', timestamp: serverTimestamp() }));
   await no('another verified email cannot move it', updateDoc(doc(eve, 'ticket_inquiries', 'SGX-DAN-0001'), { userId: 'google-eve', timestamp: serverTimestamp() }));
+}
+
+// Initiate requests from the pass + initiate grants
+{
+  const ir = { uid: 'alice', name: 'Alice', email: 'alice@x.com', passCode: 'SGX26-AAAA-0001', pillar: 'SPARK', portfolio: 'https://a.com', note: 'Hago shaders en vivo.', at: serverTimestamp() };
+  await ok('creator sends own initiate request', setDoc(doc(alice, 'initiate_requests', 'alice'), ir));
+  await no('cannot send a request for someone else', setDoc(doc(bob, 'initiate_requests', 'alice'), { ...ir, uid: 'bob' }));
+  await no('request with extra field', setDoc(doc(alice, 'initiate_requests', 'alice'), { ...ir, approved: true }));
+  await no('request with a bad pillar', setDoc(doc(alice, 'initiate_requests', 'alice'), { ...ir, pillar: 'NOPE' }));
+  await ok('creator reads own request', getDoc(doc(alice, 'initiate_requests', 'alice')));
+  await no('others cannot read it', getDoc(doc(bob, 'initiate_requests', 'alice')));
+  await no('visitor cannot list requests', getDocs(collection(alice, 'initiate_requests')));
+  await ok('admin lists requests', getDocs(collection(admin, 'initiate_requests')));
+  await ok('admin grants initiate', setDoc(doc(admin, 'credential_grants', 'alice'), { initiate: { name: 'Alice' }, updatedAt: serverTimestamp() }, { merge: true }));
+  await no('visitor cannot grant themselves initiate', setDoc(doc(alice, 'credential_grants', 'alice'), { initiate: { name: 'Alice' }, updatedAt: serverTimestamp() }));
+  await ok('admin deletes a request', deleteDoc(doc(admin, 'initiate_requests', 'alice')));
 }
 
 console.log(`RESULT ${n} passed, ${failed} failed`);

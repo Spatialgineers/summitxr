@@ -15,7 +15,6 @@ import { FORGE_AFTER_SWITCH, SIGNED_IN_EVENT } from './accountSlots';
 
 // The pass surfaces download the first time they open.
 const SgxForge = lazy(() => import('./SgxForge').then((m) => ({ default: m.SgxForge })));
-const SgxHoloCardGeneratorModal = lazy(() => import('../components/summit/SgxHoloCardGeneratorModal').then((m) => ({ default: m.SgxHoloCardGeneratorModal })));
 const SgxHoloViewer = lazy(() => import('./SgxHoloViewer').then((m) => ({ default: m.SgxHoloViewer })));
 const PilotBuilderModal = lazy(() => import('./PilotBuilderModal').then((m) => ({ default: m.PilotBuilderModal })));
 
@@ -60,7 +59,6 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
   useEffect(() => { if (!quiet) prefetchPassSurfaces(); }, [quiet]);
   const { pushToast } = useImmersion();
   // Holo Card Studio (visitante / speaker / initiate / sponsor), prefilled from the pass.
-  const [holo, setHolo] = useState<{ role?: CredentialRole; n: number } | null>(null);
   const [viewCard, setViewCard] = useState<HoloCredential | null>(null);
   const [pilotStudio, setPilotStudio] = useState(false);
   const [forge, setForge] = useState<{ tier: PassTier } | null>(null);
@@ -96,14 +94,10 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
       }
     };
     IDENTITY_ENTRY_EVENTS.forEach((n) => window.addEventListener(n, handler));
-    // Every Holo Card in the app opens this one Studio, on the cards you
-    // really hold. detail.role only picks which of them shows first.
-    const onHolo = (e: Event) => {
-      const raw = String((e as CustomEvent<{ role?: string } | null>).detail?.role || '').toLowerCase();
-      const role = (['speaker', 'initiate', 'sponsor'].includes(raw) ? raw : 'visitor') as CredentialRole;
+    // The Holo Card IS your SGX Pass: every 'open Holo Card' lands on the pass in your Studio.
+    const onHolo = () => {
       setForge(null);
-      setHangar(null);
-      setHolo({ role, n: Date.now() });
+      setHangar('pass');
     };
     // Someone else's official card (a published speaker, a Guild initiate).
     const onView = (e: Event) => {
@@ -276,14 +270,6 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
         </div>
       )}
       <LazyBoundary fallback={<LazyFallback overlay />}>
-        {holo && (
-          <SgxHoloCardGeneratorModal
-            key={holo.n || 0}
-            isOpen
-            onClose={() => setHolo(null)}
-            initialRole={holo.role}
-          />
-        )}
         {viewCard && <SgxHoloViewer cred={viewCard} onClose={() => setViewCard(null)} />}
         {pilotStudio && <PilotBuilderModal onClose={() => setPilotStudio(false)} />}
         {forge && (

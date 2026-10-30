@@ -49,50 +49,48 @@ const S = (v) => ({ stringValue: v });
   check('hangar card flips to the back', !!(await p.$('#sgx-studio-page .sgx-hstudio__flip:has-text("Frente"), #sgx-studio-page .sgx-hstudio__flip:has-text("Front")')));
   await (await p.$('#sgx-studio-page .sgx-hstudio__preview canvas')).screenshot({ path: `${OUT}/c_hangar_back.png` });
   
-  // studio
+  // studio: the pass IS the Holo Card (one card, on the Studio page)
   await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_credential_generator')));
-  await p.waitForTimeout(3500);
-  const filled = await p.evaluate(() => { const c = document.querySelector('[role=dialog] .sgx-hstudio__preview canvas'); if (!c) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4000) if (d[i] > 0) n++; return n; });
-  check('studio draws the pass card', filled > 50, `(samples ${filled})`);
+  await p.waitForSelector('#sgx-studio-page .sgx-hstudio__preview canvas', { timeout: 20000 }); await p.waitForTimeout(2500);
+  const Q = '#sgx-studio-page';
+  const filled = await p.evaluate((q) => { const c = document.querySelector(`${q} .sgx-hstudio__preview canvas`); if (!c) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4000) if (d[i] > 0) n++; return n; }, Q);
+  check('Holo Card links open the pass on the Studio page (no popup)', filled > 50 && !(await p.$('[role=dialog] .sgx-hstudio')), `(samples ${filled})`);
   await p.screenshot({ path: `${OUT}/c_studio.png` });
-  await (await p.$('[role=dialog] .sgx-hstudio__preview canvas')).screenshot({ path: `${OUT}/c_card_canvas.png` });
-  check('visitor sees no role picker', !(await p.$('[role=dialog] .sgx-hstudio__roles')));
-  const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 8000 }).catch(() => null), p.click('[role=dialog] .sgx-hstudio__actions .sgx-btn:not(.sgx-btn--ground)')]);
+  check('one card: no role tabs', !(await p.$(`${Q} .sgx-hstudio__roles`)));
+  const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 8000 }).catch(() => null), p.click(`${Q} .sgx-hstudio__actions .sgx-btn:not(.sgx-btn--ground)`)]);
   check('PNG download works', !!dl, dl ? dl.suggestedFilename() : '');
   for (const f of ['Post 4:5', 'Story 9:16']) {
-    await p.click(`[role=dialog] .sgx-hstudio__formats button:has-text("${f}")`); await p.waitForTimeout(800);
-    await (await p.$('[role=dialog] .sgx-hstudio__preview canvas')).screenshot({ path: `${OUT}/c_${f.split(' ')[0].toLowerCase()}.png` });
+    await p.click(`${Q} .sgx-hstudio__formats button:has-text("${f}")`); await p.waitForTimeout(800);
+    await (await p.$(`${Q} .sgx-hstudio__preview canvas`)).screenshot({ path: `${OUT}/c_${f.split(' ')[0].toLowerCase()}.png` });
   }
-  await p.keyboard.press('Escape'); await p.waitForTimeout(400);
-  // speaker submits -> in review
+  await p.click(`${Q} .sgx-hstudio__formats button:has-text("Tarjeta 3D"), ${Q} .sgx-hstudio__formats button:has-text("3D card")`).catch(() => {});
+  const roles = () => p.$$eval(`${Q} .sgx-roles__item`, (els) => els.map((e) => e.textContent || ''));
+  const r0 = await roles();
+  check('the pass offers Speaker, Initiate and Sponsor requests', r0.length === 3 && r0.every((t) => /Solicitar|Apply/.test(t)), JSON.stringify(r0));
+  // initiate request from the pass -> in review
+  await p.click(`${Q} .sgx-roles__item:has-text("Initiate") button`);
+  await p.waitForSelector('#sgx-initiate-form', { timeout: 8000 });
+  await p.fill('#sgx-initiate-form textarea', 'Hago shaders en vivo y visuales para conciertos.');
+  await p.click('button[form="sgx-initiate-form"]'); await p.waitForTimeout(2500);
+  await p.click('[role=dialog] button:has-text("Listo"), [role=dialog] button:has-text("Done")').catch(() => {});
+  await p.waitForTimeout(800);
+  const r1 = await roles();
+  check('initiate request shows "En revisión"', r1.some((t) => /Initiate/.test(t) && /revisi|review/i.test(t)), JSON.stringify(r1));
+  // speaker submits -> in review; the card still says CREADOR
   await p.evaluate(async () => { const m = await import('/src/identity/credentials.ts'); m.savePendingCredential('speaker', { name: 'Gabriela Prueba', title: 'Shader Artist', org: 'Estudio G', topic: 'Día 2', pillar: 'STAGE' }); });
-  await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_holo_card', { detail: { role: 'speaker' } })));
-  await p.waitForTimeout(2500);
-  const rev = await p.evaluate(() => ({ tabs: [...document.querySelectorAll('[role=dialog] .sgx-hstudio__roles button')].map((b) => b.textContent), disabled: document.querySelector('[role=dialog] .sgx-hstudio__actions .sgx-btn:not(.sgx-btn--ground)')?.disabled }));
-  check('speaker tab shows in review', rev.tabs.some((t) => /Speaker.*revisi/i.test(t)), JSON.stringify(rev.tabs));
-  check('in-review card cannot be downloaded', rev.disabled === true);
-  await (await p.$('[role=dialog] .sgx-hstudio__preview canvas')).screenshot({ path: `${OUT}/c_speaker_review.png` });
-  // admin approves -> grant
+  await p.waitForTimeout(1200);
+  check('pending role does not change the card yet', !!(await p.$(`${Q} .sgx-hstudio__review`)) && /CREADOR|CREATOR/.test(await p.$eval(`${Q} .sgx-roles`, (e) => e.textContent || '')));
+  // admin approves -> the same pass switches to SPEAKER
   const uid = await p.evaluate(async () => (await import('/src/lib/firebase.ts')).auth.currentUser?.uid);
   await put(`credential_grants/${uid}`, { speaker: { mapValue: { fields: { name: S('Gabriela Prueba'), title: S('Shader Artist'), org: S('Estudio G'), topic: S('Día 2'), pillar: S('STAGE'), grantedAt: { integerValue: '1' } } } } });
-  await p.waitForTimeout(2500);
-  const off = await p.evaluate(() => ({ tabs: [...document.querySelectorAll('[role=dialog] .sgx-hstudio__roles button')].map((b) => b.textContent), disabled: document.querySelector('[role=dialog] .sgx-hstudio__actions .sgx-btn:not(.sgx-btn--ground)')?.disabled }));
-  check('after approval the speaker card is official', off.tabs.some((t) => /^Speaker$/i.test(t.trim())) && off.disabled === false, JSON.stringify(off));
-  await (await p.$('[role=dialog] .sgx-hstudio__preview canvas')).screenshot({ path: `${OUT}/c_speaker_official.png` });
-  await p.keyboard.press('Escape'); await p.waitForTimeout(400);
-  // initiate by Google email
-  await put('initiate_claims/gabriela.guild@example.com', { initiateId: S('init_3') });
-  await p.evaluate(async () => {
-    const m = await import('/src/lib/firebase.ts');
-    const cred = m.googleProvider.constructor.credential(JSON.stringify({ sub: 'google-gaby', email: 'gabriela.guild@example.com', email_verified: true, name: 'Gabriela' }));
-    await m.signInWithCredential(m.auth, cred);
-  });
   await p.waitForTimeout(3000);
-  await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_holo_card', { detail: { role: 'initiate' } })));
-  await p.waitForTimeout(2500);
-  const ini = await p.evaluate(() => [...document.querySelectorAll('[role=dialog] .sgx-hstudio__roles button')].map((b) => b.textContent));
-  check('Google sign-in with the registered email unlocks the Initiate card', ini.some((t) => /Initiate/.test(t)), JSON.stringify(ini));
-  await (await p.$('[role=dialog] .sgx-hstudio__preview canvas')).screenshot({ path: `${OUT}/c_initiate.png` });
+  const r2 = await p.$eval(`${Q} .sgx-roles`, (e) => e.textContent || '');
+  check('after approval the same pass says SPEAKER', /SPEAKER/.test(r2) && /Aprobado|Approved/.test(r2), r2.slice(0, 160));
+  await (await p.$(`${Q} .sgx-hstudio__preview canvas`)).screenshot({ path: `${OUT}/c_speaker_official.png` });
+  // speaker portal and sponsor form need the pass (they have it here): the portal opens prefilled
+  await p.evaluate(() => window.dispatchEvent(new Event('sgx:open_speaker_portal'))); await p.waitForTimeout(1500);
+  const prefilled = await p.$eval('[role=dialog] input', (i) => i.value).catch(() => '');
+  check('speaker portal opens prefilled from the pass', /Gabriela/.test(prefilled), prefilled);
   await p.keyboard.press('Escape'); await p.waitForTimeout(400);
   // viewer: someone else's initiate card from the Guild
   await p.evaluate(async () => { const m = await import('/src/identity/credentials.ts'); window.dispatchEvent(new CustomEvent('sgx:view_holo_card', { detail: m.initiateCredential('init_1') })); });

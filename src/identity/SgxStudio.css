@@ -81,3 +81,17 @@
   .sgx-studio__pagebar { position: static; }
   .sgx-studio__pagebar .sgx-hangar__xp { order: -1; width: 100%; margin-left: 0; flex-direction: row; justify-content: space-between; align-items: baseline; padding-bottom: 0; }
 }
+
+/* Tu rol en el Summit (SgxRoleRequests) */
+.sgx-roles__list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.sgx-roles__item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; background: #0d0f13; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+.sgx-roles__item.is-official { box-shadow: inset 0 0 0 1px rgba(0, 221, 255, 0.5); }
+.sgx-roles__item div { display: flex; flex-direction: column; min-width: 0; }
+.sgx-roles__item b { font-family: var(--font-hud); font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--SGX_White); }
+.sgx-roles__item span { font-family: var(--font-body); font-size: 0.78rem; color: rgba(255, 255, 255, 0.62); }
+.sgx-roles__chip { flex: none; padding: 4px 8px; font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--SGX_Yellow); box-shadow: inset 0 0 0 1px rgba(253, 204, 13, 0.5); }
+.sgx-roles__chip.is-ok { color: var(--SGX_Cyan); box-shadow: inset 0 0 0 1px rgba(0, 221, 255, 0.6); }
+.sgx-roles__form { display: flex; flex-direction: column; gap: 12px; }
+.sgx-roles__form label { display: flex; flex-direction: column; gap: 6px; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.7); }
+.sgx-roles__form input, .sgx-roles__form select, .sgx-roles__form textarea { font: inherit; font-family: var(--font-body); font-size: 0.9rem; text-transform: none; letter-spacing: 0; color: #fff; background: #0b0d12; border: 1px solid rgba(255, 255, 255, 0.18); padding: 10px 12px; }
+.sgx-roles__form input:focus, .sgx-roles__form select:focus, .sgx-roles__form textarea:focus { outline: 2px solid var(--SGX_Cyan); outline-offset: 1px; }

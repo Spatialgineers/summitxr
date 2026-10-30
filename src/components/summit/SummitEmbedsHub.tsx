@@ -146,6 +146,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({ embeds: initia
   const { isAdmin } = useAuth();
   const es = language === 'es';
   const stageRef = useRef<HTMLElement | null>(null);
+  const viewRef = useRef<HTMLDivElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
 
   const [embedList, setEmbedList] = useState<EmbedWidget[]>(() => {
@@ -185,7 +186,9 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({ embeds: initia
   const selectEmbed = (id: string) => {
     setSelectedId(id);
     setFrameKey((k) => k + 1);
-    stageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // On phones a native game is framed between the header and the dock, so it scrolls to the game itself.
+    const framed = NATIVE_GAMES.has(id) && window.matchMedia('(max-width: 640px)').matches;
+    (framed ? viewRef.current : stageRef.current)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const openAddForm = () => {
@@ -383,7 +386,7 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({ embeds: initia
           </div>
         </header>
 
-        <div className={`sgx-embeds__view sgx-embeds__view--${activeMode}`}>
+        <div ref={viewRef} className={`sgx-embeds__view sgx-embeds__view--${activeMode}`}>
           {isFullscreen ? (
             <div className="sgx-embeds__parked">
               <p>{es ? 'Abierto en pantalla completa.' : 'Open in fullscreen.'}</p>

@@ -121,6 +121,12 @@
 .sgx-embeds__preview.sgx-embeds__view--soon { display: grid; place-items: center; padding: 20px; }
 
 @media (max-width: 640px) {
+  /* A native game fills the space between the header (96px) and the dock (~70px). */
+  .sgx-embeds__view--native { scroll-margin-top: 96px; }
+  .sgx-embeds__view--native :is(.sgx-drone__stage, .sgx-pulse__stage, .sgx-bolt__stage, .sgx-stack__stage) {
+    min-height: max(440px, calc(100dvh - 170px));
+    max-height: calc(100dvh - 170px);
+  }
   .sgx-embeds__bar { padding: 12px 14px 10px; }
   .sgx-embeds__foot { padding: 10px 14px 12px; }
   .sgx-embeds__actions { width: 100%; }

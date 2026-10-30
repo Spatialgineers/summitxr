@@ -9,7 +9,7 @@ import type { ApprovedSponsor } from '../types/summit';
    branded missions inside SGX.Showcase.
    ========================================================================= */
 
-export type IdentityFlag = 'forged' | 'avatar' | 'contact' | 'checkin' | 'redeem' | 'holo' | 'constellation' | 'drone_route';
+export type IdentityFlag = 'forged' | 'avatar' | 'contact' | 'checkin' | 'redeem' | 'holo' | 'constellation' | 'drone_route' | 'stack_pillars' | 'pulse_s' | 'bolt_boss';
 
 export type MissionTrigger =
   | { visit: string[] }
@@ -67,6 +67,18 @@ export const REACTOR_MISSIONS: ReactorMission[] = [
   { id: 'm_spark_drone_route', pillar: 'SPARK', xp: 150, trigger: { flag: 'drone_route' }, secret: true,
     es: { title: 'Ruta de los 6 pilares', hint: 'En el dron, cruza seis anillos seguidos con los colores de los pilares en orden.' },
     en: { title: 'Six-pillar route', hint: 'In the drone game, fly through six rings in a row in the pillar colors, in order.' },
+    go: { section: 'EMBEDS_GAMES' } },
+  { id: 'm_spark_stack', pillar: 'SPARK', xp: 120, trigger: { flag: 'stack_pillars' },
+    es: { title: 'Torre de los 6 pilares', hint: 'En Torre de Pilares, apila los seis pilares en orden sin cortes grandes.' },
+    en: { title: 'Six-pillar tower', hint: 'In Pillar Tower, stack the six pillars in order without big cuts.' },
+    go: { section: 'EMBEDS_GAMES' } },
+  { id: 'm_spark_pulse', pillar: 'SPARK', xp: 120, trigger: { flag: 'pulse_s' },
+    es: { title: 'Pulso perfecto', hint: 'En Pulso SGX, termina una canción con nota S o combo completo.' },
+    en: { title: 'Perfect pulse', hint: 'In SGX Pulse, finish a song with an S grade or a full combo.' },
+    go: { section: 'EMBEDS_GAMES' } },
+  { id: 'm_spark_bolt', pillar: 'SPARK', xp: 150, trigger: { flag: 'bolt_boss' },
+    es: { title: 'Derriba al Jefe SGX', hint: 'En Rayo en tus manos, derriba al Jefe SGX antes de que acabe el tiempo.' },
+    en: { title: 'Take down the SGX Boss', hint: 'In Bolt in your hands, take down the SGX Boss before time runs out.' },
     go: { section: 'EMBEDS_GAMES' } },
   { id: 'm_spark_cells', pillar: 'SPARK', xp: 120, trigger: { quest: 'q_cells_6' },
     es: { title: 'Carga 6 celdas', hint: 'Encuentra 6 rayos SGX escondidos en las secciones.' },

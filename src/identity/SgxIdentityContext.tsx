@@ -217,7 +217,17 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     window.addEventListener('sgx:holo_card_exported', onHolo);
     const onDroneRoute = () => flag('drone_route');
     window.addEventListener('sgx:drone_route', onDroneRoute);
+    // Spark games report their best moment of each run.
+    const onSparkGame = (e: Event) => {
+      const d = (e as CustomEvent<{ game?: string; milestone?: string; milestones?: string[] }>).detail || {};
+      const hit = new Set([d.milestone, ...(d.milestones || [])].filter(Boolean));
+      if (d.game === 'stack' && hit.has('six_pillars')) flag('stack_pillars');
+      if (d.game === 'pulse' && (hit.has('grade_s') || hit.has('full_combo'))) flag('pulse_s');
+      if (d.game === 'bolt' && hit.has('boss_down')) flag('bolt_boss');
+    };
+    window.addEventListener('sgx:spark_game', onSparkGame);
     return () => {
+      window.removeEventListener('sgx:spark_game', onSparkGame);
       window.removeEventListener('sgx:route_changed', onRoute);
       window.removeEventListener('popstate', onRoute);
       window.removeEventListener('sgx:switch_summit_section', onSwitch);

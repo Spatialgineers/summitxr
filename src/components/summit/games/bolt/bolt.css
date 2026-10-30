@@ -119,7 +119,7 @@
 /* ---------- overlays ---------- */
 .sgx-bolt__overlay {
   position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 14px; overflow-y: auto; background: rgba(5, 5, 5, 0.72); cursor: default;
+  padding: 14px; overflow-y: auto; background: rgba(5, 5, 5, 0.72); cursor: default; touch-action: pan-y;
 }
 .sgx-bolt__panel {
   position: relative; width: min(100%, 680px); padding: 22px 24px 20px; display: grid; gap: 12px;

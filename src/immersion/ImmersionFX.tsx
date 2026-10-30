@@ -132,7 +132,7 @@ export const PulseWaves: React.FC = () => {
   return (
     <>
       {waves.map((w) => (
-        <div key={w.id} className="sgx-pulse" style={{ left: w.x, top: w.y }} aria-hidden="true">
+        <div key={w.id} className="sgx-ripple" style={{ left: w.x, top: w.y }} aria-hidden="true">
           <span /><span />
         </div>
       ))}

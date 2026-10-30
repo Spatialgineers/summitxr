@@ -73,14 +73,14 @@
 @keyframes sgx-warp-label { 0% { transform: scale(0.85); opacity: 0; } 30% { transform: scale(1); opacity: 1; } 75% { opacity: 1; } 100% { transform: scale(1.08); opacity: 0; } }
 
 /* ---------- Pulse ---------- */
-.sgx-pulse { position: fixed; z-index: 61; pointer-events: none; width: 0; height: 0; }
-.sgx-pulse > span {
+.sgx-ripple { position: fixed; z-index: 61; pointer-events: none; width: 0; height: 0; }
+.sgx-ripple > span {
   position: absolute; left: 0; top: 0; width: 120px; height: 120px; margin: -60px 0 0 -60px;
   border: 2px solid var(--SGX_Yellow); border-radius: var(--radius-round);
-  animation: sgx-pulse-ring 1.05s cubic-bezier(0.1, 0.6, 0.3, 1) forwards;
+  animation: sgx-ripple-ring 1.05s cubic-bezier(0.1, 0.6, 0.3, 1) forwards;
 }
-.sgx-pulse > span:nth-child(2) { border-color: var(--SGX_Cyan); border-width: 1px; animation-delay: 0.12s; opacity: 0; }
-@keyframes sgx-pulse-ring { 0% { transform: scale(0.1); opacity: 1; } 100% { transform: scale(16); opacity: 0; } }
+.sgx-ripple > span:nth-child(2) { border-color: var(--SGX_Cyan); border-width: 1px; animation-delay: 0.12s; opacity: 0; }
+@keyframes sgx-ripple-ring { 0% { transform: scale(0.1); opacity: 1; } 100% { transform: scale(16); opacity: 0; } }
 
 /* ---------- Energy cell (hidden SGX Bolt) ---------- */
 .sgx-cell {
@@ -296,7 +296,7 @@ body.sgx-overdrive .tenant-btn-primary { filter: drop-shadow(0 0 6px rgba(253, 2
   .sgx-atmosphere::after, .sgx-cell, .sgx-cell__halo, .sgx-warp__streaks,
   .sgx-overdrive-frame, .sgx-rail.is-overdrive .sgx-rail__meter > span { animation: none !important; }
   .sgx-warp { animation-duration: 0.3s; }
-  .sgx-pulse > span { animation-duration: 0.4s; }
+  .sgx-ripple > span { animation-duration: 0.4s; }
 }
 
 /* ---------- Boot sequence ---------- */

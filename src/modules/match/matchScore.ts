@@ -76,8 +76,10 @@ function isAdjacentPillar(p1: string, p2: string): boolean {
  */
 export function calculateMatchScore(
   viewer: MatchProfile,
-  candidate: MatchProfile
+  candidate: MatchProfile,
+  lang: 'es' | 'en' = 'es'
 ): { score: number; reason: string } {
+  const es = lang === 'es';
   // 1. Demand met (viewer's seeking satisfied by candidate)
   const viewerDemandMet = viewer.seeking.some(s => isNeedSatisfied(s, candidate));
 
@@ -118,10 +120,10 @@ export function calculateMatchScore(
   // Generate 1-line reason
   let reason = '';
   if (viewerDemandMet && reciprocityMet) {
-    reason = 'Match mutuo — cada quien tiene lo que el otro busca';
+    reason = es ? 'Match mutuo — cada quien tiene lo que el otro busca' : 'Mutual match — each of you has what the other is looking for';
   } else if (viewerDemandMet) {
     const matchedRole = viewer.seeking.find(s => isNeedSatisfied(s, candidate)) || viewer.seeking[0];
-    const roleLabels: Record<string, string> = {
+    const roleLabels: Record<string, string> = es ? {
       cofounder: 'co-fundador',
       investor: 'inversionista',
       client: 'clientes',
@@ -130,16 +132,16 @@ export function calculateMatchScore(
       vendor: 'proveedor',
       mentor: 'mentor',
       talent: 'talento'
-    };
-    reason = `Buscas ${roleLabels[matchedRole] || matchedRole}, y ellos lo traen`;
+    } : { cofounder: 'a co-founder', investor: 'an investor', client: 'clients', collaborator: 'a collaborator', sponsor: 'a sponsor', vendor: 'a vendor', mentor: 'a mentor', talent: 'talent' };
+    reason = es ? `Buscas ${roleLabels[matchedRole] || matchedRole}, y ellos lo traen` : `You're looking for ${roleLabels[matchedRole] || matchedRole}, and they bring it`;
   } else if (reciprocityMet) {
-    reason = 'Buscan lo que tú traes a la mesa';
+    reason = es ? 'Buscan lo que tú traes a la mesa' : 'They need what you bring to the table';
   } else if (samePillar) {
-    reason = `Mismo pilar SGX: ${viewer.pillar.toUpperCase()}`;
+    reason = `${es ? 'Mismo pilar SGX' : 'Same SGX pillar'}: ${viewer.pillar.toUpperCase()}`;
   } else if (sharedOpenTo.length > 0) {
-    reason = `Ambos abiertos a conectar (${sharedOpenTo[0]})`;
+    reason = es ? `Ambos abiertos a conectar (${sharedOpenTo[0]})` : `Both open to connect (${sharedOpenTo[0]})`;
   } else {
-    reason = 'Energía complementaria en Chroma Space';
+    reason = es ? 'Energía complementaria en Chroma Space' : 'Complementary energy at Chroma Space';
   }
 
   return { score: finalScore, reason };
@@ -150,11 +152,12 @@ export function calculateMatchScore(
  */
 export function rankCandidatesDeck(
   viewer: MatchProfile,
-  candidates: MatchCandidate[]
+  candidates: MatchCandidate[],
+  lang: 'es' | 'en' = 'es'
 ): MatchCandidate[] {
   return candidates
     .map(c => {
-      const { score, reason } = calculateMatchScore(viewer, c.profile);
+      const { score, reason } = calculateMatchScore(viewer, c.profile, lang);
       return {
         ...c,
         score,

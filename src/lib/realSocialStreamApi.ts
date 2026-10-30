@@ -10,6 +10,7 @@ import {
   limit, 
   arrayUnion, 
   increment,
+  getDoc,
   where
 } from 'firebase/firestore';
 import { auth, db } from './firebase';
@@ -215,10 +216,10 @@ export async function publishAttendeePost(post: {
   const now = Date.now();
 
   const author: SocialAuthor = {
-    name: post.authorName || 'Asistente Spatialgineers',
-    handle: post.authorHandle || '@asistente_sgx',
+    name: post.authorName || 'Creador SGX',
+    handle: post.authorHandle || '@creador_sgx',
     avatar: post.authorAvatar && /^https:\/\//.test(post.authorAvatar) && post.authorAvatar.length <= 1000 ? post.authorAvatar : SGX_DEFAULT_AVATAR,
-    badge: 'Asistente',
+    badge: 'Creador',
     verified: false,
   };
 
@@ -247,6 +248,7 @@ export async function publishAttendeePost(post: {
     await setDoc(doc(db, 'social_posts', postId), newPostData);
   } catch (err) {
     console.error('[Real Social Stream] Error writing post to Firestore:', err);
+    throw new Error('No pudimos publicar el enlace. Revisa tu conexión e inténtalo otra vez.');
   }
 
   return mapDocToPost(postId, newPostData);
@@ -257,8 +259,10 @@ export async function publishAttendeePost(post: {
  */
 export async function importInstagramPost(
   url: string,
-  extra?: { caption?: string; authorHandle?: string }
+  extra?: { caption?: string; authorHandle?: string; official?: boolean }
 ): Promise<SocialPost> {
+  // Only the team posts verified, featured items; a visitor's link lands as their own post.
+  const official = !!extra?.official;
   const trimmedUrl = url.trim();
   const match = trimmedUrl.match(/instagram\.com\/(?:p|reel|tv)\/([a-zA-Z0-9_-]+)/i);
   
@@ -279,9 +283,9 @@ export async function importInstagramPost(
       handle: extra?.authorHandle ? (extra.authorHandle.startsWith('@') ? extra.authorHandle : `@${extra.authorHandle}`) : '@spatialgineers',
       avatar: '/brand/sgx-bolt.svg',
       badge: 'Instagram',
-      verified: true,
+      verified: official,
     },
-    content: extra?.caption || 'Publicación verificada en Instagram oficial.',
+    content: extra?.caption || (official ? 'Publicación verificada en Instagram oficial.' : 'Publicación de Instagram.'),
     hashtags: ['#SpatialgineersSummit', '#SGX2026', '#InstagramLive'],
     mediaType: isReel ? 'video' : 'image',
     location: 'Instagram • Publicación Oficial',
@@ -290,12 +294,16 @@ export async function importInstagramPost(
     likes: 0,
     commentsCount: 0,
     sharesCount: 0,
-    isFeaturedOnStage: true,
+    isFeaturedOnStage: official,
     comments: [],
     authorUid: auth.currentUser?.uid || null,
   };
 
-  await setDoc(doc(db, 'social_posts', postId), postData);
+  try {
+    await setDoc(doc(db, 'social_posts', postId), postData);
+  } catch {
+    throw new Error('No pudimos publicar el enlace. Revisa tu conexión e inténtalo otra vez.');
+  }
   return mapDocToPost(postId, postData);
 }
 
@@ -410,15 +418,12 @@ export async function likeSocialPost(postId: string): Promise<{ likes: number; u
     await updateDoc(postRef, {
       likes: increment(1),
     });
+    const snap = await getDoc(postRef);
+    return { likes: Number(snap.data()?.likes) || 1, userLiked: true, xpAwarded: 10 };
   } catch (err) {
-    console.warn('[Real Social Stream] Firestore update like fallback:', err);
+    console.warn('[Real Social Stream] like not saved:', err);
+    return { likes: 0, userLiked: false, xpAwarded: 0 };
   }
-
-  return {
-    likes: 1,
-    userLiked: true,
-    xpAwarded: 10,
-  };
 }
 
 /**

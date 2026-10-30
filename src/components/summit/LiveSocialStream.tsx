@@ -55,7 +55,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
 }) => {
   const { language } = useLanguage();
   const es = language === 'es';
-  const { addXp, user } = useAuth();
+  const { addXp, user, isAdmin } = useAuth();
   const { styles } = useTenantTheme();
 
   // Feed State
@@ -229,8 +229,8 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
         hashtags: selectedPublishTags,
         platform: detectedPlatform,
         instagramPostUrl: cleanUrl,
-        authorName: user?.displayName || (es ? 'Asistente Spatialgineers' : 'Spatialgineers Attendee'),
-        authorHandle: user?.email ? `@${user.email.split('@')[0]}` : '@asistente_sgx',
+        authorName: user?.displayName || (es ? 'Creador SGX' : 'SGX Creator'),
+        authorHandle: user?.email ? `@${user.email.split('@')[0]}` : '@creador_sgx',
         location: 'Spatialgineers Summit 2026'
       });
 
@@ -241,7 +241,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
       addXp(50, 'Post enlazado en Live Social Stream');
     } catch (err: any) {
       console.error('Error linking post:', err);
-      setPublishError(err?.message || (es ? 'Error al guardar el enlace. Intenta nuevamente.' : 'Error saving the link. Please try again.'));
+      setPublishError((es ? err?.message : null) || (es ? 'Error al guardar el enlace. Intenta nuevamente.' : 'Error saving the link. Please try again.'));
     } finally {
       setIsPublishing(false);
     }
@@ -302,8 +302,8 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
               <span>{es ? 'ENLAZAR POST (+50 XP)' : 'LINK POST (+50 XP)'}</span>
             </button>
 
-            {/* Bulk CSV Import Button */}
-            <button
+            {/* Bulk CSV Import Button (team only: it posts verified, featured items) */}
+            {isAdmin && <button
               onClick={() => {
                 playUiChirp(880);
                 setIsBulkImportOpen(true);
@@ -313,7 +313,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
             >
               <UploadCloud className="w-4 h-4" />
               <span>{es ? 'IMPORTAR .CSV' : 'IMPORT .CSV'}</span>
-            </button>
+            </button>}
 
             {/* Copy Hashtags CTA */}
             <button

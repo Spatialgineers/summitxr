@@ -52,7 +52,7 @@ export const MatchDeck: React.FC<MatchDeckProps> = ({
     setLoading(true);
     try {
       const candidates = await fetchCandidatesDeck(myUid, myCandidate.profile);
-      const ranked = rankCandidatesDeck(myCandidate.profile, candidates);
+      const ranked = rankCandidatesDeck(myCandidate.profile, candidates, es ? 'es' : 'en');
       setDeck(ranked);
     } catch (err) {
       console.error('Failed to load match deck:', err);

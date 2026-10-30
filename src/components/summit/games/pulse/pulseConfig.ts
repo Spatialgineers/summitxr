@@ -2,10 +2,10 @@
    SONG_URL = '/games/pulse/<file>.mp3' (or a CDN URL that allows CORS). The
    chart is generated from the audio the first time and cached. Empty: the
    game plays the built-in SGX beat. `?song=<url>` overrides it for testing. */
-export const SONG_URL = '';
+export const SONG_URL = '/games/pulse/spatialgineers-summit.mp3';
 
 /** Shown on the start screen when a real song is loaded. */
-export const SONG_TITLE = { es: 'La canción del Summit', en: 'The Summit song' };
+export const SONG_TITLE = { es: 'Spatialgineers Summit', en: 'Spatialgineers Summit' };
 
 export function songUrl(): string {
   try {

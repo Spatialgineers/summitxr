@@ -1,5 +1,6 @@
 /* Torre de Pilares: stage, HUD, power chips, pop-ups and overlays (same family as the drone). */
-.sgx-stack {
+.sgx-stack.sgx-stack {
+  display: block; gap: 0; /* the design system has a .sgx-stack grid utility */
   --cut: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
   --stack-accent: #00ddff;
   position: relative; width: 100%; color: var(--SGX_White, #fff); background: var(--SGX_Black_Base, #050505);

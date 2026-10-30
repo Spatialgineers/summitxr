@@ -1,3 +1,4 @@
+import { useLanguage } from './context/LanguageContext';
 import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { HeaderNav, PageRoute } from './components/common/HeaderNav';
 import { AdminAuthGuard } from './components/admin/AdminAuthGuard';
@@ -42,6 +43,7 @@ import { SgxBootSequence } from './immersion/SgxBootSequence';
 import { recordVisit } from './lib/visitTracker';
 
 export default function App() {
+  const { language: skipLang } = useLanguage();
   const { isAdmin, user: authUser } = useAuth();
   const [showSplash, setShowSplash] = useState<boolean>(() => {
     try {
@@ -1069,7 +1071,7 @@ export default function App() {
       <a href="#summit-main-tab-content" className="sgx-skip" onClick={(e) => {
         const main = document.getElementById('summit-main-tab-content') || document.querySelector('main');
         if (main) { e.preventDefault(); (main as HTMLElement).setAttribute('tabindex', '-1'); (main as HTMLElement).focus(); }
-      }}>Saltar al contenido</a>
+      }}>{skipLang === 'es' ? 'Saltar al contenido' : 'Skip to content'}</a>
       {/* The one splash: particle bolt, Summit wordmark and the Tier 3+ partner row */}
       {showSplash && !bootDone && (
         <SgxBootSequence

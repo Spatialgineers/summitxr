@@ -130,12 +130,12 @@ export const SGX_PORTFOLIO: PortfolioProject[] = [
   },
   {
     id: 'navegacion_web3', pillar: 'SPARK',
-    name: 'Juego de navegación espacial con economía Web3',
-    nameEn: 'Space navigation game with a Web3 economy',
-    metric: 'NFTs y navegación espacial',
-    metricEn: 'NFTs and space navigation',
-    desc: 'Los jugadores pilotean tablas espaciales esquivando asteroides para recolectar tokens, con colisiones en tiempo real.',
-    descEn: 'Players pilot space boards dodging asteroids to collect tokens, with real-time collisions.',
+    name: 'Juego de carreras con economía Web3',
+    nameEn: 'Racing game with a Web3 economy',
+    metric: 'NFTs y carreras en tiempo real',
+    metricEn: 'NFTs and real-time racing',
+    desc: 'Los Creadores corren en tablas esquivando obstáculos para recolectar tokens, con colisiones en tiempo real.',
+    descEn: 'Creators race boards dodging obstacles to collect tokens, with real-time collisions.',
   },
   {
     id: 'laberinto_multijugador', pillar: 'SPARK',

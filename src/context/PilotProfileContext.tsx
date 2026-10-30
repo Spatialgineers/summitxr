@@ -32,8 +32,8 @@ const DEFAULT_ACHIEVEMENTS: PilotAchievement[] = [
   },
   {
     id: 'ach_trick_master',
-    title: 'Acrobata Aéreo',
-    description: 'Ejecuta 10 trucos aéreos (Barrel Roll, Flips o EMP).',
+    title: 'Maestro de Poderes',
+    description: 'Usa 10 poderes en el Dron SGX (Turbo, Escudo, Pulso o Láser).',
     category: 'flight',
     icon: '🌪️',
     unlocked: false,
@@ -545,7 +545,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
         break;
       case 'precision_hover':
         xpAward = 45;
-        trickName = es ? 'Vuelo estacionario de precisión' : 'Precision hover';
+        trickName = es ? 'Freno de precisión' : 'Precision brake';
         trickColor = '#32527B';
         break;
       case 'emp_pulse':
@@ -572,8 +572,8 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const newActivityItem: WeekendActivityItem = {
         id: 'act_trick_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
         category: 'drone_trick',
-        title: (es ? `Truco Aéreo: ${trickName}` : `Aerial Trick: ${trickName}`),
-        details: (es ? `Ejecutaste con éxito la maniobra aérea ${trickName} en el simulador.` : `You pulled off the ${trickName} aerial maneuver in the simulator.`),
+        title: (es ? `Movimiento: ${trickName}` : `Move: ${trickName}`),
+        details: (es ? `Usaste ${trickName} en el Dron SGX.` : `You used ${trickName} in the SGX Drone.`),
         xpEarned: xpAward,
         day: getCurrentWeekendDay(),
         timestamp: Date.now(),
@@ -624,7 +624,8 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Record complete drone flight
   const recordDroneFlight = useCallback((score: number, packages: number, tricks: number) => {
-    const flightXp = Math.floor(score / 5) + (packages * 50) + (tricks * 25);
+    // Same 40–150 XP band as the other Spark games, so a long run can't be farmed.
+    const flightXp = Math.min(150, 40 + Math.floor(score / 200) + packages * 5 + tricks * 2);
     
     setProfile(prev => {
       const newHighScore = Math.max(prev.droneStats.highScore, score);
@@ -636,8 +637,8 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const newActivityItem: WeekendActivityItem = {
         id: 'act_flight_' + Date.now(),
         category: 'drone_flight',
-        title: (es ? `Misión de Dron Completada` : `Drone Mission Complete`),
-        details: (es ? `Puntaje: ${score} pts • ${packages} paquetes entregados • ${tricks} trucos realizados.` : `Score: ${score} pts • ${packages} packages delivered • ${tricks} tricks performed.`),
+        title: (es ? `Partida de Dron SGX` : `SGX Drone run`),
+        details: (es ? `Puntaje: ${score} pts • ${packages} cajas • ${tricks} poderes.` : `Score: ${score} pts • ${packages} crates • ${tricks} powers.`),
         xpEarned: flightXp,
         day: getCurrentWeekendDay(),
         timestamp: Date.now(),

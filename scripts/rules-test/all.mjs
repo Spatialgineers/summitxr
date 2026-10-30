@@ -336,6 +336,18 @@ await ok('admin clears a report', deleteDoc(doc(admin, 'client_errors', 'e1')));
   await ok('admin deletes a request', deleteDoc(doc(admin, 'initiate_requests', 'alice')));
 }
 
+// SGX.Spark game scores
+{
+  const row = (uid, score) => ({ uid, name: 'Ana', score, updatedAt: serverTimestamp() });
+  await ok('own best score', setDoc(doc(alice, 'game_scores', 'stack', 'players', 'alice'), row('alice', 120)));
+  await ok('a better score replaces it', setDoc(doc(alice, 'game_scores', 'stack', 'players', 'alice'), row('alice', 300)));
+  await no('a lower score cannot replace the best', setDoc(doc(alice, 'game_scores', 'stack', 'players', 'alice'), row('alice', 50)));
+  await no("cannot write someone else's score", setDoc(doc(bob, 'game_scores', 'stack', 'players', 'alice'), row('alice', 999)));
+  await no('unknown game', setDoc(doc(alice, 'game_scores', 'casino', 'players', 'alice'), row('alice', 10)));
+  await no('absurd score', setDoc(doc(alice, 'game_scores', 'pulse', 'players', 'alice'), row('alice', 99999999)));
+  await ok('anyone reads the ranking', getDocs(collection(anon, 'game_scores', 'stack', 'players')));
+}
+
 console.log(`RESULT ${n} passed, ${failed} failed`);
 await env.cleanup();
 process.exit(failed ? 1 : 0);

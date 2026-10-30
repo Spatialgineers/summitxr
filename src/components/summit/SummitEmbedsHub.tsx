@@ -2,6 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ChevronRight, ExternalLink, Maximize2, Pencil, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { EmbedWidget, EmbedCategory } from '../../types/summit';
 import { SummitDroneMiniGame } from './SummitDroneMiniGame';
+import { LazyBoundary } from '../common/LazyBoundary';
+import { LazyFallback } from '../common/LazyFallback';
+
+// Native SGX.Spark games, each in its own chunk.
+const StackGame = React.lazy(() => import('./games/stack'));
+const PulseGame = React.lazy(() => import('./games/pulse'));
+const BoltGame = React.lazy(() => import('./games/bolt'));
+const NATIVE_COMPONENTS: Record<string, React.ComponentType> = {
+  embed_drone_game: SummitDroneMiniGame, embed_game_stack: StackGame, embed_game_pulse: PulseGame, embed_game_bolt: BoltGame,
+};
 import { EmbedArt, EmbedArtKind } from './EmbedArt';
 import { SgxDialog } from '../common/SgxDialog';
 import { saveAllEmbedWidgets, loadAllEmbedWidgets } from '../../lib/summitData';
@@ -20,7 +30,7 @@ interface SummitEmbedsHubProps {
 /** How an embed is shown: native React game, sandboxed HTML, framed site, link out, or not published yet. */
 type EmbedMode = 'native' | 'code' | 'frame' | 'link' | 'soon';
 
-const NATIVE_GAMES = new Set(['embed_drone_game']);
+const NATIVE_GAMES = new Set(Object.keys(NATIVE_COMPONENTS));
 // Sites that refuse to be framed (X-Frame-Options / frame-ancestors) open in a new tab instead.
 const NO_FRAME_HOSTS = /(^|\.)(roblox\.com|instagram\.com|tiktok\.com|x\.com|twitter\.com|facebook\.com|linkedin\.com|github\.com)$/i;
 const IFRAME_SNIPPET = /^\s*<iframe\b[^>]*\ssrc\s*=\s*["']([^"']+)["'][^>]*>\s*(<\/iframe>)?\s*$/i;
@@ -30,8 +40,7 @@ const CODE_ALLOW = 'autoplay; fullscreen';
 const FRAME_ALLOW = 'autoplay; encrypted-media; fullscreen; picture-in-picture; clipboard-write; xr-spatial-tracking; accelerometer; gyroscope';
 
 const SEED_ART: Record<string, EmbedArtKind> = {
-  embed_drone_game: 'drone', embed_youtube_stream: 'stream', embed_shader_lab: 'shader',
-  embed_cyber_synth: 'synth', embed_roblox_world: 'world', embed_whiteboard: 'board',
+  embed_drone_game: 'drone', embed_game_stack: 'game', embed_game_pulse: 'synth', embed_game_bolt: 'shader',
 };
 const CATEGORY_ART: Record<EmbedCategory, EmbedArtKind> = {
   MINI_GAME: 'game', METAVERSE_ROBLOX: 'world', WEBGL_XR: 'shader', WEBAPP: 'board', STREAM_VIDEO: 'stream', CUSTOM_CODE: 'code',
@@ -256,7 +265,10 @@ export const SummitEmbedsHub: React.FC<SummitEmbedsHubProps> = ({ embeds: initia
   };
 
   const renderStage = (emb: EmbedWidget, mode: EmbedMode, where: 'inline' | 'full') => {
-    if (mode === 'native') return <SummitDroneMiniGame />;
+    if (mode === 'native') {
+      const Native = NATIVE_COMPONENTS[emb.id] || SummitDroneMiniGame;
+      return <LazyBoundary fallback={<LazyFallback />}><Native /></LazyBoundary>;
+    }
     if (mode === 'code') {
       return (
         <iframe

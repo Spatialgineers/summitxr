@@ -398,6 +398,26 @@ service cloud.firestore {
       allow delete: if isAdmin() || (isSignedIn() && profileId == me());
     }
 
+    // SGX.Spark games: each Creador's best score per game. Public to read; only
+    // your own row; the best only goes up.
+    match /game_scores/{gameId}/players/{uid} {
+      allow get, list: if gameId in ['stack', 'pulse', 'bolt'];
+      allow create: if isSignedIn() && uid == me() && gameId in ['stack', 'pulse', 'bolt'] &&
+        incoming().keys().hasOnly(['uid', 'name', 'score', 'updatedAt']) &&
+        incoming().uid == me() &&
+        isShortString(incoming().name, 16) &&
+        isBoundedInt(incoming().score, 1, 10000000) &&
+        incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && uid == me() &&
+        incoming().keys().hasOnly(['uid', 'name', 'score', 'updatedAt']) &&
+        incoming().uid == me() &&
+        isShortString(incoming().name, 16) &&
+        isBoundedInt(incoming().score, 1, 10000000) &&
+        incoming().score > resource.data.score &&
+        incoming().updatedAt == request.time;
+      allow delete: if isAdmin();
+    }
+
     match /pilot_leaderboard/{pilotId} {
       allow get, list: if true;
       allow create, update: if isSignedIn() && pilotId == me() &&

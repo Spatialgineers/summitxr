@@ -24,12 +24,10 @@ import {
   Zap,
   Compass,
   Maximize2,
-  Sliders,
   Sparkles,
   ArrowRight,
   RotateCcw,
   Eye,
-  Volume2,
   ChevronDown,
   ChevronUp,
   Clock,
@@ -47,10 +45,8 @@ import {
   playScanSuccessSound,
 } from '../../lib/cyberAudioEngine';
 import { usePilotProfile } from '../../context/PilotProfileContext';
-import { SPONSORSHIP_TIERS } from '../../lib/summitData';
 import { SgxHeroOverlay } from './SgxHeroOverlay';
 import { SgxClocksBanner } from './SgxClocksBanner';
-import { sponsorTierAccent } from './sponsorTierAccent';
 import './sgx-kit.css';
 import './SgxCoreDrawer.css';
 import { explore, startCalm } from '../../immersion/calmMode';

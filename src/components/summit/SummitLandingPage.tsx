@@ -431,7 +431,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             playUiChirp(850);
           }}
           onShare={() => {
-            syncAppUrl({ page: 'summit', section: activeSection });
+            // The address bar already holds the clean link with its options (?day=2…).
             if (navigator.clipboard?.writeText) {
               navigator.clipboard.writeText(window.location.href);
             }

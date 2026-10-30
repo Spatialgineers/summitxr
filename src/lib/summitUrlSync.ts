@@ -330,6 +330,8 @@ export function getSectionFromUrl(): SummitSectionKey | null {
 /**
  * Builds a clean, fully shareable deep link URL for any page, summit section, subtab, or day.
  */
+export const PILLAR_PARAM_PATHS = ['/', '/pilares', '/play', '/stage'];
+
 export function getShareableUrl(options: {
   page?: PageRoute;
   section?: SummitSectionKey | string;
@@ -346,7 +348,6 @@ export function getShareableUrl(options: {
   const out = new URLSearchParams();
   for (const keep of ['embed']) { const v = current.get(keep); if (v) out.set(keep, v); }
   const pillar = options.theme || current.get('pillar') || current.get('theme');
-  if (pillar) out.set('pillar', pillar.toLowerCase());
 
   let path = '/';
   const sectionKey = options.section
@@ -364,6 +365,8 @@ export function getShareableUrl(options: {
   } else if (options.section && !sectionKey) {
     path = `/${String(options.section).toLowerCase()}`;
   }
+  // The live-engine pillar only matters where it is read: the core, the pillars manifesto, /play and /stage.
+  if (pillar && PILLAR_PARAM_PATHS.includes(path)) out.set('pillar', pillar.toLowerCase());
   if (options.day) out.set('day', String(options.day));
   if (options.view) out.set('view', options.view);
 
@@ -394,7 +397,8 @@ export function syncAppUrl(options: {
 
   try {
     const newUrl = getShareableUrl(options);
-    if (options.replace) {
+    const same = newUrl === window.location.origin + window.location.pathname + window.location.search;
+    if (options.replace || same) {
       window.history.replaceState(window.history.state, '', newUrl);
     } else {
       window.history.pushState(window.history.state, '', newUrl);

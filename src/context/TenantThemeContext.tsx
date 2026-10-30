@@ -1,3 +1,4 @@
+import { PILLAR_PARAM_PATHS } from '../lib/summitUrlSync';
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { Tenant } from '../types/engine';
 import { INITIAL_TENANTS } from '../lib/schemas';
@@ -253,8 +254,8 @@ export const TenantThemeProvider: React.FC<{ children: React.ReactNode }> = ({ c
         const slug = newTenant.slug || newTenant.id.replace('tenant_sgx_', '').replace('tenant_', '');
         url.searchParams.delete('theme');
         // A pillar page already names its pillar in the path (/pilar/spark).
-        if (/^\/pilar\//i.test(url.pathname)) url.searchParams.delete('pillar');
-        else url.searchParams.set('pillar', slug);
+        if (PILLAR_PARAM_PATHS.includes(url.pathname)) url.searchParams.set('pillar', slug);
+        else url.searchParams.delete('pillar');
         window.history.replaceState(window.history.state, '', url.toString());
       }
     } catch {}

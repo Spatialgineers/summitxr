@@ -1023,7 +1023,7 @@ export const SummitDroneMiniGame: React.FC = () => {
   const toggleSound = () => { setMuted(toggleAudioMute()); };
 
   const share = async () => {
-    const url = `${window.location.origin}/?section=games`;
+    const url = `${window.location.origin}/juegos`;
     const pts = fmt(result?.score || 0, es);
     const daily = result?.mode === 'daily';
     const text = es

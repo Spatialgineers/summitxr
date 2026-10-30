@@ -35,7 +35,7 @@ import { useAuth } from './context/AuthContext';
 import { auth } from './lib/firebase';
 import { telemetry } from './lib/telemetry';
 
-import { getAppRouteAndSectionFromUrl, syncAppUrl } from './lib/summitUrlSync';
+import { getAppRouteAndSectionFromUrl, syncAppUrl, upgradeLegacyUrl } from './lib/summitUrlSync';
 import { SgxPassHost } from './identity/SgxPassHost';
 import { PassGate } from './identity/PassGate';
 import { ImmersionLayer } from './immersion/ImmersionLayer';
@@ -149,9 +149,10 @@ export default function App() {
   const parseCurrentURL = () => {
     if (typeof window === 'undefined') return;
 
+    upgradeLegacyUrl();
     const parsed = getAppRouteAndSectionFromUrl();
     const urlParams = new URLSearchParams(window.location.search);
-    const qTenant = urlParams.get('tenantId') || urlParams.get('tenant') || urlParams.get('theme');
+    const qTenant = urlParams.get('tenantId') || urlParams.get('tenant') || urlParams.get('theme') || urlParams.get('pillar');
     const qEvent = urlParams.get('eventId');
 
     setCurrentPage(parsed.page);

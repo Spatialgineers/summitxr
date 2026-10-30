@@ -355,7 +355,7 @@ const Game: React.FC = () => {
 
   // ---------------------------------------------------------- share
   const share = async () => {
-    const url = `${window.location.origin}/?section=games`;
+    const url = `${window.location.origin}/juegos`;
     const pts = fmt(result?.score || 0, es);
     const text = es
       ? `Hice ${pts} pts con el rayo SGX en mis manos en el Spatialgineers Summit 2026. ¿Me superas?`

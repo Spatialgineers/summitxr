@@ -31,7 +31,7 @@ import { SGX_PILLARS, pillarOfSection, findPillar, pillarInk, bi } from '../../l
 import { SgxDialog } from '../common/SgxDialog';
 import { SummitFooter, SummitCoreFooterBar } from './SummitFooter';
 import { SummitSectionBanner } from './SummitSectionBanner';
-import { getAppRouteAndSectionFromUrl, getSectionFromUrl, syncAppUrl, syncSectionToUrl, scrollToSectionContainer } from '../../lib/summitUrlSync';
+import { getAppRouteAndSectionFromUrl, getSectionFromUrl, syncAppUrl, syncSectionToUrl, scrollToSectionContainer, getPillarSlugFromUrl } from '../../lib/summitUrlSync';
 import { playUiChirp, playPillarDockSound, playScanSuccessSound } from '../../lib/cyberAudioEngine';
 import { useTenantTheme } from '../../context/TenantThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -175,7 +175,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
   });
   const [activePillarSlug, setActivePillarSlug] = useState<string>(() => {
     if (typeof window === 'undefined') return 'story';
-    return findPillar(new URLSearchParams(window.location.search).get('subtab'))?.slug || 'story';
+    return findPillar(getPillarSlugFromUrl())?.slug || 'story';
   });
   const [agendaViewMode, setAgendaViewMode] = useState<'TIMELINE' | 'BUILDER'>(() => {
     if (typeof window !== 'undefined') {
@@ -257,8 +257,10 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
   useEffect(() => {
     const handleUrlChange = () => {
       const parsed = getAppRouteAndSectionFromUrl();
-      if (parsed.summitSection && parsed.summitSection !== activeSection) {
-        setActiveSection(parsed.summitSection);
+      // The home link is now just "/", which means the core (OVERVIEW).
+      const section = parsed.summitSection || (parsed.page === 'summit' ? 'OVERVIEW' : null);
+      if (section && section !== activeSection) {
+        setActiveSection(section);
       }
     };
     window.addEventListener('popstate', handleUrlChange);

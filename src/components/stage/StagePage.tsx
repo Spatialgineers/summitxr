@@ -98,7 +98,7 @@ export const StagePage: React.FC<StagePageProps> = ({
     }
   }, [session.status]);
 
-  const obsLink = `${window.location.origin}/?page=stage&clean=1${isTransparent ? '&transparent=1' : ''}${showHud ? '' : '&hud=0'}`;
+  const obsLink = `${window.location.origin}/stage?clean=1${isTransparent ? '&transparent=1' : ''}${showHud ? '' : '&hud=0'}`;
   const copyObsLink = () => {
     navigator.clipboard.writeText(obsLink).catch(() => {});
     setCopied(true);

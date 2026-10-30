@@ -6,7 +6,7 @@ import { usePilotProfile } from '../context/PilotProfileContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useImmersion } from '../immersion/ImmersionContext';
 import { findPillar, PILLAR_BY_KEY, type PillarKey } from '../lib/sgxPillars';
-import { getAppRouteAndSectionFromUrl } from '../lib/summitUrlSync';
+import { getAppRouteAndSectionFromUrl, getPillarSlugFromUrl } from '../lib/summitUrlSync';
 import { loadAllApprovedSponsors } from '../lib/summitData';
 import { getMyRegion } from '../lib/visitTracker';
 import {
@@ -63,7 +63,7 @@ const Ctx = createContext<SgxIdentityValue | null>(null);
 function currentVisitKey(): string {
   const parsed = getAppRouteAndSectionFromUrl();
   if (parsed.page !== 'summit') return `PAGE_${parsed.page.toUpperCase()}`;
-  if (parsed.summitSection === 'PILLAR') return `PILLAR:${findPillar(new URLSearchParams(window.location.search).get('subtab'))?.slug || 'story'}`;
+  if (parsed.summitSection === 'PILLAR') return `PILLAR:${findPillar(getPillarSlugFromUrl())?.slug || 'story'}`;
   return parsed.summitSection || 'OVERVIEW';
 }
 

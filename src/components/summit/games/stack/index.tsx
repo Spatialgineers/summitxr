@@ -202,7 +202,7 @@ const StackGame: React.FC = () => {
   const openRanking = () => { pause(); setRankingOpen(true); };
 
   const share = async () => {
-    const url = `${window.location.origin}/?section=games`;
+    const url = `${window.location.origin}/juegos`;
     const pts = fmt(result?.score || 0, es);
     const text = es
       ? `Construí una Torre de Pilares de ${result?.height || 0} pisos (${pts} pts) en el Spatialgineers Summit 2026. ¿Me superas?`

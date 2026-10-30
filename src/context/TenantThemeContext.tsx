@@ -251,7 +251,10 @@ export const TenantThemeProvider: React.FC<{ children: React.ReactNode }> = ({ c
       if (typeof window !== 'undefined') {
         const url = new URL(window.location.href);
         const slug = newTenant.slug || newTenant.id.replace('tenant_sgx_', '').replace('tenant_', '');
-        url.searchParams.set('theme', slug);
+        url.searchParams.delete('theme');
+        // A pillar page already names its pillar in the path (/pilar/spark).
+        if (/^\/pilar\//i.test(url.pathname)) url.searchParams.delete('pillar');
+        else url.searchParams.set('pillar', slug);
         window.history.replaceState(window.history.state, '', url.toString());
       }
     } catch {}

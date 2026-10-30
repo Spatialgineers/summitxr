@@ -59,3 +59,11 @@
 .sgx-core-drawer__foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px 12px; border-top: 1px solid var(--panel-line); background: rgba(5, 5, 5, 0.8); }
 .sgx-core-drawer__foot b { color: var(--SGX_Yellow); font-variant-numeric: tabular-nums; }
 @media (max-width: 420px) { .sgx-core-drawer__pads { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Pillar tap: a small "Visitar pilar" card; the pillar's page holds the rest. */
+.sgx-core-drawer--visit { height: auto; gap: 14px; padding-bottom: 18px; }
+.sgx-core-drawer--visit > .sgx-copy, .sgx-core-drawer--visit > .sgx-btn { margin: 0 18px; }
+.sgx-core-drawer__scrim:has(.sgx-core-drawer--visit) { background: rgba(5, 5, 5, 0.55); padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+@media (min-width: 768px) {
+  .sgx-core-drawer.sgx-core-drawer--visit { top: auto; bottom: 64px; width: 380px; }
+}

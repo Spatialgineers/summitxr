@@ -8,19 +8,19 @@ import { PageRoute } from '../components/common/HeaderNav';
  */
 export const SECTION_TO_SLUG: Record<SummitSectionKey, string> = {
   OVERVIEW: 'overview',
-  PILLARS_MANIFESTO: 'pillars',
+  PILLARS_MANIFESTO: 'pilares',
   AGENDA: 'agenda',
   SPEAKERS: 'speakers',
-  MAP_360: 'map',
+  MAP_360: 'mapa',
   BROADCAST_ROOMS: 'broadcast',
   SOCIAL_STREAM: 'social',
   GUILD: 'guild',
   NETWORKING: 'networking',
   ENTREPRENEUR_MATCH: 'match',
-  EMBEDS_GAMES: 'games',
+  EMBEDS_GAMES: 'juegos',
   SPONSORS_HUB: 'sponsors',
   CREDENTIAL_GENERATOR: 'pase',
-  PILLAR: 'pillar',
+  PILLAR: 'pilar',
   VISITS: 'visitas',
 };
 
@@ -205,10 +205,9 @@ export function getAppRouteAndSectionFromUrl(): ParsedAppLocation {
       const sp = new URLSearchParams(window.location.search);
       const tab = (sp.get('tab') || '').trim().toLowerCase();
       if (['story', 'showcase', 'spark', 'system', 'synthesize'].includes(tab) && !sp.get('section')) {
-        sp.set('tab', 'pillar');
-        sp.set('section', 'pillar');
-        sp.set('subtab', tab);
-        window.history.replaceState(window.history.state, '', `${window.location.pathname}?${sp.toString()}${window.location.hash}`);
+        sp.delete('tab');
+        const rest = sp.toString();
+        window.history.replaceState(window.history.state, '', `/pilar/${tab}${rest ? `?${rest}` : ''}${window.location.hash}`);
       }
     }
     const searchParams = new URLSearchParams(window.location.search);
@@ -269,10 +268,10 @@ export function getAppRouteAndSectionFromUrl(): ParsedAppLocation {
       }
     }
 
-    // 4. Check pathname segments (e.g. /play, /admin, /stage, /tenant_story/event_main/play)
+    // 4. Clean paths (/agenda, /juegos, /pilar/story, /play, /admin…)
     const segments = window.location.pathname.split('/').filter(Boolean);
-    for (const seg of segments) {
-      const lower = seg.toLowerCase();
+    for (let i = 0; i < segments.length; i++) {
+      const lower = segments[i].toLowerCase();
       if (APP_PAGE_SLUGS[lower] && APP_PAGE_SLUGS[lower] !== 'summit') {
         return {
           page: APP_PAGE_SLUGS[lower],
@@ -284,10 +283,11 @@ export function getAppRouteAndSectionFromUrl(): ParsedAppLocation {
         };
       }
       if (SLUG_TO_SECTION[lower]) {
+        const section = SLUG_TO_SECTION[lower];
         return {
           page: 'summit',
-          summitSection: SLUG_TO_SECTION[lower],
-          subtab: rawSubtab || null,
+          summitSection: section,
+          subtab: (section === 'PILLAR' && segments[i + 1] ? segments[i + 1].toLowerCase() : null) || rawSubtab || null,
           day: rawDay || null,
           theme: rawTheme || null,
           view: rawView || null,
@@ -304,6 +304,24 @@ export function getAppRouteAndSectionFromUrl(): ParsedAppLocation {
 /**
  * Extracts only the SummitSectionKey from URL if present.
  */
+/** Rewrites an old query-style link (?tab=agenda&section=agenda&theme=spark) to its clean path, once on load. */
+export function upgradeLegacyUrl(): void {
+  if (typeof window === 'undefined') return;
+  const sp = new URLSearchParams(window.location.search);
+  if (!sp.has('tab') && !sp.has('section') && !sp.has('theme') && !sp.has('page')) return;
+  const parsed = getAppRouteAndSectionFromUrl();
+  const url = getShareableUrl({
+    page: parsed.page,
+    section: parsed.summitSection || undefined,
+    subtab: parsed.subtab || undefined,
+    day: parsed.day || undefined,
+    view: sp.get('view') || undefined,
+  });
+  const keep = new URL(url);
+  for (const [k, v] of sp) if (!['tab', 'page', 'section', 'sec', 'subtab', 'day', 'view', 'theme', 'tenant'].includes(k) && !keep.searchParams.has(k)) keep.searchParams.set(k, v);
+  window.history.replaceState(window.history.state, '', keep.pathname + keep.search + window.location.hash);
+}
+
 export function getSectionFromUrl(): SummitSectionKey | null {
   const parsed = getAppRouteAndSectionFromUrl();
   return parsed.summitSection;
@@ -322,47 +340,42 @@ export function getShareableUrl(options: {
 }): string {
   if (typeof window === 'undefined') return '';
 
-  const url = new URL(window.location.origin + window.location.pathname);
-  const searchParams = new URLSearchParams(window.location.search);
+  /* Clean links: the place is the path (/agenda, /juegos, /pilar/spark, /play)
+     and only real options stay in the query (?day=2, ?pillar=spark). */
+  const current = new URLSearchParams(window.location.search);
+  const out = new URLSearchParams();
+  for (const keep of ['embed']) { const v = current.get(keep); if (v) out.set(keep, v); }
+  const pillar = options.theme || current.get('pillar') || current.get('theme');
+  if (pillar) out.set('pillar', pillar.toLowerCase());
 
-  // Preserve tenant/theme
-  if (options.theme) {
-    searchParams.set('theme', options.theme);
-  }
-
-  // Handle Page vs Section
+  let path = '/';
+  const sectionKey = options.section
+    ? (SECTION_TO_SLUG[options.section as SummitSectionKey] ? options.section as SummitSectionKey : SLUG_TO_SECTION[String(options.section).toLowerCase()])
+    : undefined;
   if (options.page && options.page !== 'summit') {
-    searchParams.set('tab', options.page);
-    searchParams.delete('section');
-  } else if (options.section) {
-    const slug = typeof options.section === 'string' && SECTION_TO_SLUG[options.section as SummitSectionKey]
-      ? SECTION_TO_SLUG[options.section as SummitSectionKey]
-      : String(options.section).toLowerCase();
+    path = `/${options.page}`;
+  } else if (sectionKey === 'PILLAR') {
+    const slug = options.subtab || (getAppRouteAndSectionFromUrl().summitSection === 'PILLAR' ? getAppRouteAndSectionFromUrl().subtab : null) || 'story';
+    path = `/pilar/${slug.toLowerCase()}`;
+    out.delete('pillar');
+  } else if (sectionKey && sectionKey !== 'OVERVIEW') {
+    path = `/${SECTION_TO_SLUG[sectionKey]}`;
+    if (options.subtab) out.set('subtab', options.subtab);
+  } else if (options.section && !sectionKey) {
+    path = `/${String(options.section).toLowerCase()}`;
+  }
+  if (options.day) out.set('day', String(options.day));
+  if (options.view) out.set('view', options.view);
 
-    // Use unified 'tab' or 'section'
-    searchParams.set('tab', slug);
-    searchParams.set('section', slug);
-  } else {
-    searchParams.delete('section');
-    searchParams.set('tab', 'summit');
-  }
+  const query = out.toString();
+  return `${window.location.origin}${path}${query ? `?${query}` : ''}`;
+}
 
-  // Optional subtab / view / day
-  if (options.subtab) {
-    searchParams.set('subtab', options.subtab);
-  } else if (options.section && searchParams.get('section') !== new URLSearchParams(window.location.search).get('section')) {
-    // A subtab belongs to the section it was set on (e.g. a pillar station); drop it when leaving.
-    searchParams.delete('subtab');
-  }
-  if (options.day) {
-    searchParams.set('day', String(options.day));
-  }
-  if (options.view) {
-    searchParams.set('view', options.view);
-  }
-
-  const queryString = searchParams.toString();
-  return queryString ? `${url.origin}${url.pathname}?${queryString}` : `${url.origin}${url.pathname}`;
+/** The pillar of the pillar page in the URL (/pilar/spark, or the old ?subtab=spark). */
+export function getPillarSlugFromUrl(): string | null {
+  if (typeof window === 'undefined') return null;
+  const parsed = getAppRouteAndSectionFromUrl();
+  return parsed.summitSection === 'PILLAR' ? parsed.subtab || null : null;
 }
 
 /**

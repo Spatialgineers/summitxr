@@ -4,7 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useImmersion } from '../../immersion/ImmersionContext';
 import { navigateToPillar, navigateToSection, runPillarModule } from '../../immersion/navigation';
 import { SGX_PILLARS, bi, findPillar, pillarOfSection } from '../../lib/sgxPillars';
-import { getAppRouteAndSectionFromUrl } from '../../lib/summitUrlSync';
+import { getAppRouteAndSectionFromUrl, getPillarSlugFromUrl } from '../../lib/summitUrlSync';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 
 /** The pillar the visitor is "in" right now: the open station, or the home pillar of the open section. */
@@ -14,7 +14,7 @@ function readActivePillar(): string | undefined {
   if (parsed.page === 'play') return 'spark';
   if (parsed.page !== 'summit') return undefined;
   if (parsed.summitSection === 'PILLAR') {
-    return findPillar(new URLSearchParams(window.location.search).get('subtab'))?.slug || 'story';
+    return findPillar(getPillarSlugFromUrl())?.slug || 'story';
   }
   return parsed.summitSection ? pillarOfSection(parsed.summitSection)?.slug : undefined;
 }

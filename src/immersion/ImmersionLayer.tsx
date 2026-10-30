@@ -38,7 +38,7 @@ function stationKey(section: string | null | undefined, pillar?: string | null):
 function readSection(): string {
   const parsed = getAppRouteAndSectionFromUrl();
   if (parsed.page !== 'summit') return `PAGE_${parsed.page.toUpperCase()}`;
-  return stationKey(parsed.summitSection, new URLSearchParams(window.location.search).get('subtab'));
+  return stationKey(parsed.summitSection, parsed.subtab || null);
 }
 
 export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPage }) => {

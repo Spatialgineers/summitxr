@@ -278,6 +278,42 @@
 }
 .sgx-module:hover, .sgx-module:focus-visible { border-color: var(--SGX_Yellow); background: color-mix(in srgb, var(--SGX_Yellow) 7%, transparent); transform: translateX(4px); }
 .sgx-module:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+/* Pillar page: each module as a preview card (art on top, copy below). */
+.sgx-station__previews { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.sgx-preview {
+  display: flex; flex-direction: column; text-align: left; cursor: pointer; color: var(--ink); padding: 0;
+  border: 1px solid var(--line); background: rgba(26, 26, 26, 0.75);
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  transition: border-color 0.25s ease, transform 0.25s ease;
+  animation: sgx-reveal-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(var(--sgx-i, 0) * 70ms);
+}
+.sgx-preview:hover, .sgx-preview:focus-visible { border-color: var(--SGX_Yellow); transform: translateY(-3px); }
+.sgx-preview:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.sgx-preview__art {
+  position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; overflow: hidden;
+  background: linear-gradient(180deg, transparent 40%, rgba(5, 5, 5, 0.85)), var(--preview-tex) center / 160px repeat, #0b0d10;
+  border-bottom: 1px solid color-mix(in srgb, var(--SGX_Yellow) 35%, transparent);
+}
+.sgx-preview__art::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 45%, transparent 30%, rgba(5, 5, 5, 0.55)); pointer-events: none; }
+.sgx-preview__icon {
+  position: relative; z-index: 1; width: 64px; height: 64px; display: grid; place-items: center; color: var(--SGX_Yellow);
+  background: rgba(5, 5, 5, 0.78); border: 1px solid color-mix(in srgb, var(--SGX_Yellow) 60%, transparent);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  transition: transform 0.3s ease;
+}
+.sgx-preview:hover .sgx-preview__icon { transform: scale(1.08); }
+.sgx-preview__kind {
+  position: absolute; z-index: 1; left: 10px; bottom: 8px; padding: 2px 8px; font-family: var(--font-mono); font-size: 0.68rem;
+  letter-spacing: 0.12em; text-transform: uppercase; color: #050505; background: var(--SGX_Yellow);
+}
+.sgx-preview__seen { position: absolute; z-index: 1; right: 10px; top: 8px; color: var(--SGX_Yellow); }
+.sgx-preview__body { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 14px; flex: 1; }
+.sgx-preview__go {
+  margin-top: auto; display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 0.75rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--SGX_Yellow);
+}
+@media (max-width: 640px) { .sgx-preview__art { aspect-ratio: 3 / 1; } .sgx-preview__icon { width: 52px; height: 52px; } }
+@media (prefers-reduced-motion: reduce) { .sgx-preview { animation: none !important; } .sgx-preview:hover { transform: none; } }
 .sgx-module__icon {
   width: 44px; height: 44px; display: grid; place-items: center; color: var(--SGX_Yellow);
   border: 1px solid color-mix(in srgb, var(--SGX_Yellow) 50%, transparent); background: color-mix(in srgb, var(--SGX_Yellow) 6%, transparent);

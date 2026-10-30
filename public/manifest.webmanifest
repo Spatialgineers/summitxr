@@ -16,8 +16,8 @@
     { "src": "/icons/sgx-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Mi SGX Pass", "short_name": "Mi pase", "description": "Tu pase y QR del Día 3 (funciona sin señal)", "url": "/?estudio=pass&source=pwa", "icons": [{ "src": "/icons/sgx-192.png", "sizes": "192x192" }] },
-    { "name": "Agenda", "url": "/?tab=agenda&source=pwa", "icons": [{ "src": "/icons/sgx-192.png", "sizes": "192x192" }] },
-    { "name": "SGX Live", "short_name": "Votar", "url": "/?page=play&source=pwa", "icons": [{ "src": "/icons/sgx-192.png", "sizes": "192x192" }] }
+    { "name": "Mi SGX Pass", "short_name": "Mi pase", "description": "Tu pase y QR del Día 3 (funciona sin señal)", "url": "/pase?source=pwa", "icons": [{ "src": "/icons/sgx-192.png", "sizes": "192x192" }] },
+    { "name": "Agenda", "url": "/agenda?source=pwa", "icons": [{ "src": "/icons/sgx-192.png", "sizes": "192x192" }] },
+    { "name": "SGX Live", "short_name": "Votar", "url": "/play?source=pwa", "icons": [{ "src": "/icons/sgx-192.png", "sizes": "192x192" }] }
   ]
 }

@@ -112,32 +112,32 @@ export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pil
             <span>{es ? 'Módulos de la estación' : 'Station modules'}</span>
             <span className="sgx-readout">{pillar.modules.length}</span>
           </h2>
-          <div className="sgx-station__modules">
+          <div className="sgx-station__modules sgx-station__previews">
             {pillar.modules.map((m, i) => {
               const Icon = m.icon;
               const key = m.kind === 'section' ? m.key : m.kind === 'page' ? m.page : m.event;
               const seen = m.kind === 'section' && state.visited.includes(m.key);
               const cell = m.kind === 'section' && state.cells.includes(m.key);
+              const kind = m.kind === 'section' ? (es ? 'Sección' : 'Section') : m.kind === 'page' ? (es ? 'En vivo' : 'Live') : (es ? 'Herramienta' : 'Tool');
               return (
                 <button
                   key={key}
                   type="button"
-                  className="sgx-module"
-                  style={{ ['--sgx-i' as any]: i }}
+                  className="sgx-preview"
+                  style={{ ['--sgx-i' as any]: i, ['--preview-tex' as string]: `url(/pilot/tex/sgx-${pillar.slug}.png)` }}
                   onClick={() => { playUiChirp(820); runPillarModule(m); }}
                   data-sgx-hover
                 >
-                  <span className="sgx-module__icon"><Icon className="w-5 h-5" /></span>
-                  <span className="sgx-module__body">
+                  {/* Preview art: the pillar's own SGX tile with the module's mark on top. */}
+                  <span className="sgx-preview__art" aria-hidden="true">
+                    <span className="sgx-preview__icon"><Icon className="w-7 h-7" /></span>
+                    <span className="sgx-preview__kind">{kind}</span>
+                    {(cell || seen) && <span className="sgx-preview__seen">{cell ? <SgxBolt size={12} /> : <span className="sgx-sechud__dot" />}</span>}
+                  </span>
+                  <span className="sgx-preview__body">
                     <span className="sgx-module__label">{bi(m.label, language)}</span>
                     <span className="sgx-module__desc">{bi(m.desc, language)}</span>
-                  </span>
-                  <span className="sgx-module__meta">
-                    {cell ? <SgxBolt size={12} /> : seen ? <span className="sgx-sechud__dot" aria-hidden="true" /> : null}
-                    <span className="sgx-module__kind">
-                      {m.kind === 'section' ? (es ? 'Sección' : 'Section') : m.kind === 'page' ? (es ? 'En vivo' : 'Live') : (es ? 'Herramienta' : 'Tool')}
-                    </span>
-                    <ChevronRight className="w-4 h-4" />
+                    <span className="sgx-preview__go">{m.kind === 'action' ? (es ? 'Abrir' : 'Open') : (es ? 'Entrar' : 'Enter')}<ChevronRight className="w-4 h-4" /></span>
                   </span>
                 </button>
               );

@@ -1,13 +1,13 @@
 import { pillarIcon } from '../../lib/sgxPillars';
 import { SGX_YOUTUBE } from '../../lib/sgxLinks';
-import { PILLAR_BY_KEY, type PillarKey } from '../../lib/sgxPillars';
+import { PILLAR_BY_KEY, type PillarKey, findPillar, bi } from '../../lib/sgxPillars';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { VisitCounterChip } from './VisitCounterChip';
-import { navigateToSection } from '../../immersion/navigation';
+import { navigateToSection, navigateToPillar } from '../../immersion/navigation';
 import { createPilotOrbit, type PilotCardInfo, type PilotOrbit } from '../../identity/pilotOrbit3D';
 import { configFromSeed } from '../../identity/pilotAvatar';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
@@ -445,7 +445,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   }, [drawerOpen]);
   const [zenImmersionMode, setZenImmersionMode] = useState<boolean>(false);
   const [optionsMenuOpen, setOptionsMenuOpen] = useState<boolean>(false);
-  const [activeDrawerTab, setActiveDrawerTab] = useState<'MODULES' | 'INTERACTIVE_LAB' | 'SPONSORS'>('MODULES');
   const [orbitSpeedMultiplier, setOrbitSpeedMultiplier] = useState<number>(1.0);
   const [loadedModelsCount, setLoadedModelsCount] = useState<number>(0);
   const [xpOrbsCollected, setXpOrbsCollected] = useState<number>(0);
@@ -1299,8 +1298,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           setFocusedSponsorId(sm.id);
           setCameraFocusedOnPillar(false);
           setAutoRotate(false);
-          setActiveDrawerTab('SPONSORS');
-          setDrawerOpen(true);
           return;
         }
       }
@@ -1333,6 +1330,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           setAutoRotate(false);
           setFocusedSponsorId(null);
           setCameraFocusedOnPillar(true);
+          explore();
           setDrawerOpen(true);
           playPillarDockSound(pm.id);
           window.dispatchEvent(new CustomEvent('sgx:pillar_docked', { detail: { pillarId: pm.id } }));
@@ -1725,11 +1723,12 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   }, [liteMode]);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    explore(); // first touch on the core brings the HUD in
     const target = e.target as HTMLElement;
+    // Presses on the card or a button are theirs; bringing the HUD in here would re-layer the 3D canvas over the card mid-press.
     if (target && (target.closest('button') || target.closest('[data-holographic-drawer="true"]'))) {
       return;
     }
+    explore(); // first touch on the core brings the HUD in
     isDraggingRef.current = true;
     pointerDownPosRef.current = { x: e.clientX, y: e.clientY };
     dragDistanceRef.current = 0;
@@ -1768,9 +1767,9 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     setAutoRotate(false);
     setFocusedSponsorId(null);
     setCameraFocusedOnPillar(flyCamera);
-    if (!zenImmersionMode && typeof window !== 'undefined' && window.innerWidth >= 768) {
-      setDrawerOpen(true);
-    }
+    // The "Visitar pilar" card is the way into the pillar's page, on every screen size.
+    // Leave calm mode first, so the core doesn't resize under the card mid-tap.
+    if (!zenImmersionMode) { explore(); setDrawerOpen(true); }
     playPillarDockSound(pillarId);
     if (triggerShockwaveRef.current) {
       const pNode = SGX_ORBITAL_PILLARS.find(p => p.id === pillarId);
@@ -1789,10 +1788,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     setFocusedSponsorId(sponsorId);
     setCameraFocusedOnPillar(false);
     setAutoRotate(false);
-    setActiveDrawerTab('SPONSORS');
-    if (!zenImmersionMode && typeof window !== 'undefined' && window.innerWidth >= 768) {
-      setDrawerOpen(true);
-    }
     playUiChirp(840);
     const station = SGX_3D_SPONSOR_STATIONS.find(s => s.id === sponsorId);
     if (triggerShockwaveRef.current) {
@@ -2204,215 +2199,50 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           })}
 
         {/* Pillar panel: bottom sheet over a scrim on phones, docked on the right of the 3D view on desktop. */}
-        {drawerOpen && (
-          <div className="sgx-core-drawer__scrim" onClick={() => setDrawerOpen(false)}>
-            <aside
-              ref={drawerRef}
-              data-holographic-drawer="true"
-              role="dialog"
-              aria-modal={isPhoneDrawer ? true : undefined}
-              aria-labelledby="sgx-core-drawer-title"
-              tabIndex={-1}
-              onClick={e => e.stopPropagation()}
-              className="sgx-core-drawer"
-              style={{ ['--drawer-accent' as string]: readableAccent }}
-            >
-              <header className="sgx-core-drawer__head">
-                <span className="sgx-avatar sgx-avatar--contain" style={{ ['--avatar-accent' as string]: readableAccent }}>
-                  <img src={activeNode.iconUrl} alt="" referrerPolicy="no-referrer" />
-                </span>
-                <div className="sgx-core-drawer__title">
-                  <p className="sgx-kicker">{activeNode.code}</p>
-                  <h2 id="sgx-core-drawer-title">{loc(activeNode, 'title', language)}</h2>
-                </div>
+        {drawerOpen && (() => {
+          // Tapping a pillar offers its page; everything about the pillar lives there.
+          const page = findPillar(activeNode.id);
+          return (
+            <div className="sgx-core-drawer__scrim" onClick={() => setDrawerOpen(false)}>
+              <aside
+                ref={drawerRef}
+                data-holographic-drawer="true"
+                role="dialog"
+                aria-labelledby="sgx-core-drawer-title"
+                tabIndex={-1}
+                onClick={e => e.stopPropagation()}
+                className="sgx-core-drawer sgx-core-drawer--visit"
+                style={{ ['--drawer-accent' as string]: readableAccent }}
+              >
+                <header className="sgx-core-drawer__head">
+                  <span className="sgx-avatar sgx-avatar--contain" style={{ ['--avatar-accent' as string]: readableAccent }}>
+                    <img src={activeNode.iconUrl} alt="" referrerPolicy="no-referrer" />
+                  </span>
+                  <div className="sgx-core-drawer__title">
+                    <p className="sgx-kicker">{activeNode.code}</p>
+                    <h2 id="sgx-core-drawer-title">{loc(activeNode, 'title', language)}</h2>
+                  </div>
+                  <button
+                    type="button"
+                    className="sgx-iconbtn"
+                    onClick={() => { playUiChirp(640); setDrawerOpen(false); }}
+                    aria-label={es ? 'Cerrar y volver al 3D' : 'Close and go back to 3D'}
+                  >
+                    <X aria-hidden />
+                  </button>
+                </header>
+                {page && <p className="sgx-copy sgx-core-drawer__line">{bi(page.scope, language)}</p>}
                 <button
                   type="button"
-                  className="sgx-iconbtn"
-                  onClick={() => { playUiChirp(640); setDrawerOpen(false); }}
-                  aria-label={es ? 'Cerrar panel y volver al 3D' : 'Close panel and go back to 3D'}
+                  className="sgx-btn is-wide"
+                  onClick={() => { playUiChirp(820); setDrawerOpen(false); navigateToPillar(page?.slug || activeNode.id.toLowerCase()); }}
                 >
-                  <X aria-hidden />
+                  {es ? 'Visitar pilar' : 'Visit pillar'}<ArrowRight aria-hidden />
                 </button>
-              </header>
-
-              <div className="sgx-core-drawer__tabs" role="tablist" aria-label={es ? 'Contenido del pilar' : 'Pillar content'}>
-                {([
-                  ['MODULES', es ? `Módulos (${activePillarModules.length})` : `Modules (${activePillarModules.length})`, 680],
-                  ['SPONSORS', es ? 'Patrocinios' : 'Sponsors', 760],
-                  ['INTERACTIVE_LAB', es ? 'Laboratorio' : 'Lab', 760],
-                ] as const).map(([id, label, tone]) => (
-                  <button
-                    key={id}
-                    type="button"
-                    role="tab"
-                    aria-selected={activeDrawerTab === id}
-                    className={activeDrawerTab === id ? 'is-on' : ''}
-                    onClick={() => { playUiChirp(tone); setActiveDrawerTab(id); }}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="sgx-core-drawer__body" role="tabpanel">
-                {activeDrawerTab === 'MODULES' &&
-                  activePillarModules.map((mod, idx) => {
-                    const ModIcon = mod.icon;
-                    return (
-                      <button
-                        key={mod.id}
-                        type="button"
-                        className="sgx-card sgx-core-drawer__mod"
-                        style={{ ['--card-accent' as string]: `color-mix(in srgb, ${readableAccent} 45%, transparent)` }}
-                        onClick={() => { playUiChirp(780); mod.onLaunch(); }}
-                      >
-                        <span className="sgx-core-drawer__mod-head">
-                          <span className="sgx-core-drawer__mod-icon"><ModIcon className="w-4 h-4" /></span>
-                          <strong>{String(idx + 1).padStart(2, '0')}. {mod.title}</strong>
-                          {/* Only real XP rewards; status words like "EN VIVO" are not shown (nothing is live yet). */}
-                          {mod.xpReward && /XP/.test(mod.xpReward) && <span className="sgx-chip" style={{ ['--chip' as string]: readableAccent }}>{mod.xpReward}</span>}
-                        </span>
-                        <span className="sgx-core-drawer__mod-text">{mod.description}</span>
-                        <span className="sgx-core-drawer__mod-foot">
-                          <small>{mod.subtitle}</small>
-                          <span className="sgx-btn sgx-btn--sm">{mod.actionLabel}<ArrowRight aria-hidden /></span>
-                        </span>
-                      </button>
-                    );
-                  })}
-
-                {activeDrawerTab === 'SPONSORS' && (
-                  <>
-                    <section className="sgx-card" style={{ ['--card-accent' as string]: 'rgba(253, 204, 13, 0.5)' }}>
-                      <p className="sgx-kicker sgx-core-drawer__kicker"><Building2 aria-hidden />{es ? `${SGX_3D_SPONSOR_STATIONS.length} espacios de marca en el núcleo` : `${SGX_3D_SPONSOR_STATIONS.length} brand spaces in the core`}</p>
-                      <p className="sgx-copy">
-                        {es ? 'Toca un monolito en la escena o usa ' : 'Tap a monolith in the scene or use '}<b>{es ? 'Enfocar en 3D' : 'Focus in 3D'}</b>{es ? ' para llevar la cámara hasta ese espacio.' : ' to take the camera to that space.'}
-                      </p>
-                    </section>
-
-                    {SGX_3D_SPONSOR_STATIONS.map((station, sIdx) => {
-                      const isFocused = focusedSponsorId === station.id;
-                      return (
-                        <section key={station.id} className={`sgx-card sgx-card--stripe ${isFocused ? 'is-on' : ''}`} style={{ ['--card-accent' as string]: station.colorHex }}>
-                          <div className="sgx-chip-row">
-                            <span className="sgx-chip" style={{ ['--chip' as string]: station.colorHex }}>{loc(station, 'tierLabel', language)}</span>
-                            {isFocused && <span className="sgx-chip sgx-chip--solid" style={{ ['--chip' as string]: 'var(--SGX_Yellow)' }}>{es ? 'En foco' : 'In focus'}</span>}
-                          </div>
-                          <h3 className="sgx-core-drawer__h">{String(sIdx + 1).padStart(2, '0')}. {loc(station, 'name', language)}</h3>
-                          <p className="sgx-copy">{loc(station, 'roleSubtitle', language)}</p>
-                          <div className="sgx-core-drawer__row">
-                            <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => { setDrawerOpen(false); handleFocusSponsor(station.id); }}>
-                              <Eye aria-hidden />{es ? 'Enfocar en 3D' : 'Focus in 3D'}
-                            </button>
-                            <button
-                              type="button"
-                              className="sgx-btn sgx-btn--ground sgx-btn--sm"
-                              onClick={() => {
-                                playUiChirp(840);
-                                setFloatingXpNotice(es ? `+25 XP · Visitaste ${loc(station, 'name', language)}` : `+25 XP · You visited ${loc(station, 'name', language)}`);
-                                setTimeout(() => setFloatingXpNotice(null), 2000);
-                                recordActivity('tour_complete', `Estación Sponsor 3D: ${station.name}`, station.tierLabel, 25);
-                              }}
-                            >
-                              {es ? 'Descubrir (+25 XP)' : 'Discover (+25 XP)'}
-                            </button>
-                          </div>
-                        </section>
-                      );
-                    })}
-
-                    <p className="sgx-kicker sgx-core-drawer__sub">{es ? 'Paquetes de auspicio (Tiers 1 al 5)' : 'Sponsorship packages (Tiers 1 to 5)'}</p>
-                    {SPONSORSHIP_TIERS.map(tier => {
-                      const tierColor = sponsorTierAccent(tier.id);
-                      const primarySponsor = tier.sponsors && tier.sponsors[0];
-                      return (
-                        <section key={tier.id} className="sgx-card sgx-card--sm" style={{ ['--card-accent' as string]: `color-mix(in srgb, ${tierColor} 40%, transparent)` }}>
-                          <div className="sgx-core-drawer__row sgx-core-drawer__row--split">
-                            <span className="sgx-chip" style={{ ['--chip' as string]: tierColor }}>Tier {tier.tierNumber} · {loc(tier, 'priceRange', language)}</span>
-                            <button
-                              type="button"
-                              className="sgx-core-drawer__link"
-                              onClick={() => {
-                                playUiChirp(840);
-                                setFloatingXpNotice(es ? `+15 XP · Conociste ${loc(tier, 'name', language)}` : `+15 XP · You checked out ${loc(tier, 'name', language)}`);
-                                setTimeout(() => setFloatingXpNotice(null), 2000);
-                                recordActivity('tour_complete', `Baliza Sponsor: ${tier.name}`, tier.priceRange, 15);
-                              }}
-                            >
-                              {es ? 'Marcar visto (+15 XP)' : 'Mark seen (+15 XP)'}
-                            </button>
-                          </div>
-                          <h3 className="sgx-core-drawer__h">{primarySponsor ? primarySponsor.name : loc(tier, 'name', language)}</h3>
-                          <p className="sgx-copy">{loc(tier, 'keyBenefit', language)}</p>
-                          <button
-                            type="button"
-                            className="sgx-btn sgx-btn--sm is-wide"
-                            onClick={() => { playUiChirp(700); window.dispatchEvent(new CustomEvent('sgx:open_sponsor_modal')); }}
-                          >
-                            {es ? `Ver el Tier ${tier.tierNumber} completo` : `See all of Tier ${tier.tierNumber}`}<ArrowRight aria-hidden />
-                          </button>
-                        </section>
-                      );
-                    })}
-                  </>
-                )}
-
-                {activeDrawerTab === 'INTERACTIVE_LAB' && (
-                  <>
-                    <section className="sgx-card">
-                      <p className="sgx-kicker sgx-core-drawer__kicker"><Sliders aria-hidden />{es ? 'Modelos 3D' : '3D models'}</p>
-                      <p className="sgx-copy">
-                        {es
-                          ? `${loadedModelsCount} de 7 esculturas .glb cargadas. El domo, las partículas y los espacios de marca giran en tiempo real con los materiales originales de cada escultura.`
-                          : `${loadedModelsCount} of 7 .glb sculptures loaded. The dome, the particles and the brand spaces rotate in real time with each sculpture's original materials.`}
-                      </p>
-                    </section>
-
-                    <section className="sgx-card">
-                      <p className="sgx-kicker sgx-core-drawer__kicker"><Volume2 aria-hidden />{es ? 'Sintetizador armónico' : 'Harmonic synthesizer'}</p>
-                      <div className="sgx-core-drawer__pads">
-                        {[
-                          { mult: 0.5, label: '216Hz' },
-                          { mult: 1.0, label: '432Hz' },
-                          { mult: 1.25, label: '540Hz' },
-                          { mult: 1.5, label: '648Hz' },
-                        ].map(pad => (
-                          <button key={pad.label} type="button" onClick={() => handlePlayHarmonicNote(pad.mult, pad.label)} className="sgx-btn sgx-btn--sm">
-                            {pad.label}
-                          </button>
-                        ))}
-                      </div>
-                    </section>
-
-                    <section className="sgx-card">
-                      <label htmlFor="sgx-core-speed" className="sgx-field">
-                        <span className="sgx-field__label">{es ? 'Velocidad de giro' : 'Rotation speed'}</span>
-                        <span className="sgx-field__value">{orbitSpeedMultiplier.toFixed(1)}x</span>
-                      </label>
-                      <input
-                        id="sgx-core-speed"
-                        type="range"
-                        min="0.2"
-                        max="3.5"
-                        step="0.1"
-                        value={orbitSpeedMultiplier}
-                        onChange={e => setOrbitSpeedMultiplier(parseFloat(e.target.value))}
-                        className="sgx-range"
-                      />
-                    </section>
-                  </>
-                )}
-              </div>
-
-              <footer className="sgx-core-drawer__foot">
-                <span className="sgx-fine">{es ? 'Orbes recogidos: ' : 'Orbs collected: '}<b>{xpOrbsCollected}</b></span>
-                <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={() => { playUiChirp(680); setDrawerOpen(false); }}>
-                  <X aria-hidden />{es ? 'Volver al 3D' : 'Back to 3D'}
-                </button>
-              </footer>
-            </aside>
-          </div>
-        )}
+              </aside>
+            </div>
+          );
+        })()}
 
         {/* Bottom Status Bar / Mobile Bottom Sheet Launcher inside 3D Viewport */}
         <div className="sgx-calm-hide absolute bottom-2.5 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-auto text-xs font-mono text-slate-200">

@@ -503,7 +503,7 @@ const Game: React.FC = () => {
   const pickDifficulty = (d: Difficulty) => { setDifficulty(d); writeStr(DIFF_KEY, d); };
 
   const share = async () => {
-    const url = `${window.location.origin}/?section=games`;
+    const url = `${window.location.origin}/juegos`;
     const text = es
       ? `Hice ${fmt(result?.score || 0, es)} pts (nota ${result?.grade}) en Pulso SGX del Spatialgineers Summit 2026. ¿Me superas?`
       : `I scored ${fmt(result?.score || 0, es)} pts (grade ${result?.grade}) in SGX Pulse at Spatialgineers Summit 2026. Can you beat me?`;

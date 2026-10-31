@@ -66,8 +66,12 @@ function moodFor(m: CompanionMood, ms: number) {
 
 const NOTICE: Record<string, { es: string; en: string }> = {
   NO_PASS: {
-    es: 'No encuentro tu SGX Pass en esta cuenta. Si lo forjaste en otro dispositivo, conecta tu Google en Tu Estudio y vuelve a escribirme.',
-    en: 'I cannot find your SGX Pass on this account. If you forged it on another device, connect Google in Your Studio and write me again.',
+    es: 'No encuentro tu SGX Pass en esta cuenta de Google. Conéctate con la cuenta que tiene el mismo email de tu pase, o pon tu email de Google en el pase desde Tu Estudio.',
+    en: 'I cannot find your SGX Pass on this Google account. Sign in with the account that has your pass email, or put your Google email on the pass from Your Studio.',
+  },
+  NEED_GOOGLE: {
+    es: 'Para hablar conmigo conecta tu cuenta de Google en Tu Estudio. Así tu progreso queda guardado y yo sé que eres tú.',
+    en: 'To talk to me, connect your Google account in Your Studio. Your progress stays saved and I know it is you.',
   },
   NO_ACCOUNT: {
     es: 'Estoy conectándome a tu cuenta. Dame un segundo y vuelve a intentarlo.',

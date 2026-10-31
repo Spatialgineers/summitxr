@@ -4,7 +4,7 @@ import { auth } from '../lib/firebase';
    server-sent events (text deltas, actions, done or error). The browser only
    sends its Firebase ID token and its pass; the Claude key stays on the server. */
 
-export type CompanionMode = 'live' | 'mock' | 'off';
+export type CompanionMode = 'live' | 'mock' | 'off' | 'paused';
 
 let statusP: Promise<CompanionMode> | null = null;
 
@@ -13,7 +13,7 @@ export function companionStatus(): Promise<CompanionMode> {
   if (!statusP) {
     statusP = fetch('/api/companion/status')
       .then((r) => (r.ok ? r.json() : { mode: 'off' }))
-      .then((j: { mode?: string }) => (j.mode === 'live' || j.mode === 'mock' ? j.mode : 'off') as CompanionMode)
+      .then((j: { mode?: string }) => (j.mode === 'live' || j.mode === 'mock' || j.mode === 'paused' ? j.mode : 'off') as CompanionMode)
       .catch(() => { statusP = null; return 'off' as CompanionMode; });
   }
   return statusP;

@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { GoogleSignInButton } from '../components/common/GoogleSignInButton';
 import { useOptionalSgxIdentity } from '../identity/SgxIdentityContext';
 import { PILLAR_BY_KEY } from '../lib/sgxPillars';
 import { companionStatus, type CompanionMode } from './companionApi';
@@ -58,6 +60,8 @@ export const CompanionPanel: React.FC<Props> = ({ variant, onClose, head }) => {
   const sgx = useOptionalSgxIdentity();
   const pass = sgx?.isForged ? sgx.identity.pass : null;
   const { turns, busy } = useCompanion();
+  const { user } = useAuth();
+  const withGoogle = !!user && !user.isAnonymous && !!user.email;
   const [mode, setMode] = useState<CompanionMode | null>(null);
   const [draft, setDraft] = useState('');
   const logRef = useRef<HTMLDivElement>(null);
@@ -68,7 +72,10 @@ export const CompanionPanel: React.FC<Props> = ({ variant, onClose, head }) => {
   useEffect(() => { const el = logRef.current; if (el) el.scrollTop = el.scrollHeight; }, [turns]);
   useEffect(() => { if (variant === 'pop' && pass && mode && mode !== 'off') inputRef.current?.focus(); }, [variant, pass, mode]);
 
-  const canTalk = !!pass && (mode === 'live' || mode === 'mock');
+  const live = mode === 'live' || mode === 'mock';
+  // a forged pass and a Google account: guests can read the samples, not chat
+  const canTalk = !!pass && live && withGoogle;
+  const needGoogle = !!pass && live && !withGoogle;
   const name = pass ? (pass.fullName.split(/\s+/)[0] || sgx?.identity.callsign || '') : '';
   const affinity = sgx?.identity.affinity ? PILLAR_BY_KEY[sgx.identity.affinity].name : '';
 
@@ -88,8 +95,10 @@ export const CompanionPanel: React.FC<Props> = ({ variant, onClose, head }) => {
   const greeting = useMemo(() => {
     if (!pass) return es ? 'Soy tu Highbot. Forja tu SGX Pass y despierto para contestarte todo del Summit y llevarte por la app. Mientras, pruébame:' : 'I am your Highbot. Forge your SGX Pass and I wake up to answer everything about the Summit and walk you through the app. Meanwhile, try me:';
     if (mode === 'off') return es ? `¡Hola${name ? `, ${name}` : ''}! Todavía estoy despertando; muy pronto podrás hablar conmigo. Mientras, esto ya me lo sé:` : `Hi${name ? `, ${name}` : ''}! I am still waking up; very soon you will be able to talk to me. Meanwhile, I already know this:`;
+    if (mode === 'paused') return es ? `¡Hola${name ? `, ${name}` : ''}! Estoy descansando un rato y vuelvo pronto. Mientras, esto ya me lo sé:` : `Hi${name ? `, ${name}` : ''}! I am taking a short break and will be back soon. Meanwhile, I already know this:`;
+    if (!withGoogle) return es ? `¡Hola${name ? `, ${name}` : ''}! Soy tu Highbot. Para hablar conmigo conecta tu cuenta de Google: así sé que eres tú y tu progreso queda guardado. Mientras, esto ya me lo sé:` : `Hi${name ? `, ${name}` : ''}! I am your Highbot. To talk to me, connect your Google account: that way I know it is you and your progress is saved. Meanwhile, I already know this:`;
     return es ? `¡Hola${name ? `, ${name}` : ''}! Soy tu Highbot. Pregúntame lo que quieras del Summit o de Spatialgineers, o pídeme que te lleve a cualquier página.` : `Hi${name ? `, ${name}` : ''}! I am your Highbot. Ask me anything about the Summit or Spatialgineers, or ask me to take you to any page.`;
-  }, [pass, mode, name, es]);
+  }, [pass, mode, name, es, withGoogle]);
 
   const visible = turns.filter((t: ChatTurn) => t.text || (busy && t.role === 'assistant'));
   const last = visible[visible.length - 1];
@@ -102,7 +111,7 @@ export const CompanionPanel: React.FC<Props> = ({ variant, onClose, head }) => {
           {head}
           <div className="sgx-companion__title">
             <strong>{es ? 'Tu Highbot' : 'Your Highbot'}</strong>
-            <span>{canTalk ? (busy ? (es ? 'pensando…' : 'thinking…') : (es ? 'en línea' : 'online')) : (es ? 'modo muestra' : 'sample mode')}</span>
+            <span>{canTalk ? (busy ? (es ? 'pensando…' : 'thinking…') : (es ? 'en línea' : 'online')) : mode === 'paused' ? (es ? 'en pausa' : 'paused') : (es ? 'modo muestra' : 'sample mode')}</span>
           </div>
           {turns.length > 0 && <button type="button" className="sgx-companion__icon" onClick={clearCompanion} aria-label={es ? 'Borrar conversación' : 'Clear conversation'} title={es ? 'Borrar conversación' : 'Clear conversation'}>↺</button>}
           {onClose && <button type="button" className="sgx-companion__icon" onClick={onClose} aria-label={es ? 'Cerrar chat' : 'Close chat'}>×</button>}
@@ -145,6 +154,10 @@ export const CompanionPanel: React.FC<Props> = ({ variant, onClose, head }) => {
           />
           <button type="submit" className="sgx-btn sgx-btn--sm" disabled={busy || !draft.trim()}>{es ? 'Enviar' : 'Send'}</button>
         </form>
+      ) : needGoogle ? (
+        <div className="sgx-companion__cta">
+          <GoogleSignInButton variant="compact" buttonText={es ? 'Conectar con Google' : 'Connect with Google'} />
+        </div>
       ) : !pass ? (
         <div className="sgx-companion__cta">
           <span className="sgx-glow"><button type="button" className="sgx-btn sgx-btn--sm" onClick={() => window.dispatchEvent(new CustomEvent('sgx:open_forge'))}>⚡ {es ? 'Forjar mi SGX Pass' : 'Forge my SGX Pass'}</button></span>

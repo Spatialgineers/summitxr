@@ -253,13 +253,12 @@ export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pil
                   <span className="sgx-highcoon__kicker">{es ? 'Iniciativa propia · IP de Spatialgineers' : 'Our own initiative · Spatialgineers IP'}</span>
                   <h2 id="station-highcoon" className="sgx-highcoon__title">Highcoon</h2>
                   <p>{es
-                    ? 'Un mapache científico bioingenierado creado por Danelson Maldonado González "The Highgineer". Tu Highbot es Highcoon en su forma de robot. Su mundo vive en redes, en Spatial y en Highcade, el hub de juegos web que hicimos con In The Cloud PR.'
-                    : 'A bio-engineered raccoon scientist created by Danelson Maldonado González "The Highgineer". Your Highbot is Highcoon in robot form. His world lives on social media, on Spatial and in Highcade, the web game hub we built with In The Cloud PR.'}</p>
+                    ? 'Un mapache científico bioingenierado creado por Danelson Maldonado González "The Highgineer". Tu Highbot es Highcoon en su forma de robot. Su mundo vive en redes y en Highcade, el hub de juegos web que hicimos con In The Cloud PR.'
+                    : 'A bio-engineered raccoon scientist created by Danelson Maldonado González "The Highgineer". Your Highbot is Highcoon in robot form. His world lives on social media and in Highcade, the web game hub we built with In The Cloud PR.'}</p>
                   <div className="sgx-highcoon__links">
                     <a className="sgx-btn sgx-btn--sm" href="https://www.instagram.com/highcoonvibes" target="_blank" rel="noopener noreferrer">Instagram</a>
                     <a className="sgx-btn sgx-btn--sm" href="https://x.com/highcoonvibes" target="_blank" rel="noopener noreferrer">X</a>
                     <a className="sgx-btn sgx-btn--sm" href="https://www.tiktok.com/@highcoonvibes" target="_blank" rel="noopener noreferrer">TikTok</a>
-                    <a className="sgx-btn sgx-btn--sm sgx-btn--ground" href="https://www.spatial.io/@highvibes" target="_blank" rel="noopener noreferrer">{es ? 'Su espacio en Spatial' : 'His Spatial space'}</a>
                   </div>
                   <span className="sgx-highcoon__handle">@Highcoonvibes</span>
                 </div>

@@ -133,3 +133,27 @@
 .sgx-admin__main { min-width: 0; }
 
 .sgx-admin__badge { margin-left: auto; min-width: 20px; padding: 1px 6px; font-family: var(--font-mono, monospace); font-size: 11px; font-weight: 700; text-align: center; color: #050505; background: #FDCC0D; border-radius: 10px; }
+
+/* Highbot control (Admin → Contenido → Highbot) */
+.sgx-hbctl { display: grid; gap: 12px; margin-bottom: 16px; padding: 14px 16px; background: rgba(253, 204, 13, 0.04); border: 1px solid rgba(253, 204, 13, 0.3); }
+.sgx-hbctl__row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.sgx-hbctl__state { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 220px; }
+.sgx-hbctl__state strong { display: block; color: #fff; font-size: 14px; }
+.sgx-hbctl__state small { display: block; color: #fda4af; font-size: 12px; }
+.sgx-hbctl__dot { width: 10px; height: 10px; border-radius: 50%; background: #64748b; flex: none; }
+.sgx-hbctl__dot.is-live { background: #4ade80; box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2); }
+.sgx-hbctl__dot.is-mock { background: #00DDFF; }
+.sgx-hbctl__dot.is-paused { background: #FDCC0D; }
+.sgx-hbctl__dot.is-off { background: #f87171; }
+.sgx-hbctl__cap { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #cbd5e1; }
+.sgx-hbctl__cap input { width: 120px; padding: 6px 8px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; font-family: var(--font-mono, monospace); font-size: 13px; }
+.sgx-hbctl__msg { margin: 0; font-size: 12px; color: #FDCC0D; }
+.sgx-hbctl__spend { display: grid; gap: 6px; font-size: 13px; color: #cbd5e1; }
+.sgx-hbctl__spend b { color: #fff; font-family: var(--font-mono, monospace); }
+.sgx-hbctl__bar { height: 8px; background: rgba(255, 255, 255, 0.08); }
+.sgx-hbctl__bar span { display: block; height: 100%; background: linear-gradient(90deg, #4ade80, #FDCC0D 70%, #f87171); }
+.sgx-hbctl__kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin: 0; }
+.sgx-hbctl__kpis div { padding: 8px 10px; border: 1px solid rgba(255, 255, 255, 0.1); }
+.sgx-hbctl__kpis dt { font-family: var(--font-mono, monospace); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #94a3b8; }
+.sgx-hbctl__kpis dd { margin: 2px 0 0; font-family: var(--font-mono, monospace); font-size: 18px; color: #fff; font-variant-numeric: tabular-nums; }
+.sgx-hbctl__blocked, .sgx-hbctl__note { margin: 0; font-size: 12px; color: #94a3b8; }

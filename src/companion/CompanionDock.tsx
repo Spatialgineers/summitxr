@@ -44,7 +44,7 @@ export const CompanionDock: React.FC<{ hidden?: boolean }> = ({ hidden = false }
 
   useEffect(() => { if (open) setSeen(turns.length); }, [open, turns.length]);
 
-  if (hidden || inline || !mode || mode === 'off' || !sgx) return null;
+  if (hidden || inline || !mode || mode === 'off' || mode === 'paused' || !sgx) return null;
 
   const accent = sgx.identity.affinity ? PILLAR_ACCENT[sgx.identity.affinity] : '#FDCC0D';
   const head = (size: number) => (

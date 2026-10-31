@@ -1346,7 +1346,8 @@ var firebase_applet_config_default = {
 
 // src/server/security/adminAuth.ts
 var IS_PRODUCTION = process.env.NODE_ENV === "production";
-var LOOKUP_URL = "https://identitytoolkit.googleapis.com/v1/accounts:lookup";
+var AUTH_EMULATOR = !IS_PRODUCTION && (process.env.VITE_USE_EMULATORS === "1" || process.env.VITE_USE_EMULATORS === "true") ? process.env.FIREBASE_AUTH_EMULATOR_HOST || "127.0.0.1:9099" : null;
+var LOOKUP_URL = AUTH_EMULATOR ? `http://${AUTH_EMULATOR}/identitytoolkit.googleapis.com/v1/accounts:lookup` : "https://identitytoolkit.googleapis.com/v1/accounts:lookup";
 var MAX_TOKEN_LENGTH = 4096;
 var NEGATIVE_CACHE_MS = 6e4;
 var MAX_CACHE_ENTRIES = 1e3;
@@ -3059,6 +3060,7 @@ Reglas firmes:
 - Spatialgineers son dos fundadores y siempre se mencionan los dos: Danelson Maldonado Gonz\xE1lez "The Highgineer" y Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers".
 - No menciones "The High Creators Group" ni a Marcos Berr\xEDos.
 - No uses vocabulario de pilotos, aviaci\xF3n, espacio exterior ni "cu\xE1ntico".
+- Spatial (spatial.io) cerr\xF3. Lo que Spatialgineers hizo all\xED (el Summit 2025, el programa de embajadores) se cuenta en pasado; nunca env\xEDes a nadie a Spatial ni lo presentes como algo que se puede visitar.
 - Highcoon: solo pres\xE9ntalo y comparte sus enlaces. No hables de virere, terpenos, cannabis ni del lore de su saga; si preguntan por eso, invita a seguir a @Highcoonvibes.
 - No des precios de servicios de Spatialgineers: para cotizar, info@spatialgineers.com.
 - No pidas ni guardes datos personales (contrase\xF1as, tel\xE9fonos, pagos). Para cambiar datos del SGX Pass, la persona lo hace en Tu Estudio.
@@ -3080,7 +3082,7 @@ var SPATIALGINEERS = `## Spatialgineers
 - Principios: fricci\xF3n cero (web primero, WebXR, m\xF3vil primero, sin descargas cuando se pueda), sistemas reutilizables, resultados medibles, identidad puertorrique\xF1a y caribe\xF1a como ventaja, y retener talento en la isla.
 - Ramas: Spatialgineers XR, Spatialgineers Visualizers y Spatialgineers Media (cobertura de eventos: video, foto, livestream, reels).
 - Verticales: trabajo XR para clientes, el SGX Guild (talento), Highcoon (IP propia) y el Spatialgineers Summit (evento anual).
-- Spatial.io Global Ambassador (uno de los primeros 40 beta developers, \xFAnico equipo latino). Cifras p\xFAblicas: 60+ espacios digitales y 10 juegos interactivos.
+- Fue Spatial.io Global Ambassador (uno de los primeros 40 beta developers, \xFAnico equipo latino). Spatial ya cerr\xF3: es historia. Cifras p\xFAblicas: 60+ espacios digitales y 10 juegos interactivos.
 - Contacto: info@spatialgineers.com \xB7 +1 (787) 445-5284 \xB7 @spatialgineers (Instagram, YouTube).
 
 ## SGX Framework (los seis pilares)
@@ -3093,7 +3095,7 @@ var GUILD_HIGHCOON = `## SGX Guild
 ## Highcoon
 - Highcoon es la IP propia de Spatialgineers: un mapache cient\xEDfico bioingenierado creado por Danelson Maldonado Gonz\xE1lez "The Highgineer". El Highbot es Highcoon en su forma de robot.
 - Highcade (In The Cloud PR \xD7 Highcoon): hub de juegos web con leaderboard en vivo.
-- Para visitar su mundo: @Highcoonvibes en Instagram, X y TikTok, y su espacio en Spatial: https://www.spatial.io/@highvibes`;
+- Para visitar su mundo: @Highcoonvibes en Instagram, X y TikTok.`;
 var EVENT = `## Spatialgineers Summit 2026: lo esencial
 - Fechas: 11, 12 y 13 de diciembre de 2026. En espa\xF1ol.
 - D\xEDas 1 y 2: 100% digitales y gratis por YouTube Live (canal principal, https://www.youtube.com/@spatialgineers), tambi\xE9n en LinkedIn y Facebook Live; Los Mismos TV transmite junto a Spatialgineers. El D\xEDa 1 hay artistas invitados present\xE1ndose dentro de Roblox.
@@ -3259,10 +3261,42 @@ var IS_PRODUCTION3 = process.env.NODE_ENV === "production";
 var MOCK = !IS_PRODUCTION3 && process.env.COMPANION_MOCK === "1";
 var MODEL = process.env.COMPANION_MODEL || "";
 var API_KEY = process.env.ANTHROPIC_API_KEY || "";
-var DAILY_USD = Number(process.env.COMPANION_DAILY_USD || 15);
+var DAILY_USD = Number(process.env.COMPANION_DAILY_USD || 30);
 var USER_DAILY = Number(process.env.COMPANION_USER_DAILY || 60);
 var [P_IN, P_OUT, P_WRITE, P_READ] = (process.env.COMPANION_PRICES || "4,20,8,0.2").split(",").map(Number);
-var companionMode = () => MOCK ? "mock" : API_KEY && MODEL ? "live" : "off";
+var MAX_ACTIVE = 25;
+var SETTINGS_TTL = IS_PRODUCTION3 ? 6e4 : Number(process.env.COMPANION_SETTINGS_TTL_MS || 6e4);
+var HISTORY_CHARS = 8e3;
+var settings = { enabled: true, dailyUsd: null };
+var settingsAt = 0;
+var settingsLoading = false;
+function refreshSettings() {
+  if (settingsLoading || Date.now() - settingsAt < SETTINGS_TTL) return;
+  settingsLoading = true;
+  fetch(`${FIRESTORE_DOCS}/site_config/companion`, { signal: AbortSignal.timeout(5e3) }).then(async (r) => {
+    if (r.status === 404) {
+      settings = { enabled: true, dailyUsd: null };
+      return;
+    }
+    if (!r.ok) return;
+    const f = (await r.json())?.fields || {};
+    const enabled = fromFirestore(f.enabled);
+    const cap = Number(fromFirestore(f.dailyUsd));
+    settings = { enabled: enabled !== false, dailyUsd: Number.isFinite(cap) && cap >= 0 && cap <= 1e3 ? cap : null };
+  }).catch(() => {
+  }).finally(() => {
+    settingsAt = Date.now();
+    settingsLoading = false;
+  });
+}
+refreshSettings();
+var dailyCap = () => settings.dailyUsd ?? DAILY_USD;
+var companionMode = () => {
+  refreshSettings();
+  if (!MOCK && !(API_KEY && MODEL)) return "off";
+  if (!settings.enabled) return "paused";
+  return MOCK ? "mock" : "live";
+};
 var client = API_KEY ? new Anthropic({ apiKey: API_KEY }) : null;
 var useFallbacks = process.env.COMPANION_FALLBACKS !== "0";
 function jwtPayload(token) {
@@ -3279,43 +3313,60 @@ var passCache = /* @__PURE__ */ new Map();
 async function verifyPass(idToken, email, code) {
   const claims = jwtPayload(idToken);
   const uid = claims && String(claims.user_id || claims.sub || "");
-  if (!uid || typeof claims.exp !== "number" || claims.exp * 1e3 <= Date.now()) return null;
-  if (firebase_applet_config_default.projectId && claims.aud !== firebase_applet_config_default.projectId) return null;
-  const key = sha256(`${idToken}|${email}|${code}`);
+  if (!uid || typeof claims.exp !== "number" || claims.exp * 1e3 <= Date.now()) return { refused: "NO_PASS" };
+  if (firebase_applet_config_default.projectId && claims.aud !== firebase_applet_config_default.projectId) return { refused: "NO_PASS" };
+  const googleEmail = typeof claims.email === "string" ? claims.email.trim().toLowerCase() : "";
+  if (claims.firebase?.sign_in_provider === "anonymous" || claims.email_verified !== true || !googleEmail) return { refused: "NEED_GOOGLE" };
+  const passEmail = email.trim().toLowerCase();
+  const key = sha256(`${idToken}|${passEmail}|${code}`);
   const hit = passCache.get(key);
-  if (hit && hit.until > Date.now()) return hit.caller;
-  const r = await fetch(`${FIRESTORE_DOCS}/pass_emails/${sha256(email.trim().toLowerCase())}`, {
+  if (hit && hit.until > Date.now()) return hit.check;
+  const r = await fetch(`${FIRESTORE_DOCS}/pass_emails/${sha256(passEmail)}`, {
     headers: { Authorization: `Bearer ${idToken}` },
     signal: AbortSignal.timeout(6e3)
   });
-  let caller = null;
+  let check = { refused: "NO_PASS" };
   if (r.ok) {
     const doc = await r.json();
     const owner = doc?.fields?.userId?.stringValue;
     const passCode = doc?.fields?.code?.stringValue;
-    if (owner === uid && passCode && passCode === code) caller = { uid };
+    if (passCode && passCode === code && (owner === uid || passEmail === googleEmail)) check = { caller: { uid } };
   } else if (r.status >= 500) {
     throw new Error(`firestore ${r.status}`);
   }
   if (passCache.size > 5e3) passCache.clear();
-  passCache.set(key, { caller, until: Math.min(claims.exp * 1e3, Date.now() + (caller ? 30 * 6e4 : 3e3)) });
-  return caller;
+  passCache.set(key, { check, until: Math.min(claims.exp * 1e3, Date.now() + ("caller" in check ? 30 * 6e4 : 3e3)) });
+  return check;
 }
 var userBuckets = /* @__PURE__ */ new Map();
+var ipBuckets = /* @__PURE__ */ new Map();
 var userDay = /* @__PURE__ */ new Map();
 var day = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
 var spentUsd = 0;
+var active = 0;
+var blank = () => ({ messages: 0, refusals: 0, errors: 0, blocked: { ip: 0, busy: 0, no_pass: 0, need_google: 0, slow_down: 0, daily: 0, budget: 0, paused: 0 } });
+var stats = blank();
 function rollDay() {
   const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
   if (today !== day) {
     day = today;
     spentUsd = 0;
     userDay.clear();
+    stats = blank();
   }
+}
+function allowIp(ip) {
+  let b = ipBuckets.get(ip);
+  if (!b) {
+    if (ipBuckets.size > 2e4) ipBuckets.clear();
+    b = new TokenBucket(30, 1 / 20);
+    ipBuckets.set(ip, b);
+  }
+  return b.take();
 }
 function allow(uid) {
   rollDay();
-  if (spentUsd >= DAILY_USD) return "budget";
+  if (spentUsd >= dailyCap()) return "budget";
   if ((userDay.get(uid) || 0) >= USER_DAILY) return "daily";
   let b = userBuckets.get(uid);
   if (!b) {
@@ -3345,13 +3396,14 @@ function parseBody(body) {
   const turns = [];
   for (const m of raw) {
     const role = m?.role === "assistant" ? "assistant" : m?.role === "user" ? "user" : null;
-    const text = clean(m?.text, role === "user" ? 600 : 2e3);
+    const text = clean(m?.text, role === "user" ? 600 : 1200);
     if (!role || !text) continue;
     const last = turns[turns.length - 1];
     if (last && last.role === role) last.text += `
 ${text}`;
     else turns.push({ role, text });
   }
+  while (turns.length > 1 && turns.reduce((n, t) => n + t.text.length, 0) > HISTORY_CHARS) turns.shift();
   while (turns.length && turns[0].role !== "user") turns.shift();
   if (!turns.length || turns[turns.length - 1].role !== "user") return null;
   const c = body.context || {};
@@ -3417,6 +3469,8 @@ var MESSAGES = {
     slow_down: "Dame un respiro de unos segundos y sigo contigo.",
     daily: "Por hoy ya hablamos un mont\xF3n. Ma\xF1ana sigo contigo; mientras, todo est\xE1 en la agenda y en tu Estudio.",
     budget: "Estoy recargando energ\xEDa por hoy. Vuelve ma\xF1ana o escribe a info@spatialgineers.com.",
+    busy: "Estoy atendiendo a mucha gente a la vez. Int\xE9ntalo de nuevo en un momento.",
+    paused: "Estoy descansando un rato. Vuelvo pronto; mientras, todo est\xE1 en la agenda y en tu Estudio.",
     error: "Se me cruzaron los cables. Int\xE9ntalo de nuevo en un momento.",
     refusal: "Eso no lo puedo contestar. Preg\xFAntame del Summit, de Spatialgineers o de la app."
   },
@@ -3424,6 +3478,8 @@ var MESSAGES = {
     slow_down: "Give me a few seconds and I am back with you.",
     daily: "We talked a lot today. I will be here tomorrow; meanwhile, everything is in the agenda and your Studio.",
     budget: "I am recharging for today. Come back tomorrow or write to info@spatialgineers.com.",
+    busy: "I am helping a lot of people at once. Try again in a moment.",
+    paused: "I am taking a break. I will be back soon; meanwhile, everything is in the agenda and your Studio.",
     error: "My wires got crossed. Try again in a moment.",
     refusal: "I cannot answer that. Ask me about the Summit, Spatialgineers or the app."
   }
@@ -3443,10 +3499,38 @@ function createCompanionRouter() {
   router.get("/status", (_req, res) => {
     res.json({ mode: companionMode() });
   });
+  router.get("/stats", requireAdmin, (_req, res) => {
+    rollDay();
+    res.json({
+      mode: companionMode(),
+      enabled: settings.enabled,
+      model: MODEL ? "set" : "missing",
+      day,
+      dailyCapUsd: dailyCap(),
+      capFrom: settings.dailyUsd != null ? "admin" : "env",
+      spentUsd: Number(spentUsd.toFixed(4)),
+      people: userDay.size,
+      active,
+      ...stats
+    });
+  });
   router.post("/chat", async (req, res) => {
+    rollDay();
     const mode = companionMode();
+    const lang = req.body?.context?.lang === "en" ? "en" : "es";
     if (mode === "off") {
       res.status(503).json({ error: "COMPANION_OFF" });
+      return;
+    }
+    if (mode === "paused") {
+      stats.blocked.paused += 1;
+      res.status(503).json({ error: "PAUSED", message: MESSAGES[lang].paused });
+      return;
+    }
+    if (!allowIp(req.ip || req.socket.remoteAddress || "unknown")) {
+      stats.blocked.ip += 1;
+      res.setHeader("Retry-After", "20");
+      res.status(429).json({ error: "SLOW_DOWN", message: MESSAGES[lang].slow_down });
       return;
     }
     const parsed = parseBody(req.body);
@@ -3456,28 +3540,46 @@ function createCompanionRouter() {
     }
     const { turns, ctx, idToken, email, code } = parsed;
     const msg = MESSAGES[ctx.lang];
-    let caller;
+    let check;
     try {
-      caller = await verifyPass(idToken, email, code);
+      check = await verifyPass(idToken, email, code);
     } catch {
       res.status(503).json({ error: "PASS_CHECK_UNAVAILABLE" });
       return;
     }
-    if (!caller) {
-      res.status(403).json({ error: "NO_PASS" });
+    if ("refused" in check) {
+      stats.blocked[check.refused === "NEED_GOOGLE" ? "need_google" : "no_pass"] += 1;
+      res.status(403).json({ error: check.refused });
+      return;
+    }
+    const caller = check.caller;
+    if (active >= MAX_ACTIVE) {
+      stats.blocked.busy += 1;
+      res.status(503).json({ error: "BUSY", message: msg.busy });
       return;
     }
     const gate = allow(caller.uid);
     if (gate !== "ok") {
+      stats.blocked[gate] += 1;
       res.status(429).json({ error: gate.toUpperCase(), message: msg[gate] });
       return;
     }
+    stats.messages += 1;
     const send = sse(res);
     const abort = new AbortController();
     res.on("close", () => abort.abort());
+    active += 1;
+    let released = false;
+    const release = () => {
+      if (!released) {
+        released = true;
+        active -= 1;
+      }
+    };
     if (mode === "mock") {
       await mockAnswer(send, turns[turns.length - 1].text, ctx);
       send("done", {});
+      release();
       res.end();
       return;
     }
@@ -3493,7 +3595,7 @@ function createCompanionRouter() {
       for (let round = 0; round < 3; round += 1) {
         const params = {
           model: MODEL,
-          max_tokens: 3e3,
+          max_tokens: 2e3,
           thinking: { type: "adaptive" },
           output_config: { effort: "low" },
           system: [{ type: "text", text: system, cache_control: { type: "ephemeral", ttl: "1h" } }],
@@ -3519,6 +3621,7 @@ function createCompanionRouter() {
         }
         usd += charge(final.usage);
         if (final.stop_reason === "refusal") {
+          stats.refusals += 1;
           send("text", { t: msg.refusal });
           break;
         }
@@ -3550,10 +3653,12 @@ function createCompanionRouter() {
       send("done", {});
     } catch (err) {
       if (!abort.signal.aborted) {
+        stats.errors += 1;
         console.warn("[companion] answer failed:", err instanceof Error ? err.message.slice(0, 200) : err);
         send("error", { message: msg.error });
       }
     } finally {
+      release();
       if (usd) console.info(`[companion] ${sha256(caller.uid).slice(0, 8)} $${usd.toFixed(4)} \xB7 today $${spentUsd.toFixed(2)}`);
       res.end();
     }

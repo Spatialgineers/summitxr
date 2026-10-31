@@ -22,7 +22,12 @@ export interface AdminIdentity {
 export type AdminVerifier = (idToken: string) => Promise<AdminIdentity | null>;
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-const LOOKUP_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:lookup';
+// Local tests with the Firebase emulators check tokens against the Auth emulator (never in production).
+const AUTH_EMULATOR = !IS_PRODUCTION && (process.env.VITE_USE_EMULATORS === '1' || process.env.VITE_USE_EMULATORS === 'true')
+  ? (process.env.FIREBASE_AUTH_EMULATOR_HOST || '127.0.0.1:9099') : null;
+const LOOKUP_URL = AUTH_EMULATOR
+  ? `http://${AUTH_EMULATOR}/identitytoolkit.googleapis.com/v1/accounts:lookup`
+  : 'https://identitytoolkit.googleapis.com/v1/accounts:lookup';
 const MAX_TOKEN_LENGTH = 4096;
 const NEGATIVE_CACHE_MS = 60_000;
 const MAX_CACHE_ENTRIES = 1000;

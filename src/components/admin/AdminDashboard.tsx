@@ -72,6 +72,7 @@ import { AdminMatchPanel } from '../../modules/match/admin/AdminMatchPanel';
 import { AdminSection, LiveListTable, AdminRosterPanel, ContentBackupPanel } from './AdminPanels';
 import { SummitInitiatesPanel } from './SummitInitiatesPanel';
 import { ClientErrorsPanel, useClientErrors } from './ClientErrorsPanel';
+import { CompanionControlPanel } from './CompanionControlPanel';
 import { CSV_ENTITIES } from '../../lib/csv/entities';
 import './admin.css';
 import { Instagram, UploadCloud, Sliders, Download as DownloadIcon, Megaphone, Vote, CalendarDays, Mic2, Handshake, Layers3, Sparkle, Map as MapIcon, AppWindow, Package, Images, Ticket, Gift, Target, HelpCircle as HelpIcon, BarChart2, Brush, Wand2, ShieldCheck as ShieldIcon, UserCog, DatabaseBackup, Users2, Briefcase, Radio as RadioIcon, Bug } from 'lucide-react';
@@ -160,7 +161,7 @@ const ADMIN_NAV: { id: string; label: string; items: NavItem[] }[] = [
     { id: 'GALLERY', label: 'Galería', icon: Images, keywords: 'fotos retrospectiva' },
     { id: 'SOCIAL', label: 'Redes sociales', icon: Instagram, keywords: 'instagram reels' },
     { id: 'PILLAR_CASES', label: 'Pilares: casos y proyectos', icon: Presentation, keywords: 'dia 1 casos de uso portafolio highcoon' },
-    { id: 'HIGHBOT_QA', label: 'Highbot: preguntas', icon: Bot, keywords: 'companion ia claude faq respuestas' },
+    { id: 'HIGHBOT_QA', label: 'Highbot: control y preguntas', icon: Bot, keywords: 'companion ia claude faq respuestas gasto apagar tope' },
   ] },
   { id: 'people', label: 'Personas', items: [
     { id: 'REGISTRATIONS', label: 'Inscritos y Día 3', icon: Ticket, keywords: 'registro check-in propuestas' },
@@ -960,7 +961,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           )}
 
           {activeSubpage === 'HIGHBOT_QA' && (
-            <AdminSection title="Highbot: preguntas y respuestas" desc="Respuestas que el Highbot de cada Creador da tal cual (tienen prioridad sobre lo demás que sabe). Llegan al Highbot en unos 10 minutos." publishKeys={['companion_kb']} csv={[CSV_ENTITIES.companion_kb]} onCsvApplied={bumpCsv}>
+            <AdminSection title="Highbot" desc="Enciende o apaga el Highbot, fija su tope de gasto del día y mira los números de hoy. Abajo, las respuestas que el Highbot da tal cual (tienen prioridad sobre lo demás que sabe; llegan en unos 10 minutos)." publishKeys={['companion_kb']} csv={[CSV_ENTITIES.companion_kb]} onCsvApplied={bumpCsv}>
+              <CompanionControlPanel />
               <LiveListTable entity={CSV_ENTITIES.companion_kb} version={csvRev} columns={[
                 { label: 'Pregunta', get: (x: any) => x.q },
                 { label: 'Respuesta', get: (x: any) => x.a },

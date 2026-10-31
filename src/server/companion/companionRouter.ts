@@ -3,31 +3,73 @@ import crypto from 'crypto';
 import Anthropic from '@anthropic-ai/sdk';
 import firebaseConfig from '../../../firebase-applet-config.json';
 import { TokenBucket } from '../security/rateLimit';
+import { requireAdmin } from '../security/adminAuth';
 import { COMPANION_DESTINATIONS } from '../../companion/destinations';
-import { companionPromptReady, FIRESTORE_DOCS } from './knowledge';
+import { companionPromptReady, FIRESTORE_DOCS, fromFirestore } from './knowledge';
 
 /* The Highbot companion: POST /api/companion/chat streams the answer as
    server-sent events (text, action, done, error).
 
-   - Only Creadores with a forged SGX Pass: the browser sends its Firebase ID
-     token with the pass email and code; the pass_emails doc is read with that
-     token (Firestore checks the token), and must belong to the same account.
-   - Limits per account, per IP and a daily spend cap for the whole app.
+   - Only Creadores with a forged SGX Pass AND a Google account (verified
+     email): the browser sends its Firebase ID token with the pass email and
+     code; the pass_emails doc is read with that token (Firestore checks the
+     token). The pass must be this account's, or carry its Google email.
+   - Limits: per account, per IP, answers at the same time, request size, and
+     a daily spend cap for the whole app. The team can switch the companion
+     off and change the daily cap from the admin (site_config/companion);
+     GET /stats shows today's numbers to admins.
    - The API key and the model come from the server's environment
-     (ANTHROPIC_API_KEY, COMPANION_MODEL) and never reach the browser.
+     (ANTHROPIC_API_KEY, COMPANION_MODEL) and never reach the browser. The
+     hard ceiling is the spend limit of the key's workspace in the Anthropic
+     Console (docs/HIGHBOT_COMPANION.md).
    - COMPANION_MOCK=1 (not in production) answers with canned text, for tests. */
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const MOCK = !IS_PRODUCTION && process.env.COMPANION_MOCK === '1';
 const MODEL = process.env.COMPANION_MODEL || '';
 const API_KEY = process.env.ANTHROPIC_API_KEY || '';
-const DAILY_USD = Number(process.env.COMPANION_DAILY_USD || 15);
+const DAILY_USD = Number(process.env.COMPANION_DAILY_USD || 30);
 const USER_DAILY = Number(process.env.COMPANION_USER_DAILY || 60);
 // price per million tokens (input, output, 1 h cache write, cache read); override with COMPANION_PRICES="4,20,8,0.2"
 const [P_IN, P_OUT, P_WRITE, P_READ] = (process.env.COMPANION_PRICES || '4,20,8,0.2').split(',').map(Number);
 
-export type CompanionMode = 'live' | 'mock' | 'off';
-export const companionMode = (): CompanionMode => (MOCK ? 'mock' : API_KEY && MODEL ? 'live' : 'off');
+const MAX_ACTIVE = 25;
+// how often the admin's switch and cap are re-read (shorter only in local tests)
+const SETTINGS_TTL = IS_PRODUCTION ? 60_000 : Number(process.env.COMPANION_SETTINGS_TTL_MS || 60_000);
+const HISTORY_CHARS = 8000;
+
+/* ---------- switch and daily cap from the admin (site_config/companion) ---------- */
+
+interface Settings { enabled: boolean; dailyUsd: number | null }
+let settings: Settings = { enabled: true, dailyUsd: null };
+let settingsAt = 0;
+let settingsLoading = false;
+
+function refreshSettings() {
+  if (settingsLoading || Date.now() - settingsAt < SETTINGS_TTL) return;
+  settingsLoading = true;
+  fetch(`${FIRESTORE_DOCS}/site_config/companion`, { signal: AbortSignal.timeout(5000) })
+    .then(async (r) => {
+      if (r.status === 404) { settings = { enabled: true, dailyUsd: null }; return; }
+      if (!r.ok) return;
+      const f = (await r.json())?.fields || {};
+      const enabled = fromFirestore(f.enabled);
+      const cap = Number(fromFirestore(f.dailyUsd));
+      settings = { enabled: enabled !== false, dailyUsd: Number.isFinite(cap) && cap >= 0 && cap <= 1000 ? cap : null };
+    })
+    .catch(() => { /* keep the last known settings */ })
+    .finally(() => { settingsAt = Date.now(); settingsLoading = false; });
+}
+refreshSettings();
+const dailyCap = () => settings.dailyUsd ?? DAILY_USD;
+
+export type CompanionMode = 'live' | 'mock' | 'off' | 'paused';
+export const companionMode = (): CompanionMode => {
+  refreshSettings();
+  if (!MOCK && !(API_KEY && MODEL)) return 'off';
+  if (!settings.enabled) return 'paused';
+  return MOCK ? 'mock' : 'live';
+};
 
 const client = API_KEY ? new Anthropic({ apiKey: API_KEY }) : null;
 let useFallbacks = process.env.COMPANION_FALLBACKS !== '0';
@@ -35,6 +77,7 @@ let useFallbacks = process.env.COMPANION_FALLBACKS !== '0';
 /* ---------- pass check ---------- */
 
 interface Caller { uid: string }
+type PassCheck = { caller: Caller } | { refused: 'NO_PASS' | 'NEED_GOOGLE' };
 
 function jwtPayload(token: string): any | null {
   const parts = token.split('.');
@@ -43,51 +86,69 @@ function jwtPayload(token: string): any | null {
 }
 
 const sha256 = (s: string) => crypto.createHash('sha256').update(s).digest('hex');
-const passCache = new Map<string, { caller: Caller | null; until: number }>();
+const passCache = new Map<string, { check: PassCheck; until: number }>();
 
-async function verifyPass(idToken: string, email: string, code: string): Promise<Caller | null> {
+async function verifyPass(idToken: string, email: string, code: string): Promise<PassCheck> {
   const claims = jwtPayload(idToken);
   const uid = claims && String(claims.user_id || claims.sub || '');
-  if (!uid || typeof claims.exp !== 'number' || claims.exp * 1000 <= Date.now()) return null;
-  if (firebaseConfig.projectId && claims.aud !== firebaseConfig.projectId) return null;
-  const key = sha256(`${idToken}|${email}|${code}`);
+  if (!uid || typeof claims.exp !== 'number' || claims.exp * 1000 <= Date.now()) return { refused: 'NO_PASS' };
+  if (firebaseConfig.projectId && claims.aud !== firebaseConfig.projectId) return { refused: 'NO_PASS' };
+  // Guests (anonymous) cannot chat: a Google account with a verified email is the price of entry.
+  const googleEmail = typeof claims.email === 'string' ? claims.email.trim().toLowerCase() : '';
+  if (claims.firebase?.sign_in_provider === 'anonymous' || claims.email_verified !== true || !googleEmail) return { refused: 'NEED_GOOGLE' };
+  const passEmail = email.trim().toLowerCase();
+  const key = sha256(`${idToken}|${passEmail}|${code}`);
   const hit = passCache.get(key);
-  if (hit && hit.until > Date.now()) return hit.caller;
-  // The pass email doc, read as the caller: Firestore validates the token.
-  const r = await fetch(`${FIRESTORE_DOCS}/pass_emails/${sha256(email.trim().toLowerCase())}`, {
+  if (hit && hit.until > Date.now()) return hit.check;
+  // The pass email doc, read as the caller: Firestore validates the token (so the claims above are real).
+  const r = await fetch(`${FIRESTORE_DOCS}/pass_emails/${sha256(passEmail)}`, {
     headers: { Authorization: `Bearer ${idToken}` },
     signal: AbortSignal.timeout(6000),
   });
-  let caller: Caller | null = null;
+  let check: PassCheck = { refused: 'NO_PASS' };
   if (r.ok) {
     const doc = await r.json();
     const owner = doc?.fields?.userId?.stringValue;
     const passCode = doc?.fields?.code?.stringValue;
-    if (owner === uid && passCode && passCode === code) caller = { uid };
+    // this account's pass, or a pass forged as a guest with this Google account's email
+    if (passCode && passCode === code && (owner === uid || passEmail === googleEmail)) check = { caller: { uid } };
   } else if (r.status >= 500) {
     throw new Error(`firestore ${r.status}`);
   }
   if (passCache.size > 5000) passCache.clear();
   // a pass forged seconds ago may not be readable yet: refusals are only remembered briefly
-  passCache.set(key, { caller, until: Math.min(claims.exp * 1000, Date.now() + (caller ? 30 * 60_000 : 3000)) });
-  return caller;
+  passCache.set(key, { check, until: Math.min(claims.exp * 1000, Date.now() + ('caller' in check ? 30 * 60_000 : 3000)) });
+  return check;
 }
 
 /* ---------- limits ---------- */
 
 const userBuckets = new Map<string, TokenBucket>();
+const ipBuckets = new Map<string, TokenBucket>();
 const userDay = new Map<string, number>();
 let day = new Date().toISOString().slice(0, 10);
 let spentUsd = 0;
+let active = 0;
+
+/** Today's numbers for the admin (this server process; the service runs as one instance). */
+const blank = () => ({ messages: 0, refusals: 0, errors: 0, blocked: { ip: 0, busy: 0, no_pass: 0, need_google: 0, slow_down: 0, daily: 0, budget: 0, paused: 0 } });
+let stats = blank();
 
 function rollDay() {
   const today = new Date().toISOString().slice(0, 10);
-  if (today !== day) { day = today; spentUsd = 0; userDay.clear(); }
+  if (today !== day) { day = today; spentUsd = 0; userDay.clear(); stats = blank(); }
+}
+
+/** Per IP, before any work: a whole venue may share one address, so it is generous. */
+function allowIp(ip: string): boolean {
+  let b = ipBuckets.get(ip);
+  if (!b) { if (ipBuckets.size > 20_000) ipBuckets.clear(); b = new TokenBucket(30, 1 / 20); ipBuckets.set(ip, b); }
+  return b.take();
 }
 
 function allow(uid: string): 'ok' | 'slow_down' | 'daily' | 'budget' {
   rollDay();
-  if (spentUsd >= DAILY_USD) return 'budget';
+  if (spentUsd >= dailyCap()) return 'budget';
   if ((userDay.get(uid) || 0) >= USER_DAILY) return 'daily';
   let b = userBuckets.get(uid);
   if (!b) { if (userBuckets.size > 20_000) userBuckets.clear(); b = new TokenBucket(6, 1 / 15); userBuckets.set(uid, b); }
@@ -123,12 +184,14 @@ function parseBody(body: any): { turns: Turn[]; ctx: Ctx; idToken: string; email
   const turns: Turn[] = [];
   for (const m of raw) {
     const role = m?.role === 'assistant' ? 'assistant' : m?.role === 'user' ? 'user' : null;
-    const text = clean(m?.text, role === 'user' ? 600 : 2000);
+    const text = clean(m?.text, role === 'user' ? 600 : 1200);
     if (!role || !text) continue;
     const last = turns[turns.length - 1];
     if (last && last.role === role) last.text += `\n${text}`;
     else turns.push({ role, text });
   }
+  // the oldest turns go first when the history is long
+  while (turns.length > 1 && turns.reduce((n, t) => n + t.text.length, 0) > HISTORY_CHARS) turns.shift();
   while (turns.length && turns[0].role !== 'user') turns.shift();
   if (!turns.length || turns[turns.length - 1].role !== 'user') return null;
   const c = body.context || {};
@@ -196,6 +259,8 @@ const MESSAGES = {
     slow_down: 'Dame un respiro de unos segundos y sigo contigo.',
     daily: 'Por hoy ya hablamos un montón. Mañana sigo contigo; mientras, todo está en la agenda y en tu Estudio.',
     budget: 'Estoy recargando energía por hoy. Vuelve mañana o escribe a info@spatialgineers.com.',
+    busy: 'Estoy atendiendo a mucha gente a la vez. Inténtalo de nuevo en un momento.',
+    paused: 'Estoy descansando un rato. Vuelvo pronto; mientras, todo está en la agenda y en tu Estudio.',
     error: 'Se me cruzaron los cables. Inténtalo de nuevo en un momento.',
     refusal: 'Eso no lo puedo contestar. Pregúntame del Summit, de Spatialgineers o de la app.',
   },
@@ -203,6 +268,8 @@ const MESSAGES = {
     slow_down: 'Give me a few seconds and I am back with you.',
     daily: 'We talked a lot today. I will be here tomorrow; meanwhile, everything is in the agenda and your Studio.',
     budget: 'I am recharging for today. Come back tomorrow or write to info@spatialgineers.com.',
+    busy: 'I am helping a lot of people at once. Try again in a moment.',
+    paused: 'I am taking a break. I will be back soon; meanwhile, everything is in the agenda and your Studio.',
     error: 'My wires got crossed. Try again in a moment.',
     refusal: 'I cannot answer that. Ask me about the Summit, Spatialgineers or the app.',
   },
@@ -227,32 +294,62 @@ export function createCompanionRouter(): Router {
 
   router.get('/status', (_req, res) => { res.json({ mode: companionMode() }); });
 
+  // Admins: today's numbers and the settings in force.
+  router.get('/stats', requireAdmin, (_req, res) => {
+    rollDay();
+    res.json({
+      mode: companionMode(), enabled: settings.enabled, model: MODEL ? 'set' : 'missing',
+      day, dailyCapUsd: dailyCap(), capFrom: settings.dailyUsd != null ? 'admin' : 'env',
+      spentUsd: Number(spentUsd.toFixed(4)), people: userDay.size, active, ...stats,
+    });
+  });
+
   router.post('/chat', async (req: Request, res: Response) => {
+    rollDay();
     const mode = companionMode();
+    const lang = req.body?.context?.lang === 'en' ? 'en' : 'es';
     if (mode === 'off') { res.status(503).json({ error: 'COMPANION_OFF' }); return; }
+    if (mode === 'paused') { stats.blocked.paused += 1; res.status(503).json({ error: 'PAUSED', message: MESSAGES[lang].paused }); return; }
+    if (!allowIp(req.ip || req.socket.remoteAddress || 'unknown')) {
+      stats.blocked.ip += 1;
+      res.setHeader('Retry-After', '20');
+      res.status(429).json({ error: 'SLOW_DOWN', message: MESSAGES[lang].slow_down });
+      return;
+    }
     const parsed = parseBody(req.body);
     if (!parsed) { res.status(400).json({ error: 'BAD_REQUEST' }); return; }
     const { turns, ctx, idToken, email, code } = parsed;
     const msg = MESSAGES[ctx.lang];
 
-    let caller: Caller | null;
+    let check: PassCheck;
     try {
-      caller = await verifyPass(idToken, email, code);
+      check = await verifyPass(idToken, email, code);
     } catch {
       res.status(503).json({ error: 'PASS_CHECK_UNAVAILABLE' });
       return;
     }
-    if (!caller) { res.status(403).json({ error: 'NO_PASS' }); return; }
+    if ('refused' in check) {
+      stats.blocked[check.refused === 'NEED_GOOGLE' ? 'need_google' : 'no_pass'] += 1;
+      res.status(403).json({ error: check.refused });
+      return;
+    }
+    const caller = check.caller;
+    if (active >= MAX_ACTIVE) { stats.blocked.busy += 1; res.status(503).json({ error: 'BUSY', message: msg.busy }); return; }
     const gate = allow(caller.uid);
-    if (gate !== 'ok') { res.status(429).json({ error: gate.toUpperCase(), message: msg[gate] }); return; }
+    if (gate !== 'ok') { stats.blocked[gate] += 1; res.status(429).json({ error: gate.toUpperCase(), message: msg[gate] }); return; }
+    stats.messages += 1;
 
     const send = sse(res);
     const abort = new AbortController();
     res.on('close', () => abort.abort());
+    active += 1;
+    let released = false;
+    const release = () => { if (!released) { released = true; active -= 1; } };
 
     if (mode === 'mock') {
       await mockAnswer(send, turns[turns.length - 1].text, ctx);
       send('done', {});
+      release();
       res.end();
       return;
     }
@@ -270,7 +367,7 @@ export function createCompanionRouter(): Router {
       for (let round = 0; round < 3; round += 1) {
         const params: any = {
           model: MODEL,
-          max_tokens: 3000,
+          max_tokens: 2000,
           thinking: { type: 'adaptive' },
           output_config: { effort: 'low' },
           system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral', ttl: '1h' } }],
@@ -294,7 +391,7 @@ export function createCompanionRouter(): Router {
         }
         usd += charge(final.usage);
 
-        if (final.stop_reason === 'refusal') { send('text', { t: msg.refusal }); break; }
+        if (final.stop_reason === 'refusal') { stats.refusals += 1; send('text', { t: msg.refusal }); break; }
         if (final.stop_reason !== 'tool_use') break;
 
         const results: Anthropic.Beta.Messages.BetaToolResultBlockParam[] = [];
@@ -320,10 +417,12 @@ export function createCompanionRouter(): Router {
       send('done', {});
     } catch (err) {
       if (!abort.signal.aborted) {
+        stats.errors += 1;
         console.warn('[companion] answer failed:', err instanceof Error ? err.message.slice(0, 200) : err);
         send('error', { message: msg.error });
       }
     } finally {
+      release();
       if (usd) console.info(`[companion] ${sha256(caller.uid).slice(0, 8)} $${usd.toFixed(4)} · today $${spentUsd.toFixed(2)}`);
       res.end();
     }

@@ -69,7 +69,7 @@ export const SGX_PILLARS: SgxPillar[] = [
     modules: [
       { kind: 'section', key: 'PILLARS_MANIFESTO', icon: Boxes, label: { es: 'Manifiesto de los 6 pilares', en: 'The 6 pillars manifesto' }, desc: { es: 'El SGX Framework y la historia detrás de cada pilar.', en: 'The SGX Framework and the story behind each pillar.' } },
       { kind: 'section', key: 'SOCIAL_STREAM', icon: Instagram, label: { es: 'Radar social', en: 'Social radar' }, desc: { es: 'Las historias de la comunidad en vivo con #SpatialgineersSummit.', en: 'Community stories live with #SGXSummit2026.' } },
-      { kind: 'action', event: 'sgx:open_avatar', icon: UserCircle2, label: { es: 'Avatar Studio', en: 'Avatar Studio' }, desc: { es: 'Arma tu Highbot: cara, colores, texturas SGX y tu pilar en el pecho.', en: 'Build your Highbot: face, colors, SGX textures and your pillar on its chest.' } },
+      { kind: 'section', key: 'AVATAR_STUDIO', icon: UserCircle2, label: { es: 'Avatar Studio', en: 'Avatar Studio' }, desc: { es: 'Arma tu Highbot: cara, colores, texturas SGX y tu pilar en el pecho.', en: 'Build your Highbot: face, colors, SGX textures and your pillar on its chest.' } },
     ],
   },
   {
@@ -88,8 +88,8 @@ export const SGX_PILLARS: SgxPillar[] = [
     modules: [
       { kind: 'section', key: 'MAP_360', icon: Globe, label: { es: 'Recorrido 360° Chroma Space Studios', en: '360° Chroma Space Studios walk-through' }, desc: { es: 'Recorre Chroma Space Studios, la sede del Día 3 en San Juan.', en: 'Walk Chroma Space Studios, the Day 3 venue in San Juan.' } },
       { kind: 'section', key: 'SPONSORS_HUB', icon: Building2, label: { es: 'Partners & Brand Showcases', en: 'Partners & Brand Showcases' }, desc: { es: 'Las marcas viven dentro de la experiencia. Tiers 1 a 5.', en: 'Brands live inside the experience. Tiers 1 to 5.' } },
-      { kind: 'action', event: 'sgx:open_models', icon: Box, label: { es: 'Modelos 3D', en: '3D models' }, desc: { es: 'Los logos y las esculturas de los seis pilares en 3D: gíralos y acércate.', en: 'The logos and the six pillar sculptures in 3D: turn them and zoom in.' } },
-      { kind: 'action', event: 'sgx:open_sponsorships', icon: Handshake, label: { es: 'Patrocina el Summit', en: 'Sponsor the Summit' }, desc: { es: 'Los tiers 1 a 5 y los espacios de marca dentro de la experiencia.', en: 'Tiers 1 to 5 and the brand spaces inside the experience.' } },
+      { kind: 'section', key: 'MODELS_3D', icon: Box, label: { es: 'Modelos 3D', en: '3D models' }, desc: { es: 'Los logos y las esculturas de los seis pilares en 3D: gíralos y acércate.', en: 'The logos and the six pillar sculptures in 3D: turn them and zoom in.' } },
+      { kind: 'section', key: 'SPONSOR', icon: Handshake, label: { es: 'Patrocina el Summit', en: 'Sponsor the Summit' }, desc: { es: 'Los tiers 1 a 5 y los espacios de marca dentro de la experiencia.', en: 'Tiers 1 to 5 and the brand spaces inside the experience.' } },
     ],
   },
   {
@@ -109,7 +109,7 @@ export const SGX_PILLARS: SgxPillar[] = [
       { kind: 'section', key: 'EMBEDS_GAMES', icon: Gamepad2, label: { es: 'Juegos y laboratorios', en: 'Games & labs' }, desc: { es: 'Dron SGX, Torre de Pilares, Pulso SGX y Rayo en tus manos. Juega y gana XP.', en: 'SGX Drone, Pillar Tower, SGX Pulse and Bolt in your hands. Play and earn XP.' } },
       { kind: 'page', page: 'play', icon: Vote, label: { es: 'Arena de votación en vivo', en: 'Live voting arena' }, desc: { es: 'Votación estilo Kahoot durante la transmisión (+25 XP).', en: 'Kahoot-style voting during the stream (+25 XP).' } },
       { kind: 'action', event: 'sgx:open_passport', icon: MapIcon, label: { es: 'Reactor de misiones', en: 'Mission reactor' }, desc: { es: 'Misiones por pilar; cada pilar completo sella tu SGX Pass.', en: 'Missions per pillar; every finished pillar stamps your SGX Pass.' } },
-      { kind: 'action', event: 'sgx:open_rewards', icon: Gift, label: { es: 'Tienda del Reactor', en: 'Reactor store' }, desc: { es: 'Gasta el mismo XP que ganas, sin bajar de rango.', en: 'Spend the same XP you earn, without losing rank.' } },
+      { kind: 'section', key: 'REWARDS', icon: Gift, label: { es: 'Tienda del Reactor', en: 'Reactor store' }, desc: { es: 'Gasta el mismo XP que ganas, sin bajar de rango.', en: 'Spend the same XP you earn, without losing rank.' } },
     ],
   },
   {
@@ -130,7 +130,7 @@ export const SGX_PILLARS: SgxPillar[] = [
       { kind: 'section', key: 'BROADCAST_ROOMS', icon: Radio, label: { es: 'Salas de transmisión', en: 'Broadcast rooms' }, desc: { es: 'YouTube Live como canal principal, con LinkedIn y Facebook Live.', en: 'YouTube Live as the main channel, plus LinkedIn and Facebook Live.' } },
       { kind: 'section', key: 'SPEAKERS', icon: Users, label: { es: 'Speakers & artistas', en: 'Speakers & artists' }, desc: { es: 'Solo se publican quienes están confirmados por escrito.', en: 'Only people confirmed in writing are published.' } },
       { kind: 'page', page: 'stage', icon: MonitorPlay, label: { es: 'Escenario en vivo', en: 'Live stage' }, desc: { es: 'La pantalla del escenario: preguntas, votos y reacciones en vivo.', en: 'The stage screen: live questions, votes and reactions.' } },
-      { kind: 'action', event: 'sgx:open_speaker_portal', icon: Mic, label: { es: 'Portal de speakers', en: 'Speaker portal' }, desc: { es: 'Para speakers y artistas: tu ficha, tu avatar y tu Holo Card de speaker.', en: 'For speakers and artists: your profile, avatar and speaker Holo Card.' } },
+      { kind: 'section', key: 'SPEAKER_PORTAL', icon: Mic, label: { es: 'Portal de speakers', en: 'Speaker portal' }, desc: { es: 'Para speakers y artistas: tu ficha, tu avatar y tu Holo Card de speaker.', en: 'For speakers and artists: your profile, avatar and speaker Holo Card.' } },
     ],
   },
   {
@@ -149,8 +149,8 @@ export const SGX_PILLARS: SgxPillar[] = [
     modules: [
       { kind: 'section', key: 'VISITS', icon: Radar, label: { es: 'Radar de visitas', en: 'Visit radar' }, desc: { es: 'Desde dónde nos visitan, en vivo: mapa de PR, contadores y leaderboards.', en: 'Where our visitors come from, live: PR map, counters and leaderboards.' } },
       { kind: 'section', key: 'CREDENTIAL_GENERATOR', icon: BadgeCheck, label: { es: 'SGX Pass', en: 'SGX Pass' }, desc: { es: 'Tu Holo Card, tu QR de networking y tu entrada del Día 3.', en: 'Your Holo Card, your networking QR and your Day 3 entrance.' } },
-      { kind: 'action', event: 'sgx:open_qr_scanner', icon: ScanLine, label: { es: 'Escáner de pases & Rolodex', en: 'Pass scanner & Rolodex' }, desc: { es: 'Escanea un SGX Pass: quedan en los dos Rolodex (+50 XP).', en: 'Scan an SGX Pass: you land in both Rolodexes (+50 XP).' } },
-      { kind: 'action', event: 'sgx:open_terminal', icon: Terminal, label: { es: 'Terminal de mando', en: 'Command terminal' }, desc: { es: 'Navega toda la plataforma escribiendo. Ctrl+K.', en: 'Navigate the whole platform by typing. Ctrl+K.' } },
+      { kind: 'section', key: 'PASS_SCANNER', icon: ScanLine, label: { es: 'Escáner de pases & Rolodex', en: 'Pass scanner & Rolodex' }, desc: { es: 'Escanea un SGX Pass: quedan en los dos Rolodex (+50 XP).', en: 'Scan an SGX Pass: you land in both Rolodexes (+50 XP).' } },
+      { kind: 'section', key: 'TERMINAL', icon: Terminal, label: { es: 'Terminal de mando', en: 'Command terminal' }, desc: { es: 'Navega toda la plataforma escribiendo. Ctrl+K.', en: 'Navigate the whole platform by typing. Ctrl+K.' } },
     ],
   },
   {

@@ -2,11 +2,14 @@ import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useDialogFocus } from '../../lib/useDialogFocus';
 import { useLanguage } from '../../context/LanguageContext';
+import { SgxPageModeContext, useSgxPageMode } from './SgxPageMode';
 
 /* SGX DIALOG: the one modal shell for the Summit. Same frame as Tu Estudio
    (clipped HUD corners, dark glass, yellow close on hover), dialog semantics,
    Escape to close, focus kept inside and returned on close, page scroll locked.
-   Use it for every new or migrated modal instead of a hand-made fixed overlay. */
+   Use it for every new or migrated modal instead of a hand-made fixed overlay.
+   Inside a module page (SgxPageMode) it renders inline as the page's content:
+   the page shows the title, and there is no close X. */
 
 export interface SgxDialogProps {
   open?: boolean;
@@ -43,10 +46,11 @@ export const SgxDialog: React.FC<SgxDialogProps> = ({
   const es = language === 'es';
   const ref = useRef<HTMLDivElement | null>(null);
   const titleId = useRef(`sgx-dlg-${Math.random().toString(36).slice(2, 8)}`).current;
+  const page = useSgxPageMode();
   useDialogFocus(ref);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || page) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); onClose(); } };
     window.addEventListener('keydown', onKey);
     openCount += 1;
@@ -57,9 +61,22 @@ export const SgxDialog: React.FC<SgxDialogProps> = ({
       openCount -= 1;
       if (openCount === 0) document.body.style.overflow = prev;
     };
-  }, [open, onClose]);
+  }, [open, onClose, page]);
 
   if (!open) return null;
+  if (page) {
+    // the module as its page: actions and content inline; dialogs opened from here are real dialogs again
+    return (
+      <SgxPageModeContext.Provider value={null}>
+        <div className={`sgx-modpage ${className}`} style={accent ? { ['--sgx-dialog-accent' as string]: accent } : undefined}>
+          {headerExtra && <div className="sgx-modpage__extra">{headerExtra}</div>}
+          {toolbar && <div className="sgx-dialog__toolbar sgx-modpage__toolbar">{toolbar}</div>}
+          <div className="sgx-modpage__body">{children}</div>
+          {footer && <footer className="sgx-modpage__footer">{footer}</footer>}
+        </div>
+      </SgxPageModeContext.Provider>
+    );
+  }
   return createPortal(
     <div className={`sgx-hangar sgx-dialog sgx-dialog--${size} ${className}`} onClick={dismissable ? onClose : undefined}>
       <div

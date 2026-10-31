@@ -2,7 +2,7 @@ import { PassGate } from '../../identity/PassGate';
 import { pillarIcon } from '../../lib/sgxPillars';
 import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { SgxStandby } from '../../immersion/SgxStandby';
-import React, { useState, useEffect, useCallback, lazy } from 'react';
+import React, { useState, useEffect, useCallback, useRef, lazy } from 'react';
 import { LazyBoundary } from '../common/LazyBoundary';
 import { takeStudioTab } from '../../identity/studioNav';
 import { LazyFallback } from '../common/LazyFallback';
@@ -29,6 +29,9 @@ import { SummitExperienceHub } from './SummitExperienceHub';
 import { SgxSectionHudBar, HudSectionChip } from './SgxSectionHudBar';
 import { SGX_PILLARS, pillarOfSection, findPillar, pillarInk, bi } from '../../lib/sgxPillars';
 import { SgxDialog } from '../common/SgxDialog';
+import { SgxModulePage } from './SgxModulePage';
+import { CommandTerminal } from '../../immersion/CommandTerminal';
+import { navigateToPillar } from '../../immersion/navigation';
 import { SummitFooter, SummitCoreFooterBar } from './SummitFooter';
 import { SummitSectionBanner } from './SummitSectionBanner';
 import { getAppRouteAndSectionFromUrl, getSectionFromUrl, syncAppUrl, syncSectionToUrl, scrollToSectionContainer, getPillarSlugFromUrl } from '../../lib/summitUrlSync';
@@ -59,6 +62,10 @@ const SummitSponsorshipMatrix = lazy(() => import('./SummitSponsorshipMatrix').t
 const SummitContentAuditModal = lazy(() => import('./SummitContentAuditModal').then((m) => ({ default: m.SummitContentAuditModal })));
 const SummitAnalyticsView = lazy(() => import('../analytics/SummitAnalyticsView').then((m) => ({ default: m.SummitAnalyticsView })));
 const SgxModelsViewer = lazy(() => import('./SgxModelsViewer').then((m) => ({ default: m.SgxModelsViewer })));
+const PilotBuilderModal = lazy(() => import('../../identity/PilotBuilderModal').then((m) => ({ default: m.PilotBuilderModal })));
+
+/** Menu modules that used to open as dialogs: each is its own page now. */
+const MODULE_PAGES: SummitSectionKey[] = ['AVATAR_STUDIO', 'REWARDS', 'PASS_SCANNER', 'TERMINAL', 'MODELS_3D', 'SPONSOR', 'SPEAKER_PORTAL'];
 const SgxHangar = lazy(() => import('../../identity/SgxHangar').then((m) => ({ default: m.SgxHangar })));
 const SummitVisitRadar = lazy(() => import('./SummitVisitRadar').then((m) => ({ default: m.SummitVisitRadar })));
 const SummitEmbedsHub = lazy(() => import('./SummitEmbedsHub').then((m) => ({ default: m.SummitEmbedsHub })));
@@ -109,7 +116,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     setAuditModalOpen,
   } = useSummitFeatures();
   const [analyticsModalOpen, setAnalyticsModalOpen] = useState(false);
-  const [modelsOpen, setModelsOpen] = useState(false);
 
   // Global 3D Interactive Tilt & Specular Parallax Engine across all cards & panels
   useEffect(() => {
@@ -201,6 +207,36 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     }
   };
 
+  // Modules are pages: remember where the visitor came from, so a module's own
+  // "back" (Cancel, Save, Done…) returns there; from a direct link, to its pillar.
+  const activeSectionRef = useRef(activeSection);
+  activeSectionRef.current = activeSection;
+  const activePillarRef = useRef(activePillarSlug);
+  activePillarRef.current = activePillarSlug;
+  const moduleReturn = useRef<{ section: SummitSectionKey; pillar?: string } | null>(null);
+  // however a module page was reached (menu, event, link), note the page before it
+  const lastPlace = useRef<{ section: SummitSectionKey; pillar?: string }>({ section: activeSection });
+  useEffect(() => {
+    if (MODULE_PAGES.includes(activeSection)) {
+      if (!MODULE_PAGES.includes(lastPlace.current.section)) moduleReturn.current = lastPlace.current;
+    } else {
+      moduleReturn.current = null;
+    }
+    lastPlace.current = { section: activeSection, pillar: activeSection === 'PILLAR' ? activePillarSlug : undefined };
+  }, [activeSection, activePillarSlug]);
+  const openModule = (key: SummitSectionKey) => handleSelectSection(key);
+  const leaveModule = () => {
+    const back = moduleReturn.current;
+    moduleReturn.current = null;
+    if (back?.section === 'PILLAR' && back.pillar) navigateToPillar(back.pillar);
+    else if (back) handleSelectSection(back.section);
+    else {
+      const home = pillarOfSection(activeSectionRef.current);
+      if (home) navigateToPillar(home.slug);
+      else handleSelectSection('OVERVIEW');
+    }
+  };
+
   // Tell the app shell which section is showing: only the 3D core (OVERVIEW)
   // locks the page height; every other section must scroll. Every path that
   // changes the section (buttons, core, URL) goes through this one effect.
@@ -223,7 +259,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       }
     };
     const handleOpenAudit = () => setAuditModalOpen(true);
-    const handleOpenSpeakerPortal = () => setSpeakerPortalOpen(true);
+    const handleOpenSpeakerPortal = () => openModule('SPEAKER_PORTAL');
     window.addEventListener('sgx:open_speaker_portal', handleOpenSpeakerPortal);
     const handleOpenAnalytics = () => setAnalyticsModalOpen(true);
     const handleOpenSponsor = () => handleOpenSponsorModal('tier_2');
@@ -232,7 +268,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     window.addEventListener('sgx:open_audit_modal', handleOpenAudit);
     window.addEventListener('sgx:open_analytics', handleOpenAnalytics);
     window.addEventListener('sgx:open_sponsor_modal', handleOpenSponsor);
-    const handleOpenModels = () => setModelsOpen(true);
+    const handleOpenModels = () => openModule('MODELS_3D');
     window.addEventListener('sgx:open_models', handleOpenModels);
 
     return () => {
@@ -290,19 +326,15 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
   // Modal States
   const [selectedSessionModal, setSelectedSessionModal] = useState<SummitSession | null>(null);
   const [selectedMapNodeId, setSelectedMapNodeId] = useState<string>('node_chroma_studios');
-  const [rewardsStoreModalOpen, setRewardsStoreModalOpen] = useState<boolean>(false);
-  const [qrScannerModalOpen, setQrScannerModalOpen] = useState<boolean>(false);
   const [privacyModalOpen, setPrivacyModalOpen] = useState<boolean>(false);
-  const [sponsorInquiryModalOpen, setSponsorInquiryModalOpen] = useState<boolean>(false);
   const [selectedSponsorTierId, setSelectedSponsorTierId] = useState<string>('tier_2');
   const [selectedBrandShowcase, setSelectedBrandShowcase] = useState<ApprovedSponsor | null>(null);
-  const [speakerPortalOpen, setSpeakerPortalOpen] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      const search = window.location.search;
-      return search.includes('portal=speaker') || search.includes('speaker_portal=true');
-    }
-    return false;
-  });
+  // old links to the speaker portal (?portal=speaker) land on its page
+  useEffect(() => {
+    const search = window.location.search;
+    if (search.includes('portal=speaker') || search.includes('speaker_portal=true')) openModule('SPEAKER_PORTAL');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // First-time visitors get the Forja de identidad (SgxPassHost), not a tour.
 
@@ -317,15 +349,15 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       setSponsors(loadPersistedSponsorshipTiers());
     };
 
-    const handleOpenRewards = () => setRewardsStoreModalOpen(true);
-    const handleOpenQrScanner = () => setQrScannerModalOpen(true);
+    const handleOpenRewards = () => openModule('REWARDS');
+    const handleOpenQrScanner = () => openModule('PASS_SCANNER');
 
     window.addEventListener('storage', handleStorage);
     const handleOpenSponsorshipsEvent = (e: any) => {
       if (e.detail?.preferredTier) {
         setSelectedSponsorTierId(e.detail.preferredTier);
       }
-      setSponsorInquiryModalOpen(true);
+      openModule('SPONSOR');
     };
 
     const handleOpenBrandShowcaseEvent = (e: any) => {
@@ -406,7 +438,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
   const handleOpenSponsorModal = (tierId: string = 'tier_2') => {
     setSelectedSponsorTierId(tierId);
-    setSponsorInquiryModalOpen(true);
+    openModule('SPONSOR');
   };
 
   // Stable close handlers: SgxDialog re-binds Escape whenever onClose changes.
@@ -508,11 +540,11 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               onOpenSponsors={(tier) => handleOpenSponsorModal(tier || 'tier_2')}
               onNavigateToPlayVote={onNavigateToPlayVote}
               onNavigateToVisualizer={onNavigateToVisualizer}
-              onOpenRewardsStore={() => setRewardsStoreModalOpen(true)}
+              onOpenRewardsStore={() => openModule('REWARDS')}
               onOpenAvatarGenerator={() => window.dispatchEvent(new CustomEvent('sgx:open_avatar'))}
-              onOpenQrScanner={() => setQrScannerModalOpen(true)}
+              onOpenQrScanner={() => openModule('PASS_SCANNER')}
               onOpenPassport={() => window.dispatchEvent(new CustomEvent('sgx:open_passport'))}
-              onOpenSpeakerPortal={() => setSpeakerPortalOpen(true)}
+              onOpenSpeakerPortal={() => openModule('SPEAKER_PORTAL')}
               onOpenTour={() => window.dispatchEvent(new CustomEvent('sgx:open_tour'))}
               sponsorCount={approvedSponsors.length}
             />
@@ -545,6 +577,63 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           </div>
         )}
 
+        {/* Modules that used to be dialogs: each is its own page now */}
+        {activeSection === 'AVATAR_STUDIO' && (
+          <SgxModulePage sectionKey="AVATAR_STUDIO">
+            <LazyBoundary fallback={<LazyFallback />}><PilotBuilderModal onClose={leaveModule} /></LazyBoundary>
+          </SgxModulePage>
+        )}
+        {activeSection === 'REWARDS' && (
+          <SgxModulePage sectionKey="REWARDS">
+            <LazyBoundary fallback={<LazyFallback />}>
+              <SummitRewardsStoreModal onClose={leaveModule} onOpenAdminRewards={onNavigateToAdmin} isAdmin={isAdmin} />
+            </LazyBoundary>
+          </SgxModulePage>
+        )}
+        {activeSection === 'PASS_SCANNER' && (
+          <SgxModulePage sectionKey="PASS_SCANNER">
+            <LazyBoundary fallback={<LazyFallback />}><NetworkingQrScannerModal onClose={leaveModule} /></LazyBoundary>
+          </SgxModulePage>
+        )}
+        {activeSection === 'TERMINAL' && (
+          <SgxModulePage sectionKey="TERMINAL">
+            <CommandTerminal inline onClose={leaveModule} />
+          </SgxModulePage>
+        )}
+        {activeSection === 'MODELS_3D' && (
+          <SgxModulePage sectionKey="MODELS_3D">
+            <LazyBoundary fallback={<LazyFallback />}><SgxModelsViewer onClose={leaveModule} /></LazyBoundary>
+          </SgxModulePage>
+        )}
+        {activeSection === 'SPONSOR' && (
+          <SgxModulePage sectionKey="SPONSOR">
+            <LazyBoundary fallback={<LazyFallback />}>
+              <SummitSponsorInquiryForm initialTierId={selectedSponsorTierId} isModal={true} onClose={leaveModule} />
+            </LazyBoundary>
+          </SgxModulePage>
+        )}
+        {activeSection === 'SPEAKER_PORTAL' && (
+          <SgxModulePage sectionKey="SPEAKER_PORTAL">
+            <LazyBoundary fallback={<LazyFallback />}>
+              <SummitSpeakerPortalModal
+                isOpen
+                onClose={leaveModule}
+                onSpeakerRegistered={(newSpeaker) => {
+                  setSpeakers(loadPersistedSpeakers());
+                  setActiveToastNotif({
+                    id: `toast_speaker_${Date.now()}`,
+                    title: (es ? 'Perfil recibido' : 'Profile received'),
+                    message: (es ? `Gracias, ${newSpeaker.name}. El equipo revisa tu perfil y lo publica en el directorio cuando esté confirmado por escrito.` : `Thanks, ${newSpeaker.name}. The team reviews your profile and adds it to the directory once confirmed in writing.`),
+                    actionUrl: '/summit',
+                    priority: 'HIGH',
+                    timestamp: Date.now()
+                  });
+                }}
+              />
+            </LazyBoundary>
+          </SgxModulePage>
+        )}
+
         {activeSection === 'PILLARS_MANIFESTO' && getSectionStatus('PILLARS_MANIFESTO') === 'ACTIVE' && (
           <div className="space-y-6">
             <SummitSectionBanner
@@ -563,7 +652,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               onOpenDroneSimulator={() => handleSelectSection('EMBEDS_GAMES')}
               onOpen360Tour={() => handleSelectSection('MAP_360')}
               onOpenMatchModule={() => handleSelectSection('ENTREPRENEUR_MATCH')}
-              onOpenSpeakerPortal={() => setSpeakerPortalOpen(true)}
+              onOpenSpeakerPortal={() => openModule('SPEAKER_PORTAL')}
               onOpenAvatarGenerator={() => window.dispatchEvent(new CustomEvent('sgx:open_avatar'))}
               onOpenPassportModal={() => window.dispatchEvent(new CustomEvent('sgx:open_passport'))}
               onOpenBroadcastRooms={() => handleSelectSection('BROADCAST_ROOMS')}
@@ -802,7 +891,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               speakers={speakers}
               sessions={sessions}
               onOpenSessionModal={(sess) => setSelectedSessionModal(sess)}
-              onOpenSpeakerPortal={() => setSpeakerPortalOpen(true)}
+              onOpenSpeakerPortal={() => openModule('SPEAKER_PORTAL')}
             />
 
             {/* Speaker / Artist Registration CTA */}
@@ -817,7 +906,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               </div>
 
               <button
-                onClick={() => setSpeakerPortalOpen(true)}
+                onClick={() => openModule('SPEAKER_PORTAL')}
                 className="sgx-btn py-2 px-4 text-xs font-bold uppercase flex items-center space-x-2 shrink-0 shadow-lg shadow-[var(--sgx-neon)]/20 hover:scale-105 transition-all font-mono cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" />
@@ -971,26 +1060,9 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
       )}
 
       {/* 9. Reactor store (the pass, passport and tickets live in SgxPassHost) */}
-      {rewardsStoreModalOpen && (
-        <LazyBoundary fallback={<LazyFallback overlay />}>
-          <SummitRewardsStoreModal
-            onClose={() => setRewardsStoreModalOpen(false)}
-            onOpenAdminRewards={onNavigateToAdmin}
-            isAdmin={isAdmin}
-          />
-        </LazyBoundary>
-      )}
 
       {/* 10. Avatar Studio: the Pilot Builder lives with the pass (SgxPassHost). */}
 
-      {/* 11. WebXR QR Networking Scanner & Rolodex Modal */}
-      {qrScannerModalOpen && (
-        <LazyBoundary fallback={<LazyFallback overlay />}>
-          <NetworkingQrScannerModal
-            onClose={() => setQrScannerModalOpen(false)}
-          />
-        </LazyBoundary>
-      )}
 
       {/* 12. Floating Live Pulse Reactions & Keynote Polls Widget */}
       {isFeatureVisible('exp_pulse_reactions') && (
@@ -1008,15 +1080,6 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
         </LazyBoundary>
       )}
 
-      {sponsorInquiryModalOpen && (
-        <LazyBoundary fallback={<LazyFallback />}>
-          <SummitSponsorInquiryForm
-            initialTierId={selectedSponsorTierId}
-            isModal={true}
-            onClose={() => setSponsorInquiryModalOpen(false)}
-          />
-        </LazyBoundary>
-      )}
 
       {/* 11. Push Notification Live Toast Alert */}
       <SummitPushAlertToast
@@ -1030,33 +1093,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
         }}
       />
 
-      {/* 12. Speaker & Artist Self-Service Portal Modal */}
-      {speakerPortalOpen && (
-        <LazyBoundary fallback={<LazyFallback overlay />}>
-      <SummitSpeakerPortalModal
-        isOpen={speakerPortalOpen}
-        onClose={() => setSpeakerPortalOpen(false)}
-        onSpeakerRegistered={(newSpeaker) => {
-          setSpeakers(loadPersistedSpeakers());
-          setActiveToastNotif({
-            id: `toast_speaker_${Date.now()}`,
-            title: (es ? 'Perfil recibido' : 'Profile received'),
-            message: (es ? `Gracias, ${newSpeaker.name}. El equipo revisa tu perfil y lo publica en el directorio cuando esté confirmado por escrito.` : `Thanks, ${newSpeaker.name}. The team reviews your profile and adds it to the directory once confirmed in writing.`),
-            actionUrl: '/summit',
-            priority: 'HIGH',
-            timestamp: Date.now()
-          });
-        }}
-      />
-        </LazyBoundary>
-      )}
 
-      {/* Modelos 3D: the logos and the pillar sculptures (SGX.Showcase in the menu) */}
-      {modelsOpen && (
-        <LazyBoundary fallback={<LazyFallback overlay />}>
-          <SgxModelsViewer onClose={() => setModelsOpen(false)} />
-        </LazyBoundary>
-      )}
 
       {/* Summit analytics (header menu and the SGX.System drawer) */}
       {analyticsModalOpen && (

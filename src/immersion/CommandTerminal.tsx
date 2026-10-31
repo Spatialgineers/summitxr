@@ -34,9 +34,12 @@ function normalize(s: string): string {
   return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
 }
 
-export const CommandTerminal: React.FC = () => {
+/** The terminal: the Ctrl/⌘+K overlay, or inline as the Terminal de mando page (inline + onClose). */
+export const CommandTerminal: React.FC<{ inline?: boolean; onClose?: () => void }> = ({ inline = false, onClose }) => {
   const imm = useImmersion();
-  const { terminalOpen, setTerminalOpen } = imm;
+  const { terminalOpen: overlayOpen, setTerminalOpen } = imm;
+  const terminalOpen = inline || overlayOpen;
+  const close = () => (inline ? onClose?.() : setTerminalOpen(false));
   const { language } = useLanguage();
   // The same mission count the rail and the dock show (Reactor), not the old quest list.
   const sgx = useOptionalSgxIdentity();
@@ -189,21 +192,20 @@ export const CommandTerminal: React.FC = () => {
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); setCursor((c) => Math.min(matches.length - 1, c + 1)); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); setCursor((c) => Math.max(0, c - 1)); }
-    else if (e.key === 'Escape') { e.preventDefault(); setTerminalOpen(false); }
+    else if (e.key === 'Escape') { e.preventDefault(); close(); }
     else if (e.key === 'Tab' && matches[cursor]) { e.preventDefault(); setInput(matches[cursor].keywords[0] ? normalize(matches[cursor].keywords[0]) : ''); }
   };
 
   if (!terminalOpen) return null;
 
-  return (
-    <div className="sgx-terminal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) setTerminalOpen(false); }}>
-      <div className="sgx-terminal sgx-panel sgx-panel--solid" role="dialog" aria-modal="true" aria-label="SGX Terminal">
+  const panel = (
+      <div className={`sgx-terminal sgx-panel sgx-panel--solid ${inline ? 'sgx-terminal--inline' : ''}`} {...(inline ? { 'aria-label': 'SGX Terminal' } : { role: 'dialog', 'aria-modal': true, 'aria-label': 'SGX Terminal' })}>
         <header className="sgx-terminal__head">
           <span className="sgx-brand-tag">SGX://TERMINAL</span>
           <span className="sgx-status">
             <span className="sgx-led" aria-hidden="true" />
             <span className="sgx-readout"><span className="sgx-readout__k">XP</span>{profile.totalXp.toLocaleString()}</span>
-            <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => setTerminalOpen(false)}>ESC</button>
+            {!inline && <button type="button" className="sgx-btn sgx-btn--sm" onClick={close}>ESC</button>}
           </span>
         </header>
 
@@ -245,6 +247,11 @@ export const CommandTerminal: React.FC = () => {
           </ul>
         )}
       </div>
+  );
+  if (inline) return panel;
+  return (
+    <div className="sgx-terminal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
+      {panel}
     </div>
   );
 };

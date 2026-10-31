@@ -22,6 +22,13 @@ export const SECTION_TO_SLUG: Record<SummitSectionKey, string> = {
   CREDENTIAL_GENERATOR: 'pase',
   PILLAR: 'pilar',
   VISITS: 'visitas',
+  AVATAR_STUDIO: 'avatar',
+  REWARDS: 'tienda',
+  PASS_SCANNER: 'escaner',
+  TERMINAL: 'terminal',
+  MODELS_3D: 'modelos-3d',
+  SPONSOR: 'patrocina',
+  SPEAKER_PORTAL: 'portal-speakers',
 };
 
 export const SLUG_TO_SECTION: Record<string, SummitSectionKey> = {
@@ -149,6 +156,25 @@ export const SLUG_TO_SECTION: Record<string, SummitSectionKey> = {
   holo: 'CREDENTIAL_GENERATOR',
   holocard: 'CREDENTIAL_GENERATOR',
   'holo-card': 'CREDENTIAL_GENERATOR',
+
+  // Module pages (they used to open as dialogs)
+  avatar: 'AVATAR_STUDIO',
+  highbot: 'AVATAR_STUDIO',
+  tienda: 'REWARDS',
+  recompensas: 'REWARDS',
+  rewards: 'REWARDS',
+  escaner: 'PASS_SCANNER',
+  scanner: 'PASS_SCANNER',
+  rolodex: 'PASS_SCANNER',
+  terminal: 'TERMINAL',
+  'modelos-3d': 'MODELS_3D',
+  modelos: 'MODELS_3D',
+  models: 'MODELS_3D',
+  patrocina: 'SPONSOR',
+  patrocinar: 'SPONSOR',
+  sponsor: 'SPONSOR',
+  'portal-speakers': 'SPEAKER_PORTAL',
+  'speaker-portal': 'SPEAKER_PORTAL',
 };
 
 /**

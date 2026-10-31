@@ -239,6 +239,9 @@
   animation: sgx-terminal-in 0.22s ease-out both;
 }
 @keyframes sgx-terminal-in { from { transform: translateY(-12px); opacity: 0; } to { transform: none; opacity: 1; } }
+/* the Terminal de mando page: the same terminal, inline under the banner */
+.sgx-terminal--inline { width: 100%; max-width: 900px; margin: 0 auto; min-height: 420px; }
+.sgx-terminal--inline .sgx-terminal__log { max-height: none; min-height: 220px; }
 .sgx-terminal__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); }
 .sgx-terminal__head .sgx-brand-tag { color: var(--SGX_Yellow); }
 .sgx-terminal__log {

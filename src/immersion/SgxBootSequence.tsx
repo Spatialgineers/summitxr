@@ -136,12 +136,11 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
       const start = performance.now();
       let ignited = false, titled = false;
 
-      const drawLogo = (alpha: number, glow: number) => {
+      // the logo fades in clean: no glow behind it (a yellow halo reads wrong behind the blue S)
+      const drawLogo = (alpha: number) => {
         ctx.save();
         ctx.translate(cx - boltSize / 2, cy - boltSize / 2);
         ctx.globalAlpha = alpha;
-        ctx.shadowColor = 'rgba(253, 204, 13, 0.75)';
-        ctx.shadowBlur = glow;
         drawMark(ctx, boltSize, mark);
         ctx.restore();
       };
@@ -175,11 +174,11 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
         }
         ctx.globalCompositeOperation = 'source-over';
 
-        // Ignite: the real logo fades in with emission and a shockwave rolls out.
+        // Ignite: the real logo fades in and a shockwave rolls out.
         if (t > 1450) {
           if (!ignited) { ignited = true; setPhase('ignite'); }
           const it = Math.min(1, (t - 1450) / 450);
-          drawLogo(easeOutCubic(it), 20 + 40 * Math.sin(Math.min(1, it) * Math.PI));
+          drawLogo(easeOutCubic(it));
           const wt = Math.min(1, (t - 1450) / 900);
           if (wt < 1) {
             ctx.beginPath();

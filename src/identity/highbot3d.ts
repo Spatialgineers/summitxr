@@ -15,7 +15,7 @@ import type { Plate } from './pilotAvatar';
    pillars" discs on the gears get the chosen pillar / Summit logo.
    Rig: the model has no skin. Each joint (shoulders, hips, neck) is a node whose
    origin is the center of its sphere, so the limbs are rigid pieces turned
-   about those pivots: breathing, arm swing, weight shift, a look-around, blinks
+   about those pivots: breathing, arm swing, weight shift, a look-around
    and a wave. Units: the figure stands from y = -0.77 to ~2.08 (same frame as
    the old bust avatar), so viewers and the orbit card need no changes. */
 
@@ -395,7 +395,6 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
   keep(front); keep(back);
   const plateMat = { front: keep(new THREE.MeshBasicMaterial({ map: front, toneMapped: false })), back: keep(new THREE.MeshBasicMaterial({ map: back, toneMapped: false })) };
 
-  const eyelids: Record<string, THREE.Object3D[]> = {};
   const lidNode = EYELIDS.find((e) => e.id === c.eyelid)!.id;
   const joints: Record<string, THREE.Object3D> = {};
   const PART_OF: Record<string, PartId> = { 'ears and whiskers': 'ears', mask: 'mask', nose: 'nose', 'head decor': 'headDecor', 'head decor accent': 'sideDiscs', 'body decor': 'chestDecor' };
@@ -433,7 +432,7 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
     switch (kind?.k) {
       // the torso is the Body node's own mesh (an unnamed node: three names it after its mesh, "Body")
       case 'group': m.material = torso && names[0] === 'body' && names[1] === 'body' ? torso : mats[kind.g]; break;
-      case 'eyelid': m.material = lids; (eyelids[kind.v] ||= []).push(m); m.visible = !eyesHidden && kind.v === lidNode; break;
+      case 'eyelid': m.material = lids; m.visible = !eyesHidden && kind.v === lidNode; break;
       case 'mouth': m.visible = false; break;
       case 'plate': m.material = plateMat[kind.side]; break;
       default: m.material = mats.joints;
@@ -556,15 +555,6 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
   group.userData = { type: 'HIGHBOT' };
 
   let waveAt = -1;
-  let blinkUntil = -1;
-  let nextBlink = 2 + Math.random() * 3;
-  let shownLid: string = lidNode;
-  const showLid = (id: string) => {
-    if (id === shownLid) return;
-    (eyelids[shownLid] || []).forEach((m) => { m.visible = false; });
-    (eyelids[id] || []).forEach((m) => { m.visible = true; });
-    shownLid = id;
-  };
   let clock = 0;
 
   const update = (t: number) => {
@@ -598,9 +588,7 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
       e.position.set(Math.cos(a) * 0.98, Math.sin(t * 1.7) * 0.05, Math.sin(a) * 0.98);
       e.rotation.y = -a + Math.PI / 2;
     }
-    // blinks: the lids drop to "chill" for a moment
-    if (!eyesHidden && t > nextBlink && blinkUntil < 0) { blinkUntil = t + 0.13; showLid('chill'); }
-    if (blinkUntil > 0 && t > blinkUntil) { blinkUntil = -1; nextBlink = t + 2.8 + Math.random() * 3.2; showLid(lidNode); }
+    // the chosen eyelids never change: no blinks
   };
 
   return {

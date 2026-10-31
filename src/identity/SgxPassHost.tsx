@@ -10,13 +10,13 @@ import { CHECKIN_CODE_KEY, useSgxIdentity, type CheckinResult } from './SgxIdent
 import { useImmersion } from '../immersion/ImmersionContext';
 import type { HangarTab } from './SgxHangar';
 import { openStudioPage } from './studioNav';
+import { navigateToSection } from '../immersion/navigation';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
 import { FORGE_AFTER_SWITCH, SIGNED_IN_EVENT } from './accountSlots';
 
 // The pass surfaces download the first time they open.
 const SgxForge = lazy(() => import('./SgxForge').then((m) => ({ default: m.SgxForge })));
 const SgxHoloViewer = lazy(() => import('./SgxHoloViewer').then((m) => ({ default: m.SgxHoloViewer })));
-const PilotBuilderModal = lazy(() => import('./PilotBuilderModal').then((m) => ({ default: m.PilotBuilderModal })));
 
 /** Warm the pass chunks once the page is idle, so the first tap opens instantly. */
 function prefetchPassSurfaces() {
@@ -60,7 +60,6 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
   const { pushToast } = useImmersion();
   // Holo Card Studio (visitante / speaker / initiate / sponsor), prefilled from the pass.
   const [viewCard, setViewCard] = useState<HoloCredential | null>(null);
-  const [pilotStudio, setPilotStudio] = useState(false);
   const [forge, setForge] = useState<{ tier: PassTier } | null>(null);
   // Your Studio is a page now (the SGX Pass section): "opening" it navigates there on a tab.
   const setHangar = useCallback((t: HangarTab | null) => {
@@ -105,7 +104,8 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
       if (c?.name) setViewCard(c);
     };
     window.addEventListener('sgx:view_holo_card', onView);
-    const onAvatar = () => { setHangar(null); setPilotStudio(true); };
+    // Avatar Studio is a page (SGX.Story)
+    const onAvatar = () => navigateToSection('AVATAR_STUDIO');
     window.addEventListener('sgx:open_avatar', onAvatar);
     window.addEventListener('sgx:open_holo_card', onHolo);
     window.addEventListener('sgx:open_credential_generator', onHolo);
@@ -271,7 +271,6 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
       )}
       <LazyBoundary fallback={<LazyFallback overlay />}>
         {viewCard && <SgxHoloViewer cred={viewCard} onClose={() => setViewCard(null)} />}
-        {pilotStudio && <PilotBuilderModal onClose={() => setPilotStudio(false)} />}
         {forge && (
           <SgxForge
             initialTier={forge.tier}

@@ -14,4 +14,12 @@ export type SummitSectionKey =
   | 'SPONSORS_HUB'
   | 'CREDENTIAL_GENERATOR'
   | 'PILLAR'
-  | 'VISITS';
+  | 'VISITS'
+  // modules that used to be dialogs: each is its own page now
+  | 'AVATAR_STUDIO'
+  | 'REWARDS'
+  | 'PASS_SCANNER'
+  | 'TERMINAL'
+  | 'MODELS_3D'
+  | 'SPONSOR'
+  | 'SPEAKER_PORTAL';

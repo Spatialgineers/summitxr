@@ -80,12 +80,12 @@ export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPa
     else markVisited(section);
   }, [currentPage, section, markVisited, markPillar]);
 
-  // Pillar modules can ask for the terminal (SGX.System → Terminal de mando).
+  // The Terminal de mando is a page (SGX.System); Ctrl/⌘+K still opens the quick overlay.
   useEffect(() => {
-    const open = () => setTerminalOpen(true);
+    const open = () => navigateToSection('TERMINAL');
     window.addEventListener('sgx:open_terminal', open);
     return () => window.removeEventListener('sgx:open_terminal', open);
-  }, [setTerminalOpen]);
+  }, []);
 
   // Pillars docked anywhere (3D core, section bar, hub) count toward "Los Seis Pilares".
   useEffect(() => {

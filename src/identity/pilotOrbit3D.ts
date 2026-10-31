@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { buildPilot3D, type Pilot3D } from './pilot3d';
+import { buildHighbot3D, type Pilot3D } from './highbot3d';
 import type { PilotConfig } from './pilotAvatar';
 
 /* PILOTO EN ÓRBITA: your Holo Card (or your SGX Pass when you haven't
@@ -158,7 +158,7 @@ export function createPilotOrbit(scene: THREE.Scene) {
       avatarKey = k;
       if (avatar) { avatarRig.remove(avatar.group); avatar.dispose(); avatar = null; }
       if (!cfg) return;
-      buildPilot3D(cfg).then((p) => {
+      buildHighbot3D(cfg).then((p) => {
         if (disposed || avatarKey !== k) { p.dispose(); return; }
         avatar = p;
         avatarRig.add(p.group);

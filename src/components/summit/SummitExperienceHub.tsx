@@ -135,7 +135,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         {
           id: 'mod_avatar',
           title: 'Avatar Studio 3D',
-          subtitle: (es ? 'Generador oficial de tu avatar XR' : 'Official XR avatar generator'),
+          subtitle: (es ? 'Arma tu Highbot, el avatar del Summit' : 'Build your Highbot, the Summit avatar'),
           description:
             (es ? 'Personaliza tu insignia y avatar cibernético para las salas de networking, leaderboard y acreditación oficial del Summit.' : 'Customize your badge and cyber avatar for the networking rooms, the leaderboard and official Summit accreditation.'),
           xpReward: '+200 XP',

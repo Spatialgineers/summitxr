@@ -68,7 +68,7 @@ export const SGX_PILLARS: SgxPillar[] = [
     modules: [
       { kind: 'section', key: 'PILLARS_MANIFESTO', icon: Boxes, label: { es: 'Manifiesto de los 6 pilares', en: 'The 6 pillars manifesto' }, desc: { es: 'El SGX Framework y la historia detrás de cada pilar.', en: 'The SGX Framework and the story behind each pillar.' } },
       { kind: 'section', key: 'SOCIAL_STREAM', icon: Instagram, label: { es: 'Radar social', en: 'Social radar' }, desc: { es: 'Las historias de la comunidad en vivo con #SpatialgineersSummit.', en: 'Community stories live with #SGXSummit2026.' } },
-      { kind: 'action', event: 'sgx:open_avatar', icon: UserCircle2, label: { es: 'Avatar Studio', en: 'Avatar Studio' }, desc: { es: 'Arma tu avatar XR con visor, texturas SGX y emblema de tu pilar.', en: 'Build your XR avatar with a headset, SGX textures and your pillar emblem.' } },
+      { kind: 'action', event: 'sgx:open_avatar', icon: UserCircle2, label: { es: 'Avatar Studio', en: 'Avatar Studio' }, desc: { es: 'Arma tu Highbot: cara, colores, texturas SGX y tu pilar en el pecho.', en: 'Build your Highbot: face, colors, SGX textures and your pillar on its chest.' } },
     ],
   },
   {

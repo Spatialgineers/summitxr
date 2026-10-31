@@ -189,16 +189,16 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                 <SgxPilotGlyph seed={identity.avatar.seed} config={identity.avatar.pilot} accent={identity.affinity ? PILLAR_ACCENT[identity.affinity] : '#FDCC0D'} size={300} />
               </div>
               <div className="sgx-studio__extras">
-                <section className="sgx-panel sgx-studio__avatar3d" aria-label={es ? 'Tu avatar XR en 3D' : 'Your XR avatar in 3D'}>
+                <section className="sgx-panel sgx-studio__avatar3d" aria-label={es ? 'Tu Highbot en 3D' : 'Your Highbot in 3D'}>
                   <div>
-                    <h3 className="sgx-panel__title">{es ? 'Tu avatar XR' : 'Your XR avatar'}</h3>
+                    <h3 className="sgx-panel__title">{es ? 'Tu Highbot' : 'Your Highbot'}</h3>
                     <p className="sgx-studio__text">{es ? 'El mismo de tu Holo Card, en 3D. Arrástralo para girarlo; también aparece junto al núcleo.' : 'The one on your Holo Card, in 3D. Drag to turn it; it also appears next to the core.'}</p>
                   </div>
                   <Suspense fallback={<div className="sgx-studio__wait">{es ? 'Cargando 3D…' : 'Loading 3D…'}</div>}>
                     <SgxPilot3D
                       config={identity.avatar.pilot || configFromSeed(identity.avatar.seed, identity.affinity ? PILLAR_ACCENT[identity.affinity] : '#FDCC0D')}
                       height={220}
-                      label={es ? 'Tu avatar XR en 3D. Arrastra para girarlo.' : 'Your XR avatar in 3D. Drag to turn it.'}
+                      label={es ? 'Tu Highbot en 3D. Arrastra para girarlo.' : 'Your Highbot in 3D. Drag to turn it.'}
                     />
                   </Suspense>
                 </section>

@@ -307,7 +307,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ onClose }) => {
               <span className="sgx-hstudio__face" aria-hidden="true">
                 <SgxPilotGlyph seed={identity.avatar.seed} config={identity.avatar.pilot} accent={accent} size={64} />
               </span>
-              <p className="sgx-hstudio__hint">{es ? 'Tu retrato es siempre tu avatar XR. Cámbialo y tu Holo Card se actualiza sola.' : 'Your portrait is always your XR avatar. Change it and your Holo Card updates itself.'}</p>
+              <p className="sgx-hstudio__hint">{es ? 'Tu retrato es siempre tu Highbot. Cámbialo y tu Holo Card se actualiza sola.' : 'Your portrait is always your Highbot. Change it and your Holo Card updates itself.'}</p>
             </div>
             <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => { onClose?.(); window.setTimeout(() => fire('sgx:open_avatar'), 80); }}>{es ? 'Editar mi avatar' : 'Edit my avatar'}</button>
           </section>

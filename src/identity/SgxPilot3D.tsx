@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { buildPilot3D, type Pilot3D } from './pilot3d';
-import type { PilotConfig } from './pilotAvatar';
+import { buildHighbot3D, type Pilot3D } from './highbot3d';
+import { normalizePilot, type PilotConfig } from './pilotAvatar';
 
-/* The visitor's XR avatar as a 3D figure on a hex podium (same as the
-   pillars in the core). It turns slowly on its own; drag to turn it. */
+/* The visitor's Highbot as a 3D figure on a hex podium (same as the pillars
+   in the core). It turns slowly on its own, waves hello; drag to turn it. */
 
 interface Props {
   config: PilotConfig;
@@ -51,16 +51,17 @@ export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, l
     camera.position.set(0, 1.0, 7.4);
     camera.lookAt(0, 0.62, 0);
 
-    const accent = new THREE.Color(config.glow);
+    const bot = normalizePilot(config) as PilotConfig;
+    const accent = new THREE.Color(bot.colors.iris);
     scene.add(new THREE.HemisphereLight(0xfff9e2, 0x0b0f16, 0.7));
     const key = new THREE.DirectionalLight(0xffffff, 2.0); key.position.set(-3, 4, 5); scene.add(key);
     const rim = new THREE.DirectionalLight(accent, 3.0); rim.position.set(4, 1.5, -3); scene.add(rim);
-    const rim2 = new THREE.DirectionalLight(new THREE.Color(config.primary), 1.4); rim2.position.set(-4, 2, -3); scene.add(rim2);
+    const rim2 = new THREE.DirectionalLight(new THREE.Color(bot.colors.trim), 1.4); rim2.position.set(-4, 2, -3); scene.add(rim2);
 
     // hex podium, like the pillars in the core
     const podium = new THREE.Group();
     const base = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.3, 0.22, 6), new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.85, roughness: 0.38, flatShading: true }));
-    const rimMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(config.primary) });
+    const rimMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(bot.colors.trim) });
     const ring = new THREE.Mesh(new THREE.CylinderGeometry(1.165, 1.165, 0.035, 6, 1, true), rimMat);
     ring.position.y = 0.09;
     const padMat = new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false });
@@ -84,16 +85,17 @@ export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, l
     podium.position.y = -0.88;
     scene.add(podium);
 
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
     const turn = new THREE.Group();
     scene.add(turn);
     let avatar: Pilot3D | null = null;
-    buildPilot3D(config).then((p) => {
+    buildHighbot3D(config).then((p) => {
       if (!alive) { p.dispose(); return; }
       turn.add(p.group);
       avatar = p;
+      if (!reduce) p.wave?.();
     }).catch(() => setFailed(true));
 
-    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
     let drag: { x: number; a: number } | null = null;
     let angle = 0;
     let target = 0;
@@ -145,7 +147,7 @@ export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, l
   }, [key, height]);
 
   if (failed) return null;
-  return <div ref={hostRef} className={`sgx-pilot3d ${className || ''}`} style={{ height, width: '100%', cursor: 'grab' }} role="img" aria-label={label || 'Avatar XR en 3D'} />;
+  return <div ref={hostRef} className={`sgx-pilot3d ${className || ''}`} style={{ height, width: '100%', cursor: 'grab' }} role="img" aria-label={label || 'Highbot en 3D'} />;
 };
 
 export default SgxPilot3D;

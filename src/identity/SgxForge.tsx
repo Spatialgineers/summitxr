@@ -343,8 +343,8 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
 
         {step === 'pilot' && (
           <section className="sgx-forge__stage">
-            <p className="sgx-forge__kicker">03 · {es ? 'Tu avatar XR' : 'Your XR avatar'}</p>
-            <h2>{es ? 'Arma tu avatar XR' : 'Build your XR avatar'}</h2>
+            <p className="sgx-forge__kicker">03 · {es ? 'Tu Highbot' : 'Your Highbot'}</p>
+            <h2>{es ? 'Arma tu Highbot' : 'Build your Highbot'}</h2>
             <PilotBuilder value={pilot} onChange={setPilot} accent={accent} compact />
             <div className="sgx-forge__actions">
               <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => go('pillar')}>{es ? 'Atrás' : 'Back'}</button>

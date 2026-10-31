@@ -34,7 +34,7 @@ export const PilotBuilderModal: React.FC<{ onClose: () => void }> = ({ onClose }
       size="lg"
       className="sgx-studio sgx-pilotb-modal"
       icon={<img src="/brand/sgx-bolt.svg" alt="" />}
-      title={es ? 'Arma tu avatar XR' : 'Build your XR avatar'}
+      title={es ? 'Arma tu Highbot' : 'Build your Highbot'}
       kicker={es ? 'Tu pase, tu Holo Card y el núcleo 3D' : 'Your pass, Holo Card and 3D core'}
       footer={(
         <>

@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
-import { configFromSeed, pilotSvg, type PilotConfig } from './pilotAvatar';
+import React, { useEffect, useMemo, useState } from 'react';
+import { PORTRAIT_EVENT, configFromSeed, pilotSvg, portraitKey, type PilotConfig } from './pilotAvatar';
 
-/* A pilot portrait: the one you built in the Pilot Builder, or, for passes
-   forged before it (and other people's QR), one derived from the seed.
-   Same seed, same pilot, everywhere. */
+/* A Highbot portrait: the one you built, or, for passes forged before the
+   builder (and other people's QR), one derived from the seed. Same seed, same
+   bot, everywhere. The vector Highbot shows until its 3D portrait is rendered. */
 
 interface Props {
   seed: string;
@@ -11,15 +11,21 @@ interface Props {
   size?: number;
   className?: string;
   config?: PilotConfig | null;
-  /** Idle animation (breathing, visor glow). Off in lists and small chips. */
+  /** Idle animation (a gentle bob). Off in lists and small chips. */
   animate?: boolean;
 }
 
 export const SgxPilotGlyph: React.FC<Props> = ({ seed, accent, size = 160, className, config, animate = false }) => {
-  const html = useMemo(
-    () => pilotSvg(config || configFromSeed(seed, accent), { size, animate }),
-    [config, seed, accent, size, animate],
-  );
+  const cfg = useMemo(() => config || configFromSeed(seed, accent), [config, seed, accent]);
+  const key = useMemo(() => portraitKey(cfg), [cfg]);
+  // redraw when this bot's portrait lands
+  const [rev, setRev] = useState(0);
+  useEffect(() => {
+    const onReady = (e: Event) => { if ((e as CustomEvent<{ key: string }>).detail?.key === key) setRev((n) => n + 1); };
+    window.addEventListener(PORTRAIT_EVENT, onReady);
+    return () => window.removeEventListener(PORTRAIT_EVENT, onReady);
+  }, [key]);
+  const html = useMemo(() => pilotSvg(cfg, { size, animate }), [cfg, size, animate, rev]);
   return (
     <span
       className={`sgx-pilot-glyph ${className || ''}`}

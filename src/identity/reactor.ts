@@ -45,8 +45,8 @@ export const REACTOR_MISSIONS: ReactorMission[] = [
     en: { title: 'Read the manifesto', hint: 'The story behind the 6 pillars.' },
     go: { section: 'PILLARS_MANIFESTO' } },
   { id: 'm_story_avatar', pillar: 'STORY', xp: 80, trigger: { flag: 'avatar' },
-    es: { title: 'Diseña tu avatar XR', hint: 'Ajusta tu avatar pieza por pieza en el constructor; queda impreso en tu pase.' },
-    en: { title: 'Design your XR avatar', hint: 'Fine-tune your avatar part by part in the builder; it is printed on your pass.' },
+    es: { title: 'Diseña tu Highbot', hint: 'Elige su cara, colores, textura y el pilar de su pecho; queda impreso en tu pase.' },
+    en: { title: 'Design your Highbot', hint: 'Pick its face, colors, texture and the pillar on its chest; it is printed on your pass.' },
     go: { event: 'sgx:open_avatar' } },
 
   // SGX.Showcase

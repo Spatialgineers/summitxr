@@ -2,7 +2,7 @@ import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'rea
 import { useLanguage } from '../context/LanguageContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import {
-  BOT_SWATCHES, COLOR_GROUPS, EYELIDS, HEADGEAR, HIGHBOT_PRESETS, INKS, MOUTHS, PARTS, PILOT_TEXTURES, PLATES, RELIC_MOUNTS, SOCKET_GEAR, TILE_SIZES, TOP_GEAR, VISORS,
+  BOT_SWATCHES, COLOR_GROUPS, EYELIDS, HEADGEAR, HIGHBOT_PRESETS, INKS, PARTS, PILOT_TEXTURES, PLATES, RELIC_MOUNTS, SOCKET_GEAR, TILE_SIZES, TOP_GEAR, VISORS,
   etchInk, etchSrc, normalizePilot, pilotSvg, randomPilot, varyPilot, type PilotConfig,
 } from './pilotAvatar';
 
@@ -11,7 +11,7 @@ const SgxPilot3D = lazy(() => import('./SgxPilot3D').then((m) => ({ default: m.S
 
 /* HIGHBOT BUILDER: everyone's avatar is a Highbot. Start from a bot, then
    choose which parts it keeps (no ears, whiskers or mask: a plain bot), its
-   headgear and visor, eyelids and mouth, the pillar on the chest gear and the
+   headgear and visor, eyelids, the pillar on the chest gear and the
    logo on the back gear, colors per part group (official SGX palette) and an
    SGX motif on the torso, in the bot's own colors, at one of four sizes. "Sorpresa" rolls a
    new bot and "Variar" nudges one or two things. */
@@ -172,10 +172,6 @@ export const PilotBuilder: React.FC<Props> = ({ value: raw, onChange, accent, ca
             <span className="sgx-pilotb__colorlabel">{es ? 'Párpados' : 'Eyelids'}</span>
             <div className="sgx-pilotb__grid" role="listbox" aria-label={es ? 'Párpados' : 'Eyelids'}>
               {EYELIDS.map((e) => option(e.id, value.eyelid === e.id, N(e), { ...value, eyelid: e.id }, () => set({ ...value, eyelid: e.id })))}
-            </div>
-            <span className="sgx-pilotb__colorlabel">{es ? 'Boca' : 'Mouth'}</span>
-            <div className="sgx-pilotb__grid" role="listbox" aria-label={es ? 'Boca' : 'Mouth'}>
-              {MOUTHS.map((m) => option(m.id, value.mouth === m.id, N(m), { ...value, mouth: m.id }, () => set({ ...value, mouth: m.id })))}
             </div>
           </div>
         )}

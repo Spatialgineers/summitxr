@@ -27,12 +27,11 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
     await p.waitForTimeout(700);
     check(`${name}: builder in forge`, !!(await p.$('.sgx-forge .sgx-pilotb')));
     await p.screenshot({ path: `${OUT}/p_${name}_forge.png` });
-    // build a Highbot: a bot, eyelids and mouth, the chest pillar, eye color; 2D view to compare looks
+    // build a Highbot: a bot, eyelids, the chest pillar, eye color; 2D view to compare looks
     await p.click('.sgx-forge .sgx-pilotb__view button:has-text("2D")');
     await p.click('.sgx-pilotb__grid button >> nth=2');
     await p.click('.sgx-pilotb__tabs button:has-text("Cara")');
     await p.click('.sgx-pilotb__grid >> nth=0 >> button >> nth=3');
-    await p.click('.sgx-pilotb__grid >> nth=1 >> button >> nth=1');
     await p.click('.sgx-pilotb__tabs button:has-text("Pilares")');
     await p.click('.sgx-pilotb__plates >> nth=0 >> button >> nth=2');
     await p.click('.sgx-pilotb__tabs button:has-text("Colores")');

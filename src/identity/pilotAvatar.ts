@@ -235,22 +235,24 @@ const bot = (o: { eyelid: Eyelid; chest: Plate; colors: PilotColors; parts?: Pil
   ({ v: 2, back: 'SGX', pattern: '', ink: 'trim', tile: 1, headgear: 0, visor: 0, relic: 'none', ...o, colors: { ...o.colors }, parts: { ...(o.parts || ALL_PARTS) } });
 
 /* Signature bots: one idea per pillar, built from the model's own parts, the
-   gear fitted to its anchors and the pillar's 3D emblem, plus two specials. */
+   gear fitted to its anchors and the pillar's 3D emblem, plus two specials.
+   Palette rule: one body color, one accent (trim, often the shoes), one dark
+   (joints, mask) and the eyes as the light, with the pillar's color in it. */
 export const HIGHBOT_PRESETS: { id: string; es: string; en: string; config: PilotConfig }[] = [
   { id: 'highbot', es: 'Highbot', en: 'Highbot',
     config: bot({ eyelid: 'high', chest: 'SGX', colors: { shell: '#5A5F66', trim: '#1A1A1A', joints: '#1A1A1A', mask: '#050505', iris: '#FF4040', shoes: '#5A5F66' } }) },
   { id: 'narrador', es: 'Narrador · Story', en: 'Storyteller · Story',
-    config: bot({ eyelid: 'mid', chest: 'STORY', relic: 'hand', colors: { shell: '#32527B', trim: '#5D86C6', joints: '#050505', mask: '#050505', iris: '#00DDFF', shoes: '#FFF9E2' } }) },
+    config: bot({ eyelid: 'mid', chest: 'STORY', relic: 'hand', colors: { shell: '#32527B', trim: '#FFF9E2', joints: '#1A1A1A', mask: '#050505', iris: '#00DDFF', shoes: '#FFF9E2' } }) },
   { id: 'curador', es: 'Curador · Showcase', en: 'Curator · Showcase',
     config: bot({ eyelid: 'sus', chest: 'SHOWCASE', relic: 'chest', visor: 3, parts: { ...PLAIN, chestDecor: false }, colors: { shell: '#FFF9E2', trim: '#00DDFF', joints: '#1A1A1A', mask: '#050505', iris: '#00DDFF', shoes: '#00DDFF' } }) },
   { id: 'gamer', es: 'Gamer · Spark', en: 'Gamer · Spark',
-    config: bot({ eyelid: 'chill', chest: 'SPARK', relic: 'orbit', headgear: 2, visor: 5, parts: PLAIN, colors: { shell: '#B87000', trim: '#FDCC0D', joints: '#1A1A1A', mask: '#050505', iris: '#00DDFF', shoes: '#1A1A1A' }, pattern: 'rayos', ink: 'trim', tile: 2 }) },
+    config: bot({ eyelid: 'chill', chest: 'SPARK', relic: 'orbit', headgear: 2, visor: 5, parts: PLAIN, colors: { shell: '#1A1A1A', trim: '#B87000', joints: '#050505', mask: '#050505', iris: '#FDCC0D', shoes: '#B87000' }, pattern: 'rayos', ink: 'trim', tile: 2 }) },
   { id: 'performer', es: 'Performer · Stage', en: 'Performer · Stage',
-    config: bot({ eyelid: 'high', chest: 'STAGE', relic: 'back', headgear: 1, parts: { ...PLAIN, mask: true }, colors: { shell: '#1A1A1A', trim: '#FDCC0D', joints: '#FDCC0D', mask: '#050505', iris: '#FDCC0D', shoes: '#FDCC0D' }, pattern: 'escudo-hex', ink: 'glow', tile: 1 }) },
+    config: bot({ eyelid: 'high', chest: 'STAGE', relic: 'back', headgear: 1, parts: { ...PLAIN, mask: true }, colors: { shell: '#050505', trim: '#FDCC0D', joints: '#1A1A1A', mask: '#050505', iris: '#FDCC0D', shoes: '#FDCC0D' }, pattern: 'escudo-hex', ink: 'glow', tile: 1 }) },
   { id: 'ingeniero', es: 'Ingeniero · System', en: 'Engineer · System',
     config: bot({ eyelid: 'low', chest: 'SYSTEM', relic: 'antenna', visor: 8, parts: { ...PLAIN, headDecor: true }, colors: { shell: '#888888', trim: '#00DDFF', joints: '#333333', mask: '#1A1A1A', iris: '#00DDFF', shoes: '#333333' }, pattern: 'circuito', ink: 'glow', tile: 2 }) },
   { id: 'conector', es: 'Conector · Synthesize', en: 'Connector · Synthesize',
-    config: bot({ eyelid: 'mid', chest: 'SYNTHESIZE', relic: 'chest', headgear: 6, parts: { ...PLAIN, chestDecor: false }, colors: { shell: '#FFFFFF', trim: '#B87000', joints: '#32527B', mask: '#32527B', iris: '#FFBB00', shoes: '#32527B' }, pattern: 'engranajes-entrelazados', ink: 'tone', tile: 1 }) },
+    config: bot({ eyelid: 'mid', chest: 'SYNTHESIZE', relic: 'chest', headgear: 6, parts: { ...PLAIN, chestDecor: false }, colors: { shell: '#FFFFFF', trim: '#32527B', joints: '#1A1A1A', mask: '#1A1A1A', iris: '#00DDFF', shoes: '#32527B' }, pattern: 'engranajes-entrelazados', ink: 'tone', tile: 1 }) },
   { id: 'gold', es: 'Creador Dorado', en: 'Golden Creator',
     config: bot({ eyelid: 'high', chest: 'SGX', relic: 'orbit', colors: { shell: '#FDCC0D', trim: '#050505', joints: '#050505', mask: '#050505', iris: '#00DDFF', shoes: '#050505' } }) },
 ];
@@ -392,8 +394,8 @@ export const BOLT_POINTS: [number, number][] = [[0.78, 0], [0.3, 0.56], [0.52, 0
    it lands, 'sgx:pilot_portrait' tells the glyphs to redraw. */
 
 export const PORTRAIT_EVENT = 'sgx:pilot_portrait';
-// v3: the motif moved to the torso only, no mouths, lit eyes: older portraits are dropped
-const PORTRAIT_STORE = 'sgx_pilot_portraits_v3';
+// v4: studio light, lacquer, true-color eyes: older portraits are dropped
+const PORTRAIT_STORE = 'sgx_pilot_portraits_v4';
 const PORTRAIT_KEEP = 16;
 const PORTRAITS = new Map<string, string>();
 const PENDING = new Map<string, Promise<string | null>>();
@@ -452,8 +454,6 @@ function vectorBot(c: PilotConfig, id: string): string {
     const lidTop = cy - r + top * 2 * r;
     const lidBot = cy + r - bot * 2 * r;
     return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#F2F4F7"/>`
-      // the iris is a light: a soft halo under it
-      + `<circle cx="${cx}" cy="${cy + 1}" r="8.4" fill="${k.iris}" opacity="0.3"/>`
       + `<circle cx="${cx}" cy="${cy + 1}" r="6.2" fill="${k.iris}"/><circle cx="${cx}" cy="${cy + 1}" r="2.6" fill="#050505"/>`
       + `<circle cx="${cx - 2.2}" cy="${cy - 1.6}" r="1.4" fill="#FFFFFF" opacity="0.8"/>`
       + `<path d="M${cx - r - 1} ${cy - r - 1} H${cx + r + 1} V${lidTop} Q${cx} ${lidTop + 2.2} ${cx - r - 1} ${lidTop} Z" fill="${k.shell}" clip-path="url(#${id}-e${cx})"/>`

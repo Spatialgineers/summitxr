@@ -39,7 +39,6 @@ export interface GearMats {
   glow: THREE.MeshBasicMaterial;
   lens: THREE.MeshStandardMaterial;
   glassTint: THREE.MeshBasicMaterial;
-  glowSoft: THREE.MeshBasicMaterial;
 }
 
 export interface Gear {
@@ -219,8 +218,8 @@ export function buildGear(headgear: number, visor: number, m: GearMats, opts: { 
       }
     }
   };
-  const lens = (w: number, h: number, z: number, x = 0, y = E.y) => {
-    head.add(mesh(new THREE.PlaneGeometry(w * 1.18, h * 1.4), m.glowSoft, x, y, z - 0.004), mesh(new THREE.PlaneGeometry(w, h), m.lens, x, y, z));
+  const lens = (w: number, h: number, z: number, x = 0, y = E.y, mat: THREE.Material = m.lens) => {
+    head.add(mesh(new THREE.PlaneGeometry(w, h), mat, x, y, z));
   };
   const box = (w: number, h: number, d: number, y = E.y) => {
     head.add(mesh(new RoundedBoxGeometry(w, h, d, 4, Math.min(0.09, h * 0.3)), m.trim, 0, y, zBack + d / 2));
@@ -303,8 +302,9 @@ export function buildGear(headgear: number, visor: number, m: GearMats, opts: { 
     }
     case 8: { // mech T-visor
       const front = box(1.02, 0.5, 0.16, E.y - 0.04);
-      lens(0.78, 0.08, front, 0, E.y + 0.06);
-      lens(0.09, 0.24, front + 0.001, 0, E.y - 0.12);
+      // the T is a light
+      lens(0.78, 0.08, front, 0, E.y + 0.06, m.glow);
+      lens(0.09, 0.24, front + 0.001, 0, E.y - 0.12, m.glow);
       arms(E.y - 0.04, zBack + 0.05, 0.5);
       coversEyes = true;
       break;
@@ -319,7 +319,6 @@ export function buildGear(headgear: number, visor: number, m: GearMats, opts: { 
       floater.position.y = 1.72 + Math.sin(t * 1.6) * 0.03;
       floater.children[0].rotation.y = t * 0.9;
     }
-    m.glowSoft.opacity = 0.2 + Math.sin(t * 2.4) * 0.1;
   };
 
   return { head, free, coversEyes, antennaTip, update, geometries };

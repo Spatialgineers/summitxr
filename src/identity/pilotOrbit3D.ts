@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { buildHighbot3D, type Pilot3D } from './highbot3d';
+import { studioEnvironment } from './highbotStudio';
 import type { PilotConfig } from './pilotAvatar';
 
 /* PILOTO EN ÓRBITA: your Holo Card (or your SGX Pass when you haven't
@@ -82,9 +83,11 @@ function crowdTexture(): THREE.CanvasTexture {
   return t;
 }
 
-export function createPilotOrbit(scene: THREE.Scene) {
+export function createPilotOrbit(scene: THREE.Scene, renderer?: THREE.WebGLRenderer) {
   const group = new THREE.Group();
   scene.add(group);
+  // the core has no environment of its own: the figure brings the studio's reflections
+  let studio: THREE.Texture | null = null;
 
   // The pilot's own card
   const cardGeo = new THREE.PlaneGeometry(CARD_W, CARD_H);
@@ -158,7 +161,8 @@ export function createPilotOrbit(scene: THREE.Scene) {
       avatarKey = k;
       if (avatar) { avatarRig.remove(avatar.group); avatar.dispose(); avatar = null; }
       if (!cfg) return;
-      buildHighbot3D(cfg).then((p) => {
+      if (!studio && renderer) studio = studioEnvironment(renderer);
+      buildHighbot3D(cfg, { envMap: studio }).then((p) => {
         if (disposed || avatarKey !== k) { p.dispose(); return; }
         avatar = p;
         avatarRig.add(p.group);
@@ -212,6 +216,7 @@ export function createPilotOrbit(scene: THREE.Scene) {
     dispose() {
       disposed = true;
       avatar?.dispose();
+      studio?.dispose();
       scene.remove(group);
       texture?.dispose();
       cardGeo.dispose(); cardMat.dispose(); glowGeo.dispose(); glowMat.dispose();

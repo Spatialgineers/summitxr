@@ -1231,7 +1231,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     triggerShockwaveRef.current = spawnShockwave;
 
     // 3D Raycaster for direct GLB, Sponsor & XP Orb interaction
-    const pilotOrbit = createPilotOrbit(scene);
+    const pilotOrbit = createPilotOrbit(scene, renderer);
     pilotOrbitRef.current = pilotOrbit;
     pilotOrbit.setCard(pilotInfoRef.current);
     pilotOrbit.setCrowd(crowdRef.current);

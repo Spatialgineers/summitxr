@@ -1,12 +1,13 @@
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { buildHighbot3D } from './highbot3d';
+import { studioEnvironment, studioLights, studioRenderer } from './highbotStudio';
 import type { PilotConfig } from './pilotAvatar';
 
 /* Portraits: the 3D Highbot rendered once per look into a transparent image
    (100:120, like the avatar slots), for every flat place: header chip, chat,
    Holo Card, pass PDF. One offscreen renderer for the whole app and a queue,
-   so a long chat never opens more than one WebGL context. */
+   so a long chat never opens more than one WebGL context. Same studio as the
+   editor (highbotStudio.ts), soft shadows included. */
 
 const W = 300;
 const H = 360;
@@ -28,16 +29,10 @@ function setup(): boolean {
   renderer.setPixelRatio(1);
   renderer.setSize(W, H, false);
   renderer.setClearColor(0x000000, 0);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.NeutralToneMapping;
-  renderer.toneMappingExposure = 1.12;
+  studioRenderer(renderer, true);
   scene = new THREE.Scene();
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.environmentIntensity = 0.8;
-  scene.add(new THREE.HemisphereLight(0xfff9e2, 0x0b0f16, 0.8));
-  const key = new THREE.DirectionalLight(0xffffff, 2.1); key.position.set(-3, 4, 5); scene.add(key);
-  const fill = new THREE.DirectionalLight(0xffffff, 0.7); fill.position.set(4, 1, 3); scene.add(fill);
+  scene.environment = studioEnvironment(renderer);
+  scene.add(studioLights(true));
   // full figure, a touch from above, filling the 100:120 slot
   camera = new THREE.PerspectiveCamera(26, W / H, 0.1, 50);
   camera.position.set(0, 1.45, 8.1);

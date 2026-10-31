@@ -140,46 +140,49 @@ ${TRI}`)
 }
 
 /* ---------- lit eyes ----------
-   The iris is a light: emissive, brighter toward its rim (where a lens ring
-   would catch it) and breathing slowly. A soft additive ring around each eye
-   spills that light onto the mask (or the face) around it, never over the eye
-   and its lid, so it reads as a glow even without a bloom pass. */
-const IRIS_GLOW = 1.1;
-const HALO_OPACITY = 0.5;
-/** The ring's clear middle (0.6 of the sprite) just covers the eye. */
-const HALO_SIZE = (2 * (ANATOMY.eyes.r + 0.005)) / 0.6;
-let haloTex: THREE.Texture | null = null;
-/** A ring of light with a clear middle (shared by every bot, never disposed). */
-function haloTexture(): THREE.Texture {
-  if (haloTex) return haloTex;
-  const cv = document.createElement('canvas');
-  cv.width = cv.height = 128;
-  const ctx = cv.getContext('2d')!;
-  const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-  g.addColorStop(0, 'rgba(255,255,255,0)');
-  g.addColorStop(0.58, 'rgba(255,255,255,0)');
-  g.addColorStop(0.63, 'rgba(255,255,255,0.8)');
-  g.addColorStop(0.72, 'rgba(255,255,255,0.38)');
-  g.addColorStop(0.86, 'rgba(255,255,255,0.1)');
-  g.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, 128, 128);
-  haloTex = new THREE.CanvasTexture(cv);
-  return haloTex;
-}
+   The iris is a light in its exact color: emissive and outside tone mapping,
+   so a red eye stays red (not pink) and a cyan one stays cyan. It breathes
+   a little, never past full brightness. No halo: the light is the iris. */
+const IRIS_GLOW = 0.9;
 function irisMaterial(color: string): THREE.MeshStandardMaterial {
-  const mat = new THREE.MeshStandardMaterial({ color, emissive: new THREE.Color(color), emissiveIntensity: IRIS_GLOW, roughness: 0.15, metalness: 0 });
-  mat.customProgramCacheKey = () => 'sgx-hb-iris';
-  mat.onBeforeCompile = (sh) => {
-    sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
-  totalEmissiveRadiance *= 1.0 + 0.9 * pow(1.0 - saturate(dot(normal, normalize(vViewPosition))), 2.0);`);
-  };
-  return mat;
+  return new THREE.MeshStandardMaterial({
+    color: new THREE.Color(color).multiplyScalar(0.15), emissive: new THREE.Color(color), emissiveIntensity: IRIS_GLOW,
+    roughness: 0.12, metalness: 0, toneMapped: false,
+  });
 }
+
+/** Lacquered brushed metal: the bot's 0.4 metal / 0.2 roughness under a clear coat, like a collectible figure. */
+const LACQUER = { metalness: 0.4, roughness: 0.2, clearcoat: 0.5, clearcoatRoughness: 0.2 };
 
 let brushPromise: Promise<THREE.Texture | null> | null = null;
 /** The brushed-metal grain (shared by every bot, never disposed). */
 const brushTexture = () => (brushPromise ||= loadTex('/pilot/tex/metal-cepillado.png', true));
+
+/** Relax the normals over their triangle neighbors (shape untouched, split edges kept): the
+    compressed sculpt's small ripples stop showing as wobbly highlights under the lacquer. */
+function relaxNormals(geo: THREE.BufferGeometry, rounds = 3) {
+  const idx = geo.index;
+  const attr = geo.getAttribute('normal') as THREE.BufferAttribute;
+  if (!idx || !attr) return;
+  let cur = Float32Array.from(attr.array as Float32Array);
+  for (let k = 0; k < rounds; k++) {
+    const acc = new Float32Array(cur.length);
+    for (let i = 0; i < idx.count; i += 3) {
+      const a = idx.getX(i) * 3, b = idx.getX(i + 1) * 3, c = idx.getX(i + 2) * 3;
+      for (let d = 0; d < 3; d++) {
+        const sum = cur[a + d] + cur[b + d] + cur[c + d];
+        acc[a + d] += sum; acc[b + d] += sum; acc[c + d] += sum;
+      }
+    }
+    for (let v = 0; v < acc.length; v += 3) {
+      const l = Math.hypot(acc[v], acc[v + 1], acc[v + 2]) || 1;
+      acc[v] /= l; acc[v + 1] /= l; acc[v + 2] /= l;
+    }
+    cur = acc;
+  }
+  attr.array.set(cur);
+  attr.needsUpdate = true;
+}
 
 /* ---------- the shared model (loaded once, normals and triplanar baked once) ---------- */
 let basePromise: Promise<THREE.Group> | null = null;
@@ -202,6 +205,7 @@ function loadBase(): Promise<THREE.Group> {
         if (!m.isMesh) return;
         // Nomad exports no normals: smooth ones, so the shell reads as the sculpt
         if (!m.geometry.getAttribute('normal')) m.geometry.computeVertexNormals();
+        relaxNormals(m.geometry);
         m.userData.kind = classify(m);
         // model-space position and normal for the triplanar tile (one scale on every piece)
         rel.multiplyMatrices(toRoot, m.matrixWorld);
@@ -352,19 +356,24 @@ function modelFrame(node: THREE.Object3D, model: THREE.Object3D): THREE.Group {
   return frame;
 }
 
-export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
+export interface Highbot3DOptions {
+  /** Reflections for scenes without their own environment (the core): see highbotStudio.ts. */
+  envMap?: THREE.Texture | null;
+}
+
+export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = {}): Promise<Pilot3D> {
   const c = normalizePilot(raw) as PilotConfig;
   const base = await loadBase();
   const model = base.clone(true);
 
   const disposables: { dispose: () => void }[] = [];
   const keep = <T extends { dispose: () => void }>(x: T) => { disposables.push(x); return x; };
-  // every bot is brushed metal: metalness 0.4, roughness 0.2, with the brush grain in the roughness
+  // every bot is brushed metal (metalness 0.4, roughness 0.2, the brush grain in the roughness) under a clear coat
   const motif = PILOT_TEXTURES.find((t) => t.id === c.pattern && t.id);
   const [brush, mask] = await Promise.all([brushTexture(), motif ? loadTex(etchSrc(motif.id), false) : Promise.resolve(null)]);
   if (mask) keep(mask);
   const metal = (color: string, etch: Etch | null = null) => {
-    const mat = keep(new THREE.MeshStandardMaterial({ color, metalness: 0.4, roughness: 0.2 }));
+    const mat = keep(new THREE.MeshPhysicalMaterial({ color, ...LACQUER }));
     sgxSurface(mat, brush, etch);
     return mat;
   };
@@ -399,18 +408,17 @@ export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
   const PART_OF: Record<string, PartId> = { 'ears and whiskers': 'ears', mask: 'mask', nose: 'nose', 'head decor': 'headDecor', 'head decor accent': 'sideDiscs', 'body decor': 'chestDecor' };
 
   /* ---------- gear: headgear and visor, fitted to the anatomy (highbotGear.ts) ----------
-     Same brushed-metal values; plain materials (procedural pieces carry no triplanar data). */
-  const plainMetal = (color: string, extra: Partial<THREE.MeshStandardMaterialParameters> = {}) =>
-    keep(new THREE.MeshStandardMaterial({ color, metalness: 0.4, roughness: 0.2, ...extra }));
+     Same lacquered metal; plain materials (procedural pieces carry no triplanar data). */
+  const plainMetal = (color: string, extra: Partial<THREE.MeshPhysicalMaterialParameters> = {}) =>
+    keep(new THREE.MeshPhysicalMaterial({ color, ...LACQUER, ...extra }));
   const gearMats = {
     trim: plainMetal(c.colors.trim),
     joints: plainMetal(c.colors.joints),
     dark: plainMetal('#121417'),
     glow: keep(new THREE.MeshBasicMaterial({ color: c.colors.iris, toneMapped: false })),
-    // tinted glass: dark, glossy (it catches the room), lit from inside in the eyes' color
-    lens: keep(new THREE.MeshStandardMaterial({ color: new THREE.Color(c.colors.iris).multiplyScalar(0.1), emissive: new THREE.Color(c.colors.iris), emissiveIntensity: 0.16, metalness: 0.85, roughness: 0.05, transparent: true, opacity: 0.96, side: THREE.DoubleSide })),
+    // smoked glass: near black and glossy, it only catches the studio (the lights are the LEDs, never the glass)
+    lens: keep(new THREE.MeshStandardMaterial({ color: '#07090c', metalness: 0.9, roughness: 0.04, transparent: true, opacity: 0.97, side: THREE.DoubleSide })),
     glassTint: keep(new THREE.MeshBasicMaterial({ color: c.colors.iris, transparent: true, opacity: 0.18, depthWrite: false, side: THREE.DoubleSide })),
-    glowSoft: keep(new THREE.MeshBasicMaterial({ color: c.colors.iris, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false })),
   };
   const gear = buildGear(c.headgear, c.visor, gearMats, { ears: c.parts.ears, antennaForRelic: c.relic === 'antenna' });
   gear.geometries.forEach(keep);
@@ -455,18 +463,6 @@ export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
   headFrame.add(gear.head);
   model.add(gear.free);
 
-  // the eyes' glow: a ring around each eye
-  const haloMat = keep(new THREE.SpriteMaterial({ map: haloTexture(), color: c.colors.iris, transparent: true, opacity: HALO_OPACITY, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
-  if (!eyesHidden) {
-    for (const x of [-ANATOMY.eyes.x, ANATOMY.eyes.x]) {
-      const halo = new THREE.Sprite(haloMat);
-      // light only: not a hit target (sprites can't be raycast without a camera on the ray)
-      halo.raycast = () => undefined;
-      halo.position.set(x, ANATOMY.eyes.y, ANATOMY.eyes.front + 0.02);
-      halo.scale.setScalar(HALO_SIZE);
-      headFrame.add(halo);
-    }
-  }
 
   /* ---------- the pillar's 3D emblem ---------- */
   let relicSpin: THREE.Object3D | null = null;
@@ -477,16 +473,11 @@ export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
     if (parts) {
       const blue = plainMetal('#32527B');
       const yellow = plainMetal('#FDCC0D', { emissive: new THREE.Color('#FDCC0D'), emissiveIntensity: 0.22 });
-      const emblem = (width: number, glow = false) => {
+      const emblem = (width: number) => {
         const g = new THREE.Group();
         parts.blue.forEach((geo) => g.add(new THREE.Mesh(geo, blue)));
         parts.yellow.forEach((geo) => g.add(new THREE.Mesh(geo, yellow)));
         g.scale.setScalar(width);
-        if (glow) {
-          const halo = new THREE.Mesh(keep(new THREE.CircleGeometry(0.46, 40)), gearMats.glowSoft);
-          halo.position.z = -0.12;
-          g.add(halo);
-        }
         return g;
       };
       const A = ANATOMY;
@@ -507,7 +498,7 @@ export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
         const holder = new THREE.Group();
         holder.position.set(A.back.gear.x, A.back.gear.y, A.back.gear.z - 0.035);
         holder.rotation.y = Math.PI;
-        const e = emblem(0.25, true);
+        const e = emblem(0.25);
         holder.add(e);
         relicSpin = e;
         modelFrame(bodyNode, model).add(holder);
@@ -529,12 +520,12 @@ export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
         const pivot = new THREE.Group();
         // orbits clear of the head and any cups on the sockets
         pivot.position.set(0, 1.55, -0.04);
-        const e = emblem(0.22, true);
+        const e = emblem(0.22);
         pivot.add(e);
         relicOrbit = pivot;
         model.add(pivot);
       } else if (c.relic === 'antenna' && gear.antennaTip) {
-        const e = emblem(0.22, true);
+        const e = emblem(0.22);
         e.position.copy(gear.antennaTip);
         relicSway = e;
         headFrame.add(e);
@@ -553,6 +544,17 @@ export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
     dq.setFromEuler(e.set(x, y, z, 'XYZ'));
     j.quaternion.copy(dq).multiply(r.q);
   };
+
+  // every piece casts and takes the studio's soft shadows (only where the renderer has them on)
+  model.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh) return;
+    m.castShadow = m.receiveShadow = true;
+    if (opts.envMap) {
+      const list = Array.isArray(m.material) ? m.material : [m.material];
+      list.forEach((mat) => { if ((mat as THREE.MeshStandardMaterial).isMeshStandardMaterial) (mat as THREE.MeshStandardMaterial).envMap = opts.envMap!; });
+    }
+  });
 
   const group = new THREE.Group();
   model.scale.setScalar(SCALE);
@@ -593,10 +595,8 @@ export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
     pose(joints['hip joint right'], Math.sin(t * 1.5) * 0.04, 0, 0);
     pose(joints.neck, Math.sin(t * 0.9) * 0.06, Math.sin(t * 0.6) * 0.32, Math.sin(t * 0.75) * 0.06);
     gear.update(t);
-    // the eyes breathe; a blink dims their glow
-    const irisMat = mats.iris as THREE.MeshStandardMaterial;
-    irisMat.emissiveIntensity = IRIS_GLOW + Math.sin(t * 1.6) * 0.18;
-    haloMat.opacity = (blinkUntil > 0 ? 0.35 : 1) * HALO_OPACITY * (0.9 + Math.sin(t * 1.6) * 0.1);
+    // the eyes breathe, a little
+    (mats.iris as THREE.MeshStandardMaterial).emissiveIntensity = IRIS_GLOW + Math.sin(t * 1.6) * 0.08;
     if (relicSpin) relicSpin.rotation.z = t * 0.6;
     if (relicSway) relicSway.rotation.z = Math.sin(t * 1.3) * 0.12;
     if (relicOrbit) {

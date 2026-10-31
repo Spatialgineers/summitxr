@@ -84,6 +84,7 @@
   border-top: 1px solid rgba(50, 82, 123, 0.6);
   font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255, 255, 255, 0.6);
 }
+.sgx-corefoot__logo { width: 26px; height: auto; display: block; }
 .sgx-corefoot__link {
   background: none; border: 0; padding: 4px 0; cursor: pointer; font: inherit;
   color: var(--SGX_Cyan, #00ddff); text-decoration: none;

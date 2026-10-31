@@ -30,6 +30,8 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
     // build a Highbot: a bot, eyelids, the chest pillar, eye color; 2D view to compare looks
     await p.click('.sgx-forge .sgx-pilotb__view button:has-text("2D")');
     await p.click('.sgx-pilotb__grid button >> nth=2');
+    // a tap on a bot applies it (React 19 used to swap the thumbnail under the pointer and lose the tap)
+    check(`${name}: tapping a bot applies it`, await p.$$eval('.sgx-pilotb__grid button', (bs) => !!bs[2]?.classList.contains('is-on')));
     await p.click('.sgx-pilotb__tabs button:has-text("Cara")');
     await p.click('.sgx-pilotb__grid >> nth=0 >> button >> nth=3');
     await p.click('.sgx-pilotb__tabs button:has-text("Pilares")');

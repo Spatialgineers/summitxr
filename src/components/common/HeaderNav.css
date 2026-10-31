@@ -7,8 +7,7 @@
 .sgx-hdr__inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 1750px; margin: 0 auto; }
 .sgx-hdr__brand { display: flex; align-items: center; gap: 8px; flex: none; padding: 0; color: inherit; background: none; border: 0; cursor: pointer; text-align: left; }
 .sgx-hdr__brand:focus-visible { outline: 2px solid var(--SGX_Cyan); outline-offset: 3px; }
-.sgx-hdr__logo { height: 30px; width: auto; max-width: 120px; object-fit: contain; }
-.sgx-hdr__mark { height: 26px; width: auto; max-width: 44px; object-fit: contain; }
+.sgx-hdr__mark { height: 34px; width: 34px; object-fit: contain; }
 .sgx-hdr__brand-text { display: none; flex-direction: column; line-height: 1.15; }
 .sgx-hdr__brand-text b { font-family: var(--font-display); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
 .sgx-hdr__brand-text small { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--SGX_Yellow); }
@@ -70,8 +69,7 @@
 @media (min-width: 1600px) { .sgx-hdr__sponsor { display: flex; } }
 @media (min-width: 1800px) { .sgx-hdr__brand-text { display: flex; } }
 @media (max-width: 639px) {
-  .sgx-hdr__logo { height: 26px; }
-  .sgx-hdr__mark { height: 22px; }
+  .sgx-hdr__mark { height: 30px; width: 30px; }
 }
 
 .sgx-hdr-dlg__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; width: 100%; }

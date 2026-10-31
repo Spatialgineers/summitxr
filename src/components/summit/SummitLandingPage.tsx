@@ -58,6 +58,7 @@ const SummitSpeakersDeck = lazy(() => import('./SummitSpeakersDeck').then((m) =>
 const SummitSponsorshipMatrix = lazy(() => import('./SummitSponsorshipMatrix').then((m) => ({ default: m.SummitSponsorshipMatrix })));
 const SummitContentAuditModal = lazy(() => import('./SummitContentAuditModal').then((m) => ({ default: m.SummitContentAuditModal })));
 const SummitAnalyticsView = lazy(() => import('../analytics/SummitAnalyticsView').then((m) => ({ default: m.SummitAnalyticsView })));
+const SgxModelsViewer = lazy(() => import('./SgxModelsViewer').then((m) => ({ default: m.SgxModelsViewer })));
 const SgxHangar = lazy(() => import('../../identity/SgxHangar').then((m) => ({ default: m.SgxHangar })));
 const SummitVisitRadar = lazy(() => import('./SummitVisitRadar').then((m) => ({ default: m.SummitVisitRadar })));
 const SummitEmbedsHub = lazy(() => import('./SummitEmbedsHub').then((m) => ({ default: m.SummitEmbedsHub })));
@@ -108,6 +109,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     setAuditModalOpen,
   } = useSummitFeatures();
   const [analyticsModalOpen, setAnalyticsModalOpen] = useState(false);
+  const [modelsOpen, setModelsOpen] = useState(false);
 
   // Global 3D Interactive Tilt & Specular Parallax Engine across all cards & panels
   useEffect(() => {
@@ -230,8 +232,11 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     window.addEventListener('sgx:open_audit_modal', handleOpenAudit);
     window.addEventListener('sgx:open_analytics', handleOpenAnalytics);
     window.addEventListener('sgx:open_sponsor_modal', handleOpenSponsor);
+    const handleOpenModels = () => setModelsOpen(true);
+    window.addEventListener('sgx:open_models', handleOpenModels);
 
     return () => {
+      window.removeEventListener('sgx:open_models', handleOpenModels);
       window.removeEventListener('sgx:switch_summit_section', handleSwitchSectionEvent);
       window.removeEventListener('sgx:open_audit_modal', handleOpenAudit);
       window.removeEventListener('sgx:open_speaker_portal', handleOpenSpeakerPortal);
@@ -1043,6 +1048,13 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           });
         }}
       />
+        </LazyBoundary>
+      )}
+
+      {/* Modelos 3D: the logos and the pillar sculptures (SGX.Showcase in the menu) */}
+      {modelsOpen && (
+        <LazyBoundary fallback={<LazyFallback overlay />}>
+          <SgxModelsViewer onClose={() => setModelsOpen(false)} />
         </LazyBoundary>
       )}
 

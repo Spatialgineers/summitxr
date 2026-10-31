@@ -1,6 +1,7 @@
 import {
   Boxes, Instagram, UserCircle2, Globe, Building2, Gamepad2, Vote, Map as MapIcon, Gift,
   Calendar, Radio, Users, BadgeCheck, ScanLine, Terminal, Zap, MessageSquare, Award, Radar,
+  Box, Handshake, MonitorPlay, Mic,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
 
@@ -21,7 +22,7 @@ type Bi = { es: string; en: string };
 
 export type PillarModule =
   | { kind: 'section'; key: string; label: Bi; desc: Bi; icon: ComponentType<{ className?: string }> }
-  | { kind: 'page'; page: 'play'; label: Bi; desc: Bi; icon: ComponentType<{ className?: string }> }
+  | { kind: 'page'; page: 'play' | 'stage'; label: Bi; desc: Bi; icon: ComponentType<{ className?: string }> }
   | { kind: 'action'; event: string; label: Bi; desc: Bi; icon: ComponentType<{ className?: string }> };
 
 export interface ProgramSlot {
@@ -87,6 +88,8 @@ export const SGX_PILLARS: SgxPillar[] = [
     modules: [
       { kind: 'section', key: 'MAP_360', icon: Globe, label: { es: 'Recorrido 360° Chroma Space Studios', en: '360° Chroma Space Studios walk-through' }, desc: { es: 'Recorre Chroma Space Studios, la sede del Día 3 en San Juan.', en: 'Walk Chroma Space Studios, the Day 3 venue in San Juan.' } },
       { kind: 'section', key: 'SPONSORS_HUB', icon: Building2, label: { es: 'Partners & Brand Showcases', en: 'Partners & Brand Showcases' }, desc: { es: 'Las marcas viven dentro de la experiencia. Tiers 1 a 5.', en: 'Brands live inside the experience. Tiers 1 to 5.' } },
+      { kind: 'action', event: 'sgx:open_models', icon: Box, label: { es: 'Modelos 3D', en: '3D models' }, desc: { es: 'Los logos y las esculturas de los seis pilares en 3D: gíralos y acércate.', en: 'The logos and the six pillar sculptures in 3D: turn them and zoom in.' } },
+      { kind: 'action', event: 'sgx:open_sponsorships', icon: Handshake, label: { es: 'Patrocina el Summit', en: 'Sponsor the Summit' }, desc: { es: 'Los tiers 1 a 5 y los espacios de marca dentro de la experiencia.', en: 'Tiers 1 to 5 and the brand spaces inside the experience.' } },
     ],
   },
   {
@@ -126,6 +129,8 @@ export const SGX_PILLARS: SgxPillar[] = [
       { kind: 'section', key: 'AGENDA', icon: Calendar, label: { es: 'Run of Show: agenda de 3 días', en: 'Run of Show: 3-day agenda' }, desc: { es: 'El programa minuto a minuto del 11 al 13 de diciembre.', en: 'The minute-by-minute program, December 11 to 13.' } },
       { kind: 'section', key: 'BROADCAST_ROOMS', icon: Radio, label: { es: 'Salas de transmisión', en: 'Broadcast rooms' }, desc: { es: 'YouTube Live como canal principal, con LinkedIn y Facebook Live.', en: 'YouTube Live as the main channel, plus LinkedIn and Facebook Live.' } },
       { kind: 'section', key: 'SPEAKERS', icon: Users, label: { es: 'Speakers & artistas', en: 'Speakers & artists' }, desc: { es: 'Solo se publican quienes están confirmados por escrito.', en: 'Only people confirmed in writing are published.' } },
+      { kind: 'page', page: 'stage', icon: MonitorPlay, label: { es: 'Escenario en vivo', en: 'Live stage' }, desc: { es: 'La pantalla del escenario: preguntas, votos y reacciones en vivo.', en: 'The stage screen: live questions, votes and reactions.' } },
+      { kind: 'action', event: 'sgx:open_speaker_portal', icon: Mic, label: { es: 'Portal de speakers', en: 'Speaker portal' }, desc: { es: 'Para speakers y artistas: tu ficha, tu avatar y tu Holo Card de speaker.', en: 'For speakers and artists: your profile, avatar and speaker Holo Card.' } },
     ],
   },
   {

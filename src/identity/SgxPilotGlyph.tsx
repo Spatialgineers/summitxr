@@ -25,14 +25,16 @@ export const SgxPilotGlyph: React.FC<Props> = ({ seed, accent, size = 160, class
     window.addEventListener(PORTRAIT_EVENT, onReady);
     return () => window.removeEventListener(PORTRAIT_EVENT, onReady);
   }, [key]);
-  const html = useMemo(() => pilotSvg(cfg, { size, animate }), [cfg, size, animate, rev]);
+  // a stable {__html}: React 19 rewrites innerHTML for every new object, which would swallow taps on the avatar
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const inner = useMemo(() => ({ __html: pilotSvg(cfg, { size, animate }) }), [cfg, size, animate, rev]);
   return (
     <span
       className={`sgx-pilot-glyph ${className || ''}`}
       style={{ display: 'inline-block', width: size, height: size * 1.2, lineHeight: 0 }}
       role="img"
       aria-label="Avatar"
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={inner}
     />
   );
 };

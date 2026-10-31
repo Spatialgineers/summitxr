@@ -5,13 +5,16 @@ import { loc } from '../lib/localize';
 import { isFallback, isOpenSlot, pickSplashSponsors, sponsorTierLevel } from './splashSponsors';
 
 /*
- * The one splash: a swarm of particles streaks in and assembles the official
- * SGX Bolt, the bolt ignites, a shockwave rolls out, "Spatialgineers LLC
- * presenta" and the Summit wordmark decode, and the Tier 3+ partner row
- * (with open "your brand here" slots) gets its moment. ~5 s, skippable with
- * any key, a tap, or the Skip button.
+ * The one splash: a swarm of particles streaks in and assembles the Summit
+ * logo (the gear with the S, in its own colors), the logo ignites, a
+ * shockwave rolls out, "Spatialgineers LLC presenta" and the Summit wordmark
+ * decode, and the Tier 3+ partner row (with open "your brand here" slots)
+ * gets its moment. ~5 s, skippable with any key, a tap, or the Skip button.
+ * If the logo image can't load, the SGX bolt stands in.
  */
 
+/** The Summit logo, trimmed and served locally so the splash never waits on the network. */
+const SUMMIT_LOGO = '/brand/summit-logo.png';
 const BOLT_PATH = 'M1665 62 L121 1265 L763 1266 L382 1987 L1925 784 L1284 782 Z';
 const TOTAL_MS = 5200;
 const COLORS = ['#FDCC0D', '#FDCC0D', '#FDCC0D', '#FFBB00', '#00DDFF', '#32527B'];
@@ -24,21 +27,31 @@ const PILLARS = ['SGX.STORY', 'SGX.SHOWCASE', 'SGX.SPARK', 'SGX.STAGE', 'SGX.SYS
 function easeOutCubic(t: number) { return 1 - Math.pow(1 - t, 3); }
 function easeInOutCubic(t: number) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 
-/** Samples points inside the bolt shape at the given on-screen size. */
-function sampleBolt(size: number, count: number): { x: number; y: number }[] {
+/** Draws the mark (the Summit logo, or the bolt as a stand-in) into a size x size box. */
+function drawMark(g: CanvasRenderingContext2D, size: number, logo: HTMLImageElement | null) {
+  if (logo) { g.drawImage(logo, 0, 0, size, size); return; }
+  g.save();
+  g.scale(size / 2048, size / 2048);
+  g.fillStyle = '#FDCC0D';
+  g.fill(new Path2D(BOLT_PATH));
+  g.restore();
+}
+
+/** Samples points inside the mark at the given on-screen size, each with the mark's own color there. */
+function sampleMark(size: number, count: number, logo: HTMLImageElement | null): { x: number; y: number; c: string }[] {
   const c = document.createElement('canvas');
   c.width = c.height = size;
   const g = c.getContext('2d');
   if (!g) return [];
-  g.scale(size / 2048, size / 2048);
-  g.fillStyle = '#fff';
-  g.fill(new Path2D(BOLT_PATH));
+  drawMark(g, size, logo);
   const data = g.getImageData(0, 0, size, size).data;
-  const pts: { x: number; y: number }[] = [];
-  const step = Math.max(2, Math.floor(Math.sqrt((size * size * 0.32) / count)));
+  const pts: { x: number; y: number; c: string }[] = [];
+  const area = data.reduce((n, v, i) => (i % 4 === 3 && v > 128 ? n + 1 : n), 0);
+  const step = Math.max(2, Math.floor(Math.sqrt(area / count)));
   for (let y = 0; y < size; y += step) {
     for (let x = 0; x < size; x += step) {
-      if (data[(y * size + x) * 4 + 3] > 128) pts.push({ x: x / size - 0.5, y: y / size - 0.5 });
+      const i = (y * size + x) * 4;
+      if (data[i + 3] > 128) pts.push({ x: x / size - 0.5, y: y / size - 0.5, c: `rgb(${data[i]},${data[i + 1]},${data[i + 2]})` });
     }
   }
   return pts;
@@ -81,104 +94,110 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
-
-    let reduce = false;
-    try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch {}
-
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    const W = window.innerWidth, H = window.innerHeight;
-    canvas.width = W * dpr; canvas.height = H * dpr;
-    canvas.style.width = `${W}px`; canvas.style.height = `${H}px`;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    // Room below for the title and the partner row.
-    const boltSize = Math.min(W, H) * (W < 640 ? 0.42 : 0.33);
-    const cx = W / 2, cy = H * (W < 640 ? 0.27 : 0.33);
-    const count = W < 640 ? 650 : 1400;
-    const pts = sampleBolt(Math.round(boltSize), count);
-    const boltPath = new Path2D(BOLT_PATH);
-
-    const particles: Particle[] = pts.map((p) => {
-      // Spawn on a wide ring outside the viewport so the swarm streaks in.
-      const a = Math.random() * Math.PI * 2;
-      const r = Math.max(W, H) * (0.6 + Math.random() * 0.5);
-      return {
-        x: 0, y: 0,
-        sx: cx + Math.cos(a) * r, sy: cy + Math.sin(a) * r,
-        tx: cx + p.x * boltSize, ty: cy + p.y * boltSize,
-        c: COLORS[(Math.random() * COLORS.length) | 0],
-        d: Math.random() * 0.35,
-        s: Math.random() < 0.15 ? 2.2 : 1.3,
-      };
-    });
-
-    const start = performance.now();
     let raf = 0;
-    let ignited = false, titled = false;
+    let cancelled = false;
+    const logo = new Image();
+    const begin = (mark: HTMLImageElement | null) => { if (!cancelled) run(mark); };
+    logo.onload = () => begin(logo);
+    logo.onerror = () => begin(null);
+    logo.src = SUMMIT_LOGO;
 
-    const drawBolt = (alpha: number, glow: number) => {
-      ctx.save();
-      ctx.translate(cx - boltSize / 2, cy - boltSize / 2);
-      ctx.scale(boltSize / 2048, boltSize / 2048);
-      ctx.globalAlpha = alpha;
-      ctx.shadowColor = 'rgba(253, 204, 13, 0.9)';
-      ctx.shadowBlur = glow;
-      ctx.fillStyle = '#FDCC0D';
-      ctx.fill(boltPath);
-      ctx.restore();
-    };
+    const run = (mark: HTMLImageElement | null) => {
+      let reduce = false;
+      try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch {}
 
-    const frame = (now: number) => {
-      const t = now - start;
-      // Motion trails: fade the previous frame instead of clearing it.
-      ctx.fillStyle = 'rgba(5, 5, 5, 0.28)';
-      ctx.fillRect(0, 0, W, H);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const W = window.innerWidth, H = window.innerHeight;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      canvas.style.width = `${W}px`; canvas.style.height = `${H}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      // Holodeck horizon.
-      const hy = H * 0.52;
-      const grad = ctx.createLinearGradient(0, 0, W, 0);
-      grad.addColorStop(0, 'rgba(253,204,13,0)');
-      grad.addColorStop(0.5, `rgba(253,204,13,${0.25 + 0.2 * Math.sin(t / 300)})`);
-      grad.addColorStop(1, 'rgba(253,204,13,0)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, hy, W, 1);
+      // Room below for the title and the partner row.
+      const boltSize = Math.min(W, H) * (W < 640 ? 0.42 : 0.33);
+      const cx = W / 2, cy = H * (W < 640 ? 0.27 : 0.33);
+      const count = W < 640 ? 650 : 1400;
+      const pts = sampleMark(Math.round(boltSize), count, mark);
 
-      const swarmT = reduce ? 1 : Math.min(1, t / 1500);
-      ctx.globalCompositeOperation = 'lighter';
-      for (const p of particles) {
-        const local = Math.min(1, Math.max(0, (swarmT - p.d) / (1 - p.d)));
-        const k = easeInOutCubic(local);
-        p.x = p.sx + (p.tx - p.sx) * k;
-        p.y = p.sy + (p.ty - p.sy) * k;
-        // Settled particles shimmer like a live mesh.
-        const jitter = local >= 1 ? Math.sin(t / 90 + p.tx) * 0.6 : 0;
-        ctx.fillStyle = p.c;
-        ctx.fillRect(p.x + jitter, p.y, p.s, p.s);
-      }
-      ctx.globalCompositeOperation = 'source-over';
+      const particles: Particle[] = pts.map((p) => {
+        // Spawn on a wide ring outside the viewport so the swarm streaks in.
+        const a = Math.random() * Math.PI * 2;
+        const r = Math.max(W, H) * (0.6 + Math.random() * 0.5);
+        return {
+          x: 0, y: 0,
+          sx: cx + Math.cos(a) * r, sy: cy + Math.sin(a) * r,
+          tx: cx + p.x * boltSize, ty: cy + p.y * boltSize,
+          // the logo's own colors, with a few SGX sparks
+          c: mark && Math.random() < 0.82 ? p.c : COLORS[(Math.random() * COLORS.length) | 0],
+          d: Math.random() * 0.35,
+          s: Math.random() < 0.15 ? 2.2 : 1.3,
+        };
+      });
 
-      // Ignite: the real bolt fades in with emission and a shockwave rolls out.
-      if (t > 1450) {
-        if (!ignited) { ignited = true; setPhase('ignite'); }
-        const it = Math.min(1, (t - 1450) / 450);
-        drawBolt(easeOutCubic(it), 20 + 40 * Math.sin(Math.min(1, it) * Math.PI));
-        const wt = Math.min(1, (t - 1450) / 900);
-        if (wt < 1) {
-          ctx.beginPath();
-          ctx.strokeStyle = `rgba(0, 221, 255, ${0.8 * (1 - wt)})`;
-          ctx.lineWidth = 2;
-          ctx.arc(cx, cy, boltSize * 0.4 + easeOutCubic(wt) * Math.max(W, H) * 0.6, 0, Math.PI * 2);
-          ctx.stroke();
+      const start = performance.now();
+      let ignited = false, titled = false;
+
+      const drawLogo = (alpha: number, glow: number) => {
+        ctx.save();
+        ctx.translate(cx - boltSize / 2, cy - boltSize / 2);
+        ctx.globalAlpha = alpha;
+        ctx.shadowColor = 'rgba(253, 204, 13, 0.75)';
+        ctx.shadowBlur = glow;
+        drawMark(ctx, boltSize, mark);
+        ctx.restore();
+      };
+
+      const frame = (now: number) => {
+        const t = now - start;
+        // Motion trails: fade the previous frame instead of clearing it.
+        ctx.fillStyle = 'rgba(5, 5, 5, 0.28)';
+        ctx.fillRect(0, 0, W, H);
+
+        // Holodeck horizon.
+        const hy = H * 0.52;
+        const grad = ctx.createLinearGradient(0, 0, W, 0);
+        grad.addColorStop(0, 'rgba(253,204,13,0)');
+        grad.addColorStop(0.5, `rgba(253,204,13,${0.25 + 0.2 * Math.sin(t / 300)})`);
+        grad.addColorStop(1, 'rgba(253,204,13,0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, hy, W, 1);
+
+        const swarmT = reduce ? 1 : Math.min(1, t / 1500);
+        ctx.globalCompositeOperation = 'lighter';
+        for (const p of particles) {
+          const local = Math.min(1, Math.max(0, (swarmT - p.d) / (1 - p.d)));
+          const k = easeInOutCubic(local);
+          p.x = p.sx + (p.tx - p.sx) * k;
+          p.y = p.sy + (p.ty - p.sy) * k;
+          // Settled particles shimmer like a live mesh.
+          const jitter = local >= 1 ? Math.sin(t / 90 + p.tx) * 0.6 : 0;
+          ctx.fillStyle = p.c;
+          ctx.fillRect(p.x + jitter, p.y, p.s, p.s);
         }
-      }
-      if (t > 1850 && !titled) { titled = true; setPhase('title'); }
-      if (t > TOTAL_MS) { finish(); return; }
+        ctx.globalCompositeOperation = 'source-over';
+
+        // Ignite: the real logo fades in with emission and a shockwave rolls out.
+        if (t > 1450) {
+          if (!ignited) { ignited = true; setPhase('ignite'); }
+          const it = Math.min(1, (t - 1450) / 450);
+          drawLogo(easeOutCubic(it), 20 + 40 * Math.sin(Math.min(1, it) * Math.PI));
+          const wt = Math.min(1, (t - 1450) / 900);
+          if (wt < 1) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(0, 221, 255, ${0.8 * (1 - wt)})`;
+            ctx.lineWidth = 2;
+            ctx.arc(cx, cy, boltSize * 0.4 + easeOutCubic(wt) * Math.max(W, H) * 0.6, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        }
+        if (t > 1850 && !titled) { titled = true; setPhase('title'); }
+        if (t > TOTAL_MS) { finish(); return; }
+        raf = requestAnimationFrame(frame);
+      };
+      ctx.fillStyle = '#050505';
+      ctx.fillRect(0, 0, W, H);
       raf = requestAnimationFrame(frame);
     };
-    ctx.fillStyle = '#050505';
-    ctx.fillRect(0, 0, W, H);
-    raf = requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(raf);
+    return () => { cancelled = true; cancelAnimationFrame(raf); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

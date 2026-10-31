@@ -119,6 +119,7 @@ export const SummitCoreFooterBar: React.FC<{ onOpenPrivacy: () => void }> = ({ o
   const es = language === 'es';
   return (
     <footer className="sgx-corefoot">
+      <img className="sgx-corefoot__logo" src="/holo/sgxLogo.png" alt="Spatialgineers" width={26} height={25} loading="lazy" />
       <span className="sgx-corefoot__copy">© 2026 Spatialgineers LLC</span>
       <a className="sgx-corefoot__link" href={`mailto:${SGX_EMAIL}`}>{SGX_EMAIL}</a>
       <button type="button" className="sgx-corefoot__link" onClick={() => { playUiChirp(820); onOpenPrivacy(); }}>

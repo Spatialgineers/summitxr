@@ -5,6 +5,7 @@ import { EYELIDS, PILOT_TEXTURES, TILE_SIZES, etchInk, etchSrc, normalizePilot, 
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { ANATOMY, buildGear } from './highbotGear';
 import { loadSgxIcon } from './sgxIcon3d';
+import { DRACO_DECODERS, PILLAR_GLB } from '../lib/sgxModels';
 import type { Plate } from './pilotAvatar';
 
 /* HIGHBOT 3D: the Nomad model (public/characters/highbot/highbot.glb, meshopt
@@ -293,14 +294,6 @@ function loadTex(url: string, srgb: boolean): Promise<THREE.Texture | null> {
 /* ---------- the pillar's 3D emblem (the same .glb as the core's pillars) ----------
    Two pieces each: the SGX-blue body and the SGX-yellow mark. Baked, centered
    and sized to 1 unit across, cached per pillar and shared by every bot. */
-const PILLAR_GLB: Record<Exclude<Plate, 'SGX'>, string> = {
-  STORY: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Story%20opt.glb',
-  SHOWCASE: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Showcase%20opt.glb',
-  SPARK: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Spark%20Opt.glb',
-  STAGE: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Stage%20opt.glb',
-  SYSTEM: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/System%20opt.glb',
-  SYNTHESIZE: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/Synthesize%20opt.glb',
-};
 interface EmblemParts { blue: THREE.BufferGeometry[]; yellow: THREE.BufferGeometry[] }
 const emblemCache = new Map<Plate, Promise<EmblemParts | null>>();
 let draco: DRACOLoader | null = null;
@@ -325,7 +318,7 @@ function loadEmblem(plate: Plate): Promise<EmblemParts | null> {
   } else {
     job = new Promise((resolve) => {
       const loader = new GLTFLoader();
-      draco ||= new DRACOLoader().setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+      draco ||= new DRACOLoader().setDecoderPath(DRACO_DECODERS);
       loader.setDRACOLoader(draco);
       loader.load(PILLAR_GLB[plate], (gltf) => {
         gltf.scene.updateMatrixWorld(true);

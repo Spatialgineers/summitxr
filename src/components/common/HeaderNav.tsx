@@ -134,8 +134,8 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentPage, onNavigate })
             }}
             aria-label={es ? 'Spatialgineers Summit 2026: inicio' : 'Spatialgineers Summit 2026: home'}
           >
-            <img src="https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG" alt="" className="sgx-hdr__logo" />
-            <img src="https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png" alt="" className="sgx-hdr__mark" />
+            {/* only the Summit logo up here; the Spatialgineers logo lives in the footer */}
+            <img src="/brand/summit-logo.png" alt="" className="sgx-hdr__mark" />
             <span className="sgx-hdr__brand-text">
               <b>Spatialgineers Summit 2026</b>
               <small>{es ? '11–13 dic · Puerto Rico' : 'Dec 11–13 · Puerto Rico'}</small>

@@ -1,0 +1,37 @@
+/* Modelos 3D (SgxModelsViewer.tsx): the stage, the piece's name, the picker. */
+.sgx-models__body { display: flex; flex-direction: column; gap: 14px; }
+.sgx-models__stage {
+  position: relative; height: min(52vh, 460px); min-height: 280px;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 45%, color-mix(in srgb, var(--model-accent, #fdcc0d) 14%, transparent), transparent 70%),
+    linear-gradient(180deg, #0d1016, #050505);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.sgx-models__canvas { position: absolute; inset: 0; cursor: grab; touch-action: none; }
+.sgx-models__canvas:active { cursor: grabbing; }
+.sgx-models__canvas canvas { display: block; width: 100%; height: 100%; }
+.sgx-models__state {
+  position: absolute; inset: 0; display: grid; place-items: center; margin: 0; pointer-events: none;
+  font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.7);
+}
+.sgx-models__hint {
+  position: absolute; left: 0; right: 0; bottom: 10px; margin: 0; text-align: center; pointer-events: none;
+  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.06em; color: rgba(255, 255, 255, 0.55);
+}
+.sgx-models__name { margin: 0; font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; }
+.sgx-models__desc { margin: 4px 0 0; font-size: 0.92rem; line-height: 1.5; color: rgba(255, 255, 255, 0.75); }
+.sgx-models__picker { display: flex; flex-wrap: wrap; gap: 8px; }
+.sgx-models__picker button {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 12px;
+  background: #0d0f13; border: 1px solid rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.82); cursor: pointer;
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.sgx-models__picker button:hover { border-color: var(--model-color); }
+.sgx-models__picker button:focus-visible { outline: 2px solid var(--SGX_Cyan, #00ddff); outline-offset: 2px; }
+.sgx-models__picker button.is-on { border-color: var(--SGX_Yellow, #fdcc0d); color: #fff; box-shadow: 0 0 0 1px var(--SGX_Yellow, #fdcc0d); }
+.sgx-models__dot { width: 10px; height: 10px; border-radius: 50%; background: var(--model-color); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25); }
+@media (max-width: 639px) {
+  .sgx-models__stage { height: 300px; min-height: 0; }
+  .sgx-models__picker button { flex: 1 1 calc(50% - 8px); justify-content: flex-start; }
+}

@@ -37,9 +37,15 @@ interface Props {
   compact?: boolean;
 }
 
+/* React 19 rewrites innerHTML whenever the {__html} object is new, even with the same text:
+   a re-render between a tap's pointerup and its click would replace the node under the
+   finger and the tap would be lost. So the markup is keyed on the bot's content and the
+   {__html} object is kept stable. */
 const Svg: React.FC<{ c: PilotConfig; size: number; className?: string; animate?: boolean; vector?: boolean }> = ({ c, size, className, animate, vector }) => {
-  const html = useMemo(() => pilotSvg(c, { size, animate, vector }), [c, size, animate, vector]);
-  return <span className={className} style={{ display: 'block', width: size, height: size * 1.2, lineHeight: 0 }} dangerouslySetInnerHTML={{ __html: html }} />;
+  const look = JSON.stringify(c);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const inner = useMemo(() => ({ __html: pilotSvg(c, { size, animate, vector }) }), [look, size, animate, vector]);
+  return <span className={className} style={{ display: 'block', width: size, height: size * 1.2, lineHeight: 0 }} dangerouslySetInnerHTML={inner} />;
 };
 
 export const PilotBuilder: React.FC<Props> = ({ value: raw, onChange, accent, callsign, compact = false }) => {

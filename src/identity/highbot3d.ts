@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
-import { EYELIDS, MOUTHS, PILOT_TEXTURES, TILE_SIZES, normalizePilot, plateSrc, type ColorGroup, type Eyelid, type PartId, type PilotConfig } from './pilotAvatar';
+import { EYELIDS, MOUTHS, PILOT_TEXTURES, TILE_SIZES, etchInk, etchSrc, normalizePilot, plateSrc, type ColorGroup, type Eyelid, type PartId, type PilotConfig } from './pilotAvatar';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { ANATOMY, buildGear } from './highbotGear';
 import { loadSgxIcon } from './sgxIcon3d';
@@ -72,52 +72,76 @@ function classify(m: THREE.Object3D): Kind {
   return { k: 'other' };
 }
 
-/* ---------- surface: brushed metal everywhere, the SGX tile mixed into the body ----------
-   Both are projected from three sides in model space (triplanar), so prints
-   have one size on every piece. The brush only breaks up the roughness (the
-   base stays 0.2); the tile tints the chosen color instead of replacing it. */
-const TILE = 0.42;
+/* ---------- surface: brushed metal everywhere, the SGX motif etched into the torso ----------
+   Both are projected from three sides in model space (triplanar), so they keep
+   one size on every face. The brush only breaks up the roughness (the base
+   stays 0.2). The motif is a mask (public/pilot/tex/etch) cut at 0.5 with a
+   one-pixel soft edge, so it stays crisp at any zoom; it takes the bot's own
+   ink (body tone, trim or the eyes' light) and a satin finish, like an etch. */
 const BRUSH_TILE = 0.3;
+/** The middle of the chest: the motif is centered on it. */
+const CHEST = new THREE.Vector3(0, 0.635, -0.04);
 const TRI = `
 vec4 sgxTri(sampler2D t, vec3 p, vec3 n) {
-  vec3 w = pow(abs(n), vec3(5.0));
+  vec3 w = pow(abs(n), vec3(10.0));
   w /= (w.x + w.y + w.z + 1e-5);
   vec4 a = texture2D(t, vec2(-p.z * (n.x >= 0.0 ? 1.0 : -1.0), p.y));
   vec4 b = texture2D(t, vec2(p.x, -p.z * (n.y >= 0.0 ? 1.0 : -1.0)));
   vec4 c = texture2D(t, vec2(p.x * (n.z >= 0.0 ? 1.0 : -1.0), p.y));
   return a * w.x + b * w.y + c * w.z;
 }`;
-function sgxSurface(mat: THREE.MeshStandardMaterial, brush: THREE.Texture | null, tile: { map: THREE.Texture; gain: number; size: number } | null) {
-  if (!brush && !tile) return;
-  mat.customProgramCacheKey = () => `sgx-hb-${tile ? 't' : ''}${brush ? 'b' : ''}`;
+/** clear: circles (x, y, radius) the motif stays out of: on the chest front the gear and the marks (or a
+    chest emblem), on the back the back gear. */
+interface Etch { map: THREE.Texture; size: number; ink: THREE.Color; glow: number; satin: number; clear: [THREE.Vector3, THREE.Vector3, THREE.Vector3] }
+function sgxSurface(mat: THREE.MeshStandardMaterial, brush: THREE.Texture | null, etch: Etch | null = null) {
+  if (!brush && !etch) return;
+  mat.customProgramCacheKey = () => `sgx-hb-${etch ? 'e' : ''}${brush ? 'b' : ''}`;
   mat.onBeforeCompile = (sh) => {
-    sh.uniforms.uTile = { value: TILE * (tile?.size ?? 1) };
-    sh.uniforms.uGain = { value: tile?.gain ?? 1 };
-    sh.uniforms.uTileMap = { value: tile?.map ?? null };
     sh.uniforms.uBrush = { value: brush };
     sh.uniforms.uBrushTile = { value: BRUSH_TILE };
+    sh.uniforms.uEtch = { value: etch?.map ?? null };
+    sh.uniforms.uEtchSize = { value: etch?.size ?? 1 };
+    sh.uniforms.uEtchCenter = { value: CHEST };
+    sh.uniforms.uInk = { value: etch?.ink ?? new THREE.Color() };
+    sh.uniforms.uGlow = { value: etch?.glow ?? 0 };
+    sh.uniforms.uSatin = { value: etch?.satin ?? 0 };
+    sh.uniforms.uClearA = { value: etch?.clear[0] ?? new THREE.Vector3() };
+    sh.uniforms.uClearB = { value: etch?.clear[1] ?? new THREE.Vector3() };
+    sh.uniforms.uClearC = { value: etch?.clear[2] ?? new THREE.Vector3() };
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', '#include <common>\nattribute vec3 triPos;\nattribute vec3 triNrm;\nvarying vec3 vTriPos;\nvarying vec3 vTriNrm;')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvTriPos = triPos;\nvTriNrm = triNrm;');
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', `#include <common>
-uniform float uTile; uniform float uGain; uniform float uBrushTile;
-${tile ? 'uniform sampler2D uTileMap;' : ''} ${brush ? 'uniform sampler2D uBrush;' : ''}
+uniform float uBrushTile;
+${brush ? 'uniform sampler2D uBrush;' : ''}
+${etch ? 'uniform sampler2D uEtch; uniform float uEtchSize; uniform vec3 uEtchCenter; uniform vec3 uInk; uniform float uGlow; uniform float uSatin; uniform vec3 uClearA; uniform vec3 uClearB; uniform vec3 uClearC;' : ''}
 varying vec3 vTriPos; varying vec3 vTriNrm;
 ${TRI}`)
-      .replace('#include <map_fragment>', tile ? `#include <map_fragment>
+      .replace('#include <map_fragment>', etch ? `#include <map_fragment>
+  float sgxEtch;
   {
-    vec3 tt = sgxTri(uTileMap, vTriPos / uTile, normalize(vTriNrm)).rgb * uGain;
-    diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * 0.35 + tt * 0.65, 0.55);
+    float a = sgxTri(uEtch, (vTriPos - uEtchCenter) / uEtchSize + 0.5, normalize(vTriNrm)).a;
+    float w = max(fwidth(a), 1e-4) * 0.75;
+    sgxEtch = smoothstep(0.5 - w, 0.5 + w, a);
+    // a clean margin around what sits on the chest front
+    float cA = uClearA.z > 0.0 ? smoothstep(uClearA.z, uClearA.z + 0.01, distance(vTriPos.xy, uClearA.xy)) : 1.0;
+    float cB = uClearB.z > 0.0 ? smoothstep(uClearB.z, uClearB.z + 0.01, distance(vTriPos.xy, uClearB.xy)) : 1.0;
+    float cC = smoothstep(uClearC.z, uClearC.z + 0.01, distance(vTriPos.xy, uClearC.xy));
+    sgxEtch *= mix(1.0, cA * cB, step(0.12, vTriPos.z)) * mix(1.0, cC, step(0.2, -vTriPos.z));
+    diffuseColor.rgb = mix(diffuseColor.rgb, uInk, sgxEtch);
   }` : '#include <map_fragment>')
-      .replace('#include <roughnessmap_fragment>', brush ? `float roughnessFactor = roughness;
-  roughnessFactor *= mix(0.6, 1.45, sgxTri(uBrush, vTriPos / uBrushTile, normalize(vTriNrm)).g);` : '#include <roughnessmap_fragment>');
+      .replace('#include <roughnessmap_fragment>', `float roughnessFactor = roughness;
+  ${brush ? 'roughnessFactor *= mix(0.6, 1.45, sgxTri(uBrush, vTriPos / uBrushTile, normalize(vTriNrm)).g);' : ''}
+  ${etch ? 'roughnessFactor = mix(roughnessFactor, 0.55, sgxEtch * uSatin);' : ''}`)
+      .replace('#include <emissivemap_fragment>', etch ? `#include <emissivemap_fragment>
+  totalEmissiveRadiance += uInk * sgxEtch * uGlow;` : '#include <emissivemap_fragment>');
   };
 }
 
 let brushPromise: Promise<THREE.Texture | null> | null = null;
 /** The brushed-metal grain (shared by every bot, never disposed). */
-const brushTexture = () => (brushPromise ||= loadTile('metal-cepillado'));
+const brushTexture = () => (brushPromise ||= loadTex('/pilot/tex/metal-cepillado.png', true));
 
 /* ---------- the shared model (loaded once, normals and triplanar baked once) ---------- */
 let basePromise: Promise<THREE.Group> | null = null;
@@ -214,10 +238,10 @@ function plateTexture(src: string): Promise<THREE.Texture> {
   });
 }
 
-function loadTile(file: string): Promise<THREE.Texture | null> {
-  if (!file) return Promise.resolve(null);
-  return new Promise((res) => new THREE.TextureLoader().load(`/pilot/tex/${file}.png`, (t) => {
-    t.colorSpace = THREE.SRGBColorSpace;
+/** A repeating texture: the brush grain (color) or a motif mask (data, read from alpha). */
+function loadTex(url: string, srgb: boolean): Promise<THREE.Texture | null> {
+  return new Promise((res) => new THREE.TextureLoader().load(url, (t) => {
+    if (srgb) t.colorSpace = THREE.SRGBColorSpace;
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
     t.anisotropy = 4;
     res(t);
@@ -298,18 +322,28 @@ export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
   const disposables: { dispose: () => void }[] = [];
   const keep = <T extends { dispose: () => void }>(x: T) => { disposables.push(x); return x; };
   // every bot is brushed metal: metalness 0.4, roughness 0.2, with the brush grain in the roughness
-  const [brush, tile] = await Promise.all([brushTexture(), loadTile(PILOT_TEXTURES[c.pattern]?.file || '')]);
-  if (tile) keep(tile);
-  const tex = PILOT_TEXTURES[c.pattern];
-  const metal = (color: string, withTile = false) => {
+  const motif = PILOT_TEXTURES.find((t) => t.id === c.pattern && t.id);
+  const [brush, mask] = await Promise.all([brushTexture(), motif ? loadTex(etchSrc(motif.id), false) : Promise.resolve(null)]);
+  if (mask) keep(mask);
+  const metal = (color: string, etch: Etch | null = null) => {
     const mat = keep(new THREE.MeshStandardMaterial({ color, metalness: 0.4, roughness: 0.2 }));
-    sgxSurface(mat, brush, withTile && tile ? { map: tile, gain: Math.min(2.2, tex.gain ?? 1), size: (tex.scale ?? 1) * TILE_SIZES[c.tile].mult } : null);
+    sgxSurface(mat, brush, etch);
     return mat;
   };
+  // the motif goes on the torso only, in the bot's own colors
+  const chestRelic = c.relic === 'chest';
+  const A = ANATOMY.chest;
+  const backGear = new THREE.Vector3(ANATOMY.back.gear.x, ANATOMY.back.gear.y, ANATOMY.back.r + 0.025);
+  const clear: [THREE.Vector3, THREE.Vector3, THREE.Vector3] = chestRelic
+    ? [new THREE.Vector3(A.center.x, A.center.y, 0.215), new THREE.Vector3(), backGear]
+    : [new THREE.Vector3(A.gear.x, A.gear.y, 0.1), new THREE.Vector3(0.15, 0.72, c.parts.chestDecor ? 0.08 : 0), backGear];
+  const torso = mask && motif
+    ? metal(c.colors.shell, { clear, map: mask, size: TILE_SIZES[c.tile].size * (motif.per ?? 4), ink: new THREE.Color(etchInk(c)), glow: c.ink === 'glow' ? 1.2 : 0, satin: c.ink === 'tone' ? 1 : c.ink === 'trim' ? 0.6 : 0.35 })
+    : null;
   // eyelids are the shell's skin, but plain so the face reads
   const lids = metal(c.colors.shell);
   const mats: Record<ColorGroup | 'pupil', THREE.Material> = {
-    shell: metal(c.colors.shell, true),
+    shell: metal(c.colors.shell),
     trim: metal(c.colors.trim),
     joints: metal(c.colors.joints),
     mask: metal(c.colors.mask),
@@ -337,15 +371,15 @@ export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
     joints: plainMetal(c.colors.joints),
     dark: plainMetal('#121417'),
     glow: keep(new THREE.MeshBasicMaterial({ color: c.colors.iris, toneMapped: false })),
-    lens: keep(new THREE.MeshBasicMaterial({ color: c.colors.iris, toneMapped: false, transparent: true, opacity: 0.88, side: THREE.DoubleSide })),
+    // tinted glass: dark, glossy (it catches the room), lit from inside in the eyes' color
+    lens: keep(new THREE.MeshStandardMaterial({ color: new THREE.Color(c.colors.iris).multiplyScalar(0.1), emissive: new THREE.Color(c.colors.iris), emissiveIntensity: 0.16, metalness: 0.85, roughness: 0.05, transparent: true, opacity: 0.96, side: THREE.DoubleSide })),
     glassTint: keep(new THREE.MeshBasicMaterial({ color: c.colors.iris, transparent: true, opacity: 0.18, depthWrite: false, side: THREE.DoubleSide })),
     glowSoft: keep(new THREE.MeshBasicMaterial({ color: c.colors.iris, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false })),
   };
   const gear = buildGear(c.headgear, c.visor, gearMats, { ears: c.parts.ears, antennaForRelic: c.relic === 'antenna' });
   gear.geometries.forEach(keep);
   const eyesHidden = gear.coversEyes;
-  // a chest emblem replaces the flat chest gear, its disc and the marks
-  const chestRelic = c.relic === 'chest';
+  // a chest emblem replaces the flat chest gear, its disc and the marks (chestRelic, above)
 
   model.traverse((o) => {
     const name = baseName(o.name || '');
@@ -360,7 +394,8 @@ export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
     if (chestRelic && (names.includes('gear front') || part === 'chestDecor' || (kind?.k === 'plate' && kind.side === 'front'))) m.visible = false;
     if (c.relic === 'back' && kind?.k === 'plate' && kind.side === 'back') m.visible = false;
     switch (kind?.k) {
-      case 'group': m.material = mats[kind.g]; break;
+      // the torso is the Body node's own mesh (an unnamed node: three names it after its mesh, "Body")
+      case 'group': m.material = torso && names[0] === 'body' && names[1] === 'body' ? torso : mats[kind.g]; break;
       case 'eyelid': m.material = lids; (eyelids[kind.v] ||= []).push(m); m.visible = !eyesHidden && kind.v === lidNode; break;
       case 'mouth': m.material = mouthMat; m.visible = kind.v === mouthNode; break;
       case 'plate': m.material = plateMat[kind.side]; break;

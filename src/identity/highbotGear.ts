@@ -37,7 +37,7 @@ export interface GearMats {
   joints: THREE.Material;
   dark: THREE.Material;
   glow: THREE.MeshBasicMaterial;
-  lens: THREE.MeshBasicMaterial;
+  lens: THREE.MeshStandardMaterial;
   glassTint: THREE.MeshBasicMaterial;
   glowSoft: THREE.MeshBasicMaterial;
 }

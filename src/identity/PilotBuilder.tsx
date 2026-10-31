@@ -2,8 +2,8 @@ import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'rea
 import { useLanguage } from '../context/LanguageContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import {
-  BOT_SWATCHES, COLOR_GROUPS, EYELIDS, HEADGEAR, HIGHBOT_PRESETS, MOUTHS, PARTS, PILOT_TEXTURES, PLATES, RELIC_MOUNTS, SOCKET_GEAR, TILE_SIZES, TOP_GEAR, VISORS,
-  normalizePilot, pilotSvg, randomPilot, varyPilot, type PilotConfig,
+  BOT_SWATCHES, COLOR_GROUPS, EYELIDS, HEADGEAR, HIGHBOT_PRESETS, INKS, MOUTHS, PARTS, PILOT_TEXTURES, PLATES, RELIC_MOUNTS, SOCKET_GEAR, TILE_SIZES, TOP_GEAR, VISORS,
+  etchInk, etchSrc, normalizePilot, pilotSvg, randomPilot, varyPilot, type PilotConfig,
 } from './pilotAvatar';
 
 // three.js only loads when the 3D view is on screen.
@@ -13,7 +13,7 @@ const SgxPilot3D = lazy(() => import('./SgxPilot3D').then((m) => ({ default: m.S
    choose which parts it keeps (no ears, whiskers or mask: a plain bot), its
    headgear and visor, eyelids and mouth, the pillar on the chest gear and the
    logo on the back gear, colors per part group (official SGX palette) and an
-   SGX tile mixed into the body color at one of four sizes. "Sorpresa" rolls a
+   SGX motif on the torso, in the bot's own colors, at one of four sizes. "Sorpresa" rolls a
    new bot and "Variar" nudges one or two things. */
 
 type Tab = 'bots' | 'parts' | 'face' | 'plates' | 'colors' | 'texture';
@@ -229,20 +229,28 @@ export const PilotBuilder: React.FC<Props> = ({ value: raw, onChange, accent, ca
 
         {tab === 'texture' && (
           <div className="sgx-pilotb__part">
-            <p className="sgx-pilotb__hint">{es ? 'El patrón se mezcla con el color del cuerpo. Todos los bots son de metal cepillado.' : 'The pattern mixes into the body color. Every bot is brushed metal.'}</p>
-            <span className="sgx-pilotb__colorlabel">{es ? 'Tamaño del patrón' : 'Pattern size'}</span>
-            <div className="sgx-pilotb__chips" role="listbox" aria-label={es ? 'Tamaño del patrón' : 'Pattern size'}>
+            <p className="sgx-pilotb__hint">{es ? 'El patrón va solo en el torso, en los colores de tu bot. Todos los bots son de metal cepillado.' : "The motif goes on the torso only, in your bot's colors. Every bot is brushed metal."}</p>
+            <span className="sgx-pilotb__colorlabel">{es ? 'Acabado' : 'Finish'}</span>
+            <div className="sgx-pilotb__chips" role="listbox" aria-label={es ? 'Acabado del patrón' : 'Motif finish'}>
+              {INKS.map((k) => (
+                <button key={k.id} type="button" role="option" aria-selected={value.ink === k.id} className={value.ink === k.id ? 'is-on' : ''} onClick={() => set({ ...value, ink: k.id })}>{N(k)}</button>
+              ))}
+            </div>
+            <span className="sgx-pilotb__colorlabel">{es ? 'Tamaño del patrón' : 'Motif size'}</span>
+            <div className="sgx-pilotb__chips" role="listbox" aria-label={es ? 'Tamaño del patrón' : 'Motif size'}>
               {TILE_SIZES.map((t, i) => (
                 <button key={t.en} type="button" role="option" aria-selected={value.tile === i} className={value.tile === i ? 'is-on' : ''} onClick={() => set({ ...value, tile: i })}>{N(t)}</button>
               ))}
             </div>
-            <span className="sgx-pilotb__colorlabel">{es ? 'Textura del cuerpo' : 'Body texture'}</span>
-            <div className="sgx-pilotb__plates sgx-pilotb__plates--tex" role="listbox" aria-label={es ? 'Textura' : 'Texture'}>
-              {PILOT_TEXTURES.map((t, i) => {
-                const on = value.pattern === i;
+            <span className="sgx-pilotb__colorlabel">{es ? 'Patrón del torso' : 'Torso motif'}</span>
+            <div className="sgx-pilotb__plates sgx-pilotb__plates--tex" role="listbox" aria-label={es ? 'Patrón del torso' : 'Torso motif'}>
+              {PILOT_TEXTURES.map((t) => {
+                const on = value.pattern === t.id;
                 return (
-                  <button key={t.file || 'plain'} type="button" role="option" aria-selected={on} className={on ? 'is-on' : ''} title={N(t)} onClick={() => set({ ...value, pattern: i })}>
-                    {t.file ? <img src={`/pilot/tex/${t.file}.png`} alt="" /> : <span className="sgx-pilotb__plain" style={{ background: value.colors.shell }} />}
+                  <button key={t.id || 'plain'} type="button" role="option" aria-selected={on} className={on ? 'is-on' : ''} title={N(t)} onClick={() => set({ ...value, pattern: t.id })}>
+                    {t.id
+                      ? <span className="sgx-pilotb__etch" style={{ background: value.colors.shell, ['--ink' as string]: etchInk(value), ['--mask' as string]: `url(${etchSrc(t.id)})`, ['--mask-size' as string]: `${Math.round(16 * (t.per ?? 4))}px` }} />
+                      : <span className="sgx-pilotb__plain" style={{ background: value.colors.shell }} />}
                     <span>{N(t)}</span>
                   </button>
                 );

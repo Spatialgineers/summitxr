@@ -43,12 +43,18 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
     for (let i = 0; i < 8; i++) { await p.click('.sgx-pilotb__rolls button >> nth=0'); await p.waitForTimeout(120); shots.add(await p.$eval('.sgx-pilotb__preview', (e) => e.innerHTML.replace(/hb\d+/g, ''))); }
     check(`${name}: Sorpresa gives a new bot every time`, shots.size === 8, `(${shots.size}/8 distinct)`);
     await p.click('.sgx-pilotb__rolls button >> nth=2'); // undo
+    // a torso motif, lit in the eyes' color
+    await p.click('.sgx-pilotb__tabs button:has-text("Textura")');
+    await p.click('.sgx-pilotb__chips >> nth=0 >> button:has-text("Luz")');
+    await p.click('.sgx-pilotb__plates--tex button[title="Circuito"]');
+    await p.waitForTimeout(200);
     await p.screenshot({ path: `${OUT}/p_${name}_built.png` });
     const chosen = await p.$eval('.sgx-pilotb__preview', (e) => e.innerHTML.replace(/hb\d+/g, ''));
     await p.click('text=/Forjar mi SGX Pass|Forge my SGX Pass/');
     await p.waitForTimeout(4500);
     const stored = await p.evaluate(() => JSON.parse(localStorage.getItem('sgx_identity_v1') || '{}').avatar?.pilot || null);
     check(`${name}: Highbot saved with the pass`, !!stored && stored.v === 2 && typeof stored.eyelid === 'string' && !!stored.colors, JSON.stringify(stored).slice(0, 80));
+    check(`${name}: torso motif saved by id with its finish`, stored?.pattern === 'circuito' && stored?.ink === 'glow', `${stored?.pattern}/${stored?.ink}`);
     await p.screenshot({ path: `${OUT}/p_${name}_pass.png` });
     await p.keyboard.press('Escape');
     await p.waitForTimeout(500);

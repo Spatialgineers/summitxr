@@ -3,9 +3,10 @@
    which parts it keeps (without ears, whiskers and mask it is a plain bot),
    headgear and a visor (the 3D gear of the old XR avatar, fitted to the
    Highbot head), eyelids, mouth, the pillar on the chest gear and the logo on
-   the back gear, colors per part group and an SGX tile mixed into the body
-   color at one of four sizes. Every bot is brushed metal (metalness 0.4,
-   roughness 0.2). Presets are different bots built that way.
+   the back gear, colors per part group and an SGX motif etched into the
+   torso (only the torso), in the bot's own colors, at one of four sizes.
+   Every bot is brushed metal (metalness 0.4, roughness 0.2). Presets are
+   different bots built that way.
    The 3D figure is built in highbot3d.ts; flat places (header, chat, Holo Card,
    pass PDF) show a rendered portrait (highbotPortrait.ts), with a vector
    silhouette until it is ready or when WebGL is missing.
@@ -40,9 +41,11 @@ export interface PilotConfig {
   /** the big plate on the back gear */
   back: Plate;
   colors: PilotColors;
-  /** SGX tile mixed into the body color (index in PILOT_TEXTURES, 0 = plain) */
-  pattern: number;
-  /** tile size: 0 fine, 1 medium, 2 large, 3 XL */
+  /** SGX motif etched into the torso (id in PILOT_TEXTURES, '' = plain) */
+  pattern: string;
+  /** how the motif is drawn: body tone, trim color or the eyes' light */
+  ink: Ink;
+  /** motif size: 0 fine, 1 medium, 2 large, 3 XL */
   tile: number;
   /** model parts kept on (off: a plainer bot) */
   parts: PilotParts;
@@ -53,6 +56,14 @@ export interface PilotConfig {
   /** where the bot carries the 3D emblem of its chest pillar (the Summit logo: the SGX icon) */
   relic: RelicMount;
 }
+
+export type Ink = 'tone' | 'trim' | 'glow';
+/** The motif's finish: etched in the body's own tone, in the trim color, or lit in the eyes' color. */
+export const INKS: { id: Ink; es: string; en: string }[] = [
+  { id: 'tone', es: 'Grabado', en: 'Etched' },
+  { id: 'trim', es: 'Acento', en: 'Accent' },
+  { id: 'glow', es: 'Luz', en: 'Light' },
+];
 
 export type RelicMount = 'none' | 'chest' | 'back' | 'hand' | 'orbit' | 'antenna';
 /** The pillar's 3D emblem (the same .glb as the core) and where it goes. */
@@ -116,39 +127,48 @@ export const VISORS: { es: string; en: string }[] = [
   { es: 'Banda LED', en: 'LED band' },
   { es: 'T-visor mecha', en: 'Mech T-visor' },
 ];
-/** Pattern sizes: a multiplier on each tile's own scale. */
-export const TILE_SIZES: { mult: number; es: string; en: string }[] = [
-  { mult: 0.55, es: 'Fino', en: 'Fine' },
-  { mult: 1, es: 'Medio', en: 'Medium' },
-  { mult: 1.6, es: 'Grande', en: 'Large' },
-  { mult: 2.4, es: 'XL', en: 'XL' },
+/** Motif sizes on the torso: the width of one motif, in model units (the torso is ~0.53 wide). */
+export const TILE_SIZES: { size: number; es: string; en: string }[] = [
+  { size: 0.085, es: 'Fino', en: 'Fine' },
+  { size: 0.13, es: 'Medio', en: 'Medium' },
+  { size: 0.2, es: 'Grande', en: 'Large' },
+  { size: 0.32, es: 'XL', en: 'XL' },
 ];
 
-/* Seamless SGX tiles (from the SGX Tile Lab). 0 = plain. gain lifts the darker
-   tiles so they read; scale evens out the motif size across tiles. */
-export const PILOT_TEXTURES: { file: string; es: string; en: string; gain?: number; scale?: number }[] = [
-  { file: '', es: 'Liso', en: 'Plain' },
-  { file: 'sgx-story', es: 'SGX.Story', en: 'SGX.Story', gain: 1.98, scale: 1.3 },
-  { file: 'sgx-showcase', es: 'SGX.Showcase', en: 'SGX.Showcase', gain: 2.71, scale: 1.3 },
-  { file: 'sgx-spark', es: 'SGX.Spark', en: 'SGX.Spark', gain: 2.57, scale: 1.3 },
-  { file: 'sgx-stage', es: 'SGX.Stage', en: 'SGX.Stage', gain: 2.26, scale: 1.3 },
-  { file: 'sgx-system', es: 'SGX.System', en: 'SGX.System', gain: 2.32, scale: 1.3 },
-  { file: 'sgx-synthesize', es: 'SGX.Synthesize', en: 'SGX.Synthesize', gain: 2.21, scale: 1.3 },
-  { file: 'los-seis-pilares', es: 'Seis pilares', en: 'Six pillars', gain: 2.32, scale: 1.3 },
-  { file: 'engranajes-sgx', es: 'Engranajes SGX', en: 'SGX gears', gain: 0.74, scale: 1.05 },
-  { file: 'engranaje-g', es: 'Engranaje G', en: 'G gear', gain: 0.72, scale: 1.05 },
-  { file: 'engranajes-entrelazados', es: 'Engranajes', en: 'Meshed gears', gain: 0.95 },
-  { file: 'rayos-sgx', es: 'Rayos SGX', en: 'SGX bolts', gain: 1.08 },
-  { file: 'rayos-nocturnos', es: 'Rayos nocturnos', en: 'Night bolts', gain: 2.32 },
-  { file: 'panel-hud', es: 'Panel HUD', en: 'HUD panel', gain: 1.03, scale: 0.85 },
-  { file: 'reticula-holodeck', es: 'Holodeck', en: 'Holodeck', gain: 2.88, scale: 0.7 },
-  { file: 'red-de-energia-sgx', es: 'Red de energía', en: 'Energy grid', gain: 2.57, scale: 0.7 },
-  { file: 'lineas-de-energia', es: 'Líneas de energía', en: 'Energy lines', gain: 3.2, scale: 0.75 },
-  { file: 'circuito-futurista', es: 'Circuito', en: 'Circuit', gain: 2.88, scale: 0.75 },
-  { file: 'escudo-de-energia', es: 'Escudo hex', en: 'Hex shield', gain: 3.2, scale: 1.5 },
-  { file: 'metal-cepillado', es: 'Metal cepillado', en: 'Brushed metal', gain: 0.66 },
-  { file: 'zigzag-sgx', es: 'Zigzag SGX', en: 'SGX zigzag', gain: 0.45, scale: 0.7 },
+/* SGX motifs (from the SGX Tile Lab), cut into masks (public/pilot/tex/etch,
+   scripts/pilot-etch-masks.py): the bot paints them in its own colors, on the
+   torso only. per: motifs across one tile, so every size reads the same. */
+export const PILOT_TEXTURES: { id: string; es: string; en: string; per?: number }[] = [
+  { id: '', es: 'Liso', en: 'Plain' },
+  { id: 'engranajes', es: 'Engranajes SGX', en: 'SGX gears', per: 4 },
+  { id: 'engranaje-g', es: 'Engranaje G', en: 'G gear', per: 4 },
+  { id: 'engranajes-entrelazados', es: 'Engranajes', en: 'Meshed gears', per: 2.5 },
+  { id: 'rayos', es: 'Rayos SGX', en: 'SGX bolts', per: 3.5 },
+  { id: 'panel-hud', es: 'Panel HUD', en: 'HUD panel', per: 4 },
+  { id: 'holodeck', es: 'Holodeck', en: 'Holodeck', per: 4 },
+  { id: 'red-de-energia', es: 'Red de energía', en: 'Energy grid', per: 4 },
+  { id: 'lineas-de-energia', es: 'Líneas de energía', en: 'Energy lines', per: 4 },
+  { id: 'circuito', es: 'Circuito', en: 'Circuit', per: 3 },
+  { id: 'escudo-hex', es: 'Escudo hex', en: 'Hex shield', per: 5 },
+  { id: 'zigzag', es: 'Zigzag SGX', en: 'SGX zigzag', per: 4 },
 ];
+export const etchSrc = (id: string) => `/pilot/tex/etch/${id}.png`;
+/** The motif's color: the trim, the eyes' light, or the body pushed darker (light bodies) or lighter (dark ones). */
+export function etchInk(c: PilotConfig): string {
+  if (c.ink === 'glow') return c.colors.iris;
+  if (c.ink === 'trim') return c.colors.trim;
+  const n = parseInt(c.colors.shell.slice(1), 16);
+  const rgb = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  const k = (0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]) / 255 > 0.45 ? -0.34 : 0.24;
+  return `#${rgb.map((v) => Math.round(k > 0 ? v + (255 - v) * k : v * (1 + k)).toString(16).padStart(2, '0')).join('')}`;
+}
+/** Saved avatars kept the old list's index: the pillar tiles and the brushed metal became plain. */
+const LEGACY_TEXTURES = ['', '', '', '', '', '', '', '', 'engranajes', 'engranaje-g', 'engranajes-entrelazados', 'rayos', 'rayos',
+  'panel-hud', 'holodeck', 'red-de-energia', 'lineas-de-energia', 'circuito', 'escudo-hex', '', 'zigzag'];
+const patternOf = (v: unknown): string => {
+  if (typeof v === 'number') return LEGACY_TEXTURES[Math.floor(v)] || '';
+  return typeof v === 'string' && PILOT_TEXTURES.some((t) => t.id === v) ? v : '';
+};
 
 /** The eyelid shapes in the model (node names in the .glb). */
 export const EYELIDS: { id: Eyelid; node: string; es: string; en: string }[] = [
@@ -220,8 +240,8 @@ const pickOf = <T,>(r: () => number, a: readonly T[]) => a[Math.floor(r() * a.le
 
 /* ---------- presets: bots born from the Highbot design ---------- */
 
-const bot = (o: { eyelid: Eyelid; mouth: Mouth; chest: Plate; colors: PilotColors; parts?: PilotParts; headgear?: number; visor?: number; pattern?: number; tile?: number; back?: Plate; relic?: RelicMount }): PilotConfig =>
-  ({ v: 2, back: 'SGX', pattern: 0, tile: 1, headgear: 0, visor: 0, relic: 'none', ...o, colors: { ...o.colors }, parts: { ...(o.parts || ALL_PARTS) } });
+const bot = (o: { eyelid: Eyelid; mouth: Mouth; chest: Plate; colors: PilotColors; parts?: PilotParts; headgear?: number; visor?: number; pattern?: string; ink?: Ink; tile?: number; back?: Plate; relic?: RelicMount }): PilotConfig =>
+  ({ v: 2, back: 'SGX', pattern: '', ink: 'trim', tile: 1, headgear: 0, visor: 0, relic: 'none', ...o, colors: { ...o.colors }, parts: { ...(o.parts || ALL_PARTS) } });
 
 /* Signature bots: one idea per pillar, built from the model's own parts, the
    gear fitted to its anchors and the pillar's 3D emblem, plus two specials. */
@@ -229,17 +249,17 @@ export const HIGHBOT_PRESETS: { id: string; es: string; en: string; config: Pilo
   { id: 'highbot', es: 'Highbot', en: 'Highbot',
     config: bot({ eyelid: 'high', mouth: 'normal', chest: 'SGX', colors: { shell: '#5A5F66', trim: '#1A1A1A', joints: '#1A1A1A', mask: '#050505', iris: '#FF4040', shoes: '#5A5F66' } }) },
   { id: 'narrador', es: 'Narrador · Story', en: 'Storyteller · Story',
-    config: bot({ eyelid: 'mid', mouth: 'happy', chest: 'STORY', relic: 'hand', colors: { shell: '#32527B', trim: '#5D86C6', joints: '#050505', mask: '#050505', iris: '#00DDFF', shoes: '#FFF9E2' }, pattern: 1, tile: 0 }) },
+    config: bot({ eyelid: 'mid', mouth: 'happy', chest: 'STORY', relic: 'hand', colors: { shell: '#32527B', trim: '#5D86C6', joints: '#050505', mask: '#050505', iris: '#00DDFF', shoes: '#FFF9E2' } }) },
   { id: 'curador', es: 'Curador · Showcase', en: 'Curator · Showcase',
     config: bot({ eyelid: 'sus', mouth: 'normal', chest: 'SHOWCASE', relic: 'chest', visor: 3, parts: { ...PLAIN, chestDecor: false }, colors: { shell: '#FFF9E2', trim: '#00DDFF', joints: '#1A1A1A', mask: '#050505', iris: '#00DDFF', shoes: '#00DDFF' } }) },
   { id: 'gamer', es: 'Gamer · Spark', en: 'Gamer · Spark',
-    config: bot({ eyelid: 'chill', mouth: 'happy', chest: 'SPARK', relic: 'orbit', headgear: 2, visor: 5, parts: PLAIN, colors: { shell: '#B87000', trim: '#FDCC0D', joints: '#1A1A1A', mask: '#050505', iris: '#FDCC0D', shoes: '#1A1A1A' }, pattern: 11, tile: 2 }) },
+    config: bot({ eyelid: 'chill', mouth: 'happy', chest: 'SPARK', relic: 'orbit', headgear: 2, visor: 5, parts: PLAIN, colors: { shell: '#B87000', trim: '#FDCC0D', joints: '#1A1A1A', mask: '#050505', iris: '#00DDFF', shoes: '#1A1A1A' }, pattern: 'rayos', ink: 'trim', tile: 2 }) },
   { id: 'performer', es: 'Performer · Stage', en: 'Performer · Stage',
-    config: bot({ eyelid: 'high', mouth: 'woah', chest: 'STAGE', relic: 'back', headgear: 1, parts: { ...PLAIN, mask: true }, colors: { shell: '#1A1A1A', trim: '#FDCC0D', joints: '#FDCC0D', mask: '#050505', iris: '#FDCC0D', shoes: '#FDCC0D' }, pattern: 4, tile: 1 }) },
+    config: bot({ eyelid: 'high', mouth: 'woah', chest: 'STAGE', relic: 'back', headgear: 1, parts: { ...PLAIN, mask: true }, colors: { shell: '#1A1A1A', trim: '#FDCC0D', joints: '#FDCC0D', mask: '#050505', iris: '#FDCC0D', shoes: '#FDCC0D' }, pattern: 'escudo-hex', ink: 'glow', tile: 1 }) },
   { id: 'ingeniero', es: 'Ingeniero · System', en: 'Engineer · System',
-    config: bot({ eyelid: 'low', mouth: 'meh', chest: 'SYSTEM', relic: 'antenna', visor: 8, parts: { ...PLAIN, headDecor: true }, colors: { shell: '#888888', trim: '#00DDFF', joints: '#333333', mask: '#1A1A1A', iris: '#00DDFF', shoes: '#333333' }, pattern: 17, tile: 1 }) },
+    config: bot({ eyelid: 'low', mouth: 'meh', chest: 'SYSTEM', relic: 'antenna', visor: 8, parts: { ...PLAIN, headDecor: true }, colors: { shell: '#888888', trim: '#00DDFF', joints: '#333333', mask: '#1A1A1A', iris: '#00DDFF', shoes: '#333333' }, pattern: 'circuito', ink: 'glow', tile: 2 }) },
   { id: 'conector', es: 'Conector · Synthesize', en: 'Connector · Synthesize',
-    config: bot({ eyelid: 'mid', mouth: 'happy', chest: 'SYNTHESIZE', relic: 'chest', headgear: 6, parts: { ...PLAIN, chestDecor: false }, colors: { shell: '#FFFFFF', trim: '#B87000', joints: '#32527B', mask: '#32527B', iris: '#FFBB00', shoes: '#32527B' }, pattern: 7, tile: 0 }) },
+    config: bot({ eyelid: 'mid', mouth: 'happy', chest: 'SYNTHESIZE', relic: 'chest', headgear: 6, parts: { ...PLAIN, chestDecor: false }, colors: { shell: '#FFFFFF', trim: '#B87000', joints: '#32527B', mask: '#32527B', iris: '#FFBB00', shoes: '#32527B' }, pattern: 'engranajes-entrelazados', ink: 'tone', tile: 1 }) },
   { id: 'gold', es: 'Creador Dorado', en: 'Golden Creator',
     config: bot({ eyelid: 'high', mouth: 'happy', chest: 'SGX', relic: 'orbit', colors: { shell: '#FDCC0D', trim: '#050505', joints: '#050505', mask: '#050505', iris: '#00DDFF', shoes: '#050505' } }) },
 ];
@@ -267,7 +287,7 @@ export function randomPilot(accent?: string): PilotConfig {
   if (r() < 0.6) c.colors.iris = accent && r() < 0.5 ? snap(accent, BOT_SWATCHES, c.colors.iris) : pickOf(r, BOT_SWATCHES);
   if (r() < 0.5) c.colors.trim = pickOf(r, BOT_SWATCHES);
   if (r() < 0.35) c.colors.shell = pickOf(r, BOT_SWATCHES);
-  if (r() < 0.35) c.pattern = Math.floor(r() * PILOT_TEXTURES.length);
+  if (r() < 0.35) { c.pattern = pickOf(r, PILOT_TEXTURES).id; c.ink = pickOf(r, INKS).id; }
   if (r() < 0.3) c.tile = Math.floor(r() * TILE_SIZES.length);
   if (r() < 0.3) c.headgear = Math.floor(r() * HEADGEAR.length);
   if (r() < 0.25) c.visor = Math.floor(r() * VISORS.length);
@@ -286,7 +306,7 @@ export function varyPilot(c: PilotConfig): PilotConfig {
     else if (k === 1) next.mouth = pickOf(r, MOUTHS.filter((m) => m.id !== next.mouth)).id;
     else if (k === 2) next.chest = pickOf(r, PLATES.filter((p) => p.id !== next.chest)).id;
     else if (k === 3) { const g = pickOf(r, COLOR_GROUPS).id; next.colors[g] = pickOf(r, BOT_SWATCHES.filter((h) => h !== next.colors[g])); }
-    else if (k === 4) next.pattern = r() < 0.4 ? 0 : 1 + Math.floor(r() * (PILOT_TEXTURES.length - 1));
+    else if (k === 4) { next.pattern = r() < 0.4 ? '' : pickOf(r, PILOT_TEXTURES.slice(1)).id; if (r() < 0.5) next.ink = pickOf(r, INKS).id; }
     else if (k === 5) { const pid = pickOf(r, PARTS).id; next.parts[pid] = !next.parts[pid]; }
     else if (k === 6) next.headgear = Math.floor(r() * HEADGEAR.length);
     else if (k === 7) next.visor = Math.floor(r() * VISORS.length);
@@ -318,12 +338,10 @@ export function normalizePilot(raw: unknown, accent = '#FDCC0D'): PilotConfig | 
       shoes: snap(c.secondary, BOT_SWATCHES, BASE.colors.shoes),
     };
     out.chest = V1_EMBLEM_PLATE[Number(c.emblem)] || 'SGX';
-    const p = Number(c.pattern);
-    out.pattern = Number.isFinite(p) && p >= 0 && p < PILOT_TEXTURES.length ? Math.floor(p) : 0;
+    out.pattern = patternOf(Number(c.pattern));
     return out;
   }
   const colors = (c.colors && typeof c.colors === 'object' ? c.colors : {}) as Partial<PilotColors>;
-  const p = Number(c.pattern);
   return {
     v: 2,
     eyelid: EYELIDS.some((e) => e.id === c.eyelid) ? c.eyelid : BASE.eyelid,
@@ -338,7 +356,8 @@ export function normalizePilot(raw: unknown, accent = '#FDCC0D'): PilotConfig | 
       iris: snap(colors.iris, BOT_SWATCHES, BASE.colors.iris),
       shoes: snap(colors.shoes, BOT_SWATCHES, BASE.colors.shoes),
     },
-    pattern: Number.isFinite(p) && p >= 0 && p < PILOT_TEXTURES.length ? Math.floor(p) : 0,
+    pattern: patternOf(c.pattern),
+    ink: INKS.some((x) => x.id === c.ink) ? c.ink : 'trim',
     tile: idx(c.tile, TILE_SIZES.length, 1),
     parts: Object.fromEntries(PARTS.map(({ id }) => [id, typeof c.parts?.[id] === 'boolean' ? c.parts[id] : true])) as unknown as PilotParts,
     headgear: idx(c.headgear, HEADGEAR.length, 0),
@@ -386,7 +405,8 @@ export const BOLT_POINTS: [number, number][] = [[0.78, 0], [0.3, 0.56], [0.52, 0
    it lands, 'sgx:pilot_portrait' tells the glyphs to redraw. */
 
 export const PORTRAIT_EVENT = 'sgx:pilot_portrait';
-const PORTRAIT_STORE = 'sgx_pilot_portraits_v1';
+// v2: the motif moved to the torso only, so older portraits are dropped
+const PORTRAIT_STORE = 'sgx_pilot_portraits_v2';
 const PORTRAIT_KEEP = 16;
 const PORTRAITS = new Map<string, string>();
 const PENDING = new Map<string, Promise<string | null>>();

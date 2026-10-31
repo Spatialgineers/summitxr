@@ -416,7 +416,9 @@
   .sgx-pilotb__plates button { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px 6px; background: #0d0f13; border: 1px solid rgba(255, 255, 255, 0.1); cursor: pointer; }
   .sgx-pilotb__plates button.is-on { border-color: var(--SGX_Yellow); box-shadow: 0 0 0 1px var(--SGX_Yellow), 0 0 16px rgba(253, 204, 13, 0.25); }
   .sgx-pilotb__plates img, .sgx-pilotb__plain { width: 40px; height: 40px; object-fit: contain; display: block; }
-  .sgx-pilotb__plates--tex img { object-fit: cover; }
+  /* torso motif swatch: the mask in the bot's ink over its body color */
+  .sgx-pilotb__etch { position: relative; width: 40px; height: 40px; display: block; overflow: hidden; }
+  .sgx-pilotb__etch::after { content: ''; position: absolute; inset: 0; background: var(--ink); -webkit-mask: var(--mask) center / var(--mask-size) var(--mask-size) repeat; mask: var(--mask) center / var(--mask-size) var(--mask-size) repeat; }
   .sgx-pilotb__plates button span:last-child { font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.04em; text-transform: uppercase; color: rgba(255, 255, 255, 0.65); text-align: center; line-height: 1.2; }
   /* inside the Forge */
   .sgx-pilotb--compact { grid-template-columns: minmax(250px, 290px) minmax(0, 1fr); gap: 14px; margin: 8px 0 14px; text-align: left; }

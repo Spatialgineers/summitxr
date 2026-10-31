@@ -288,21 +288,29 @@ export function randomPilot(accent?: string): PilotConfig {
 
 /** A close cousin: one or two things change. */
 export function varyPilot(c: PilotConfig): PilotConfig {
-  const next = clone(c);
   const r = Math.random;
-  const n = 1 + Math.floor(r() * 2);
-  for (let i = 0; i < n; i++) {
-    const k = Math.floor(r() * 9);
-    if (k === 0) next.eyelid = pickOf(r, EYELIDS.filter((e) => e.id !== next.eyelid)).id;
-    else if (k === 1) next.ink = pickOf(r, INKS.filter((x) => x.id !== next.ink)).id;
-    else if (k === 2) next.chest = pickOf(r, PLATES.filter((p) => p.id !== next.chest)).id;
-    else if (k === 3) { const g = pickOf(r, COLOR_GROUPS).id; next.colors[g] = pickOf(r, BOT_SWATCHES.filter((h) => h !== next.colors[g])); }
-    else if (k === 4) { next.pattern = r() < 0.4 ? '' : pickOf(r, PILOT_TEXTURES.slice(1)).id; if (r() < 0.5) next.ink = pickOf(r, INKS).id; }
-    else if (k === 5) { const pid = pickOf(r, PARTS).id; next.parts[pid] = !next.parts[pid]; }
-    else if (k === 6) next.headgear = Math.floor(r() * HEADGEAR.length);
-    else if (k === 7) next.visor = Math.floor(r() * VISORS.length);
-    else next.relic = pickOf(r, RELIC_MOUNTS.filter((x) => x.id !== next.relic)).id;
+  const others = <T,>(list: readonly T[], now: T) => list.filter((x) => x !== now);
+  // every pick lands on something new and visible, and the bot always ends up different
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const next = clone(c);
+    const n = 1 + Math.floor(r() * 2);
+    for (let i = 0; i < n; i++) {
+      const k = Math.floor(r() * 9);
+      if (k === 0) next.eyelid = pickOf(r, EYELIDS.filter((e) => e.id !== next.eyelid)).id;
+      // the finish only shows with a motif on the torso
+      else if (k === 1 && next.pattern) next.ink = pickOf(r, INKS.filter((x) => x.id !== next.ink)).id;
+      else if (k === 2) next.chest = pickOf(r, PLATES.filter((p) => p.id !== next.chest)).id;
+      else if (k === 3) { const g = pickOf(r, COLOR_GROUPS).id; next.colors[g] = pickOf(r, BOT_SWATCHES.filter((h) => h !== next.colors[g])); }
+      else if (k === 4) next.pattern = pickOf(r, PILOT_TEXTURES.filter((t) => t.id !== next.pattern)).id;
+      else if (k === 5) { const pid = pickOf(r, PARTS).id; next.parts[pid] = !next.parts[pid]; }
+      else if (k === 6) next.headgear = pickOf(r, others(HEADGEAR.map((_, idx) => idx), next.headgear));
+      else if (k === 7) next.visor = pickOf(r, others(VISORS.map((_, idx) => idx), next.visor));
+      else next.relic = pickOf(r, RELIC_MOUNTS.filter((x) => x.id !== next.relic)).id;
+    }
+    if (JSON.stringify(next) !== JSON.stringify(c)) return next;
   }
+  const next = clone(c);
+  next.eyelid = pickOf(r, EYELIDS.filter((e) => e.id !== next.eyelid)).id;
   return next;
 }
 

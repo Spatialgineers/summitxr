@@ -50,7 +50,23 @@ export interface PilotConfig {
   headgear: number;
   /** index in VISORS (0 = none) */
   visor: number;
+  /** where the bot carries the 3D emblem of its chest pillar (the Summit logo: the SGX icon) */
+  relic: RelicMount;
 }
+
+export type RelicMount = 'none' | 'chest' | 'back' | 'hand' | 'orbit' | 'antenna';
+/** The pillar's 3D emblem (the same .glb as the core) and where it goes. */
+export const RELIC_MOUNTS: { id: RelicMount; es: string; en: string }[] = [
+  { id: 'none', es: 'Sin emblema', en: 'No emblem' },
+  { id: 'chest', es: 'Núcleo en el pecho', en: 'Chest core' },
+  { id: 'back', es: 'Núcleo en la espalda', en: 'Back core' },
+  { id: 'hand', es: 'En la mano', en: 'In hand' },
+  { id: 'orbit', es: 'Compañero', en: 'Companion' },
+  { id: 'antenna', es: 'Punta de antena', en: 'Antenna tip' },
+];
+/** Headgear that sits on the side sockets (one at a time) and that grows from the top button. */
+export const SOCKET_GEAR = [1, 2, 9];
+export const TOP_GEAR = [3, 4];
 
 export interface PilotParts {
   ears: boolean;
@@ -204,26 +220,28 @@ const pickOf = <T,>(r: () => number, a: readonly T[]) => a[Math.floor(r() * a.le
 
 /* ---------- presets: bots born from the Highbot design ---------- */
 
-const bot = (o: { eyelid: Eyelid; mouth: Mouth; chest: Plate; colors: PilotColors; parts?: PilotParts; headgear?: number; visor?: number; pattern?: number; tile?: number; back?: Plate }): PilotConfig =>
-  ({ v: 2, back: 'SGX', pattern: 0, tile: 1, headgear: 0, visor: 0, ...o, colors: { ...o.colors }, parts: { ...(o.parts || ALL_PARTS) } });
+const bot = (o: { eyelid: Eyelid; mouth: Mouth; chest: Plate; colors: PilotColors; parts?: PilotParts; headgear?: number; visor?: number; pattern?: number; tile?: number; back?: Plate; relic?: RelicMount }): PilotConfig =>
+  ({ v: 2, back: 'SGX', pattern: 0, tile: 1, headgear: 0, visor: 0, relic: 'none', ...o, colors: { ...o.colors }, parts: { ...(o.parts || ALL_PARTS) } });
 
+/* Signature bots: one idea per pillar, built from the model's own parts, the
+   gear fitted to its anchors and the pillar's 3D emblem, plus two specials. */
 export const HIGHBOT_PRESETS: { id: string; es: string; en: string; config: PilotConfig }[] = [
   { id: 'highbot', es: 'Highbot', en: 'Highbot',
     config: bot({ eyelid: 'high', mouth: 'normal', chest: 'SGX', colors: { shell: '#5A5F66', trim: '#1A1A1A', joints: '#1A1A1A', mask: '#050505', iris: '#FF4040', shoes: '#5A5F66' } }) },
-  { id: 'base', es: 'Bot base', en: 'Base bot',
-    config: bot({ eyelid: 'mid', mouth: 'happy', chest: 'STORY', parts: PLAIN, colors: { shell: '#32527B', trim: '#5D86C6', joints: '#050505', mask: '#1A1A1A', iris: '#00DDFF', shoes: '#FFF9E2' }, pattern: 1 }) },
-  { id: 'antena', es: 'Antena', en: 'Antenna',
-    config: bot({ eyelid: 'sus', mouth: 'woah', chest: 'SPARK', parts: PLAIN, headgear: 4, colors: { shell: '#B87000', trim: '#FDCC0D', joints: '#1A1A1A', mask: '#050505', iris: '#FDCC0D', shoes: '#1A1A1A' }, pattern: 11, tile: 2 }) },
-  { id: 'dj', es: 'DJ', en: 'DJ',
-    config: bot({ eyelid: 'chill', mouth: 'happy', chest: 'STAGE', parts: { ...PLAIN, sideDiscs: false }, headgear: 1, visor: 5, colors: { shell: '#1A1A1A', trim: '#FDCC0D', joints: '#FDCC0D', mask: '#050505', iris: '#FDCC0D', shoes: '#FDCC0D' }, pattern: 4 }) },
-  { id: 'explorer', es: 'Explorer', en: 'Explorer',
-    config: bot({ eyelid: 'high', mouth: 'normal', chest: 'SHOWCASE', parts: { ...ALL_PARTS, mask: false }, visor: 6, colors: { shell: '#FFF9E2', trim: '#00DDFF', joints: '#1A1A1A', mask: '#050505', iris: '#00DDFF', shoes: '#00DDFF' } }) },
-  { id: 'halo', es: 'Halo', en: 'Halo',
-    config: bot({ eyelid: 'mid', mouth: 'happy', chest: 'SYNTHESIZE', parts: PLAIN, headgear: 6, colors: { shell: '#FFFFFF', trim: '#B87000', joints: '#32527B', mask: '#32527B', iris: '#FFBB00', shoes: '#32527B' }, pattern: 7, tile: 0 }) },
-  { id: 'mecha', es: 'Mecha', en: 'Mech',
-    config: bot({ eyelid: 'low', mouth: 'meh', chest: 'SYSTEM', parts: { ...PLAIN, headDecor: false }, headgear: 7, visor: 8, colors: { shell: '#888888', trim: '#00DDFF', joints: '#333333', mask: '#1A1A1A', iris: '#00DDFF', shoes: '#333333' }, pattern: 17 }) },
+  { id: 'narrador', es: 'Narrador · Story', en: 'Storyteller · Story',
+    config: bot({ eyelid: 'mid', mouth: 'happy', chest: 'STORY', relic: 'hand', colors: { shell: '#32527B', trim: '#5D86C6', joints: '#050505', mask: '#050505', iris: '#00DDFF', shoes: '#FFF9E2' }, pattern: 1, tile: 0 }) },
+  { id: 'curador', es: 'Curador · Showcase', en: 'Curator · Showcase',
+    config: bot({ eyelid: 'sus', mouth: 'normal', chest: 'SHOWCASE', relic: 'chest', visor: 3, parts: { ...PLAIN, chestDecor: false }, colors: { shell: '#FFF9E2', trim: '#00DDFF', joints: '#1A1A1A', mask: '#050505', iris: '#00DDFF', shoes: '#00DDFF' } }) },
+  { id: 'gamer', es: 'Gamer · Spark', en: 'Gamer · Spark',
+    config: bot({ eyelid: 'chill', mouth: 'happy', chest: 'SPARK', relic: 'orbit', headgear: 2, visor: 5, parts: PLAIN, colors: { shell: '#B87000', trim: '#FDCC0D', joints: '#1A1A1A', mask: '#050505', iris: '#FDCC0D', shoes: '#1A1A1A' }, pattern: 11, tile: 2 }) },
+  { id: 'performer', es: 'Performer · Stage', en: 'Performer · Stage',
+    config: bot({ eyelid: 'high', mouth: 'woah', chest: 'STAGE', relic: 'back', headgear: 1, parts: { ...PLAIN, mask: true }, colors: { shell: '#1A1A1A', trim: '#FDCC0D', joints: '#FDCC0D', mask: '#050505', iris: '#FDCC0D', shoes: '#FDCC0D' }, pattern: 4, tile: 1 }) },
+  { id: 'ingeniero', es: 'Ingeniero · System', en: 'Engineer · System',
+    config: bot({ eyelid: 'low', mouth: 'meh', chest: 'SYSTEM', relic: 'antenna', visor: 8, parts: { ...PLAIN, headDecor: true }, colors: { shell: '#888888', trim: '#00DDFF', joints: '#333333', mask: '#1A1A1A', iris: '#00DDFF', shoes: '#333333' }, pattern: 17, tile: 1 }) },
+  { id: 'conector', es: 'Conector · Synthesize', en: 'Connector · Synthesize',
+    config: bot({ eyelid: 'mid', mouth: 'happy', chest: 'SYNTHESIZE', relic: 'chest', headgear: 6, parts: { ...PLAIN, chestDecor: false }, colors: { shell: '#FFFFFF', trim: '#B87000', joints: '#32527B', mask: '#32527B', iris: '#FFBB00', shoes: '#32527B' }, pattern: 7, tile: 0 }) },
   { id: 'gold', es: 'Creador Dorado', en: 'Golden Creator',
-    config: bot({ eyelid: 'high', mouth: 'happy', chest: 'SGX', headgear: 10, colors: { shell: '#FDCC0D', trim: '#050505', joints: '#050505', mask: '#050505', iris: '#00DDFF', shoes: '#050505' } }) },
+    config: bot({ eyelid: 'high', mouth: 'happy', chest: 'SGX', relic: 'orbit', colors: { shell: '#FDCC0D', trim: '#050505', joints: '#050505', mask: '#050505', iris: '#00DDFF', shoes: '#050505' } }) },
 ];
 
 const BASE = HIGHBOT_PRESETS[0].config;
@@ -253,6 +271,7 @@ export function randomPilot(accent?: string): PilotConfig {
   if (r() < 0.3) c.tile = Math.floor(r() * TILE_SIZES.length);
   if (r() < 0.3) c.headgear = Math.floor(r() * HEADGEAR.length);
   if (r() < 0.25) c.visor = Math.floor(r() * VISORS.length);
+  if (r() < 0.4) c.relic = pickOf(r, RELIC_MOUNTS).id;
   return c;
 }
 
@@ -262,7 +281,7 @@ export function varyPilot(c: PilotConfig): PilotConfig {
   const r = Math.random;
   const n = 1 + Math.floor(r() * 2);
   for (let i = 0; i < n; i++) {
-    const k = Math.floor(r() * 8);
+    const k = Math.floor(r() * 9);
     if (k === 0) next.eyelid = pickOf(r, EYELIDS.filter((e) => e.id !== next.eyelid)).id;
     else if (k === 1) next.mouth = pickOf(r, MOUTHS.filter((m) => m.id !== next.mouth)).id;
     else if (k === 2) next.chest = pickOf(r, PLATES.filter((p) => p.id !== next.chest)).id;
@@ -270,7 +289,8 @@ export function varyPilot(c: PilotConfig): PilotConfig {
     else if (k === 4) next.pattern = r() < 0.4 ? 0 : 1 + Math.floor(r() * (PILOT_TEXTURES.length - 1));
     else if (k === 5) { const pid = pickOf(r, PARTS).id; next.parts[pid] = !next.parts[pid]; }
     else if (k === 6) next.headgear = Math.floor(r() * HEADGEAR.length);
-    else next.visor = Math.floor(r() * VISORS.length);
+    else if (k === 7) next.visor = Math.floor(r() * VISORS.length);
+    else next.relic = pickOf(r, RELIC_MOUNTS.filter((x) => x.id !== next.relic)).id;
   }
   return next;
 }
@@ -323,6 +343,7 @@ export function normalizePilot(raw: unknown, accent = '#FDCC0D'): PilotConfig | 
     parts: Object.fromEntries(PARTS.map(({ id }) => [id, typeof c.parts?.[id] === 'boolean' ? c.parts[id] : true])) as unknown as PilotParts,
     headgear: idx(c.headgear, HEADGEAR.length, 0),
     visor: idx(c.visor, VISORS.length, 0),
+    relic: RELIC_MOUNTS.some((x) => x.id === c.relic) ? c.relic : 'none',
   };
 }
 
@@ -455,7 +476,9 @@ function vectorBot(c: PilotConfig, id: string): string {
     + `<rect x="45" y="74" width="10" height="6" fill="${k.joints}"/>`
     // headgear hints: halo / antenna / anything else as a top light
     + (c.headgear === 5 || c.headgear === 6 ? `<ellipse cx="50" cy="9" rx="18" ry="3.2" fill="none" stroke="${c.headgear === 6 ? k.trim : k.iris}" stroke-width="2"/>` : '')
-    + (c.headgear === 3 || c.headgear === 4 ? `<path d="M58 16 L64 4" stroke="${k.joints}" stroke-width="1.6"/><circle cx="64.5" cy="3.5" r="2.6" fill="${k.iris}"/>` : '')
+    // antennas grow from the button on the top left of the head
+    + (c.headgear === 3 || c.headgear === 4 || c.relic === 'antenna' ? `<path d="M30 15 L27 3" stroke="${k.joints}" stroke-width="1.6"/>${c.relic === 'antenna' ? '' : `<circle cx="26.8" cy="2.8" r="2.6" fill="${k.iris}"/>`}` : '')
+    + `<rect x="27" y="12.5" width="6" height="4" rx="2" fill="${k.trim}"/>`
     // ears (behind the head)
     + (c.parts.ears
       ? `<path d="M17 30 L21 8 L36 20 Z" fill="${k.shell}"/><path d="M83 30 L79 8 L64 20 Z" fill="${k.shell}"/>`
@@ -471,6 +494,14 @@ function vectorBot(c: PilotConfig, id: string): string {
     + ([1, 2, 4, 5, 6, 8].includes(c.visor)
       ? `<rect x="15" y="36" width="70" height="22" rx="8" fill="${k.trim}"/><rect x="19" y="39" width="62" height="16" rx="6" fill="${k.iris}" opacity="0.9"/>`
       : eye(30) + eye(70))
+    // the pillar's 3D emblem, where the bot carries it
+    + (c.relic !== 'none' && c.relic !== 'back'
+      ? (() => {
+        const [x, y, r] = ({ chest: [50, 92, 7], hand: [84, 103, 6], orbit: [90, 28, 6], antenna: [26, 3, 5] } as Record<string, number[]>)[c.relic];
+        const src = plateSrc(c.chest);
+        return `<circle cx="${x}" cy="${y}" r="${r + 1}" fill="#121417"/><image href="${src}" xlink:href="${src}" x="${x - r}" y="${y - r}" width="${r * 2}" height="${r * 2}" preserveAspectRatio="xMidYMid meet"/>`;
+      })()
+      : '')
     // nose and mouth
     + (c.parts.nose ? `<ellipse cx="50" cy="57" rx="3.4" ry="2.6" fill="${k.mask}"/>` : '')
     + `<path d="${mouth}" ${mouthFill} stroke="${k.mask}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>`;

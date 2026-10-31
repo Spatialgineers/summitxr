@@ -2,7 +2,7 @@ import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'rea
 import { useLanguage } from '../context/LanguageContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import {
-  BOT_SWATCHES, COLOR_GROUPS, EYELIDS, HEADGEAR, HIGHBOT_PRESETS, MOUTHS, PARTS, PILOT_TEXTURES, PLATES, TILE_SIZES, VISORS,
+  BOT_SWATCHES, COLOR_GROUPS, EYELIDS, HEADGEAR, HIGHBOT_PRESETS, MOUTHS, PARTS, PILOT_TEXTURES, PLATES, RELIC_MOUNTS, SOCKET_GEAR, TILE_SIZES, TOP_GEAR, VISORS,
   normalizePilot, pilotSvg, randomPilot, varyPilot, type PilotConfig,
 } from './pilotAvatar';
 
@@ -142,13 +142,23 @@ export const PilotBuilder: React.FC<Props> = ({ value: raw, onChange, accent, ca
                 </button>
               ))}
             </div>
-            <span className="sgx-pilotb__colorlabel">{es ? 'En la cabeza' : 'Headgear'}</span>
-            <div className="sgx-pilotb__chips" role="listbox" aria-label={es ? 'En la cabeza' : 'Headgear'}>
-              {HEADGEAR.map((g, i) => (
-                <button key={g.en} type="button" role="option" aria-selected={value.headgear === i} className={value.headgear === i ? 'is-on' : ''} onClick={() => set({ ...value, headgear: i })}>{N(g)}</button>
-              ))}
-            </div>
-            <span className="sgx-pilotb__colorlabel">{es ? 'Visor' : 'Visor'}</span>
+            {([
+              ['sockets', es ? 'En los sockets laterales' : 'On the side sockets', SOCKET_GEAR],
+              ['top', es ? 'Desde el botón de arriba' : 'From the top button', TOP_GEAR],
+              ['above', es ? 'Sobre y detrás de la cabeza' : 'Above and behind the head', HEADGEAR.map((_, i) => i).filter((i) => i > 0 && !SOCKET_GEAR.includes(i) && !TOP_GEAR.includes(i))],
+            ] as const).map(([zone, label, ids]) => (
+              <div key={zone} className="sgx-pilotb__colorrow">
+                <span className="sgx-pilotb__colorlabel">{label}</span>
+                <div className="sgx-pilotb__chips" role="listbox" aria-label={label}>
+                  {ids.map((i) => (
+                    <button key={i} type="button" role="option" aria-selected={value.headgear === i} className={value.headgear === i ? 'is-on' : ''}
+                      onClick={() => set({ ...value, headgear: value.headgear === i ? 0 : i })}>{N(HEADGEAR[i])}</button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <p className="sgx-pilotb__hint">{es ? 'Un accesorio a la vez en la cabeza: tocarlo otra vez lo quita.' : 'One headpiece at a time: tap it again to remove it.'}</p>
+            <span className="sgx-pilotb__colorlabel">{es ? 'Visor (se engancha a los sockets)' : 'Visor (clips onto the sockets)'}</span>
             <div className="sgx-pilotb__chips" role="listbox" aria-label="Visor">
               {VISORS.map((g, i) => (
                 <button key={g.en} type="button" role="option" aria-selected={value.visor === i} className={value.visor === i ? 'is-on' : ''} onClick={() => set({ ...value, visor: i })}>{N(g)}</button>
@@ -172,6 +182,12 @@ export const PilotBuilder: React.FC<Props> = ({ value: raw, onChange, accent, ca
 
         {tab === 'plates' && (
           <div className="sgx-pilotb__part">
+            <span className="sgx-pilotb__colorlabel">{es ? 'Emblema 3D del pilar del pecho' : '3D emblem of the chest pillar'}</span>
+            <div className="sgx-pilotb__chips" role="listbox" aria-label={es ? 'Emblema 3D' : '3D emblem'}>
+              {RELIC_MOUNTS.map((r) => (
+                <button key={r.id} type="button" role="option" aria-selected={value.relic === r.id} className={value.relic === r.id ? 'is-on' : ''} onClick={() => set({ ...value, relic: r.id })}>{N(r)}</button>
+              ))}
+            </div>
             {([['chest', es ? 'Pecho' : 'Chest'], ['back', es ? 'Espalda' : 'Back']] as const).map(([side, label]) => (
               <div key={side} className="sgx-pilotb__colorrow">
                 <span className="sgx-pilotb__colorlabel">{label}</span>

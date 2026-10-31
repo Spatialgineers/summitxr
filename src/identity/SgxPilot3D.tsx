@@ -48,8 +48,9 @@ export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, l
     scene.environmentIntensity = 0.8;
 
     const camera = new THREE.PerspectiveCamera(30, w() / height, 0.1, 100);
-    camera.position.set(0, 1.0, 7.4);
-    camera.lookAt(0, 0.62, 0);
+    // full Highbot plus room above for antennas, halos and companions
+    camera.position.set(0, 1.15, 7.9);
+    camera.lookAt(0, 0.8, 0);
 
     const bot = normalizePilot(config) as PilotConfig;
     const accent = new THREE.Color(bot.colors.iris);

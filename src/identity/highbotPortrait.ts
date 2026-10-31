@@ -40,8 +40,8 @@ function setup(): boolean {
   const fill = new THREE.DirectionalLight(0xffffff, 0.7); fill.position.set(4, 1, 3); scene.add(fill);
   // full figure, a touch from above, filling the 100:120 slot
   camera = new THREE.PerspectiveCamera(26, W / H, 0.1, 50);
-  camera.position.set(0, 1.25, 6.9);
-  camera.lookAt(0, 0.63, 0);
+  camera.position.set(0, 1.45, 8.1);
+  camera.lookAt(0, 0.92, 0);
   return true;
 }
 

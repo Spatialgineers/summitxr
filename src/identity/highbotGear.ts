@@ -1,23 +1,35 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-import { boltGeometry, gearGeometry } from './sgxIcon3d';
+import { boltGeometry, gearGeometry, loadSgxIcon } from './sgxIcon3d';
 
-/* HIGHBOT GEAR: the headgear and visors of the old XR avatar (pilot3d.ts, now
-   retired), refitted to the Highbot's boxy head. Everything is built around
-   the head center in model units: HEAD gives the half width/height/depth and
-   where the face is. Gear hangs from a socket that follows the neck, so it
-   moves with the head. Colors: trim for frames, joints for bands and cups,
-   the eye color for every light and lens. */
+/* HIGHBOT GEAR: headgear and visors fitted to the Highbot's real anatomy
+   (measured from highbot.glb, model units: Y up, feet at 0, facing +Z).
+   Everything is built in model coordinates and hung from a socket that
+   follows its rig node (head gear from the Head node), so it moves with the
+   animation and lands on the part it belongs to:
+   - headphones, earpieces and visor arms clip onto the two SIDE SOCKETS
+     (the round "Head decor" discs), not the middle of the head;
+   - antennas grow from the TOP BUTTON (top left of the head);
+   - visors sit in front of the EYES, which bulge out to z 0.537;
+   - halos and fins stay between the ears; the gear halo clears them. */
 
-export const HEAD = {
-  /** head center in model space */
-  center: new THREE.Vector3(0, 1.303, -0.04),
-  hw: 0.52,
-  ht: 0.42,
-  hd: 0.43,
-  /** front of the face (with the mask) and eye height, relative to the center */
-  face: 0.5,
-  eyeY: 0.03,
+export const ANATOMY = {
+  head: { center: new THREE.Vector3(0, 1.303, -0.04), x: 0.518, yMin: 0.883, yMax: 1.724, zBack: -0.47, zFront: 0.391 },
+  /** the round side sockets: center and radius; their outer face is at |x| 0.58 */
+  socket: { x: 0.565, y: 1.383, z: -0.137, r: 0.185, outer: 0.58 },
+  /** the small button on top of the head (left side of the character's head, -x) */
+  topButton: new THREE.Vector3(-0.276, 1.745, -0.04),
+  /** eye centers (x ±0.21), radius, and how far the eyeballs bulge */
+  eyes: { x: 0.21, y: 1.33, r: 0.19, front: 0.537 },
+  /** the mask's forehead edge (front) */
+  forehead: { y: 1.605, z: 0.465 },
+  mouth: new THREE.Vector3(0, 1.115, 0.4),
+  /** ears: back-top corners of the head */
+  ears: { zFront: -0.178, zBack: -0.583, yTop: 1.782 },
+  chest: { gear: new THREE.Vector3(-0.14, 0.71, 0.205), front: 0.208, center: new THREE.Vector3(0, 0.66, 0.208) },
+  back: { gear: new THREE.Vector3(0, 0.64, -0.285), r: 0.142 },
+  /** the left hand (character's left, +x): a C-shaped hook */
+  handL: new THREE.Vector3(0.374, 0.385, -0.04),
 };
 
 export interface GearMats {
@@ -26,22 +38,30 @@ export interface GearMats {
   dark: THREE.Material;
   glow: THREE.MeshBasicMaterial;
   lens: THREE.MeshBasicMaterial;
+  glassTint: THREE.MeshBasicMaterial;
   glowSoft: THREE.MeshBasicMaterial;
 }
 
 export interface Gear {
+  /** model-space pieces that follow the head */
   head: THREE.Group;
-  /** pieces that float next to the body (model space, not head space) */
-  body: THREE.Group;
+  /** model-space pieces that float freely (companions) */
+  free: THREE.Group;
   /** a visor covers the eyes */
   coversEyes: boolean;
+  /** where an antenna tip is (model space, head-relative frame), when there is one */
+  antennaTip: THREE.Vector3 | null;
   update: (t: number) => void;
   geometries: THREE.BufferGeometry[];
 }
 
-export function buildGear(headgear: number, visor: number, m: GearMats, wideHead: boolean): Gear {
+/** Headgear that takes the side sockets, and that grows from the top button (indices in HEADGEAR). */
+const SOCKET_HEADGEAR = [1, 2, 9];
+const TOP_HEADGEAR = [3, 4];
+
+export function buildGear(headgear: number, visor: number, m: GearMats, opts: { ears: boolean; antennaForRelic: boolean }): Gear {
   const head = new THREE.Group();
-  const body = new THREE.Group();
+  const free = new THREE.Group();
   const geometries: THREE.BufferGeometry[] = [];
   const mesh = (geo: THREE.BufferGeometry, mat: THREE.Material, x = 0, y = 0, z = 0) => {
     geometries.push(geo);
@@ -49,195 +69,246 @@ export function buildGear(headgear: number, visor: number, m: GearMats, wideHead
     o.position.set(x, y, z);
     return o;
   };
-  const { hw, ht, hd, face, eyeY } = HEAD;
-  // ears or side discs make the head wider: cups and bands clear them
-  const sideX = hw + (wideHead ? 0.12 : 0.05);
+  /** A rod from a to b. */
+  const rod = (a: THREE.Vector3, b: THREE.Vector3, r: number, mat: THREE.Material) => {
+    const len = a.distanceTo(b);
+    const o = mesh(new THREE.CylinderGeometry(r, r, len, 10), mat);
+    o.position.copy(a).add(b).multiplyScalar(0.5);
+    o.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), b.clone().sub(a).normalize());
+    return o;
+  };
+  const A = ANATOMY;
+  const S = A.socket;
+  const usesSockets = SOCKET_HEADGEAR.includes(headgear);
   let halo: THREE.Object3D | null = null;
   let led: THREE.Object3D | null = null;
   let floater: THREE.Group | null = null;
+  let antennaTip: THREE.Vector3 | null = null;
 
-  /* ---------- headgear ---------- */
+  /* ---------- side sockets ---------- */
+  const cup = (side: -1 | 1, big = true) => {
+    const r = big ? S.r + 0.025 : S.r - 0.02;
+    const c = mesh(new THREE.CylinderGeometry(r, r * 0.94, 0.1, 32), m.trim, side * (S.outer + 0.05), S.y, S.z);
+    c.rotation.z = Math.PI / 2;
+    const ring = mesh(new THREE.TorusGeometry(r * 0.66, 0.018, 8, 32), m.glow, side * (S.outer + 0.102), S.y, S.z);
+    ring.rotation.y = Math.PI / 2;
+    head.add(c, ring);
+  };
   const headphones = (withMic: boolean) => {
-    const band = mesh(new THREE.TorusGeometry(sideX + 0.02, 0.035, 10, 40, Math.PI), m.joints, 0, 0.04, -0.02);
-    band.scale.y = (ht + 0.12) / (sideX + 0.02);
+    cup(-1); cup(1);
+    // the band arcs over the head in the sockets' plane, in front of the ears
+    const rx = S.outer + 0.05;
+    const ry = A.head.yMax + 0.07 - S.y;
+    const band = mesh(new THREE.TorusGeometry(1, 0.032, 10, 48, Math.PI), m.joints, 0, S.y, S.z + 0.01);
+    band.scale.set(rx, ry, 1);
     head.add(band);
-    for (const s of [-1, 1]) {
-      const cup = mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.13, 28), m.trim, sideX * s, 0, -0.02);
-      cup.rotation.z = Math.PI / 2;
-      const ring = mesh(new THREE.TorusGeometry(0.115, 0.018, 8, 28), m.glow, (sideX + 0.068) * s, 0, -0.02);
-      ring.rotation.y = Math.PI / 2;
-      head.add(cup, ring);
-    }
     if (withMic) {
+      // from the right cup (character's right, -x) to the mouth
       const curve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-(sideX + 0.04), -0.05, 0.04), new THREE.Vector3(-(hw + 0.02), -0.3, 0.3), new THREE.Vector3(-0.14, -0.32, face + 0.02),
+        new THREE.Vector3(-(S.outer + 0.05), S.y - 0.09, S.z + 0.08),
+        new THREE.Vector3(-(A.head.x + 0.05), A.mouth.y + 0.02, 0.22),
+        new THREE.Vector3(-0.12, A.mouth.y - 0.01, A.mouth.z + 0.04),
       ]);
-      head.add(mesh(new THREE.TubeGeometry(curve, 24, 0.018, 8), m.joints), mesh(new THREE.SphereGeometry(0.045, 16, 12), m.glow, -0.14, -0.32, face + 0.02));
+      head.add(mesh(new THREE.TubeGeometry(curve, 24, 0.016, 8), m.joints), mesh(new THREE.SphereGeometry(0.04, 16, 12), m.glow, -0.12, A.mouth.y - 0.01, A.mouth.z + 0.05));
     }
+  };
+
+  /* ---------- top button ---------- */
+  const T = A.topButton;
+  const collar = () => head.add(mesh(new THREE.CylinderGeometry(0.05, 0.062, 0.05, 20), m.trim, T.x, T.y + 0.015, T.z));
+  const antenna = (tipLed: boolean) => {
+    collar();
+    const top = new THREE.Vector3(T.x - 0.05, T.y + (tipLed ? 0.32 : 0.24), T.z);
+    head.add(rod(new THREE.Vector3(T.x, T.y + 0.03, T.z), top, 0.014, m.joints));
+    if (tipLed) {
+      led = mesh(new THREE.SphereGeometry(0.045, 16, 12), m.glow, top.x, top.y + 0.02, top.z);
+      head.add(led);
+    }
+    antennaTip = new THREE.Vector3(top.x, top.y + 0.11, top.z);
   };
 
   switch (headgear) {
     case 1: headphones(false); break;
     case 2: headphones(true); break;
-    case 3: { // antenna with a blinking tip
-      const rod = mesh(new THREE.CylinderGeometry(0.016, 0.022, 0.42, 8), m.joints, 0.2, ht + 0.19, -0.05);
-      rod.rotation.z = -0.3;
-      head.add(rod, mesh(new THREE.CylinderGeometry(0.05, 0.065, 0.05, 16), m.trim, 0.14, ht + 0.01, -0.05));
-      led = mesh(new THREE.SphereGeometry(0.055, 16, 12), m.glow, 0.27, ht + 0.4, -0.05);
-      head.add(led);
-      break;
-    }
-    case 4: { // SGX bolt antenna
-      head.add(mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.07, 16), m.trim, 0.18, ht + 0.01, -0.05));
-      const bolt = mesh(boltGeometry(0.42, 0.06), m.glow, 0.24, ht + 0.27, -0.08);
-      bolt.rotation.z = -0.25;
+    case 3: antenna(!opts.antennaForRelic); break;
+    case 4: { // SGX bolt antenna: a short stem from the button, the bolt on top
+      collar();
+      head.add(rod(new THREE.Vector3(T.x, T.y + 0.03, T.z), new THREE.Vector3(T.x, T.y + 0.12, T.z), 0.016, m.joints));
+      const bolt = mesh(boltGeometry(0.3, 0.05), m.glow, T.x, T.y + 0.28, T.z - 0.025);
+      bolt.rotation.z = 0.12;
       head.add(bolt);
       break;
     }
-    case 5: { // halo
-      halo = mesh(new THREE.TorusGeometry(0.34, 0.028, 12, 48), m.glow, 0, ht + 0.24, -0.04);
+    case 5: { // halo, between the ears
+      halo = mesh(new THREE.TorusGeometry(0.3, 0.022, 12, 48), m.glow, 0, A.head.yMax + 0.22, A.head.center.z);
       halo.rotation.x = Math.PI / 2;
       head.add(halo);
       break;
     }
-    case 6: { // SGX gear halo behind the head
-      halo = mesh(gearGeometry(0.72, 0.64, 16, 0.58, 0.05), m.trim, 0, 0.06, -(hd + 0.1));
-      head.add(halo, mesh(new THREE.TorusGeometry(0.56, 0.012, 6, 64), m.glow, 0, 0.06, -(hd + 0.1)));
+    case 6: { // SGX gear halo behind the head (clears the ears when there are ears)
+      const z = (opts.ears ? A.ears.zBack : A.head.zBack) - 0.07;
+      halo = mesh(gearGeometry(0.66, 0.59, 16, 0.53, 0.045), m.trim, 0, S.y, z);
+      head.add(halo, mesh(new THREE.TorusGeometry(0.51, 0.011, 6, 64), m.glow, 0, S.y, z + 0.01));
       break;
     }
-    case 7: { // mech fins on top
+    case 7: { // mech fins on the flat top, raked back, between the ears
       for (const s of [-1, 1]) {
-        const fin = mesh(new RoundedBoxGeometry(0.05, 0.42, 0.2, 2, 0.02), m.trim, 0.24 * s, ht + 0.12, -0.12);
-        fin.rotation.set(-0.5, 0, -0.32 * s);
-        const edge = mesh(new THREE.BoxGeometry(0.02, 0.36, 0.02), m.glow, 0.25 * s, ht + 0.14, -0.02);
+        const fin = mesh(new RoundedBoxGeometry(0.045, 0.34, 0.2, 2, 0.018), m.trim, 0.16 * s, A.head.yMax + 0.12, -0.12);
+        fin.rotation.set(-0.55, 0, -0.22 * s);
+        const edge = mesh(new THREE.BoxGeometry(0.018, 0.3, 0.018), m.glow, 0.165 * s, A.head.yMax + 0.13, -0.03);
         edge.rotation.copy(fin.rotation);
         head.add(fin, edge);
       }
       break;
     }
-    case 8: { // LED headband over the top, tilted forward
-      const band = new THREE.Group();
-      const r = sideX + 0.01;
-      const arc = mesh(new THREE.TorusGeometry(r, 0.03, 10, 48, Math.PI), m.joints);
-      arc.scale.y = (ht + 0.06) / r;
-      band.add(arc);
-      for (let k = 0; k < 5; k++) {
-        const a = 0.45 + k * 0.56;
-        band.add(mesh(new THREE.SphereGeometry(0.028, 10, 8), m.glow, Math.cos(a) * (r + 0.02), Math.sin(a) * (ht + 0.08), 0.02));
+    case 8: { // LED tiara: from socket to socket across the forehead, above the mask
+      const y = A.forehead.y + 0.05;
+      const pts = [
+        new THREE.Vector3(-S.outer, y, S.z), new THREE.Vector3(-A.head.x - 0.01, y, 0.18), new THREE.Vector3(-0.36, y, A.head.zFront + 0.02),
+        new THREE.Vector3(0, y + 0.02, A.head.zFront + 0.035), new THREE.Vector3(0.36, y, A.head.zFront + 0.02), new THREE.Vector3(A.head.x + 0.01, y, 0.18), new THREE.Vector3(S.outer, y, S.z),
+      ];
+      const curve = new THREE.CatmullRomCurve3(pts);
+      head.add(mesh(new THREE.TubeGeometry(curve, 48, 0.022, 8), m.joints));
+      for (let k = 1; k < 8; k++) {
+        const p = curve.getPoint(k / 8);
+        head.add(mesh(new THREE.SphereGeometry(0.022, 10, 8), m.glow, p.x, p.y + 0.012, p.z + 0.012));
       }
-      band.position.set(0, 0.04, 0.05);
-      band.rotation.x = 0.35;
-      head.add(band);
       break;
     }
-    case 9: { // earpiece with an SGX bolt fin
-      const pod = mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.12, 28), m.trim, -sideX, -0.02, -0.02);
-      pod.rotation.z = Math.PI / 2;
-      const ring = mesh(new THREE.TorusGeometry(0.1, 0.018, 8, 28), m.glow, -(sideX + 0.062), -0.02, -0.02);
-      ring.rotation.y = Math.PI / 2;
-      const fin = mesh(boltGeometry(0.34, 0.05), m.glow, -(sideX + 0.02), 0.26, -0.06);
-      fin.rotation.set(0, Math.PI / 2, 0.2);
-      head.add(pod, ring, fin);
+    case 9: { // earpiece on the left socket (the one a 3/4 view shows) with an SGX bolt fin
+      cup(1, false);
+      const fin = mesh(boltGeometry(0.28, 0.04), m.glow, S.outer + 0.07, S.y + 0.25, S.z - 0.04);
+      fin.rotation.set(0, Math.PI / 2, 0.25);
+      head.add(fin);
       break;
     }
-    case 10: { // the SGX icon floating by the shoulder, like a companion
+    case 10: { // the real SGX icon floating by the shoulder, like a companion
       floater = new THREE.Group();
-      floater.position.set(0.68, 1.42, -0.05);
+      floater.position.set(0.86, 1.72, -0.08);
       const spin = new THREE.Group();
-      spin.add(mesh(gearGeometry(0.15, 0.115, 8, 0.06, 0.04), m.trim, 0.03, 0, -0.02));
-      spin.add(mesh(boltGeometry(0.28, 0.035), m.glow, -0.04, 0, 0.02));
-      const pad = mesh(new THREE.TorusGeometry(0.11, 0.008, 6, 40), m.glow, 0, -0.2, 0);
+      floater.add(spin);
+      const pad = mesh(new THREE.TorusGeometry(0.1, 0.007, 6, 40), m.glow, 0, -0.17, 0);
       pad.rotation.x = Math.PI / 2;
-      floater.add(spin, pad);
-      body.add(floater);
+      floater.add(pad);
+      free.add(floater);
+      void loadSgxIcon().then((g) => {
+        if (!g) return;
+        const s = 0.24;
+        const gear = new THREE.Mesh(g.gear, m.dark); gear.scale.setScalar(s);
+        const bolt = new THREE.Mesh(g.bolt, m.glow); bolt.scale.setScalar(s); bolt.position.z = 0.01;
+        spin.add(gear, bolt);
+      });
       break;
     }
     default: break;
   }
+  // an emblem on the antenna needs the antenna
+  if (opts.antennaForRelic && !antennaTip) antenna(false);
 
-  /* ---------- visor (in front of the face) ---------- */
-  const set = new THREE.Group();
-  set.position.set(0, eyeY, face);
-  head.add(set);
-  const lensPlane = (w: number, h: number, z: number, x = 0) => {
-    const g = mesh(new THREE.PlaneGeometry(w, h), m.lens, x, 0, z);
-    const soft = mesh(new THREE.PlaneGeometry(w * 1.2, h * 1.45), m.glowSoft, x, 0, z - 0.004);
-    return [soft, g];
+  /* ---------- visors: in front of the eyes, arms clip onto the side sockets ---------- */
+  const E = A.eyes;
+  const zBack = E.front + 0.015;
+  const arms = (y: number, zFrom: number, xFrom: number) => {
+    for (const s of [-1, 1]) {
+      const end = new THREE.Vector3(s * (S.outer + 0.01), S.y, S.z + 0.09);
+      head.add(rod(new THREE.Vector3(s * xFrom, y, zFrom), end, 0.022, m.trim));
+      if (!usesSockets) {
+        const clip = mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.05, 24), m.trim, s * (S.outer + 0.02), S.y, S.z);
+        clip.rotation.z = Math.PI / 2;
+        head.add(clip);
+      }
+    }
   };
-  const strap = () => {
-    const s = mesh(new THREE.TorusGeometry(1, 0.03, 8, 48), m.dark, 0, eyeY + 0.02, 0.0);
-    s.rotation.x = Math.PI / 2;
-    s.scale.set(hw + 0.03, hd + 0.06, 1);
-    head.add(s);
+  const lens = (w: number, h: number, z: number, x = 0, y = E.y) => {
+    head.add(mesh(new THREE.PlaneGeometry(w * 1.18, h * 1.4), m.glowSoft, x, y, z - 0.004), mesh(new THREE.PlaneGeometry(w, h), m.lens, x, y, z));
   };
+  const box = (w: number, h: number, d: number, y = E.y) => {
+    head.add(mesh(new RoundedBoxGeometry(w, h, d, 4, Math.min(0.09, h * 0.3)), m.trim, 0, y, zBack + d / 2));
+    head.add(mesh(new RoundedBoxGeometry(w - 0.05, h - 0.04, d + 0.02, 4, Math.min(0.08, h * 0.28)), m.dark, 0, y, zBack + d / 2 + 0.012));
+    return zBack + d + 0.024;
+  };
+  let coversEyes = false;
   switch (visor) {
-    case 1: // classic VR
-      set.add(mesh(new RoundedBoxGeometry(1.0, 0.44, 0.26, 4, 0.1), m.trim, 0, 0, 0.1));
-      set.add(mesh(new RoundedBoxGeometry(0.95, 0.4, 0.28, 4, 0.09), m.dark, 0, 0, 0.14));
-      set.add(...lensPlane(0.82, 0.28, 0.285));
-      strap();
+    case 1: { // classic VR
+      const front = box(1.0, 0.46, 0.16);
+      lens(0.84, 0.3, front);
+      arms(E.y, zBack + 0.05, 0.49);
+      coversEyes = true;
       break;
-    case 2: // slim VR
-      set.add(mesh(new RoundedBoxGeometry(0.94, 0.3, 0.2, 4, 0.08), m.trim, 0, 0, 0.08));
-      set.add(mesh(new RoundedBoxGeometry(0.9, 0.27, 0.22, 4, 0.07), m.dark, 0, 0, 0.11));
-      set.add(...lensPlane(0.78, 0.18, 0.225));
-      strap();
+    }
+    case 2: { // slim VR
+      const front = box(0.96, 0.3, 0.11);
+      lens(0.82, 0.17, front);
+      arms(E.y, zBack + 0.04, 0.47);
+      coversEyes = true;
       break;
-    case 3: // AR glasses
+    }
+    case 3: { // AR glasses: rings around each eye, a tinted lens, temples to the sockets
       for (const s of [-1, 1]) {
-        set.add(mesh(new RoundedBoxGeometry(0.4, 0.26, 0.05, 3, 0.04), m.trim, 0.23 * s, 0, 0.05));
-        set.add(...lensPlane(0.33, 0.19, 0.08, 0.23 * s));
-        set.add(mesh(new THREE.BoxGeometry(0.035, 0.035, face + 0.05), m.trim, 0.44 * s, 0.05, -face / 2 + 0.04));
+        const ring = mesh(new THREE.TorusGeometry(E.r + 0.03, 0.022, 10, 40), m.trim, s * E.x, E.y, zBack + 0.01);
+        head.add(ring, mesh(new THREE.CircleGeometry(E.r + 0.02, 40), m.glassTint, s * E.x, E.y, zBack + 0.008));
       }
-      set.add(mesh(new THREE.BoxGeometry(0.1, 0.035, 0.035), m.trim, 0, 0.05, 0.06));
+      head.add(rod(new THREE.Vector3(-0.03, E.y + 0.06, zBack + 0.012), new THREE.Vector3(0.03, E.y + 0.06, zBack + 0.012), 0.018, m.trim));
+      arms(E.y + 0.06, zBack, E.x + E.r + 0.03);
       break;
-    case 4: // MR visor with cameras
-      set.add(mesh(new RoundedBoxGeometry(1.06, 0.5, 0.3, 4, 0.11), m.trim, 0, 0, 0.1));
-      set.add(mesh(new RoundedBoxGeometry(1.0, 0.46, 0.32, 4, 0.1), m.dark, 0, 0, 0.14));
-      set.add(...lensPlane(0.86, 0.32, 0.305));
+    }
+    case 4: { // MR visor with cameras
+      const front = box(1.04, 0.5, 0.18);
+      lens(0.86, 0.32, front);
       for (const s of [-1, 1]) {
-        const cam = mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.05, 16), m.dark, 0.33 * s, -0.18, 0.3);
+        const cam = mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.04, 16), m.dark, s * 0.33, E.y - 0.19, front + 0.01);
         cam.rotation.x = Math.PI / 2;
-        set.add(cam, mesh(new THREE.CircleGeometry(0.026, 16), m.glow, 0.33 * s, -0.18, 0.327));
+        head.add(cam, mesh(new THREE.CircleGeometry(0.024, 16), m.glow, s * 0.33, E.y - 0.19, front + 0.032));
       }
-      strap();
-      break;
-    case 5: { // curved gaming visor wrapping the front
-      const r = face + 0.08;
-      const arc = mesh(new THREE.CylinderGeometry(r, r, 0.3, 40, 1, true, -1.05, 2.1), m.lens, 0, 0, -face);
-      arc.scale.x = (hw + 0.1) / r;
-      set.add(arc);
-      for (const y of [-0.165, 0.165]) {
-        const rim = mesh(new THREE.CylinderGeometry(r + 0.01, r + 0.01, 0.04, 40, 1, true, -1.1, 2.2), m.trim, 0, y, -face);
-        rim.scale.x = (hw + 0.1) / r;
-        set.add(rim);
-      }
+      arms(E.y, zBack + 0.06, 0.51);
+      coversEyes = true;
       break;
     }
-    case 6: // goggles
+    case 5: { // gaming visor wrapping the front, from socket to socket
+      const cz = A.head.center.z;
+      const rz = E.front + 0.05 - cz;
+      const rx = S.outer + 0.02;
+      const arc = mesh(new THREE.CylinderGeometry(1, 1, 0.3, 48, 1, true, -1.25, 2.5), m.lens, 0, E.y, cz);
+      arc.scale.set(rx, 1, rz);
+      head.add(arc);
+      for (const y of [-0.16, 0.16]) {
+        const rim = mesh(new THREE.CylinderGeometry(1.01, 1.01, 0.035, 48, 1, true, -1.3, 2.6), m.trim, 0, E.y + y, cz);
+        rim.scale.set(rx, 1, rz);
+        head.add(rim);
+      }
+      coversEyes = true;
+      break;
+    }
+    case 6: { // goggles: a tube on each eye
       for (const s of [-1, 1]) {
-        const tube = mesh(new THREE.CylinderGeometry(0.17, 0.19, 0.16, 24), m.dark, 0.22 * s, 0, 0.06);
+        const tube = mesh(new THREE.CylinderGeometry(E.r + 0.035, E.r + 0.05, 0.12, 28, 1, true), m.dark, s * E.x, E.y, zBack + 0.06);
         tube.rotation.x = Math.PI / 2;
-        set.add(tube, mesh(new THREE.TorusGeometry(0.17, 0.03, 10, 32), m.trim, 0.22 * s, 0, 0.15), mesh(new THREE.CircleGeometry(0.145, 32), m.lens, 0.22 * s, 0, 0.146));
+        head.add(tube, mesh(new THREE.TorusGeometry(E.r + 0.035, 0.026, 10, 36), m.trim, s * E.x, E.y, zBack + 0.12), mesh(new THREE.CircleGeometry(E.r + 0.02, 36), m.lens, s * E.x, E.y, zBack + 0.118));
       }
-      strap();
-      break;
-    case 7: { // LED band around the front half of the head
-      for (const [mat, tube] of [[m.glow, 0.035], [m.glowSoft, 0.06]] as const) {
-        const band = mesh(new THREE.TorusGeometry(1, tube, 10, 64, Math.PI), mat, 0, 0, -face);
-        band.rotation.x = Math.PI / 2;
-        band.scale.set(hw + 0.04, face + 0.03, 1);
-        set.add(band);
-      }
+      arms(E.y, zBack + 0.06, E.x + E.r + 0.05);
+      coversEyes = true;
       break;
     }
-    case 8: // mech T-visor
-      set.add(mesh(new RoundedBoxGeometry(1.02, 0.5, 0.26, 3, 0.07), m.trim, 0, -0.06, 0.08));
-      set.add(mesh(new RoundedBoxGeometry(0.97, 0.46, 0.28, 3, 0.06), m.dark, 0, -0.06, 0.11));
-      set.add(...lensPlane(0.76, 0.1, 0.255, 0).map((o) => { o.position.y = 0.05; return o; }));
-      set.add(...lensPlane(0.1, 0.24, 0.256, 0).map((o) => { o.position.y = -0.12; return o; }));
-      strap();
+    case 7: { // LED slit: a dark glass band with one light line across the eyes
+      const cz = A.head.center.z;
+      const rz = E.front + 0.035 - cz;
+      const rx = S.outer + 0.005;
+      const glass = mesh(new THREE.CylinderGeometry(1, 1, 0.36, 48, 1, true, -1.2, 2.4), m.dark, 0, E.y, cz);
+      glass.scale.set(rx, 1, rz);
+      const line = mesh(new THREE.CylinderGeometry(1.012, 1.012, 0.035, 48, 1, true, -1.05, 2.1), m.glow, 0, E.y, cz);
+      line.scale.set(rx, 1, rz);
+      head.add(glass, line);
+      coversEyes = true;
       break;
+    }
+    case 8: { // mech T-visor
+      const front = box(1.02, 0.5, 0.16, E.y - 0.04);
+      lens(0.78, 0.08, front, 0, E.y + 0.06);
+      lens(0.09, 0.24, front + 0.001, 0, E.y - 0.12);
+      arms(E.y - 0.04, zBack + 0.05, 0.5);
+      coversEyes = true;
+      break;
+    }
     default: break;
   }
 
@@ -245,12 +316,11 @@ export function buildGear(headgear: number, visor: number, m: GearMats, wideHead
     if (halo) halo.rotation.z = t * (headgear === 6 ? 0.35 : 0.8);
     if (led) led.scale.setScalar(Math.sin(t * 6) > 0 ? 1 : 0.55);
     if (floater) {
-      floater.position.y = 1.42 + Math.sin(t * 1.6) * 0.03;
+      floater.position.y = 1.72 + Math.sin(t * 1.6) * 0.03;
       floater.children[0].rotation.y = t * 0.9;
     }
     m.glowSoft.opacity = 0.2 + Math.sin(t * 2.4) * 0.1;
   };
 
-  // visors that wrap the eyes (all but the LED band and AR glasses) hide them
-  return { head, body, coversEyes: [1, 2, 4, 5, 6, 8].includes(visor), update, geometries };
+  return { head, free, coversEyes, antennaTip, update, geometries };
 }

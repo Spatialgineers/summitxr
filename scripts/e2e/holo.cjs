@@ -87,10 +87,11 @@ const S = (v) => ({ stringValue: v });
   const r2 = await p.$eval(`${Q} .sgx-roles`, (e) => e.textContent || '');
   check('after approval the same pass says SPEAKER', /SPEAKER/.test(r2) && /Aprobado|Approved/.test(r2), r2.slice(0, 160));
   await (await p.$(`${Q} .sgx-hstudio__preview canvas`)).screenshot({ path: `${OUT}/c_speaker_official.png` });
-  // speaker portal and sponsor form need the pass (they have it here): the portal opens prefilled
-  await p.evaluate(() => window.dispatchEvent(new Event('sgx:open_speaker_portal'))); await p.waitForTimeout(1500);
-  const prefilled = await p.$eval('[role=dialog] input', (i) => i.value).catch(() => '');
+  // speaker portal and sponsor form need the pass (they have it here): the portal is its own page, prefilled
+  await p.evaluate(() => window.dispatchEvent(new Event('sgx:open_speaker_portal'))); await p.waitForTimeout(2500);
+  const prefilled = await p.$eval('#summit-section-portal-speakers .sgx-modpage input', (i) => i.value).catch(() => '');
   check('speaker portal opens prefilled from the pass', /Gabriela/.test(prefilled), prefilled);
+  check('speaker portal is a page (/portal-speakers, no dialog)', (await p.evaluate(() => location.pathname)) === '/portal-speakers' && !(await p.$('[role=dialog][aria-modal="true"] .sgx-modpage, [role=dialog][aria-modal="true"] input')));
   await p.keyboard.press('Escape'); await p.waitForTimeout(400);
   // viewer: someone else's initiate card from the Guild
   await p.evaluate(async () => { const m = await import('/src/identity/credentials.ts'); window.dispatchEvent(new CustomEvent('sgx:view_holo_card', { detail: m.initiateCredential('init_1') })); });

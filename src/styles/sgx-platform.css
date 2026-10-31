@@ -290,17 +290,20 @@
 .sgx-preview:hover, .sgx-preview:focus-visible { border-color: var(--SGX_Yellow); transform: translateY(-3px); }
 .sgx-preview:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 .sgx-preview__art {
-  position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; overflow: hidden;
-  background: linear-gradient(180deg, transparent 40%, rgba(5, 5, 5, 0.85)), var(--preview-tex) center / 160px repeat, #0b0d10;
+  position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden;
+  /* the module's real screenshot over the pillar's tile (shown only if the shot is missing) */
+  background: linear-gradient(180deg, transparent 55%, rgba(5, 5, 5, 0.8)), var(--preview-shot) center top / cover no-repeat, var(--preview-tex) center / 160px repeat, #0b0d10;
   border-bottom: 1px solid color-mix(in srgb, var(--SGX_Yellow) 35%, transparent);
+  transition: background-position 0.6s ease;
 }
-.sgx-preview__art::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 45%, transparent 30%, rgba(5, 5, 5, 0.55)); pointer-events: none; }
+.sgx-preview:hover .sgx-preview__art { background-position: center, center 8%, center, center; }
 .sgx-preview__icon {
-  position: relative; z-index: 1; width: 64px; height: 64px; display: grid; place-items: center; color: var(--SGX_Yellow);
-  background: rgba(5, 5, 5, 0.78); border: 1px solid color-mix(in srgb, var(--SGX_Yellow) 60%, transparent);
-  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  position: absolute; z-index: 1; left: 10px; top: 10px; width: 40px; height: 40px; display: grid; place-items: center; color: var(--SGX_Yellow);
+  background: rgba(5, 5, 5, 0.82); border: 1px solid color-mix(in srgb, var(--SGX_Yellow) 60%, transparent);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
   transition: transform 0.3s ease;
 }
+.sgx-preview__icon svg { width: 20px; height: 20px; }
 .sgx-preview:hover .sgx-preview__icon { transform: scale(1.08); }
 .sgx-preview__kind {
   position: absolute; z-index: 1; left: 10px; bottom: 8px; padding: 2px 8px; font-family: var(--font-mono); font-size: 0.68rem;
@@ -312,7 +315,7 @@
   margin-top: auto; display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 0.75rem;
   letter-spacing: 0.1em; text-transform: uppercase; color: var(--SGX_Yellow);
 }
-@media (max-width: 640px) { .sgx-preview__art { aspect-ratio: 3 / 1; } .sgx-preview__icon { width: 52px; height: 52px; } }
+@media (max-width: 640px) { .sgx-preview__art { aspect-ratio: 16 / 7; } .sgx-preview__icon { width: 36px; height: 36px; } }
 @media (prefers-reduced-motion: reduce) { .sgx-preview { animation: none !important; } .sgx-preview:hover { transform: none; } }
 .sgx-module__icon {
   width: 44px; height: 44px; display: grid; place-items: center; color: var(--SGX_Yellow);

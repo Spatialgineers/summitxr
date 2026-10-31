@@ -50,6 +50,9 @@ export const PillarRail: React.FC<{ active?: string; onPick: (p: SgxPillar) => v
   );
 };
 
+/** The module's preview screenshot (public/previews/<file>.webp), named after its key. */
+const previewFile = (key: string) => key.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
 export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pillarSlug }) => {
   const { language } = useLanguage();
   const { state } = useImmersion();
@@ -124,11 +127,11 @@ export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pil
                   key={key}
                   type="button"
                   className="sgx-preview"
-                  style={{ ['--sgx-i' as any]: i, ['--preview-tex' as string]: `url(/pilot/tex/sgx-${pillar.slug}.png)` }}
+                  style={{ ['--sgx-i' as any]: i, ['--preview-tex' as string]: `url(/pilot/tex/sgx-${pillar.slug}.png)`, ['--preview-shot' as string]: `url(/previews/${previewFile(key)}.webp)` }}
                   onClick={() => { playUiChirp(820); runPillarModule(m); }}
                   data-sgx-hover
                 >
-                  {/* Preview art: the pillar's own SGX tile with the module's mark on top. */}
+                  {/* Preview art: a real screenshot of the module (scripts/make-previews.cjs), its mark as a badge; the pillar's tile shows if the shot is missing. */}
                   <span className="sgx-preview__art" aria-hidden="true">
                     <span className="sgx-preview__icon"><Icon className="w-7 h-7" /></span>
                     <span className="sgx-preview__kind">{kind}</span>

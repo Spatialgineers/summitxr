@@ -24,12 +24,12 @@ interface SummitSponsorInquiryFormProps {
 
 const AVAILABLE_GOALS = [
   { id: '4K_STREAM_OVERLAY', label: 'Logo en la webapp y en los overlays de la transmisión (Días 1-3)', labelEn: 'Logo on the web app and on the broadcast overlays (Days 1-3)' },
-  { id: 'PHYSICAL_BOOTH_CHROMA', label: 'Activación "Experience by [Marca]" (Tier 4 y 5)', labelEn: '"Experience by [Brand]" activation (Tier 4 and 5)' },
+  { id: 'PHYSICAL_BOOTH_CHROMA', label: 'Activación "Experience by [Marca]" (Paquete 4 y 5)', labelEn: '"Experience by [Brand]" activation (Package 4 and 5)' },
   { id: 'DRONE_MINIGAME_BRANDING', label: 'Branding en Minijuego de Drones & Zonas de Aterrizaje', labelEn: 'Branding in the Drone Mini-Game & Landing Zones' },
   { id: 'GAMIFIED_CHALLENGE_POINTS', label: 'Pregunta de trivia de marca en vivo (+25 XP)', labelEn: 'Live brand trivia question (+25 XP)' },
   { id: 'SEGMENT_NAMING', label: 'Naming de Segmento o Pilar ("Showcase Powered by...")', labelEn: 'Segment or Pillar Naming ("Showcase Powered by...")' },
-  { id: 'VIP_CATERING', label: 'Alianza de servicios esenciales: venue, internet, comida u otros (Tier 5)', labelEn: 'Essential services alliance: venue, internet, food or others (Tier 5)' },
-  { id: 'YEAR_LONG_LICENSE', label: 'Licencia de acceso a la webapp por 365 días desde noviembre (Tier 4 y 5)', labelEn: '365-day web app access license starting in November (Tier 4 and 5)' },
+  { id: 'VIP_CATERING', label: 'Alianza de servicios esenciales: venue, internet, comida u otros (Paquete 5)', labelEn: 'Essential services alliance: venue, internet, food or others (Package 5)' },
+  { id: 'YEAR_LONG_LICENSE', label: 'Licencia de acceso a la webapp por 365 días desde noviembre (Paquete 4 y 5)', labelEn: '365-day web app access license starting in November (Package 4 and 5)' },
   { id: 'TALENT_RECRUITMENT', label: 'Reclutamiento de Talento 3D / Desarrolladores Roblox', labelEn: '3D Talent / Roblox Developer Recruiting' }
 ];
 
@@ -161,7 +161,7 @@ DATOS DE LA EMPRESA:
 - Sitio Web / Enlace: ${submittedInquiry.websiteUrl || 'N/A'}
 
 DETALLES DEL PATROCINIO:
-- Tier Seleccionado: ${submittedInquiry.selectedTierName}
+- Paquete Seleccionado: ${submittedInquiry.selectedTierName}
 - Presupuesto Estimado: ${submittedInquiry.estimatedBudget || 'N/A'}
 
 OBJETIVOS Y ACTIVACIONES SELECCIONADAS:
@@ -299,7 +299,7 @@ This summary is not a binding offer. The short sponsorship contract signed by bo
   const formActions = (
     <>
       {onClose && <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={onClose}>{es ? 'Cancelar' : 'Cancel'}</button>}
-      <button type="submit" form={formId} className="sgx-btn sgx-btn--sm" disabled={isSubmitting}>
+      <button type="submit" form={formId} className="sgx-btn sgx-btn--sm" data-guide="enviar-patrocinio" disabled={isSubmitting}>
         <Send size={14} aria-hidden /> {isSubmitting ? (es ? 'Enviando…' : 'Sending…') : (es ? 'Enviar solicitud' : 'Send request')}
       </button>
     </>
@@ -324,7 +324,7 @@ This summary is not a binding offer. The short sponsorship contract signed by bo
                 onClick={() => { setSelectedTierId(tier.id); setEstimatedBudget(tier.priceRange); }}
               >
                 <span className="sgx-m-row sgx-m-row--between" style={{ width: '100%' }}>
-                  <span className="sgx-m-tag">{es ? 'Nivel' : 'Tier'} {tier.tierNumber}</span>
+                  <span className="sgx-m-tag">{es ? 'Paquete' : 'Package'} {tier.tierNumber}</span>
                   <span className="sgx-m-xp" style={{ fontSize: '0.85rem' }}>{loc(tier, 'priceRange', language)}</span>
                 </span>
                 <span className="sgx-m-h">{loc(tier, 'name', language)}</span>
@@ -372,11 +372,11 @@ This summary is not a binding offer. The short sponsorship contract signed by bo
           <label className="sgx-m-field">
             <span>{es ? 'Rango de inversión' : 'Budget range'}</span>
             <select className="sgx-m-input" value={estimatedBudget} onChange={(e) => setEstimatedBudget(e.target.value)}>
-              <option value="$50 – $100">$50 – $100 (Tier 1: Digital Presence)</option>
-              <option value="$250 – $500">$250 – $500 (Tier 2: Gamified)</option>
-              <option value="$750 – $1,000">$750 – $1,000 (Tier 3: Experience)</option>
-              <option value="$1,500 – $2,500">$1,500 – $2,500 (Tier 4: Signature Experience)</option>
-              <option value="A convenir (sin precio público)">{es ? 'A convenir (Tier 5: Alianza de servicios esenciales)' : 'To be agreed (Tier 5: Essential Services Alliance)'}</option>
+              <option value="$50 – $100">$50 – $100 ({es ? 'Paquete' : 'Package'} 1: Digital Presence)</option>
+              <option value="$250 – $500">$250 – $500 ({es ? 'Paquete' : 'Package'} 2: Gamified)</option>
+              <option value="$750 – $1,000">$750 – $1,000 ({es ? 'Paquete' : 'Package'} 3: Experience)</option>
+              <option value="$1,500 – $2,500">$1,500 – $2,500 ({es ? 'Paquete' : 'Package'} 4: Signature Experience)</option>
+              <option value="A convenir (sin precio público)">{es ? 'A convenir (Paquete 5: Alianza de servicios esenciales)' : 'To be agreed (Package 5: Essential Services Alliance)'}</option>
             </select>
           </label>
           <label className="sgx-m-field">

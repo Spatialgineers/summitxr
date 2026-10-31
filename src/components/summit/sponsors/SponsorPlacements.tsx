@@ -14,8 +14,8 @@ export const SponsorPlacements: React.FC = () => {
 
   const included = tier ? SPONSOR_PLACEMENTS.filter((p) => p.tiers.includes(tier)).length : SPONSOR_PLACEMENTS.length;
   const tierList = (tiers: TierNumber[]) => (tiers.length === 5
-    ? (es ? 'todos los niveles' : 'every tier')
-    : `Tier ${tiers.join(', ')}`);
+    ? (es ? 'todos los paquetes' : 'every package')
+    : `${es ? 'Paquete' : 'Package'} ${tiers.join(', ')}`);
 
   return (
     <section className="spx-section" aria-labelledby="spx-place-title">
@@ -49,7 +49,7 @@ export const SponsorPlacements: React.FC = () => {
         </div>
         <p className="spx-filter__note" aria-live="polite">
           {tier
-            ? (es ? `Tier ${tier} incluye ${included} de ${SPONSOR_PLACEMENTS.length} espacios.` : `Tier ${tier} includes ${included} of ${SPONSOR_PLACEMENTS.length} spaces.`)
+            ? (es ? `Paquete ${tier} incluye ${included} de ${SPONSOR_PLACEMENTS.length} espacios.` : `Package ${tier} includes ${included} of ${SPONSOR_PLACEMENTS.length} spaces.`)
             : (es ? `${SPONSOR_PLACEMENTS.length} espacios en total.` : `${SPONSOR_PLACEMENTS.length} spaces in all.`)}
         </p>
       </div>

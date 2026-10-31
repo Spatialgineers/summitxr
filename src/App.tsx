@@ -16,6 +16,7 @@ const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard').th
 const StagePage = lazy(() => import('./components/stage/StagePage').then((m) => ({ default: m.StagePage })));
 const AudiencePWA = lazy(() => import('./components/audience/AudiencePWA').then((m) => ({ default: m.AudiencePWA })));
 const AnalyticsDashboard = lazy(() => import('./components/analytics/AnalyticsDashboard').then((m) => ({ default: m.AnalyticsDashboard })));
+const CompanionDock = lazy(() => import('./companion/CompanionDock').then((m) => ({ default: m.CompanionDock })));
 const DatabaseSchemaViewer = lazy(() => import('./components/schema/DatabaseSchemaViewer').then((m) => ({ default: m.DatabaseSchemaViewer })));
 import { 
   EventSession, 
@@ -1114,6 +1115,11 @@ export default function App() {
 
       {/* SGX Pass: Forja de identidad + Tu Estudio (replaces taquilla, profile, passport, tours) */}
       <SgxPassHost quiet={currentPage === 'stage' || currentPage === 'multiview'} />
+
+      {/* Your Highbot companion: the floating head and its quick chat */}
+      {!['stage', 'multiview', 'admin', 'analytics', 'schema'].includes(currentPage) && (
+        <Suspense fallback={null}><CompanionDock /></Suspense>
+      )}
 
       {/* SGX Immersion Engine: quests, energy cells, terminal, HUD and FX */}
       <ImmersionLayer currentPage={currentPage} />

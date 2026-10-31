@@ -203,11 +203,11 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         {
           id: 'mod_sponsors_hub',
           title: (es ? `Partners Oficiales & Matriz de Patrocinio (${sponsorCount})` : `Official Partners & Sponsorship Matrix (${sponsorCount})`),
-          subtitle: (es ? 'Tiers 1–5 • Las marcas viven dentro de la experiencia' : 'Tiers 1–5 • Brands live inside the experience'),
+          subtitle: (es ? 'Paquetes 1–5 • Las marcas viven dentro de la experiencia' : 'Packages 1–5 • Brands live inside the experience'),
           description:
-            (es ? 'Explora los 5 Tiers de auspicio. Solo se publican marcas confirmadas por escrito.' : 'Explore the 5 sponsorship Tiers. Only brands confirmed in writing are published.'),
+            (es ? 'Explora los 5 Paquetes de auspicio. Solo se publican marcas confirmadas por escrito.' : 'Explore the 5 sponsorship Packages. Only brands confirmed in writing are published.'),
           xpReward: 'PARTNERS',
-          actionLabel: (es ? 'Ver Partners & Tiers' : 'View Partners & Tiers'),
+          actionLabel: (es ? 'Ver Partners & Paquetes' : 'View Partners & Packages'),
           icon: Building2,
           onLaunch: () => onSelectSection('SPONSORS_HUB'),
         },
@@ -414,11 +414,11 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         {
           id: 'mod_sponsor_apply',
           title: (es ? 'Postular Marca como Patrocinador' : 'Apply Your Brand as a Sponsor'),
-          subtitle: (es ? 'Convocatoria Abierta Tiers 1 al 5' : 'Open Call Tiers 1 to 5'),
+          subtitle: (es ? 'Convocatoria Abierta Paquetes 1 al 5' : 'Open Call Packages 1 to 5'),
           description:
-            (es ? 'Integra tu marca dentro del ecosistema interactivo del Summit con uno de los 5 Tiers.' : 'Bring your brand into the Summit\'s interactive ecosystem with one of the 5 Tiers.'),
+            (es ? 'Integra tu marca dentro del ecosistema interactivo del Summit con uno de los 5 Paquetes.' : 'Bring your brand into the Summit\'s interactive ecosystem with one of the 5 Packages.'),
           xpReward: (es ? 'ALIANZA B2B' : 'B2B PARTNERSHIP'),
-          actionLabel: (es ? 'Solicitar Dossier / Tier' : 'Request Dossier / Tier'),
+          actionLabel: (es ? 'Solicitar Dossier / Paquete' : 'Request Dossier / Package'),
           icon: Building2,
           onLaunch: () => onOpenSponsors('tier_3'),
         },

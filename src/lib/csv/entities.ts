@@ -9,7 +9,10 @@ import {
 import { loadAllRewards, saveReward, deleteReward } from '../rewardsStore';
 import { loadInitiateEmails, saveInitiateEmails } from '../../identity/credentials';
 import { REACTOR_MISSIONS } from '../../identity/reactor';
-import { POLLS, GALLERY, MISSION_OVERRIDES, applyMissionOverrides, type KeynotePoll, type GalleryPhoto } from '../content/liveLists';
+import {
+  POLLS, GALLERY, MISSION_OVERRIDES, COMPANION_KB, PILLAR_SHOWCASE, applyMissionOverrides,
+  type KeynotePoll, type GalleryPhoto, type CompanionKbItem, type PillarShowcaseItem,
+} from '../content/liveLists';
 import { PILLAR_BY_KEY, findPillar } from '../sgxPillars';
 
 /* One CSV definition per data set, column for column with the real fields. */
@@ -92,7 +95,7 @@ export const SPEAKERS_CSV: CsvEntity<SummitSpeaker> = {
 };
 
 export const TIERS_CSV: CsvEntity<SponsorshipTier> = {
-  key: 'sponsorship_tiers', label: 'Niveles de auspicio', file: 'sgx_niveles_auspicio', idPrefix: 'tier',
+  key: 'sponsorship_tiers', label: 'Paquetes de auspicio', file: 'sgx_niveles_auspicio', idPrefix: 'tier',
   load: loadAllSponsorshipTiers,
   save: (items) => saveAllSponsorshipTiers(items),
   blank: () => ({ tierNumber: 1, features: [], sponsors: [], yearLongLicense: false, priceRange: '', keyBenefit: '' }),
@@ -319,6 +322,40 @@ export const MISSIONS_CSV: CsvEntity<MissionRow> = {
   ],
 };
 
+export const COMPANION_KB_CSV: CsvEntity<CompanionKbItem> = {
+  key: 'companion_kb', label: 'Highbot: preguntas y respuestas', file: 'sgx_highbot_qa', idPrefix: 'qa',
+  load: () => COMPANION_KB.load(),
+  save: (items) => COMPANION_KB.save(items),
+  blank: () => ({} as Partial<CompanionKbItem>),
+  note: 'El Highbot da estas respuestas tal cual y tienen prioridad sobre todo lo demás que sabe. Llega a los Highbots en unos 10 minutos.',
+  cols: [
+    ID('qa_1'),
+    ...bi('q', 'Pregunta', true),
+    ...bi('a', 'Respuesta', true),
+  ],
+};
+
+export const PILLAR_SHOWCASE_CSV: CsvEntity<PillarShowcaseItem> = {
+  key: 'pillar_showcase', label: 'Pilares: casos del Día 1 y proyectos', file: 'sgx_pilares_casos', idPrefix: 'caso',
+  load: () => PILLAR_SHOWCASE.load(),
+  save: (items) => PILLAR_SHOWCASE.save(items),
+  blank: () => ({ pillar: 'STORY', kind: 'project', draft: false } as Partial<PillarShowcaseItem>),
+  note: 'day1 = caso de uso del bloque del Día 1 de ese pilar; project = proyectos e iniciativas. "draft" marca lo que todavía es borrador (la página lo muestra igual).',
+  cols: [
+    ID('caso_1'),
+    { field: 'pillar', help: 'Pilar: STORY, SHOWCASE, SPARK, STAGE, SYSTEM o SYNTHESIZE', kind: { oneOf: ['STORY', 'SHOWCASE', 'SPARK', 'STAGE', 'SYSTEM', 'SYNTHESIZE'] }, required: true },
+    { field: 'kind', help: 'day1 (caso del Día 1) o project (proyecto o iniciativa)', kind: { oneOf: ['day1', 'project'] }, required: true },
+    ...bi('title', 'Título', true),
+    ...bi('desc', 'Descripción', true),
+    ...bi('metric', 'Dato o cifra (evento, año, resultado)'),
+    ...bi('partners', 'Con quién'),
+    { field: 'year', help: 'Año' },
+    { field: 'link', help: 'Enlace (https://…), opcional' },
+    ...bi('linkLabel', 'Texto del enlace'),
+    { field: 'draft', help: 'Borrador (true/false)', kind: 'bool' },
+  ],
+};
+
 export const CSV_ENTITIES = {
   sessions: SESSIONS_CSV,
   speakers: SPEAKERS_CSV,
@@ -329,6 +366,8 @@ export const CSV_ENTITIES = {
   embeds: EMBEDS_CSV,
   rewards: REWARDS_CSV,
   polls: POLLS_CSV,
+  companion_kb: COMPANION_KB_CSV,
+  pillar_showcase: PILLAR_SHOWCASE_CSV,
   gallery: GALLERY_CSV,
   missions: MISSIONS_CSV,
 };

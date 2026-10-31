@@ -201,7 +201,7 @@ export const SgxPillarsManifestoSection: React.FC<SgxPillarsManifestoSectionProp
         },
         {
           title: (es ? 'Matriz de Patrocinio & Dossier' : 'Sponsorship Matrix & Dossier'),
-          desc: (es ? '5 Tiers de auspicio con formulario de consulta para marcas.' : '5 sponsorship Tiers with an inquiry form for brands.'),
+          desc: (es ? '5 Paquetes de auspicio con formulario de consulta para marcas.' : '5 sponsorship Packages with an inquiry form for brands.'),
           actionLabel: (es ? 'Formulario de Alianzas' : 'Partnership Form'),
           icon: FileText,
           onClick: onOpenSponsorInquiry,

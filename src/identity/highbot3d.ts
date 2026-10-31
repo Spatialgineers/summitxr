@@ -28,7 +28,11 @@ export interface Pilot3D {
   ready: Promise<void>;
   /** A friendly wave with the right arm (next frames). */
   wave?: () => void;
+  /** The companion's state of mind; poses blend smoothly between moods. */
+  setMood?: (m: HighbotMood) => void;
 }
+
+export type HighbotMood = 'idle' | 'thinking' | 'talking' | 'pointing';
 
 export const HIGHBOT_URL = '/characters/highbot/highbot.glb';
 const SCALE = 1.6;
@@ -556,14 +560,30 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
 
   let waveAt = -1;
   let clock = 0;
+  let lastT = -1;
+  let mood: HighbotMood = 'idle';
+  // blend weights of each mood, eased toward the current one
+  const mw = { thinking: 0, talking: 0, pointing: 0 };
 
   const update = (t: number) => {
+    const dt = lastT < 0 ? 0 : Math.min(0.1, Math.max(0, t - lastT));
+    lastT = t;
     clock = t;
+    const ease = Math.min(1, dt * 5);
+    mw.thinking += ((mood === 'thinking' ? 1 : 0) - mw.thinking) * ease;
+    mw.talking += ((mood === 'talking' ? 1 : 0) - mw.talking) * ease;
+    mw.pointing += ((mood === 'pointing' ? 1 : 0) - mw.pointing) * ease;
+    const { thinking: th, talking: tk, pointing: pt } = mw;
+
     const body = joints.body;
-    if (body) body.position.y = rest.get(body)!.p.y + Math.sin(t * 2.1) * 0.012;
-    // arms swing gently in opposition; the right one waves when asked
+    if (body) body.position.y = rest.get(body)!.p.y + Math.sin(t * 2.1) * 0.012 + tk * Math.sin(t * 5.2) * 0.008;
+    // arms swing gently in opposition; talking, the left one gestures forward
     const swing = Math.sin(t * 1.5) * 0.1;
-    pose(joints['shoulder left'], swing, 0, 0.05 + Math.sin(t * 1.1) * 0.03);
+    pose(joints['shoulder left'],
+      swing * (1 - tk) + tk * (-0.55 - Math.sin(t * 3.4) * 0.28),
+      0,
+      0.05 + Math.sin(t * 1.1) * 0.03 + tk * 0.18);
+    // the right one waves when asked, points, or comes up to the chin to think
     const w = waveAt < 0 ? -1 : t - waveAt;
     if (w >= 0 && w < 2.2) {
       const up = Math.min(1, w / 0.35) * Math.min(1, (2.2 - w) / 0.4);
@@ -571,15 +591,24 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
       pose(joints['shoulder right'], -0.75 * up, 0, -0.05 - up * (1.55 + Math.sin(w * 13) * 0.32));
     } else {
       if (w >= 2.2) waveAt = -1;
-      pose(joints['shoulder right'], -swing, 0, -0.05 - Math.sin(t * 1.1) * 0.03);
+      const rest0 = Math.max(0, 1 - pt - th);
+      pose(joints['shoulder right'],
+        -swing * rest0 + pt * -1.4 + th * -1.05,
+        0,
+        (-0.05 - Math.sin(t * 1.1) * 0.03) * rest0 + pt * (-0.42 + Math.sin(t * 2) * 0.03) + th * 0.32);
     }
-    // weight shift on the hips, look-around from the neck
+    // weight shift on the hips, look-around from the neck (a nod while talking, a tilt while thinking)
     pose(joints['hip joint left'], Math.sin(t * 1.5 + Math.PI) * 0.04, 0, 0);
     pose(joints['hip joint right'], Math.sin(t * 1.5) * 0.04, 0, 0);
-    pose(joints.neck, Math.sin(t * 0.9) * 0.06, Math.sin(t * 0.6) * 0.32, Math.sin(t * 0.75) * 0.06);
+    const look = Math.max(0, 1 - pt - th * 0.6);
+    pose(joints.neck,
+      Math.sin(t * 0.9) * 0.06 * (1 - th) - th * 0.16 + tk * Math.sin(t * 7) * 0.05,
+      Math.sin(t * 0.6) * 0.32 * look - pt * 0.38,
+      Math.sin(t * 0.75) * 0.06 + th * 0.2);
     gear.update(t);
-    // the eyes breathe, a little
-    (mats.iris as THREE.MeshStandardMaterial).emissiveIntensity = IRIS_GLOW + Math.sin(t * 1.6) * 0.08;
+    // the eyes breathe, a little; slow pulse when thinking, a flicker when talking
+    (mats.iris as THREE.MeshStandardMaterial).emissiveIntensity = IRIS_GLOW + Math.sin(t * 1.6) * 0.08
+      + th * Math.sin(t * 3) * 0.14 + tk * Math.sin(t * 11) * 0.06;
     if (relicSpin) relicSpin.rotation.z = t * 0.6;
     if (relicSway) relicSway.rotation.z = Math.sin(t * 1.3) * 0.12;
     if (relicOrbit) {
@@ -596,6 +625,7 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
     update,
     ready: Promise.resolve(),
     wave: () => { waveAt = clock; },
+    setMood: (m: HighbotMood) => { mood = m; },
     dispose: () => {
       group.remove(model);
       disposables.forEach((d) => d.dispose());

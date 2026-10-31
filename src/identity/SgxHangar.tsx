@@ -19,13 +19,14 @@ import { SgxDialog } from '../components/common/SgxDialog';
 import './SgxStudio.css';
 
 const SgxPilot3D = lazy(() => import('./SgxPilot3D').then((m) => ({ default: m.SgxPilot3D })));
+const CompanionStudio = lazy(() => import('../companion/CompanionStudio').then((m) => ({ default: m.CompanionStudio })));
 
 /* TU ESTUDIO: the one screen for "me". It replaces the profile modal,
    the passport drawer and the passport modal. Pass in front, everything you
    did behind it: Reactor missions per pillar, Rolodex, Day 3 and telemetry.
    The Pass tab is the same board as the SGX Pass section (SgxPassBoard). */
 
-export type HangarTab = 'pass' | 'reactor' | 'stars' | 'rolodex' | 'day3' | 'log';
+export type HangarTab = 'pass' | 'bot' | 'reactor' | 'stars' | 'rolodex' | 'day3' | 'log';
 
 interface Props {
   onClose: () => void;
@@ -116,6 +117,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
 
   const tabs: { id: HangarTab; label: string }[] = [
     { id: 'pass', label: es ? 'Pase' : 'Pass' },
+    { id: 'bot', label: es ? 'Tu Highbot' : 'Your Highbot' },
     { id: 'reactor', label: `Reactor ${done}/${missions.length}` },
     { id: 'stars', label: `${es ? 'Red' : 'Network'} ${identity.contacts.length}` },
     { id: 'rolodex', label: `Rolodex ${identity.contacts.length}` },
@@ -143,7 +145,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
       toolbar={(
         <nav className="sgx-studio__tabs" role="tablist" aria-label={es ? 'Secciones de tu Estudio' : 'Studio sections'}>
           {tabs.map((t) => (
-            <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} className={tab === t.id ? 'is-on' : ''} onClick={() => { playUiChirp(560); setTab(t.id); }}>
+            <button key={t.id} type="button" role="tab" data-guide={`estudio-${t.id}`} aria-selected={tab === t.id} className={tab === t.id ? 'is-on' : ''} onClick={() => { playUiChirp(560); setTab(t.id); }}>
               {t.label}
             </button>
           ))}
@@ -164,11 +166,11 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
               </>
             )}
           </div>
-          {!isForged && tab !== 'reactor' && tab !== 'log' ? (
+          {!isForged && tab !== 'reactor' && tab !== 'log' && tab !== 'bot' ? (
             <div className="sgx-hangar__empty">
               <h3>{es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass'}</h3>
               <p>{es ? 'Tu Holo Card, tu QR de networking y tu entrada del Día 3. Toma un minuto.' : 'Your Holo Card, your networking QR and your Day 3 entrance. It takes a minute.'}</p>
-              <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={onForge}>[ ⚡ {es ? 'Forjar ahora' : 'Forge now'} ]</button></span>
+              <span className="sgx-glow"><button type="button" className="sgx-btn" data-guide="forjar" onClick={onForge}>[ ⚡ {es ? 'Forjar ahora' : 'Forge now'} ]</button></span>
             </div>
           ) : null}
 
@@ -227,6 +229,12 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
             </div>
           )}
 
+          {tab === 'bot' && (
+            <Suspense fallback={<div className="sgx-studio__wait">{es ? 'Despertando a tu Highbot…' : 'Waking up your Highbot…'}</div>}>
+              <CompanionStudio />
+            </Suspense>
+          )}
+
           {tab === 'reactor' && (
             <div className="sgx-hangar__reactor">
               <div className="sgx-hangar__reactor-top">
@@ -271,7 +279,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                             <span className="sgx-hangar__check" aria-hidden="true">▣</span>
                             <div>
                               <strong>{es ? 'Reto de partner' : 'Partner challenge'}</strong>
-                              <small>{es ? 'Los partners Tier 3 en adelante traen su propio reto y sello. Se activa al confirmarse.' : 'Tier 3+ partners bring their own challenge and stamp. It switches on once confirmed.'}</small>
+                              <small>{es ? 'Los partners Paquete 3 en adelante traen su propio reto y sello. Se activa al confirmarse.' : 'Package 3+ partners bring their own challenge and stamp. It switches on once confirmed.'}</small>
                             </div>
                           </li>
                         )}

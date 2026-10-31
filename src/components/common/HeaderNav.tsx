@@ -211,6 +211,8 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentPage, onNavigate })
               ref={chipRef}
               type="button"
               data-tour="user-passport-btn"
+              data-guide="mi-pase"
+              data-guide-label={es ? 'Tu SGX Pass (menú de cuenta)' : 'Your SGX Pass (account menu)'}
               aria-haspopup="menu"
               aria-expanded={acctOpen}
               onClick={() => { playUiChirp(840); setAcctOpen((o) => !o); }}
@@ -254,6 +256,8 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentPage, onNavigate })
             <button
               type="button"
               className="sgx-hdr__menubtn"
+              data-guide="menu"
+              data-guide-label={es ? 'Menú: los 6 pilares y todos los módulos' : 'Menu: the 6 pillars and every module'}
               aria-haspopup="dialog"
               aria-expanded={isMenuOpen}
               onClick={() => { playUiChirp(700); setIsMenuOpen(!isMenuOpen); }}

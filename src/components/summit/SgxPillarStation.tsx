@@ -11,7 +11,9 @@ import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import { missionsOfPillar } from '../../identity/reactor';
 import { goToMission } from '../../identity/missionNav';
 import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
-import { portfolioOf } from '../../lib/sgxPortfolio';
+import { PILLAR_SHOWCASE, useLiveList, type PillarShowcaseItem } from '../../lib/content/liveLists';
+import { HIGHBOT_PRESETS } from '../../identity/pilotAvatar';
+import { SgxPilotGlyph } from '../../identity/SgxPilotGlyph';
 import { loc } from '../../lib/localize';
 
 const DAYS = {
@@ -55,6 +57,7 @@ const previewFile = (key: string) => key.toLowerCase().replace(/[^a-z0-9]+/g, '-
 
 export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pillarSlug }) => {
   const { language } = useLanguage();
+  const showcase = useLiveList(PILLAR_SHOWCASE);
   const { state } = useImmersion();
   const pillar = findPillar(pillarSlug) || SGX_PILLARS[0];
   const sgx = useOptionalSgxIdentity();
@@ -130,6 +133,8 @@ export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pil
                   style={{ ['--sgx-i' as any]: i, ['--preview-tex' as string]: `url(/pilot/tex/sgx-${pillar.slug}.png)`, ['--preview-shot' as string]: `url(/previews/${previewFile(key)}.webp)` }}
                   onClick={() => { playUiChirp(820); runPillarModule(m); }}
                   data-sgx-hover
+                  data-guide={`modulo-${previewFile(key)}`}
+                  data-guide-label={m.label[es ? 'es' : 'en']}
                 >
                   {/* Preview art: a real screenshot of the module (scripts/make-previews.cjs), its mark as a badge; the pillar's tile shows if the shot is missing. */}
                   <span className="sgx-preview__art" aria-hidden="true">
@@ -207,27 +212,71 @@ export const SgxPillarStation: React.FC<{ pillarSlug?: string | null }> = ({ pil
         );
       })()}
 
-      {portfolioOf(pillar.key).length > 0 && (
-        <section className="sgx-station__portfolio" aria-labelledby="station-portfolio">
-          <h2 id="station-portfolio" className="sgx-station__h2">
-            <span>{es ? `Proyectos & casos de uso · ${pillar.name}` : `Projects & use cases · ${pillar.name}`}</span>
-            <span className="sgx-readout">{portfolioOf(pillar.key).length}</span>
-          </h2>
-          <ul className="sgx-portfolio">
-            {portfolioOf(pillar.key).map((proj) => (
-              <li key={proj.id} className={`sgx-portfolio__item ${proj.useCase ? 'is-case' : ''}`}>
-                <div className="sgx-portfolio__head">
-                  <strong>{loc(proj, 'name', language)}</strong>
-                  {proj.useCase && <span className="sgx-portfolio__tag">{es ? 'CASO DE USO' : 'USE CASE'}</span>}
+      {(() => {
+        const mine = showcase.filter((x) => x.pillar === pillar.key);
+        const day1 = mine.filter((x) => x.kind === 'day1');
+        const projects = mine.filter((x) => x.kind !== 'day1');
+        const card = (x: PillarShowcaseItem, big: boolean) => (
+          <li key={x.id} className={`sgx-portfolio__item ${big ? 'is-case' : ''}`}>
+            <div className="sgx-portfolio__head">
+              <strong>{loc(x, 'title', language)}</strong>
+              {x.year && <span className="sgx-portfolio__year">{x.year}</span>}
+            </div>
+            {loc(x, 'metric', language) && <span className="sgx-portfolio__metric">{loc(x, 'metric', language)}</span>}
+            {loc(x, 'partners', language) && <span className="sgx-portfolio__partners">{loc(x, 'partners', language)}</span>}
+            <p>{loc(x, 'desc', language)}</p>
+            {x.link && /^https?:\/\//.test(x.link) && (
+              <a className="sgx-portfolio__link" href={x.link} target="_blank" rel="noopener noreferrer">
+                {loc(x, 'linkLabel', language) || (es ? 'Ver proyecto' : 'See project')} <ChevronRight className="w-3 h-3" aria-hidden />
+              </a>
+            )}
+          </li>
+        );
+        return (
+          <>
+            {day1.length > 0 && (
+              <section className="sgx-station__portfolio sgx-station__day1" aria-labelledby="station-day1">
+                <h2 id="station-day1" className="sgx-station__h2">
+                  <span>{es ? `Casos de uso · Día 1 · ${pillar.name}` : `Use cases · Day 1 · ${pillar.name}`}</span>
+                  <span className="sgx-readout">{day1.length}</span>
+                </h2>
+                <p className="sgx-station__lede">{es ? 'Lo que mostramos en el bloque de este pilar el viernes 11 de diciembre: proyectos reales, con su cliente, su evento o su cifra.' : "What we show in this pillar's block on Friday, December 11: real projects, with their client, event or figure."}</p>
+                <ul className="sgx-portfolio sgx-portfolio--day1">{day1.map((x) => card(x, true))}</ul>
+              </section>
+            )}
+            {pillar.key === 'STORY' && (
+              <section className="sgx-highcoon" aria-labelledby="station-highcoon">
+                <div className="sgx-highcoon__bot" aria-hidden="true">
+                  <SgxPilotGlyph seed="highcoon" accent="#FF4040" config={HIGHBOT_PRESETS[0].config} size={120} />
                 </div>
-                <span className="sgx-portfolio__metric">{loc(proj, 'metric', language)}</span>
-                {loc(proj, 'partners', language) && <span className="sgx-portfolio__partners">{loc(proj, 'partners', language)}</span>}
-                <p>{loc(proj, 'desc', language)}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+                <div className="sgx-highcoon__body">
+                  <span className="sgx-highcoon__kicker">{es ? 'Iniciativa propia · IP de Spatialgineers' : 'Our own initiative · Spatialgineers IP'}</span>
+                  <h2 id="station-highcoon" className="sgx-highcoon__title">Highcoon</h2>
+                  <p>{es
+                    ? 'Un mapache científico bioingenierado creado por Danelson Maldonado González "The Highgineer". Tu Highbot es Highcoon en su forma de robot. Su mundo vive en redes, en Spatial y en Highcade, el hub de juegos web que hicimos con In The Cloud PR.'
+                    : 'A bio-engineered raccoon scientist created by Danelson Maldonado González "The Highgineer". Your Highbot is Highcoon in robot form. His world lives on social media, on Spatial and in Highcade, the web game hub we built with In The Cloud PR.'}</p>
+                  <div className="sgx-highcoon__links">
+                    <a className="sgx-btn sgx-btn--sm" href="https://www.instagram.com/highcoonvibes" target="_blank" rel="noopener noreferrer">Instagram</a>
+                    <a className="sgx-btn sgx-btn--sm" href="https://x.com/highcoonvibes" target="_blank" rel="noopener noreferrer">X</a>
+                    <a className="sgx-btn sgx-btn--sm" href="https://www.tiktok.com/@highcoonvibes" target="_blank" rel="noopener noreferrer">TikTok</a>
+                    <a className="sgx-btn sgx-btn--sm sgx-btn--ground" href="https://www.spatial.io/@highvibes" target="_blank" rel="noopener noreferrer">{es ? 'Su espacio en Spatial' : 'His Spatial space'}</a>
+                  </div>
+                  <span className="sgx-highcoon__handle">@Highcoonvibes</span>
+                </div>
+              </section>
+            )}
+            {projects.length > 0 && (
+              <section className="sgx-station__portfolio" aria-labelledby="station-portfolio">
+                <h2 id="station-portfolio" className="sgx-station__h2">
+                  <span>{es ? `Proyectos e iniciativas · ${pillar.name}` : `Projects & initiatives · ${pillar.name}`}</span>
+                  <span className="sgx-readout">{projects.length}</span>
+                </h2>
+                <ul className="sgx-portfolio">{projects.map((x) => card(x, false))}</ul>
+              </section>
+            )}
+          </>
+        );
+      })()}
 
       <nav className="sgx-station__pager" aria-label={es ? 'Estaciones' : 'Stations'}>
         <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => go(prev)}>

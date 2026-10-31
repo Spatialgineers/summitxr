@@ -54,7 +54,9 @@ import {
   Edit3,
   Save,
   CheckCircle2,
-  Bell
+  Bell,
+  Bot,
+  Presentation
 } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
@@ -131,7 +133,7 @@ export type AdminSubpage =
   // En vivo
   | 'DIRECTOR' | 'ANNOUNCE' | 'POLLS' | 'ERRORS'
   // Contenido
-  | 'AGENDA' | 'SPEAKERS' | 'SPONSORS' | 'TIERS' | 'INITIATES' | 'MAP' | 'EMBEDS' | 'GALLERY' | 'SOCIAL'
+  | 'AGENDA' | 'SPEAKERS' | 'SPONSORS' | 'TIERS' | 'INITIATES' | 'MAP' | 'EMBEDS' | 'GALLERY' | 'SOCIAL' | 'PILLAR_CASES' | 'HIGHBOT_QA'
   // Personas
   | 'REGISTRATIONS' | 'AUDIENCE_LEADS' | 'ENTREPRENEUR_MATCH'
   // Juego
@@ -151,12 +153,14 @@ const ADMIN_NAV: { id: string; label: string; items: NavItem[] }[] = [
     { id: 'AGENDA', label: 'Agenda / Run of Show', icon: CalendarDays, keywords: 'sesiones horario programa' },
     { id: 'SPEAKERS', label: 'Speakers', icon: Mic2, keywords: 'conferencistas oradores' },
     { id: 'SPONSORS', label: 'Sponsors', icon: Handshake, keywords: 'auspiciadores solicitudes showcase crm' },
-    { id: 'TIERS', label: 'Niveles de auspicio', icon: Layers3, keywords: 'tiers precios' },
+    { id: 'TIERS', label: 'Paquetes de auspicio', icon: Layers3, keywords: 'tiers niveles precios' },
     { id: 'INITIATES', label: 'Guild Initiates', icon: Sparkle, keywords: 'guild iniciados' },
     { id: 'MAP', label: 'Mapa 360', icon: MapIcon, keywords: 'tour chroma nodos' },
     { id: 'EMBEDS', label: 'Apps embebidas', icon: AppWindow, keywords: 'juegos widgets' },
     { id: 'GALLERY', label: 'Galería', icon: Images, keywords: 'fotos retrospectiva' },
     { id: 'SOCIAL', label: 'Redes sociales', icon: Instagram, keywords: 'instagram reels' },
+    { id: 'PILLAR_CASES', label: 'Pilares: casos y proyectos', icon: Presentation, keywords: 'dia 1 casos de uso portafolio highcoon' },
+    { id: 'HIGHBOT_QA', label: 'Highbot: preguntas', icon: Bot, keywords: 'companion ia claude faq respuestas' },
   ] },
   { id: 'people', label: 'Personas', items: [
     { id: 'REGISTRATIONS', label: 'Inscritos y Día 3', icon: Ticket, keywords: 'registro check-in propuestas' },
@@ -398,7 +402,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // Sponsor inquiries (CRM) exporter
   const handleExportInquiriesCSV = () => {
-    const headers = ['Referencia', 'Empresa', 'Contacto', 'Cargo', 'Email', 'Telefono', 'Web', 'Tier', 'Presupuesto', 'Metas', 'Mensaje', 'Estado', 'Enviado'];
+    const headers = ['Referencia', 'Empresa', 'Contacto', 'Cargo', 'Email', 'Telefono', 'Web', 'Paquete', 'Presupuesto', 'Metas', 'Mensaje', 'Estado', 'Enviado'];
     const rows = sponsorInquiries.map((q) => [
       q.referenceCode, q.companyName, q.contactName, q.roleTitle || '', q.email, q.phone, q.websiteUrl || '',
       q.selectedTierName, q.estimatedBudget || '', (q.goals || []).join(' | '), q.customMessage || '', q.status,
@@ -903,7 +907,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           )}
 
           {activeSubpage === 'TIERS' && (
-            <AdminSection title="Niveles de auspicio" desc="Los niveles (1–5) con su precio y beneficios que ve la matriz de auspicios." publishKeys={['sponsorship_tiers']} csv={[CSV_ENTITIES.tiers]} onCsvApplied={reloadContent}>
+            <AdminSection title="Paquetes de auspicio" desc="Los paquetes (1–5) con su precio y beneficios que ve la matriz de auspicios." publishKeys={['sponsorship_tiers']} csv={[CSV_ENTITIES.tiers]} onCsvApplied={reloadContent}>
               <SummitCMSManager key={`SPONSORS_${csvRev}`} tab="SPONSORS" sessions={summitSessions} speakers={summitSpeakers} mapNodes={summitMapNodes} embeds={summitEmbeds} sponsors={summitSponsors}
                 onUpdateSessions={setSummitSessions} onUpdateSpeakers={setSummitSpeakers} onUpdateMapNodes={setSummitMapNodes}
                 onUpdateEmbeds={setSummitEmbeds} onUpdateSponsors={setSummitSponsors} onBroadcastPushNotification={handleCMSPushAlert} />
@@ -939,6 +943,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 { label: 'Foto', get: (g: any) => <img src={g.url} alt="" className="w-16 h-10 object-cover" /> },
                 { label: 'Título', get: (g: any) => g.title },
                 { label: 'Categoría', get: (g: any) => g.tag },
+              ]} />
+            </AdminSection>
+          )}
+
+          {activeSubpage === 'PILLAR_CASES' && (
+            <AdminSection title="Pilares: casos del Día 1 y proyectos" desc="Lo que muestra la página de cada pilar: los casos de uso del bloque del Día 1 y los proyectos e iniciativas. Empieza como borrador sacado del portafolio; corrígelo con el CSV." publishKeys={['pillar_showcase']} csv={[CSV_ENTITIES.pillar_showcase]} onCsvApplied={bumpCsv}>
+              <LiveListTable entity={CSV_ENTITIES.pillar_showcase} version={csvRev} columns={[
+                { label: 'Pilar', get: (x: any) => x.pillar },
+                { label: 'Tipo', get: (x: any) => (x.kind === 'day1' ? 'Día 1' : 'Proyecto') },
+                { label: 'Título', get: (x: any) => x.title },
+                { label: 'Dato', get: (x: any) => x.metric },
+                { label: 'Estado', get: (x: any) => (x.draft ? 'Borrador' : 'Listo') },
+              ]} />
+            </AdminSection>
+          )}
+
+          {activeSubpage === 'HIGHBOT_QA' && (
+            <AdminSection title="Highbot: preguntas y respuestas" desc="Respuestas que el Highbot de cada Creador da tal cual (tienen prioridad sobre lo demás que sabe). Llegan al Highbot en unos 10 minutos." publishKeys={['companion_kb']} csv={[CSV_ENTITIES.companion_kb]} onCsvApplied={bumpCsv}>
+              <LiveListTable entity={CSV_ENTITIES.companion_kb} version={csvRev} columns={[
+                { label: 'Pregunta', get: (x: any) => x.q },
+                { label: 'Respuesta', get: (x: any) => x.a },
               ]} />
             </AdminSection>
           )}

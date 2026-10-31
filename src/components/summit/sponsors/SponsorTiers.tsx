@@ -38,7 +38,7 @@ export const SponsorTiers: React.FC<SponsorTiersProps> = ({ tiers, onApply }) =>
   return (
     <section id="spx-tiers" className="spx-section" aria-labelledby="spx-tiers-title" tabIndex={-1}>
       <div className="spx-head">
-        <p className="spx-kicker">{es ? 'Niveles de auspicio' : 'Sponsorship tiers'}</p>
+        <p className="spx-kicker">{es ? 'Paquetes de auspicio' : 'Sponsorship packages'}</p>
         <h2 id="spx-tiers-title" className="spx-h2">{es ? 'Elige cuánto espacio ocupa tu marca' : 'Choose how much room your brand takes'}</h2>
         <p className="spx-lead">
           {es
@@ -47,14 +47,14 @@ export const SponsorTiers: React.FC<SponsorTiersProps> = ({ tiers, onApply }) =>
         </p>
       </div>
 
-      <ol className="spx-tiers" aria-label={es ? 'Niveles' : 'Tiers'}>
+      <ol className="spx-tiers" aria-label={es ? 'Paquetes' : 'Packages'}>
         {tiers.map((tier) => {
           const accent = sponsorTierAccent(tier.id);
           const name = loc(tier, 'name', language);
           return (
             <li key={tier.id} className="spx-tier" style={{ ['--tier' as string]: accent }}>
               <div className="spx-tier__top">
-                <span className="spx-tier__num">Tier {tier.tierNumber}</span>
+                <span className="spx-tier__num">{es ? 'Paquete' : 'Package'} {tier.tierNumber}</span>
                 {tier.yearLongLicense && <span className="sgx-chip sgx-chip--solid" style={{ ['--chip' as string]: 'var(--SGX_Yellow)' }}>{es ? '365 días' : '365 days'}</span>}
               </div>
               <h3 className="spx-tier__name">{name}</h3>
@@ -79,13 +79,13 @@ export const SponsorTiers: React.FC<SponsorTiersProps> = ({ tiers, onApply }) =>
 
       <div className="spx-compare">
         <table>
-          <caption>{es ? 'Comparativa de niveles' : 'Tier comparison'}</caption>
+          <caption>{es ? 'Comparativa de paquetes' : 'Package comparison'}</caption>
           <thead>
             <tr>
               <th scope="col">{es ? 'Beneficio' : 'Benefit'}</th>
               {tiers.map((tier) => (
                 <th key={tier.id} scope="col" style={{ ['--tier' as string]: sponsorTierAccent(tier.id) }}>
-                  <span>Tier {tier.tierNumber}</span>
+                  <span>{es ? 'Paquete' : 'Package'} {tier.tierNumber}</span>
                   <small>{loc(tier, 'name', language)}</small>
                 </th>
               ))}

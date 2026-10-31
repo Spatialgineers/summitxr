@@ -1,0 +1,162 @@
+/* Your Highbot companion: the chat (Tu Estudio and the floating head's
+   pop-up), the floating head, and the "Aquí" spotlight it uses to point. */
+
+/* ---------- chat ---------- */
+.sgx-companion { display: flex; flex-direction: column; gap: 10px; min-height: 0; font-family: var(--font-body); color: var(--SGX_White); }
+.sgx-companion--studio {
+  padding: 14px; background: rgba(13, 15, 19, 0.9);
+  box-shadow: inset 0 0 0 1px rgba(50, 82, 123, 0.6);
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+.sgx-companion__head { display: flex; align-items: center; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.sgx-companion__title { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.15; }
+.sgx-companion__title strong { font-family: var(--font-hud); font-size: 0.95rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.sgx-companion__title span { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; color: var(--SGX_Cyan); }
+.sgx-companion__icon {
+  width: 32px; height: 32px; display: grid; place-items: center; padding: 0; border: 0; cursor: pointer;
+  font-size: 1.1rem; line-height: 1; color: rgba(255, 255, 255, 0.7); background: rgba(255, 255, 255, 0.05);
+}
+.sgx-companion__icon:hover, .sgx-companion__icon:focus-visible { color: var(--SGX_Black_Base); background: var(--SGX_Yellow); }
+.sgx-companion__icon:focus-visible { outline: 2px solid var(--SGX_Cyan); outline-offset: 2px; }
+
+.sgx-companion__log {
+  display: flex; flex-direction: column; gap: 8px; overflow-y: auto; overscroll-behavior: contain;
+  padding: 2px; scrollbar-width: thin; scrollbar-color: rgba(253, 204, 13, 0.4) transparent;
+}
+.sgx-companion--studio .sgx-companion__log { min-height: 220px; max-height: 360px; }
+.sgx-companion--pop .sgx-companion__log { min-height: 150px; max-height: min(50vh, 400px); }
+.sgx-companion__msg {
+  margin: 0; max-width: 88%; padding: 9px 12px; font-size: 0.92rem; line-height: 1.45;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+.sgx-companion__msg.is-bot { align-self: flex-start; background: rgba(0, 221, 255, 0.07); box-shadow: inset 0 0 0 1px rgba(0, 221, 255, 0.32); }
+.sgx-companion__msg.is-me { align-self: flex-end; background: rgba(253, 204, 13, 0.12); box-shadow: inset 0 0 0 1px rgba(253, 204, 13, 0.5); }
+.sgx-companion__msg.is-error { background: rgba(255, 187, 0, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 187, 0, 0.5); }
+.sgx-companion__msg a { color: var(--SGX_Cyan); text-decoration: underline; text-underline-offset: 2px; }
+.sgx-companion__msg strong { color: var(--SGX_Yellow); font-weight: 600; }
+
+.sgx-companion__dots { display: inline-flex; gap: 4px; padding: 4px 0; }
+.sgx-companion__dots i { width: 6px; height: 6px; background: var(--SGX_Cyan); animation: sgx-companion-dot 1s ease-in-out infinite; }
+.sgx-companion__dots i:nth-child(2) { animation-delay: 0.15s; }
+.sgx-companion__dots i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes sgx-companion-dot { 0%, 100% { opacity: 0.25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
+
+.sgx-companion__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sgx-companion__chip {
+  padding: 6px 10px; border: 0; cursor: pointer; text-align: left;
+  font-family: var(--font-mono); font-size: 0.76rem; letter-spacing: 0.02em; color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.04); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+.sgx-companion__chip:hover, .sgx-companion__chip:focus-visible { color: var(--SGX_Black_Base); background: var(--SGX_Yellow); box-shadow: none; }
+.sgx-companion__chip:focus-visible { outline: 2px solid var(--SGX_Cyan); outline-offset: 2px; }
+
+.sgx-companion__form { display: flex; gap: 8px; align-items: flex-end; }
+.sgx-companion__form textarea {
+  flex: 1; min-width: 0; min-height: 42px; max-height: 120px; resize: none; padding: 10px 11px;
+  font-family: var(--font-body); font-size: 0.95rem; line-height: 1.35; color: var(--SGX_White);
+  background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(253, 204, 13, 0.35); border-radius: 0;
+}
+.sgx-companion__form textarea:focus { outline: none; border-color: var(--SGX_Yellow); box-shadow: 0 0 0 1px var(--SGX_Yellow); }
+.sgx-companion__form textarea::placeholder { color: rgba(255, 255, 255, 0.42); }
+.sgx-companion__form .sgx-btn { min-height: 42px; }
+.sgx-companion__cta { display: flex; justify-content: flex-start; }
+.sgx-companion__fine { margin: 0; font-family: var(--font-mono); font-size: 0.66rem; line-height: 1.4; letter-spacing: 0.02em; color: rgba(255, 255, 255, 0.45); }
+
+/* ---------- Tu Estudio → Tu Highbot ---------- */
+.sgx-companion-studio { display: grid; grid-template-columns: minmax(240px, 0.85fr) minmax(0, 1.15fr); gap: 16px; align-items: start; }
+.sgx-companion-studio__bot {
+  position: relative; background: radial-gradient(ellipse at 50% 30%, rgba(50, 82, 123, 0.28), rgba(5, 5, 5, 0) 70%), rgba(13, 15, 19, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(50, 82, 123, 0.45);
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+.sgx-companion-studio__state {
+  position: absolute; left: 12px; top: 10px; padding: 3px 8px;
+  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75); background: rgba(5, 5, 5, 0.6); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+.sgx-companion-studio__state::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 6px; vertical-align: 1px; background: var(--SGX_Grey); }
+.is-thinking .sgx-companion-studio__state::before { background: var(--SGX_Cyan); animation: sgx-companion-dot 1s ease-in-out infinite; }
+.is-talking .sgx-companion-studio__state::before { background: var(--SGX_Yellow); }
+.is-pointing .sgx-companion-studio__state::before { background: var(--SGX_Neon_Orange); }
+@media (max-width: 760px) {
+  .sgx-companion-studio { grid-template-columns: 1fr; }
+}
+
+/* ---------- the floating head ---------- */
+.sgx-companion-dock {
+  position: fixed; right: 18px; bottom: 84px; z-index: 95;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 10px; pointer-events: none;
+}
+.sgx-companion-dock > * { pointer-events: auto; }
+.sgx-companion-head {
+  position: relative; width: 64px; height: 64px; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+  background: transparent;
+}
+/* the hit area stays put; only the orb inside floats */
+.sgx-companion-head__orb {
+  position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 32%, #1e252f, #07090c 72%);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55), inset 0 0 0 1.5px var(--bot-accent, var(--SGX_Yellow));
+  animation: sgx-companion-bob 3.4s ease-in-out infinite;
+}
+.sgx-companion-head:focus-visible { outline: 2px solid var(--SGX_Cyan); outline-offset: 4px; }
+.sgx-companion-head__face { position: relative; display: block; overflow: hidden; border-radius: 50%; }
+/* the portrait is the full figure (100:120); its big head sits around 57% / 42% of it */
+.sgx-companion-head__face > .sgx-pilot-glyph { position: absolute; left: 50%; top: 50%; transform: translate(-57%, -42%); pointer-events: none; }
+.sgx-companion-head__ring { position: absolute; inset: -5px; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; }
+.sgx-companion-head.is-thinking .sgx-companion-head__ring {
+  opacity: 1; background: conic-gradient(from 0deg, transparent 0 70%, var(--SGX_Cyan) 100%);
+  -webkit-mask: radial-gradient(circle, transparent calc(50% - 3px), #000 calc(50% - 2px));
+  mask: radial-gradient(circle, transparent calc(50% - 3px), #000 calc(50% - 2px));
+  animation: sgx-companion-spin 1s linear infinite;
+}
+.sgx-companion-head.is-talking .sgx-companion-head__ring { opacity: 1; box-shadow: 0 0 0 2px var(--SGX_Yellow); animation: sgx-companion-pulse 0.9s ease-in-out infinite; }
+.sgx-companion-head.is-pointing .sgx-companion-head__ring { opacity: 1; box-shadow: 0 0 0 2px var(--SGX_Neon_Orange); }
+.sgx-companion-head.has-news::after {
+  content: ""; position: absolute; right: 2px; top: 2px; width: 12px; height: 12px; border-radius: 50%;
+  background: var(--SGX_Yellow); box-shadow: 0 0 0 2px #07090c;
+}
+@keyframes sgx-companion-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes sgx-companion-spin { to { transform: rotate(360deg); } }
+@keyframes sgx-companion-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+
+.sgx-companion-dock__pop {
+  width: min(380px, calc(100vw - 20px)); padding: 12px; background: rgba(10, 12, 15, 0.97);
+  box-shadow: inset 0 0 0 1px rgba(253, 204, 13, 0.5), 0 24px 60px rgba(0, 0, 0, 0.6);
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  animation: sgx-companion-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes sgx-companion-in { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 639px) {
+  /* above the phone dock */
+  .sgx-companion-dock { right: 10px; bottom: calc(78px + env(safe-area-inset-bottom, 0px)); }
+  .sgx-companion-head { width: 56px; height: 56px; }
+  .sgx-companion-dock__pop { width: calc(100vw - 20px); }
+  .sgx-companion--pop .sgx-companion__log { max-height: 46vh; }
+  .sgx-companion__form textarea { font-size: 16px; }
+}
+
+/* ---------- "Aquí": the companion points at something ---------- */
+.sgx-guide-spot {
+  position: fixed; left: 0; top: 0; z-index: 100005; pointer-events: none;
+  box-shadow: 0 0 0 2px var(--SGX_Yellow), 0 0 0 6px rgba(253, 204, 13, 0.25), 0 0 0 100vmax rgba(5, 5, 5, 0.35);
+  animation: sgx-guide-in 0.3s ease both, sgx-guide-pulse 1.1s ease-in-out 0.3s infinite;
+}
+.sgx-guide-spot__tag {
+  position: absolute; left: -2px; bottom: calc(100% + 6px); padding: 3px 8px; white-space: nowrap;
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--SGX_Black_Base); background: var(--SGX_Yellow);
+}
+.sgx-guide-spot.is-below .sgx-guide-spot__tag { bottom: auto; top: calc(100% + 6px); }
+@keyframes sgx-guide-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sgx-guide-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px var(--SGX_Yellow), 0 0 0 6px rgba(253, 204, 13, 0.25), 0 0 0 100vmax rgba(5, 5, 5, 0.35); }
+  50% { box-shadow: 0 0 0 2px var(--SGX_Yellow), 0 0 0 11px rgba(253, 204, 13, 0.1), 0 0 0 100vmax rgba(5, 5, 5, 0.35); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sgx-companion-head__orb, .sgx-companion-head__ring, .sgx-companion__dots i, .sgx-companion-dock__pop, .sgx-guide-spot { animation: none !important; }
+}

@@ -58,7 +58,7 @@ export const SponsorsHero: React.FC<SponsorsHeroProps> = ({ tierCount, onApply }
       <div className="spx-hero__art" aria-hidden="true">
         <figure className="spx-shot spx-shot--main">
           <img src={`/sponsors/placements/core-3d-${lang}.webp`} alt="" width={800} height={500} />
-          <figcaption>{es ? 'Núcleo 3D · Tier 3–5' : '3D core · Tier 3–5'}</figcaption>
+          <figcaption>{es ? 'Núcleo 3D · Paquete 3–5' : '3D core · Package 3–5'}</figcaption>
         </figure>
         <figure className="spx-shot spx-shot--a">
           <img src={`/sponsors/placements/splash-${lang}.webp`} alt="" width={800} height={500} />

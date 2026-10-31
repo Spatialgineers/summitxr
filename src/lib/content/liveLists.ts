@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { PILLAR_BY_KEY } from '../sgxPillars';
+import { PILLAR_BY_KEY, type PillarKey } from '../sgxPillars';
+import { SGX_PORTFOLIO } from '../sgxPortfolio';
 import { makeLiveList, OFFICIAL_BRAND_ASSETS } from '../summitData';
 
 /* Lists that used to be hard-coded and are now editable from the admin (and by
@@ -119,3 +120,62 @@ export function applyMissionOverrides<M extends { id: string; xp: number; es: { 
     };
   });
 }
+
+/* ---------- the Highbot companion's own Q&A (summit_content/companion_kb) ----------
+   Answers the team wants the companion to give word for word; they take
+   priority over everything else it knows (server: src/server/companion). */
+
+export interface CompanionKbItem {
+  id: string;
+  q: string;
+  a: string;
+  qEn?: string;
+  aEn?: string;
+}
+
+export const COMPANION_KB = makeLiveList<CompanionKbItem>('companion_kb', 'sgx_companion_kb_v1', () => []);
+
+/* ---------- pillar pages: Day 1 use cases and projects (summit_content/pillar_showcase) ----------
+   A first draft from the public portfolio (lib/sgxPortfolio): the use cases
+   picked for each pillar's Day 1 block, and every other project and
+   initiative. The team corrects it from the admin. */
+
+export interface PillarShowcaseItem {
+  id: string;
+  pillar: PillarKey;
+  /** day1: highlighted in the pillar's Day 1 block. project: projects and initiatives. */
+  kind: 'day1' | 'project';
+  title: string;
+  titleEn?: string;
+  desc: string;
+  descEn?: string;
+  metric?: string;
+  metricEn?: string;
+  partners?: string;
+  partnersEn?: string;
+  year?: string;
+  link?: string;
+  linkLabel?: string;
+  linkLabelEn?: string;
+  /** Still a draft (the admin shows it; the page does not). */
+  draft?: boolean;
+}
+
+const DAY1_DRAFT = ['infinite_borikua', 'viaje_aguadilla', 'highcade', 'guayacan', 'summit_2025', 'grimorio', 'somos_mayaguez', 'summit_platform'];
+
+function showcaseDraft(): PillarShowcaseItem[] {
+  const fromPortfolio = (kind: 'day1' | 'project') => SGX_PORTFOLIO
+    .filter((p) => DAY1_DRAFT.includes(p.id) === (kind === 'day1'))
+    .map((p): PillarShowcaseItem => ({
+      id: p.id, pillar: p.pillar, kind,
+      title: p.name, titleEn: p.nameEn,
+      desc: p.desc, descEn: p.descEn,
+      metric: p.metric, metricEn: p.metricEn,
+      partners: p.partners, partnersEn: p.partnersEn,
+      year: p.year,
+      draft: true,
+    }));
+  return [...fromPortfolio('day1'), ...fromPortfolio('project')];
+}
+
+export const PILLAR_SHOWCASE = makeLiveList<PillarShowcaseItem>('pillar_showcase', 'sgx_pillar_showcase_v1', showcaseDraft);

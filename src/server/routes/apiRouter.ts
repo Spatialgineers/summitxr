@@ -15,6 +15,7 @@ import {
   BroadcastFn 
 } from '../engine/votingEngine';
 import { triggerPresetOverride, processAudienceReaction } from '../engine/visualizerBridge';
+import { createCompanionRouter } from '../companion/companionRouter';
 
 export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
   const router = Router();
@@ -32,6 +33,9 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
     }
     return r.room;
   };
+
+  // The Highbot companion (Claude, SGX Pass holders only)
+  router.use('/companion', createCompanionRouter());
 
   // Health check
   router.get('/health', (req, res) => {

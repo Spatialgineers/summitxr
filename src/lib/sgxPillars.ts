@@ -87,9 +87,9 @@ export const SGX_PILLARS: SgxPillar[] = [
     ],
     modules: [
       { kind: 'section', key: 'MAP_360', icon: Globe, label: { es: 'Recorrido 360° Chroma Space Studios', en: '360° Chroma Space Studios walk-through' }, desc: { es: 'Recorre Chroma Space Studios, la sede del Día 3 en San Juan.', en: 'Walk Chroma Space Studios, the Day 3 venue in San Juan.' } },
-      { kind: 'section', key: 'SPONSORS_HUB', icon: Building2, label: { es: 'Partners & Brand Showcases', en: 'Partners & Brand Showcases' }, desc: { es: 'Las marcas viven dentro de la experiencia. Tiers 1 a 5.', en: 'Brands live inside the experience. Tiers 1 to 5.' } },
+      { kind: 'section', key: 'SPONSORS_HUB', icon: Building2, label: { es: 'Partners & Brand Showcases', en: 'Partners & Brand Showcases' }, desc: { es: 'Las marcas viven dentro de la experiencia. Paquetes 1 a 5.', en: 'Brands live inside the experience. Packages 1 to 5.' } },
       { kind: 'section', key: 'MODELS_3D', icon: Box, label: { es: 'Modelos 3D', en: '3D models' }, desc: { es: 'Los logos y las esculturas de los seis pilares en 3D: gíralos y acércate.', en: 'The logos and the six pillar sculptures in 3D: turn them and zoom in.' } },
-      { kind: 'section', key: 'SPONSOR', icon: Handshake, label: { es: 'Patrocina el Summit', en: 'Sponsor the Summit' }, desc: { es: 'Los tiers 1 a 5 y los espacios de marca dentro de la experiencia.', en: 'Tiers 1 to 5 and the brand spaces inside the experience.' } },
+      { kind: 'section', key: 'SPONSOR', icon: Handshake, label: { es: 'Patrocina el Summit', en: 'Sponsor the Summit' }, desc: { es: 'Los paquetes 1 a 5 y los espacios de marca dentro de la experiencia.', en: 'Packages 1 to 5 and the brand spaces inside the experience.' } },
     ],
   },
   {

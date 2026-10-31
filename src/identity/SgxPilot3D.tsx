@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { buildHighbot3D, type Pilot3D } from './highbot3d';
+import { buildHighbot3D, type HighbotMood, type Pilot3D } from './highbot3d';
 import { studioEnvironment, studioLights, studioRenderer } from './highbotStudio';
 import { normalizePilot, type PilotConfig } from './pilotAvatar';
 
@@ -15,10 +15,14 @@ interface Props {
   height?: number;
   className?: string;
   label?: string;
+  /** The companion's mood (Tu Highbot): poses blend between them. */
+  mood?: HighbotMood;
 }
 
-export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, label }) => {
+export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, label, mood = 'idle' }) => {
   const hostRef = useRef<HTMLDivElement | null>(null);
+  const moodRef = useRef<HighbotMood>(mood);
+  moodRef.current = mood;
   const [failed, setFailed] = useState(false);
   const key = JSON.stringify(config);
 
@@ -114,7 +118,7 @@ export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, l
       if (!reduce && !drag && performance.now() - lastInput > 2500) target += (Math.sin(t * 0.45) * 0.55 - target) * 0.02;
       angle += (target - angle) * 0.12;
       turn.rotation.y = angle;
-      if (!reduce) avatar?.update(t);
+      if (!reduce) { avatar?.setMood?.(moodRef.current); avatar?.update(t); }
       renderer.render(scene, camera);
     };
     tick();

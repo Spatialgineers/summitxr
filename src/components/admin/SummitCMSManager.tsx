@@ -198,7 +198,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
   };
 
   const handleExportInquiriesCSV = () => {
-    const headers = ['ID', 'Código', 'Empresa', 'Contacto', 'Cargo', 'Email', 'Teléfono', 'Sitio Web', 'Tier', 'Presupuesto', 'Estado', 'Fecha', 'Objetivos', 'Mensaje'];
+    const headers = ['ID', 'Código', 'Empresa', 'Contacto', 'Cargo', 'Email', 'Teléfono', 'Sitio Web', 'Paquete', 'Presupuesto', 'Estado', 'Fecha', 'Objetivos', 'Mensaje'];
     const rows = inquiries.map(inq => [
       inq.id,
       inq.referenceCode,
@@ -256,7 +256,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
       companyName: 'Nueva Marca / Patrocinador',
       brandSlug: `sponsor-${Date.now().toString().slice(-4)}`,
       tierId: 'tier_2',
-      tierName: 'Tier 2: Gamified',
+      tierName: 'Paquete 2: Gamified',
       logoUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=200&auto=format&fit=crop&q=80',
       bannerUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1400&auto=format&fit=crop&q=80',
       websiteUrl: 'https://spatialgineers.org',
@@ -872,7 +872,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
                       </a>
                     </div>
                     <div>
-                      <span className="text-slate-500 text-[10px] block">Tier & Presupuesto:</span>
+                      <span className="text-slate-500 text-[10px] block">Paquete y presupuesto:</span>
                       <span className="font-bold text-[var(--sgx-accent)]">{inq.selectedTierName}</span>
                       {inq.estimatedBudget && <span className="text-slate-400 block text-[10px]">Est: {inq.estimatedBudget}</span>}
                     </div>

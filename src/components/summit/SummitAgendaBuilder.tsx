@@ -198,6 +198,7 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
           </button>
 
           <button
+            data-guide="alertas-agenda"
             onClick={alertMyAgenda}
             disabled={!bookmarkedIds.length}
             className="px-3 py-1.5 text-xs font-bold font-mono flex items-center space-x-1.5 bg-[var(--sgx-bg)] border border-[var(--sgx-accent)] text-[var(--sgx-accent)] hover:bg-[var(--sgx-accent)] hover:text-black disabled:opacity-40 disabled:pointer-events-none"
@@ -215,6 +216,7 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
         {/* Day Selector Buttons */}
         <div className="lg:col-span-4 flex items-center space-x-1.5 bg-[var(--sgx-card-bg)] border border-[var(--sgx-secondary)] p-1.5 overflow-x-auto">
           <button
+            data-guide="agenda-dia-1"
             onClick={() => setSelectedDay(1)}
             className={`flex-1 py-2 text-xs font-bold font-mono transition-all whitespace-nowrap px-2 ${
               selectedDay === 1 ? 'bg-[var(--sgx-neon)] text-black font-extrabold' : 'text-slate-300 hover:text-white'
@@ -223,6 +225,7 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
             {t('day_1_date', 'DIC 11')} ({t('day_1', 'DÍA 1')})
           </button>
           <button
+            data-guide="agenda-dia-2"
             onClick={() => setSelectedDay(2)}
             className={`flex-1 py-2 text-xs font-bold font-mono transition-all whitespace-nowrap px-2 ${
               selectedDay === 2 ? 'bg-[var(--sgx-neon)] text-black font-extrabold' : 'text-slate-300 hover:text-white'
@@ -231,6 +234,7 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
             {t('day_2_date', 'DIC 12')} ({t('day_2', 'DÍA 2')})
           </button>
           <button
+            data-guide="agenda-dia-3"
             onClick={() => setSelectedDay(3)}
             className={`flex-1 py-2 text-xs font-bold font-mono transition-all whitespace-nowrap px-2 ${
               selectedDay === 3 ? 'bg-[var(--sgx-accent)] text-black font-extrabold' : 'text-slate-300 hover:text-white'

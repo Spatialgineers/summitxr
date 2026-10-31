@@ -2,23 +2,24 @@ import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'rea
 import { useLanguage } from '../context/LanguageContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import {
-  BOT_SWATCHES, COLOR_GROUPS, EYELIDS, FINISHES, HIGHBOT_PRESETS, MOUTHS, PILOT_TEXTURES, PLATES,
+  BOT_SWATCHES, COLOR_GROUPS, EYELIDS, HEADGEAR, HIGHBOT_PRESETS, MOUTHS, PARTS, PILOT_TEXTURES, PLATES, TILE_SIZES, VISORS,
   normalizePilot, pilotSvg, randomPilot, varyPilot, type PilotConfig,
 } from './pilotAvatar';
 
 // three.js only loads when the 3D view is on screen.
 const SgxPilot3D = lazy(() => import('./SgxPilot3D').then((m) => ({ default: m.SgxPilot3D })));
 
-/* HIGHBOT BUILDER: everyone's avatar is a Highbot. Start from a bot (one per
-   pillar, the classic Highbot, the golden Creator), then pick the eyelids, the
-   mouth, the pillar on the chest gear, the logo on the back gear, colors per part
-   group (official SGX palette), finish and an SGX tile texture. "Sorpresa" rolls
-   a new bot and "Variar" nudges one or two things. */
+/* HIGHBOT BUILDER: everyone's avatar is a Highbot. Start from a bot, then
+   choose which parts it keeps (no ears, whiskers or mask: a plain bot), its
+   headgear and visor, eyelids and mouth, the pillar on the chest gear and the
+   logo on the back gear, colors per part group (official SGX palette) and an
+   SGX tile mixed into the body color at one of four sizes. "Sorpresa" rolls a
+   new bot and "Variar" nudges one or two things. */
 
-type Tab = 'bots' | 'face' | 'plates' | 'colors' | 'finish';
-const TABS: Tab[] = ['bots', 'face', 'plates', 'colors', 'finish'];
+type Tab = 'bots' | 'parts' | 'face' | 'plates' | 'colors' | 'texture';
+const TABS: Tab[] = ['bots', 'parts', 'face', 'plates', 'colors', 'texture'];
 const TAB_LABEL: Record<Tab, [string, string]> = {
-  bots: ['Bots', 'Bots'], face: ['Cara', 'Face'], plates: ['Pilares', 'Pillars'], colors: ['Colores', 'Colors'], finish: ['Acabado', 'Finish'],
+  bots: ['Bots', 'Bots'], parts: ['Piezas', 'Parts'], face: ['Cara', 'Face'], plates: ['Pilares', 'Pillars'], colors: ['Colores', 'Colors'], texture: ['Textura', 'Texture'],
 };
 const SWATCH_NAMES: Record<string, [string, string]> = {
   '#050505': ['Negro SGX', 'SGX black'], '#1A1A1A': ['Grafito', 'Graphite'], '#333333': ['Gris oscuro', 'Dark gray'], '#5A5F66': ['Gris Highbot', 'Highbot gray'],
@@ -130,6 +131,32 @@ export const PilotBuilder: React.FC<Props> = ({ value: raw, onChange, accent, ca
           </div>
         )}
 
+        {tab === 'parts' && (
+          <div className="sgx-pilotb__part">
+            <span className="sgx-pilotb__colorlabel">{es ? 'Piezas del modelo' : 'Model parts'}</span>
+            <div className="sgx-pilotb__chips" role="group" aria-label={es ? 'Piezas del modelo' : 'Model parts'}>
+              {PARTS.map((pt) => (
+                <button key={pt.id} type="button" aria-pressed={value.parts[pt.id]} className={value.parts[pt.id] ? 'is-on' : ''}
+                  onClick={() => set({ ...value, parts: { ...value.parts, [pt.id]: !value.parts[pt.id] } })}>
+                  {value.parts[pt.id] ? '✓ ' : ''}{N(pt)}
+                </button>
+              ))}
+            </div>
+            <span className="sgx-pilotb__colorlabel">{es ? 'En la cabeza' : 'Headgear'}</span>
+            <div className="sgx-pilotb__chips" role="listbox" aria-label={es ? 'En la cabeza' : 'Headgear'}>
+              {HEADGEAR.map((g, i) => (
+                <button key={g.en} type="button" role="option" aria-selected={value.headgear === i} className={value.headgear === i ? 'is-on' : ''} onClick={() => set({ ...value, headgear: i })}>{N(g)}</button>
+              ))}
+            </div>
+            <span className="sgx-pilotb__colorlabel">{es ? 'Visor' : 'Visor'}</span>
+            <div className="sgx-pilotb__chips" role="listbox" aria-label="Visor">
+              {VISORS.map((g, i) => (
+                <button key={g.en} type="button" role="option" aria-selected={value.visor === i} className={value.visor === i ? 'is-on' : ''} onClick={() => set({ ...value, visor: i })}>{N(g)}</button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {tab === 'face' && (
           <div className="sgx-pilotb__part">
             <span className="sgx-pilotb__colorlabel">{es ? 'Párpados' : 'Eyelids'}</span>
@@ -184,12 +211,13 @@ export const PilotBuilder: React.FC<Props> = ({ value: raw, onChange, accent, ca
           </div>
         )}
 
-        {tab === 'finish' && (
+        {tab === 'texture' && (
           <div className="sgx-pilotb__part">
-            <span className="sgx-pilotb__colorlabel">{es ? 'Acabado' : 'Finish'}</span>
-            <div className="sgx-pilotb__chips" role="listbox" aria-label={es ? 'Acabado' : 'Finish'}>
-              {FINISHES.map((f) => (
-                <button key={f.id} type="button" role="option" aria-selected={value.finish === f.id} className={value.finish === f.id ? 'is-on' : ''} onClick={() => set({ ...value, finish: f.id })}>{N(f)}</button>
+            <p className="sgx-pilotb__hint">{es ? 'El patrón se mezcla con el color del cuerpo. Todos los bots son de metal cepillado.' : 'The pattern mixes into the body color. Every bot is brushed metal.'}</p>
+            <span className="sgx-pilotb__colorlabel">{es ? 'Tamaño del patrón' : 'Pattern size'}</span>
+            <div className="sgx-pilotb__chips" role="listbox" aria-label={es ? 'Tamaño del patrón' : 'Pattern size'}>
+              {TILE_SIZES.map((t, i) => (
+                <button key={t.en} type="button" role="option" aria-selected={value.tile === i} className={value.tile === i ? 'is-on' : ''} onClick={() => set({ ...value, tile: i })}>{N(t)}</button>
               ))}
             </div>
             <span className="sgx-pilotb__colorlabel">{es ? 'Textura del cuerpo' : 'Body texture'}</span>

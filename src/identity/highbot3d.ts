@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
-import { EYELIDS, MOUTHS, PILOT_TEXTURES, normalizePilot, plateSrc, type ColorGroup, type Eyelid, type PilotConfig } from './pilotAvatar';
+import { EYELIDS, MOUTHS, PILOT_TEXTURES, TILE_SIZES, normalizePilot, plateSrc, type ColorGroup, type Eyelid, type PartId, type PilotConfig } from './pilotAvatar';
+import { HEAD, buildGear } from './highbotGear';
 
 /* HIGHBOT 3D: the Nomad model (public/characters/highbot/highbot.glb, meshopt
    compressed, names and hierarchy intact) dressed from a PilotConfig.
@@ -68,29 +69,52 @@ function classify(m: THREE.Object3D): Kind {
   return { k: 'other' };
 }
 
-/* ---------- triplanar SGX tile on the shell (same idea as the old avatar) ---------- */
+/* ---------- surface: brushed metal everywhere, the SGX tile mixed into the body ----------
+   Both are projected from three sides in model space (triplanar), so prints
+   have one size on every piece. The brush only breaks up the roughness (the
+   base stays 0.2); the tile tints the chosen color instead of replacing it. */
 const TILE = 0.42;
-function triplanar(mat: THREE.MeshStandardMaterial, scale: number) {
-  mat.customProgramCacheKey = () => 'sgx-hb-triplanar';
+const BRUSH_TILE = 0.3;
+const TRI = `
+vec4 sgxTri(sampler2D t, vec3 p, vec3 n) {
+  vec3 w = pow(abs(n), vec3(5.0));
+  w /= (w.x + w.y + w.z + 1e-5);
+  vec4 a = texture2D(t, vec2(-p.z * (n.x >= 0.0 ? 1.0 : -1.0), p.y));
+  vec4 b = texture2D(t, vec2(p.x, -p.z * (n.y >= 0.0 ? 1.0 : -1.0)));
+  vec4 c = texture2D(t, vec2(p.x * (n.z >= 0.0 ? 1.0 : -1.0), p.y));
+  return a * w.x + b * w.y + c * w.z;
+}`;
+function sgxSurface(mat: THREE.MeshStandardMaterial, brush: THREE.Texture | null, tile: { map: THREE.Texture; gain: number; size: number } | null) {
+  if (!brush && !tile) return;
+  mat.customProgramCacheKey = () => `sgx-hb-${tile ? 't' : ''}${brush ? 'b' : ''}`;
   mat.onBeforeCompile = (sh) => {
-    sh.uniforms.uTile = { value: TILE * scale };
+    sh.uniforms.uTile = { value: TILE * (tile?.size ?? 1) };
+    sh.uniforms.uGain = { value: tile?.gain ?? 1 };
+    sh.uniforms.uTileMap = { value: tile?.map ?? null };
+    sh.uniforms.uBrush = { value: brush };
+    sh.uniforms.uBrushTile = { value: BRUSH_TILE };
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', '#include <common>\nattribute vec3 triPos;\nattribute vec3 triNrm;\nvarying vec3 vTriPos;\nvarying vec3 vTriNrm;')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvTriPos = triPos;\nvTriNrm = triNrm;');
     sh.fragmentShader = sh.fragmentShader
-      .replace('#include <common>', '#include <common>\nuniform float uTile;\nvarying vec3 vTriPos;\nvarying vec3 vTriNrm;')
-      .replace('#include <map_fragment>', `
-        vec3 tn = normalize(vTriNrm);
-        vec3 tw = pow(abs(tn), vec3(5.0));
-        tw /= (tw.x + tw.y + tw.z + 1e-5);
-        vec3 tp = vTriPos / uTile;
-        vec4 tx = texture2D(map, vec2(-tp.z * (tn.x >= 0.0 ? 1.0 : -1.0), tp.y));
-        vec4 ty = texture2D(map, vec2(tp.x, -tp.z * (tn.y >= 0.0 ? 1.0 : -1.0)));
-        vec4 tz = texture2D(map, vec2(tp.x * (tn.z >= 0.0 ? 1.0 : -1.0), tp.y));
-        diffuseColor *= tx * tw.x + ty * tw.y + tz * tw.z;
-      `);
+      .replace('#include <common>', `#include <common>
+uniform float uTile; uniform float uGain; uniform float uBrushTile;
+${tile ? 'uniform sampler2D uTileMap;' : ''} ${brush ? 'uniform sampler2D uBrush;' : ''}
+varying vec3 vTriPos; varying vec3 vTriNrm;
+${TRI}`)
+      .replace('#include <map_fragment>', tile ? `#include <map_fragment>
+  {
+    vec3 tt = sgxTri(uTileMap, vTriPos / uTile, normalize(vTriNrm)).rgb * uGain;
+    diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * 0.35 + tt * 0.65, 0.55);
+  }` : '#include <map_fragment>')
+      .replace('#include <roughnessmap_fragment>', brush ? `float roughnessFactor = roughness;
+  roughnessFactor *= mix(0.6, 1.45, sgxTri(uBrush, vTriPos / uBrushTile, normalize(vTriNrm)).g);` : '#include <roughnessmap_fragment>');
   };
 }
+
+let brushPromise: Promise<THREE.Texture | null> | null = null;
+/** The brushed-metal grain (shared by every bot, never disposed). */
+const brushTexture = () => (brushPromise ||= loadTile('metal-cepillado'));
 
 /* ---------- the shared model (loaded once, normals and triplanar baked once) ---------- */
 let basePromise: Promise<THREE.Group> | null = null;
@@ -171,12 +195,6 @@ function loadTile(file: string): Promise<THREE.Texture | null> {
   }, undefined, () => res(null)));
 }
 
-const FINISH: Record<PilotConfig['finish'], { roughness: number; metalness: number }> = {
-  gloss: { roughness: 0.26, metalness: 0.12 },
-  matte: { roughness: 0.8, metalness: 0.02 },
-  metal: { roughness: 0.3, metalness: 0.85 },
-};
-
 export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
   const c = normalizePilot(raw) as PilotConfig;
   const base = await loadBase();
@@ -184,26 +202,24 @@ export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
 
   const disposables: { dispose: () => void }[] = [];
   const keep = <T extends { dispose: () => void }>(x: T) => { disposables.push(x); return x; };
-  const fin = FINISH[c.finish];
-  const std = (color: string, extra: Partial<THREE.MeshStandardMaterialParameters> = {}) =>
-    keep(new THREE.MeshStandardMaterial({ color, roughness: fin.roughness, metalness: fin.metalness, ...extra }));
-
-  const tex = PILOT_TEXTURES[c.pattern];
-  const tile = await loadTile(tex?.file || '');
+  // every bot is brushed metal: metalness 0.4, roughness 0.2, with the brush grain in the roughness
+  const [brush, tile] = await Promise.all([brushTexture(), loadTile(PILOT_TEXTURES[c.pattern]?.file || '')]);
   if (tile) keep(tile);
-  const shell = tile
-    ? std('#ffffff', { map: tile, color: new THREE.Color().setScalar(Math.min(2.2, tex.gain ?? 1)) })
-    : std(c.colors.shell);
-  if (tile) triplanar(shell, tex.scale ?? 1);
-  // eyelids are the shell's skin, but always plain so the face reads
-  const lids = std(c.colors.shell);
+  const tex = PILOT_TEXTURES[c.pattern];
+  const metal = (color: string, withTile = false) => {
+    const mat = keep(new THREE.MeshStandardMaterial({ color, metalness: 0.4, roughness: 0.2 }));
+    sgxSurface(mat, brush, withTile && tile ? { map: tile, gain: Math.min(2.2, tex.gain ?? 1), size: (tex.scale ?? 1) * TILE_SIZES[c.tile].mult } : null);
+    return mat;
+  };
+  // eyelids are the shell's skin, but plain so the face reads
+  const lids = metal(c.colors.shell);
   const mats: Record<ColorGroup | 'pupil', THREE.Material> = {
-    shell,
-    trim: std(c.colors.trim),
-    joints: std(c.colors.joints),
-    mask: std(c.colors.mask, { roughness: Math.max(0.35, fin.roughness) }),
-    iris: std(c.colors.iris, { emissive: new THREE.Color(c.colors.iris), emissiveIntensity: 0.35, roughness: 0.2, metalness: 0.05 }),
-    shoes: std(c.colors.shoes),
+    shell: metal(c.colors.shell, true),
+    trim: metal(c.colors.trim),
+    joints: metal(c.colors.joints),
+    mask: metal(c.colors.mask),
+    iris: keep(new THREE.MeshStandardMaterial({ color: c.colors.iris, emissive: new THREE.Color(c.colors.iris), emissiveIntensity: 0.35, roughness: 0.2, metalness: 0.05 })),
+    shoes: metal(c.colors.shoes),
     pupil: keep(new THREE.MeshBasicMaterial({ color: '#050505' })),
   };
   const mouthMat = keep(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.4, metalness: 0 }));
@@ -215,6 +231,20 @@ export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
   const lidNode = EYELIDS.find((e) => e.id === c.eyelid)!.id;
   const mouthNode = MOUTHS.find((m) => m.id === c.mouth)!.id;
   const joints: Record<string, THREE.Object3D> = {};
+  const PART_OF: Record<string, PartId> = { 'ears and whiskers': 'ears', mask: 'mask', nose: 'nose', 'head decor': 'headDecor', 'head decor accent': 'sideDiscs', 'body decor': 'chestDecor' };
+
+  /* ---------- gear: headgear and visor on a socket at the head center (follows the neck) ---------- */
+  const gearMats = {
+    trim: mats.trim,
+    joints: mats.joints,
+    dark: metal('#121417'),
+    glow: keep(new THREE.MeshBasicMaterial({ color: c.colors.iris, toneMapped: false })),
+    lens: keep(new THREE.MeshBasicMaterial({ color: c.colors.iris, toneMapped: false, transparent: true, opacity: 0.88, side: THREE.DoubleSide })),
+    glowSoft: keep(new THREE.MeshBasicMaterial({ color: c.colors.iris, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false })),
+  };
+  const gear = buildGear(c.headgear, c.visor, gearMats, c.parts.ears || c.parts.sideDiscs);
+  gear.geometries.forEach(keep);
+  const eyesHidden = gear.coversEyes;
 
   model.traverse((o) => {
     const name = baseName(o.name || '');
@@ -222,14 +252,30 @@ export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
     const m = o as THREE.Mesh;
     if (!m.isMesh) return;
     const kind = m.userData.kind as Kind;
+    const names = chain(m).slice(0, 2);
+    const part = names.map((n) => PART_OF[n]).find(Boolean);
+    if (part && !c.parts[part]) m.visible = false;
     switch (kind?.k) {
       case 'group': m.material = mats[kind.g]; break;
-      case 'eyelid': m.material = lids; (eyelids[kind.v] ||= []).push(m); m.visible = kind.v === lidNode; break;
+      case 'eyelid': m.material = lids; (eyelids[kind.v] ||= []).push(m); m.visible = !eyesHidden && kind.v === lidNode; break;
       case 'mouth': m.material = mouthMat; m.visible = kind.v === mouthNode; break;
       case 'plate': m.material = plateMat[kind.side]; break;
       default: m.material = mats.joints;
     }
+    if (eyesHidden && kind?.k === 'group' && (kind.g === 'iris' || kind.g === 'pupil')) m.visible = false;
   });
+
+  // the socket: head-node space → a frame at the head center, unrotated, model units
+  const headNode = (() => { let h: THREE.Object3D | null = null; model.traverse((o) => { if (!h && !(o as THREE.Mesh).isMesh && baseName(o.name || '') === 'head') h = o; }); return h as THREE.Object3D | null; })();
+  if (headNode) {
+    model.updateMatrixWorld(true);
+    const socket = new THREE.Group();
+    const local = headNode.matrixWorld.clone().invert().multiply(new THREE.Matrix4().makeTranslation(HEAD.center.x, HEAD.center.y, HEAD.center.z));
+    local.decompose(socket.position, socket.quaternion, socket.scale);
+    socket.add(gear.head);
+    headNode.add(socket);
+  }
+  model.add(gear.body);
 
   // rest pose of every joint, so the animation adds to it in the parent's frame
   const rest = new Map<THREE.Object3D, { q: THREE.Quaternion; p: THREE.Vector3 }>();
@@ -281,8 +327,9 @@ export async function buildHighbot3D(raw: PilotConfig): Promise<Pilot3D> {
     pose(joints['hip joint left'], Math.sin(t * 1.5 + Math.PI) * 0.04, 0, 0);
     pose(joints['hip joint right'], Math.sin(t * 1.5) * 0.04, 0, 0);
     pose(joints.neck, Math.sin(t * 0.9) * 0.06, Math.sin(t * 0.6) * 0.32, Math.sin(t * 0.75) * 0.06);
+    gear.update(t);
     // blinks: the lids drop to "chill" for a moment
-    if (t > nextBlink && blinkUntil < 0) { blinkUntil = t + 0.13; showLid('chill'); }
+    if (!eyesHidden && t > nextBlink && blinkUntil < 0) { blinkUntil = t + 0.13; showLid('chill'); }
     if (blinkUntil > 0 && t > blinkUntil) { blinkUntil = -1; nextBlink = t + 2.8 + Math.random() * 3.2; showLid(lidNode); }
   };
 

@@ -1,8 +1,11 @@
 /* HIGHBOT: the Summit avatar. Everyone is a Highbot (Highcoon's robot form,
    modelled in Nomad: public/characters/highbot/highbot.glb) and makes it theirs:
-   eyelids, mouth, the pillar on the chest gear and the logo on the back gear,
-   colors per part group, finish and an SGX tile texture. Presets are bots
-   invented from the same design, one per pillar plus two specials.
+   which parts it keeps (without ears, whiskers and mask it is a plain bot),
+   headgear and a visor (the 3D gear of the old XR avatar, fitted to the
+   Highbot head), eyelids, mouth, the pillar on the chest gear and the logo on
+   the back gear, colors per part group and an SGX tile mixed into the body
+   color at one of four sizes. Every bot is brushed metal (metalness 0.4,
+   roughness 0.2). Presets are different bots built that way.
    The 3D figure is built in highbot3d.ts; flat places (header, chat, Holo Card,
    pass PDF) show a rendered portrait (highbotPortrait.ts), with a vector
    silhouette until it is ready or when WebGL is missing.
@@ -13,7 +16,6 @@ import { SGX_PILLARS, type PillarKey } from '../lib/sgxPillars';
 export type Eyelid = 'low' | 'mid' | 'sus' | 'high' | 'chill';
 export type Mouth = 'normal' | 'meh' | 'woah' | 'happy' | 'sad';
 export type Plate = PillarKey | 'SGX';
-export type Finish = 'gloss' | 'matte' | 'metal';
 export type ColorGroup = 'shell' | 'trim' | 'joints' | 'mask' | 'iris' | 'shoes';
 
 export interface PilotColors {
@@ -38,10 +40,73 @@ export interface PilotConfig {
   /** the big plate on the back gear */
   back: Plate;
   colors: PilotColors;
-  finish: Finish;
-  /** SGX tile on the shell (index in PILOT_TEXTURES, 0 = plain) */
+  /** SGX tile mixed into the body color (index in PILOT_TEXTURES, 0 = plain) */
   pattern: number;
+  /** tile size: 0 fine, 1 medium, 2 large, 3 XL */
+  tile: number;
+  /** model parts kept on (off: a plainer bot) */
+  parts: PilotParts;
+  /** index in HEADGEAR (0 = none) */
+  headgear: number;
+  /** index in VISORS (0 = none) */
+  visor: number;
 }
+
+export interface PilotParts {
+  ears: boolean;
+  mask: boolean;
+  nose: boolean;
+  /** the band across the top of the head */
+  headDecor: boolean;
+  /** the discs on the sides of the head */
+  sideDiscs: boolean;
+  /** the marks on the chest */
+  chestDecor: boolean;
+}
+export type PartId = keyof PilotParts;
+export const PARTS: { id: PartId; es: string; en: string }[] = [
+  { id: 'ears', es: 'Orejas y bigotes', en: 'Ears and whiskers' },
+  { id: 'mask', es: 'Antifaz', en: 'Mask' },
+  { id: 'nose', es: 'Nariz', en: 'Nose' },
+  { id: 'headDecor', es: 'Banda de la cabeza', en: 'Head band' },
+  { id: 'sideDiscs', es: 'Discos laterales', en: 'Side discs' },
+  { id: 'chestDecor', es: 'Detalles del pecho', en: 'Chest marks' },
+];
+const ALL_PARTS: PilotParts = { ears: true, mask: true, nose: true, headDecor: true, sideDiscs: true, chestDecor: true };
+const PLAIN: PilotParts = { ears: false, mask: false, nose: false, headDecor: true, sideDiscs: true, chestDecor: true };
+
+/** Headgear and visors (built in highbotGear.ts). New ones go at the END. */
+export const HEADGEAR: { es: string; en: string }[] = [
+  { es: 'Nada', en: 'None' },
+  { es: 'Audífonos', en: 'Headphones' },
+  { es: 'Headset con mic', en: 'Headset + mic' },
+  { es: 'Antena', en: 'Antenna' },
+  { es: 'Antena rayo SGX', en: 'SGX bolt antenna' },
+  { es: 'Halo', en: 'Halo' },
+  { es: 'Halo engranaje SGX', en: 'SGX gear halo' },
+  { es: 'Aletas mecha', en: 'Mech fins' },
+  { es: 'Diadema LED', en: 'LED headband' },
+  { es: 'Auricular rayo', en: 'Bolt earpiece' },
+  { es: 'Ícono SGX flotante', en: 'Floating SGX icon' },
+];
+export const VISORS: { es: string; en: string }[] = [
+  { es: 'Nada', en: 'None' },
+  { es: 'VR clásico', en: 'Classic VR' },
+  { es: 'VR slim', en: 'Slim VR' },
+  { es: 'Gafas AR', en: 'AR glasses' },
+  { es: 'Visor MR', en: 'MR visor' },
+  { es: 'Visor gaming', en: 'Gaming visor' },
+  { es: 'Goggles', en: 'Goggles' },
+  { es: 'Banda LED', en: 'LED band' },
+  { es: 'T-visor mecha', en: 'Mech T-visor' },
+];
+/** Pattern sizes: a multiplier on each tile's own scale. */
+export const TILE_SIZES: { mult: number; es: string; en: string }[] = [
+  { mult: 0.55, es: 'Fino', en: 'Fine' },
+  { mult: 1, es: 'Medio', en: 'Medium' },
+  { mult: 1.6, es: 'Grande', en: 'Large' },
+  { mult: 2.4, es: 'XL', en: 'XL' },
+];
 
 /* Seamless SGX tiles (from the SGX Tile Lab). 0 = plain. gain lifts the darker
    tiles so they read; scale evens out the motif size across tiles. */
@@ -89,12 +154,6 @@ export const PLATES: { id: Plate; es: string; en: string; src: string; color: st
   { id: 'SGX' as Plate, es: 'Logo del Summit', en: 'Summit logo', src: '/holo/summitIcon.png', color: '#FDCC0D' },
 ];
 export const plateSrc = (p: Plate) => PLATES.find((x) => x.id === p)?.src || '/holo/summitIcon.png';
-
-export const FINISHES: { id: Finish; es: string; en: string }[] = [
-  { id: 'gloss', es: 'Brillante', en: 'Gloss' },
-  { id: 'matte', es: 'Mate', en: 'Matte' },
-  { id: 'metal', es: 'Metal', en: 'Metal' },
-];
 
 export const COLOR_GROUPS: { id: ColorGroup; es: string; en: string }[] = [
   { id: 'shell', es: 'Cuerpo', en: 'Body' },
@@ -145,30 +204,30 @@ const pickOf = <T,>(r: () => number, a: readonly T[]) => a[Math.floor(r() * a.le
 
 /* ---------- presets: bots born from the Highbot design ---------- */
 
-const bot = (eyelid: Eyelid, mouth: Mouth, chest: Plate, colors: PilotColors, finish: Finish, pattern = 0, back: Plate = 'SGX'): PilotConfig =>
-  ({ v: 2, eyelid, mouth, chest, back, colors, finish, pattern });
+const bot = (o: { eyelid: Eyelid; mouth: Mouth; chest: Plate; colors: PilotColors; parts?: PilotParts; headgear?: number; visor?: number; pattern?: number; tile?: number; back?: Plate }): PilotConfig =>
+  ({ v: 2, back: 'SGX', pattern: 0, tile: 1, headgear: 0, visor: 0, ...o, colors: { ...o.colors }, parts: { ...(o.parts || ALL_PARTS) } });
 
 export const HIGHBOT_PRESETS: { id: string; es: string; en: string; config: PilotConfig }[] = [
   { id: 'highbot', es: 'Highbot', en: 'Highbot',
-    config: bot('high', 'normal', 'SGX', { shell: '#5A5F66', trim: '#1A1A1A', joints: '#1A1A1A', mask: '#050505', iris: '#FF4040', shoes: '#5A5F66' }, 'gloss') },
-  { id: 'story', es: 'StoryBot', en: 'StoryBot',
-    config: bot('mid', 'happy', 'STORY', { shell: '#32527B', trim: '#5D86C6', joints: '#050505', mask: '#1A1A1A', iris: '#00DDFF', shoes: '#FFF9E2' }, 'gloss', 1) },
-  { id: 'showcase', es: 'ShowcaseBot', en: 'ShowcaseBot',
-    config: bot('sus', 'woah', 'SHOWCASE', { shell: '#FFF9E2', trim: '#00DDFF', joints: '#1A1A1A', mask: '#050505', iris: '#00DDFF', shoes: '#00DDFF' }, 'gloss') },
-  { id: 'spark', es: 'SparkBot', en: 'SparkBot',
-    config: bot('high', 'happy', 'SPARK', { shell: '#B87000', trim: '#FDCC0D', joints: '#1A1A1A', mask: '#050505', iris: '#FDCC0D', shoes: '#FDCC0D' }, 'metal', 3) },
-  { id: 'stage', es: 'StageBot', en: 'StageBot',
-    config: bot('chill', 'normal', 'STAGE', { shell: '#1A1A1A', trim: '#FDCC0D', joints: '#FDCC0D', mask: '#050505', iris: '#FDCC0D', shoes: '#FDCC0D' }, 'gloss', 4) },
-  { id: 'system', es: 'SystemBot', en: 'SystemBot',
-    config: bot('low', 'meh', 'SYSTEM', { shell: '#888888', trim: '#00DDFF', joints: '#333333', mask: '#1A1A1A', iris: '#00DDFF', shoes: '#333333' }, 'metal', 17) },
-  { id: 'synthesize', es: 'SynthBot', en: 'SynthBot',
-    config: bot('mid', 'happy', 'SYNTHESIZE', { shell: '#FFF9E2', trim: '#B87000', joints: '#32527B', mask: '#32527B', iris: '#FFBB00', shoes: '#32527B' }, 'matte', 7) },
+    config: bot({ eyelid: 'high', mouth: 'normal', chest: 'SGX', colors: { shell: '#5A5F66', trim: '#1A1A1A', joints: '#1A1A1A', mask: '#050505', iris: '#FF4040', shoes: '#5A5F66' } }) },
+  { id: 'base', es: 'Bot base', en: 'Base bot',
+    config: bot({ eyelid: 'mid', mouth: 'happy', chest: 'STORY', parts: PLAIN, colors: { shell: '#32527B', trim: '#5D86C6', joints: '#050505', mask: '#1A1A1A', iris: '#00DDFF', shoes: '#FFF9E2' }, pattern: 1 }) },
+  { id: 'antena', es: 'Antena', en: 'Antenna',
+    config: bot({ eyelid: 'sus', mouth: 'woah', chest: 'SPARK', parts: PLAIN, headgear: 4, colors: { shell: '#B87000', trim: '#FDCC0D', joints: '#1A1A1A', mask: '#050505', iris: '#FDCC0D', shoes: '#1A1A1A' }, pattern: 11, tile: 2 }) },
+  { id: 'dj', es: 'DJ', en: 'DJ',
+    config: bot({ eyelid: 'chill', mouth: 'happy', chest: 'STAGE', parts: { ...PLAIN, sideDiscs: false }, headgear: 1, visor: 5, colors: { shell: '#1A1A1A', trim: '#FDCC0D', joints: '#FDCC0D', mask: '#050505', iris: '#FDCC0D', shoes: '#FDCC0D' }, pattern: 4 }) },
+  { id: 'explorer', es: 'Explorer', en: 'Explorer',
+    config: bot({ eyelid: 'high', mouth: 'normal', chest: 'SHOWCASE', parts: { ...ALL_PARTS, mask: false }, visor: 6, colors: { shell: '#FFF9E2', trim: '#00DDFF', joints: '#1A1A1A', mask: '#050505', iris: '#00DDFF', shoes: '#00DDFF' } }) },
+  { id: 'halo', es: 'Halo', en: 'Halo',
+    config: bot({ eyelid: 'mid', mouth: 'happy', chest: 'SYNTHESIZE', parts: PLAIN, headgear: 6, colors: { shell: '#FFFFFF', trim: '#B87000', joints: '#32527B', mask: '#32527B', iris: '#FFBB00', shoes: '#32527B' }, pattern: 7, tile: 0 }) },
+  { id: 'mecha', es: 'Mecha', en: 'Mech',
+    config: bot({ eyelid: 'low', mouth: 'meh', chest: 'SYSTEM', parts: { ...PLAIN, headDecor: false }, headgear: 7, visor: 8, colors: { shell: '#888888', trim: '#00DDFF', joints: '#333333', mask: '#1A1A1A', iris: '#00DDFF', shoes: '#333333' }, pattern: 17 }) },
   { id: 'gold', es: 'Creador Dorado', en: 'Golden Creator',
-    config: bot('high', 'happy', 'SGX', { shell: '#FDCC0D', trim: '#050505', joints: '#050505', mask: '#050505', iris: '#00DDFF', shoes: '#050505' }, 'metal') },
+    config: bot({ eyelid: 'high', mouth: 'happy', chest: 'SGX', headgear: 10, colors: { shell: '#FDCC0D', trim: '#050505', joints: '#050505', mask: '#050505', iris: '#00DDFF', shoes: '#050505' } }) },
 ];
 
 const BASE = HIGHBOT_PRESETS[0].config;
-const clone = (c: PilotConfig): PilotConfig => ({ ...c, colors: { ...c.colors } });
+const clone = (c: PilotConfig): PilotConfig => ({ ...c, colors: { ...c.colors }, parts: { ...c.parts } });
 
 /** Same seed, same bot: for passes forged before the builder and for other people's QR seeds. */
 export function configFromSeed(seed: string, accent = '#FDCC0D'): PilotConfig {
@@ -190,8 +249,10 @@ export function randomPilot(accent?: string): PilotConfig {
   if (r() < 0.6) c.colors.iris = accent && r() < 0.5 ? snap(accent, BOT_SWATCHES, c.colors.iris) : pickOf(r, BOT_SWATCHES);
   if (r() < 0.5) c.colors.trim = pickOf(r, BOT_SWATCHES);
   if (r() < 0.35) c.colors.shell = pickOf(r, BOT_SWATCHES);
-  if (r() < 0.3) c.pattern = Math.floor(r() * PILOT_TEXTURES.length);
-  if (r() < 0.3) c.finish = pickOf(r, FINISHES).id;
+  if (r() < 0.35) c.pattern = Math.floor(r() * PILOT_TEXTURES.length);
+  if (r() < 0.3) c.tile = Math.floor(r() * TILE_SIZES.length);
+  if (r() < 0.3) c.headgear = Math.floor(r() * HEADGEAR.length);
+  if (r() < 0.25) c.visor = Math.floor(r() * VISORS.length);
   return c;
 }
 
@@ -201,18 +262,23 @@ export function varyPilot(c: PilotConfig): PilotConfig {
   const r = Math.random;
   const n = 1 + Math.floor(r() * 2);
   for (let i = 0; i < n; i++) {
-    const k = Math.floor(r() * 5);
+    const k = Math.floor(r() * 8);
     if (k === 0) next.eyelid = pickOf(r, EYELIDS.filter((e) => e.id !== next.eyelid)).id;
     else if (k === 1) next.mouth = pickOf(r, MOUTHS.filter((m) => m.id !== next.mouth)).id;
     else if (k === 2) next.chest = pickOf(r, PLATES.filter((p) => p.id !== next.chest)).id;
     else if (k === 3) { const g = pickOf(r, COLOR_GROUPS).id; next.colors[g] = pickOf(r, BOT_SWATCHES.filter((h) => h !== next.colors[g])); }
-    else next.pattern = r() < 0.4 ? 0 : 1 + Math.floor(r() * (PILOT_TEXTURES.length - 1));
+    else if (k === 4) next.pattern = r() < 0.4 ? 0 : 1 + Math.floor(r() * (PILOT_TEXTURES.length - 1));
+    else if (k === 5) { const pid = pickOf(r, PARTS).id; next.parts[pid] = !next.parts[pid]; }
+    else if (k === 6) next.headgear = Math.floor(r() * HEADGEAR.length);
+    else next.visor = Math.floor(r() * VISORS.length);
   }
   return next;
 }
 
 /** The pillar plate an old (v1) avatar's emblem pointed at: emblems 3–8 were the six pillars. */
 const V1_EMBLEM_PLATE: Record<number, Plate> = { 3: 'STORY', 4: 'SHOWCASE', 5: 'SPARK', 6: 'STAGE', 7: 'SYSTEM', 8: 'SYNTHESIZE' };
+
+const idx = (v: unknown, n: number, d: number) => { const x = Number(v); return Number.isFinite(x) && x >= 0 && x < n ? Math.floor(x) : d; };
 
 export function normalizePilot(raw: unknown, accent = '#FDCC0D'): PilotConfig | null {
   if (!raw || typeof raw !== 'object') return null;
@@ -252,8 +318,11 @@ export function normalizePilot(raw: unknown, accent = '#FDCC0D'): PilotConfig | 
       iris: snap(colors.iris, BOT_SWATCHES, BASE.colors.iris),
       shoes: snap(colors.shoes, BOT_SWATCHES, BASE.colors.shoes),
     },
-    finish: FINISHES.some((f) => f.id === c.finish) ? c.finish : BASE.finish,
     pattern: Number.isFinite(p) && p >= 0 && p < PILOT_TEXTURES.length ? Math.floor(p) : 0,
+    tile: idx(c.tile, TILE_SIZES.length, 1),
+    parts: Object.fromEntries(PARTS.map(({ id }) => [id, typeof c.parts?.[id] === 'boolean' ? c.parts[id] : true])) as unknown as PilotParts,
+    headgear: idx(c.headgear, HEADGEAR.length, 0),
+    visor: idx(c.visor, VISORS.length, 0),
   };
 }
 
@@ -384,18 +453,26 @@ function vectorBot(c: PilotConfig, id: string): string {
     + `<circle cx="40" cy="91" r="5.2" fill="${k.trim}"/><circle cx="40" cy="91" r="2.8" fill="#050505"/>`
     + `<rect x="55" y="88" width="9" height="1.8" rx="0.9" fill="${k.trim}"/><rect x="55" y="91.5" width="9" height="1.8" rx="0.9" fill="${k.trim}"/>`
     + `<rect x="45" y="74" width="10" height="6" fill="${k.joints}"/>`
+    // headgear hints: halo / antenna / anything else as a top light
+    + (c.headgear === 5 || c.headgear === 6 ? `<ellipse cx="50" cy="9" rx="18" ry="3.2" fill="none" stroke="${c.headgear === 6 ? k.trim : k.iris}" stroke-width="2"/>` : '')
+    + (c.headgear === 3 || c.headgear === 4 ? `<path d="M58 16 L64 4" stroke="${k.joints}" stroke-width="1.6"/><circle cx="64.5" cy="3.5" r="2.6" fill="${k.iris}"/>` : '')
     // ears (behind the head)
-    + `<path d="M17 30 L21 8 L36 20 Z" fill="${k.shell}"/><path d="M83 30 L79 8 L64 20 Z" fill="${k.shell}"/>`
-    + `<path d="M21 26 L23 13 L31 20 Z" fill="${k.mask}"/><path d="M79 26 L77 13 L69 20 Z" fill="${k.mask}"/>`
+    + (c.parts.ears
+      ? `<path d="M17 30 L21 8 L36 20 Z" fill="${k.shell}"/><path d="M83 30 L79 8 L64 20 Z" fill="${k.shell}"/>`
+        + `<path d="M21 26 L23 13 L31 20 Z" fill="${k.mask}"/><path d="M79 26 L77 13 L69 20 Z" fill="${k.mask}"/>`
+      : '')
+    + (c.headgear === 1 || c.headgear === 2 ? `<path d="M10 44 Q10 8 50 8 Q90 8 90 44" fill="none" stroke="${k.joints}" stroke-width="3"/><rect x="5" y="38" width="9" height="16" rx="3" fill="${k.trim}"/><rect x="86" y="38" width="9" height="16" rx="3" fill="${k.trim}"/>` : '')
     // head
     + `<rect x="12" y="16" width="76" height="60" rx="16" fill="${k.shell}"/>`
     + `<rect x="12" y="16" width="76" height="60" rx="16" fill="url(#${id}-g)"/>`
-    + `<path d="M24 17 Q50 12 76 17 L74 21 Q50 17 26 21 Z" fill="${k.trim}"/>`
+    + (c.parts.headDecor ? `<path d="M24 17 Q50 12 76 17 L74 21 Q50 17 26 21 Z" fill="${k.trim}"/>` : '')
     // mask (the raccoon band) and eyes
-    + `<path d="M13 46 Q13 33 26 33 Q38 33 44 40 Q50 44 56 40 Q62 33 74 33 Q87 33 87 46 Q87 60 74 60 Q62 60 56 53 Q50 50 44 53 Q38 60 26 60 Q13 60 13 46 Z" fill="${k.mask}"/>`
-    + eye(30) + eye(70)
+    + (c.parts.mask ? `<path d="M13 46 Q13 33 26 33 Q38 33 44 40 Q50 44 56 40 Q62 33 74 33 Q87 33 87 46 Q87 60 74 60 Q62 60 56 53 Q50 50 44 53 Q38 60 26 60 Q13 60 13 46 Z" fill="${k.mask}"/>` : '')
+    + ([1, 2, 4, 5, 6, 8].includes(c.visor)
+      ? `<rect x="15" y="36" width="70" height="22" rx="8" fill="${k.trim}"/><rect x="19" y="39" width="62" height="16" rx="6" fill="${k.iris}" opacity="0.9"/>`
+      : eye(30) + eye(70))
     // nose and mouth
-    + `<ellipse cx="50" cy="57" rx="3.4" ry="2.6" fill="${k.mask}"/>`
+    + (c.parts.nose ? `<ellipse cx="50" cy="57" rx="3.4" ry="2.6" fill="${k.mask}"/>` : '')
     + `<path d="${mouth}" ${mouthFill} stroke="${k.mask}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>`;
 }
 

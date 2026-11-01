@@ -5,26 +5,18 @@ import { GoogleSignInButton } from '../components/common/GoogleSignInButton';
 import { useOptionalSgxIdentity } from '../identity/SgxIdentityContext';
 import { PILLAR_BY_KEY } from '../lib/sgxPillars';
 import { companionStatus, type CompanionMode } from './companionApi';
-import { askHighbot, clearCompanion, sampleAnswer, setCompanionOwner, useCompanion, type ChatTurn } from './companionStore';
+import { askHighbot, clearCompanion, localReply, setCompanionOwner, useCompanion, type ChatTurn } from './companionStore';
 import { currentPlace, guideTargets } from './guide';
+import { APP_FAQ } from './appGuide';
 
 /* The chat with your Highbot. Same conversation in Tu Estudio and in the
    floating head's popover. With a forged SGX Pass you can ask anything about
    the Summit and Spatialgineers, and it can take you to a page or point at
-   a button; without one, three sample answers and the way to forge. */
+   a button. Without Claude (no pass, no Google yet, or the server off) it
+   still answers, on the device, from the app guide (localKb.ts). */
 
-const SAMPLES = {
-  es: [
-    { q: '¿Cuándo y dónde es el Summit?', a: 'Del 11 al 13 de diciembre de 2026. Los Días 1 y 2 son gratis por YouTube Live, con Los Mismos TV transmitiendo junto a nosotros. El Día 3 es el SGX Showcase presencial en Chroma Space Studios, San Juan, por invitación.' },
-    { q: '¿Qué es el SGX Pass?', a: 'Tu credencial gratis del Summit, que también es tu Holo Card: te da tu QR de networking, la entrada del Día 3, las misiones y el XP. Se forja en un minuto, y con él despierto yo para contestarte lo que quieras.' },
-    { q: '¿Qué son los seis pilares?', a: 'El SGX Framework de Spatialgineers: Story, Showcase, Spark, Stage, System y Synthesize. Cada pilar tiene su bloque el Día 1 y su conversación de industria el Día 2.' },
-  ],
-  en: [
-    { q: 'When and where is the Summit?', a: 'December 11 to 13, 2026. Days 1 and 2 are free on YouTube Live, with Los Mismos TV streaming alongside us. Day 3 is the in-person SGX Showcase at Chroma Space Studios, San Juan, by invitation.' },
-    { q: 'What is the SGX Pass?', a: 'Your free Summit credential, which is also your Holo Card: it gives you your networking QR, your Day 3 entrance, missions and XP. It takes a minute to forge, and with it I wake up to answer anything you ask.' },
-    { q: 'What are the six pillars?', a: 'The Spatialgineers SGX Framework: Story, Showcase, Spark, Stage, System and Synthesize. Each pillar has its block on Day 1 and its industry conversation on Day 2.' },
-  ],
-};
+/* Without Claude, the chips ask the backup brain the essentials. */
+const ESSENTIALS = ['when', 'pass', 'xp', 'pillars'].map((id) => APP_FAQ.find((e) => e.id === id)!);
 
 const STARTERS = {
   es: ['¿Qué pasa el Día 1?', 'Llévame a la agenda', '¿Quiénes son Spatialgineers?', '¿Cómo gano XP?'],
@@ -80,10 +72,11 @@ export const CompanionPanel: React.FC<Props> = ({ variant, onClose, head }) => {
   const affinity = sgx?.identity.affinity ? PILLAR_BY_KEY[sgx.identity.affinity].name : '';
 
   const send = (text: string) => {
-    if (!pass || !canTalk) return;
     const q = text.trim();
     if (!q || busy) return;
     setDraft('');
+    // without Claude (no pass, no Google, or the server off) the backup brain answers on the device
+    if (!pass || !canTalk) { localReply(q, lang); return; }
     const place = currentPlace();
     askHighbot(q, { ...place, lang, name, pillar: affinity, targets: guideTargets() }, { email: pass.email, code: pass.code });
   };
@@ -102,7 +95,7 @@ export const CompanionPanel: React.FC<Props> = ({ variant, onClose, head }) => {
 
   const visible = turns.filter((t: ChatTurn) => t.text || (busy && t.role === 'assistant'));
   const last = visible[visible.length - 1];
-  const chips = canTalk ? STARTERS[lang] : SAMPLES[lang].map((s) => s.q);
+  const chips = canTalk ? STARTERS[lang] : ESSENTIALS.map((e) => e.q[lang]);
 
   return (
     <section className={`sgx-companion sgx-companion--${variant}`} aria-label={es ? 'Chat con tu Highbot' : 'Chat with your Highbot'}>
@@ -129,19 +122,18 @@ export const CompanionPanel: React.FC<Props> = ({ variant, onClose, head }) => {
 
       {(!last || last.role === 'assistant') && !busy && (
         <div className="sgx-companion__chips">
-          {chips.map((q, i) => (
+          {chips.map((q) => (
             <button
               key={q}
               type="button"
               className="sgx-companion__chip"
-              onClick={() => (canTalk ? send(q) : sampleAnswer(q, SAMPLES[lang][i].a))}
+              onClick={() => send(q)}
             >{q}</button>
           ))}
         </div>
       )}
 
-      {canTalk ? (
-        <form className="sgx-companion__form" onSubmit={(e) => { e.preventDefault(); send(draft); }}>
+      <form className="sgx-companion__form" onSubmit={(e) => { e.preventDefault(); send(draft); }}>
           <textarea
             ref={inputRef}
             rows={1}
@@ -149,12 +141,12 @@ export const CompanionPanel: React.FC<Props> = ({ variant, onClose, head }) => {
             maxLength={600}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={onKey}
-            placeholder={es ? 'Pregúntale a tu Highbot…' : 'Ask your Highbot…'}
+            placeholder={canTalk ? (es ? 'Pregúntale a tu Highbot…' : 'Ask your Highbot…') : (es ? 'Pregúntame del Summit o de la app…' : 'Ask me about the Summit or the app…')}
             aria-label={es ? 'Tu pregunta' : 'Your question'}
           />
           <button type="submit" className="sgx-btn sgx-btn--sm" disabled={busy || !draft.trim()}>{es ? 'Enviar' : 'Send'}</button>
         </form>
-      ) : needGoogle ? (
+      {canTalk ? null : needGoogle ? (
         <div className="sgx-companion__cta">
           <GoogleSignInButton variant="compact" buttonText={es ? 'Conectar con Google' : 'Connect with Google'} />
         </div>

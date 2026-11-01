@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { askCompanion, type CompanionContext, type CompanionTurn } from './companionApi';
 import { goTo, pointAt } from './guide';
+import { localAnswer, wantsToGo } from './localKb';
 
 /* One conversation per SGX Pass, shared by every place the Highbot shows up
    (Tu Estudio and the floating head), kept on this device. */
@@ -107,6 +108,18 @@ export function askHighbot(question: string, ctx: CompanionContext, pass: { emai
         return;
       }
       abort = null;
+      // Claude is off, paused, busy, out of budget or unreachable: the backup brain answers
+      if (err && (FALLBACK.has(err.code) || /^HTTP_5/.test(err.code)) && !state.turns.find((t) => t.id === answer.id)?.text) {
+        const local = localAnswer(q, ctx.lang);
+        const note = err.message || NOTICE[err.code]?.[ctx.lang] || '';
+        const lead = ctx.lang === 'en' ? 'Meanwhile, this I can tell you:' : 'Mientras, esto sí te lo puedo decir:';
+        patchAnswer((a) => ({ ...a, sample: true, text: local.matched ? `${note ? `${note} ${lead}\n\n` : ''}${local.text}` : (note || local.text) }));
+        set({ busy: false });
+        if (local.matched && local.go && wantsToGo(q)) window.setTimeout(() => goTo(local.go!), 700);
+        moodFor('talking', 1400);
+        save();
+        return;
+      }
       if (err && err.code !== 'ABORTED') {
         const n = NOTICE[err.code];
         const text = err.message || (n ? n[ctx.lang] : (ctx.lang === 'en' ? 'My wires got crossed. Try again in a moment.' : 'Se me cruzaron los cables. Inténtalo de nuevo en un momento.'));
@@ -120,6 +133,17 @@ export function askHighbot(question: string, ctx: CompanionContext, pass: { emai
   run(0);
 }
 
+const FALLBACK = new Set(['COMPANION_OFF', 'PAUSED', 'BUSY', 'DAILY', 'BUDGET', 'NETWORK', 'PASS_CHECK_UNAVAILABLE', 'UPSTREAM', 'SERVER', 'HTTP']);
+
+/** Without Claude (no pass, no Google, or the server off): answered on the device from the app guide. */
+export function localReply(question: string, lang: 'es' | 'en') {
+  const q = question.trim().slice(0, 600);
+  if (!q || state.busy) return;
+  const local = localAnswer(q, lang);
+  sampleAnswer(q, local.text);
+  if (local.matched && local.go && wantsToGo(q)) window.setTimeout(() => goTo(local.go!), 900);
+}
+
 /** Visitors without a pass: a canned answer, no call to the server. */
 export function sampleAnswer(q: string, a: string) {
   if (state.busy) return;
@@ -127,11 +151,12 @@ export function sampleAnswer(q: string, a: string) {
   set({ turns: [...state.turns, { id: uid(), role: 'user', text: q, sample: true }, answer], busy: true });
   moodFor('talking', 0);
   const words = a.split(/(\s+)/);
-  let i = 0;
+  // time-based, ~0.9 s whatever the length: on a busy page (timers late) it still ends on the next tick
+  const start = Date.now();
   const step = () => {
-    i += 3;
+    const i = Math.min(words.length, Math.max(3, Math.ceil(((Date.now() - start) / 900) * words.length)));
     set({ turns: state.turns.map((t) => (t.id === answer.id ? { ...t, text: words.slice(0, i).join('') } : t)) });
-    if (i < words.length) window.setTimeout(step, 45);
+    if (i < words.length) window.setTimeout(step, 40);
     else { set({ busy: false }); moodFor('talking', 1200); }
   };
   step();

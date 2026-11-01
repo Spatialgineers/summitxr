@@ -60,7 +60,7 @@ const pass1 = (p) => p.evaluate(() => JSON.parse(localStorage.getItem('sgx_ident
   // The account menu offers Studio and sign-out.
   for (let i = 0; i < 3 && await p2.$('.sgx-forge'); i++) { await p2.keyboard.press('Escape'); await p2.waitForTimeout(500); }
   await p2.screenshot({ path: require('path').join(__dirname, 'out', 'recover_before_menu.png') });
-  await p2.click('.sgx-passchip', { timeout: 8000 }); await p2.waitForTimeout(400);
+  await p2.click('.sgx-passchip', { timeout: 8000, noWaitAfter: true }); await p2.waitForTimeout(400);
   await p2.screenshot({ path: require('path').join(__dirname, 'out', 'recover_menu.png') });
   const items = await p2.$$eval('.sgx-acct [role=menuitem]', (els) => els.map((e) => e.textContent));
   check('account menu: Estudio + Cerrar sesión', items.some((t) => /Estudio|Studio/.test(t)) && items.some((t) => /Cerrar sesión|Sign out/.test(t)), JSON.stringify(items));

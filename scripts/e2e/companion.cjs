@@ -69,13 +69,18 @@ async function context(b, vp, id) {
     check('visitor: the floating head is there', !!(await p.$('.sgx-companion-head')));
     await p.click('.sgx-companion-head');
     await p.waitForSelector('.sgx-companion--pop', { timeout: 5000 }).catch(() => {});
-    check('visitor: no question box without a pass', !(await p.$('.sgx-companion--pop textarea')));
+    check('visitor: can type to the backup brain without a pass', /Summit o de la app/.test(await p.$eval('.sgx-companion--pop textarea', (t) => t.placeholder).catch(() => '')));
     check('visitor: the pop-up offers to forge the pass', !!(await p.$('.sgx-companion__cta button')));
     await p.click('.sgx-companion__chip >> nth=0');
     await p.waitForTimeout(2500);
     const answer = await p.$$eval('.sgx-companion__msg.is-bot', (els) => els.map((e) => e.textContent).join(' | '));
     check('visitor: a sample question gets its answer', /11 al 13 de diciembre/.test(answer), answer.slice(-80));
-    check('visitor: samples never call the server', calls.length === 0, String(calls.length));
+    await p.fill('.sgx-companion--pop textarea', '¿Qué juegos hay?');
+    await p.keyboard.press('Enter');
+    await p.waitForFunction(() => /Torre de Pilares/.test(document.querySelector('.sgx-companion--pop .sgx-companion__log')?.textContent || ''), null, { timeout: 8000 }).catch(() => {});
+    const local = await p.$$eval('.sgx-companion__msg.is-bot', (els) => els.map((e) => e.textContent).join(' | '));
+    check('visitor: a typed question gets a local answer', /Torre de Pilares/.test(local), local.slice(-90));
+    check('visitor: samples and local answers never call the server', calls.length === 0, String(calls.length));
     await p.keyboard.press('Escape');
     await ctx.close();
   }
@@ -102,10 +107,10 @@ async function context(b, vp, id) {
     }
     check(`${name}: the pass is registered for this account`, claimed);
 
-    // as a guest: no question box, a Google button instead; the server refuses guests too
+    // as a guest: a Google button (the box only reaches the backup brain); the server refuses guests too
     await p.click('.sgx-companion-head');
     await p.waitForSelector('.sgx-companion--pop', { timeout: 8000 }).catch(() => {});
-    check(`${name}: a guest is asked to connect Google`, !(await p.$('.sgx-companion--pop textarea')) && !!(await p.$('.sgx-companion--pop .sgx-companion__cta button')));
+    check(`${name}: a guest is asked to connect Google`, !!(await p.$('.sgx-companion--pop .sgx-companion__cta button')));
     const guest = await p.evaluate(async (pass) => {
       const { auth } = await import('/src/lib/firebase.ts');
       const idToken = await auth.currentUser.getIdToken();
@@ -122,8 +127,8 @@ async function context(b, vp, id) {
     await p.waitForSelector('.sgx-companion-head', { timeout: 25000 }).catch(() => {});
     await p.waitForTimeout(3000);
     await p.click('.sgx-companion-head');
-    await p.waitForSelector('.sgx-companion--pop textarea', { timeout: 10000 }).catch(() => {});
-    check(`${name}: with Google, the pass holder can type to the Highbot`, !!(await p.$('.sgx-companion--pop textarea')));
+    await p.waitForFunction(() => /Pregúntale a tu Highbot/.test(document.querySelector('.sgx-companion--pop textarea')?.placeholder || ''), null, { timeout: 15000 }).catch(() => {});
+    check(`${name}: with Google, the pass holder can type to the Highbot`, /Pregúntale a tu Highbot/.test(await p.$eval('.sgx-companion--pop textarea', (t) => t.placeholder).catch(() => '')));
     await p.fill('.sgx-companion--pop textarea', 'Llévame a la agenda');
     await p.keyboard.press('Enter');
     await p.waitForFunction(() => location.pathname === '/agenda', null, { timeout: 8000 }).catch(() => {});

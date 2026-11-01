@@ -213,6 +213,8 @@ export interface SgxSponsorStationData {
   websiteUrl: string;
 }
 
+/* The four brand stations stand on the back arc (behind the pillar ring, facing the camera):
+   there the view is widest, so all four are always in frame, on desktop and on phones. */
 export const SGX_3D_SPONSOR_STATIONS: SgxSponsorStationData[] = [
   {
     id: 'chroma',
@@ -224,7 +226,7 @@ export const SGX_3D_SPONSOR_STATIONS: SgxSponsorStationData[] = [
     roleSubtitle: 'San Juan · SGX Showcase',
     colorHex: '#FDCC0D',
     threeColor: 0xFDCC0D,
-    angle: Math.PI * 0.22,
+    angle: Math.PI * 1.12,
     radius: 94,
     yPos: 5,
     websiteUrl: '',
@@ -240,7 +242,7 @@ export const SGX_3D_SPONSOR_STATIONS: SgxSponsorStationData[] = [
     roleSubtitleEn: '"Experience by [Brand]" · 3 slots',
     colorHex: '#00DDFF',
     threeColor: 0x00DDFF,
-    angle: Math.PI * 0.72,
+    angle: Math.PI * 1.38,
     radius: 94,
     yPos: -6,
     websiteUrl: 'https://summit.spatialgineers.com',
@@ -256,7 +258,7 @@ export const SGX_3D_SPONSOR_STATIONS: SgxSponsorStationData[] = [
     roleSubtitleEn: 'Streams the Summit alongside us',
     colorHex: '#FFBB00',
     threeColor: 0xFFBB00,
-    angle: Math.PI * 1.22,
+    angle: Math.PI * 1.62,
     radius: 94,
     yPos: 6,
     websiteUrl: '',
@@ -272,7 +274,7 @@ export const SGX_3D_SPONSOR_STATIONS: SgxSponsorStationData[] = [
     roleSubtitleEn: '"[Pillar] powered by [Brand]" · 6 slots',
     colorHex: '#B87000',
     threeColor: 0xB87000,
-    angle: Math.PI * 1.72,
+    angle: Math.PI * 1.88,
     radius: 94,
     yPos: -5,
     websiteUrl: 'https://summit.spatialgineers.com',
@@ -606,7 +608,8 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     if (!container || liteMode) return;
 
     const width = container.clientWidth || (typeof window !== 'undefined' ? Math.max(window.innerWidth, 320) : 960);
-    const height = Math.max(container.clientHeight || 0, typeof window !== 'undefined' ? Math.max(window.innerHeight - 126, 440) : 560);
+    // the canvas is exactly the viewport it lives in (phones give it less than the old 440px minimum)
+    const height = container.clientHeight > 80 ? container.clientHeight : (typeof window !== 'undefined' ? Math.max(window.innerHeight - 126, 320) : 560);
 
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x050505, 0.0022);
@@ -614,6 +617,19 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     // Wide, generous camera distance so the 7 .GLB sculptures never feel stacked or cramped
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 800);
     camera.position.set(0, 38, 152);
+    // Narrow (portrait) screens keep the same side-to-side view as a desktop: the vertical
+    // field of view opens up to 66°, and past that the camera steps back (viewK). Desktop: 45°, 1×.
+    const DESKTOP_HALF_H = Math.atan(Math.tan(THREE.MathUtils.degToRad(22.5)) * 1.45);
+    let viewK = 1;
+    const fitCamera = () => {
+      const a = Math.max(0.3, camera.aspect);
+      const halfV = Math.atan(Math.tan(DESKTOP_HALF_H) / a);
+      camera.fov = THREE.MathUtils.clamp(THREE.MathUtils.radToDeg(2 * halfV), 45, 66);
+      const gotHalfH = Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * a);
+      viewK = Math.max(1, Math.tan(DESKTOP_HALF_H) / Math.tan(gotHalfH));
+    };
+    fitCamera();
+    camera.updateProjectionMatrix();
     const currentLookAt = new THREE.Vector3(0, 0, 0);
     const targetCameraPos = new THREE.Vector3(0, 38, 152);
     const targetLookAt = new THREE.Vector3(0, 0, 0);
@@ -1386,8 +1402,9 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     const handleResize = () => {
       if (!container || !renderer) return;
       const w = container.clientWidth || (typeof window !== 'undefined' ? Math.max(window.innerWidth, 320) : 960);
-      const h = Math.max(container.clientHeight || 0, typeof window !== 'undefined' ? Math.max(window.innerHeight - 126, 440) : 560);
+      const h = container.clientHeight > 80 ? container.clientHeight : (typeof window !== 'undefined' ? Math.max(window.innerHeight - 126, 320) : 560);
       camera.aspect = w / h;
+      fitCamera();
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
       post?.setSize(w, h);
@@ -1569,10 +1586,12 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         sm.group.position.y = sm.baseY + Math.sin(elapsed * 1.2 + idx * 1.4) * 0.9;
 
         sm.group.getWorldPosition(tempVec);
+        const camDist = camera.position.distanceTo(tempVec);
         tempVec.project(camera);
-        const screenX = (tempVec.x * 0.5 + 0.5) * cw;
-        const screenY = (-(tempVec.y * 0.5) + 0.5) * ch;
-        const isFarBack = tempVec.z > 0.93;
+        // the brand card always stays on screen, even when its station sits near an edge
+        const screenX = THREE.MathUtils.clamp((tempVec.x * 0.5 + 0.5) * cw, 74, cw - 74);
+        const screenY = THREE.MathUtils.clamp((-(tempVec.y * 0.5) + 0.5) * ch, 70, ch - 40);
+        const isFarBack = camDist > 250 * viewK;
 
         const sponsorBtn = sponsorMarkerRefs.current[sm.id];
         if (sponsorBtn) {
@@ -1597,23 +1616,28 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           targetStation.group.getWorldPosition(tempVec);
           const dirFromCenter = tempVec.clone().normalize();
           targetCameraPos.set(
-            tempVec.x + dirFromCenter.x * 24 + px * 4,
-            tempVec.y + 6 + py * 3,
-            tempVec.z + dirFromCenter.z * 24
+            tempVec.x + dirFromCenter.x * 24 * viewK + px * 4,
+            tempVec.y + 6 * viewK + py * 3,
+            tempVec.z + dirFromCenter.z * 24 * viewK
           );
           targetLookAt.set(tempVec.x, tempVec.y, tempVec.z);
         }
       } else if (cameraFocusedRef.current) {
         const dirFromCenter = activeWorldPos.clone().normalize();
+        // portrait: frame the pillar dead centre and a bit further back (no room for a side panel)
+        const portrait = camera.aspect < 1;
+        const fk = viewK * (portrait ? 1.35 : 1);
         targetCameraPos.set(
-          activeWorldPos.x + dirFromCenter.x * 38 + 16 + px * 6,
-          activeWorldPos.y + 15 + py * 4,
-          activeWorldPos.z + dirFromCenter.z * 42 + 20
+          activeWorldPos.x + (dirFromCenter.x * 38 + (portrait ? 0 : 16)) * fk + px * 6,
+          activeWorldPos.y + 15 * fk + py * 4,
+          activeWorldPos.z + (dirFromCenter.z * 42 + (portrait ? 0 : 20)) * fk
         );
-        targetLookAt.set(activeWorldPos.x + 10, activeWorldPos.y, activeWorldPos.z);
+        targetLookAt.set(activeWorldPos.x + (portrait ? 0 : 10), activeWorldPos.y + (portrait ? 2 : 0), activeWorldPos.z);
       } else {
-        targetCameraPos.set(px * 12, 38 + py * 8, 152);
-        targetLookAt.set(6, -2, 0);
+        // portrait: a higher, more top-down angle so the ring fills the tall screen
+        const tall = camera.aspect < 1;
+        targetCameraPos.set(px * 12, (tall ? 92 : 38) * viewK + py * 8, (tall ? 138 : 152) * viewK);
+        targetLookAt.set(tall ? 0 : 6, tall ? -10 : -2, 0);
       }
 
       if (introOn) {

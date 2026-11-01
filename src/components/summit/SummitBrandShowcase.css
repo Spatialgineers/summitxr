@@ -1,19 +1,76 @@
-/* Brand showcase dialog (SummitBrandShowcaseModal) */
-.sgx-brand__body { display: flex; flex-direction: column; gap: 16px; }
-.sgx-brand__body .sgx-kicker { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; color: var(--brand-accent, var(--SGX_Cyan)); }
-.sgx-brand__body .sgx-kicker svg { width: 14px; height: 14px; }
-.sgx-brand__banner { height: clamp(110px, 22vw, 180px); overflow: hidden; clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); }
-.sgx-brand__banner img { width: 100%; height: 100%; object-fit: cover; }
-.sgx-brand__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px; margin: 0; }
-.sgx-brand__facts > div { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: start; }
-.sgx-brand__facts svg { grid-row: span 2; width: 18px; height: 18px; margin-top: 2px; color: var(--brand-accent, var(--SGX_Cyan)); }
-.sgx-brand__facts dt { font-family: var(--font-hud); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255, 255, 255, 0.55); }
-.sgx-brand__facts dd { margin: 0; font-family: var(--font-body); font-size: 0.9rem; color: var(--SGX_White); overflow-wrap: anywhere; }
-.sgx-brand__facts a { color: var(--SGX_Cyan); text-decoration: underline; text-underline-offset: 3px; }
-.sgx-brand__list { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
-.sgx-brand__list li { display: flex; align-items: baseline; gap: 12px; padding: 8px 0; border-top: 1px solid rgba(255, 255, 255, 0.08); font-family: var(--font-body); font-size: 0.92rem; color: rgba(255, 255, 255, 0.85); }
-.sgx-brand__list li span { flex: none; font-family: var(--font-mono); font-size: 0.75rem; color: var(--brand-accent, var(--SGX_Yellow)); }
-.sgx-brand__offer { display: flex; flex-direction: column; gap: 10px; }
-.sgx-brand__offer .sgx-kicker { margin: 0; }
+/* Brand showcase dialog (SummitBrandShowcaseModal): an SGX HUD dossier in the
+   tier's accent. The logo sits on a holo plinth (never stretched as a banner);
+   a brand's own banner only shows faintly behind the hero. */
+.sgx-brand__body { --brand-accent: var(--SGX_Cyan); display: flex; flex-direction: column; gap: 18px; }
+
+/* hero */
+.sgx-brand__hero {
+  position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: clamp(14px, 3vw, 26px);
+  padding: clamp(16px, 3vw, 26px); isolation: isolate; overflow: hidden;
+  background:
+    radial-gradient(80% 120% at 0% 50%, color-mix(in srgb, var(--brand-accent) 16%, transparent), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 4px),
+    linear-gradient(120deg, #11151c, #07090c);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-accent) 55%, transparent);
+  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+}
+.sgx-brand__hero.has-banner::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0.22;
+  background: var(--hero-img) center / cover no-repeat;
+  mask-image: linear-gradient(90deg, transparent 10%, #000 70%);
+}
+.sgx-brand__hero::after { content: ""; position: absolute; left: 16px; right: 16px; top: 0; height: 2px; background: var(--brand-accent); box-shadow: 0 0 14px var(--brand-accent); }
+.sgx-brand__corner { position: absolute; width: 14px; height: 14px; border-color: var(--brand-accent); pointer-events: none; }
+.sgx-brand__corner.is-tl { top: 6px; left: 6px; border-top: 2px solid; border-left: 2px solid; }
+.sgx-brand__corner.is-br { right: 6px; bottom: 6px; border-right: 2px solid; border-bottom: 2px solid; }
+.sgx-brand__plinth {
+  position: relative; display: grid; place-items: center; width: clamp(92px, 16vw, 128px); aspect-ratio: 1;
+  background: radial-gradient(circle at 50% 60%, color-mix(in srgb, var(--brand-accent) 20%, #050505), #050505 70%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-accent) 70%, transparent), 0 0 30px color-mix(in srgb, var(--brand-accent) 25%, transparent);
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+.sgx-brand__plinth::after { content: ""; position: absolute; left: 18%; right: 18%; bottom: 10px; height: 2px; background: var(--brand-accent); opacity: 0.6; box-shadow: 0 0 10px var(--brand-accent); }
+.sgx-brand__plinth img { width: 72%; height: 72%; object-fit: contain; filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6)); }
+.sgx-brand__id { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+.sgx-brand__tier { padding: 3px 9px; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: #050505; background: var(--brand-accent); }
+.sgx-brand__name { margin: 2px 0 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.4rem, 3.4vw, 2.1rem); line-height: 1.05; letter-spacing: 0.02em; text-transform: uppercase; color: #fff; overflow-wrap: anywhere; }
+.sgx-brand__tagline { margin: 0; font-family: var(--font-body); font-size: 0.98rem; line-height: 1.45; color: rgba(255, 255, 255, 0.78); }
+.sgx-brand__ok { display: inline-flex; align-items: center; gap: 6px; margin-top: 2px; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brand-accent); }
+.sgx-brand__ok svg { width: 14px; height: 14px; }
+
+/* stats strip */
+.sgx-brand__stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 1px; margin: 0; background: rgba(255, 255, 255, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+.sgx-brand__stats > div { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; background: #0c0f14; min-width: 0; }
+.sgx-brand__stats dt { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5); }
+.sgx-brand__stats dt svg { width: 13px; height: 13px; color: var(--brand-accent); }
+.sgx-brand__stats dd { margin: 0; font-family: var(--font-body); font-size: 0.95rem; color: #fff; overflow-wrap: anywhere; }
+.sgx-brand__stats a { color: var(--SGX_Cyan); text-decoration: underline; text-underline-offset: 3px; }
+
+/* sections */
+.sgx-brand__k { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brand-accent); }
+.sgx-brand__k::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, color-mix(in srgb, var(--brand-accent) 50%, transparent), transparent); }
+.sgx-brand__k svg { width: 14px; height: 14px; }
+.sgx-brand__text { margin: 0; font-family: var(--font-body); font-size: 1rem; line-height: 1.6; color: rgba(255, 255, 255, 0.86); }
+.sgx-brand__about .sgx-brand__text { padding-left: 14px; border-left: 2px solid var(--brand-accent); }
+.sgx-brand__rows { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.sgx-brand__rows li {
+  display: flex; align-items: center; gap: 14px; padding: 12px 14px; background: rgba(255, 255, 255, 0.03);
+  box-shadow: inset 2px 0 0 var(--brand-accent);
+}
+.sgx-brand__rows span { flex: none; font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; color: var(--brand-accent); font-variant-numeric: tabular-nums; }
+.sgx-brand__rows b { font-family: var(--font-body); font-weight: 500; font-size: 0.96rem; line-height: 1.4; color: #fff; }
+
+/* attendee offer: a coupon */
+.sgx-brand__coupon { display: flex; flex-direction: column; gap: 10px; padding: 16px; border: 1px dashed color-mix(in srgb, var(--brand-accent) 70%, transparent); background: color-mix(in srgb, var(--brand-accent) 6%, transparent); }
+.sgx-brand__coupon .sgx-brand__k { margin: 0; }
 .sgx-brand__code { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.sgx-brand__code code { padding: 6px 12px; font-family: var(--font-mono); font-size: 1rem; letter-spacing: 0.1em; color: var(--brand-accent, var(--SGX_Yellow)); box-shadow: inset 0 0 0 1px currentColor; }
+.sgx-brand__code code { padding: 8px 14px; font-family: var(--font-mono); font-size: 1.05rem; letter-spacing: 0.14em; color: var(--brand-accent); background: #050505; box-shadow: inset 0 0 0 1px currentColor; }
+
+/* where the brand lives in the app */
+.sgx-brand__presence { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.72rem; }
+.sgx-brand__presence span { margin-right: 4px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.5); }
+.sgx-brand__presence em { padding: 4px 9px; font-style: normal; color: rgba(255, 255, 255, 0.85); border: 1px solid rgba(255, 255, 255, 0.14); }
+
+@media (max-width: 520px) {
+  .sgx-brand__hero { grid-template-columns: 1fr; justify-items: start; }
+}

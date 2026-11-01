@@ -67,3 +67,58 @@
 @media (min-width: 768px) {
   .sgx-core-drawer.sgx-core-drawer--visit { top: auto; bottom: 64px; width: 380px; }
 }
+
+/* Pillar card: a holographic HUD panel in the pillar's color, centred over the pillar bar.
+   Phones: a sheet above the bottom nav. */
+.sgx-core-drawer.sgx-pcard {
+  gap: 12px; padding: 16px 18px 16px; border-top: 0;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--drawer-accent) 14%, transparent), transparent 46%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 4px),
+    rgba(8, 10, 14, 0.94);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--drawer-accent) 70%, transparent), 0 0 42px color-mix(in srgb, var(--drawer-accent) 22%, transparent);
+  clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+  animation: sgx-pcard-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sgx-pcard::before { content: ""; position: absolute; left: 18px; right: 18px; top: 0; height: 2px; background: var(--drawer-accent); box-shadow: 0 0 14px var(--drawer-accent); }
+.sgx-pcard__corner { position: absolute; width: 14px; height: 14px; pointer-events: none; border-color: var(--drawer-accent); }
+.sgx-pcard__corner.is-tl { top: 6px; left: 6px; border-top: 2px solid; border-left: 2px solid; }
+.sgx-pcard__corner.is-br { right: 6px; bottom: 6px; border-right: 2px solid; border-bottom: 2px solid; }
+.sgx-pcard__top { display: flex; align-items: center; gap: 12px; }
+.sgx-pcard__index { flex: none; font-family: var(--font-display); font-size: 2.1rem; font-weight: 800; line-height: 1; color: var(--drawer-accent); text-shadow: 0 0 18px color-mix(in srgb, var(--drawer-accent) 60%, transparent); font-variant-numeric: tabular-nums; }
+.sgx-pcard__index small { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 400; color: rgba(255, 255, 255, 0.45); margin-left: 2px; }
+.sgx-pcard__icon { display: grid; place-items: center; flex: none; width: 46px; height: 46px; background: #050505; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--drawer-accent) 70%, transparent); clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
+.sgx-pcard__icon img { width: 30px; height: 30px; object-fit: contain; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--drawer-accent) 70%, transparent)); }
+.sgx-pcard__title { flex: 1; min-width: 0; }
+.sgx-pcard__code { margin: 0; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--drawer-accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sgx-pcard__title h2 { margin: 3px 0 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.05rem, 1.6vw, 1.3rem); line-height: 1.15; text-transform: uppercase; color: #fff; overflow-wrap: anywhere; }
+.sgx-pcard__x { display: grid; place-items: center; flex: none; align-self: flex-start; width: 36px; height: 36px; color: rgba(255, 255, 255, 0.75); background: transparent; border: 1px solid rgba(255, 255, 255, 0.18); cursor: pointer; }
+.sgx-pcard__x:hover { color: #050505; background: var(--drawer-accent); border-color: var(--drawer-accent); }
+.sgx-pcard__x svg { width: 16px; height: 16px; }
+.sgx-pcard__line { margin: 0; padding-left: 12px; border-left: 2px solid var(--drawer-accent); font-family: var(--font-body); font-size: 1rem; line-height: 1.45; color: rgba(255, 255, 255, 0.9); }
+.sgx-pcard__scope { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.sgx-pcard__scope li { padding: 4px 9px; font-family: var(--font-mono); font-size: 0.72rem; color: rgba(255, 255, 255, 0.82); background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.12); }
+.sgx-pcard__scope li::first-letter { text-transform: uppercase; }
+.sgx-pcard__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.sgx-pcard__meta { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.55); }
+.sgx-pcard__go {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 20px;
+  font-family: var(--font-display); font-size: 0.9rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #050505; background: var(--drawer-accent); border: 0; cursor: pointer;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  transition: filter 0.15s, transform 0.15s;
+}
+.sgx-pcard__go:hover { filter: brightness(1.12); transform: translateX(2px); }
+.sgx-pcard__go svg { width: 16px; height: 16px; }
+@keyframes sgx-pcard-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (min-width: 768px) {
+  .sgx-core-drawer.sgx-core-drawer--visit.sgx-pcard { top: auto; right: auto; left: 50%; bottom: 76px; width: min(560px, calc(100% - 32px)); translate: -50% 0; }
+}
+@media (max-width: 767px) {
+  .sgx-core-drawer.sgx-pcard { clip-path: polygon(18px 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%, 0 18px); }
+  .sgx-pcard__index { font-size: 1.7rem; }
+}
+@media (prefers-reduced-motion: reduce) { .sgx-core-drawer.sgx-pcard { animation: none; } }
+html[data-lite] .sgx-core-drawer.sgx-pcard { box-shadow: inset 0 0 0 1px var(--drawer-accent); }
+/* the card sits above the floating Highbot and the energy button on phones */
+@media (max-width: 767px) { .sgx-core-drawer__scrim:has(.sgx-pcard) { z-index: 120; } }

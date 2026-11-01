@@ -2193,34 +2193,44 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                 aria-labelledby="sgx-core-drawer-title"
                 tabIndex={-1}
                 onClick={e => e.stopPropagation()}
-                className="sgx-core-drawer sgx-core-drawer--visit"
+                className="sgx-core-drawer sgx-core-drawer--visit sgx-pcard"
                 style={{ ['--drawer-accent' as string]: readableAccent }}
               >
-                <header className="sgx-core-drawer__head">
-                  <span className="sgx-avatar sgx-avatar--contain" style={{ ['--avatar-accent' as string]: readableAccent }}>
-                    <img src={activeNode.iconUrl} alt="" referrerPolicy="no-referrer" />
-                  </span>
-                  <div className="sgx-core-drawer__title">
-                    <p className="sgx-kicker">{activeNode.code}</p>
+                {/* HUD corner brackets */}
+                <span className="sgx-pcard__corner is-tl" aria-hidden="true" />
+                <span className="sgx-pcard__corner is-br" aria-hidden="true" />
+                <div className="sgx-pcard__top">
+                  <span className="sgx-pcard__index" aria-hidden="true">{String(page?.index || 0).padStart(2, '0')}<small>/06</small></span>
+                  <span className="sgx-pcard__icon"><img src={activeNode.iconUrl} alt="" referrerPolicy="no-referrer" /></span>
+                  <div className="sgx-pcard__title">
+                    <p className="sgx-pcard__code">{page?.name || activeNode.code}{page ? ` · ${page.guildTeam.replace(/^SGX\./, '')}` : ''}</p>
                     <h2 id="sgx-core-drawer-title">{loc(activeNode, 'title', language)}</h2>
                   </div>
                   <button
                     type="button"
-                    className="sgx-iconbtn"
+                    className="sgx-pcard__x"
                     onClick={() => { playUiChirp(640); setDrawerOpen(false); }}
                     aria-label={es ? 'Cerrar y volver al 3D' : 'Close and go back to 3D'}
                   >
                     <X aria-hidden />
                   </button>
-                </header>
-                {page && <p className="sgx-copy sgx-core-drawer__line">{bi(page.scope, language)}</p>}
-                <button
-                  type="button"
-                  className="sgx-btn is-wide"
-                  onClick={() => { playUiChirp(820); setDrawerOpen(false); navigateToPillar(page?.slug || activeNode.id.toLowerCase()); }}
-                >
-                  {es ? 'Visitar pilar' : 'Visit pillar'}<ArrowRight aria-hidden />
-                </button>
+                </div>
+                {page && <p className="sgx-pcard__line">{bi(page.line, language)}</p>}
+                {page && (
+                  <ul className="sgx-pcard__scope" aria-label={es ? 'Qué cubre' : 'What it covers'}>
+                    {bi(page.scope, language).replace(/\.$/, '').split(/,\s*|\s+y\s+|\s+and\s+/).filter(Boolean).slice(0, 6).map((t) => <li key={t}>{t}</li>)}
+                  </ul>
+                )}
+                <div className="sgx-pcard__foot">
+                  <span className="sgx-pcard__meta">{page ? `${page.modules.length} ${es ? 'módulos' : 'modules'}` : ''}</span>
+                  <button
+                    type="button"
+                    className="sgx-pcard__go"
+                    onClick={() => { playUiChirp(820); setDrawerOpen(false); navigateToPillar(page?.slug || activeNode.id.toLowerCase()); }}
+                  >
+                    {es ? 'Visitar pilar' : 'Visit pillar'}<ArrowRight aria-hidden />
+                  </button>
+                </div>
               </aside>
             </div>
           );

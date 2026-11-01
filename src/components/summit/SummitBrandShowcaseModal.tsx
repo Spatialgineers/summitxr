@@ -33,6 +33,8 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
   const offer = loc(sponsor, 'specialOfferText', language);
   const website = sponsor.websiteUrl?.trim();
   const email = sponsor.contactEmail?.trim();
+  // seed data uses Spatialgineers brand art as a stand-in banner: only a brand's own image goes behind the hero
+  const banner = isRealBanner(sponsor.bannerUrl) && !/cdn\.spatialgineers\.com\/Branding\//i.test(sponsor.bannerUrl || '') ? sponsor.bannerUrl : '';
   const presence = [
     sponsor.activeInVisualizer && (es ? 'Visualizador 3D' : '3D visualizer'),
     sponsor.activeInMiniGame && (es ? 'Minijuego del dron' : 'Drone mini-game'),
@@ -59,13 +61,8 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
       size="md"
       accent={accent}
       className="sgx-brand sgx-dialog--fit"
-      title={name}
-      kicker={loc(sponsor, 'tagline', language)}
-      icon={
-        <span className="sgx-avatar sgx-avatar--contain" style={{ ['--avatar-accent' as string]: accent }}>
-          <img src={sponsor.logoUrl || FALLBACK_LOGO} alt="" onError={(e) => { swapOnce(e, LOCAL_SUMMIT_ICON); }} />
-        </span>
-      }
+      title={es ? 'Showcase de marca' : 'Brand showcase'}
+      kicker={es ? 'Partner del Spatialgineers Summit 2026' : 'Spatialgineers Summit 2026 partner'}
       footer={
         <>
           <button type="button" className="sgx-btn sgx-btn--ground sgx-btn--sm" onClick={handleShare}>
@@ -82,61 +79,51 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
       }
     >
       <div className="sgx-brand__body" style={{ ['--brand-accent' as string]: accent }}>
-        {isRealBanner(sponsor.bannerUrl) && (
-          <div className="sgx-brand__banner"><img src={sponsor.bannerUrl} alt="" /></div>
-        )}
-
-        <div className="sgx-chip-row">
-          <span className="sgx-chip" style={{ ['--chip' as string]: accent }}>{tierName}</span>
-          <span className="sgx-chip sgx-chip--ghost"><ShieldCheck aria-hidden />{es ? 'Aliado confirmado' : 'Confirmed partner'}</span>
-        </div>
-
-        <section className="sgx-card sgx-card--stripe" style={{ ['--card-accent' as string]: accent }}>
-          <p className="sgx-kicker">{es ? 'Sobre la marca' : 'About the brand'}</p>
-          <p className="sgx-copy">{loc(sponsor, 'description', language)}</p>
-        </section>
+        {/* Hero: the logo on a holo plinth, the brand's own banner faint behind it */}
+        <header className={`sgx-brand__hero ${banner ? 'has-banner' : ''}`} style={banner ? { ['--hero-img' as string]: `url("${banner}")` } : undefined}>
+          <span className="sgx-brand__corner is-tl" aria-hidden="true" />
+          <span className="sgx-brand__corner is-br" aria-hidden="true" />
+          <div className="sgx-brand__plinth">
+            <img src={sponsor.logoUrl || FALLBACK_LOGO} alt="" onError={(e) => { swapOnce(e, LOCAL_SUMMIT_ICON); }} />
+          </div>
+          <div className="sgx-brand__id">
+            <span className="sgx-brand__tier">{tierName}</span>
+            <h3 className="sgx-brand__name">{name}</h3>
+            {loc(sponsor, 'tagline', language) && <p className="sgx-brand__tagline">{loc(sponsor, 'tagline', language)}</p>}
+            <span className="sgx-brand__ok"><ShieldCheck aria-hidden />{es ? 'Aliado confirmado' : 'Confirmed partner'}</span>
+          </div>
+        </header>
 
         {(location || website || email) && (
-          <dl className="sgx-brand__facts">
-            {location && (
-              <div className="sgx-card sgx-card--sm">
-                <MapPin aria-hidden />
-                <dt>{es ? 'Dónde' : 'Where'}</dt>
-                <dd>{location}</dd>
-              </div>
-            )}
-            {website && (
-              <div className="sgx-card sgx-card--sm">
-                <Globe aria-hidden />
-                <dt>{es ? 'Sitio web' : 'Website'}</dt>
-                <dd><a href={website} target="_blank" rel="noopener noreferrer">{website.replace(/^https?:\/\//, '')}</a></dd>
-              </div>
-            )}
-            {email && (
-              <div className="sgx-card sgx-card--sm">
-                <Mail aria-hidden />
-                <dt>{es ? 'Contacto' : 'Contact'}</dt>
-                <dd><a href={`mailto:${email}`}>{email}</a></dd>
-              </div>
-            )}
+          <dl className="sgx-brand__stats">
+            {location && <div><dt><MapPin aria-hidden />{es ? 'Dónde' : 'Where'}</dt><dd>{location}</dd></div>}
+            {website && <div><dt><Globe aria-hidden />{es ? 'Sitio web' : 'Website'}</dt><dd><a href={website} target="_blank" rel="noopener noreferrer">{website.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a></dd></div>}
+            {email && <div><dt><Mail aria-hidden />{es ? 'Contacto' : 'Contact'}</dt><dd><a href={`mailto:${email}`}>{email}</a></dd></div>}
           </dl>
+        )}
+
+        {loc(sponsor, 'description', language) && (
+          <section className="sgx-brand__about">
+            <p className="sgx-brand__k">{es ? 'Sobre la marca' : 'About the brand'}</p>
+            <p className="sgx-brand__text">{loc(sponsor, 'description', language)}</p>
+          </section>
         )}
 
         {highlights.length > 0 && (
           <section>
-            <p className="sgx-kicker">{es ? 'En el Summit 2026' : 'At Summit 2026'}</p>
-            <ol className="sgx-brand__list">
+            <p className="sgx-brand__k">{es ? 'En el Summit 2026' : 'At Summit 2026'}</p>
+            <ol className="sgx-brand__rows">
               {highlights.map((item, idx) => (
-                <li key={idx}><span>{String(idx + 1).padStart(2, '0')}</span>{item}</li>
+                <li key={idx}><span>{String(idx + 1).padStart(2, '0')}</span><b>{item}</b></li>
               ))}
             </ol>
           </section>
         )}
 
         {(offer || sponsor.specialOfferCode) && (
-          <section className="sgx-card sgx-brand__offer" style={{ ['--card-accent' as string]: accent }}>
-            <p className="sgx-kicker"><Tag aria-hidden />{es ? 'Para quienes asisten' : 'For attendees'}</p>
-            {offer && <p className="sgx-copy">{offer}</p>}
+          <section className="sgx-brand__coupon">
+            <p className="sgx-brand__k"><Tag aria-hidden />{es ? 'Para quienes asisten' : 'For attendees'}</p>
+            {offer && <p className="sgx-brand__text">{offer}</p>}
             {sponsor.specialOfferCode && (
               <div className="sgx-brand__code">
                 <code>{sponsor.specialOfferCode}</code>
@@ -150,7 +137,10 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
         )}
 
         {presence.length > 0 && (
-          <p className="sgx-fine">{es ? 'Presente en: ' : 'Featured in: '}{presence.join(' · ')}</p>
+          <div className="sgx-brand__presence">
+            <span>{es ? 'Vive en' : 'Lives in'}</span>
+            {presence.map((p) => <em key={p}>{p}</em>)}
+          </div>
         )}
       </div>
     </SgxDialog>

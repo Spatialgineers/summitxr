@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { swapOnce, LOCAL_SUMMIT_ICON } from '../../lib/imgFallback';
 import { ExternalLink, MapPin, Globe, Mail, Tag, Copy, Check, Share2, ShieldCheck } from 'lucide-react';
 import { ApprovedSponsor } from '../../types/summit';
 import { useLanguage } from '../../context/LanguageContext';
@@ -62,7 +63,7 @@ export const SummitBrandShowcaseModal: React.FC<SummitBrandShowcaseModalProps> =
       kicker={loc(sponsor, 'tagline', language)}
       icon={
         <span className="sgx-avatar sgx-avatar--contain" style={{ ['--avatar-accent' as string]: accent }}>
-          <img src={sponsor.logoUrl || FALLBACK_LOGO} alt="" onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_LOGO; }} />
+          <img src={sponsor.logoUrl || FALLBACK_LOGO} alt="" onError={(e) => { swapOnce(e, LOCAL_SUMMIT_ICON); }} />
         </span>
       }
       footer={

@@ -151,8 +151,10 @@ export const InteractiveSpatialCanvas: React.FC<InteractiveSpatialCanvasProps> =
         antialias: false,
         powerPreference: 'high-performance',
       });
+      renderer.debug.checkShaderErrors = !(import.meta as unknown as { env?: { PROD?: boolean } }).env?.PROD;
       renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      // an ambient background: phones (coarse pointer) render at 1x, desktops at most 1.5x
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.matchMedia('(pointer: coarse)').matches ? 1 : 1.5));
       container.appendChild(renderer.domElement);
     } catch (e) {
       console.warn('WebGL not supported or context lost for SpatialCanvas', e);
@@ -384,9 +386,14 @@ export const InteractiveSpatialCanvas: React.FC<InteractiveSpatialCanvasProps> =
     const timer = typeof (THREE as any).Timer === 'function' ? new (THREE as any).Timer() : null;
     let accumulatedElapsed = 0;
 
+    // ambient motion reads the same at 30 fps and costs half the frames
+    let lastDrawn = 0;
     const animate = (timestamp?: number) => {
       reqIdRef.current = requestAnimationFrame(animate);
       if (!isTabVisible) return;
+      const nowMs = timestamp ?? performance.now();
+      if (nowMs - lastDrawn < 31) return;
+      lastDrawn = nowMs;
 
       let delta = 0.016;
       let time = 0;

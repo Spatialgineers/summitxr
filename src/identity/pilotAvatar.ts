@@ -13,6 +13,7 @@
    New options always go at the END of a list: saved avatars keep their value. */
 
 import { SGX_PILLARS, type PillarKey } from '../lib/sgxPillars';
+import { isLite } from '../lib/lite';
 
 export type Eyelid = 'low' | 'mid' | 'sus' | 'high' | 'chill';
 export type Plate = PillarKey | 'SGX';
@@ -445,7 +446,13 @@ export function portraitFor(raw: PilotConfig): Promise<string | null> {
   if (portraitsBroken || typeof window === 'undefined') return Promise.resolve(null);
   const pending = PENDING.get(key);
   if (pending) return pending;
-  const job = import('./highbotPortrait')
+  // the first paint and taps come first: a portrait renders when the browser is idle
+  const idle = new Promise<void>((res) => {
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+    if (w.requestIdleCallback) w.requestIdleCallback(() => res(), { timeout: 2500 });
+    else window.setTimeout(res, 600);
+  });
+  const job = idle.then(() => import('./highbotPortrait'))
     .then((m) => m.renderPortrait(c))
     .then((url) => {
       PENDING.delete(key);
@@ -573,7 +580,8 @@ export function pilotSvg(raw: PilotConfig, opts: { size?: number; idPrefix?: str
   const size = opts.size || 160;
   const key = JSON.stringify(c);
   const portrait = opts.vector ? undefined : PORTRAITS.get(key);
-  if (!portrait && !opts.vector) void portraitFor(c);
+  // lite mode: the toon vector bot, no WebGL render (a portrait already made is still used)
+  if (!portrait && !opts.vector && !isLite()) void portraitFor(c);
   const label = (opts.title || 'Highbot').replace(/"/g, '');
   const style = opts.animate
     ? `<style>#${id} .hb-bob{animation:sgxBotBob 3.6s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}`
@@ -589,7 +597,8 @@ export function pilotSvg(raw: PilotConfig, opts: { size?: number; idPrefix?: str
 
 /** The avatar as an image (portrait if it can be rendered), for canvas cards and the speaker portal. */
 export async function pilotImage(c: PilotConfig, size = 512): Promise<HTMLImageElement> {
-  await portraitFor(c);
+  // lite mode: cards and PDFs use the toon vector bot (or a portrait already made)
+  if (!isLite()) await portraitFor(c);
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);

@@ -1,4 +1,5 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { isLite } from '../lib/lite';
 import { useLanguage } from '../context/LanguageContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import {
@@ -63,7 +64,7 @@ export const PilotBuilder: React.FC<Props> = ({ value: raw, onChange, accent, ca
   const [preset, setPreset] = useState<string | null>(null);
 
   // the model starts loading as soon as the builder opens
-  useEffect(() => { import('./highbot3d').then((m) => m.preloadHighbot()).catch(() => undefined); }, []);
+  useEffect(() => { if (!isLite()) import('./highbot3d').then((m) => m.preloadHighbot()).catch(() => undefined); }, []);
 
   const set = (next: PilotConfig, sound = 760) => {
     history.current = [...history.current.slice(-24), value];

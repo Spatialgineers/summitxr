@@ -46,6 +46,8 @@ export function studioEnvironment(renderer: THREE.WebGLRenderer): THREE.Texture 
 
 /** The renderer settings the studio is tuned for. */
 export function studioRenderer(renderer: THREE.WebGLRenderer, shadows: boolean) {
+  // shader error checks force a synchronous compile (a long stall per material): dev builds only
+  renderer.debug.checkShaderErrors = !(import.meta as unknown as { env?: { PROD?: boolean } }).env?.PROD;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.toneMappingExposure = 1.0;

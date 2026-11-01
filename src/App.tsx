@@ -40,6 +40,7 @@ import { getAppRouteAndSectionFromUrl, syncAppUrl, upgradeLegacyUrl } from './li
 import { SgxPassHost } from './identity/SgxPassHost';
 import { PassGate } from './identity/PassGate';
 import { ImmersionLayer } from './immersion/ImmersionLayer';
+import { useLite } from './lib/lite';
 import { SgxBootSequence } from './immersion/SgxBootSequence';
 import { recordVisit } from './lib/visitTracker';
 
@@ -58,6 +59,7 @@ export default function App() {
   const [bootFading, setBootFading] = useState<boolean>(false);
   // First visit: boot only, straight into the Forge. The sponsor splash plays on "Ver intro".
   const [splashReplay, setSplashReplay] = useState<boolean>(false);
+  const lite = useLite();
   const [currentPage, setCurrentPage] = useState<PageRoute>(() => {
     try {
       const parsed = getAppRouteAndSectionFromUrl();
@@ -1087,10 +1089,13 @@ export default function App() {
         />
       )}
 
-      {/* Persistent 3D Three.js Spatial Atmosphere & Cursor-Reactive Canvas */}
-      <LazyBoundary fallback={null}>
-        <InteractiveSpatialCanvas />
-      </LazyBoundary>
+      {/* Persistent 3D atmosphere behind the pages. Not in lite mode, and not on the home
+          core, whose own 3D scene covers it (two full-screen WebGL scenes at once cost frames). */}
+      {!lite && !(currentPage === 'summit' && activeSummitSection === 'OVERVIEW') && (
+        <LazyBoundary fallback={null}>
+          <InteractiveSpatialCanvas />
+        </LazyBoundary>
+      )}
       
       {currentPage !== 'summit' && (
         <SummitPushAlertToast

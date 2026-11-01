@@ -625,9 +625,11 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         antialias: true,
         powerPreference: 'high-performance',
       });
+      renderer.debug.checkShaderErrors = !(import.meta as unknown as { env?: { PROD?: boolean } }).env?.PROD;
       renderer.setClearColor(0x050505, 1);
       renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      // phones: 1.5x is sharp enough and a third fewer pixels than 2x
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.matchMedia('(pointer: coarse)').matches ? 1.5 : 2));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.NeutralToneMapping;
       renderer.toneMappingExposure = 1.0;
@@ -2137,7 +2139,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               })}
             </div>
 
-            <div className="mt-4 px-3.5 py-2 bg-[#1A1A1A] border border-[#FFBB00]/50 text-[#FFBB00] font-body text-xs flex items-center gap-2">
+            <div className="sgx-calm-hide mt-4 px-3.5 py-2 bg-[#1A1A1A] border border-[#FFBB00]/50 text-[#FFBB00] font-body text-xs flex items-center gap-2">
               <Zap className="w-4 h-4 text-[#FFBB00] shrink-0" />
               <span>{es ? 'Modo Ligero Activo · Ahorro de GPU y Batería al 100% · Toca cualquier pilar para inspeccionar' : 'Lite Mode On · 100% GPU & Battery Saving · Tap any pillar to inspect'}</span>
             </div>

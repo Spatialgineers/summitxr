@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { applyLite, isLite, setLite } from '../lib/lite';
 import { 
   PilotProfile, 
   WeekendActivityItem, 
@@ -200,29 +201,20 @@ interface PilotProfileContextType {
 const PilotProfileContext = createContext<PilotProfileContextType | undefined>(undefined);
 
 const LOCAL_STORAGE_KEY = 'sgx_pilot_profile_v2';
-const LITE_MODE_STORAGE_KEY = 'sgx_lite_mode';
 
 export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { language } = useLanguage();
   const es = language === 'es';
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
-  const [liteMode, setLiteModeState] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(LITE_MODE_STORAGE_KEY) === 'true';
-    } catch {
-      return false;
-    }
-  });
+  // lib/lite: the person's choice, or on by itself for save-data and low-memory phones
+  const [liteMode, setLiteModeState] = useState<boolean>(() => isLite());
+  useEffect(() => { applyLite(liteMode); }, [liteMode]);
 
   const setLiteMode = useCallback((val: boolean | ((prev: boolean) => boolean)) => {
     setLiteModeState(prev => {
       const next = typeof val === 'function' ? val(prev) : val;
-      try {
-        localStorage.setItem(LITE_MODE_STORAGE_KEY, String(next));
-      } catch (e) {
-        console.warn('Failed to save lite mode', e);
-      }
+      setLite(next);
       return next;
     });
   }, []);

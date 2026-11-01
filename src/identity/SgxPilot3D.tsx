@@ -3,6 +3,8 @@ import * as THREE from 'three';
 import { buildHighbot3D, type HighbotMood, type Pilot3D } from './highbot3d';
 import { studioEnvironment, studioLights, studioRenderer } from './highbotStudio';
 import { normalizePilot, type PilotConfig } from './pilotAvatar';
+import { SgxPilotGlyph } from './SgxPilotGlyph';
+import { useLite } from '../lib/lite';
 
 /* The visitor's Highbot as a 3D figure on a hex podium (same as the pillars
    in the core), lit like a collectible in a photo studio (highbotStudio.ts):
@@ -23,12 +25,14 @@ export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, l
   const hostRef = useRef<HTMLDivElement | null>(null);
   const moodRef = useRef<HighbotMood>(mood);
   moodRef.current = mood;
+  // lite mode: the toon 2D bot, no WebGL
+  const lite = useLite();
   const [failed, setFailed] = useState(false);
   const key = JSON.stringify(config);
 
   useEffect(() => {
     const host = hostRef.current;
-    if (!host) return;
+    if (!host || lite) return;
     let alive = true;
     let renderer: THREE.WebGLRenderer;
     try {
@@ -38,7 +42,7 @@ export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, l
       return;
     }
     const w = () => host.clientWidth || 280;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.matchMedia('(pointer: coarse)').matches ? 1.5 : 2));
     renderer.setSize(w(), height);
     studioRenderer(renderer, true);
     host.appendChild(renderer.domElement);
@@ -111,8 +115,18 @@ export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, l
 
     let raf = 0;
     const t0 = performance.now();
+    // only while on screen and the tab is visible; phones animate at 30 fps
+    let onScreen = true;
+    const io = new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; }, { threshold: 0.01 });
+    io.observe(host);
+    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    let lastFrame = 0;
     const tick = () => {
       raf = requestAnimationFrame(tick);
+      if (!onScreen || document.hidden) return;
+      const nowMs = performance.now();
+      if (coarse && nowMs - lastFrame < 31) return;
+      lastFrame = nowMs;
       const t = (performance.now() - t0) / 1000;
       // idle: a slow sway after 2.5 s without input
       if (!reduce && !drag && performance.now() - lastInput > 2500) target += (Math.sin(t * 0.45) * 0.55 - target) * 0.02;
@@ -127,6 +141,7 @@ export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, l
       alive = false;
       cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
       renderer.domElement.removeEventListener('pointerdown', down);
       renderer.domElement.removeEventListener('pointermove', move);
       renderer.domElement.removeEventListener('pointerup', up);
@@ -139,8 +154,15 @@ export const SgxPilot3D: React.FC<Props> = ({ config, height = 280, className, l
       renderer.domElement.remove();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, height]);
+  }, [key, height, lite]);
 
+  if (lite) {
+    return (
+      <div className={`sgx-pilot3d sgx-pilot3d--lite ${className || ''}`} style={{ height, width: '100%', display: 'grid', placeItems: 'center' }} role="img" aria-label={label || 'Highbot'}>
+        <SgxPilotGlyph seed="lite" accent={config.colors?.iris || '#FDCC0D'} config={config} size={Math.round(height / 1.25)} />
+      </div>
+    );
+  }
   if (failed) return null;
   return <div ref={hostRef} className={`sgx-pilot3d ${className || ''}`} style={{ height, width: '100%', cursor: 'grab' }} role="img" aria-label={label || 'Highbot en 3D'} />;
 };

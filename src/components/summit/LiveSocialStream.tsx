@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { swapOnce } from '../../lib/imgFallback';
 import { 
   Instagram, 
   Share2, 
@@ -572,7 +573,7 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
                       alt={post.author.name}
                       className="w-9 h-9 rounded-full object-cover border border-slate-700 shrink-0"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/brand/sgx-bolt.svg';
+                        swapOnce(e, '/brand/sgx-bolt.svg');
                       }}
                     />
                     <div className="min-w-0">

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { isLite } from '../lib/lite';
 
 /* PARTICLE FORM: the boot film's move, reusable. A swarm streaks in from an
    origin and settles into a shape (text or a drawn mark), shimmers for a
@@ -28,7 +29,7 @@ export function canRunParticles(): boolean {
   try {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
     if (document.documentElement.classList.contains('sgx-lite')) return false;
-    if (localStorage.getItem('sgx_lite_mode') === 'true') return false;
+    if (isLite()) return false;
   } catch { /* ignore */ }
   return true;
 }

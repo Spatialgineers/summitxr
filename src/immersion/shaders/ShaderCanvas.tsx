@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { isLite } from '../../lib/lite';
 
 /* A minimal full-screen-triangle WebGL2 canvas for one fragment shader.
    Uniforms always available: uTime (s), uRes (px), uMouse (0..1),
@@ -142,7 +143,7 @@ export const ShaderCanvas: React.FC<Props> = ({ fragment, uniforms, className, s
 export function canRunShaders(): boolean {
   try {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-    if (localStorage.getItem('sgx_lite_mode') === 'true') return false;
+    if (isLite()) return false;
   } catch { /* ignore */ }
   return true;
 }

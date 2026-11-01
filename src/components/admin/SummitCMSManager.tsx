@@ -1,4 +1,5 @@
 import { grantCredential, revokeCredential } from '../../identity/credentials';
+import { swapOnce } from '../../lib/imgFallback';
 import React, { useState, useEffect } from 'react';
 import { 
   Calendar, 
@@ -603,7 +604,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
                       alt={sp.companyName} 
                       className="w-full h-full object-contain"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=100&auto=format&fit=crop&q=80';
+                        swapOnce(e, 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=100&auto=format&fit=crop&q=80');
                       }}
                     />
                   </div>

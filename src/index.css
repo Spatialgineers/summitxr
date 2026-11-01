@@ -602,3 +602,23 @@
 .bg-\[var\(--sgx-secondary\)\][class*="text-[var(--sgx-"] { color: var(--sgx-secondary-ink, #fff); }
 .bg-\[var\(--sgx-accent\)\][class*="text-[var(--sgx-"] { color: var(--sgx-accent-ink, #000); }
 .bg-\[var\(--sgx-neon\)\][class*="text-[var(--sgx-"] { color: var(--sgx-neon-ink, #000); }
+
+/* ---------- Lite mode (lib/lite.ts sets <html data-lite>) ----------
+   What costs frames on a modest phone, off: background blurs, glow filters
+   and looping decorations. One-shot entrances and the content stay. */
+html[data-lite] *,
+html[data-lite] *::before,
+html[data-lite] *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-lite] .sgx-glow { filter: none !important; }
+html[data-lite] .sgx-sechud__scan,
+html[data-lite] .sgx-hero__scan,
+html[data-lite] .sgx-holodeck,
+html[data-lite] .sgx-atmo { display: none !important; }
+html[data-lite] .animate-pulse,
+html[data-lite] .animate-ping,
+html[data-lite] .animate-spin-slow,
+html[data-lite] .sgx-companion-head__orb,
+html[data-lite] .sgx-pilot-glyph .hb-bob { animation: none !important; }

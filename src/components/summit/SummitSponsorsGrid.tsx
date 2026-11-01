@@ -1,4 +1,5 @@
 import React from 'react';
+import { swapOnce } from '../../lib/imgFallback';
 import { ArrowRight, Plus } from 'lucide-react';
 import { ApprovedSponsor } from '../../types/summit';
 import { useLanguage } from '../../context/LanguageContext';
@@ -46,7 +47,7 @@ export const SummitSponsorsGrid: React.FC<SummitSponsorsGridProps> = ({ sponsors
                 aria-label={es ? `Ver ficha de ${name}` : `View ${name} profile`}
               >
                 <span className="spx-wall__logo">
-                  <img src={sp.logoUrl} alt="" onError={(e) => { (e.target as HTMLImageElement).src = '/brand/sgx-bolt.svg'; }} />
+                  <img src={sp.logoUrl} alt="" onError={(e) => { swapOnce(e, '/brand/sgx-bolt.svg'); }} />
                 </span>
                 <span className="spx-wall__info">
                   <strong>{name}</strong>

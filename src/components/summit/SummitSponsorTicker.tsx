@@ -1,4 +1,5 @@
 import React from 'react';
+import { swapOnce, LOCAL_SUMMIT_ICON } from '../../lib/imgFallback';
 import { ApprovedSponsor } from '../../types/summit';
 import { Award } from 'lucide-react';
 import { loadAllApprovedSponsors } from '../../lib/summitData';
@@ -76,7 +77,7 @@ export const SummitSponsorTicker: React.FC<SummitSponsorTickerProps> = ({
                     alt={loc(sponsor, 'companyName', language)} 
                     className="w-full h-full object-contain"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png';
+                      swapOnce(e, LOCAL_SUMMIT_ICON);
                     }}
                   />
                 </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { swapOnce, LOCAL_SUMMIT_ICON } from '../../lib/imgFallback';
 import { Sparkles, ExternalLink, ShieldCheck, ArrowRight, Building2, Zap } from 'lucide-react';
 import { ApprovedSponsor, SponsorshipTier } from '../../types/summit';
 import { loadAllApprovedSponsors, SPONSORSHIP_TIERS } from '../../lib/summitData';
@@ -261,7 +262,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
               alt={loc(activeSponsor, 'companyName', language)} 
               className="w-full h-full object-contain"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png';
+                swapOnce(e, LOCAL_SUMMIT_ICON);
               }}
             />
           </div>
@@ -302,7 +303,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
                 alt={loc(activeSponsor, 'companyName', language)} 
                 className="w-full h-full object-contain"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png';
+                  swapOnce(e, LOCAL_SUMMIT_ICON);
                 }}
               />
             </div>
@@ -353,7 +354,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
                 alt={loc(activeSponsor, 'companyName', language)} 
                 className="w-full h-full object-contain"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png';
+                  swapOnce(e, LOCAL_SUMMIT_ICON);
                 }}
               />
             </div>
@@ -409,7 +410,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
             alt={loc(activeSponsor, 'companyName', language)} 
             className="w-full h-full object-contain"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png';
+              swapOnce(e, LOCAL_SUMMIT_ICON);
             }}
           />
         </div>

@@ -16,7 +16,7 @@ import {
 import {
   REACTOR_MISSIONS, sponsorMissions, isPillarComplete, isDay3Open, type IdentityFlag, type ReactorMission,
 } from './reactor';
-import { checkEmailClaim, claimEmail, hasServerCheckin, payloadToCard, publishConstellation, recordCheckin, registerPass, sendExchange, subscribeExchanges } from './passNetwork';
+import { checkEmailClaim, claimEmail, hasServerCheckin, payloadToCard, publishConstellation, recordCheckin, registerPass, sendExchange, subscribeExchanges, syncPassAvatar } from './passNetwork';
 import { constellationPillars } from './constellation';
 
 export interface ForgeInput {
@@ -78,6 +78,8 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const langRef = useRef(language);
   langRef.current = language;
   const myUid = user?.uid || null;
+  const myUidRef = useRef<string | null>(myUid);
+  myUidRef.current = myUid;
 
   // Sponsor missions follow the published sponsor list.
   const [sponsorRev, setSponsorRev] = useState(0);
@@ -192,6 +194,8 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
         if (pilot) draft.avatar.pilot = pilot;
         if (aff && !draft.affinity) draft.affinity = aff;
       });
+      // the bot follows the pass to any device
+      if (pilot && idRef.current.pass) void syncPassAvatar(idRef.current.pass.code, myUidRef.current, pilot);
       flag('avatar');
     };
     onRoute();
@@ -290,8 +294,16 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     const pass = idRef.current.pass;
     if (!myUid || !pass?.email) return;
     let alive = true;
-    checkEmailClaim(pass.email, myUid).then((c) => { if (alive && c.state === 'free') claimEmail(pass.email, pass.code, myUid); });
-    return () => { alive = false; };
+    // a slow first read answers 'unknown': try again a few times instead of leaving the email unclaimed
+    let tries = 0;
+    let timer = 0;
+    const attempt = () => checkEmailClaim(pass.email, myUid).then((c) => {
+      if (!alive) return;
+      if (c.state === 'free') claimEmail(pass.email, pass.code, myUid);
+      else if (c.state === 'unknown' && tries++ < 4) timer = window.setTimeout(attempt, 4000 * tries);
+    });
+    attempt();
+    return () => { alive = false; window.clearTimeout(timer); };
   }, [myUid, identity.pass?.code, identity.pass?.email]);
 
   // Mutual exchange: whoever scanned my pass lands in my Rolodex too.
@@ -341,7 +353,7 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     });
     updateProfileName(input.fullName.trim().split(/\s+/)[0] || input.fullName, callsign);
     updateAvatar(input.avatarSeed, PILLAR_ACCENT[input.affinity]);
-    registerPass(pass, myUid, input.affinity);
+    registerPass(pass, myUid, input.affinity, input.avatarPilot || idRef.current.avatar.pilot);
     claimEmail(pass.email, code, myUid);
     flag('forged');
     window.dispatchEvent(new CustomEvent('sgx:pass_forged', { detail: { code } }));

@@ -108,8 +108,8 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
   const go = (s: Step) => { playUiChirp(660); setStep(s); };
 
   const takenMsg = es
-    ? 'Este correo ya tiene un SGX Pass. Entra con Google con ese correo para recuperarlo, o escríbenos a info@spatialgineers.com.'
-    : 'This email already has an SGX Pass. Sign in with Google with that email to get it back, or write to info@spatialgineers.com.';
+    ? 'Este correo ya tiene un SGX Pass. Entra con Google con ese correo y tu pase aparece solo, con tu pilar y tu Highbot.'
+    : 'This email already has an SGX Pass. Sign in with Google with that email and your pass shows up by itself, with your pillar and your Highbot.';
 
   const submitName = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,18 +142,31 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
     onOpenHangar();
   };
 
-  // Restore: the registration found for this Google account comes back as it was.
-  const restoreNow = (pick?: PillarKey) => {
-    const aff = pick || affinity || found?.affinity;
-    if (!found || !aff) return;
+  // Restore: the registration found for this Google account comes back as it was, by itself:
+  // its pillar and its Highbot included. An old pass saved without a pillar takes the one on its
+  // bot's chest (or Story); it can be changed later in Tu Estudio, never asked for here.
+  const restoreNow = () => {
+    if (!found) return;
+    const chest = found.avatar?.chest;
+    const fromBot = chest && chest !== 'SGX' ? (chest as PillarKey) : null;
+    const aff: PillarKey = found.affinity || affinity || fromBot || 'STORY';
     playScanSuccessSound();
     forge({
       fullName: found.fullName, email: found.email, tier: found.tier, affinity: aff,
       roleTitle: found.roleTitle, organization: found.organization,
-      avatarSeed: seed, avatarPilot: pilot, imageConsent: found.imageConsent === true, code: found.code,
+      avatarSeed: seed, avatarPilot: found.avatar || identity.avatar.pilot || pilot, imageConsent: found.imageConsent === true, code: found.code,
     });
     onOpenHangar();
   };
+  // no "restore" step: the moment we find your pass, it is on this device
+  const restoredRef = useRef(false);
+  useEffect(() => {
+    if (!found || identity.pass || restoredRef.current) return;
+    restoredRef.current = true;
+    const t = window.setTimeout(restoreNow, 900);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [found, identity.pass]);
 
   const print = () => {
     if (!affinity) return;
@@ -210,11 +223,10 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
                 <p className="sgx-forge__account">{es ? 'Conectado como' : 'Signed in as'} <strong>{googleUser.email}</strong></p>
                 {found ? (
                   <>
-                    <p className="sgx-forge__account">
+                    <p className="sgx-forge__account" role="status">
                       {es ? 'Encontramos tu pase' : 'We found your pass'} <strong>{found.code}</strong>.{' '}
-                      {es ? 'Recupéralo en este dispositivo con un toque.' : 'Restore it on this device in one tap.'}
+                      {es ? 'Ya lo estamos trayendo a este dispositivo…' : 'Bringing it to this device…'}
                     </p>
-                    <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => { if (found.affinity) restoreNow(found.affinity); else { setRestoring(true); go('pillar'); } }}>[ {es ? 'Recuperar mi pase' : 'Restore my pass'} ]</button></span>
                   </>
                 ) : (
                   <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => go('name')}>[ {es ? 'Comenzar la forja' : 'Start the forge'} ]</button></span>
@@ -306,6 +318,9 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
               </fieldset>
             )}
             {error && <p className="sgx-forge__error" role="alert">{error}</p>}
+            {error === takenMsg && !googleUser && (
+              <span className="sgx-glow"><button type="button" className="sgx-btn sgx-btn--sm" onClick={continueWithGoogle} disabled={signingIn}>{signingIn ? (es ? 'Conectando…' : 'Connecting…') : (es ? 'Entrar con Google y traer mi pase' : 'Sign in with Google and bring my pass')}</button></span>
+            )}
             <p className="sgx-forge__fine">{es ? 'Usamos tu nombre y correo solo para el Summit. Tu correo no aparece en el QR.' : 'We use your name and email only for the Summit. Your email is not in the QR.'}</p>
             <div className="sgx-forge__actions">
               {editing && <button type="button" className="sgx-btn sgx-btn--ground" onClick={onClose}>{es ? 'Cancelar' : 'Cancel'}</button>}

@@ -271,6 +271,8 @@ function plateTexture(src: string): Promise<THREE.Texture> {
   ctx.fillRect(0, 0, 256, 256);
   const tex = new THREE.CanvasTexture(cv);
   tex.colorSpace = THREE.SRGBColorSpace;
+  // the plate's UVs come from glTF, which reads images top-down: no flip (the logo was upside down)
+  tex.flipY = false;
   return new Promise((res) => {
     const img = new Image();
     img.onload = () => {
@@ -375,7 +377,7 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
     return mat;
   };
   // the motif goes on the torso only, in the bot's own colors
-  const chestRelic = c.relic === 'chest';
+  const chestRelic = c.chestStyle === 'big';
   const chestAt = ANATOMY.chest;
   const backGear = new THREE.Vector3(ANATOMY.back.gear.x, ANATOMY.back.gear.y, ANATOMY.back.r + 0.025);
   const clear: [THREE.Vector3, THREE.Vector3, THREE.Vector3] = chestRelic
@@ -464,11 +466,12 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
   let relicSpin: THREE.Object3D | null = null;
   let relicOrbit: THREE.Object3D | null = null;
   let relicSway: THREE.Object3D | null = null;
-  if (c.relic !== 'none') {
+  if (c.relic !== 'none' || chestRelic) {
     const parts = await loadEmblem(c.chest);
     if (parts) {
       const blue = plainMetal('#32527B');
-      const yellow = plainMetal('#FDCC0D', { emissive: new THREE.Color('#FDCC0D'), emissiveIntensity: 0.22 });
+      // the pillars' yellow is a light, as on every SGX surface
+      const yellow = plainMetal('#FDCC0D', { emissive: new THREE.Color('#FDCC0D'), emissiveIntensity: 0.95 });
       const emblem = (width: number) => {
         const g = new THREE.Group();
         parts.blue.forEach((geo) => g.add(new THREE.Mesh(geo, blue)));
@@ -478,7 +481,7 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
       };
       const A = ANATOMY;
       const bodyNode = joints.body || findNode('body');
-      if (c.relic === 'chest' && bodyNode) {
+      if (chestRelic && bodyNode) {
         // set on a dark round plate, so it reads on any body color
         const f = modelFrame(bodyNode, model);
         const plate = new THREE.Mesh(keep(new THREE.CylinderGeometry(0.175, 0.175, 0.022, 40)), gearMats.dark);
@@ -489,7 +492,8 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
         const e = emblem(0.27);
         e.position.set(A.chest.center.x, A.chest.center.y, A.chest.front + 0.035);
         f.add(plate, ring, e);
-      } else if (c.relic === 'back' && bodyNode) {
+      }
+      if (c.relic === 'back' && bodyNode) {
         // a power core set into the back gear, turning slowly
         const holder = new THREE.Group();
         holder.position.set(A.back.gear.x, A.back.gear.y, A.back.gear.z - 0.035);
@@ -498,20 +502,6 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
         holder.add(e);
         relicSpin = e;
         modelFrame(bodyNode, model).add(holder);
-      } else if (c.relic === 'hand') {
-        // held in the left hook like a badge, slightly turned out; it swings with the arm
-        // the hand is a leaf mesh: the arm node carries it, so the frame hangs from the arm
-        const arm = findNode('arm', 'shoulder left');
-        if (arm) {
-          const f = modelFrame(arm, model);
-          const e = emblem(0.28);
-          e.position.set(A.handL.x + 0.05, A.handL.y + 0.06, A.handL.z + 0.15);
-          e.rotation.y = 0.4;
-          const grip = new THREE.Mesh(keep(new THREE.CylinderGeometry(0.016, 0.016, 0.12, 10)), gearMats.joints);
-          grip.position.set(A.handL.x + 0.025, A.handL.y + 0.01, A.handL.z + 0.07);
-          grip.rotation.x = Math.PI / 2;
-          f.add(grip, e);
-        }
       } else if (c.relic === 'orbit') {
         const pivot = new THREE.Group();
         // orbits clear of the head and any cups on the sockets

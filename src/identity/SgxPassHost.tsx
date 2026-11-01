@@ -16,6 +16,7 @@ import { FORGE_AFTER_SWITCH, SIGNED_IN_EVENT } from './accountSlots';
 
 // The pass surfaces download the first time they open.
 const SgxForge = lazy(() => import('./SgxForge').then((m) => ({ default: m.SgxForge })));
+const SgxHangar = lazy(() => import('./SgxHangar').then((m) => ({ default: m.SgxHangar })));
 const SgxHoloViewer = lazy(() => import('./SgxHoloViewer').then((m) => ({ default: m.SgxHoloViewer })));
 
 /** Warm the pass chunks once the page is idle, so the first tap opens instantly. */
@@ -61,6 +62,8 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
   // Holo Card Studio (visitante / speaker / initiate / sponsor), prefilled from the pass.
   const [viewCard, setViewCard] = useState<HoloCredential | null>(null);
   const [forge, setForge] = useState<{ tier: PassTier } | null>(null);
+  // The Mission Reactor is a quick pop-up (its links take you to each mission); the Studio keeps its tab too.
+  const [reactor, setReactor] = useState(false);
   // Your Studio is a page now (the SGX Pass section): "opening" it navigates there on a tab.
   const setHangar = useCallback((t: HangarTab | null) => {
     if (!t) return;
@@ -85,10 +88,10 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
       const d = (e as CustomEvent<{ tab?: HangarTab; tier?: PassTier; edit?: boolean }>).detail || {};
       switch (e.type) {
         case 'sgx:open_forge': setHangar(null); setForge({ tier: d.tier || 'DIGITAL' }); break;
-        case 'sgx:open_hangar': setForge(null); setHangar(d.tab || 'pass'); break;
-        case 'sgx:open_passport': setForge(null); setHangar('reactor'); break;
+        case 'sgx:open_hangar': setForge(null); if (d.tab === 'reactor') setReactor(true); else setHangar(d.tab || 'pass'); break;
+        case 'sgx:open_passport': setForge(null); setReactor(true); break;
         case 'sgx:open_profile_drawer': setForge(null); setHangar(forgedRef.current ? 'pass' : 'reactor'); break;
-        case 'sgx:open_tour': openHangarOrForge('reactor'); break;
+        case 'sgx:open_tour': setForge(null); setReactor(true); break;
         default: openHangarOrForge('pass', d.tier); // tickets, ticket, credential generator
       }
     };
@@ -271,6 +274,9 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
       )}
       <LazyBoundary fallback={<LazyFallback overlay />}>
         {viewCard && <SgxHoloViewer cred={viewCard} onClose={() => setViewCard(null)} />}
+        {reactor && !quiet && (
+          <SgxHangar reactorOnly onClose={() => setReactor(false)} onForge={() => { setReactor(false); setForge({ tier: 'DIGITAL' }); }} />
+        )}
         {forge && (
           <SgxForge
             initialTier={forge.tier}

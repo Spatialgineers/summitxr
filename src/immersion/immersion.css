@@ -425,3 +425,47 @@ body:has([aria-modal="true"], .sgx-hangar, .sgx-forge, .sgx-terminal-backdrop, .
 /* ---------- Holo glass (WebGL2 panel background, see shaders/HoloGlass.tsx) ---------- */
 .sgx-hologlass-host { isolation: isolate; }
 .sgx-hologlass { position: absolute; left: 0; top: 0; width: 100%; z-index: -1; pointer-events: none; }
+
+/* ---------- Sponsor ride-along on XP (SponsorXpPop) ---------- */
+.sgx-sponsorpop {
+  position: fixed; top: 76px; left: 50%; z-index: 100002; transform: translateX(-50%);
+  width: min(400px, calc(100vw - 24px)); pointer-events: none;
+}
+.sgx-sponsorpop__card {
+  --sgx-edge: var(--SGX_Yellow); --sgx-cut: var(--cut-md);
+  position: relative; display: grid; gap: 6px; width: 100%; padding: 10px 14px 12px; text-align: left; cursor: pointer; pointer-events: auto;
+  color: var(--SGX_White); border: 1px solid var(--sgx-edge);
+  background:
+    linear-gradient(135deg, transparent calc(50% - 0.5px), var(--sgx-edge) calc(50% - 0.5px), var(--sgx-edge) calc(50% + 1.2px), transparent calc(50% + 1.2px)) top left / var(--sgx-cut) var(--sgx-cut) no-repeat border-box,
+    rgba(18, 19, 22, 0.96);
+  clip-path: polygon(var(--sgx-cut) 0, 100% 0, 100% calc(100% - var(--sgx-cut)), calc(100% - var(--sgx-cut)) 100%, 0 100%, 0 var(--sgx-cut));
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  animation: sgx-toast-in 0.42s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.sgx-sponsorpop__card:focus-visible { outline: 2px solid var(--SGX_Cyan); outline-offset: 2px; }
+.sgx-sponsorpop__tag {
+  justify-self: start; display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px;
+  font-family: var(--font-hud); font-weight: 700; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--on-action); background: var(--SGX_Yellow);
+}
+.sgx-sponsorpop__brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.sgx-sponsorpop__brand img { width: 52px; height: 52px; object-fit: contain; flex: none; background: rgba(255, 255, 255, 0.04); }
+.sgx-sponsorpop__mono {
+  width: 52px; height: 52px; flex: none; display: grid; place-items: center;
+  font-family: var(--font-display); font-size: 1.4rem; color: var(--SGX_Yellow); box-shadow: inset 0 0 0 1px rgba(253, 204, 13, 0.5);
+}
+.sgx-sponsorpop__text { display: grid; gap: 2px; min-width: 0; }
+.sgx-sponsorpop__text strong { font-family: var(--font-hud); font-size: 1rem; letter-spacing: 0.04em; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sgx-sponsorpop__text small { font-family: var(--font-body); font-size: 0.82rem; line-height: 1.3; color: rgba(255, 255, 255, 0.7); }
+.sgx-sponsorpop__cta { justify-self: end; font-family: var(--font-mono); font-size: 0.75rem; color: var(--SGX_Yellow); }
+.sgx-sponsorpop__timer { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: var(--SGX_Yellow); transform-origin: left; animation: sgx-sponsorpop-timer linear forwards; }
+@keyframes sgx-sponsorpop-timer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.sgx-sponsorpop__x {
+  position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; pointer-events: auto; cursor: pointer;
+  border: 0; font-size: 1.1rem; line-height: 1; color: rgba(255, 255, 255, 0.7); background: rgba(255, 255, 255, 0.06);
+}
+.sgx-sponsorpop__x:hover, .sgx-sponsorpop__x:focus-visible { color: var(--on-action); background: var(--SGX_Yellow); }
+/* never over a dialog */
+body:has([aria-modal="true"], .sgx-hangar, .sgx-forge, .sgx-terminal-backdrop) .sgx-sponsorpop { display: none; }
+@media (max-width: 639px) { .sgx-sponsorpop { top: 64px; } }
+@media (prefers-reduced-motion: reduce) { .sgx-sponsorpop__card, .sgx-sponsorpop__timer { animation: none; } }

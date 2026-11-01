@@ -11,7 +11,7 @@ Admins = `info@spatialgineers.com` or `support@spatialgineers.com` signed in wit
 | `summit_private` (Day 3 check-in code, initiate emails) | admins | admins |
 | `credential_grants/{uid}` (Holo Card roles: speaker, sponsor) | owner, admins | admins (on approval) |
 | `initiate_claims/{email}` (which initiate an email is) | that person signed in with that verified email (Google), admins | admins |
-| `ticket_inquiries` (SGX Pass registrations, doc id = pass code) | admins; owner reads own | create: anyone with a valid pass (uid must be yours, no status); owner edits own details and consent, never the status; status/invitation: admins |
+| `ticket_inquiries` (SGX Pass registrations, doc id = pass code) | admins; owner reads own | create: anyone with a valid pass (uid must be yours, no status); owner edits own details, consent, pillar and `avatar` (the Highbot as JSON, ≤ 3000 chars, so a restored pass keeps its bot), never the status; status/invitation: admins |
 | `sponsor_inquiries` | admins | create: anyone (validated fields; `submittedBy` must be your own uid); update/delete: admins |
 | `speaker_submissions` | admins | create: anyone (validated, no self-keynote); admins publish |
 | `players` (has emails) | owner, admins | owner, admins |

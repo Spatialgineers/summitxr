@@ -2,7 +2,7 @@ import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'rea
 import { useLanguage } from '../context/LanguageContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import {
-  BOT_SWATCHES, COLOR_GROUPS, EYELIDS, HEADGEAR, HIGHBOT_PRESETS, INKS, PARTS, PILOT_TEXTURES, PLATES, RELIC_MOUNTS, SOCKET_GEAR, TILE_SIZES, TOP_GEAR, VISORS,
+  BOT_SWATCHES, CHEST_STYLES, COLOR_GROUPS, EYELIDS, HEADGEAR, HIGHBOT_PRESETS, INKS, PARTS, PILOT_TEXTURES, PLATES, RELIC_MOUNTS, SOCKET_GEAR, TILE_SIZES, TOP_GEAR, VISORS,
   etchInk, etchSrc, normalizePilot, pilotSvg, randomPilot, varyPilot, type PilotConfig,
 } from './pilotAvatar';
 
@@ -184,8 +184,14 @@ export const PilotBuilder: React.FC<Props> = ({ value: raw, onChange, accent, ca
 
         {tab === 'plates' && (
           <div className="sgx-pilotb__part">
-            <span className="sgx-pilotb__colorlabel">{es ? 'Emblema 3D del pilar del pecho' : '3D emblem of the chest pillar'}</span>
-            <div className="sgx-pilotb__chips" role="listbox" aria-label={es ? 'Emblema 3D' : '3D emblem'}>
+            <span className="sgx-pilotb__colorlabel">{es ? 'Tu pilar en el pecho' : 'Your pillar on the chest'}</span>
+            <div className="sgx-pilotb__chips" role="listbox" aria-label={es ? 'Pilar en el pecho' : 'Pillar on the chest'}>
+              {CHEST_STYLES.map((o) => (
+                <button key={o.id} type="button" role="option" aria-selected={value.chestStyle === o.id} className={value.chestStyle === o.id ? 'is-on' : ''} onClick={() => set({ ...value, chestStyle: o.id })}>{N(o)}</button>
+              ))}
+            </div>
+            <span className="sgx-pilotb__colorlabel">{es ? 'Emblema 3D extra' : 'Extra 3D emblem'}</span>
+            <div className="sgx-pilotb__chips" role="listbox" aria-label={es ? 'Emblema 3D extra' : 'Extra 3D emblem'}>
               {RELIC_MOUNTS.map((r) => (
                 <button key={r.id} type="button" role="option" aria-selected={value.relic === r.id} className={value.relic === r.id ? 'is-on' : ''} onClick={() => set({ ...value, relic: r.id })}>{N(r)}</button>
               ))}

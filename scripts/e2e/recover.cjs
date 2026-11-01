@@ -32,6 +32,8 @@ const pass1 = (p) => p.evaluate(() => JSON.parse(localStorage.getItem('sgx_ident
   await p1.click('.sgx-forge button.sgx-btn:not(.sgx-btn--ground):not([disabled])'); await p1.waitForTimeout(800);
   await p1.click('text=/Forjar mi SGX Pass|Forge my SGX Pass/'); await p1.waitForTimeout(5000);
   const guestPass = await pass1(p1);
+  const { aff: guestAff, bot: guestBot } = await p1.evaluate(() => { const id = JSON.parse(localStorage.getItem('sgx_identity_v1') || '{}'); return { aff: id.affinity, bot: id.avatar?.pilot }; });
+  await p1.waitForTimeout(2500); // the registration and its Highbot reach the server
   check('guest forged a pass', guestPass?.email === EMAIL, JSON.stringify(guestPass)?.slice(0, 80));
   await c1.close();
 
@@ -47,11 +49,14 @@ const pass1 = (p) => p.evaluate(() => JSON.parse(localStorage.getItem('sgx_ident
   await p2.waitForTimeout(5000);
   await p2.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_forge', { detail: { tier: 'DIGITAL' } })));
   await p2.waitForSelector('.sgx-forge', { timeout: 20000 }); await p2.waitForTimeout(3000);
-  const restoreBtn = await p2.$('text=/Recuperar mi pase|Restore my pass/');
-  check('Forge offers the guest pass back to the Google account', !!restoreBtn);
-  if (restoreBtn) { await restoreBtn.click(); await p2.waitForTimeout(4000); }
-  const back = await pass1(p2);
+  // no restore button and no pillar step: the pass comes back by itself
+  let back = null;
+  for (let i = 0; i < 15 && !back; i++) { back = await pass1(p2); if (!back) await p2.waitForTimeout(1000); }
+  check('the guest pass comes back to the Google account by itself', !!back);
   check('restored pass keeps the same code', back?.code === guestPass?.code, `${back?.code} vs ${guestPass?.code}`);
+  const id2 = await p2.evaluate(() => JSON.parse(localStorage.getItem('sgx_identity_v1') || '{}'));
+  check('restored pass keeps its pillar (no pillar step)', id2.affinity && id2.affinity === guestAff, `${id2.affinity} vs ${guestAff}`);
+  check('restored pass keeps its Highbot', JSON.stringify(id2.avatar?.pilot) === JSON.stringify(guestBot), `\n  got  ${JSON.stringify(id2.avatar?.pilot)}\n  want ${JSON.stringify(guestBot)}`);
 
   // The account menu offers Studio and sign-out.
   for (let i = 0; i < 3 && await p2.$('.sgx-forge'); i++) { await p2.keyboard.press('Escape'); await p2.waitForTimeout(500); }

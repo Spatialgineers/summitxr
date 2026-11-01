@@ -9,6 +9,7 @@ import { SECTION_BY_KEY } from './sections';
 import { SGX_PILLARS, findPillar } from '../lib/sgxPillars';
 import { navigateToPillar, navigateToSection } from './navigation';
 import { HudToasts } from './HudToasts';
+import { SponsorXpPop } from './SponsorXpPop';
 import { MissionRail } from './MissionRail';
 import { CommandTerminal } from './CommandTerminal';
 import { EnergyCell, boltBurst } from './EnergyCell';
@@ -214,6 +215,7 @@ export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPa
       {fx && !stageMode && isGamePage && <XpSparks />}
       <CommandTerminal />
       <HudToasts />
+      {!stageMode && <SponsorXpPop />}
       {!stageMode && currentPage === 'summit' && <SgxMobileDock section={section} />}
     </div>
   );

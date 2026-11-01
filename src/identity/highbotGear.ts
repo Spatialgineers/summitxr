@@ -102,13 +102,16 @@ export function buildGear(headgear: number, visor: number, m: GearMats, opts: { 
     band.scale.set(rx, ry, 1);
     head.add(band);
     if (withMic) {
-      // from the right cup (character's right, -x) to the mouth
+      // a boom from under the right cup (character's right, -x) that rides OUTSIDE the cheek
+      // (head side and front measured from the model) and ends in front of the mouth
       const curve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-(S.outer + 0.05), S.y - 0.09, S.z + 0.08),
-        new THREE.Vector3(-(A.head.x + 0.05), A.mouth.y + 0.02, 0.22),
-        new THREE.Vector3(-0.12, A.mouth.y - 0.01, A.mouth.z + 0.04),
+        new THREE.Vector3(-(S.outer + 0.08), S.y - 0.1, S.z + 0.07),
+        new THREE.Vector3(-0.69, 1.2, 0.1),
+        new THREE.Vector3(-0.62, 1.12, 0.34),
+        new THREE.Vector3(-0.43, 1.08, 0.49),
+        new THREE.Vector3(-0.17, 1.06, 0.51),
       ]);
-      head.add(mesh(new THREE.TubeGeometry(curve, 24, 0.016, 8), m.joints), mesh(new THREE.SphereGeometry(0.04, 16, 12), m.glow, -0.12, A.mouth.y - 0.01, A.mouth.z + 0.05));
+      head.add(mesh(new THREE.TubeGeometry(curve, 40, 0.016, 8), m.joints), mesh(new THREE.SphereGeometry(0.042, 16, 12), m.glow, -0.13, 1.06, 0.515));
     }
   };
 
@@ -150,11 +153,13 @@ export function buildGear(headgear: number, visor: number, m: GearMats, opts: { 
       head.add(halo, mesh(new THREE.TorusGeometry(0.51, 0.011, 6, 64), m.glow, 0, S.y, z + 0.01));
       break;
     }
-    case 7: { // mech fins on the flat top, raked back, between the ears
+    case 7: { // mech fins raked back, each on a low base that sits ON the flat top (1.70), between the ears
+      const top = 1.701;
       for (const s of [-1, 1]) {
-        const fin = mesh(new RoundedBoxGeometry(0.045, 0.34, 0.2, 2, 0.018), m.trim, 0.16 * s, A.head.yMax + 0.12, -0.12);
+        head.add(mesh(new RoundedBoxGeometry(0.1, 0.045, 0.26, 2, 0.015), m.joints, 0.16 * s, top + 0.022, -0.12));
+        const fin = mesh(new RoundedBoxGeometry(0.045, 0.34, 0.2, 2, 0.018), m.trim, 0.16 * s, top + 0.19, -0.12);
         fin.rotation.set(-0.55, 0, -0.22 * s);
-        const edge = mesh(new THREE.BoxGeometry(0.018, 0.3, 0.018), m.glow, 0.165 * s, A.head.yMax + 0.13, -0.03);
+        const edge = mesh(new THREE.BoxGeometry(0.018, 0.3, 0.018), m.glow, 0.165 * s, top + 0.2, -0.03);
         edge.rotation.copy(fin.rotation);
         head.add(fin, edge);
       }
@@ -218,6 +223,27 @@ export function buildGear(headgear: number, visor: number, m: GearMats, opts: { 
       }
     }
   };
+  /** A band that wraps the face like the head itself: a rounded box (superellipse), not an
+      oval, so its corners clear the cheeks. Open at the sides, ends before the side sockets. */
+  const wrap = (h: number, rx: number, rz: number, y: number, tMax: number, mat: THREE.Material) => {
+    const cz = A.head.center.z;
+    const seg = 56;
+    const pos: number[] = [];
+    const idx: number[] = [];
+    const sp = (v: number) => Math.sign(v) * Math.sqrt(Math.abs(v)); // exponent 2/n with n = 4
+    for (let i = 0; i <= seg; i++) {
+      const t = -tMax + (2 * tMax * i) / seg;
+      const x = rx * sp(Math.sin(t));
+      const z = cz + rz * sp(Math.cos(t));
+      pos.push(x, y - h / 2, z, x, y + h / 2, z);
+    }
+    for (let i = 0; i < seg; i++) { const a = i * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    geo.setIndex(idx);
+    geo.computeVertexNormals();
+    head.add(mesh(geo, mat));
+  };
   const lens = (w: number, h: number, z: number, x = 0, y = E.y, mat: THREE.Material = m.lens) => {
     head.add(mesh(new THREE.PlaneGeometry(w, h), mat, x, y, z));
   };
@@ -263,18 +289,11 @@ export function buildGear(headgear: number, visor: number, m: GearMats, opts: { 
       coversEyes = true;
       break;
     }
-    case 5: { // gaming visor wrapping the front, from socket to socket
-      const cz = A.head.center.z;
-      const rz = E.front + 0.05 - cz;
+    case 5: { // gaming visor wrapping the front, ends just short of the side sockets
+      const rz = E.front + 0.05 - A.head.center.z;
       const rx = S.outer + 0.02;
-      const arc = mesh(new THREE.CylinderGeometry(1, 1, 0.3, 48, 1, true, -1.25, 2.5), m.lens, 0, E.y, cz);
-      arc.scale.set(rx, 1, rz);
-      head.add(arc);
-      for (const y of [-0.16, 0.16]) {
-        const rim = mesh(new THREE.CylinderGeometry(1.01, 1.01, 0.035, 48, 1, true, -1.3, 2.6), m.trim, 0, E.y + y, cz);
-        rim.scale.set(rx, 1, rz);
-        head.add(rim);
-      }
+      wrap(0.3, rx, rz, E.y, 1.2, m.lens);
+      for (const y of [-0.16, 0.16]) wrap(0.035, rx + 0.008, rz + 0.008, E.y + y, 1.22, m.trim);
       coversEyes = true;
       break;
     }
@@ -289,14 +308,10 @@ export function buildGear(headgear: number, visor: number, m: GearMats, opts: { 
       break;
     }
     case 7: { // LED slit: a dark glass band with one light line across the eyes
-      const cz = A.head.center.z;
-      const rz = E.front + 0.035 - cz;
-      const rx = S.outer + 0.005;
-      const glass = mesh(new THREE.CylinderGeometry(1, 1, 0.36, 48, 1, true, -1.2, 2.4), m.dark, 0, E.y, cz);
-      glass.scale.set(rx, 1, rz);
-      const line = mesh(new THREE.CylinderGeometry(1.012, 1.012, 0.035, 48, 1, true, -1.05, 2.1), m.glow, 0, E.y, cz);
-      line.scale.set(rx, 1, rz);
-      head.add(glass, line);
+      const rz = E.front + 0.04 - A.head.center.z;
+      const rx = S.outer + 0.01;
+      wrap(0.36, rx, rz, E.y, 1.15, m.dark);
+      wrap(0.035, rx + 0.008, rz + 0.008, E.y, 1.0, m.glow);
       coversEyes = true;
       break;
     }

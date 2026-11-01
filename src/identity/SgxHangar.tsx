@@ -34,6 +34,8 @@ interface Props {
   initialTab?: HangarTab;
   /** Rendered as the SGX Pass page (no dialog): the page banner carries the title. */
   asPage?: boolean;
+  /** Just the Mission Reactor, as a pop-up: missions per pillar with their quick links. */
+  reactorOnly?: boolean;
 }
 
 /** Page frame with the dialog's slots, so the Studio reads like the other sections. */
@@ -44,7 +46,7 @@ const PageShell: React.FC<{ headerExtra?: React.ReactNode; toolbar?: React.React
   </section>
 );
 
-export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pass', asPage = false }) => {
+export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pass', asPage = false, reactorOnly = false }) => {
   const { language } = useLanguage();
   const es = language === 'es';
   const { profile, leaderboard } = usePilotProfile();
@@ -57,15 +59,16 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   const { identity, isForged, missions, isDone, xpBalance, checkIn } = useSgxIdentity();
   const { user, logout } = useAuth();
   const googleEmail = user && !user.isAnonymous ? user.email : null;
-  const [tab, setTab] = useState<HangarTab>(initialTab);
+  const [tab, setTab] = useState<HangarTab>(reactorOnly ? 'reactor' : initialTab);
   const [copied, setCopied] = useState(false);
   const [checkinMsg, setCheckinMsg] = useState('');
   const qr = usePassQr();
   const cardRef = useRef<HTMLDivElement>(null);
   const done = missions.filter((m) => isDone(m.id)).length;
 
-  useEffect(() => { setTab(initialTab); }, [initialTab]);
+  useEffect(() => { if (!reactorOnly) setTab(initialTab); }, [initialTab, reactorOnly]);
   useEffect(() => {
+    if (reactorOnly) return;
     const onTab = (e: Event) => { const t = (e as CustomEvent<{ tab?: HangarTab }>).detail?.tab; if (t) setTab(t); };
     window.addEventListener('sgx:studio_tab', onTab);
     return () => window.removeEventListener('sgx:studio_tab', onTab);
@@ -134,15 +137,15 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
       size="lg"
       className="sgx-studio"
       icon={<img src="/brand/sgx-bolt.svg" alt="" />}
-      title={es ? 'Tu Estudio' : 'Your Studio'}
-      kicker={isForged ? `${identity.pass!.fullName} · ${identity.callsign}` : (es ? 'Sin pase todavía' : 'No pass yet')}
+      title={reactorOnly ? (es ? 'Reactor de misiones' : 'Mission reactor') : (es ? 'Tu Estudio' : 'Your Studio')}
+      kicker={reactorOnly ? `${done}/${missions.length} ${es ? 'misiones · toca una para ir' : 'missions · tap one to go'}` : isForged ? `${identity.pass!.fullName} · ${identity.callsign}` : (es ? 'Sin pase todavía' : 'No pass yet')}
       headerExtra={(
         <div className="sgx-hangar__xp">
           <span><b>{profile.totalXp.toLocaleString('es-PR')}</b> XP</span>
           <span className="sgx-hangar__xp-sub">{xpBalance.toLocaleString('es-PR')} {es ? 'para gastar' : 'to spend'} · {rankLabel(profile.level, es)}</span>
         </div>
       )}
-      toolbar={(
+      toolbar={reactorOnly ? undefined : (
         <nav className="sgx-studio__tabs" role="tablist" aria-label={es ? 'Secciones de tu Estudio' : 'Studio sections'}>
           {tabs.map((t) => (
             <button key={t.id} type="button" role="tab" data-guide={`estudio-${t.id}`} aria-selected={tab === t.id} className={tab === t.id ? 'is-on' : ''} onClick={() => { playUiChirp(560); setTab(t.id); }}>
@@ -153,7 +156,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
       )}
     >
           {/* Account: same Google sign-in the old profile drawer had. */}
-          <div className={`sgx-hangar__account ${googleEmail ? 'is-linked' : ''}`}>
+          {!reactorOnly && <div className={`sgx-hangar__account ${googleEmail ? 'is-linked' : ''}`}>
             {googleEmail ? (
               <>
                 <p>{es ? 'Cuenta conectada' : 'Account connected'} · <strong>{googleEmail}</strong></p>
@@ -165,7 +168,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                 <GoogleSignInButton variant="compact" buttonText={es ? 'Iniciar con Google' : 'Sign in with Google'} />
               </>
             )}
-          </div>
+          </div>}
           {!isForged && tab !== 'reactor' && tab !== 'log' && tab !== 'bot' ? (
             <div className="sgx-hangar__empty">
               <h3>{es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass'}</h3>

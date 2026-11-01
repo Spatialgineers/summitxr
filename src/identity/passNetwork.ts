@@ -1,36 +1,53 @@
 import {
-  addDoc, collection, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, where, writeBatch,
+  addDoc, collection, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, Timestamp, updateDoc, where, writeBatch,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { reportError } from '../lib/errorMonitor';
 import type { PassQrPayload, SgxPass } from './sgxIdentity';
 import type { PillarKey } from '../lib/sgxPillars';
+import { normalizePilot, type PilotConfig } from './pilotAvatar';
 
 /* Firestore side of the SGX Pass. Every call degrades quietly: if the rules
    are not deployed yet or the device is offline, the pass keeps working
    locally and only the shared parts (mutual Rolodex, Chroma check-ins) wait. */
 
 /** Registration lands where the old taquilla wrote, so the admin views keep working. */
-export async function registerPass(pass: SgxPass, uid: string | null, affinity?: PillarKey | null): Promise<void> {
+export async function registerPass(pass: SgxPass, uid: string | null, affinity?: PillarKey | null, avatar?: PilotConfig): Promise<void> {
   // One registration per pass (doc id = pass code). Editing the pass updates it in place;
   // the status is never sent from the browser, so an invitation set by the team survives.
+  const data = {
+    email: pass.email,
+    fullName: pass.fullName,
+    ticketType: pass.tier === 'SHOWCASE' ? 'SHOWCASE_PHYSICAL' : 'DIGITAL',
+    referenceCode: pass.code,
+    roleTitle: pass.roleTitle || '',
+    organization: pass.organization || '',
+    imageConsent: pass.imageConsent === true,
+    ...(pass.consentAt ? { consentAt: pass.consentAt } : {}),
+    ...(affinity ? { affinity } : {}),
+    userId: uid,
+    timestamp: serverTimestamp(),
+  };
+  // the Highbot travels with the pass, so a pass restored on another device keeps its bot
+  const withBot = avatar ? { ...data, avatar: JSON.stringify(avatar).slice(0, 3000) } : data;
   try {
-    await setDoc(doc(db, 'ticket_inquiries', pass.code), {
-      email: pass.email,
-      fullName: pass.fullName,
-      ticketType: pass.tier === 'SHOWCASE' ? 'SHOWCASE_PHYSICAL' : 'DIGITAL',
-      referenceCode: pass.code,
-      roleTitle: pass.roleTitle || '',
-      organization: pass.organization || '',
-      imageConsent: pass.imageConsent === true,
-      ...(pass.consentAt ? { consentAt: pass.consentAt } : {}),
-      ...(affinity ? { affinity } : {}),
-      userId: uid,
-      timestamp: serverTimestamp(),
-    }, { merge: true });
+    await setDoc(doc(db, 'ticket_inquiries', pass.code), withBot, { merge: true });
   } catch (err) {
+    // rules published before the avatar field: the registration still goes in, without the bot
+    if (avatar && (err as { code?: string })?.code === 'permission-denied') {
+      try { await setDoc(doc(db, 'ticket_inquiries', pass.code), data, { merge: true }); return; } catch (e2) { err = e2; }
+    }
     console.warn('[SGX Pass] registration kept local:', err instanceof Error ? err.message : err);
   }
+}
+
+/** A Highbot edited later (Avatar Studio) updates the registration it already has; never creates one.
+    Quiet on failure: offline, no registration yet, or rules older than the field. */
+export async function syncPassAvatar(code: string, uid: string | null, pilot: PilotConfig | undefined): Promise<void> {
+  if (!code || !uid || !pilot) return;
+  try {
+    await updateDoc(doc(db, 'ticket_inquiries', code), { avatar: JSON.stringify(pilot).slice(0, 3000), userId: uid, timestamp: serverTimestamp() });
+  } catch { /* the bot stays on this device; the next forge or edit carries it */ }
 }
 
 export interface MyRegistration {
@@ -42,6 +59,8 @@ export interface MyRegistration {
   organization?: string;
   imageConsent?: boolean;
   affinity?: PillarKey | null;
+  /** the Highbot saved with the pass */
+  avatar?: PilotConfig | null;
 }
 
 /** A Firestore read that never hangs the UI: after `ms` it gives up (and reports it). */
@@ -75,6 +94,7 @@ export async function findMyRegistration(uid: string, verifiedEmail?: string | n
       organization: v.organization || undefined,
       imageConsent: v.imageConsent === true,
       affinity: (['STORY', 'SHOWCASE', 'SPARK', 'STAGE', 'SYSTEM', 'SYNTHESIZE'] as PillarKey[]).includes(v.affinity) ? v.affinity : null,
+      avatar: (() => { try { return typeof v.avatar === 'string' ? normalizePilot(JSON.parse(v.avatar)) : null; } catch { return null; } })(),
     };
   } catch (err) {
     console.warn('[SGX Pass] could not look up an earlier pass:', err instanceof Error ? err.message : err);

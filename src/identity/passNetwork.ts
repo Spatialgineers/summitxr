@@ -80,9 +80,20 @@ export async function findMyRegistration(uid: string, verifiedEmail?: string | n
   try {
     let snap = await bounded(getDocs(query(collection(db, 'ticket_inquiries'), where('userId', '==', uid), limit(1))), 8000, 'registration by uid');
     if (snap.empty && verifiedEmail) {
-      snap = await bounded(getDocs(query(collection(db, 'ticket_inquiries'), where('email', '==', verifiedEmail), limit(1))), 8000, 'registration by email');
+      snap = await bounded(getDocs(query(collection(db, 'ticket_inquiries'), where('email', '==', verifiedEmail), limit(1))), 8000, 'registration by email')
+        .catch(() => snap);
     }
-    const d = snap.docs[0];
+    let d: { id: string; data: () => any } | undefined = snap.docs[0];
+    // Forged as a guest with the email typed another way (Capitals): the one-pass-per-email
+    // record knows the code, and the registration is read by its id.
+    if (!d && verifiedEmail) {
+      const claim = await checkEmailClaim(verifiedEmail, uid);
+      const code = claim.state === 'mine' || claim.state === 'taken' ? claim.code : undefined;
+      if (code) {
+        const one = await bounded(getDoc(doc(db, 'ticket_inquiries', code)), 8000, 'registration by code').catch(() => null);
+        if (one?.exists()) d = one;
+      }
+    }
     if (!d) return null;
     const v = d.data();
     return {

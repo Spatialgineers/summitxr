@@ -90,6 +90,40 @@ const pass1 = (p) => p.evaluate(() => JSON.parse(localStorage.getItem('sgx_ident
   check('someone else typing that email gets the clear "already has a pass" message', /ya tiene un SGX Pass|already has an SGX Pass/.test(msg), `${Date.now() - t0} ms`);
   await c3.close();
 
+  // Device 4: a pass registered as a guest with the email in Capitals (older passes kept the
+  // email as typed) still comes back when its owner signs in with Google (lowercase email).
+  const crypto = require('crypto');
+  const capsEmail = `Cap.${run}@Example.com`;
+  const capsCode = `SGX26-CAPS-${run.slice(-4).toUpperCase()}`;
+  const H = { Authorization: 'Bearer owner', 'Content-Type': 'application/json' };
+  await fetch(`${REST}/ticket_inquiries/${capsCode}`, { method: 'PATCH', headers: H, body: JSON.stringify({ fields: {
+    email: { stringValue: capsEmail }, fullName: { stringValue: 'Cap Prueba' }, ticketType: { stringValue: 'DIGITAL' }, referenceCode: { stringValue: capsCode },
+    affinity: { stringValue: 'SPARK' }, userId: { stringValue: 'old-guest-uid' }, imageConsent: { booleanValue: true }, status: { stringValue: 'CONFIRMED' },
+  } }) });
+  await fetch(`${REST}/pass_emails/${crypto.createHash('sha256').update(capsEmail.toLowerCase()).digest('hex')}`, { method: 'PATCH', headers: H, body: JSON.stringify({ fields: {
+    code: { stringValue: capsCode }, userId: { stringValue: 'old-guest-uid' }, at: { timestampValue: new Date().toISOString() },
+  } }) });
+  const c4 = await b.newContext({ viewport: { width: 1366, height: 900 } }); await block(c4);
+  await c4.addInitScript(() => { sessionStorage.setItem('sgx_splash_shown', '1'); localStorage.setItem('sgx_forge_dismissed', '1'); });
+  const p4 = await c4.newPage(); p4.on('pageerror', (e) => errs.push(e.message.slice(0, 160)));
+  await p4.goto(APP + '/', { waitUntil: 'domcontentloaded' }); await p4.waitForTimeout(7000);
+  await p4.evaluate(async (email) => {
+    const m = await import('/src/lib/firebase.ts');
+    await m.signInWithCredential(m.auth, m.googleProvider.constructor.credential(JSON.stringify({ sub: 'google-caps-' + email, email, email_verified: true, name: 'Cap' })));
+  }, capsEmail.toLowerCase());
+  let caps = null;
+  for (let i = 0; i < 25 && !caps; i++) { caps = await pass1(p4); if (!caps) await p4.waitForTimeout(1000); }
+  check('a guest pass saved with Capitals in its email comes back on Google sign-in', caps?.code === capsCode, `${caps?.code} vs ${capsCode}`);
+  // …and its registration is now tied to the Google account (any other device finds it by account)
+  let reg4 = {};
+  for (let i = 0; i < 12; i++) {
+    reg4 = await (await fetch(`${REST}/ticket_inquiries/${capsCode}`, { headers: H })).json();
+    if (reg4.fields?.userId?.stringValue && reg4.fields.userId.stringValue !== 'old-guest-uid') break;
+    await p4.waitForTimeout(1000);
+  }
+  check('the registration is tied to the Google account', !!reg4.fields?.userId?.stringValue && reg4.fields.userId.stringValue !== 'old-guest-uid', reg4.fields?.userId?.stringValue);
+  await c4.close();
+
   check('no page errors', errs.length === 0, errs.join(' | '));
   console.log(`DONE ${pass} pass ${fail} fail`);
   await b.close();

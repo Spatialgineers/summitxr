@@ -284,7 +284,8 @@ service cloud.firestore {
 
     match /ticket_inquiries/{inquiryId} {
       allow get: if isAdmin() || (isSignedIn() && resource.data.userId == me()) ||
-        (hasVerifiedEmail() && resource.data.email == request.auth.token.email);
+        (hasVerifiedEmail() && resource.data.email == request.auth.token.email) ||
+        (hasVerifiedEmail() && resource.data.email is string && resource.data.email.lower() == request.auth.token.email.lower());
       allow list: if isAdmin() || (isSignedIn() && resource.data.userId == me()) ||
         (hasVerifiedEmail() && resource.data.email == request.auth.token.email);
       allow create: if isValidTicketInquiry(incoming());
@@ -295,7 +296,7 @@ service cloud.firestore {
           optString(incoming(), 'notes', 500)) ||
         (isSignedIn() && incoming().userId == me() &&
           (resource.data.userId == me() ||
-            (hasVerifiedEmail() && resource.data.email == request.auth.token.email)) &&
+            (hasVerifiedEmail() && resource.data.email is string && resource.data.email.lower() == request.auth.token.email.lower())) &&
           changed().hasOnly(['email', 'ticketType', 'fullName', 'roleTitle', 'organization', 'imageConsent', 'consentAt', 'timestamp', 'affinity', 'userId', 'avatar']) &&
           optString(incoming(), 'avatar', 3000) &&
           isShortString(incoming().email, 150) &&

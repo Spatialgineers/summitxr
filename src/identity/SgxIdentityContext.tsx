@@ -338,7 +338,8 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
       status: input.tier === 'DIGITAL' ? 'CONFIRMED' as const
         : (idRef.current.pass?.tier === 'SHOWCASE' ? idRef.current.pass.status : 'PENDING' as const),
       fullName: input.fullName.trim(),
-      email: input.email.trim(),
+      // emails are compared lowercase everywhere (Google gives them lowercase)
+      email: input.email.trim().toLowerCase(),
       roleTitle: input.roleTitle?.trim() || undefined,
       organization: input.organization?.trim() || undefined,
       forgedAt: Date.now(),
@@ -367,7 +368,9 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     if (!user || !email || idRef.current.pass || loadedFor.current === user.uid) return;
     loadedFor.current = user.uid;
     let alive = true;
-    findMyRegistration(user.uid, email).then((reg) => {
+    // a slow first read answers nothing: one more try before the Forge takes over
+    const lookup = () => findMyRegistration(user.uid, email).then((reg) => reg || new Promise<Awaited<ReturnType<typeof findMyRegistration>>>((res) => window.setTimeout(() => res(alive ? findMyRegistration(user.uid, email) : null), 3500)));
+    lookup().then((reg) => {
       if (!alive || !reg || idRef.current.pass) return;
       const chest = reg.avatar?.chest;
       const fromBot = chest && chest !== 'SGX' ? (chest as PillarKey) : null;
@@ -383,6 +386,19 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     });
     return () => { alive = false; };
   }, [user, forge, pushToast]);
+
+  // The pass on this device and the Google account have the same email: tie its registration to
+  // the account (or create it, if it never reached the server), so any other device finds it.
+  const boundFor = useRef<string | null>(null);
+  useEffect(() => {
+    const pass = identity.pass;
+    const email = user && !user.isAnonymous && user.emailVerified ? (user.email || '').toLowerCase() : '';
+    if (!user || !email || !pass || boundFor.current === `${user.uid}:${pass.code}`) return;
+    if (pass.email.trim().toLowerCase() !== email) return;
+    boundFor.current = `${user.uid}:${pass.code}`;
+    registerPass(pass, user.uid, idRef.current.affinity, idRef.current.avatar.pilot);
+    checkEmailClaim(pass.email, user.uid).then((c) => { if (c.state === 'free') claimEmail(pass.email, pass.code, user.uid); });
+  }, [user, identity.pass]);
 
   const setAvatar = useCallback((png: string | undefined, seed: string, affinity?: PillarKey) => {
     commit((d) => {

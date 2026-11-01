@@ -114,8 +114,9 @@ async function decide(target: string, email: string): Promise<boolean> {
     let parkAs: string | null = null;
     if (legacy && !sameEmail && pass.email) {
       // Data from before slots, under another email that a different account claimed:
-      // someone else signed out on this device. Park it under them.
-      const claim = await withTimeout(checkEmailClaim(pass.email, target), 4000, { state: 'unknown' } as EmailClaim);
+      // someone else signed out on this device. Park it under them. (A slow answer
+      // would hand their pass to whoever signs in, so wait as long as the read itself.)
+      const claim = await withTimeout(checkEmailClaim(pass.email, target), 8000, { state: 'unknown' } as EmailClaim);
       if (claim.state === 'taken' && claim.userId !== get(GUEST_UID_KEY)) parkAs = claim.userId || 'unclaimed';
     }
     if (!parkAs && !sameEmail) {

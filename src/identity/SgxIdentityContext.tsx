@@ -16,7 +16,7 @@ import {
 import {
   REACTOR_MISSIONS, sponsorMissions, isPillarComplete, isDay3Open, type IdentityFlag, type ReactorMission,
 } from './reactor';
-import { checkEmailClaim, claimEmail, hasServerCheckin, payloadToCard, publishConstellation, recordCheckin, registerPass, sendExchange, subscribeExchanges, syncPassAvatar } from './passNetwork';
+import { checkEmailClaim, claimEmail, findMyRegistration, hasServerCheckin, payloadToCard, publishConstellation, recordCheckin, registerPass, sendExchange, subscribeExchanges, syncPassAvatar } from './passNetwork';
 import { constellationPillars } from './constellation';
 
 export interface ForgeInput {
@@ -358,6 +358,31 @@ export const SgxIdentityProvider: React.FC<{ children: React.ReactNode }> = ({ c
     flag('forged');
     window.dispatchEvent(new CustomEvent('sgx:pass_forged', { detail: { code } }));
   }, [commit, flag, myUid, updateAvatar, updateProfileName]);
+
+  // Your pass is tied to your account: signing in with Google on any device loads it by itself
+  // (pillar and Highbot included). No forge, no "restore" step.
+  const loadedFor = useRef<string | null>(null);
+  useEffect(() => {
+    const email = user && !user.isAnonymous && user.emailVerified ? user.email : null;
+    if (!user || !email || idRef.current.pass || loadedFor.current === user.uid) return;
+    loadedFor.current = user.uid;
+    let alive = true;
+    findMyRegistration(user.uid, email).then((reg) => {
+      if (!alive || !reg || idRef.current.pass) return;
+      const chest = reg.avatar?.chest;
+      const fromBot = chest && chest !== 'SGX' ? (chest as PillarKey) : null;
+      forge({
+        fullName: reg.fullName, email: reg.email, tier: reg.tier,
+        affinity: reg.affinity || idRef.current.affinity || fromBot || 'STORY',
+        roleTitle: reg.roleTitle, organization: reg.organization,
+        avatarSeed: idRef.current.avatar.seed, avatarPilot: reg.avatar || idRef.current.avatar.pilot,
+        imageConsent: reg.imageConsent === true, code: reg.code,
+      });
+      const es = langRef.current === 'es';
+      pushToast({ tag: 'SGX PASS', title: es ? 'Tu pase está aquí' : 'Your pass is here', detail: es ? `${reg.code} · cargado desde tu cuenta` : `${reg.code} · loaded from your account`, tone: 'telemetry' });
+    });
+    return () => { alive = false; };
+  }, [user, forge, pushToast]);
 
   const setAvatar = useCallback((png: string | undefined, seed: string, affinity?: PillarKey) => {
     commit((d) => {

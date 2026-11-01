@@ -158,6 +158,11 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
     });
     onOpenHangar();
   };
+  // signed in and your account's pass loaded by itself while the Forge was opening: go straight to it
+  useEffect(() => {
+    if (identity.pass && step === 'intro') onOpenHangar();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [identity.pass?.code]);
   // no "restore" step: the moment we find your pass, it is on this device
   const restoredRef = useRef(false);
   useEffect(() => {

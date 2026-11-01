@@ -47,16 +47,15 @@ const pass1 = (p) => p.evaluate(() => JSON.parse(localStorage.getItem('sgx_ident
     await m.signInWithCredential(m.auth, m.googleProvider.constructor.credential(JSON.stringify({ sub: 'google-' + email, email, email_verified: true, name: 'Dan' })));
   }, EMAIL);
   await p2.waitForTimeout(5000);
-  await p2.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_forge', { detail: { tier: 'DIGITAL' } })));
-  await p2.waitForSelector('.sgx-forge', { timeout: 20000 }); await p2.waitForTimeout(3000);
-  // no restore button and no pillar step: the pass comes back by itself
+  // the pass is tied to the account: signing in loads it, without opening the Forge or any step
   let back = null;
-  for (let i = 0; i < 15 && !back; i++) { back = await pass1(p2); if (!back) await p2.waitForTimeout(1000); }
-  check('the guest pass comes back to the Google account by itself', !!back);
+  for (let i = 0; i < 20 && !back; i++) { back = await pass1(p2); if (!back) await p2.waitForTimeout(1000); }
+  check('signing in loads the account pass by itself (no Forge, no steps)', !!back);
   check('restored pass keeps the same code', back?.code === guestPass?.code, `${back?.code} vs ${guestPass?.code}`);
   const id2 = await p2.evaluate(() => JSON.parse(localStorage.getItem('sgx_identity_v1') || '{}'));
   check('restored pass keeps its pillar (no pillar step)', id2.affinity && id2.affinity === guestAff, `${id2.affinity} vs ${guestAff}`);
-  check('restored pass keeps its Highbot', JSON.stringify(id2.avatar?.pilot) === JSON.stringify(guestBot), `\n  got  ${JSON.stringify(id2.avatar?.pilot)}\n  want ${JSON.stringify(guestBot)}`);
+  const canon = (o) => JSON.stringify(o, (k, v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.keys(v).sort().map((x) => [x, v[x]])) : v));
+  check('restored pass keeps its Highbot', canon(id2.avatar?.pilot) === canon(guestBot), `\n  got  ${JSON.stringify(id2.avatar?.pilot)}\n  want ${JSON.stringify(guestBot)}`);
 
   // The account menu offers Studio and sign-out.
   for (let i = 0; i < 3 && await p2.$('.sgx-forge'); i++) { await p2.keyboard.press('Escape'); await p2.waitForTimeout(500); }

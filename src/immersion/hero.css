@@ -96,6 +96,23 @@
   .sgx-clockbar-tab { position: absolute; top: 8px; left: 10px; z-index: 25; display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 10px; font-family: var(--font-mono); font-size: 11px; color: #fff; font-variant-numeric: tabular-nums; background: rgba(5, 5, 5, 0.9); border: 1px solid rgba(253, 204, 13, 0.7); cursor: pointer; }
   .sgx-clockbar-tab svg { color: var(--SGX_Yellow); }
   @media (max-width: 1100px) { .sgx-clockbar__info { display: none; } }
+  /* inline: date + dials inside the core's top bar */
+  .sgx-clockinline { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .sgx-clockinline__date { display: flex; flex-direction: column; gap: 1px; flex: none; padding-right: 12px; border-right: 1px solid rgba(50, 82, 123, 0.6); }
+  .sgx-clockinline__date b { font-family: var(--font-display); font-size: 13px; font-weight: 800; letter-spacing: 0.08em; color: var(--SGX_Yellow); white-space: nowrap; }
+  .sgx-clockinline__date small { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; color: rgba(255, 255, 255, 0.62); white-space: nowrap; }
+  .sgx-clockinline__date a { color: var(--SGX_Cyan); text-decoration: underline; }
+  .sgx-clockinline .sgx-clockbar__dial { padding: 2px 7px 2px 2px; gap: 5px; }
+  .sgx-clockinline .sgx-clockbar__dial svg { width: 30px; height: 30px; }
+  .sgx-clockinline .sgx-clockbar__dial b { left: 2px; width: 30px; font-size: 10.5px; }
+  @media (max-width: 900px) { .sgx-clockinline__date { display: none; } }
+  @media (max-width: 640px) {
+    .sgx-clockinline { gap: 4px; }
+    .sgx-clockinline .sgx-clockbar__dials { gap: 3px; }
+    .sgx-clockinline .sgx-clockbar__dial { padding: 1px; }
+    .sgx-clockinline .sgx-clockbar__dial svg { width: 30px; height: 30px; }
+    .sgx-clockinline .sgx-clockbar__dial small { display: none; }
+  }
   @media (max-width: 640px) {
     .sgx-clockbar { gap: 8px; padding: 6px 6px 6px 10px; }
     .sgx-clockbar__who { display: none; }

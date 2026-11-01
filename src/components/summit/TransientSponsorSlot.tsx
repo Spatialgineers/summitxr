@@ -243,39 +243,33 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
 
   // 1. COMPACT VARIANT (Navbars, header islands, small utility bars)
   if (variant === 'compact') {
+    // mini card: logo, "presented by" + name, and the sponsor-the-Summit link
+    const tierLabel = language === 'en' ? (activeSponsor.tierNameEn || activeSponsor.tierName) : activeSponsor.tierName;
     return (
-      <div 
-        className={`inline-flex items-center gap-2 px-2.5 py-1 bg-[#0F0F0F]/90 border border-slate-800 hover:border-cyan-400/80 transition-all group backdrop-blur-md relative ${className}`}
-        style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}
-      >
-        {/* Rotation indicator dot */}
-        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shrink-0" title="Rotación dinámica cada 10s" />
-
-        {/* Sponsor content with fade transition */}
-        <div 
+      <div className={`sgx-minisponsor ${className}`}>
+        <button
+          type="button"
           onClick={handleSponsorClick}
-          className={`flex items-center gap-1.5 cursor-pointer transition-opacity duration-300 ${isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
+          className={`sgx-minisponsor__brand ${isTransitioning ? 'is-out' : ''}`}
+          title={loc(activeSponsor, 'tagline', language) || loc(activeSponsor, 'companyName', language)}
         >
-          <div className="w-5 h-5 rounded bg-black/60 border border-slate-700 p-0.5 overflow-hidden flex items-center justify-center shrink-0">
-            <img 
-              src={activeSponsor.logoUrl} 
-              alt={loc(activeSponsor, 'companyName', language)} 
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                swapOnce(e, LOCAL_SUMMIT_ICON);
-              }}
+          <span className="sgx-minisponsor__logo">
+            <img
+              src={activeSponsor.logoUrl}
+              alt=""
+              onError={(e) => { swapOnce(e, LOCAL_SUMMIT_ICON); }}
             />
-          </div>
-          <span className="text-[11px] font-bold text-white tracking-wide truncate max-w-[110px] sm:max-w-[140px] font-mono">
-            {loc(activeSponsor, 'companyName', language)}
           </span>
-        </div>
-
-        {/* Subtitle Hyperlink */}
+          <span className="sgx-minisponsor__text">
+            <small>{tierLabel || (language === 'en' ? 'Presented by' : 'Presentado por')}</small>
+            <b>{loc(activeSponsor, 'companyName', language)}</b>
+          </span>
+        </button>
         {showSubtitleLink && (
           <button
+            type="button"
             onClick={handleOpenSponsorship}
-            className="text-[10px] font-mono text-[#FDCC0D] hover:text-white underline decoration-dotted hover:decoration-solid hover:scale-105 transition-all cursor-pointer whitespace-nowrap pl-1 border-l border-slate-800"
+            className="sgx-minisponsor__cta"
             title={language === 'en' ? 'Become an official sponsor of Spatialgineers Summit 2026' : 'Conviértete en patrocinador oficial de Spatialgineers Summit 2026'}
           >
             {subtitleText}
@@ -284,6 +278,7 @@ export const TransientSponsorSlot: React.FC<TransientSponsorSlotProps> = ({
       </div>
     );
   }
+
 
   // 2. BADGE / HUD VARIANT (For Audience Console, Drone Simulator HUD, Cards)
   if (variant === 'badge' || variant === 'hud') {

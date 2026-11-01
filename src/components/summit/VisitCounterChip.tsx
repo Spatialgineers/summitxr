@@ -11,10 +11,9 @@ export const VisitCounterChip: React.FC<{ onOpen?: () => void; className?: strin
   const stats = useVisitStats();
   if (!stats) return null;
   return (
-    <button type="button" className={`sgx-visit-chip ${className || ''}`} onClick={onOpen} title={es ? 'Radar de visitas' : 'Visit radar'} data-sgx-hover>
+    <button type="button" className={`sgx-visit-chip ${className || ''}`} onClick={onOpen} title={es ? 'Visitas totales · abre el radar' : 'Total visits · opens the radar'} data-sgx-hover>
       <span className="sgx-led" aria-hidden="true" />
       <span className="sgx-readout"><span className="sgx-readout__k">VIS</span>{formatCount(stats.totalVisits)}</span>
-      <span className="sgx-readout"><span className="sgx-readout__k">{es ? 'ÚNI' : 'UNQ'}</span>{formatCount(stats.uniqueVisitors)}</span>
     </button>
   );
 };

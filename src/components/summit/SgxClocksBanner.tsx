@@ -9,13 +9,15 @@ import { playUiChirp } from '../../lib/cyberAudioEngine';
 const KEY = 'sgx_clockbar_hidden_v1';
 
 interface Props {
+  /** 'inline': date + dials only, inside the core's top bar (no band, no hide tab) */
+  variant?: 'band' | 'inline';
   es: boolean;
   countdown: { days: number; hours: number; minutes: number; seconds: number };
   youtubeUrl: string;
   onDial?: (hz: number, label: string) => void;
 }
 
-export const SgxClocksBanner: React.FC<Props> = ({ es, countdown, youtubeUrl, onDial }) => {
+export const SgxClocksBanner: React.FC<Props> = ({ variant = 'band', es, countdown, youtubeUrl, onDial }) => {
   const [hidden, setHidden] = useState(() => { try { return localStorage.getItem(KEY) === '1'; } catch { return false; } });
   const toggle = (v: boolean) => {
     playUiChirp(v ? 520 : 760);
@@ -29,6 +31,32 @@ export const SgxClocksBanner: React.FC<Props> = ({ es, countdown, youtubeUrl, on
     { label: 'MIN', value: countdown.minutes, color: '#FFBB00', p: countdown.minutes / 60, hz: 1.5 },
     { label: es ? 'SEG' : 'SEC', value: countdown.seconds, color: '#B87000', p: countdown.seconds / 60, hz: 1.75 },
   ];
+
+  const dialEls = dials.map((d) => {
+    const c = 2 * Math.PI * 16;
+    return (
+      <button key={d.label} type="button" className="sgx-clockbar__dial" onClick={() => onDial?.(d.hz, d.label)} title={es ? `Pulso armónico (${d.label})` : `Harmonic pulse (${d.label})`}>
+        <svg viewBox="0 0 40 40" aria-hidden="true">
+          <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(50,82,123,0.45)" strokeWidth="3" />
+          <circle cx="20" cy="20" r="16" fill="none" stroke={d.color} strokeWidth="3" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - Math.max(0.05, d.p) * c} transform="rotate(-90 20 20)" style={{ transition: 'stroke-dashoffset 0.4s ease-out' }} />
+        </svg>
+        <b>{String(d.value).padStart(2, '0')}</b>
+        <small style={{ color: d.color }}>{d.label}</small>
+      </button>
+    );
+  });
+
+  if (variant === 'inline') {
+    return (
+      <div className="sgx-clockinline" role="group" aria-label={es ? 'Fecha y relojes del Summit' : 'Summit date and clocks'}>
+        <span className="sgx-clockinline__date">
+          <b>{es ? '11–13 DIC 2026' : 'DEC 11–13, 2026'}</b>
+          <small>10:00 AM AST · <a href={youtubeUrl} target="_blank" rel="noopener noreferrer">YouTube Live</a></small>
+        </span>
+        <div className="sgx-clockbar__dials">{dialEls}</div>
+      </div>
+    );
+  }
 
   if (hidden) {
     return (
@@ -50,21 +78,7 @@ export const SgxClocksBanner: React.FC<Props> = ({ es, countdown, youtubeUrl, on
         {es ? 'Días 1–2 por ' : 'Days 1–2 on '}<a href={youtubeUrl} target="_blank" rel="noopener noreferrer">YouTube Live</a>
         {es ? ' · Día 3 en Chroma Space Studios (por invitación) · Gratis · En español' : ' · Day 3 at Chroma Space Studios (by invitation) · Free · In Spanish'}
       </p>
-      <div className="sgx-clockbar__dials">
-        {dials.map((d) => {
-          const c = 2 * Math.PI * 16;
-          return (
-            <button key={d.label} type="button" className="sgx-clockbar__dial" onClick={() => onDial?.(d.hz, d.label)} title={es ? `Pulso armónico (${d.label})` : `Harmonic pulse (${d.label})`}>
-              <svg viewBox="0 0 40 40" aria-hidden="true">
-                <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(50,82,123,0.45)" strokeWidth="3" />
-                <circle cx="20" cy="20" r="16" fill="none" stroke={d.color} strokeWidth="3" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - Math.max(0.05, d.p) * c} transform="rotate(-90 20 20)" style={{ transition: 'stroke-dashoffset 0.4s ease-out' }} />
-              </svg>
-              <b>{String(d.value).padStart(2, '0')}</b>
-              <small style={{ color: d.color }}>{d.label}</small>
-            </button>
-          );
-        })}
-      </div>
+      <div className="sgx-clockbar__dials">{dialEls}</div>
       <button type="button" className="sgx-clockbar__hide" onClick={() => toggle(true)} aria-label={es ? 'Esconder relojes' : 'Hide clocks'} title={es ? 'Esconder' : 'Hide'}>
         <ChevronUp className="w-4 h-4" />
       </button>

@@ -10,7 +10,7 @@ import { getCompanionState, setCompanionOwner, useCompanion } from './companionS
 import './companion.css';
 
 /* Outside Tu Estudio your Highbot floats as a small head in the corner:
-   tap it for a quick chat. It hides on the screens that are not for visitors
+   tap it for a quick chat (sample answers until the server has Claude). It hides on the screens that are not for visitors
    and while the Studio's "Tu Highbot" tab is on screen. */
 
 export const CompanionDock: React.FC<{ hidden?: boolean }> = ({ hidden = false }) => {
@@ -44,7 +44,8 @@ export const CompanionDock: React.FC<{ hidden?: boolean }> = ({ hidden = false }
 
   useEffect(() => { if (open) setSeen(turns.length); }, [open, turns.length]);
 
-  if (hidden || inline || !mode || mode === 'off' || mode === 'paused' || !sgx) return null;
+  // with no Claude key yet ('off') it still floats: the chat shows the sample answers
+  if (hidden || inline || !mode || mode === 'paused' || !sgx) return null;
 
   const accent = sgx.identity.affinity ? PILLAR_ACCENT[sgx.identity.affinity] : '#FDCC0D';
   const head = (size: number) => (

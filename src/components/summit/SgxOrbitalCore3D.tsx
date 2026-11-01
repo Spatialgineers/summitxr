@@ -628,8 +628,8 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       renderer.debug.checkShaderErrors = !(import.meta as unknown as { env?: { PROD?: boolean } }).env?.PROD;
       renderer.setClearColor(0x050505, 1);
       renderer.setSize(width, height);
-      // phones: 1.5x is sharp enough and a third fewer pixels than 2x
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.matchMedia('(pointer: coarse)').matches ? 1.5 : 2));
+      // the core is the showpiece: full sharpness up to 2x (the post chain steps to 1.5x only if a device struggles)
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.NeutralToneMapping;
       renderer.toneMappingExposure = 1.0;
@@ -826,6 +826,27 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       return wrapper;
     };
 
+    // The SGX yellow on the .glb sculptures emits (it is the brand's light); the blue stays matte.
+    const glowSgxYellow = (root: THREE.Object3D) => {
+      root.traverse((o) => {
+        const mesh = o as THREE.Mesh;
+        if (!mesh.isMesh) return;
+        (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).forEach((m) => {
+          const mat = m as THREE.MeshStandardMaterial;
+          if (!mat?.isMeshStandardMaterial || mat.userData.sgxGlow) return;
+          const c = mat.color;
+          if (c.r > 0.5 && c.g > 0.3 && c.b < 0.25) {
+            mat.emissive.copy(c);
+            mat.emissiveIntensity = 0.9;
+          } else if (c.b > c.r) {
+            mat.emissive.setRGB(c.r, c.g, c.b);
+            mat.emissiveIntensity = 0.35;
+          }
+          mat.userData.sgxGlow = true;
+        });
+      });
+    };
+
     // Central SGX Core Reactor Group
     const coreGroup = new THREE.Group();
     coreGroup.userData = { type: 'CENTRAL_CORE' };
@@ -862,6 +883,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     const loadCentralLogoGlb = () => {
       if (glbTemplateCache.has(SGX_CORE_LOGO_GLB_URL)) {
         const normalized = normalizeGlbScene(glbTemplateCache.get(SGX_CORE_LOGO_GLB_URL)!, 25);
+        glowSgxYellow(normalized);
         fallbackCoreMesh.visible = false;
         coreGroup.add(normalized);
         setLoadedModelsCount(c => c + 1);
@@ -872,6 +894,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         gltf => {
           glbTemplateCache.set(SGX_CORE_LOGO_GLB_URL, gltf.scene);
           const normalized = normalizeGlbScene(gltf.scene, 25);
+          glowSgxYellow(normalized);
           fallbackCoreMesh.visible = false;
           coreGroup.add(normalized);
           setLoadedModelsCount(c => c + 1);
@@ -968,6 +991,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       const holoMeshes: THREE.Mesh[] = [fallbackHolo];
       const attachPillarGlb = (rawScene: THREE.Group) => {
         const normalized = normalizeGlbScene(rawScene, 15.0);
+        glowSgxYellow(normalized);
         fallbackMesh.visible = false;
         modelContainer.add(normalized);
         const meshes: THREE.Mesh[] = [];
@@ -1820,30 +1844,18 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     >
       {/* Top Bar HUD Overlay: Clean, Uncluttered & Mobile-Responsive */}
       <div className="sgx-calm-collapse relative z-30 flex items-center justify-between gap-2 px-3 sm:px-5 py-2 bg-[#050505]/95 backdrop-blur-md border-b border-[#32527B]/60 shrink-0">
-        <div className="flex items-center gap-2 min-w-0">
-          <img
-            src={noSelection ? '/holo/summitIcon.png' : activeNode.iconUrl}
-            alt={noSelection ? 'SGX' : activeNode.code}
-            referrerPolicy="no-referrer"
-            className="w-6 h-6 sm:w-7 sm:h-7 object-contain shrink-0 filter drop-shadow-[0_0_8px_rgba(253,204,13,0.5)]"
-          />
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-mono">
-              <span className="font-extrabold tracking-wider" style={{ color: readableAccent }}>
-                {noSelection ? (es ? '6 PILARES SGX' : '6 SGX PILLARS') : activeNode.code}
-              </span>
-              <span className="text-slate-500 hidden md:inline">·</span>
-              <span className="text-slate-400 truncate hidden md:inline">{noSelection ? (es ? 'Toca un pilar para entrar' : 'Tap a pillar to enter') : loc(activeNode, 'title', language)}</span>
-            </div>
-            <h3 className="text-xs sm:text-sm font-extrabold text-white font-['Orbitron',sans-serif] truncate">
-              {es ? 'NÚCLEO 3D SPATIALGINEERS' : 'SPATIALGINEERS 3D CORE'}
-            </h3>
-          </div>
-        </div>
+        {/* Event date and the Summit clocks live here, so the core gets the space of a whole row */}
+        <SgxClocksBanner
+          variant="inline"
+          es={es}
+          countdown={countdown}
+          youtubeUrl={SGX_YOUTUBE}
+          onDial={(hz, label) => handlePlayHarmonicNote(hz, label)}
+        />
 
         <div className="relative flex items-center gap-1 sm:gap-1.5 shrink-0 font-mono text-xs">
           {/* Public visit counter (SGX.System · Radar de visitas) */}
-          <VisitCounterChip className="hidden md:inline-flex" onOpen={() => navigateToSection('VISITS')} />
+          <span className="hidden md:inline-flex"><VisitCounterChip onOpen={() => navigateToSection('VISITS')} /></span>
           {/* Quick 1-Click Agenda Trigger */}
           {onSelectSection && (
             <button
@@ -1860,42 +1872,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               <span>Agenda</span>
             </button>
           )}
-
-          {/* Quick 1-Click Credential Generator Trigger */}
-          {onOpenCredential && (
-            <button
-              type="button"
-              onClick={() => {
-                playUiChirp(840);
-                onOpenCredential();
-              }}
-              className="hidden lg:flex px-2 sm:px-2.5 py-1.5 bg-[#1A1A1A] hover:bg-[#32527B] border border-cyan-500/50 text-cyan-300 hover:text-white items-center gap-1 cursor-pointer text-xs font-bold"
-              style={{ clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}
-              title={es ? 'Tu SGX Pass: registro, Holo Card y credencial en uno' : 'Your SGX Pass: registration, Holo Card and credential in one'}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-              <span>SGX Pass</span>
-            </button>
-          )}
-
-          {/* Orbit Auto-Rotate Toggle (Compact on mobile) */}
-          <button
-            type="button"
-            onClick={() => {
-              playUiChirp(680);
-              setAutoRotate(prev => !prev);
-              if (!autoRotate) {
-                setCameraFocusedOnPillar(false);
-                setFocusedSponsorId(null);
-              }
-            }}
-            className="px-2 py-1.5 bg-[#1A1A1A] hover:bg-[#32527B]/60 border border-[#32527B] text-white flex items-center gap-1 cursor-pointer text-xs font-bold"
-            style={{ clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}
-            title={autoRotate ? (es ? 'Pausar rotación' : 'Pause rotation') : (es ? 'Girar' : 'Rotate')}
-          >
-            {autoRotate ? <Pause className="w-3.5 h-3.5 text-[#00DDFF]" /> : <Play className="w-3.5 h-3.5 text-[#FDCC0D]" />}
-            <span className="hidden sm:inline">{autoRotate ? (es ? 'Pausa' : 'Pause') : (es ? 'Girar' : 'Rotate')}</span>
-          </button>
 
           {/* Primary Exploration Trigger Button (Roomy Inspection Modal) */}
           <button
@@ -1976,6 +1952,24 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                   <span>{es ? 'Zoom a ' : 'Zoom to '}{activeNode.id} (.GLB)</span>
                 </button>
               )}
+
+              {/* Orbit auto-rotate */}
+              <button
+                type="button"
+                onClick={() => {
+                  playUiChirp(680);
+                  setAutoRotate(prev => !prev);
+                  if (!autoRotate) {
+                    setCameraFocusedOnPillar(false);
+                    setFocusedSponsorId(null);
+                  }
+                  setOptionsMenuOpen(false);
+                }}
+                className="w-full px-2.5 py-1.5 bg-[#1A1A1A] hover:bg-[#32527B] border border-[#32527B] flex items-center gap-2 text-left transition-colors cursor-pointer text-xs text-white"
+              >
+                {autoRotate ? <Pause className="w-3.5 h-3.5 text-[#00DDFF]" /> : <Play className="w-3.5 h-3.5 text-[#FDCC0D]" />}
+                <span>{autoRotate ? (es ? 'Pausar la rotación' : 'Pause rotation') : (es ? 'Girar el núcleo' : 'Rotate the core')}</span>
+              </button>
 
               {/* Cycle Sponsor 3D Areas */}
               <button
@@ -2067,16 +2061,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         >
           POWERED BY SPATIALGINEERS
         </div>
-
-        {/* SUMMIT CLOCKS: thin full-width band, hides to a small tab */}
-        {!zenImmersionMode && (
-          <SgxClocksBanner
-            es={es}
-            countdown={countdown}
-            youtubeUrl={SGX_YOUTUBE}
-            onDial={(hz, label) => handlePlayHarmonicNote(hz, label)}
-          />
-        )}
 
         {/* Lite Mode 2D Spatial Schematic (High Performance · Zero GPU Load) */}
         {liteMode && (

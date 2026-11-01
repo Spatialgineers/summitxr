@@ -32,7 +32,7 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
   p.on('console', (m) => { const t = m.text(); if (/permission|insufficient|PERMISSION_DENIED/i.test(t)) perm.push(t.slice(0, 220)); });
   p.on('pageerror', (e) => errs.push(e.message.slice(0, 200)));
 
-  await p.goto(APP + '/', { waitUntil: 'domcontentloaded' });
+  await p.goto(APP + '/?pulse=1', { waitUntil: 'domcontentloaded' });
   await p.waitForTimeout(9000);
 
   // 1. Forge a pass (registration + consent)

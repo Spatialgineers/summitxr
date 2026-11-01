@@ -2,7 +2,7 @@ import { PassGate } from '../../identity/PassGate';
 import { pillarIcon } from '../../lib/sgxPillars';
 import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { SgxStandby } from '../../immersion/SgxStandby';
-import React, { useState, useEffect, useCallback, useRef, lazy } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo, lazy } from 'react';
 import { LazyBoundary } from '../common/LazyBoundary';
 import { takeStudioTab } from '../../identity/studioNav';
 import { LazyFallback } from '../common/LazyFallback';
@@ -100,6 +100,16 @@ interface SummitLandingPageProps {
   onNavigateToAdmin?: () => void;
 }
 
+/* Keynote reactions and the live poll only make sense while the Summit is
+   on (Dec 11–13, Puerto Rico time). ?pulse=1 shows it before, for testing. */
+const PULSE_FROM = Date.parse('2026-12-11T00:00:00-04:00');
+const PULSE_TO = Date.parse('2026-12-14T00:00:00-04:00');
+function isPulseLive(): boolean {
+  try { if (new URLSearchParams(window.location.search).get('pulse') === '1') return true; } catch { /* ignore */ }
+  const now = Date.now();
+  return now >= PULSE_FROM && now < PULSE_TO;
+}
+
 export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
   onNavigateToVisualizer,
   onNavigateToPlayVote,
@@ -107,6 +117,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 }) => {
   const { isAdmin, recordActivity } = useAuth();
   const { tenant, selectPillar } = useTenantTheme();
+  const pulseLive = useMemo(isPulseLive, []);
   const { language } = useLanguage();
   const es = language === 'es';
   const {
@@ -1065,7 +1076,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
 
 
       {/* 12. Floating Live Pulse Reactions & Keynote Polls Widget */}
-      {isFeatureVisible('exp_pulse_reactions') && (
+      {isFeatureVisible('exp_pulse_reactions') && pulseLive && (
         <LazyBoundary fallback={null}>
         <KeynotePulseReactions
           currentSessionTitle={(sessions[0] && loc(sessions[0], 'title', language)) || (es ? 'Keynote Oficial: The Spatial Web' : 'Official Keynote: The Spatial Web')}

@@ -63,9 +63,13 @@ export interface CorePost {
 
 export function createCorePost(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera, w: number, h: number, opts: { coarse: boolean; reduceMotion: boolean }): CorePost | null {
   try {
-    const composer = new EffectComposer(renderer);
+    // MSAA on the composer's targets: without it the post chain drops the canvas antialias and edges crawl
+    const pr = renderer.getPixelRatio();
+    const rt = new THREE.WebGLRenderTarget(Math.max(1, Math.floor(w * pr)), Math.max(1, Math.floor(h * pr)), { type: THREE.HalfFloatType, samples: renderer.capabilities.isWebGL2 ? 4 : 0 });
+    const composer = new EffectComposer(renderer, rt);
     composer.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(w, h), opts.coarse ? 0.12 : 0.16, 0.18, 0.95);
+    // only what is really bright (the yellow emission) blooms; the rest stays crisp
+    const bloom = new UnrealBloomPass(new THREE.Vector2(w, h), opts.coarse ? 0.32 : 0.38, 0.22, 0.92);
     composer.addPass(bloom);
     composer.addPass(new OutputPass());
     const grade = new ShaderPass(GRADE_SHADER);
@@ -74,7 +78,8 @@ export function createCorePost(renderer: THREE.WebGLRenderer, scene: THREE.Scene
     composer.addPass(grade);
     composer.setSize(w, h);
 
-    // Adaptive quality: after warm-up, average ~90 frames; step down twice at most.
+    // Adaptive quality, never blurry: a struggling device first trades 2x for 1.5x (still sharp on
+    // retina screens), then drops the bloom. It never goes down to 1x.
     let level = 0;
     let frames = 0;
     let sum = 0;
@@ -82,18 +87,22 @@ export function createCorePost(renderer: THREE.WebGLRenderer, scene: THREE.Scene
     const tick = (dtMs: number, time: number) => {
       grade.uniforms.uTime.value = opts.reduceMotion ? 0 : time;
       if (level >= 2) return;
+      // a hidden tab or a long hitch is not the device being slow
+      if (dtMs > 250) return;
       warm += dtMs;
-      if (warm < 2500) return;
+      if (warm < 4000) return;
       frames++;
       sum += dtMs;
-      if (frames < 90) return;
+      if (frames < 120) return;
       const avg = sum / frames;
       frames = 0; sum = 0;
-      if (avg > 24 && level === 0) {
+      if (avg > 28 && level === 0) {
         level = 1;
-        renderer.setPixelRatio(1);
-        composer.setPixelRatio(1);
-      } else if (avg > 30 && level === 1) {
+        if (renderer.getPixelRatio() > 1.5) {
+          renderer.setPixelRatio(1.5);
+          composer.setPixelRatio(1.5);
+        }
+      } else if (avg > 34 && level === 1) {
         level = 2;
         bloom.enabled = false;
       }

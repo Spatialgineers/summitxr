@@ -155,7 +155,12 @@
   .sgx-hangar__check { color: var(--pillar-accent); font-size: 0.8rem; }
   .sgx-hangar__mxp { font-family: var(--font-mono); font-size: 0.72rem; color: var(--SGX_Yellow); }
   .sgx-hangar__go { padding: 3px 8px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--SGX_Cyan); background: transparent; border: 1px solid color-mix(in srgb, var(--SGX_Cyan) 45%, transparent); cursor: pointer; }
-  .sgx-hangar__go:hover { color: var(--SGX_Black_Base); background: var(--SGX_Cyan); }
+  .sgx-hangar__go:hover, .sgx-hangar__pillar li.is-go:hover .sgx-hangar__go { color: var(--SGX_Black_Base); background: var(--SGX_Cyan); }
+  .sgx-hangar__go { min-height: 32px; white-space: nowrap; }
+  .sgx-hangar__pillar li.is-go { cursor: pointer; transition: background 0.15s; }
+  .sgx-hangar__pillar li.is-go:hover { background: color-mix(in srgb, var(--pillar-accent) 7%, transparent); }
+  .sgx-hangar__pillar li.is-done .sgx-hangar__go { opacity: 0.55; }
+  .sgx-hangar__where { font-family: var(--font-mono); font-size: 0.68rem; color: rgba(255, 255, 255, 0.55); white-space: nowrap; }
   .sgx-hangar__slot { opacity: 0.6; }
   .sgx-hangar__rolodex { display: flex; flex-direction: column; gap: 14px; align-items: stretch; }
   .sgx-hangar__rolodex .sgx-hangar__note { text-align: left; }

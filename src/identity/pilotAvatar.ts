@@ -1,6 +1,6 @@
 /* HIGHBOT: the Summit avatar. Everyone is a Highbot (Highcoon's robot form,
    modelled in Nomad: public/characters/highbot/highbot.glb) and makes it theirs:
-   which parts it keeps (without ears, whiskers and mask it is a plain bot),
+   always with Highcoon's face (ears, whiskers, mask and nose), a few optional parts,
    headgear and a visor (the 3D gear of the old XR avatar, fitted to the
    Highbot head), eyelids, glowing eyes, the pillar on the chest gear and the logo on
    the back gear, colors per part group and an SGX motif etched into the
@@ -97,16 +97,16 @@ export interface PilotParts {
   chestDecor: boolean;
 }
 export type PartId = keyof PilotParts;
+/** Highcoon's face (ears and whiskers, mask, nose) is always on: every Highbot is Highcoon. */
+const HIGHCOON_FACE: PartId[] = ['ears', 'mask', 'nose'];
+/** The optional parts a Creador can switch off. */
 export const PARTS: { id: PartId; es: string; en: string }[] = [
-  { id: 'ears', es: 'Orejas y bigotes', en: 'Ears and whiskers' },
-  { id: 'mask', es: 'Antifaz', en: 'Mask' },
-  { id: 'nose', es: 'Nariz', en: 'Nose' },
   { id: 'headDecor', es: 'Banda de la cabeza', en: 'Head band' },
   { id: 'sideDiscs', es: 'Discos laterales', en: 'Side discs' },
   { id: 'chestDecor', es: 'Detalles del pecho', en: 'Chest marks' },
 ];
 const ALL_PARTS: PilotParts = { ears: true, mask: true, nose: true, headDecor: true, sideDiscs: true, chestDecor: true };
-const PLAIN: PilotParts = { ears: false, mask: false, nose: false, headDecor: true, sideDiscs: true, chestDecor: true };
+const PLAIN: PilotParts = { ears: true, mask: true, nose: true, headDecor: true, sideDiscs: true, chestDecor: true };
 
 /** Headgear and visors (built in highbotGear.ts). New ones go at the END. */
 export const HEADGEAR: { es: string; en: string }[] = [
@@ -366,7 +366,10 @@ export function normalizePilot(raw: unknown, accent = '#FDCC0D'): PilotConfig | 
     pattern: patternOf(c.pattern),
     ink: INKS.some((x) => x.id === c.ink) ? c.ink : 'trim',
     tile: idx(c.tile, TILE_SIZES.length, 1),
-    parts: Object.fromEntries(PARTS.map(({ id }) => [id, typeof c.parts?.[id] === 'boolean' ? c.parts[id] : true])) as unknown as PilotParts,
+    parts: {
+      ...Object.fromEntries(PARTS.map(({ id }) => [id, typeof c.parts?.[id] === 'boolean' ? c.parts[id] : true])),
+      ...Object.fromEntries(HIGHCOON_FACE.map((id) => [id, true])),
+    } as unknown as PilotParts,
     headgear: idx(c.headgear, HEADGEAR.length, 0),
     visor: idx(c.visor, VISORS.length, 0),
     // the old 'chest' emblem is the big chest pillar now; 'hand' is gone (no pillars in the hands)
@@ -415,7 +418,7 @@ export const BOLT_POINTS: [number, number][] = [[0.78, 0], [0.3, 0.56], [0.52, 0
 
 export const PORTRAIT_EVENT = 'sgx:pilot_portrait';
 // v4: studio light, lacquer, true-color eyes: older portraits are dropped
-const PORTRAIT_STORE = 'sgx_pilot_portraits_v5';
+const PORTRAIT_STORE = 'sgx_pilot_portraits_v6';
 const PORTRAIT_KEEP = 16;
 const PORTRAITS = new Map<string, string>();
 const PENDING = new Map<string, Promise<string | null>>();

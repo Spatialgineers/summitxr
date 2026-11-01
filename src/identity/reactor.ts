@@ -81,11 +81,13 @@ export const REACTOR_MISSIONS: ReactorMission[] = [
     en: { title: 'Take down the SGX Boss', hint: 'In Bolt in your hands, take down the SGX Boss before time runs out.' },
     go: { section: 'EMBEDS_GAMES' } },
   { id: 'm_spark_cells', pillar: 'SPARK', xp: 120, trigger: { quest: 'q_cells_6' },
-    es: { title: 'Carga 6 celdas', hint: 'Encuentra 6 rayos SGX escondidos en las secciones.' },
-    en: { title: 'Charge 6 cells', hint: 'Find 6 SGX bolts hidden across the sections.' } },
+    es: { title: 'Carga 6 celdas', hint: 'Encuentra 6 rayos SGX escondidos en las secciones. Empieza por la Agenda.' },
+    en: { title: 'Charge 6 cells', hint: 'Find 6 SGX bolts hidden across the sections. Start with the Agenda.' },
+    go: { section: 'AGENDA' } },
   { id: 'm_spark_overdrive', pillar: 'SPARK', xp: 200, trigger: { quest: 'q_overdrive' },
-    es: { title: 'Overdrive', hint: 'Llena la barra de energía al 100%.' },
-    en: { title: 'Overdrive', hint: 'Fill the energy bar to 100%.' } },
+    es: { title: 'Overdrive', hint: 'Llena la barra de energía al 100%: cada sección y cada juego la cargan.' },
+    en: { title: 'Overdrive', hint: 'Fill the energy bar to 100%: every section and game charges it.' },
+    go: { section: 'EMBEDS_GAMES' } },
 
   // SGX.Stage
   { id: 'm_stage_agenda', pillar: 'STAGE', xp: 60, trigger: { visit: ['AGENDA'] },
@@ -148,6 +150,7 @@ export function sponsorMissions(sponsors: ApprovedSponsor[]): ReactorMission[] {
       trigger: { sponsor: s.id },
       es: { title: `Reto ${s.companyName}`, hint: `Abre el showcase de ${s.companyName} y llévate su sello.` },
       en: { title: `${s.companyName} challenge`, hint: `Open the ${s.companyName} showcase and take its stamp.` },
+      go: { event: 'sgx:open_brand_showcase', detail: { sponsor: s } },
     }));
 }
 

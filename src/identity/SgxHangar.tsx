@@ -3,7 +3,7 @@ import { configFromSeed } from './pilotAvatar';
 import { useLanguage } from '../context/LanguageContext';
 import { rankLabel, usePilotProfile } from '../context/PilotProfileContext';
 import { navigateToSection } from '../immersion/navigation';
-import { goToMission } from './missionNav';
+import { goToMission, missionPlace } from './missionNav';
 import { bi, PILLAR_BY_KEY, SGX_PILLARS, type PillarKey } from '../lib/sgxPillars';
 import { playUiChirp } from '../lib/cyberAudioEngine';
 import { PILLAR_ACCENT } from './sgxIdentity';
@@ -266,14 +266,15 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                           const ok = isDone(m.id);
                           const copy = es ? m.es : m.en;
                           return (
-                            <li key={m.id} className={ok ? 'is-done' : ''}>
+                            <li key={m.id} className={`${ok ? 'is-done' : ''} ${m.go ? 'is-go' : ''}`} onClick={m.go ? () => goMission(m) : undefined}>
                               <span className="sgx-hangar__check" aria-hidden="true">{ok ? '◆' : '◇'}</span>
                               <div>
                                 <strong>{m.secret && !ok ? '???' : copy.title}{m.day3 ? (es ? ' · Día 3' : ' · Day 3') : ''}</strong>
                                 <small>{copy.hint}</small>
                               </div>
                               <span className="sgx-hangar__mxp">+{m.xp}</span>
-                              {!ok && m.go && <button type="button" className="sgx-hangar__go" onClick={() => goMission(m)}>{es ? 'Ir' : 'Go'} →</button>}
+                              {m.go && <button type="button" className="sgx-hangar__go" onClick={(e) => { e.stopPropagation(); goMission(m); }} aria-label={`${copy.title}: ${es ? 'ir a' : 'go to'} ${missionPlace(m, es)}`}>{missionPlace(m, es)} →</button>}
+                              {!m.go && m.day3 && <span className="sgx-hangar__where">{es ? 'Día 3 · Chroma' : 'Day 3 · Chroma'}</span>}
                             </li>
                           );
                         })}

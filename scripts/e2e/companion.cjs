@@ -69,7 +69,7 @@ async function context(b, vp, id) {
     check('visitor: the floating head is there', !!(await p.$('.sgx-companion-head')));
     await p.click('.sgx-companion-head');
     await p.waitForSelector('.sgx-companion--pop', { timeout: 5000 }).catch(() => {});
-    check('visitor: can type to the backup brain without a pass', /Summit o de la app/.test(await p.$eval('.sgx-companion--pop textarea', (t) => t.placeholder).catch(() => '')));
+    check('visitor: can type to the backup brain without a pass', /Pregúntame del Summit/.test(await p.$eval('.sgx-companion--pop textarea', (t) => t.placeholder).catch(() => '')));
     check('visitor: the pop-up offers to forge the pass', !!(await p.$('.sgx-companion__cta button')));
     await p.click('.sgx-companion__chip >> nth=0');
     await p.waitForTimeout(2500);

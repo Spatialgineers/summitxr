@@ -132,10 +132,18 @@
 
 @media (max-width: 639px) {
   /* above the phone dock */
-  .sgx-companion-dock { right: 10px; bottom: calc(78px + env(safe-area-inset-bottom, 0px)); }
+  /* the head sits in the free slot right of the bottom dock, not over the page */
+  .sgx-companion-dock { right: 6px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 70; }
+  body:has(.sgx-kpulse) .sgx-companion-dock { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
   .sgx-companion-head { width: 56px; height: 56px; }
-  .sgx-companion-dock__pop { width: calc(100vw - 20px); }
-  .sgx-companion--pop .sgx-companion__log { max-height: 46vh; }
+  /* the open chat never reaches the header: it fits between the header and the head */
+  .sgx-companion-dock.is-open { z-index: 110; }
+  .sgx-companion-dock__pop {
+    width: calc(100vw - 12px); max-height: calc(100dvh - 150px - env(safe-area-inset-bottom, 0px));
+    display: flex; flex-direction: column; background: #0A0C0F;
+  }
+  .sgx-companion-dock__pop > .sgx-companion { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; }
+  .sgx-companion--pop .sgx-companion__log { max-height: none; flex: 1 1 auto; min-height: 80px; overflow-y: auto; }
   .sgx-companion__form textarea { font-size: 16px; }
 }
 

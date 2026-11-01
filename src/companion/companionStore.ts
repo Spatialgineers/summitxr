@@ -90,14 +90,19 @@ export function askHighbot(question: string, ctx: CompanionContext, pass: { emai
   set({ turns: [...state.turns, { id: uid(), role: 'user', text: q }, answer], busy: true });
   moodFor('thinking', 0);
   abort = new AbortController();
+  let afterAction = false;
   const patchAnswer = (fn: (t: ChatTurn) => ChatTurn) => set({ turns: state.turns.map((t) => (t.id === answer.id ? fn(t) : t)) });
   // A pass forged a moment ago may not be on the server yet: one quiet retry.
   const run = (attempt: number) => askCompanion({ messages: [...history, { role: 'user', text: q }], context: ctx, email: pass.email, code: pass.code }, {
     onText: (t) => {
       if (state.mood !== 'talking' && state.mood !== 'pointing') moodFor('talking', 0);
-      patchAnswer((a) => ({ ...a, text: a.text + t }));
+      // text after a tool call is a new sentence: keep a space between the two parts
+      const gap = afterAction ? ' ' : '';
+      afterAction = false;
+      patchAnswer((a) => ({ ...a, text: a.text && gap && !/\s$/.test(a.text) && !/^\s/.test(t) ? a.text + gap + t : a.text + t }));
     },
     onAction: (a) => {
+      afterAction = true;
       moodFor('pointing', 1600);
       if (a.type === 'ir_a') window.setTimeout(() => goTo(a.id), 450);
       else pointAt(a.id, ctx.lang === 'en' ? 'Here' : 'Aquí');

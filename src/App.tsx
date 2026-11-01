@@ -771,7 +771,7 @@ export default function App() {
     // Dedicated Summit Landing Page
     if (currentPage === 'summit') {
       return (
-        <div className={`w-full flex flex-col ${activeSummitSection === 'OVERVIEW' ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-screen'}`}>
+        <div className={`w-full flex flex-col ${activeSummitSection === 'OVERVIEW' ? 'sgx-homeshell h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-screen'}`}>
           <HeaderNav
             currentPage={currentPage}
             onNavigate={handleNavigate}

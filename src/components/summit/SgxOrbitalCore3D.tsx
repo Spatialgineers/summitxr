@@ -1837,7 +1837,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
 
   return (
     <div
-      className="relative w-full h-full flex-1 min-h-0 bg-[#050505] overflow-hidden select-none flex flex-col"
+      className="sgx-core-shell relative w-full h-full flex-1 min-h-0 bg-[#050505] overflow-hidden select-none flex flex-col"
       style={{
         minHeight: 'calc(100dvh - 54px)',
       }}
@@ -2153,7 +2153,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                   e.stopPropagation();
                   handleDockPillar(pillar.id, true);
                 }}
-                className={`sgx-calm-hide absolute left-0 top-0 pointer-events-auto cursor-pointer transition-shadow duration-200 px-2.5 py-1 backdrop-blur-md flex items-center gap-1.5 text-left ${
+                className={`sgx-coretag ${isDocked ? 'is-docked' : ''} sgx-calm-hide absolute left-0 top-0 pointer-events-auto cursor-pointer transition-shadow duration-200 px-2.5 py-1 backdrop-blur-md flex items-center gap-1.5 text-left ${
                   isDocked
                     ? 'bg-[#1A1A1A]/95 border-2 shadow-2xl'
                     : 'bg-[#050505]/75 hover:bg-[#1A1A1A]/95 border border-[#32527B]/70'

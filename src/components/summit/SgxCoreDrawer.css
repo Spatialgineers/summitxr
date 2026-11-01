@@ -122,3 +122,16 @@
 html[data-lite] .sgx-core-drawer.sgx-pcard { box-shadow: inset 0 0 0 1px var(--drawer-accent); }
 /* the card sits above the floating Highbot and the energy button on phones */
 @media (max-width: 767px) { .sgx-core-drawer__scrim:has(.sgx-pcard) { z-index: 120; } }
+
+/* Phones: home fits the screen exactly. The home is a fixed-height app shell, so it ends right
+   above the bottom dock instead of the page padding for it (which made the whole page scroll
+   72px into an empty band). The 3D takes whatever the bars leave. The selected pillar's floating
+   tag is hidden: the "SGX.X · Explorar" launcher already names it, and they would overlap. */
+@media (max-width: 639px) {
+  body:has(.sgx-homeshell) { padding-bottom: 0; }
+  .sgx-homeshell { height: calc(100dvh - 72px - env(safe-area-inset-bottom, 0px)) !important; max-height: calc(100dvh - 72px - env(safe-area-inset-bottom, 0px)) !important; }
+  html.sgx-calm .sgx-homeshell { height: 100dvh !important; max-height: 100dvh !important; }
+  .sgx-core-shell { min-height: 0 !important; }
+  .sgx-core-viewport { height: auto !important; min-height: 0 !important; flex: 1 1 auto !important; }
+  .sgx-coretag.is-docked { display: none !important; }
+}

@@ -93,9 +93,10 @@
 .sgx-corefoot__link:focus-visible { outline: 2px solid var(--focus-ring, #00ddff); outline-offset: 2px; }
 /* Phones: sit just above the fixed dock (the dock hides while the hero is calm). */
 @media (max-width: 639px) {
-  .sgx-corefoot { gap: 2px 14px; margin-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+  /* the page already keeps room for the bottom dock (body padding): no second gap here */
+  .sgx-corefoot { gap: 2px 14px; padding-top: 6px; padding-bottom: 6px; }
+  .sgx-corefoot__logo { width: 20px; }
   .sgx-corefoot__copy { display: none; }
-  html.sgx-calm .sgx-corefoot { margin-bottom: 0; }
 }
 
 /* ---------- Privacy policy (SummitPrivacyPolicyModal.tsx) ---------- */

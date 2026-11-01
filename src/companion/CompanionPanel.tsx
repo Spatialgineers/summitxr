@@ -141,7 +141,7 @@ export const CompanionPanel: React.FC<Props> = ({ variant, onClose, head }) => {
             maxLength={600}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={onKey}
-            placeholder={canTalk ? (es ? 'Pregúntale a tu Highbot…' : 'Ask your Highbot…') : (es ? 'Pregúntame del Summit o de la app…' : 'Ask me about the Summit or the app…')}
+            placeholder={canTalk ? (es ? 'Pregúntale a tu Highbot…' : 'Ask your Highbot…') : (es ? 'Pregúntame del Summit…' : 'Ask me about the Summit…')}
             aria-label={es ? 'Tu pregunta' : 'Your question'}
           />
           <button type="submit" className="sgx-btn sgx-btn--sm" disabled={busy || !draft.trim()}>{es ? 'Enviar' : 'Send'}</button>

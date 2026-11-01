@@ -97,7 +97,7 @@ export const EnergyCell: React.FC<{ sectionKey: string }> = ({ sectionKey }) => 
     <button
       type="button"
       className={`sgx-cell sgx-cell--${phase}`}
-      style={{ left: `clamp(34px, ${spot.x}%, calc(100% - 34px))`, top: `${spot.y}%` }}
+      style={{ left: `clamp(34px, ${spot.x}%, calc(100% - 34px))`, top: `clamp(120px, ${spot.y}%, calc(100% - 200px))` }}
       onClick={handleCollect}
       aria-label={language === 'es' ? 'Recoger celda de energía SGX' : 'Collect SGX energy cell'}
       data-sgx-hover

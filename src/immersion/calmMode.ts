@@ -33,7 +33,13 @@ export function startCalm(): () => void {
   const onWheel = () => explore();
   // Any touch or click anywhere (the core, the nav, a link) counts; the hero's
   // own "Forjar mi pase" too, so the HUD is there when the Forge closes.
-  const onPointer = () => explore();
+  // The hero's own buttons are the exception: ending calm on pointerdown shifts the layout
+  // (the HUD bars come in) before the tap lands, so the button never got its click. They
+  // call explore() themselves, after doing their thing.
+  const onPointer = (e: PointerEvent) => {
+    if ((e.target as Element | null)?.closest?.('.sgx-corehero__ctas')) return;
+    explore();
+  };
   window.addEventListener('keydown', onKey);
   window.addEventListener('wheel', onWheel, { passive: true });
   window.addEventListener('pointerdown', onPointer, { passive: true });

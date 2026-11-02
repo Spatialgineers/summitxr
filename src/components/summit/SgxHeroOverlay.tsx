@@ -98,7 +98,7 @@ export const SgxHeroOverlay: React.FC = () => {
               type="button"
               className="sgx-btn"
               tabIndex={calm ? 0 : -1}
-              onClick={() => { playUiChirp(880); fire(forged ? 'sgx:open_hangar' : 'sgx:open_forge', forged ? { tab: 'pass' } : undefined); }}
+              onClick={() => { playUiChirp(880); explore(); fire(forged ? 'sgx:open_hangar' : 'sgx:open_forge', forged ? { tab: 'pass' } : undefined); }}
             >
               [ ⚡ {forged ? (es ? 'Ver mi pase' : 'See my pass') : (es ? 'Forjar mi pase' : 'Forge my pass')} ]
             </button>

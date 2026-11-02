@@ -622,3 +622,12 @@ html[data-lite] .animate-ping,
 html[data-lite] .animate-spin-slow,
 html[data-lite] .sgx-companion-head__orb,
 html[data-lite] .sgx-pilot-glyph .hb-bob { animation: none !important; }
+
+/* ⭐ potential-client flag (LeadFlag): admins only, in Inscritos, Sponsors and the Rolodex */
+.sgx-leadflag { display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 4px 9px; font-family: var(--font-mono, monospace); font-size: 11px; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.7); background: transparent; border: 1px solid rgba(253, 204, 13, 0.45); cursor: pointer; white-space: nowrap; }
+.sgx-leadflag svg { width: 14px; height: 14px; color: #FDCC0D; }
+.sgx-leadflag:hover { border-color: #FDCC0D; color: #fff; }
+.sgx-leadflag.is-on { color: #050505; background: #FDCC0D; border-color: #FDCC0D; }
+.sgx-leadflag.is-on svg { color: #050505; }
+.sgx-leadflag.is-compact { min-width: 34px; min-height: 34px; justify-content: center; padding: 0; }
+.sgx-leadflag:disabled { opacity: 0.6; }

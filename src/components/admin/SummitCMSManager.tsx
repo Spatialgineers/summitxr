@@ -73,6 +73,7 @@ import {
 } from '../../lib/summitData';
 import { SummitBrandShowcaseModal } from '../summit/SummitBrandShowcaseModal';
 import { SummitSpeakerPortalModal } from '../summit/SummitSpeakerPortalModal';
+import { LeadFlag } from './LeadFlag';
 
 interface SummitCMSManagerProps {
   sessions: SummitSession[];
@@ -426,7 +427,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
 
   // --- RESET ALL DATA TO DEFAULTS ---
   const handleResetToDefaults = () => {
-    if (window.confirm('¿Restaurar los datos originales del Summit 2026? Esto reemplaza en vivo, para TODOS los visitantes, las sesiones, speakers, mapa, embeds y tiers publicados.')) {
+    if (window.confirm('¿Restaurar los datos originales del Summit 2026? Esto reemplaza en vivo, para TODOS los visitantes, las sesiones, speakers, mapa, embeds y paquetes publicados.')) {
       onUpdateSessions(INITIAL_SUMMIT_SESSIONS);
       saveAllSessions(INITIAL_SUMMIT_SESSIONS);
       onUpdateSpeakers(INITIAL_SUMMIT_SPEAKERS);
@@ -620,6 +621,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
                     </div>
 
                     <p className="text-[11px] text-[var(--sgx-neon)] truncate mt-0.5">{sp.tagline}</p>
+                    <div className="mt-1.5"><LeadFlag lead={{ kind: 'brand', ref: sp.id, name: sp.companyName, email: sp.contactEmail || undefined, source: 'marca' }} /></div>
                     
                     <a 
                       href={sp.websiteUrl} 
@@ -816,6 +818,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
                     </div>
 
                     <div className="flex items-center space-x-2">
+                      <LeadFlag lead={{ kind: 'sponsor', ref: inq.id, name: inq.companyName || inq.contactName, email: inq.email, phone: inq.phone || undefined, organization: inq.companyName, role: [inq.contactName, inq.roleTitle].filter(Boolean).join(' · ') || undefined, source: 'solicitud' }} />
                       {inq.status !== 'APPROVED' && (
                         <button
                           onClick={() => handleApproveAndCreateShowcase(inq)}

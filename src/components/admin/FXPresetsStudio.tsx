@@ -679,7 +679,7 @@ export const FXPresetsStudio: React.FC<FXPresetsStudioProps> = ({
                     <option value="warp">🚀 Hyperspace Relativistic Warp Tunnel (Velocidad Luz)</option>
                     <option value="matrix">🟢 Neural Matrix Digital Stream Rain</option>
                     <option value="volcano">🔥 Inferno Magma Vortex & Convective Lava</option>
-                    <option value="vortex">🔮 Singularity Quantum Black Hole Swirl</option>
+                    <option value="vortex">🔮 Singularity Black Hole Swirl</option>
                     <option value="plasma">⚡ Tesla High-Voltage Plasma Bloom & Rayos</option>
                     <option value="aurora">💎 Prismatic Quartz Crystal & Organic Aurora Waves</option>
                     <option value="grid">🕹️ Synthwave Wireframe Horizon & Neon Sun</option>
@@ -776,7 +776,7 @@ export const FXPresetsStudio: React.FC<FXPresetsStudioProps> = ({
                       className="w-full bg-[#121212] border border-[var(--sgx-secondary)] p-2 text-[var(--sgx-neon)] text-xs font-bold"
                     >
                       <option value="torus_knot">Torus Knot (Nudo Magnético)</option>
-                      <option value="icosahedron">Icosaedro Cuántico</option>
+                      <option value="icosahedron">Icosaedro SGX</option>
                       <option value="sphere_sun">Sol Synthwave Esfera</option>
                       <option value="octahedron">Octaedro Prisma</option>
                       <option value="dodecahedron">Dodecaedro Singular</option>

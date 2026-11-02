@@ -437,7 +437,7 @@ export const INITIAL_CHAT_MESSAGES: ChatMessage[] = [
     channelId: '#general',
     senderId: 'sgx_system',
     senderName: 'Spatialgineers Summit',
-    senderAvatar: 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Stage%20Icon%20BY.png',
+    senderAvatar: 'https://cdn.spatialgineers.com/Branding/Pilares/Stage1.png',
     senderRole: 'ORGANIZER',
     senderPillar: 'SGX.STAGE',
     text: 'Bienvenides al foro del Spatialgineers Summit 2026. Aquí se conversa en vivo durante los 3 días; los mensajes son públicos y moderados.',
@@ -1046,7 +1046,7 @@ function icsEvent(session: SummitSession, lang: string, alarmMinutes: number): s
     `DTSTAMP:${stamp}`,
     `DTSTART:${toUtcStamp(dayDate, session.startMinutes)}`,
     `DTEND:${toUtcStamp(dayDate, getSessionEndMinutes(session))}`,
-    `SUMMARY:${icsText(`${title} · SGX Summit 2026`)}`,
+    `SUMMARY:${icsText(`${title} · Spatialgineers Summit 2026`)}`,
     `DESCRIPTION:${icsText(`${desc}\n\n${venue}${session.streamUrl ? `\n${session.streamUrl}` : ''}\nhttps://summit.spatialgineers.com`)}`,
     `LOCATION:${icsText(venue)}`,
     ...(session.streamUrl ? [`URL:${session.streamUrl}`] : []),
@@ -1109,7 +1109,7 @@ export function getGoogleCalendarUrl(session: SummitSession, lang = 'es'): strin
   const { title, desc, venue } = sessionText(session, lang);
   const dates = `${toUtcStamp(dayDate, session.startMinutes)}/${toUtcStamp(dayDate, getSessionEndMinutes(session))}`;
   const details = `${desc}\n\n${venue}${session.streamUrl ? `\n${session.streamUrl}` : ''}\nhttps://summit.spatialgineers.com`;
-  const q = new URLSearchParams({ action: 'TEMPLATE', text: `${title} · SGX Summit 2026`, dates, details, location: venue, ctz: 'America/Puerto_Rico' });
+  const q = new URLSearchParams({ action: 'TEMPLATE', text: `${title} · Spatialgineers Summit 2026`, dates, details, location: venue, ctz: 'America/Puerto_Rico' });
   return `https://calendar.google.com/calendar/render?${q.toString()}`;
 }
 
@@ -1195,7 +1195,7 @@ export function loadAllSpeakers(): SummitSpeaker[] {
         parsed.forEach((s: any) => {
           if (s && s.id && !legacyPurgedIds.has(s.id) && s.id !== 'spk_danelson' && s.id !== 'spk_ricardo') {
             const avatar = (!s.avatarUrl || s.avatarUrl.includes('unsplash.com'))
-              ? 'https://cdn.spatialgineers.com/Branding/Summit/Pillars/Spat%20Spark%20Icon%20BY.png'
+              ? 'https://cdn.spatialgineers.com/Branding/Pilares/Spark1.png'
               : s.avatarUrl;
             map.set(s.id, { ...s, avatarUrl: avatar });
           }

@@ -149,8 +149,8 @@ export const SGX_ORBITAL_PILLARS: SgxOrbitalPillarNode[] = [
     iconUrl: pillarIcon('SYSTEM'),
     glbUrl: 'https://cdn.spatialgineers.com/3D%20Branding/Pilares/Opt/System%20opt.glb',
     moduleCount: PILLAR_BY_KEY['SYSTEM'].modules.length,
-    physicsLabel: 'Pilar 05 • Retícula Cuántica Cloud',
-    physicsLabelEn: 'Pillar 05 • Cloud Quantum Grid',
+    physicsLabel: 'Pilar 05 • Retícula Cloud en tiempo real',
+    physicsLabelEn: 'Pillar 05 • Cloud Real-Time Grid',
   },
   {
     id: 'SYNTHESIZE',
@@ -1308,7 +1308,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           setXpOrbsCollected(c => c + 1);
           setFloatingXpNotice((es ? '+25 XP • ORBE CUÁNTICO RECOLECTADO' : '+25 XP • QUANTUM ORB COLLECTED'));
           setTimeout(() => setFloatingXpNotice(null), 2200);
-          recordActivity('easter_egg', 'Orbe Cuántico 3D Recolectado', 'Núcleo SGX', 25);
+          recordActivity('easter_egg', 'Orbe SGX 3D recolectado', 'Núcleo SGX', 25);
           return;
         }
       }

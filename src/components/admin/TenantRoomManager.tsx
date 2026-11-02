@@ -46,7 +46,7 @@ const DEFAULT_ROOMS_TEMPLATES: TenantRoom[] = [
     status: 'LIVE',
     capacity: 2500,
     currentAttendees: 0,
-    streamUrl: 'https://www.youtube.com/embed/live_stream?channel=SGX_SUMMIT',
+    streamUrl: 'https://www.youtube.com/embed/live_stream?channel=UCKksA42Yq8rXD3NaDulx0Og',
     description: 'Escenario principal de transmisión con renderizado 3D y captura facial de avatar en vivo.'
   },
   {
@@ -56,7 +56,7 @@ const DEFAULT_ROOMS_TEMPLATES: TenantRoom[] = [
     status: 'UPCOMING',
     capacity: 200,
     currentAttendees: 0,
-    streamUrl: 'https://www.youtube.com/embed/live_stream?channel=SGX_VIP',
+    streamUrl: 'https://www.youtube.com/embed/live_stream?channel=UCKksA42Yq8rXD3NaDulx0Og',
     description: 'Sala exclusiva para patrocinadores, speakers y acreditados de alto nivel.'
   },
   {

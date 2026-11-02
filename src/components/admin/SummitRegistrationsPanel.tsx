@@ -7,6 +7,7 @@ import { approveSpeakerSubmission, fetchSpeakerSubmissions, rejectSpeakerSubmiss
 import type { SummitSpeaker } from '../../types/summit';
 import { findPillar } from '../../lib/sgxPillars';
 import { grantCredential } from '../../identity/credentials';
+import { LeadFlag } from './LeadFlag';
 
 /* INSCRITOS: every SGX Pass forged lands in `ticket_inquiries`. The team
    reviews them here, marks who gets the Day 3 invitation, exports the list
@@ -315,6 +316,7 @@ export const SummitRegistrationsPanel: React.FC = () => {
                     <div className="font-semibold">{r.fullName || '—'}</div>
                     <div className="text-[11px] text-slate-400">{[r.roleTitle, r.organization].filter(Boolean).join(' · ')}</div>
                     <div className="text-[10px] font-mono text-slate-500">{r.referenceCode}</div>
+                    <div className="mt-1"><LeadFlag lead={{ kind: 'visitor', ref: r.referenceCode || r.id, name: r.fullName || r.email, email: r.email, organization: r.organization || undefined, role: r.roleTitle || undefined, source: 'inscritos' }} /></div>
                   </td>
                   <td className="py-2 pr-2 text-slate-200 break-all">
                     {r.email}

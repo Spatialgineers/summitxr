@@ -179,7 +179,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
         presetId: 'preset_particle_storm',
         color: '#5f86b4',
         effectType: 'quantum_vortex',
-        effectName: 'Vórtice Cuántico Orbital',
+        effectName: 'Vórtice Orbital SGX',
         effectMultiplier: 1.4,
         effectTargetParam: 'Giro Orbital & Gravitación',
       },

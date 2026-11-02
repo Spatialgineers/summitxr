@@ -123,7 +123,7 @@ export default function App() {
     if (!savedId) savedId = `user_${Math.random().toString(36).substring(2, 11)}`;
     return {
       id: savedId,
-      nickname: nickname || `Piloto_${savedId.slice(-4).toUpperCase()}`,
+      nickname: nickname || `Creador_${savedId.slice(-4).toUpperCase()}`,
       avatar: '🚀',
       avatarSeed: savedId,
       tenantId: 'tenant_spatialgineers',

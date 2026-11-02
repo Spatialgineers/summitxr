@@ -276,7 +276,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
           <div className="sgx-crystal-card p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-[var(--sgx-secondary)] pb-2">
               <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-                Clasificación Global de Pilotos & Participantes en Vivo
+                Clasificación Global de Creadores en Vivo
               </h3>
               <span className="text-[10px] font-mono text-[#00DDFF]">
                 {mergedUsers.length} PILOTOS CLASIFICADOS

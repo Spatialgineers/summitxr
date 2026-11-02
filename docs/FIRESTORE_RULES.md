@@ -13,6 +13,7 @@ Admins = `info@spatialgineers.com` or `support@spatialgineers.com` signed in wit
 | `initiate_claims/{email}` (which initiate an email is) | that person signed in with that verified email (Google), admins | admins |
 | `ticket_inquiries` (SGX Pass registrations, doc id = pass code) | admins; owner reads own | create: anyone with a valid pass (uid must be yours, no status); owner edits own details, consent, pillar and `avatar` (the Highbot as JSON, ≤ 3000 chars, so a restored pass keeps its bot), never the status; status/invitation: admins |
 | `sponsor_inquiries` | admins | create: anyone (validated fields; `submittedBy` must be your own uid); update/delete: admins |
+| `leads` | admins | create/update/delete: admins (validated fields). Potential clients starred with the ⭐ for the follow-up after the event. |
 | `speaker_submissions` | admins | create: anyone (validated, no self-keynote); admins publish |
 | `players` (has emails) | owner, admins | owner, admins |
 | `pilot_profiles`, `pilot_leaderboard` | everyone | owner only, allowed fields, XP ≤ 100,000 |

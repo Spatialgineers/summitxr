@@ -16,6 +16,7 @@ import { SgxConstellation } from './SgxConstellation';
 import { useAuth } from '../context/AuthContext';
 import { GoogleSignInButton } from '../components/common/GoogleSignInButton';
 import { SgxDialog } from '../components/common/SgxDialog';
+import { LeadFlag } from '../components/admin/LeadFlag';
 import './SgxStudio.css';
 
 const SgxPilot3D = lazy(() => import('./SgxPilot3D').then((m) => ({ default: m.SgxPilot3D })));
@@ -324,6 +325,8 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                         <small>{[c.callsign, c.role, c.organization].filter(Boolean).join(' · ')}</small>
                       </div>
                       <span className="sgx-hangar__via">{c.via === 'received' ? (es ? 'te escaneó' : 'scanned you') : (es ? 'escaneado' : 'scanned')}</span>
+                      {/* team only: mark this person for the follow-up after the event */}
+                      <LeadFlag compact lead={{ kind: 'visitor', ref: c.code, name: c.name, organization: c.organization, role: c.role, pillar: c.pillar, source: 'rolodex' }} />
                     </li>
                   ))}
                 </ul>

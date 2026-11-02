@@ -72,10 +72,11 @@ import { AdminMatchPanel } from '../../modules/match/admin/AdminMatchPanel';
 import { AdminSection, LiveListTable, AdminRosterPanel, ContentBackupPanel } from './AdminPanels';
 import { SummitInitiatesPanel } from './SummitInitiatesPanel';
 import { ClientErrorsPanel, useClientErrors } from './ClientErrorsPanel';
+import { LeadsPanel } from './LeadsPanel';
 import { CompanionControlPanel } from './CompanionControlPanel';
 import { CSV_ENTITIES } from '../../lib/csv/entities';
 import './admin.css';
-import { Instagram, UploadCloud, Sliders, Download as DownloadIcon, Megaphone, Vote, CalendarDays, Mic2, Handshake, Layers3, Sparkle, Map as MapIcon, AppWindow, Package, Images, Ticket, Gift, Target, HelpCircle as HelpIcon, BarChart2, Brush, Wand2, ShieldCheck as ShieldIcon, UserCog, DatabaseBackup, Users2, Briefcase, Radio as RadioIcon, Bug } from 'lucide-react';
+import { Star, Instagram, UploadCloud, Sliders, Download as DownloadIcon, Megaphone, Vote, CalendarDays, Mic2, Handshake, Layers3, Sparkle, Map as MapIcon, AppWindow, Package, Images, Ticket, Gift, Target, HelpCircle as HelpIcon, BarChart2, Brush, Wand2, ShieldCheck as ShieldIcon, UserCog, DatabaseBackup, Users2, Briefcase, Radio as RadioIcon, Bug } from 'lucide-react';
 import { 
   SummitSession, 
   SummitSpeaker, 
@@ -136,7 +137,7 @@ export type AdminSubpage =
   // Contenido
   | 'AGENDA' | 'SPEAKERS' | 'SPONSORS' | 'TIERS' | 'INITIATES' | 'MAP' | 'EMBEDS' | 'GALLERY' | 'SOCIAL' | 'PILLAR_CASES' | 'HIGHBOT_QA'
   // Personas
-  | 'REGISTRATIONS' | 'AUDIENCE_LEADS' | 'ENTREPRENEUR_MATCH'
+  | 'REGISTRATIONS' | 'LEADS' | 'AUDIENCE_LEADS' | 'ENTREPRENEUR_MATCH'
   // Juego
   | 'REWARDS' | 'MISSIONS' | 'CYOA_SCENARIOS'
   // Sistema
@@ -165,6 +166,7 @@ const ADMIN_NAV: { id: string; label: string; items: NavItem[] }[] = [
   ] },
   { id: 'people', label: 'Personas', items: [
     { id: 'REGISTRATIONS', label: 'Inscritos y Día 3', icon: Ticket, keywords: 'registro check-in propuestas' },
+    { id: 'LEADS', label: 'Clientes potenciales', icon: Star, keywords: 'leads seguimiento ventas follow up interesados crm' },
     { id: 'AUDIENCE_LEADS', label: 'Audiencia y leads', icon: Users2, keywords: 'creadores emails' },
     { id: 'ENTREPRENEUR_MATCH', label: 'Entrepreneur Match', icon: Briefcase, keywords: 'match perfiles' },
   ] },
@@ -586,6 +588,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="sgx-admin__main space-y-4 w-full">
 
           {/* SUBPAGE 1: DIRECTOR CONSOLE */}
+          {activeSubpage === 'LEADS' && (
+            <AdminSection title="Clientes potenciales" desc="Visitantes, solicitudes de sponsor y marcas que el equipo marcó con la ⭐ para darles seguimiento después del evento.">
+              <LeadsPanel />
+            </AdminSection>
+          )}
+
           {activeSubpage === 'REGISTRATIONS' && (
             <AdminSection title="Inscritos y Día 3" desc="Registros, código de check-in del Día 3 y propuestas de speakers.">
               <SummitRegistrationsPanel />

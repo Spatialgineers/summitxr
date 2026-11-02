@@ -137,6 +137,21 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
+    // Potential clients (leads): people and brands the team starred for the follow-up
+    // after the event. Contact details of third parties: admins only, read and write.
+    match /leads/{leadId} {
+      allow get, list, delete: if isAdmin();
+      allow create, update: if isAdmin() && isValidId(leadId) &&
+        incoming().keys().hasOnly(['kind', 'ref', 'name', 'email', 'organization', 'role', 'phone', 'pillar', 'source',
+          'status', 'note', 'interest', 'flaggedBy', 'flaggedAt', 'updatedAt']) &&
+        incoming().kind in ['visitor', 'sponsor', 'brand'] &&
+        isShortString(incoming().ref, 120) && isShortString(incoming().name, 120) &&
+        incoming().status in ['NEW', 'CONTACTED', 'TALKING', 'CLIENT', 'DROPPED'] &&
+        optString(incoming(), 'note', 2000) && optString(incoming(), 'email', 160) &&
+        optString(incoming(), 'organization', 150) && optString(incoming(), 'role', 100) && optString(incoming(), 'phone', 40) &&
+        (!('interest' in incoming()) || (incoming().interest is list && incoming().interest.size() <= 6));
+    }
+
     // Site config: feature toggles and the CMS announcement. Admin writes only.
     match /site_config/{configId} {
       allow get, list: if true;

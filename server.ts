@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import path from 'path';
 import fs from 'fs';
+import zlib from 'zlib';
 import { createServer as createViteServer } from 'vite';
 import { setupWebSocketEngine } from './src/server/engine/wsHandler';
 import { createApiRouter } from './src/server/routes/apiRouter';
@@ -31,9 +32,53 @@ async function startServer() {
   const distPath = path.join(process.cwd(), 'dist');
   const isProduction = process.env.NODE_ENV === 'production';
 
+  // Basic hardening on every response (the app embeds nothing cross-origin that needs more).
+  app.use((_req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    if (isProduction) res.setHeader('Strict-Transport-Security', 'max-age=15552000; includeSubDomains');
+    next();
+  });
+
   // Vite middleware in dev or static files in production
   if (isProduction) {
+    // Compressed build files: the entry bundle is ~1.4 MB raw and ~0.4 MB compressed. Each file
+    // is compressed once (brotli or gzip, whichever the browser takes) and kept in memory.
+    const COMPRESSIBLE = /\.(js|mjs|css|svg|json|webmanifest|glb|txt|xml|wasm)$/i;
+    const packed = new Map<string, Buffer>();
+    app.use((req, res, next) => {
+      if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+      let rel: string;
+      try { rel = decodeURIComponent(req.path); } catch { return next(); }
+      if (!COMPRESSIBLE.test(rel)) return next();
+      const file = path.join(distPath, rel);
+      if (!file.startsWith(distPath + path.sep)) return next();
+      const accept = String(req.headers['accept-encoding'] || '');
+      const enc = /\bbr\b/.test(accept) ? 'br' : /\bgzip\b/.test(accept) ? 'gzip' : '';
+      if (!enc) return next();
+      let stat: fs.Stats;
+      try { stat = fs.statSync(file); } catch { return next(); }
+      if (!stat.isFile() || stat.size < 1024) return next();
+      const key = `${enc}:${file}:${stat.mtimeMs}`;
+      let body = packed.get(key);
+      if (!body) {
+        const raw = fs.readFileSync(file);
+        body = enc === 'br'
+          ? zlib.brotliCompressSync(raw, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 7, [zlib.constants.BROTLI_PARAM_SIZE_HINT]: raw.length } })
+          : zlib.gzipSync(raw, { level: 7 });
+        packed.set(key, body);
+      }
+      res.setHeader('Content-Encoding', enc);
+      res.setHeader('Vary', 'Accept-Encoding');
+      res.setHeader('Content-Length', String(body.length));
+      res.type(path.extname(file));
+      res.setHeader('Cache-Control', rel.startsWith('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache');
+      if (req.method === 'HEAD') return res.end();
+      res.end(body);
+    });
     app.use(express.static(distPath, {
+      // /sponsors is both a page and the folder of sponsor logos: never redirect to /sponsors/
+      redirect: false,
       setHeaders: (res, filePath) => {
         const name = path.basename(filePath);
         // Hashed build files never change; the worker, manifest and page must always be fresh.

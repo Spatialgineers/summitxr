@@ -20,6 +20,8 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
     await p.click('button:has-text("Mi Agenda & Alertas")');
     await p.waitForTimeout(800);
     const alertBtn = p.locator('button:has-text("ALERTAR")').first();
+    // under load the list renders later than the fixed waits above: wait for the button itself
+    await alertBtn.waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
     check(`${name}: ALERTAR visible`, await alertBtn.isVisible());
     await alertBtn.click();
     await p.waitForTimeout(300);

@@ -119,7 +119,9 @@ function derivedProgress(s: PersistedState): Record<string, number> {
 
 export function haptic(pattern: number | number[]) {
   try {
-    if ('vibrate' in navigator) navigator.vibrate(pattern);
+    // only after the person has touched the page (browsers block it before, with a console warning)
+    const active = (navigator as Navigator & { userActivation?: { hasBeenActive: boolean } }).userActivation?.hasBeenActive ?? true;
+    if ('vibrate' in navigator && active) navigator.vibrate(pattern);
   } catch {}
 }
 

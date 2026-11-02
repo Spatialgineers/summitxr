@@ -197,9 +197,9 @@ export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPa
 
   if (embed) return null;
 
-  if (isQuiet) {
-    return <HudToasts />;
-  }
+  // The stage screen (projected at Chroma) and the multiview are for the room, not for one
+  // person: no mission nudges or XP toasts over them.
+  if (isQuiet) return null;
 
   return (
     <div className="sgx-immersion" data-fx={fx ? 'on' : 'off'}>

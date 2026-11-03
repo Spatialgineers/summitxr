@@ -69,7 +69,7 @@ export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
           ) : (
             <>
               <span className="sgx-sechud__index">{code}</span>
-              <span className="sgx-sechud__name">{(active && loc(active, 'label', language)) || activeSection.replace(/_/g, ' ')}</span>
+              <span className="sgx-sechud__name">{(active && loc(active, 'label', language)) || (activeSection === 'WELCOME' ? (es ? 'Bienvenida' : 'Welcome') : activeSection.replace(/_/g, ' '))}</span>
             </>
           )}
         </div>

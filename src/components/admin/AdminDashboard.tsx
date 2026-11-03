@@ -56,7 +56,8 @@ import {
   CheckCircle2,
   Bell,
   Bot,
-  Presentation
+  Presentation,
+  Clapperboard
 } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
@@ -74,6 +75,8 @@ import { SummitInitiatesPanel } from './SummitInitiatesPanel';
 import { ClientErrorsPanel, useClientErrors } from './ClientErrorsPanel';
 import { LeadsPanel } from './LeadsPanel';
 import { CompanionControlPanel } from './CompanionControlPanel';
+import { WelcomePortalPanel } from './WelcomePortalPanel';
+import { WelcomeInvitePanel } from './WelcomeInvitePanel';
 import { CSV_ENTITIES } from '../../lib/csv/entities';
 import './admin.css';
 import { Star, Instagram, UploadCloud, Sliders, Download as DownloadIcon, Megaphone, Vote, CalendarDays, Mic2, Handshake, Layers3, Sparkle, Map as MapIcon, AppWindow, Package, Images, Ticket, Gift, Target, HelpCircle as HelpIcon, BarChart2, Brush, Wand2, ShieldCheck as ShieldIcon, UserCog, DatabaseBackup, Users2, Briefcase, Radio as RadioIcon, Bug } from 'lucide-react';
@@ -135,7 +138,7 @@ export type AdminSubpage =
   // En vivo
   | 'DIRECTOR' | 'ANNOUNCE' | 'POLLS' | 'ERRORS'
   // Contenido
-  | 'AGENDA' | 'SPEAKERS' | 'SPONSORS' | 'TIERS' | 'INITIATES' | 'MAP' | 'EMBEDS' | 'GALLERY' | 'SOCIAL' | 'PILLAR_CASES' | 'HIGHBOT_QA'
+  | 'AGENDA' | 'SPEAKERS' | 'SPONSORS' | 'TIERS' | 'INITIATES' | 'MAP' | 'EMBEDS' | 'GALLERY' | 'SOCIAL' | 'PILLAR_CASES' | 'HIGHBOT_QA' | 'WELCOME_PORTAL'
   // Personas
   | 'REGISTRATIONS' | 'LEADS' | 'AUDIENCE_LEADS' | 'ENTREPRENEUR_MATCH'
   // Juego
@@ -163,6 +166,7 @@ const ADMIN_NAV: { id: string; label: string; items: NavItem[] }[] = [
     { id: 'SOCIAL', label: 'Redes sociales', icon: Instagram, keywords: 'instagram reels' },
     { id: 'PILLAR_CASES', label: 'Pilares: casos y proyectos', icon: Presentation, keywords: 'dia 1 casos de uso portafolio highcoon' },
     { id: 'HIGHBOT_QA', label: 'Highbot: control y preguntas', icon: Bot, keywords: 'companion ia claude faq respuestas gasto apagar tope' },
+    { id: 'WELCOME_PORTAL', label: 'Portal de bienvenida', icon: Clapperboard, keywords: 'bienvenida videos youtube enlaces roles onboarding visitante speaker sponsor equipo' },
   ] },
   { id: 'people', label: 'Personas', items: [
     { id: 'REGISTRATIONS', label: 'Inscritos y Día 3', icon: Ticket, keywords: 'registro check-in propuestas' },
@@ -975,6 +979,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 { label: 'Pregunta', get: (x: any) => x.q },
                 { label: 'Respuesta', get: (x: any) => x.a },
               ]} />
+            </AdminSection>
+          )}
+
+          {activeSubpage === 'WELCOME_PORTAL' && (
+            <AdminSection title="Portal de bienvenida" desc="Un enlace por rol (/bienvenida/visitante, speaker, sponsor y equipo) con su video de YouTube, el botón del SGX Pass y sus fechas clave. Pega aquí los videos, copia los enlaces y arma el mensaje de invitación personal de cada persona.">
+              <WelcomePortalPanel />
+              <WelcomeInvitePanel />
             </AdminSection>
           )}
 

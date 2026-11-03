@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { SGX_PILLARS, pillarInk } from '../../lib/sgxPillars';
-import { SGX_EMAIL, SGX_PHONE, SGX_YOUTUBE } from '../../lib/sgxLinks';
+import { SGX_EMAIL, SGX_INSTAGRAM, SGX_PHONE, SGX_YOUTUBE } from '../../lib/sgxLinks';
 import { navigateToPillar } from '../../immersion/navigation';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import './summitFooter.css';
@@ -10,7 +10,6 @@ import './summitFooter.css';
    privacy, each said once. SummitCoreFooterBar is the slim version under
    the 3D core, so privacy and contact are one tap away from home too. */
 
-const SGX_INSTAGRAM = 'https://instagram.com/spatialgineers';
 const TEL = `tel:${SGX_PHONE.replace(/[^+\d]/g, '')}`;
 
 const replayIntro = () => {

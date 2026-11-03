@@ -71,6 +71,7 @@ const SummitVisitRadar = lazy(() => import('./SummitVisitRadar').then((m) => ({ 
 const SummitEmbedsHub = lazy(() => import('./SummitEmbedsHub').then((m) => ({ default: m.SummitEmbedsHub })));
 const MatchModule = lazy(() => import('../../modules/match/MatchModule').then((m) => ({ default: m.MatchModule })));
 const NetworkingQrScannerModal = lazy(() => import('./NetworkingQrScannerModal').then((m) => ({ default: m.NetworkingQrScannerModal })));
+const SgxWelcomePage = lazy(() => import('./welcome/SgxWelcomePage').then((m) => ({ default: m.SgxWelcomePage })));
 const SummitSpeakerPortalModal = lazy(() => import('./SummitSpeakerPortalModal').then((m) => ({ default: m.SummitSpeakerPortalModal })));
 
 // Every section's home pillar, chips and icons come from the single six-pillar source (lib/sgxPillars).
@@ -643,6 +644,11 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               />
             </LazyBoundary>
           </SgxModulePage>
+        )}
+
+        {/* Welcome portal: /bienvenida and /bienvenida/<rol> (one shareable link per role) */}
+        {activeSection === 'WELCOME' && (
+          <LazyBoundary fallback={<LazyFallback />}><SgxWelcomePage /></LazyBoundary>
         )}
 
         {activeSection === 'PILLARS_MANIFESTO' && getSectionStatus('PILLARS_MANIFESTO') === 'ACTIVE' && (

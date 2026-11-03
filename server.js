@@ -1967,7 +1967,8 @@ var SECTION_TO_SLUG = {
   TERMINAL: "terminal",
   MODELS_3D: "modelos-3d",
   SPONSOR: "patrocina",
-  SPEAKER_PORTAL: "portal-speakers"
+  SPEAKER_PORTAL: "portal-speakers",
+  WELCOME: "bienvenida"
 };
 
 // src/companion/destinations.ts
@@ -4283,6 +4284,430 @@ function createApiRouter(broadcastToRoom) {
   return router;
 }
 
+// src/lib/sgxLinks.ts
+var SGX_EMAIL = "info@spatialgineers.com";
+var SGX_PHONE = "+1 (787) 445-5284";
+var SGX_SOCIAL = "@spatialgineers";
+
+// src/lib/welcomePortal.ts
+var WELCOME_ORIGIN = "https://summit.spatialgineers.com";
+var WELCOME_PATH = "/bienvenida";
+var WELCOME_PUBLIC_ROLES = ["visitante", "speaker", "sponsor"];
+var WELCOME_ROLES = [...WELCOME_PUBLIC_ROLES, "equipo"];
+var WELCOME_VIDEO_KEYS = ["visitante", "speaker", "sponsor", "equipo", "pass", "tour", "build"];
+var ROLE_ALIASES = {
+  visitante: "visitante",
+  visitantes: "visitante",
+  creador: "visitante",
+  creadores: "visitante",
+  creadora: "visitante",
+  visitor: "visitante",
+  speaker: "speaker",
+  speakers: "speaker",
+  artista: "speaker",
+  artistas: "speaker",
+  ponente: "speaker",
+  sponsor: "sponsor",
+  sponsors: "sponsor",
+  patrocinador: "sponsor",
+  patrocinadores: "sponsor",
+  marca: "sponsor",
+  marcas: "sponsor",
+  equipo: "equipo",
+  team: "equipo",
+  staff: "equipo"
+};
+function resolveWelcomeRole(raw) {
+  if (!raw) return null;
+  let key = String(raw).trim().toLowerCase();
+  try {
+    key = decodeURIComponent(key);
+  } catch {
+  }
+  return ROLE_ALIASES[key] || null;
+}
+var welcomePathFor = (role) => role ? `${WELCOME_PATH}/${role}` : WELCOME_PATH;
+var welcomeUrlFor = (role) => `${WELCOME_ORIGIN}${welcomePathFor(role)}`;
+function parseYouTubeId(input) {
+  if (typeof input !== "string") return null;
+  const s = input.trim();
+  if (!s) return null;
+  if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
+  const m = /(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/|\/live\/|\/v\/)([A-Za-z0-9_-]{11})(?![A-Za-z0-9_-])/.exec(s);
+  return m ? m[1] : null;
+}
+function welcomeIdsFromDoc(doc) {
+  const out = {};
+  if (!doc) return out;
+  for (const k of WELCOME_VIDEO_KEYS) {
+    const id = parseYouTubeId(doc[k]);
+    if (id) out[k] = id;
+  }
+  return out;
+}
+var isPortraitVideo = (key) => key !== "tour" && key !== "build";
+var youTubeWatchUrl = (id) => `https://www.youtube.com/watch?v=${id}`;
+var youTubeThumb = (id, key) => `https://i.ytimg.com/vi/${id}/${isPortraitVideo(key) ? "hqdefault" : "maxresdefault"}.jpg`;
+var WELCOME_FACTS = {
+  dates: { es: "11\u201313 de diciembre de 2026", en: "December 11\u201313, 2026" },
+  days12: {
+    es: "D\xEDas 1 y 2: gratis por YouTube Live, con Los Mismos TV transmitiendo junto a nosotros.",
+    en: "Days 1 and 2: free on YouTube Live, with Los Mismos TV streaming alongside us."
+  },
+  day3: { es: "D\xEDa 3: Chroma Space Studios, San Juan. Por invitaci\xF3n.", en: "Day 3: Chroma Space Studios, San Juan. By invitation." },
+  language: { es: "En espa\xF1ol.", en: "In Spanish." },
+  press: {
+    es: "Prensa: pide tu acreditaci\xF3n antes del 1 de diciembre (6 cupos, uno por medio).",
+    en: "Press: request accreditation before December 1 (6 slots, one per outlet)."
+  }
+};
+var FAQ_FREE = {
+  q: { es: "\xBFCu\xE1nto cuesta ver el Spatialgineers Summit 2026?", en: "How much does it cost to watch Spatialgineers Summit 2026?" },
+  a: {
+    es: "Nada. Los D\xEDas 1 y 2 (11 y 12 de diciembre de 2026) son gratis por YouTube Live, con Los Mismos TV transmitiendo junto a Spatialgineers. El SGX Pass tambi\xE9n es gratis.",
+    en: "Nothing. Days 1 and 2 (December 11 and 12, 2026) are free on YouTube Live, with Los Mismos TV streaming alongside Spatialgineers. The SGX Pass is free too."
+  }
+};
+var FAQ_DAY3 = {
+  q: { es: "\xBFD\xF3nde es el D\xEDa 3?", en: "Where is Day 3?" },
+  a: {
+    es: "El D\xEDa 3 (domingo 13 de diciembre) es el SGX Showcase en Chroma Space Studios, San Juan, Puerto Rico: presencial, por invitaci\xF3n y con cupo limitado (40 a 60 personas). El check-in se hace con el SGX Pass escaneando el QR de la entrada.",
+    en: "Day 3 (Sunday, December 13) is the SGX Showcase at Chroma Space Studios, San Juan, Puerto Rico: in person, by invitation and with limited capacity (40 to 60 people). Check-in is done with the SGX Pass by scanning the QR at the entrance."
+  }
+};
+var FAQ_PASS = {
+  q: { es: "\xBFQu\xE9 es el SGX Pass?", en: "What is the SGX Pass?" },
+  a: {
+    es: "Es la credencial gratis del Summit y la Holo Card del Creador. Se forja en un minuto (nombre, email, pilar favorito y tu Highbot) y da el QR de networking, la entrada del D\xEDa 3, las misiones y el XP. Un pase por email.",
+    en: "It is the Summit's free credential and the Creator's Holo Card. You forge it in a minute (name, email, favorite pillar and your Highbot) and it gives you the networking QR, Day 3 entry, missions and XP. One pass per email."
+  }
+};
+var WELCOME_HUB = {
+  title: { es: "Bienvenida al Spatialgineers Summit 2026", en: "Welcome to Spatialgineers Summit 2026" },
+  metaTitle: {
+    es: "Bienvenida \xB7 Spatialgineers Summit 2026 \xB7 11\u201313 dic \xB7 San Juan, PR",
+    en: "Welcome \xB7 Spatialgineers Summit 2026 \xB7 Dec 11\u201313 \xB7 San Juan, PR"
+  },
+  description: {
+    es: "Tu entrada al Spatialgineers Summit 2026 (11\u201313 dic): elige tu rol, mira tu video de recorrido y forja tu SGX Pass. D\xEDas 1 y 2 gratis por YouTube Live; D\xEDa 3 en Chroma Space Studios, San Juan.",
+    en: "Your way into Spatialgineers Summit 2026 (Dec 11\u201313): pick your role, watch your walkthrough video and forge your SGX Pass. Days 1 and 2 free on YouTube Live; Day 3 at Chroma Space Studios, San Juan."
+  },
+  intro: {
+    es: "Tres d\xEDas de spatial computing, artistas invitados y producci\xF3n virtual en vivo, en espa\xF1ol. Elige c\xF3mo llegas al Summit: cada rol tiene su video corto y sus fechas clave.",
+    en: "Three days of spatial computing, guest artists and live virtual production, in Spanish. Pick how you come to the Summit: each role has its short video and its key dates."
+  },
+  faq: [FAQ_FREE, FAQ_DAY3, FAQ_PASS, {
+    q: { es: "\xBFEn qu\xE9 idioma es el Summit?", en: "What language is the Summit in?" },
+    a: { es: "En espa\xF1ol. Las fechas son el 11, 12 y 13 de diciembre de 2026.", en: "In Spanish. The dates are December 11, 12 and 13, 2026." }
+  }]
+};
+var WELCOME_ROLE_COPY = {
+  visitante: {
+    role: "visitante",
+    label: { es: "Creadores", en: "Creators" },
+    title: { es: "Bienvenida, Creador", en: "Welcome, Creator" },
+    metaTitle: { es: "Creadores: c\xF3mo vivir el Spatialgineers Summit 2026", en: "Creators: how to experience Spatialgineers Summit 2026" },
+    description: {
+      es: "Gu\xEDa para Creadores del Spatialgineers Summit 2026: forja tu SGX Pass gratis, arma tu agenda, juega y gana XP. D\xEDas 1 y 2 gratis por YouTube Live (11 y 12 dic); D\xEDa 3 por invitaci\xF3n en Chroma Space Studios.",
+      en: "Creator guide to Spatialgineers Summit 2026: forge your free SGX Pass, build your agenda, play and earn XP. Days 1 and 2 free on YouTube Live (Dec 11 and 12); Day 3 by invitation at Chroma Space Studios."
+    },
+    intro: {
+      es: "Vienes a ver, jugar y conectar. Tu SGX Pass es tu Holo Card: con \xE9l guardas tu progreso, ganas XP y entras a Tu Estudio.",
+      en: "You are here to watch, play and connect. Your SGX Pass is your Holo Card: it keeps your progress, earns XP and opens Your Studio."
+    },
+    videoTitle: { es: "Recorrido para Creadores", en: "Walkthrough for Creators" },
+    steps: [
+      { when: { es: "Hoy", en: "Today" }, title: { es: "Forja tu SGX Pass", en: "Forge your SGX Pass" }, body: { es: "Gratis y en un minuto: nombre, email, pilar favorito y tu Highbot. Te da el QR de networking y tus misiones.", en: "Free and in a minute: name, email, favorite pillar and your Highbot. It gives you the networking QR and your missions." } },
+      { when: { es: "Antes del evento", en: "Before the event" }, title: { es: "Arma tu agenda y gana XP", en: "Build your agenda and earn XP" }, body: { es: "Mira la agenda de los tres d\xEDas, juega en el hub de juegos y completa las misiones del Reactor.", en: "Browse the three-day agenda, play in the games hub and complete the Reactor missions." } },
+      { when: { es: "11 y 12 dic", en: "Dec 11 and 12" }, title: { es: "D\xEDas 1 y 2 en vivo", en: "Days 1 and 2 live" }, body: { es: "Gratis por YouTube Live, con Los Mismos TV transmitiendo junto a nosotros. Vota en vivo y gana XP.", en: "Free on YouTube Live, with Los Mismos TV streaming alongside us. Vote live and earn XP." } },
+      { when: { es: "13 dic", en: "Dec 13" }, title: { es: "D\xEDa 3: SGX Showcase", en: "Day 3: SGX Showcase" }, body: { es: "En Chroma Space Studios, San Juan, por invitaci\xF3n. Puedes solicitar el D\xEDa 3 presencial desde tu pase; el check-in es con el QR de tu SGX Pass.", en: "At Chroma Space Studios, San Juan, by invitation. You can request in-person Day 3 from your pass; check-in uses your SGX Pass QR." } }
+    ],
+    faq: [FAQ_FREE, FAQ_PASS, FAQ_DAY3, {
+      q: { es: "\xBFC\xF3mo gano XP?", en: "How do I earn XP?" },
+      a: { es: "Jugando, votando en vivo, completando las misiones del Reactor y escaneando pases de otras personas. La Tienda del Reactor deja gastar XP sin bajar de rango.", en: "By playing, voting live, completing the Reactor missions and scanning other people\u2019s passes. The Reactor store lets you spend XP without losing rank." }
+    }]
+  },
+  speaker: {
+    role: "speaker",
+    label: { es: "Speakers y artistas", en: "Speakers and artists" },
+    title: { es: "Bienvenida, speaker", en: "Welcome, speaker" },
+    metaTitle: { es: "Speakers y artistas \xB7 Spatialgineers Summit 2026", en: "Speakers and artists \xB7 Spatialgineers Summit 2026" },
+    description: {
+      es: "Gu\xEDa para speakers y artistas del Spatialgineers Summit 2026 (11\u201313 dic): registra tu perfil en el Portal de speakers, arma tu avatar y tu Holo Card, y conoce los tres d\xEDas del programa.",
+      en: "Guide for speakers and artists at Spatialgineers Summit 2026 (Dec 11\u201313): register your profile in the Speaker portal, build your avatar and Holo Card, and see the three days of the program."
+    },
+    intro: {
+      es: "Presentas en el Summit. Registra tu perfil en el Portal de speakers: el equipo lo revisa y lo publica en el cartel cuando tu participaci\xF3n est\xE9 confirmada por escrito.",
+      en: "You are presenting at the Summit. Register your profile in the Speaker portal: the team reviews it and adds it to the lineup once your participation is confirmed in writing."
+    },
+    videoTitle: { es: "Recorrido para speakers", en: "Walkthrough for speakers" },
+    steps: [
+      { when: { es: "Hoy", en: "Today" }, title: { es: "Registra tu perfil", en: "Register your profile" }, body: { es: "En el Portal de speakers: nombre o nombre art\xEDstico, rol, organizaci\xF3n, d\xEDa, pilar SGX, biograf\xEDa y enlaces.", en: "In the Speaker portal: name or artist name, role, organization, day, SGX pillar, bio and links." } },
+      { when: { es: "En el registro", en: "While registering" }, title: { es: "Arma tu avatar", en: "Build your avatar" }, body: { es: "En el Summit todos aparecen con su avatar SGX. Con \xE9l se arma tu Holo Card de speaker.", en: "Everyone in the Summit appears with their SGX avatar. It becomes your speaker Holo Card." } },
+      { when: { es: "Tras la revisi\xF3n", en: "After review" }, title: { es: "Confirmaci\xF3n por escrito", en: "Written confirmation" }, body: { es: "El equipo revisa tu perfil y te escribe al confirmar tu participaci\xF3n. Solo entonces aparece en el directorio.", en: "The team reviews your profile and writes to you once your participation is confirmed. Only then does it appear in the directory." } },
+      { when: { es: "11\u201313 dic", en: "Dec 11\u201313" }, title: { es: "Tu d\xEDa en el Summit", en: "Your day at the Summit" }, body: { es: "D\xEDa 1 (vie 11): digital, pilares e Initiates. D\xEDa 2 (s\xE1b 12): digital, D\xEDa de la Industria. D\xEDa 3 (dom 13): SGX Showcase en Chroma Space Studios, por invitaci\xF3n.", en: "Day 1 (Fri 11): digital, pillars and Initiates. Day 2 (Sat 12): digital, Industry Day. Day 3 (Sun 13): SGX Showcase at Chroma Space Studios, by invitation." } }
+    ],
+    faq: [
+      { q: { es: "\xBFC\xF3mo me registro como speaker o artista?", en: "How do I register as a speaker or artist?" }, a: { es: "En el Portal de speakers del Summit (summit.spatialgineers.com/portal-speakers): llenas tu perfil, armas tu avatar y lo env\xEDas para revisi\xF3n.", en: "In the Summit Speaker portal (summit.spatialgineers.com/portal-speakers): fill in your profile, build your avatar and send it for review." } },
+      { q: { es: "\xBFCu\xE1ndo aparece mi perfil en el cartel?", en: "When does my profile appear in the lineup?" }, a: { es: "Cuando el equipo confirma tu participaci\xF3n por escrito. Te escribimos al confirmarla.", en: "When the team confirms your participation in writing. We write to you when it is confirmed." } },
+      { q: { es: "\xBFQu\xE9 pasa cada d\xEDa del Summit?", en: "What happens on each Summit day?" }, a: { es: "D\xEDa 1 (viernes 11 de diciembre): digital, pilares e Initiates. D\xEDa 2 (s\xE1bado 12): digital, D\xEDa de la Industria. D\xEDa 3 (domingo 13): SGX Showcase en Chroma Space Studios, San Juan, por invitaci\xF3n.", en: "Day 1 (Friday, December 11): digital, pillars and Initiates. Day 2 (Saturday 12): digital, Industry Day. Day 3 (Sunday 13): SGX Showcase at Chroma Space Studios, San Juan, by invitation." } },
+      FAQ_PASS
+    ]
+  },
+  sponsor: {
+    role: "sponsor",
+    label: { es: "Sponsors y marcas", en: "Sponsors and brands" },
+    title: { es: "Bienvenida, marca", en: "Welcome, brand" },
+    metaTitle: { es: "Patrocina el Spatialgineers Summit 2026 \xB7 Paquetes y fechas", en: "Sponsor Spatialgineers Summit 2026 \xB7 Packages and dates" },
+    description: {
+      es: "Gu\xEDa para sponsors del Spatialgineers Summit 2026: 5 paquetes con precios en USD, pago total a m\xE1s tardar el 14 de noviembre y materiales hasta el 30 de noviembre. Tu marca en la webapp, la transmisi\xF3n y el D\xEDa 3.",
+      en: "Sponsor guide to Spatialgineers Summit 2026: 5 packages priced in USD, full payment by November 14 and materials by November 30. Your brand on the web app, the broadcast and Day 3."
+    },
+    intro: {
+      es: "Auspiciar es ocupar con tu marca los espacios del Summit: la webapp con n\xFAcleo 3D, minijuegos y misiones, la transmisi\xF3n por YouTube Live y el D\xEDa 3 en Chroma Space Studios.",
+      en: "Sponsoring means your brand fills the Summit's spaces: the web app with its 3D core, mini-games and missions, the YouTube Live broadcast and Day 3 at Chroma Space Studios."
+    },
+    videoTitle: { es: "Recorrido para sponsors", en: "Walkthrough for sponsors" },
+    steps: [
+      { when: { es: "Hoy", en: "Today" }, title: { es: "Solicita", en: "Apply" }, body: { es: "Elige uno de los 5 paquetes (precios en USD) y env\xEDa el formulario. Recibes un c\xF3digo de seguimiento al instante.", en: "Pick one of the 5 packages (prices in USD) and send the form. You get a tracking code right away." } },
+      { when: { es: "Tras la revisi\xF3n", en: "After review" }, title: { es: "Confirmaci\xF3n", en: "Confirmation" }, body: { es: "El equipo de Spatialgineers revisa tu propuesta y te escribe por correo. Rige un contrato corto de auspicio firmado por ambas partes.", en: "The Spatialgineers team reviews your proposal and emails you. A short sponsorship contract signed by both parties governs." } },
+      { when: { es: "14 nov", en: "Nov 14" }, title: { es: "Pago total", en: "Full payment" }, body: { es: "Pago total a m\xE1s tardar el 14 de noviembre.", en: "Full payment by November 14." } },
+      { when: { es: "30 nov", en: "Nov 30" }, title: { es: "Materiales", en: "Materials" }, body: { es: "Materiales de tu marca hasta el 30 de noviembre.", en: "Your brand materials by November 30." } },
+      { when: { es: "11\u201313 dic", en: "Dec 11\u201313" }, title: { es: "En vivo", en: "Live" }, body: { es: "Tu marca en la webapp, la transmisi\xF3n y el D\xEDa 3. Paquetes 4 y 5 reciben el reporte final a los 30 d\xEDas.", en: "Your brand on the web app, the broadcast and Day 3. Packages 4 and 5 get the final report at 30 days." } }
+    ],
+    faq: [
+      { q: { es: "\xBFCu\xE1les son las fechas clave para sponsors?", en: "What are the key dates for sponsors?" }, a: { es: "Pago total a m\xE1s tardar el 14 de noviembre y materiales de la marca hasta el 30 de noviembre. El Summit es del 11 al 13 de diciembre de 2026.", en: "Full payment by November 14 and brand materials by November 30. The Summit runs December 11\u201313, 2026." } },
+      { q: { es: "\xBFEl precio es fijo?", en: "Is the price fixed?" }, a: { es: "No. Cada uno de los 5 paquetes tiene un rango en USD y el precio exacto se acuerda seg\xFAn el presupuesto del sponsor. El Paquete 5 no tiene precio p\xFAblico.", en: "No. Each of the 5 packages has a range in USD and the exact price is agreed based on the sponsor's budget. Package 5 has no public price." } },
+      { q: { es: "\xBFGarantizan vistas, asistencia o clics?", en: "Do you guarantee views, attendance or clicks?" }, a: { es: "No. Spatialgineers no garantiza un n\xFAmero de vistas, asistentes ni clics. Los Paquetes 4 y 5 reciben un reporte final a los 30 d\xEDas, sin datos personales.", en: "No. Spatialgineers does not guarantee a number of views, attendees or clicks. Packages 4 and 5 receive a final report at 30 days, with no personal data." } },
+      { q: { es: "\xBFHay exclusividad por categor\xEDa?", en: "Is there category exclusivity?" }, a: { es: "S\xED, en los Paquetes 4 y 5: una sola marca de su sector.", en: "Yes, in Packages 4 and 5: only one brand from your sector." } }
+    ]
+  },
+  equipo: {
+    role: "equipo",
+    internal: true,
+    label: { es: "Equipo", en: "Team" },
+    title: { es: "Bienvenida, equipo", en: "Welcome, team" },
+    metaTitle: { es: "Equipo \xB7 Spatialgineers Summit 2026", en: "Team \xB7 Spatialgineers Summit 2026" },
+    description: {
+      es: "Recorrido interno para el equipo del Spatialgineers Summit 2026: el centro de mando, los inscritos y el D\xEDa 3.",
+      en: "Internal walkthrough for the Spatialgineers Summit 2026 team: the command center, registrations and Day 3."
+    },
+    intro: {
+      es: "Lo que el equipo usa durante el Summit vive en el admin. Entra con tu cuenta autorizada.",
+      en: "What the team uses during the Summit lives in the admin. Sign in with your authorized account."
+    },
+    videoTitle: { es: "Recorrido para el equipo", en: "Walkthrough for the team" },
+    steps: [
+      { when: { es: "Antes", en: "Before" }, title: { es: "Entra al admin", en: "Open the admin" }, body: { es: "Con tu cuenta autorizada. Contenido: agenda, speakers, sponsors, paquetes y este portal de bienvenida.", en: "With your authorized account. Content: agenda, speakers, sponsors, packages and this welcome portal." } },
+      { when: { es: "Antes", en: "Before" }, title: { es: "Inscritos y D\xEDa 3", en: "Registrations and Day 3" }, body: { es: "Registros, c\xF3digo de check-in del D\xEDa 3 y propuestas de speakers.", en: "Registrations, the Day 3 check-in code and speaker proposals." } },
+      { when: { es: "11\u201313 dic", en: "Dec 11\u201313" }, title: { es: "En vivo", en: "Live" }, body: { es: "Consola del director para la pregunta en vivo y anuncios que llegan al instante a todas las p\xE1ginas abiertas.", en: "Director console for the live question, and announcements that reach every open page instantly." } }
+    ],
+    faq: []
+  }
+};
+var WELCOME_EXTRA_VIDEOS = {
+  tour: {
+    title: { es: "El recorrido completo", en: "The full tour" },
+    body: { es: "Todo el Summit en un video: el n\xFAcleo 3D, los seis pilares, Tu Estudio y los tres d\xEDas.", en: "The whole Summit in one video: the 3D core, the six pillars, Your Studio and the three days." }
+  },
+  pass: {
+    title: { es: "Tu SGX Pass en un minuto", en: "Your SGX Pass in a minute" },
+    body: { es: "C\xF3mo forjar tu pase gratis y qu\xE9 te da: tu Holo Card, el QR de networking, las misiones y el XP.", en: "How to forge your free pass and what it gives you: your Holo Card, the networking QR, missions and XP." }
+  },
+  build: {
+    title: { es: "C\xF3mo se construy\xF3 la app", en: "How the app was built" },
+    body: { es: "Detr\xE1s de c\xE1maras de la webapp del Spatialgineers Summit 2026.", en: "Behind the scenes of the Spatialgineers Summit 2026 web app." }
+  }
+};
+var welcomeVideoKey = (role) => role || "tour";
+function welcomeHead(role, ids) {
+  const copy = role ? WELCOME_ROLE_COPY[role] : null;
+  const videoKey = welcomeVideoKey(role);
+  const videoId = ids[videoKey] || null;
+  const portrait = isPortraitVideo(videoKey);
+  return {
+    title: copy ? copy.metaTitle.es : WELCOME_HUB.metaTitle.es,
+    description: copy ? copy.description.es : WELCOME_HUB.description.es,
+    canonical: welcomeUrlFor(role),
+    noindex: !!copy?.internal,
+    videoId,
+    videoKey,
+    image: videoId ? youTubeThumb(videoId, videoKey) : `${WELCOME_ORIGIN}/og-image.jpg`,
+    imageWidth: videoId ? portrait ? 480 : 1280 : 1200,
+    imageHeight: videoId ? portrait ? 360 : 720 : 630,
+    heading: copy ? copy.title.es : WELCOME_HUB.title.es,
+    intro: copy ? copy.intro.es : WELCOME_HUB.intro.es,
+    steps: copy ? copy.steps : [],
+    faq: copy ? copy.faq : WELCOME_HUB.faq
+  };
+}
+function welcomeJsonLd(head, uploadDate) {
+  const organizer = { "@type": "Organization", name: "Spatialgineers LLC", url: "https://spatialgineers.com" };
+  const event = {
+    "@type": "Event",
+    "@id": `${WELCOME_ORIGIN}/#event`,
+    name: "Spatialgineers Summit 2026",
+    description: "Tres d\xEDas de spatial computing, artistas invitados y producci\xF3n virtual en vivo. D\xEDas 1 y 2 gratis por YouTube Live; D\xEDa 3 (SGX Showcase) en Chroma Space Studios, San Juan, por invitaci\xF3n.",
+    inLanguage: "es",
+    startDate: "2026-12-11T10:00:00-04:00",
+    endDate: "2026-12-13T16:00:00-04:00",
+    eventAttendanceMode: "https://schema.org/MixedEventAttendanceMode",
+    eventStatus: "https://schema.org/EventScheduled",
+    location: [
+      { "@type": "Place", name: "Chroma Space Studios", address: { "@type": "PostalAddress", addressLocality: "San Juan", addressRegion: "PR", addressCountry: "US" } },
+      { "@type": "VirtualLocation", name: "YouTube Live", url: "https://www.youtube.com/@spatialgineers" }
+    ],
+    organizer,
+    url: WELCOME_ORIGIN,
+    image: `${WELCOME_ORIGIN}/og-image.jpg`,
+    isAccessibleForFree: true,
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD", availability: "https://schema.org/InStock", url: WELCOME_ORIGIN, validFrom: "2026-01-01T00:00:00-04:00" }
+  };
+  const graph = [
+    event,
+    { "@type": "WebPage", "@id": head.canonical, url: head.canonical, name: head.title, description: head.description, inLanguage: "es", about: { "@id": `${WELCOME_ORIGIN}/#event` }, isPartOf: { "@type": "WebSite", name: "Spatialgineers Summit 2026", url: WELCOME_ORIGIN } }
+  ];
+  if (head.videoId) {
+    const video = {
+      "@type": "VideoObject",
+      name: `${head.heading} \xB7 Spatialgineers Summit 2026`,
+      description: head.description,
+      thumbnailUrl: [`https://i.ytimg.com/vi/${head.videoId}/maxresdefault.jpg`, `https://i.ytimg.com/vi/${head.videoId}/hqdefault.jpg`],
+      embedUrl: `https://www.youtube-nocookie.com/embed/${head.videoId}`,
+      url: youTubeWatchUrl(head.videoId),
+      inLanguage: "es",
+      publisher: organizer,
+      about: { "@id": `${WELCOME_ORIGIN}/#event` }
+    };
+    if (uploadDate) video.uploadDate = uploadDate;
+    graph.push(video);
+  }
+  if (head.faq.length) {
+    graph.push({
+      "@type": "FAQPage",
+      mainEntity: head.faq.map((f) => ({ "@type": "Question", name: f.q.es, acceptedAnswer: { "@type": "Answer", text: f.a.es } }))
+    });
+  }
+  return { "@context": "https://schema.org", "@graph": graph };
+}
+
+// src/server/welcomeMeta.ts
+var TTL = 6e4;
+var cache2 = { ids: {}, dates: {} };
+var cacheAt = 0;
+var loading2 = null;
+function refresh() {
+  if (loading2) return loading2;
+  loading2 = fetch(`${FIRESTORE_DOCS}/site_config/welcome`, { signal: AbortSignal.timeout(2500) }).then(async (r) => {
+    if (r.status === 404) {
+      cache2 = { ids: {}, dates: {} };
+      return;
+    }
+    if (!r.ok) return;
+    const fields = (await r.json())?.fields || {};
+    const doc = {};
+    for (const [k, v] of Object.entries(fields)) doc[k] = fromFirestore(v);
+    const rawDates = doc.dates && typeof doc.dates === "object" ? doc.dates : {};
+    const dates = {};
+    for (const [k, v] of Object.entries(rawDates)) if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v)) dates[k] = v.slice(0, 10);
+    cache2 = { ids: welcomeIdsFromDoc(doc), dates };
+  }).catch(() => {
+  }).finally(() => {
+    cacheAt = Date.now();
+    loading2 = null;
+  });
+  return loading2;
+}
+async function welcomeConfig() {
+  if (Date.now() - cacheAt > TTL) {
+    const p = refresh();
+    if (!cacheAt) await p;
+  }
+  return cache2;
+}
+function matchWelcomePath(reqPath) {
+  const m = /^\/(?:bienvenida|welcome)(?:\/([^/]+))?\/?$/i.exec(reqPath);
+  if (!m) return null;
+  const role = resolveWelcomeRole(m[1]);
+  return { role, known: !m[1] || !!role };
+}
+var escapeHtml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+var safeJson = (v) => JSON.stringify(v).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+var reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function setMeta(html, attr, key, value) {
+  const tag = `<meta ${attr}="${key}" content="${escapeHtml(value)}" />`;
+  const re = new RegExp(`<meta\\s+${attr}=["']${reEsc(key)}["'][^>]*>`, "i");
+  return re.test(html) ? html.replace(re, () => tag) : html.replace("</head>", () => `    ${tag}
+  </head>`);
+}
+function renderWelcomeHtml(indexHtml, reqPath, cfg, hasQuery = false) {
+  const match = matchWelcomePath(reqPath);
+  if (!match) return null;
+  const head = welcomeHead(match.role, cfg.ids);
+  const title = head.title;
+  let html = indexHtml;
+  html = html.replace(/<title>[\s\S]*?<\/title>/i, () => `<title>${escapeHtml(title)}</title>`);
+  html = setMeta(html, "name", "description", head.description);
+  html = setMeta(html, "property", "og:title", title);
+  html = setMeta(html, "property", "og:description", head.description);
+  html = setMeta(html, "property", "og:url", head.canonical);
+  html = setMeta(html, "property", "og:type", head.videoId ? "video.other" : "website");
+  html = setMeta(html, "property", "og:image", head.image);
+  html = setMeta(html, "property", "og:image:width", String(head.imageWidth));
+  html = setMeta(html, "property", "og:image:height", String(head.imageHeight));
+  html = setMeta(html, "property", "og:image:alt", head.heading);
+  html = setMeta(html, "name", "twitter:title", title);
+  html = setMeta(html, "name", "twitter:description", head.description);
+  html = setMeta(html, "name", "twitter:image", head.image);
+  const extra = [`<link rel="canonical" href="${escapeHtml(head.canonical)}" />`];
+  if (head.videoId) extra.push(`<meta property="og:video" content="${escapeHtml(youTubeWatchUrl(head.videoId))}" />`);
+  if (head.noindex || hasQuery) extra.push('<meta name="robots" content="noindex, follow" />');
+  const ld = welcomeJsonLd(head, cfg.dates[head.videoKey] || null);
+  const ldTag = `<script type="application/ld+json">${safeJson(ld)}</script>`;
+  if (/<script type="application\/ld\+json">[\s\S]*?<\/script>/i.test(html)) {
+    html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/i, () => ldTag);
+  } else {
+    extra.push(ldTag);
+  }
+  html = html.replace("</head>", () => `    ${extra.join("\n    ")}
+  </head>`);
+  const li = (s) => `<li>${escapeHtml(s)}</li>`;
+  const parts = [
+    `<h1>${escapeHtml(head.heading)}</h1>`,
+    `<p>${escapeHtml(head.intro)}</p>`,
+    `<ul>${[WELCOME_FACTS.dates.es, WELCOME_FACTS.days12.es, WELCOME_FACTS.day3.es, WELCOME_FACTS.language.es].map(li).join("")}</ul>`
+  ];
+  if (head.videoId) parts.push(`<p><a href="${escapeHtml(youTubeWatchUrl(head.videoId))}">Ver el video en YouTube</a></p>`);
+  if (head.steps.length) {
+    parts.push("<h2>Fechas y pasos clave</h2>");
+    parts.push(`<ol>${head.steps.map((s) => `<li><strong>${escapeHtml(s.when.es)} \xB7 ${escapeHtml(s.title.es)}</strong>: ${escapeHtml(s.body.es)}</li>`).join("")}</ol>`);
+  }
+  if (!match.role) {
+    parts.push("<h2>Elige tu rol</h2>");
+    parts.push(`<ul>${WELCOME_PUBLIC_ROLES.map((r) => `<li><a href="${escapeHtml(welcomeUrlFor(r))}">${escapeHtml(WELCOME_ROLE_COPY[r].label.es)}</a>: ${escapeHtml(WELCOME_ROLE_COPY[r].description.es)}</li>`).join("")}</ul>`);
+    parts.push(`<p>${escapeHtml(WELCOME_EXTRA_VIDEOS.tour.title.es)}: ${escapeHtml(WELCOME_EXTRA_VIDEOS.tour.body.es)}</p>`);
+  }
+  if (head.faq.length) {
+    parts.push("<h2>Preguntas frecuentes</h2>");
+    parts.push(head.faq.map((f) => `<h3>${escapeHtml(f.q.es)}</h3><p>${escapeHtml(f.a.es)}</p>`).join(""));
+  }
+  parts.push(`<p>${escapeHtml(WELCOME_FACTS.press.es)} Contacto: ${escapeHtml(SGX_EMAIL)} \xB7 ${escapeHtml(SGX_PHONE)} \xB7 YouTube e Instagram ${escapeHtml(SGX_SOCIAL)}.</p>`);
+  parts.push("<p>\xA9 2026 Spatialgineers LLC.</p>");
+  const noscript = `<noscript>
+        <div style="padding: 2.5rem; max-width: 800px; margin: 0 auto; color: #ffffff; background: #1A1A1A; font-family: sans-serif; line-height: 1.6;">${parts.join("")}</div>
+      </noscript>`;
+  html = html.replace(/<noscript>[\s\S]*?<\/noscript>/i, () => noscript);
+  return html;
+}
+async function welcomeHtmlFor(readIndex, reqPath, hasQuery = false) {
+  if (!matchWelcomePath(reqPath)) return null;
+  try {
+    return renderWelcomeHtml(readIndex(), reqPath, await welcomeConfig(), hasQuery);
+  } catch {
+    return null;
+  }
+}
+
 // server.ts
 var PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3e3;
 async function startServer() {
@@ -4352,9 +4777,21 @@ async function startServer() {
         else if (name === "sw.js" || name === "index.html" || name === "manifest.webmanifest") res.setHeader("Cache-Control", "no-cache");
       }
     }));
-    app.get("*", (req, res) => {
+    const indexFile = path.join(distPath, "index.html");
+    let indexCache = null;
+    const readIndex = () => {
+      const mtime = fs.statSync(indexFile).mtimeMs;
+      if (!indexCache || indexCache.mtime !== mtime) indexCache = { mtime, html: fs.readFileSync(indexFile, "utf8") };
+      return indexCache.html;
+    };
+    app.get("*", async (req, res) => {
       res.setHeader("Cache-Control", "no-cache");
-      res.sendFile(path.join(distPath, "index.html"));
+      try {
+        const html = await welcomeHtmlFor(readIndex, req.path, Object.keys(req.query).length > 0);
+        if (html) return res.type("html").send(html);
+      } catch {
+      }
+      res.sendFile(indexFile);
     });
   } else {
     const vite = await createViteServer({

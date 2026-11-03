@@ -29,6 +29,7 @@ export const SECTION_TO_SLUG: Record<SummitSectionKey, string> = {
   MODELS_3D: 'modelos-3d',
   SPONSOR: 'patrocina',
   SPEAKER_PORTAL: 'portal-speakers',
+  WELCOME: 'bienvenida',
 };
 
 export const SLUG_TO_SECTION: Record<string, SummitSectionKey> = {
@@ -175,6 +176,10 @@ export const SLUG_TO_SECTION: Record<string, SummitSectionKey> = {
   sponsor: 'SPONSOR',
   'portal-speakers': 'SPEAKER_PORTAL',
   'speaker-portal': 'SPEAKER_PORTAL',
+
+  // Welcome portal (/bienvenida/<rol>)
+  bienvenida: 'WELCOME',
+  welcome: 'WELCOME',
 };
 
 /**
@@ -313,7 +318,7 @@ export function getAppRouteAndSectionFromUrl(): ParsedAppLocation {
         return {
           page: 'summit',
           summitSection: section,
-          subtab: (section === 'PILLAR' && segments[i + 1] ? segments[i + 1].toLowerCase() : null) || rawSubtab || null,
+          subtab: ((section === 'PILLAR' || section === 'WELCOME') && segments[i + 1] ? segments[i + 1].toLowerCase() : null) || rawSubtab || null,
           day: rawDay || null,
           theme: rawTheme || null,
           view: rawView || null,
@@ -385,6 +390,8 @@ export function getShareableUrl(options: {
     const slug = options.subtab || (getAppRouteAndSectionFromUrl().summitSection === 'PILLAR' ? getAppRouteAndSectionFromUrl().subtab : null) || 'story';
     path = `/pilar/${slug.toLowerCase()}`;
     out.delete('pillar');
+  } else if (sectionKey === 'WELCOME') {
+    path = options.subtab ? `/bienvenida/${options.subtab.toLowerCase()}` : '/bienvenida';
   } else if (sectionKey && sectionKey !== 'OVERVIEW') {
     path = `/${SECTION_TO_SLUG[sectionKey]}`;
     if (options.subtab) out.set('subtab', options.subtab);

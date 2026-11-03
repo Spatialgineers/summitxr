@@ -6,6 +6,7 @@ import zlib from 'zlib';
 import { createServer as createViteServer } from 'vite';
 import { setupWebSocketEngine } from './src/server/engine/wsHandler';
 import { createApiRouter } from './src/server/routes/apiRouter';
+import { welcomeHtmlFor } from './src/server/welcomeMeta';
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
@@ -86,9 +87,22 @@ async function startServer() {
         else if (name === 'sw.js' || name === 'index.html' || name === 'manifest.webmanifest') res.setHeader('Cache-Control', 'no-cache');
       },
     }));
-    app.get('*', (req, res) => {
+    // The welcome portal (/bienvenida, /bienvenida/<rol>) gets its own head (title, OG, JSON-LD)
+    // and a no-JS copy of its text; every other route gets index.html as is.
+    const indexFile = path.join(distPath, 'index.html');
+    let indexCache: { mtime: number; html: string } | null = null;
+    const readIndex = () => {
+      const mtime = fs.statSync(indexFile).mtimeMs;
+      if (!indexCache || indexCache.mtime !== mtime) indexCache = { mtime, html: fs.readFileSync(indexFile, 'utf8') };
+      return indexCache.html;
+    };
+    app.get('*', async (req, res) => {
       res.setHeader('Cache-Control', 'no-cache');
-      res.sendFile(path.join(distPath, 'index.html'));
+      try {
+        const html = await welcomeHtmlFor(readIndex, req.path, Object.keys(req.query).length > 0);
+        if (html) return res.type('html').send(html);
+      } catch { /* fall through to the plain page */ }
+      res.sendFile(indexFile);
     });
   } else {
     const vite = await createViteServer({

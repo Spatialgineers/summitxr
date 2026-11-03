@@ -22,4 +22,6 @@ export type SummitSectionKey =
   | 'TERMINAL'
   | 'MODELS_3D'
   | 'SPONSOR'
-  | 'SPEAKER_PORTAL';
+  | 'SPEAKER_PORTAL'
+  // welcome portal: /bienvenida and /bienvenida/<rol> (the role is the subtab)
+  | 'WELCOME';

@@ -3,7 +3,7 @@ import { SgxPilotGlyph } from '../../identity/SgxPilotGlyph';
 import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  BarChart3, Building2, Check, LogOut, ShieldCheck, Sparkles, Zap, Ticket, Share2, Menu, X, Sliders, Volume2, VolumeX,
+  BarChart3, Building2, Check, LogOut, ShieldCheck, Sparkles, Zap, Ticket, Share2, Menu, X, Sliders, Volume2, VolumeX, Settings,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -41,6 +41,13 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentPage, onNavigate })
   const sgxId = useOptionalSgxIdentity();
   const { isAdmin, user, logout } = useAuth();
   const [acctOpen, setAcctOpen] = useState(false);
+  // The 3D core's settings (camera, view) sit here while the core is on screen
+  const [coreOn, setCoreOn] = useState(false);
+  useEffect(() => {
+    const on = (e: Event) => setCoreOn(!!(e as CustomEvent<{ on?: boolean }>).detail?.on);
+    window.addEventListener('sgx:core_presence', on);
+    return () => window.removeEventListener('sgx:core_presence', on);
+  }, []);
   const chipRef = useRef<HTMLButtonElement | null>(null);
 
   // Admin tools menu: click outside or Escape closes it; arrows move between items.
@@ -241,6 +248,18 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentPage, onNavigate })
             </button>
             <AccountMenu open={acctOpen} onClose={() => setAcctOpen(false)} anchorRef={chipRef} />
             </div>
+
+            {coreOn && (
+              <button
+                type="button"
+                className="sgx-iconbtn sgx-hdr__icon"
+                onClick={() => { playUiChirp(640); window.dispatchEvent(new CustomEvent('sgx:core_settings')); }}
+                aria-label={es ? 'Ajustes del núcleo 3D' : '3D core settings'}
+                title={es ? 'Ajustes del núcleo 3D' : '3D core settings'}
+              >
+                <Settings aria-hidden />
+              </button>
+            )}
 
             <button
               type="button"

@@ -50,8 +50,9 @@ export const SgxClocksBanner: React.FC<Props> = ({ variant = 'band', es, countdo
     return (
       <div className="sgx-clockinline" role="group" aria-label={es ? 'Fecha y relojes del Summit' : 'Summit date and clocks'}>
         <span className="sgx-clockinline__date">
-          <b>{es ? '11–13 DIC 2026' : 'DEC 11–13, 2026'}</b>
-          <small>10:00 AM AST · <a href={youtubeUrl} target="_blank" rel="noopener noreferrer">YouTube Live</a></small>
+          <b>{es ? '11–13 DIC' : 'DEC 11–13'}<span className="sgx-clockinline__yr">{es ? ' 2026' : ', 2026'}</span></b>
+          <small className="sgx-clockinline__full">10:00 AM AST · <a href={youtubeUrl} target="_blank" rel="noopener noreferrer">YouTube Live</a></small>
+          <small className="sgx-clockinline__lead">{es ? 'Faltan' : 'Starts in'}</small>
         </span>
         <div className="sgx-clockbar__dials">{dialEls}</div>
       </div>

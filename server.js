@@ -3251,7 +3251,7 @@ var APP_FAQ = [
   }
 ];
 var APP_CONTROLS_ES = `- Header: logo del Summit (inicio), la tarjeta del sponsor del momento junto al logo con "Patrocina el Summit", idioma ES/EN, sonido, FX/Ligero, el chip del Creador (abre Tu Estudio), compartir y el Men\xFA con todos los m\xF3dulos.
-- Barra del n\xFAcleo (portada): la fecha y los relojes del Summit, las visitas totales, Agenda, "Elige un pilar"/"Explorar" y Ajustes (girar el n\xFAcleo, zoom, sponsors en 3D, inmersi\xF3n total, modo ligero). Tocar un pilar 3D abre su tarjeta con "Visitar pilar".
+- Barra del n\xFAcleo (portada): la fecha y los relojes del Summit (cuenta regresiva al D\xEDa 1), las visitas totales y Agenda. Los Ajustes del n\xFAcleo (girar, zoom, sponsors en 3D, inmersi\xF3n total, modo ligero) est\xE1n en el engranaje del header de arriba. Tocar un pilar 3D abre su tarjeta con "Visitar pilar".
 - Riel "Misiones x/24": abre el Reactor como pop-up; cada misi\xF3n tiene un bot\xF3n a donde se hace.
 - La cabecita del Highbot (abajo a la derecha) abre este chat.
 - Pulso en vivo: reacciones y encuesta de la keynote, solo durante los d\xEDas del Summit.

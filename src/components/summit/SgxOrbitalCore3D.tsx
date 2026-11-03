@@ -22,7 +22,6 @@ import {
   Pause,
   Play,
   Zap,
-  Compass,
   Maximize2,
   Sparkles,
   ArrowRight,
@@ -32,7 +31,6 @@ import {
   ChevronUp,
   Clock,
   Building2,
-  Settings,
   X,
   Ticket,
   Calendar,
@@ -443,6 +441,16 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   }, [drawerOpen]);
   const [zenImmersionMode, setZenImmersionMode] = useState<boolean>(false);
   const [optionsMenuOpen, setOptionsMenuOpen] = useState<boolean>(false);
+  // The 3D settings live behind the gear in the top header (HeaderNav) while the core is on screen.
+  useEffect(() => {
+    const toggle = () => setOptionsMenuOpen((o) => !o);
+    window.addEventListener('sgx:core_settings', toggle);
+    window.dispatchEvent(new CustomEvent('sgx:core_presence', { detail: { on: true } }));
+    return () => {
+      window.removeEventListener('sgx:core_settings', toggle);
+      window.dispatchEvent(new CustomEvent('sgx:core_presence', { detail: { on: false } }));
+    };
+  }, []);
   const [orbitSpeedMultiplier, setOrbitSpeedMultiplier] = useState<number>(1.0);
   const [loadedModelsCount, setLoadedModelsCount] = useState<number>(0);
   const [xpOrbsCollected, setXpOrbsCollected] = useState<number>(0);
@@ -1896,45 +1904,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               <span>Agenda</span>
             </button>
           )}
-
-          {/* Primary Exploration Trigger Button (Roomy Inspection Modal) */}
-          <button
-            type="button"
-            onClick={() => {
-              playUiChirp(740);
-              setOptionsMenuOpen(false);
-              if (noSelection && !drawerOpen) {
-                setFloatingXpNotice(es ? 'Toca un pilar en 3D o en la barra de abajo' : 'Tap a pillar in 3D or in the bar below');
-                setTimeout(() => setFloatingXpNotice(null), 2200);
-                return;
-              }
-              setDrawerOpen(prev => !prev);
-            }}
-            className="px-2.5 sm:px-3.5 py-1.5 bg-[#FDCC0D] hover:bg-[#FFBB00] text-[#050505] font-['Orbitron',sans-serif] font-black flex items-center gap-1 cursor-pointer text-xs transition-transform hover:scale-102"
-            style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
-          >
-            <Compass className="w-3.5 h-3.5 text-[#050505]" />
-            <span>{drawerOpen ? (es ? 'Cerrar' : 'Close') : noSelection ? (es ? 'Elige un pilar' : 'Pick a pillar') : (es ? `Explorar ${activeNode.id}` : `Explore ${activeNode.id}`)}</span>
-          </button>
-
-          {/* Sleek Options Popover Button (De-clutters secondary controls) */}
-          <button
-            type="button"
-            onClick={() => {
-              playUiChirp(640);
-              setOptionsMenuOpen(prev => !prev);
-            }}
-            className={`p-1.5 sm:px-2 sm:py-1.5 border flex items-center gap-1 transition-colors cursor-pointer text-xs font-bold ${
-              optionsMenuOpen
-                ? 'bg-[#00DDFF] text-black border-[#00DDFF]'
-                : 'bg-[#1A1A1A] hover:bg-[#373737] text-slate-300 border-[#32527B]'
-            }`}
-            style={{ clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}
-            title={es ? 'Opciones avanzadas del Núcleo 3D' : 'Advanced 3D Core options'}
-          >
-            <Settings className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{es ? 'Ajustes' : 'Settings'}</span>
-          </button>
 
           {/* Clean Options Dropdown Popover */}
           {optionsMenuOpen && (

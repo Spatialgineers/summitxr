@@ -1,5 +1,5 @@
 import React from 'react';
-import { Boxes, Cpu, Orbit, Terminal, Ticket } from 'lucide-react';
+import { CalendarDays, Cpu, Orbit, Terminal, Ticket } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useOptionalSgxIdentity } from '../identity/SgxIdentityContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
@@ -7,7 +7,7 @@ import { navigateToSection } from './navigation';
 import { useImmersion } from './ImmersionContext';
 
 /* Phones get a thumb-reach dock instead of a crowded header: core, the six
-   pillars, the SGX Pass, the Reactor and the terminal. */
+   agenda, the SGX Pass, the Reactor and the terminal (the pillars live in Menú). */
 
 const fire = (name: string, detail?: unknown) => window.dispatchEvent(new CustomEvent(name, { detail }));
 
@@ -16,17 +16,16 @@ export const SgxMobileDock: React.FC<{ section: string }> = ({ section }) => {
   const es = language === 'es';
   const { setTerminalOpen } = useImmersion();
   const sgx = useOptionalSgxIdentity();
-  const done = sgx ? sgx.missions.filter((m) => sgx.isDone(m.id)).length : 0;
   const tap = (fn: () => void) => () => { playUiChirp(640); fn(); };
 
   const items = [
     { id: 'core', label: es ? 'Núcleo' : 'Core', icon: Orbit, active: section === 'OVERVIEW', run: () => navigateToSection('OVERVIEW') },
-    { id: 'pillars', label: es ? 'Pilares' : 'Pillars', icon: Boxes, active: section.startsWith('PILLAR'), run: () => fire('sgx:open_main_menu') },
+    { id: 'agenda', label: 'Agenda', icon: CalendarDays, active: section === 'AGENDA', run: () => navigateToSection('AGENDA') },
     {
       id: 'pass', label: sgx?.isForged ? (es ? 'Pase' : 'Pass') : (es ? 'Forjar' : 'Forge'), icon: Ticket, active: section === 'CREDENTIAL_GENERATOR', primary: !sgx?.isForged,
       run: () => fire(sgx?.isForged ? 'sgx:open_hangar' : 'sgx:open_forge', { tab: 'pass' }),
     },
-    { id: 'reactor', label: sgx ? `${done}/${sgx.missions.length}` : 'Reactor', icon: Cpu, active: false, run: () => fire('sgx:open_hangar', { tab: 'reactor' }) },
+    { id: 'reactor', label: 'Reactor', icon: Cpu, active: false, run: () => fire('sgx:open_hangar', { tab: 'reactor' }) },
     { id: 'term', label: es ? 'Terminal' : 'Terminal', icon: Terminal, active: false, run: () => setTerminalOpen(true) },
   ];
 

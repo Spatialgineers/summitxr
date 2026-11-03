@@ -134,7 +134,7 @@ export const APP_FAQ: GuideEntry[] = [
 
 /** Controls that are always on screen, for the prompt. */
 export const APP_CONTROLS_ES = `- Header: logo del Summit (inicio), la tarjeta del sponsor del momento junto al logo con "Patrocina el Summit", idioma ES/EN, sonido, FX/Ligero, el chip del Creador (abre Tu Estudio), compartir y el Menú con todos los módulos.
-- Barra del núcleo (portada): la fecha y los relojes del Summit, las visitas totales, Agenda, "Elige un pilar"/"Explorar" y Ajustes (girar el núcleo, zoom, sponsors en 3D, inmersión total, modo ligero). Tocar un pilar 3D abre su tarjeta con "Visitar pilar".
+- Barra del núcleo (portada): la fecha y los relojes del Summit (cuenta regresiva al Día 1), las visitas totales y Agenda. Los Ajustes del núcleo (girar, zoom, sponsors en 3D, inmersión total, modo ligero) están en el engranaje del header de arriba. Tocar un pilar 3D abre su tarjeta con "Visitar pilar".
 - Riel "Misiones x/24": abre el Reactor como pop-up; cada misión tiene un botón a donde se hace.
 - La cabecita del Highbot (abajo a la derecha) abre este chat.
 - Pulso en vivo: reacciones y encuesta de la keynote, solo durante los días del Summit.

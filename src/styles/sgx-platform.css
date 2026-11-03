@@ -93,7 +93,9 @@
 .sgx-hero__corner { position: absolute; width: 22px; height: 22px; border: 0 solid var(--SGX_Yellow); pointer-events: none; }
 .sgx-hero__corner--tl { top: 10px; left: 22px; border-top-width: 2px; border-left-width: 2px; }
 .sgx-hero__corner--br { bottom: 10px; right: 22px; border-bottom-width: 2px; border-right-width: 2px; }
-.sgx-hero__layout { display: grid; grid-template-columns: auto 1fr auto; gap: clamp(14px, 2.5vw, 32px); align-items: center; }
+.sgx-hero__layout { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: clamp(14px, 2.5vw, 32px); row-gap: 16px; align-items: center; }
+/* the section's controls sit under the title, so the title keeps the whole width (no empty right column) */
+.sgx-hero__layout > .sgx-hero__emblem { grid-row: span 2; align-self: center; }
 .sgx-hero__emblem { position: relative; width: clamp(56px, 7vw, 88px); aspect-ratio: 1; display: grid; place-items: center; }
 .sgx-hero__emblem img { width: 62%; height: 62%; object-fit: contain; filter: drop-shadow(0 0 14px color-mix(in srgb, var(--SGX_Yellow) 40%, transparent)); }
 .sgx-hero__ring {
@@ -117,11 +119,11 @@
 .sgx-hero__path { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; color: var(--telemetry); }
 .sgx-hero__title {
   margin: 0; font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
-  font-size: clamp(1.35rem, 2.7vw, 2.4rem); line-height: 1.08; max-width: 26ch; letter-spacing: 0.02em; color: var(--ink);
+  font-size: clamp(1.35rem, 2.7vw, 2.4rem); line-height: 1.08; max-width: 40ch; text-wrap: balance; letter-spacing: 0.02em; color: var(--ink);
   text-shadow: 0 0 28px color-mix(in srgb, var(--SGX_Yellow) 18%, transparent); overflow-wrap: anywhere;
 }
 .sgx-hero__subtitle { margin: 0; max-width: 70ch; font-family: var(--font-body); font-size: clamp(0.9rem, 1.2vw, 1.05rem); line-height: 1.5; color: #bdbdbd; }
-.sgx-hero__actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; align-self: start; }
+.sgx-hero__actions { grid-column: 2; display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; align-self: start; }
 .sgx-hero__scan { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; overflow: hidden; }
 .sgx-hero__scan::after {
   content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 100%;
@@ -131,6 +133,7 @@
 @keyframes sgx-hero-load { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @media (max-width: 767px) {
   .sgx-hero__layout { grid-template-columns: auto 1fr; }
+  .sgx-hero__layout > .sgx-hero__emblem { grid-row: auto; }
   .sgx-hero__actions { grid-column: 1 / -1; justify-content: flex-start; }
 }
 /* Phones: a compact hero so the section's real content starts on the first screen.

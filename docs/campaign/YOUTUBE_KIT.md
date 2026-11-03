@@ -16,6 +16,7 @@ Visibilidad recomendada:
 | Sponsors | 9:16, ~55 s | Público (Short) | `/bienvenida/sponsor` |
 | SGX Pass | 9:16, ~1 min | Público (Short) | `/bienvenida` |
 | Cómo se construyó la app | 9:16, ~1 min | Público (Short) | `/bienvenida` |
+| Prensa | 9:16, ~56 s | Público (Short) | `/bienvenida/prensa` |
 | Equipo | 9:16, ~55 s | **No listado** (enseña el admin) | `/bienvenida/equipo` |
 
 Ajustes para todos:
@@ -141,7 +142,23 @@ Hecha por Spatialgineers · Ingeniando imaginación, construyendo realidades.
 ```
 **Tags:** Spatialgineers, webapp 3D, Three.js, WebXR, desarrollo web Puerto Rico, gamificación, inteligencia artificial, estudio creativo Puerto Rico
 
-## 7. Equipo (no listado)
+## 7. Prensa
+
+**Título:** ¿Cubres tecnología? Acredítate como prensa en el Spatialgineers Summit 2026 #Shorts
+
+**Descripción:**
+```
+Forja tu SGX Pass, entra a la Sala de prensa y pide tu acreditación: 6 cupos, uno por medio, antes del 1 de diciembre. Si te aprueban, tu pase se vuelve tu credencial de PRENSA: cubres los Días 1 y 2 en la transmisión en vivo y entras al Día 3 en Chroma Space Studios con tu QR.
+Kit de prensa: logos, fotos, hoja de datos y bios de los fundadores.
+
+👉 https://summit.spatialgineers.com/bienvenida/prensa
+Contacto: info@spatialgineers.com
+
+#SpatialgineersSummit #Prensa #PuertoRico
+```
+**Tags:** Spatialgineers Summit 2026, acreditación de prensa, medios Puerto Rico, kit de prensa, periodismo de tecnología, evento de tecnología Puerto Rico
+
+## 8. Equipo (no listado)
 
 **Título:** Spatialgineers Summit 2026 · Guía del equipo: Centro de mando
 

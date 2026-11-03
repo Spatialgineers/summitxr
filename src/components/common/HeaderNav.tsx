@@ -3,7 +3,7 @@ import { SgxPilotGlyph } from '../../identity/SgxPilotGlyph';
 import { PILLAR_ACCENT } from '../../identity/sgxIdentity';
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  BarChart3, Building2, Check, LogOut, ShieldCheck, Sparkles, Zap, Ticket, Share2, Menu, X, Sliders, Volume2, VolumeX, Settings,
+  BarChart3, Building2, Check, LogOut, ShieldCheck, Sparkles, Zap, Ticket, Share2, Menu, X, Sliders, Volume2, VolumeX, Settings, TerminalSquare,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -43,10 +43,14 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentPage, onNavigate })
   const [acctOpen, setAcctOpen] = useState(false);
   // The 3D core's settings (camera, view) sit here while the core is on screen
   const [coreOn, setCoreOn] = useState(false);
+  // On phones the bottom dock carries Menú; the header's own button hides while the dock is there
+  const [dockOn, setDockOn] = useState(false);
   useEffect(() => {
     const on = (e: Event) => setCoreOn(!!(e as CustomEvent<{ on?: boolean }>).detail?.on);
+    const dock = (e: Event) => setDockOn(!!(e as CustomEvent<{ on?: boolean }>).detail?.on);
     window.addEventListener('sgx:core_presence', on);
-    return () => window.removeEventListener('sgx:core_presence', on);
+    window.addEventListener('sgx:dock_presence', dock);
+    return () => { window.removeEventListener('sgx:core_presence', on); window.removeEventListener('sgx:dock_presence', dock); };
   }, []);
   const chipRef = useRef<HTMLButtonElement | null>(null);
 
@@ -274,7 +278,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentPage, onNavigate })
 
             <button
               type="button"
-              className="sgx-hdr__menubtn"
+              className={`sgx-hdr__menubtn ${dockOn ? 'sgx-hdr__menubtn--docked' : ''}`}
               data-guide="menu"
               data-guide-label={es ? 'Menú: los 6 pilares y todos los módulos' : 'Menu: the 6 pillars and every module'}
               aria-haspopup="dialog"
@@ -322,6 +326,9 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ currentPage, onNavigate })
               {langSwitch()}
               <button type="button" className="sgx-iconbtn" aria-pressed={!isAudioMuted} onClick={handleToggleAudio} aria-label={isAudioMuted ? (es ? 'Activar sonido' : 'Turn sound on') : (es ? 'Silenciar sonido' : 'Mute sound')}>
                 {isAudioMuted ? <VolumeX aria-hidden /> : <Volume2 aria-hidden />}
+              </button>
+              <button type="button" className="sgx-iconbtn" onClick={() => { closeMenu(); window.dispatchEvent(new CustomEvent('sgx:open_terminal')); }} aria-label={es ? 'Abrir la terminal' : 'Open the terminal'} title="Terminal">
+                <TerminalSquare aria-hidden />
               </button>
               <button type="button" className="sgx-iconbtn" onClick={handleCopyCurrentURL} aria-label={copiedPath ? (es ? 'Enlace copiado' : 'Link copied') : (es ? 'Copiar enlace' : 'Copy link')}>
                 {copiedPath ? <Check aria-hidden /> : <Share2 aria-hidden />}

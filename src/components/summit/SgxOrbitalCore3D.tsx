@@ -2196,8 +2196,9 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                   <span className="sgx-pcard__index" aria-hidden="true">{String(page?.index || 0).padStart(2, '0')}<small>/06</small></span>
                   <span className="sgx-pcard__icon"><img src={activeNode.iconUrl} alt="" referrerPolicy="no-referrer" /></span>
                   <div className="sgx-pcard__title">
-                    <p className="sgx-pcard__code">{page?.name || activeNode.code}{page ? ` · ${page.guildTeam.replace(/^SGX\./, '')}` : ''}</p>
-                    <h2 id="sgx-core-drawer-title">{loc(activeNode, 'title', language)}</h2>
+                    {/* the pillar's name leads; what it is about reads underneath */}
+                    <h2 id="sgx-core-drawer-title">{page?.name || activeNode.code}</h2>
+                    <p className="sgx-pcard__code">{loc(activeNode, 'title', language)}{page ? ` · ${page.guildTeam.replace(/^SGX\./, '')}` : ''}</p>
                   </div>
                   <button
                     type="button"

@@ -111,12 +111,15 @@ export const ImmersionLayer: React.FC<{ currentPage: PageRoute }> = ({ currentPa
     let lastClick = 0;
     let lastHover = 0;
     let lastHoverEl: Element | null = null;
+    // exploring charges the reactor, spamming the same button does not
+    const charged = new WeakSet<Element>();
     const onClick = (e: MouseEvent) => {
       const el = (e.target as Element | null)?.closest?.(INTERACTIVE);
-      if (!el) return;
+      if (!el || charged.has(el)) return;
       const now = Date.now();
       if (now - lastClick < 350) return;
       lastClick = now;
+      charged.add(el);
       addEnergy(1.5);
     };
     const onOver = (e: PointerEvent) => {

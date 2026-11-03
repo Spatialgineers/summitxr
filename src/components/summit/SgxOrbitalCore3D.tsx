@@ -1314,9 +1314,10 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           spawnShockwave(worldPos, 0xFDCC0D);
           playScanSuccessSound();
           setXpOrbsCollected(c => c + 1);
-          setFloatingXpNotice((es ? '+25 XP • ORBE CUÁNTICO RECOLECTADO' : '+25 XP • QUANTUM ORB COLLECTED'));
+          // each orb pays once per device; collecting it again is just for fun
+          const paid = recordActivity('easter_egg', `Orbe SGX ${orbIdx + 1}`, 'Núcleo SGX', 25);
+          setFloatingXpNotice(paid ? (es ? '+25 XP • ORBE SGX RECOLECTADO' : '+25 XP • SGX ORB COLLECTED') : (es ? 'ORBE SGX · YA LO RECOLECTASTE' : 'SGX ORB · ALREADY COLLECTED'));
           setTimeout(() => setFloatingXpNotice(null), 2200);
-          recordActivity('easter_egg', 'Orbe SGX 3D recolectado', 'Núcleo SGX', 25);
           return;
         }
       }
@@ -1338,9 +1339,12 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           sm.group.getWorldPosition(worldPos);
           spawnShockwave(worldPos, sm.threeColor);
           playScanSuccessSound();
-          setFloatingXpNotice((es ? `+25 XP • ESTACIÓN 3D: ${sm.name.toUpperCase()}` : `+25 XP • 3D STATION: ${sm.name.toUpperCase()}`));
+          // the first visit to each sponsor's station pays; later taps just open it
+          const paid = recordActivity('tour_complete', `Estación Sponsor 3D: ${sm.name}`, sm.tierLabel, 25);
+          setFloatingXpNotice(paid
+            ? (es ? `+25 XP • ESTACIÓN 3D: ${sm.name.toUpperCase()}` : `+25 XP • 3D STATION: ${sm.name.toUpperCase()}`)
+            : (es ? `ESTACIÓN 3D: ${sm.name.toUpperCase()}` : `3D STATION: ${sm.name.toUpperCase()}`));
           setTimeout(() => setFloatingXpNotice(null), 2400);
-          recordActivity('tour_complete', `Estación Sponsor 3D: ${sm.name}`, sm.tierLabel, 25);
           setFocusedSponsorId(sm.id);
           setCameraFocusedOnPillar(false);
           setAutoRotate(false);

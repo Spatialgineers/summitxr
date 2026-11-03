@@ -147,6 +147,19 @@ function mergeProgress(local: PilotProfile, cloud: Partial<PilotProfile>): Pilot
 }
 
 // Calculate Level and Rank from XP
+
+/* XP ledger: which one-time actions already paid on this device (survives reloads). */
+const XP_LEDGER_KEY = 'sgx_xp_ledger_v1';
+const xpLedger: Set<string> = (() => {
+  try { return new Set<string>(JSON.parse(localStorage.getItem(XP_LEDGER_KEY) || '[]')); } catch { return new Set<string>(); }
+})();
+export function claimXpOnce(key: string): boolean {
+  if (xpLedger.has(key)) return false;
+  xpLedger.add(key);
+  try { localStorage.setItem(XP_LEDGER_KEY, JSON.stringify([...xpLedger].slice(-800))); } catch { /* memory only */ }
+  return true;
+}
+
 export function calculateRankAndLevel(xp: number): { level: number; rankTitle: string; nextLevelXp: number; currentLevelBaseXp: number } {
   const XP_PER_LEVEL = 500;
   const level = Math.max(1, Math.floor(xp / XP_PER_LEVEL) + 1);
@@ -188,7 +201,8 @@ interface PilotProfileContextType {
   liteMode: boolean;
   setLiteMode: (enabled: boolean | ((prev: boolean) => boolean)) => void;
   selectPilotRole: (role: 'CREATOR' | 'SPONSOR' | 'STUDENT' | 'VISIONARY') => void;
-  recordActivity: (category: WeekendActivityCategory, title: string, details: string, xpEarned: number, highlightColor?: string) => void;
+  /** Pays XP once per action (same category + title) on this device; returns false when it was already paid. */
+  recordActivity: (category: WeekendActivityCategory, title: string, details: string, xpEarned: number, highlightColor?: string) => boolean;
   recordDroneTrick: (trick: DroneTrickType) => number; // returns XP earned
   recordDroneFlight: (score: number, packages: number, tricks: number) => void;
   updateProfileName: (nickname: string, callsign?: string) => void;
@@ -421,14 +435,17 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }, []);
 
-  // Record Activity in Weekend Breakdown
+  // Record Activity in Weekend Breakdown.
+  // Anti-farm: an action (category + title) pays its XP once per device. Tapping the same
+  // sponsor station, orb, 360° point or button again does nothing, so XP cannot be farmed.
   const recordActivity = useCallback((
     category: WeekendActivityCategory, 
     title: string, 
     details: string, 
     xpEarned: number,
     highlightColor: string = '#00DDFF'
-  ) => {
+  ): boolean => {
+    if (xpEarned > 0 && !claimXpOnce(`${category}|${title}`)) return false;
     setProfile(prev => {
       const newXp = prev.totalXp + xpEarned;
       const { level, rankTitle } = calculateRankAndLevel(newXp);
@@ -511,6 +528,7 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
         ? 'social'
         : 'navigation';
     recordEvent(telemetryCat, category, { title, details, xpEarned });
+    return true;
   }, [pushToLeaderboard]);
 
   // Record Drone Trick and award instant XP

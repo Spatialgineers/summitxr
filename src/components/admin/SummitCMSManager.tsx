@@ -1162,7 +1162,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
               <div key={tier.id} className="p-4 bg-[var(--sgx-bg)] border border-[var(--sgx-secondary)] space-y-2 rounded-xl">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold text-white uppercase font-['Orbitron',sans-serif]">
-                    TIER {tier.tierNumber}: {tier.name}
+                    PAQUETE {tier.tierNumber}: {tier.name}
                   </span>
                   <span className="text-xs font-mono font-bold text-[var(--sgx-accent)]">{tier.priceRange}</span>
                 </div>

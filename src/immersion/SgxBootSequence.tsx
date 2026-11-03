@@ -245,7 +245,7 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
                     }}
                   >
                     {!isFallback(sp) && sp.logoUrl && <img src={sp.logoUrl} alt="" loading="lazy" />}
-                    <span className="sgx-boot__partner-tier">{sp.tierId === 'media_partner' ? (es ? 'Aliado de transmisión' : 'Streaming partner') : `Tier ${tier}`}</span>
+                    <span className="sgx-boot__partner-tier">{sp.tierId === 'media_partner' ? (es ? 'Aliado de transmisión' : 'Streaming partner') : (es ? `Paquete ${tier}` : `Package ${tier}`)}</span>
                     <strong>{open ? (es ? 'Tu marca podría estar aquí' : 'Your brand could be here') : loc(sp, 'companyName', language)}</strong>
                     <span className="sgx-boot__partner-line">{open ? (es ? 'Postula tu marca →' : 'Apply your brand →') : loc(sp, 'tagline', language)}</span>
                   </button>

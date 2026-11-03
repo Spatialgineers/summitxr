@@ -619,7 +619,7 @@ export const SPONSORSHIP_TIERS: SponsorshipTier[] = [
       'Licencia de acceso a la webapp y a sus espacios de promoción y contenido en redes cada vez que se publique algo del Summit, por 365 días desde noviembre. No hay transferencia de código',
       'Exclusividad por categoría: una sola marca de su sector',
       'Reporte final a los 30 días con vistas, asistencia, clics y participación, sin datos personales',
-      'Derecho de primera renovación para el Summit 2027 al mismo Tier (la oferta vence 30 días después del Summit 2026)',
+      'Derecho de primera renovación para el Summit 2027 al mismo paquete (la oferta vence 30 días después del Summit 2026)',
     ],
     featuresEn: [
       'Everything in Package 3',
@@ -629,7 +629,7 @@ export const SPONSORSHIP_TIERS: SponsorshipTier[] = [
       'Access license to the web app and its promotion and social content spaces every time something about the Summit is published, for 365 days starting in November. No code transfer',
       'Category exclusivity: only one brand from your sector',
       'Final report at 30 days with views, attendance, clicks and participation, with no personal data',
-      'Right of first renewal for Summit 2027 at the same Tier (the offer expires 30 days after Summit 2026)',
+      'Right of first renewal for Summit 2027 at the same package (the offer expires 30 days after Summit 2026)',
     ],
     sponsors: []
   },

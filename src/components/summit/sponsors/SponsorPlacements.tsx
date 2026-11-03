@@ -43,7 +43,7 @@ export const SponsorPlacements: React.FC = () => {
               aria-pressed={tier === t}
               onClick={() => setTier(tier === t ? null : t)}
             >
-              Tier {t}
+              {es ? 'Paquete' : 'Package'} {t}
             </button>
           ))}
         </div>

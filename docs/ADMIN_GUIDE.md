@@ -6,7 +6,7 @@ The admin console (`?page=admin`) has 5 areas, a left-side menu and a search box
 |---|---|
 | En vivo | Consola del director, Anuncios, Encuestas del keynote |
 | Contenido | Agenda / Run of Show, Speakers, Sponsors, Niveles de auspicio, Guild Initiates, Mapa 360, Apps embebidas, Cápsulas semanales, Galería, Redes sociales |
-| Personas | Inscritos y Día 3, Audiencia y leads, Entrepreneur Match |
+| Personas | Inscritos y Día 3, Prensa, Audiencia y leads, Entrepreneur Match |
 | Juego | Tienda del Reactor, Misiones, Preguntas en vivo |
 | Sistema | Analítica, Marca y tenants, Efectos visuales, Funciones y QA, Admins, Respaldo y restauración |
 
@@ -44,6 +44,16 @@ People data is export-only:
 - leads
 - sponsor inquiries
 - registrations, from their own panels
+
+## Prensa (press accreditation)
+
+Requests come from `/prensa` (the Sala de prensa, under SGX.Stage). They close on December 1, 2026. There are **6 slots, one per outlet**; the panel shows `aprobados X/6` and warns when two approved people share the same outlet (it also asks before you go over).
+
+- **Aprobar**: the person's SGX Pass becomes the **PRENSA** Holo Card (`credential_grants/{uid}.press`) and their pass is invited to Day 3 in Inscritos (status `INVITED`, so the mailer sends the Day 3 invitation and their QR is their entrance at Chroma).
+- **No aprobar** / **Pendiente**: removes PRENSA from their card and, if the approval was what invited them, puts their Day 3 status back to `PENDING`.
+- **Exportar CSV**: the list with outlet, links, days and pass code.
+
+The press kit (`public/press/`) is rebuilt with `node scripts/press-kit/build.cjs` (see the script header).
 
 ## Other tools
 

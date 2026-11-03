@@ -23,5 +23,7 @@ export type SummitSectionKey =
   | 'MODELS_3D'
   | 'SPONSOR'
   | 'SPEAKER_PORTAL'
+  // press room: accreditation form + press kit (/prensa)
+  | 'PRESS'
   // welcome portal: /bienvenida and /bienvenida/<rol> (the role is the subtab)
   | 'WELCOME';

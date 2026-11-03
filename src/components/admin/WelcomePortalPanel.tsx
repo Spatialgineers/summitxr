@@ -13,6 +13,7 @@ const LABEL: Record<WelcomeVideoKey, string> = {
   visitante: 'Creadores (visitante) · vertical 9:16',
   speaker: 'Speakers y artistas · vertical 9:16',
   sponsor: 'Sponsors y marcas · vertical 9:16',
+  prensa: 'Prensa y medios · vertical 9:16',
   equipo: 'Equipo (interno) · vertical 9:16',
   pass: 'SGX Pass · vertical 9:16',
   tour: 'Recorrido completo · horizontal 16:9',

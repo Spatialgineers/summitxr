@@ -73,6 +73,7 @@ const MatchModule = lazy(() => import('../../modules/match/MatchModule').then((m
 const NetworkingQrScannerModal = lazy(() => import('./NetworkingQrScannerModal').then((m) => ({ default: m.NetworkingQrScannerModal })));
 const SgxWelcomePage = lazy(() => import('./welcome/SgxWelcomePage').then((m) => ({ default: m.SgxWelcomePage })));
 const SummitSpeakerPortalModal = lazy(() => import('./SummitSpeakerPortalModal').then((m) => ({ default: m.SummitSpeakerPortalModal })));
+const SgxPressRoom = lazy(() => import('./press/SgxPressRoom').then((m) => ({ default: m.SgxPressRoom })));
 
 // Every section's home pillar, chips and icons come from the single six-pillar source (lib/sgxPillars).
 const HUD_SECTION_CHIPS: HudSectionChip[] = SGX_PILLARS.flatMap((p) =>
@@ -282,9 +283,12 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
     window.addEventListener('sgx:open_sponsor_modal', handleOpenSponsor);
     const handleOpenModels = () => openModule('MODELS_3D');
     window.addEventListener('sgx:open_models', handleOpenModels);
+    const handleOpenPress = () => openModule('PRESS');
+    window.addEventListener('sgx:open_press', handleOpenPress);
 
     return () => {
       window.removeEventListener('sgx:open_models', handleOpenModels);
+      window.removeEventListener('sgx:open_press', handleOpenPress);
       window.removeEventListener('sgx:switch_summit_section', handleSwitchSectionEvent);
       window.removeEventListener('sgx:open_audit_modal', handleOpenAudit);
       window.removeEventListener('sgx:open_speaker_portal', handleOpenSpeakerPortal);
@@ -644,6 +648,11 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               />
             </LazyBoundary>
           </SgxModulePage>
+        )}
+
+        {/* Sala de prensa: /prensa (its own hero like the welcome portal; accreditation form, press kit, fact sheet and bios) */}
+        {activeSection === 'PRESS' && (
+          <LazyBoundary fallback={<LazyFallback />}><SgxPressRoom /></LazyBoundary>
         )}
 
         {/* Welcome portal: /bienvenida and /bienvenida/<rol> (one shareable link per role) */}

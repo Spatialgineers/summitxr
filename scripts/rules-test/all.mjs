@@ -256,6 +256,20 @@ await ok('owner reads own missing grant', getDoc(doc(bob, 'credential_grants', '
 await no('cannot read someone else grant', getDoc(doc(bob, 'credential_grants', 'alice')));
 await no('visitor cannot list grants', getDocs(collection(alice, 'credential_grants')));
 await ok('admin revokes a role', updateDoc(doc(admin, 'credential_grants', 'alice'), { sponsor: deleteField(), updatedAt: serverTimestamp() }));
+// Press accreditation: the request rides on sponsor_inquiries (no rule change); approval grants the PRENSA card.
+{
+  const pressReq = { id: 'press_1', companyName: 'Medio X', contactName: 'Pat Prensa', roleTitle: 'Periodista', email: 'pat@medio.x', phone: '787-555-0100', websiteUrl: 'https://medio.x', selectedTierId: 'PRESS', selectedTierName: 'Prensa · TV', goals: ['TYPE:tv', 'DAY:1', 'DAY:3', 'CLIP:https://medio.x/nota', 'PASS:SGX26-AAAA-0001', 'CONSENT:yes'], customMessage: 'Nota y entrevista', submittedAt: 1, status: 'PENDING_REVIEW', referenceCode: 'SGX-PRENSA-2026-1234', submittedBy: 'alice' };
+  await ok('press request as a sponsor inquiry (own uid)', setDoc(doc(alice, 'sponsor_inquiries', 'press_1'), pressReq));
+  await no('press request cannot arrive approved', setDoc(doc(alice, 'sponsor_inquiries', 'press_2'), { ...pressReq, id: 'press_2', status: 'APPROVED' }));
+  await no('press request cannot claim another uid', setDoc(doc(alice, 'sponsor_inquiries', 'press_3'), { ...pressReq, id: 'press_3', submittedBy: 'bob' }));
+  await no('visitor cannot read press requests', getDoc(doc(alice, 'sponsor_inquiries', 'press_1')));
+  await ok('admin approves a press request', updateDoc(doc(admin, 'sponsor_inquiries', 'press_1'), { status: 'APPROVED', day3ByPress: true, reviewedAt: 2 }));
+  await ok('admin grants press card', setDoc(doc(admin, 'credential_grants', 'alice'), { press: { name: 'Pat Prensa', org: 'Medio X', grantedAt: 3 }, updatedAt: serverTimestamp() }, { merge: true }));
+  await no('press grant must be a map', setDoc(doc(admin, 'credential_grants', 'bob'), { press: 'yes', updatedAt: serverTimestamp() }));
+  await no('visitor cannot grant self press', setDoc(doc(alice, 'credential_grants', 'alice'), { press: { name: 'Alice' }, updatedAt: serverTimestamp() }, { merge: true }));
+  await ok('owner reads own press grant', getDoc(doc(alice, 'credential_grants', 'alice')));
+  await ok('admin revokes press', updateDoc(doc(admin, 'credential_grants', 'alice'), { press: deleteField(), updatedAt: serverTimestamp() }));
+}
 await ok('admin writes initiate claim', setDoc(doc(admin, 'initiate_claims', 'alice.guild@example.com'), { initiateId: 'init_3', updatedAt: serverTimestamp() }));
 await no('visitor cannot write initiate claim', setDoc(doc(alice, 'initiate_claims', 'alice@x.com'), { initiateId: 'init_1' }));
 await ok('initiate reads own claim (Google)', getDoc(doc(aliceG, 'initiate_claims', 'alice.guild@example.com')));

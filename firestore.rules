@@ -174,16 +174,17 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
-    // Holo Card roles granted by the team when it approves a speaker or a
-    // sponsor. The owner reads their own; only admins write.
+    // Holo Card roles granted by the team when it approves a speaker, a
+    // sponsor, an initiate or accredited press. The owner reads their own; only admins write.
     match /credential_grants/{uid} {
       allow get: if isAdmin() || (isSignedIn() && uid == me());
       allow list: if isAdmin();
       allow create, update: if isAdmin() && isValidId(uid) &&
-        incoming().keys().hasOnly(['speaker', 'sponsor', 'initiate', 'updatedAt']) &&
+        incoming().keys().hasOnly(['speaker', 'sponsor', 'initiate', 'press', 'updatedAt']) &&
         (!('speaker' in incoming()) || incoming().speaker is map) &&
         (!('sponsor' in incoming()) || incoming().sponsor is map) &&
-        (!('initiate' in incoming()) || incoming().initiate is map);
+        (!('initiate' in incoming()) || incoming().initiate is map) &&
+        (!('press' in incoming()) || incoming().press is map);
       allow delete: if isAdmin();
     }
 

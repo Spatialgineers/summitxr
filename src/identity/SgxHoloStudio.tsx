@@ -59,9 +59,9 @@ export const SgxHoloStudio: React.FC<Props> = ({ onClose }) => {
   });
 
   // One card: the SGX Pass IS the Holo Card. A role the team approved (speaker,
-  // initiate, sponsor) only changes what YOUR pass says; it is never a second card.
+  // initiate, sponsor, press) only changes what YOUR pass says; it is never a second card.
   const base = credentials.find((c) => c.role === 'visitor');
-  const ROLE_ORDER: CredentialRole[] = ['speaker', 'initiate', 'sponsor'];
+  const ROLE_ORDER: CredentialRole[] = ['speaker', 'initiate', 'sponsor', 'press'];
   const officialRole = ROLE_ORDER.map((r) => credentials.find((c) => c.role === r && c.status === 'official')).find(Boolean);
   const pendingRole = ROLE_ORDER.map((r) => credentials.find((c) => c.role === r && c.status === 'review')).find(Boolean);
   const cred: HoloCredential | undefined = base && officialRole
@@ -203,6 +203,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ onClose }) => {
     window.setTimeout(() => {
       if (cred?.role === 'speaker') fire('sgx:open_speaker_portal');
       else if (cred?.role === 'sponsor') fire('sgx:open_sponsor_modal');
+      else if (cred?.role === 'press') fire('sgx:open_press');
       else fire('sgx:open_forge');
     }, 80);
   };
@@ -259,7 +260,9 @@ export const SgxHoloStudio: React.FC<Props> = ({ onClose }) => {
             <p className="sgx-hstudio__review">
               {pendingRole.role === 'speaker'
                 ? (es ? 'Tu perfil de speaker está en revisión. Cuando el equipo lo apruebe, tu pase dirá SPEAKER.' : 'Your speaker profile is in review. Once the team approves it, your pass will say SPEAKER.')
-                : (es ? 'Tu alianza de sponsor está en revisión. Cuando el equipo la apruebe, tu pase dirá SPONSOR.' : 'Your sponsor partnership is in review. Once the team approves it, your pass will say SPONSOR.')}
+                : pendingRole.role === 'press'
+                  ? (es ? 'Tu acreditación de prensa está en revisión. Cuando el equipo la apruebe, tu pase dirá PRENSA y te invita al Día 3.' : 'Your press accreditation is in review. Once the team approves it, your pass will say PRESS and invites you to Day 3.')
+                  : (es ? 'Tu alianza de sponsor está en revisión. Cuando el equipo la apruebe, tu pase dirá SPONSOR.' : 'Your sponsor partnership is in review. Once the team approves it, your pass will say SPONSOR.')}
             </p>
           )}
           <div className="sgx-hstudio__actions">
@@ -294,7 +297,7 @@ export const SgxHoloStudio: React.FC<Props> = ({ onClose }) => {
             </p>
             {cred.role !== 'initiate' && (
               <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={editData}>
-                {cred.role === 'speaker' ? (es ? 'Abrir portal de speakers' : 'Open speaker portal') : cred.role === 'sponsor' ? (es ? 'Abrir formulario de sponsors' : 'Open sponsor form') : (es ? 'Editar mi pase' : 'Edit my pass')}
+                {cred.role === 'speaker' ? (es ? 'Abrir portal de speakers' : 'Open speaker portal') : cred.role === 'sponsor' ? (es ? 'Abrir formulario de sponsors' : 'Open sponsor form') : cred.role === 'press' ? (es ? 'Abrir sala de prensa' : 'Open press room') : (es ? 'Editar mi pase' : 'Edit my pass')}
               </button>
             )}
           </section>

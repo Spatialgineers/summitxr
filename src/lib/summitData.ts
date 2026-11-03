@@ -1407,7 +1407,8 @@ export async function fetchSponsorInquiriesRemote(): Promise<SponsorInquiry[]> {
     const map = new Map<string, SponsorInquiry>();
     local.forEach((i) => map.set(i.id, i));
     snap.docs.forEach((d) => map.set(d.id, { ...(d.data() as SponsorInquiry), id: d.id }));
-    const merged = Array.from(map.values()).sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0));
+    // Press accreditation requests share the collection (selectedTierId 'PRESS'): they live in Personas → Prensa.
+    const merged = Array.from(map.values()).filter((i) => i.selectedTierId !== 'PRESS').sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0));
     saveAllSponsorInquiries(merged);
     return merged;
   } catch (err) {

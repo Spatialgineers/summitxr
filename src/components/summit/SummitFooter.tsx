@@ -12,6 +12,14 @@ import './summitFooter.css';
 
 const TEL = `tel:${SGX_PHONE.replace(/[^+\d]/g, '')}`;
 
+/* The press room is a page of its own (/prensa): open it in place, or in a new tab with a modifier. */
+const openPress = (e: React.MouseEvent) => {
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+  e.preventDefault();
+  playUiChirp(760);
+  window.dispatchEvent(new CustomEvent('sgx:open_press'));
+};
+
 const replayIntro = () => {
   playUiChirp(840);
   window.dispatchEvent(new CustomEvent('sgx:replay_splash'));
@@ -71,7 +79,11 @@ export const SummitFooter: React.FC<SummitFooterProps> = ({ onOpenPrivacy, onOpe
           <ul className="sgx-foot__facts">
             <li><a href={`mailto:${SGX_EMAIL}`}>{SGX_EMAIL}</a></li>
             <li><a href={TEL}>{SGX_PHONE}</a></li>
-            <li>{es ? 'Prensa: pide tu acreditación antes del 1 de diciembre (6 cupos, uno por medio).' : 'Press: request accreditation before December 1 (6 slots, one per outlet).'}</li>
+            <li>
+              <a href="/prensa" className="sgx-foot__link" onClick={openPress}>
+                {es ? 'Prensa: pide tu acreditación antes del 1 de diciembre (6 cupos, uno por medio)' : 'Press: request accreditation before December 1 (6 slots, one per outlet)'}
+              </a>
+            </li>
             <li>
               <button type="button" className="sgx-foot__link" onClick={onOpenSponsors}>
                 {es ? 'Patrocina el Summit' : 'Sponsor the Summit'}

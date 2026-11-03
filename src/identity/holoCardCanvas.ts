@@ -384,6 +384,22 @@ function roleCopy(art: CardArt) {
       stub: 'INITIATE', myDays: ['d1'] as DayKey[],
     };
   }
+  if (cred.role === 'press') {
+    // Accredited press: the 3 days (YouTube Live on Days 1–2, in person at Chroma on Day 3 with the pass QR).
+    return {
+      chip: review ? (es ? 'EN REVISIÓN' : 'IN REVIEW') : (es ? 'ACREDITADO' : 'ACCREDITED'),
+      eyebrow: review ? (es ? 'PRENSA · EN REVISIÓN' : 'PRESS · IN REVIEW') : (es ? 'PRENSA ACREDITADA' : 'ACCREDITED PRESS'),
+      name, line2: joinTitleOrg || (es ? 'Cargo · Medio' : 'Title · Outlet'), handle: cred.handle || '',
+      blockLabel: es ? 'COBERTURA' : 'COVERAGE', blockWord: (cred.topic || '').trim().toUpperCase() || (es ? 'PRENSA' : 'PRESS'),
+      blockText: es ? 'Días 1 y 2 por YouTube Live. Día 3 en Chroma con tu QR.' : 'Days 1 and 2 on YouTube Live. Day 3 at Chroma with your QR.',
+      cells: [
+        { k: es ? 'DÍAS 1–2' : 'DAYS 1–2', v: 'YOUTUBE LIVE', weight: 700, fam: TITLE, color: C.y, big: 17, f: 1.05 },
+        { k: L(DAYS.d3.n, es), v: 'CHROMA', f: 0.9 },
+        { k: es ? 'ACCESO' : 'ACCESS', v: es ? '3 DÍAS' : '3 DAYS', color: C.cyan, fam: MONO, weight: 400, big: 18, f: 0.9 },
+      ] as Cell[],
+      stub: es ? 'PRENSA' : 'PRESS', myDays: ['d1', 'd2', 'd3'] as DayKey[],
+    };
+  }
   return {
     chip: review ? (es ? 'EN REVISIÓN' : 'IN REVIEW') : 'SPONSOR',
     eyebrow: review ? (es ? 'SPONSOR · EN REVISIÓN' : 'SPONSOR · IN REVIEW') : (es ? 'AUSPICIADOR OFICIAL' : 'OFFICIAL SPONSOR'),

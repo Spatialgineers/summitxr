@@ -5,10 +5,10 @@ import { playUiChirp } from '../lib/cyberAudioEngine';
 import { SGX_PILLARS, type PillarKey } from '../lib/sgxPillars';
 import { SgxDialog } from '../components/common/SgxDialog';
 import { useSgxIdentity } from './SgxIdentityContext';
-import { submitInitiateRequest, type CredentialRole, type HoloCredential } from './credentials';
+import { ROLE_COPY, submitInitiateRequest, type CredentialRole, type HoloCredential } from './credentials';
 
 /* TU ROL EN EL SUMMIT: everyone forges the pass first; from it they ask to be
-   a speaker, a sponsor or an SGX Guild initiate. Until the team approves, the
+   a speaker, a sponsor, an SGX Guild initiate or accredited press. Until the team approves, the
    request shows "En revisión"; once approved, this same pass card switches to
    that role. */
 
@@ -16,6 +16,7 @@ const ROLES: { role: Exclude<CredentialRole, 'visitor'>; es: [string, string]; e
   { role: 'speaker', es: ['Speaker o artista', 'Presenta en la agenda del Summit.'], en: ['Speaker or artist', 'Present on the Summit agenda.'] },
   { role: 'initiate', es: ['Initiate del SGX Guild', 'Muestra tu portafolio en el Guild.'], en: ['SGX Guild initiate', 'Show your portfolio in the Guild.'] },
   { role: 'sponsor', es: ['Sponsor', 'Pon tu marca dentro del Summit.'], en: ['Sponsor', 'Put your brand inside the Summit.'] },
+  { role: 'press', es: ['Prensa', 'Cubre el Summit: acreditación antes del 1 de diciembre.'], en: ['Press', 'Cover the Summit: accreditation before December 1.'] },
 ];
 
 const fire = (name: string, detail?: unknown) => window.dispatchEvent(new CustomEvent(name, { detail }));
@@ -36,6 +37,7 @@ export const SgxRoleRequests: React.FC<{ credentials: HoloCredential[]; current:
     playUiChirp(760);
     if (r === 'speaker') fire('sgx:open_speaker_portal');
     else if (r === 'sponsor') fire('sgx:open_sponsor_modal');
+    else if (r === 'press') fire('sgx:open_press');
     else setInitiateOpen(true);
   };
 
@@ -45,7 +47,7 @@ export const SgxRoleRequests: React.FC<{ credentials: HoloCredential[]; current:
       <p className="sgx-hstudio__hint">
         {current === 'visitor'
           ? (es ? 'Tu pase dice CREADOR. Solicita un rol y, cuando el equipo lo apruebe, esta misma tarjeta cambia a ese rol.' : 'Your pass says CREATOR. Ask for a role and, once the team approves it, this same card switches to that role.')
-          : (es ? `Tu pase ya es de ${current.toUpperCase()}.` : `Your pass is now ${current.toUpperCase()}.`)}
+          : (es ? `Tu pase ya es de ${ROLE_COPY[current].label[0].toUpperCase()}.` : `Your pass is now ${ROLE_COPY[current].label[1].toUpperCase()}.`)}
       </p>
       <ul className="sgx-roles__list">
         {ROLES.map((r) => {

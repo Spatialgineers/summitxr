@@ -1778,7 +1778,8 @@ import {
   Box,
   Handshake,
   MonitorPlay,
-  Mic
+  Mic,
+  Newspaper
 } from "lucide-react";
 var ICON_BASE = "https://cdn.spatialgineers.com/Branding/Pilares/";
 var SGX_PILLARS = [
@@ -1879,7 +1880,8 @@ var SGX_PILLARS = [
       { kind: "section", key: "BROADCAST_ROOMS", icon: Radio, label: { es: "Salas de transmisi\xF3n", en: "Broadcast rooms" }, desc: { es: "YouTube Live como canal principal, con LinkedIn y Facebook Live.", en: "YouTube Live as the main channel, plus LinkedIn and Facebook Live." } },
       { kind: "section", key: "SPEAKERS", icon: Users, label: { es: "Speakers & artistas", en: "Speakers & artists" }, desc: { es: "Solo se publican quienes est\xE1n confirmados por escrito.", en: "Only people confirmed in writing are published." } },
       { kind: "page", page: "stage", icon: MonitorPlay, label: { es: "Escenario en vivo", en: "Live stage" }, desc: { es: "La pantalla del escenario: preguntas, votos y reacciones en vivo.", en: "The stage screen: live questions, votes and reactions." } },
-      { kind: "section", key: "SPEAKER_PORTAL", icon: Mic, label: { es: "Portal de speakers", en: "Speaker portal" }, desc: { es: "Para speakers y artistas: tu ficha, tu avatar y tu Holo Card de speaker.", en: "For speakers and artists: your profile, avatar and speaker Holo Card." } }
+      { kind: "section", key: "SPEAKER_PORTAL", icon: Mic, label: { es: "Portal de speakers", en: "Speaker portal" }, desc: { es: "Para speakers y artistas: tu ficha, tu avatar y tu Holo Card de speaker.", en: "For speakers and artists: your profile, avatar and speaker Holo Card." } },
+      { kind: "section", key: "PRESS", icon: Newspaper, label: { es: "Sala de prensa", en: "Press room" }, desc: { es: "Acreditaci\xF3n de prensa (antes del 1 de dic, 6 cupos, uno por medio), kit de prensa y ficha del Summit.", en: "Press accreditation (before Dec 1, 6 slots, one per outlet), press kit and Summit fact sheet." } }
     ]
   },
   {
@@ -1968,6 +1970,7 @@ var SECTION_TO_SLUG = {
   MODELS_3D: "modelos-3d",
   SPONSOR: "patrocina",
   SPEAKER_PORTAL: "portal-speakers",
+  PRESS: "prensa",
   WELCOME: "bienvenida"
 };
 
@@ -3233,9 +3236,10 @@ var APP_FAQ = [
   },
   {
     id: "press",
-    keys: ["prensa", "medio", "periodista", "acreditacion", "press", "media", "journalist"],
+    keys: ["prensa", "medio", "medios", "periodista", "acreditacion", "kit de prensa", "press", "media", "journalist", "press kit"],
     q: { es: "Soy prensa", en: "I am press" },
-    a: { es: "La acreditaci\xF3n de prensa es antes del 1 de diciembre, por info@spatialgineers.com: 6 cupos, uno por medio.", en: "Press accreditation is before December 1, via info@spatialgineers.com: 6 spots, one per outlet." }
+    a: { es: "Solicita tu acreditaci\xF3n en la Sala de prensa (/prensa) antes del 1 de diciembre: 6 cupos, uno por medio, y primero forjas tu SGX Pass. Cubre los 3 d\xEDas, con entrada al D\xEDa 3 en Chroma. Ah\xED mismo est\xE1 el kit de prensa. Dudas: info@spatialgineers.com.", en: "Request accreditation in the Press room (/prensa) before December 1: 6 spots, one per outlet, and you forge your SGX Pass first. It covers all 3 days, with Day 3 entry at Chroma. The press kit is right there too. Questions: info@spatialgineers.com." },
+    go: "prensa"
   },
   {
     id: "terminal",
@@ -3567,7 +3571,7 @@ var EVENT = `## Spatialgineers Summit 2026: lo esencial
 - Fechas: 11, 12 y 13 de diciembre de 2026. En espa\xF1ol.
 - D\xEDas 1 y 2: 100% digitales y gratis por YouTube Live (canal principal, https://www.youtube.com/@spatialgineers), tambi\xE9n en LinkedIn y Facebook Live; Los Mismos TV transmite junto a Spatialgineers. El D\xEDa 1 hay artistas invitados present\xE1ndose dentro de Roblox.
 - D\xEDa 3 (domingo 13): SGX Showcase presencial en Chroma Space Studios, San Juan. Por invitaci\xF3n. Demos en vivo de todos los pilares y networking. El check-in del D\xEDa 3 se hace con el SGX Pass escaneando el QR de la entrada.
-- Prensa: acreditaci\xF3n antes del 1 de diciembre (6 cupos, uno por medio), por info@spatialgineers.com.
+- Prensa: la acreditaci\xF3n se solicita en la Sala de prensa (summit.spatialgineers.com/prensa) antes del 1 de diciembre: 6 cupos, uno por medio, con el SGX Pass forjado primero. Cubre los 3 d\xEDas (YouTube Live los D\xEDas 1 y 2 y entrada al D\xEDa 3 en Chroma con el QR del pase); al aprobarse, la Holo Card dice PRENSA. La misma p\xE1gina tiene el kit de prensa (logos, fotos de los fundadores, capturas y ficha en PDF). Contacto de prensa: info@spatialgineers.com.
 - Partners: Chroma Space Studios (sede del D\xEDa 3, Paquete 5: alianza de servicios esenciales) y Los Mismos TV (medio aliado de la transmisi\xF3n). Los espacios "Tu marca aqu\xED" de la app est\xE1n abiertos a marcas a prop\xF3sito.
 - Patrocinio: Paquete 1 Digital Presence ($50\u2013$100, 10 cupos), Paquete 2 Gamified ($250\u2013$500, 6 cupos), Paquete 3 Experience ($750\u2013$1,000, 6 cupos), Paquete 4 Signature Experience ($1,500\u2013$2,500, 3 cupos), Paquete 5 Alianza de servicios esenciales (a convenir, 3 cupos). Cada paquete incluye lo del anterior. Detalle y solicitud en la p\xE1gina "Patrocina el Summit".
 
@@ -4289,12 +4293,138 @@ var SGX_EMAIL = "info@spatialgineers.com";
 var SGX_PHONE = "+1 (787) 445-5284";
 var SGX_SOCIAL = "@spatialgineers";
 
+// src/lib/pressKit.ts
+var PRESS_PATH = "/prensa";
+var PRESS_ORIGIN = "https://summit.spatialgineers.com";
+var PRESS_URL = `${PRESS_ORIGIN}${PRESS_PATH}`;
+var PRESS_DEADLINE_ISO = "2026-12-01T00:00:00-04:00";
+var PRESS_DEADLINE = Date.parse(PRESS_DEADLINE_ISO);
+var PRESS_RULES = {
+  deadline: { es: "Solicita antes del 1 de diciembre de 2026", en: "Apply before December 1, 2026" },
+  slots: { es: "6 cupos, uno por medio", en: "6 slots, one per outlet" },
+  access: {
+    es: "La acreditaci\xF3n cubre los 3 d\xEDas: la transmisi\xF3n por YouTube Live los D\xEDas 1 y 2, y la entrada presencial al D\xEDa 3 en Chroma Space Studios con el QR de tu SGX Pass.",
+    en: "Accreditation covers all 3 days: the YouTube Live broadcast on Days 1 and 2, and in-person entry to Day 3 at Chroma Space Studios with your SGX Pass QR."
+  },
+  line: {
+    es: "Prensa: solicita tu acreditaci\xF3n en summit.spatialgineers.com/prensa antes del 1 de diciembre (6 cupos, uno por medio).",
+    en: "Press: request accreditation at summit.spatialgineers.com/prensa before December 1 (6 slots, one per outlet)."
+  }
+};
+var PRESS_FACTS = [
+  { k: { es: "Evento", en: "Event" }, v: { es: "Spatialgineers Summit 2026", en: "Spatialgineers Summit 2026" } },
+  { k: { es: "Fechas", en: "Dates" }, v: { es: "11, 12 y 13 de diciembre de 2026", en: "December 11, 12 and 13, 2026" } },
+  { k: { es: "D\xEDas 1 y 2", en: "Days 1 and 2" }, v: { es: "Digitales y gratis por YouTube Live, con Los Mismos TV transmitiendo junto a Spatialgineers.", en: "Digital and free on YouTube Live, with Los Mismos TV streaming alongside Spatialgineers." } },
+  { k: { es: "D\xEDa 3", en: "Day 3" }, v: { es: "SGX Showcase presencial en Chroma Space Studios, San Juan, Puerto Rico. Por invitaci\xF3n.", en: "In-person SGX Showcase at Chroma Space Studios, San Juan, Puerto Rico. By invitation." } },
+  { k: { es: "Idioma", en: "Language" }, v: { es: "Espa\xF1ol", en: "Spanish" } },
+  { k: { es: "Formato", en: "Format" }, v: { es: "Seis pilares del SGX Framework: Story, Showcase, Spark, Stage, System y Synthesize.", en: "Six pillars of the SGX Framework: Story, Showcase, Spark, Stage, System and Synthesize." } },
+  { k: { es: "Organiza", en: "Organizer" }, v: { es: "Spatialgineers LLC, estudio de ingenier\xEDa creativa y computaci\xF3n espacial en Puerto Rico.", en: "Spatialgineers LLC, a creative engineering and spatial computing studio in Puerto Rico." } },
+  { k: { es: "Fundadores", en: "Founders" }, v: { es: 'Danelson Maldonado Gonz\xE1lez "The Highgineer" y Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers".', en: 'Danelson Maldonado Gonz\xE1lez "The Highgineer" and Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers".' } },
+  { k: { es: "Portafolio", en: "Portfolio" }, v: { es: "60+ espacios digitales y 10 juegos interactivos.", en: "60+ digital spaces and 10 interactive games." } },
+  { k: { es: "Web del Summit", en: "Summit website" }, v: { es: "summit.spatialgineers.com", en: "summit.spatialgineers.com" } },
+  { k: { es: "Prensa", en: "Press" }, v: { es: "Acreditaci\xF3n antes del 1 de diciembre de 2026: 6 cupos, uno por medio. info@spatialgineers.com", en: "Accreditation before December 1, 2026: 6 slots, one per outlet. info@spatialgineers.com" } }
+];
+var PRESS_ABOUT = {
+  summit: {
+    es: "El Spatialgineers Summit 2026 son tres d\xEDas de computaci\xF3n espacial, artistas invitados y producci\xF3n virtual en vivo, en espa\xF1ol. Los D\xEDas 1 y 2 (11 y 12 de diciembre) son digitales y gratis por YouTube Live, con Los Mismos TV transmitiendo junto a Spatialgineers. El D\xEDa 3 (13 de diciembre) es el SGX Showcase presencial en Chroma Space Studios, San Juan, por invitaci\xF3n. El programa se organiza en los seis pilares del SGX Framework: Story, Showcase, Spark, Stage, System y Synthesize. La experiencia vive en una webapp con n\xFAcleo 3D, el SGX Pass gratis (la Holo Card de cada Creador), el Highbot y una arena de votaci\xF3n en vivo.",
+    en: "Spatialgineers Summit 2026 is three days of spatial computing, guest artists and live virtual production, in Spanish. Days 1 and 2 (December 11 and 12) are digital and free on YouTube Live, with Los Mismos TV streaming alongside Spatialgineers. Day 3 (December 13) is the in-person SGX Showcase at Chroma Space Studios, San Juan, by invitation. The program is organized around the six pillars of the SGX Framework: Story, Showcase, Spark, Stage, System and Synthesize. The experience lives in a web app with a 3D core, the free SGX Pass (each Creator\u2019s Holo Card), the Highbot and a live voting arena."
+  },
+  studio: {
+    es: 'Spatialgineers LLC es un estudio de ingenier\xEDa creativa y computaci\xF3n espacial en Puerto Rico: producci\xF3n 3D, medios inmersivos, gamificaci\xF3n, WebXR, VR/AR e IA. Opera desde 2023 y es LLC desde marzo de 2026. Sus fundadores, Danelson Maldonado Gonz\xE1lez y Ricardo A. Hern\xE1ndez D\xEDaz, son ingenieros mec\xE1nicos del Recinto Universitario de Mayag\xFCez (UPR). Su portafolio p\xFAblico suma m\xE1s de 60 espacios digitales y 10 juegos interactivos. Lema: "Ingeniando imaginaci\xF3n, construyendo realidades."',
+    en: 'Spatialgineers LLC is a creative engineering and spatial computing studio in Puerto Rico: 3D production, immersive media, gamification, WebXR, VR/AR and AI. It has operated since 2023 and became an LLC in March 2026. Its founders, Danelson Maldonado Gonz\xE1lez and Ricardo A. Hern\xE1ndez D\xEDaz, are mechanical engineers from the University of Puerto Rico at Mayag\xFCez (RUM). Its public portfolio counts 60+ digital spaces and 10 interactive games. Motto: "Engineering Imagination, Building Realities."'
+  }
+};
+var PRESS_FOUNDERS = [
+  {
+    id: "danelson",
+    name: "Danelson Maldonado Gonz\xE1lez",
+    alias: "The Highgineer",
+    role: { es: "Presidente, CEO y Director Creativo", en: "President, CEO and Creative Director" },
+    bio: {
+      es: 'Danelson Maldonado Gonz\xE1lez, "The Highgineer", es cofundador, Presidente, CEO y Director Creativo de Spatialgineers. Ingeniero mec\xE1nico del Recinto Universitario de Mayag\xFCez (UPR), dirige la visi\xF3n, la estrategia creativa, las alianzas, la narrativa y la direcci\xF3n de arte del estudio. Es el creador del SGX Framework de seis pilares y de Highcoon, la IP propia de Spatialgineers. En el Summit abre la transmisi\xF3n del D\xEDa 1 y, el D\xEDa 3, presenta con su avatar y captura facial en tiempo real.',
+      en: 'Danelson Maldonado Gonz\xE1lez, "The Highgineer", is co-founder, President, CEO and Creative Director of Spatialgineers. A mechanical engineer from the University of Puerto Rico at Mayag\xFCez (RUM), he leads the studio\u2019s vision, creative strategy, partnerships, narrative and art direction. He created the six-pillar SGX Framework and Highcoon, Spatialgineers\u2019 own IP. At the Summit he opens the Day 1 broadcast and, on Day 3, presents with his avatar and real-time facial capture.'
+    },
+    photo: "/press/fotos/danelson-maldonado-the-highgineer.jpg"
+  },
+  {
+    id: "ricardo",
+    name: "Ricardo A. Hern\xE1ndez D\xEDaz",
+    alias: "Lightning Fingers",
+    role: { es: "Vicepresidente, CPO y Director T\xE9cnico", en: "Vice President, CPO and Technical Director" },
+    bio: {
+      es: 'Ricardo A. Hern\xE1ndez D\xEDaz, "Lightning Fingers", es cofundador, Vicepresidente, CPO y Director T\xE9cnico de Spatialgineers. Ingeniero mec\xE1nico del Recinto Universitario de Mayag\xFCez (UPR), lidera la ingenier\xEDa y la implementaci\xF3n: Blender, Unity, Unreal, Roblox y WebXR, con la web primero en Three.js. En el Summit acompa\xF1a el bloque de SGX.Showcase y prepara la escena y la iluminaci\xF3n del D\xEDa 3 en Chroma Space Studios.',
+      en: 'Ricardo A. Hern\xE1ndez D\xEDaz, "Lightning Fingers", is co-founder, Vice President, CPO and Technical Director of Spatialgineers. A mechanical engineer from the University of Puerto Rico at Mayag\xFCez (RUM), he leads engineering and implementation: Blender, Unity, Unreal, Roblox and WebXR, web-first in Three.js. At the Summit he joins the SGX.Showcase block and sets up the stage and lighting for Day 3 at Chroma Space Studios.'
+    },
+    photo: "/press/fotos/ricardo-hernandez-lightning-fingers.jpg"
+  }
+];
+var PRESS_KIT_ZIP = "/press/spatialgineers-summit-2026-kit-de-prensa.zip";
+var PRESS_FACT_SHEET_PDF = "/press/spatialgineers-summit-2026-ficha-de-prensa.pdf";
+var photo = (slug, cdn, title) => ({
+  kind: "photo",
+  file: `/press/fotos/${slug}.jpg`,
+  thumb: `/press/thumbs/${slug}.jpg`,
+  title,
+  credit: "Foto: Spatialgineers",
+  source: { url: `https://cdn.spatialgineers.com/Nosotros/${cdn}.png` }
+});
+var shot = (slug, title) => ({
+  kind: "screenshot",
+  file: `/press/app/${slug}.jpg`,
+  thumb: `/press/thumbs/${slug}.jpg`,
+  title,
+  credit: "Captura: Spatialgineers Summit 2026",
+  source: { shot: slug }
+});
+var PRESS_ASSETS = [
+  { kind: "logo", file: "/press/logos/spatialgineers-summit-2026-logo.png", thumb: "/press/thumbs/spatialgineers-summit-2026-logo.png", title: { es: "Logo del Spatialgineers Summit", en: "Spatialgineers Summit logo" }, credit: "Spatialgineers LLC", source: { url: "https://cdn.spatialgineers.com/Branding/Summit/Spat%20Summit%20Icon%20Logo%20BY.png" } },
+  { kind: "logo", file: "/press/logos/spatialgineers-logo.png", thumb: "/press/thumbs/spatialgineers-logo.png", title: { es: "Logo de Spatialgineers", en: "Spatialgineers logo" }, credit: "Spatialgineers LLC", source: { url: "https://cdn.spatialgineers.com/Branding/Logo%20BY.PNG" } },
+  { kind: "logo", file: "/press/logos/spatialgineers-summit-2026-insignia.png", thumb: "/press/thumbs/spatialgineers-summit-2026-insignia.png", title: { es: "Insignia del Summit (fondo transparente)", en: "Summit badge (transparent background)" }, credit: "Spatialgineers LLC", source: { local: "brand/summit-logo.png" } },
+  photo("fundadores-danelson-y-ricardo", "IMG_2026", { es: "Los fundadores: The Highgineer y Lightning Fingers", en: "The founders: The Highgineer and Lightning Fingers" }),
+  photo("danelson-maldonado-the-highgineer", "IMG_2028", { es: 'Danelson Maldonado Gonz\xE1lez, "The Highgineer"', en: 'Danelson Maldonado Gonz\xE1lez, "The Highgineer"' }),
+  photo("ricardo-hernandez-lightning-fingers", "IMG_2029", { es: 'Ricardo A. Hern\xE1ndez D\xEDaz, "Lightning Fingers"', en: 'Ricardo A. Hern\xE1ndez D\xEDaz, "Lightning Fingers"' }),
+  photo("comunidad-spatialgineers", "IMG_2037", { es: "La comunidad Spatialgineers", en: "The Spatialgineers community" }),
+  photo("demo-computacion-espacial", "IMG_2038", { es: "Demostraci\xF3n de computaci\xF3n espacial", en: "Spatial computing demo" }),
+  photo("taller-de-prototipado", "IMG_2039", { es: "Taller de prototipado", en: "Prototyping workshop" }),
+  photo("demo-realidad-virtual", "IMG_2041", { es: "Demostraci\xF3n con visores de realidad virtual", en: "Virtual reality headset demo" }),
+  shot("app-nucleo-3d", { es: "La webapp: el n\xFAcleo 3D con los seis pilares", en: "The web app: the 3D core with the six pillars" }),
+  shot("app-holo-card", { es: "La Holo Card del SGX Pass", en: "The SGX Pass Holo Card" }),
+  shot("app-highbot", { es: "El Highbot en Avatar Studio", en: "The Highbot in Avatar Studio" }),
+  shot("app-arena-en-vivo", { es: "La arena de votaci\xF3n en vivo", en: "The live voting arena" }),
+  shot("app-agenda", { es: "La agenda de los tres d\xEDas", en: "The three-day agenda" })
+];
+var PRESS_FAQ = [
+  {
+    q: { es: "\xBFC\xF3mo pido la acreditaci\xF3n de prensa para el Spatialgineers Summit 2026?", en: "How do I request press accreditation for Spatialgineers Summit 2026?" },
+    a: { es: "En summit.spatialgineers.com/prensa: forjas tu SGX Pass gratis y llenas la solicitud con tu medio, tu cargo, enlaces a coberturas previas y los d\xEDas que cubrir\xE1s. Recibes un c\xF3digo de seguimiento al enviarla. La fecha l\xEDmite es el 1 de diciembre de 2026.", en: "At summit.spatialgineers.com/prensa: forge your free SGX Pass and fill in the request with your outlet, your title, links to past coverage and the days you will cover. You get a tracking code when you send it. The deadline is December 1, 2026." }
+  },
+  {
+    q: { es: "\xBFCu\xE1ntos cupos de prensa hay?", en: "How many press slots are there?" },
+    a: { es: "Seis cupos, uno por medio. El equipo de Spatialgineers revisa cada solicitud y te escribe al aprobarla.", en: "Six slots, one per outlet. The Spatialgineers team reviews each request and writes to you once it is approved." }
+  },
+  {
+    q: { es: "\xBFQu\xE9 incluye la acreditaci\xF3n?", en: "What does accreditation include?" },
+    a: { es: "Los tres d\xEDas: la cobertura de la transmisi\xF3n por YouTube Live los D\xEDas 1 y 2 (11 y 12 de diciembre) y la entrada presencial al D\xEDa 3 (13 de diciembre) en Chroma Space Studios, San Juan, con el QR de tu SGX Pass. Tu Holo Card cambia a PRENSA.", en: "All three days: coverage of the YouTube Live broadcast on Days 1 and 2 (December 11 and 12) and in-person entry to Day 3 (December 13) at Chroma Space Studios, San Juan, with your SGX Pass QR. Your Holo Card switches to PRESS." }
+  },
+  {
+    q: { es: "\xBFD\xF3nde est\xE1 el kit de prensa?", en: "Where is the press kit?" },
+    a: { es: "En summit.spatialgineers.com/prensa: logos, fotos de los fundadores, capturas de la webapp y la ficha de prensa en PDF, todo en un ZIP o cada archivo por separado. Para entrevistas: info@spatialgineers.com.", en: "At summit.spatialgineers.com/prensa: logos, photos of the founders, screenshots of the web app and the press fact sheet as a PDF, all in one ZIP or each file on its own. For interviews: info@spatialgineers.com." }
+  }
+];
+var PRESS_META = {
+  title: { es: "Sala de prensa \xB7 Spatialgineers Summit 2026 \xB7 Acreditaci\xF3n y kit de prensa", en: "Press room \xB7 Spatialgineers Summit 2026 \xB7 Accreditation and press kit" },
+  description: {
+    es: "Acreditaci\xF3n de prensa para el Spatialgineers Summit 2026 (11\u201313 dic): solicita antes del 1 de diciembre, 6 cupos, uno por medio. Kit de prensa con logos, fotos, capturas y ficha en PDF.",
+    en: "Press accreditation for Spatialgineers Summit 2026 (Dec 11\u201313): apply before December 1, 6 slots, one per outlet. Press kit with logos, photos, screenshots and a PDF fact sheet."
+  }
+};
+
 // src/lib/welcomePortal.ts
 var WELCOME_ORIGIN = "https://summit.spatialgineers.com";
 var WELCOME_PATH = "/bienvenida";
-var WELCOME_PUBLIC_ROLES = ["visitante", "speaker", "sponsor"];
+var WELCOME_PUBLIC_ROLES = ["visitante", "speaker", "sponsor", "prensa"];
 var WELCOME_ROLES = [...WELCOME_PUBLIC_ROLES, "equipo"];
-var WELCOME_VIDEO_KEYS = ["visitante", "speaker", "sponsor", "equipo", "pass", "tour", "build"];
+var WELCOME_VIDEO_KEYS = ["visitante", "speaker", "sponsor", "prensa", "equipo", "pass", "tour", "build"];
 var ROLE_ALIASES = {
   visitante: "visitante",
   visitantes: "visitante",
@@ -4313,6 +4443,13 @@ var ROLE_ALIASES = {
   patrocinadores: "sponsor",
   marca: "sponsor",
   marcas: "sponsor",
+  prensa: "prensa",
+  press: "prensa",
+  medios: "prensa",
+  medio: "prensa",
+  periodista: "prensa",
+  periodistas: "prensa",
+  media: "prensa",
   equipo: "equipo",
   team: "equipo",
   staff: "equipo"
@@ -4356,10 +4493,7 @@ var WELCOME_FACTS = {
   },
   day3: { es: "D\xEDa 3: Chroma Space Studios, San Juan. Por invitaci\xF3n.", en: "Day 3: Chroma Space Studios, San Juan. By invitation." },
   language: { es: "En espa\xF1ol.", en: "In Spanish." },
-  press: {
-    es: "Prensa: pide tu acreditaci\xF3n antes del 1 de diciembre (6 cupos, uno por medio).",
-    en: "Press: request accreditation before December 1 (6 slots, one per outlet)."
-  }
+  press: PRESS_RULES.line
 };
 var FAQ_FREE = {
   q: { es: "\xBFCu\xE1nto cuesta ver el Spatialgineers Summit 2026?", en: "How much does it cost to watch Spatialgineers Summit 2026?" },
@@ -4482,6 +4616,28 @@ var WELCOME_ROLE_COPY = {
       { q: { es: "\xBFHay exclusividad por categor\xEDa?", en: "Is there category exclusivity?" }, a: { es: "S\xED, en los Paquetes 4 y 5: una sola marca de su sector.", en: "Yes, in Packages 4 and 5: only one brand from your sector." } }
     ]
   },
+  prensa: {
+    role: "prensa",
+    label: { es: "Prensa y medios", en: "Press and media" },
+    title: { es: "Bienvenida, prensa", en: "Welcome, press" },
+    metaTitle: { es: "Prensa \xB7 Acreditaci\xF3n al Spatialgineers Summit 2026 \xB7 11\u201313 dic", en: "Press \xB7 Spatialgineers Summit 2026 accreditation \xB7 Dec 11\u201313" },
+    description: {
+      es: "Gu\xEDa para prensa y medios del Spatialgineers Summit 2026: solicita tu acreditaci\xF3n antes del 1 de diciembre (6 cupos, uno por medio), descarga el kit de prensa y cubre los 3 d\xEDas: YouTube Live y el D\xEDa 3 en Chroma Space Studios.",
+      en: "Press and media guide to Spatialgineers Summit 2026: request accreditation before December 1 (6 slots, one per outlet), download the press kit and cover all 3 days: YouTube Live and Day 3 at Chroma Space Studios."
+    },
+    intro: {
+      es: "Cubres el Summit. La acreditaci\xF3n de prensa incluye los 3 d\xEDas: la transmisi\xF3n por YouTube Live los D\xEDas 1 y 2, y la entrada al D\xEDa 3 en Chroma Space Studios con el QR de tu SGX Pass.",
+      en: "You are covering the Summit. Press accreditation includes all 3 days: the YouTube Live broadcast on Days 1 and 2, and entry to Day 3 at Chroma Space Studios with your SGX Pass QR."
+    },
+    videoTitle: { es: "Recorrido para prensa", en: "Walkthrough for press" },
+    steps: [
+      { when: { es: "Hoy", en: "Today" }, title: { es: "Forja tu SGX Pass", en: "Forge your SGX Pass" }, body: { es: "Gratis y en un minuto. Desde tu pase solicitas la acreditaci\xF3n.", en: "Free and in a minute. You request accreditation from your pass." } },
+      { when: { es: "Antes del 1 dic", en: "Before Dec 1" }, title: { es: "Solicita tu acreditaci\xF3n", en: "Request accreditation" }, body: { es: "En la Sala de prensa: tu medio, tu cargo, enlaces a coberturas previas y los d\xEDas que cubrir\xE1s. 6 cupos, uno por medio. Recibes un c\xF3digo de seguimiento.", en: "In the Press room: your outlet, your title, links to past coverage and the days you will cover. 6 slots, one per outlet. You get a tracking code." } },
+      { when: { es: "Tras la revisi\xF3n", en: "After review" }, title: { es: "Tu pase dice PRENSA", en: "Your pass says PRESS" }, body: { es: "Si te aprueban, el equipo te escribe, tu Holo Card cambia a PRENSA y tu pase queda invitado al D\xEDa 3.", en: "If approved, the team writes to you, your Holo Card switches to PRESS and your pass is invited to Day 3." } },
+      { when: { es: "11\u201313 dic", en: "Dec 11\u201313" }, title: { es: "Cubre los 3 d\xEDas", en: "Cover all 3 days" }, body: { es: "D\xEDas 1 y 2 por YouTube Live, con Los Mismos TV transmitiendo junto a nosotros. D\xEDa 3 presencial en Chroma Space Studios, San Juan: entras con el QR de tu SGX Pass.", en: "Days 1 and 2 on YouTube Live, with Los Mismos TV streaming alongside us. Day 3 in person at Chroma Space Studios, San Juan: you get in with your SGX Pass QR." } }
+    ],
+    faq: PRESS_FAQ
+  },
   equipo: {
     role: "equipo",
     internal: true,
@@ -4541,9 +4697,10 @@ function welcomeHead(role, ids) {
     faq: copy ? copy.faq : WELCOME_HUB.faq
   };
 }
-function welcomeJsonLd(head, uploadDate) {
-  const organizer = { "@type": "Organization", name: "Spatialgineers LLC", url: "https://spatialgineers.com" };
-  const event = {
+var SGX_ORGANIZER_LD = { "@type": "Organization", name: "Spatialgineers LLC", url: "https://spatialgineers.com" };
+function summitEventLd() {
+  const organizer = SGX_ORGANIZER_LD;
+  return {
     "@type": "Event",
     "@id": `${WELCOME_ORIGIN}/#event`,
     name: "Spatialgineers Summit 2026",
@@ -4563,6 +4720,10 @@ function welcomeJsonLd(head, uploadDate) {
     isAccessibleForFree: true,
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD", availability: "https://schema.org/InStock", url: WELCOME_ORIGIN, validFrom: "2026-01-01T00:00:00-04:00" }
   };
+}
+function welcomeJsonLd(head, uploadDate) {
+  const organizer = SGX_ORGANIZER_LD;
+  const event = summitEventLd();
   const graph = [
     event,
     { "@type": "WebPage", "@id": head.canonical, url: head.canonical, name: head.title, description: head.description, inLanguage: "es", about: { "@id": `${WELCOME_ORIGIN}/#event` }, isPartOf: { "@type": "WebSite", name: "Spatialgineers Summit 2026", url: WELCOME_ORIGIN } }
@@ -4699,7 +4860,75 @@ function renderWelcomeHtml(indexHtml, reqPath, cfg, hasQuery = false) {
   html = html.replace(/<noscript>[\s\S]*?<\/noscript>/i, () => noscript);
   return html;
 }
+var matchPressPath = (reqPath) => /^\/(?:prensa|press|media|sala-de-prensa|kit-de-prensa|press-kit)\/?$/i.test(reqPath);
+function renderPressHtml(indexHtml, hasQuery = false) {
+  const title = PRESS_META.title.es;
+  const description = PRESS_META.description.es;
+  let html = indexHtml;
+  html = html.replace(/<title>[\s\S]*?<\/title>/i, () => `<title>${escapeHtml(title)}</title>`);
+  html = setMeta(html, "name", "description", description);
+  html = setMeta(html, "property", "og:title", title);
+  html = setMeta(html, "property", "og:description", description);
+  html = setMeta(html, "property", "og:url", PRESS_URL);
+  html = setMeta(html, "property", "og:type", "website");
+  html = setMeta(html, "property", "og:image", `${WELCOME_ORIGIN}/og-image.jpg`);
+  html = setMeta(html, "property", "og:image:width", "1200");
+  html = setMeta(html, "property", "og:image:height", "630");
+  html = setMeta(html, "property", "og:image:alt", "Spatialgineers Summit 2026");
+  html = setMeta(html, "name", "twitter:title", title);
+  html = setMeta(html, "name", "twitter:description", description);
+  html = setMeta(html, "name", "twitter:image", `${WELCOME_ORIGIN}/og-image.jpg`);
+  const extra = [`<link rel="canonical" href="${escapeHtml(PRESS_URL)}" />`];
+  if (hasQuery) extra.push('<meta name="robots" content="noindex, follow" />');
+  const ld = {
+    "@context": "https://schema.org",
+    "@graph": [
+      summitEventLd(),
+      { "@type": "WebPage", "@id": PRESS_URL, url: PRESS_URL, name: title, description, inLanguage: "es", about: { "@id": `${WELCOME_ORIGIN}/#event` }, isPartOf: { "@type": "WebSite", name: "Spatialgineers Summit 2026", url: WELCOME_ORIGIN } },
+      ...PRESS_FOUNDERS.map((f) => ({ "@type": "Person", name: f.name, alternateName: f.alias, jobTitle: f.role.es, worksFor: SGX_ORGANIZER_LD, alumniOf: { "@type": "CollegeOrUniversity", name: "Universidad de Puerto Rico, Recinto Universitario de Mayag\xFCez" }, image: `${WELCOME_ORIGIN}${f.photo}`, description: f.bio.es })),
+      { "@type": "FAQPage", mainEntity: PRESS_FAQ.map((f) => ({ "@type": "Question", name: f.q.es, acceptedAnswer: { "@type": "Answer", text: f.a.es } })) }
+    ]
+  };
+  const ldTag = `<script type="application/ld+json">${safeJson(ld)}</script>`;
+  if (/<script type="application\/ld\+json">[\s\S]*?<\/script>/i.test(html)) {
+    html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/i, () => ldTag);
+  } else {
+    extra.push(ldTag);
+  }
+  html = html.replace("</head>", () => `    ${extra.join("\n    ")}
+  </head>`);
+  const li = (s) => `<li>${escapeHtml(s)}</li>`;
+  const link = (href, text) => `<a href="${escapeHtml(href)}">${escapeHtml(text)}</a>`;
+  const parts = [
+    "<h1>Sala de prensa \xB7 Spatialgineers Summit 2026</h1>",
+    `<p>${escapeHtml(PRESS_RULES.deadline.es)}. ${escapeHtml(PRESS_RULES.slots.es)}. ${escapeHtml(PRESS_RULES.access.es)}</p>`,
+    "<h2>Kit de prensa</h2>",
+    `<ul>${[`<li>${link(PRESS_KIT_ZIP, "Kit de prensa completo (ZIP)")}</li>`, `<li>${link(PRESS_FACT_SHEET_PDF, "Ficha de prensa (PDF)")}</li>`, ...PRESS_ASSETS.map((a) => `<li>${link(a.file, a.title.es)} \xB7 ${escapeHtml(a.credit)}</li>`)].join("")}</ul>`,
+    "<h2>Ficha del evento</h2>",
+    `<p>${escapeHtml(PRESS_ABOUT.summit.es)}</p>`,
+    `<p>${escapeHtml(PRESS_ABOUT.studio.es)}</p>`,
+    `<ul>${PRESS_FACTS.map((f) => li(`${f.k.es}: ${f.v.es}`)).join("")}</ul>`,
+    "<h2>Los fundadores</h2>",
+    PRESS_FOUNDERS.map((f) => `<h3>${escapeHtml(f.name)} "${escapeHtml(f.alias)}" \xB7 ${escapeHtml(f.role.es)}</h3><p>${escapeHtml(f.bio.es)}</p>`).join(""),
+    "<h2>Preguntas frecuentes</h2>",
+    PRESS_FAQ.map((f) => `<h3>${escapeHtml(f.q.es)}</h3><p>${escapeHtml(f.a.es)}</p>`).join(""),
+    `<p>Contacto de prensa: ${escapeHtml(SGX_EMAIL)} \xB7 ${escapeHtml(SGX_PHONE)} \xB7 ${escapeHtml(SGX_SOCIAL)}.</p>`,
+    "<p>\xA9 2026 Spatialgineers LLC.</p>"
+  ];
+  const noscript = `<noscript>
+        <div style="padding: 2.5rem; max-width: 800px; margin: 0 auto; color: #ffffff; background: #1A1A1A; font-family: sans-serif; line-height: 1.6;">${parts.join("")}</div>
+      </noscript>`;
+  html = html.replace(/<noscript>[\s\S]*?<\/noscript>/i, () => noscript);
+  return html;
+}
 async function welcomeHtmlFor(readIndex, reqPath, hasQuery = false) {
+  if (matchPressPath(reqPath)) {
+    try {
+      return renderPressHtml(readIndex(), hasQuery);
+    } catch {
+      return null;
+    }
+  }
   if (!matchWelcomePath(reqPath)) return null;
   try {
     return renderWelcomeHtml(readIndex(), reqPath, await welcomeConfig(), hasQuery);

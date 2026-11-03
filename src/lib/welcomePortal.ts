@@ -4,23 +4,26 @@
    which injects the same title, description, FAQ and JSON-LD into index.html
    so the pages can be indexed and quoted without running JavaScript.
    Every fact here comes from the app's own copy (footer, sponsors page,
-   speaker portal, Highbot knowledge). Do not add dates or promises. */
+   speaker portal, press room, Highbot knowledge). Do not add dates or promises. */
+
+import { PRESS_FAQ, PRESS_RULES } from './pressKit';
 
 export const WELCOME_ORIGIN = 'https://summit.spatialgineers.com';
 export const WELCOME_PATH = '/bienvenida';
 
-export type WelcomeRole = 'visitante' | 'speaker' | 'sponsor' | 'equipo';
+export type WelcomeRole = 'visitante' | 'speaker' | 'sponsor' | 'prensa' | 'equipo';
 export type WelcomeVideoKey = WelcomeRole | 'pass' | 'tour' | 'build';
 
 /** The public roles, in the order the hub shows them (equipo is internal). */
-export const WELCOME_PUBLIC_ROLES: WelcomeRole[] = ['visitante', 'speaker', 'sponsor'];
+export const WELCOME_PUBLIC_ROLES: WelcomeRole[] = ['visitante', 'speaker', 'sponsor', 'prensa'];
 export const WELCOME_ROLES: WelcomeRole[] = [...WELCOME_PUBLIC_ROLES, 'equipo'];
-export const WELCOME_VIDEO_KEYS: WelcomeVideoKey[] = ['visitante', 'speaker', 'sponsor', 'equipo', 'pass', 'tour', 'build'];
+export const WELCOME_VIDEO_KEYS: WelcomeVideoKey[] = ['visitante', 'speaker', 'sponsor', 'prensa', 'equipo', 'pass', 'tour', 'build'];
 
 const ROLE_ALIASES: Record<string, WelcomeRole> = {
   visitante: 'visitante', visitantes: 'visitante', creador: 'visitante', creadores: 'visitante', creadora: 'visitante', visitor: 'visitante',
   speaker: 'speaker', speakers: 'speaker', artista: 'speaker', artistas: 'speaker', ponente: 'speaker',
   sponsor: 'sponsor', sponsors: 'sponsor', patrocinador: 'sponsor', patrocinadores: 'sponsor', marca: 'sponsor', marcas: 'sponsor',
+  prensa: 'prensa', press: 'prensa', medios: 'prensa', medio: 'prensa', periodista: 'prensa', periodistas: 'prensa', media: 'prensa',
   equipo: 'equipo', team: 'equipo', staff: 'equipo',
 };
 
@@ -96,10 +99,7 @@ export const WELCOME_FACTS = {
   },
   day3: { es: 'Día 3: Chroma Space Studios, San Juan. Por invitación.', en: 'Day 3: Chroma Space Studios, San Juan. By invitation.' },
   language: { es: 'En español.', en: 'In Spanish.' },
-  press: {
-    es: 'Prensa: pide tu acreditación antes del 1 de diciembre (6 cupos, uno por medio).',
-    en: 'Press: request accreditation before December 1 (6 slots, one per outlet).',
-  },
+  press: PRESS_RULES.line,
 };
 
 const FAQ_FREE: WelcomeFaq = {
@@ -225,6 +225,28 @@ export const WELCOME_ROLE_COPY: Record<WelcomeRole, WelcomeRoleCopy> = {
       { q: { es: '¿Hay exclusividad por categoría?', en: 'Is there category exclusivity?' }, a: { es: 'Sí, en los Paquetes 4 y 5: una sola marca de su sector.', en: 'Yes, in Packages 4 and 5: only one brand from your sector.' } },
     ],
   },
+  prensa: {
+    role: 'prensa',
+    label: { es: 'Prensa y medios', en: 'Press and media' },
+    title: { es: 'Bienvenida, prensa', en: 'Welcome, press' },
+    metaTitle: { es: 'Prensa · Acreditación al Spatialgineers Summit 2026 · 11–13 dic', en: 'Press · Spatialgineers Summit 2026 accreditation · Dec 11–13' },
+    description: {
+      es: 'Guía para prensa y medios del Spatialgineers Summit 2026: solicita tu acreditación antes del 1 de diciembre (6 cupos, uno por medio), descarga el kit de prensa y cubre los 3 días: YouTube Live y el Día 3 en Chroma Space Studios.',
+      en: 'Press and media guide to Spatialgineers Summit 2026: request accreditation before December 1 (6 slots, one per outlet), download the press kit and cover all 3 days: YouTube Live and Day 3 at Chroma Space Studios.',
+    },
+    intro: {
+      es: 'Cubres el Summit. La acreditación de prensa incluye los 3 días: la transmisión por YouTube Live los Días 1 y 2, y la entrada al Día 3 en Chroma Space Studios con el QR de tu SGX Pass.',
+      en: 'You are covering the Summit. Press accreditation includes all 3 days: the YouTube Live broadcast on Days 1 and 2, and entry to Day 3 at Chroma Space Studios with your SGX Pass QR.',
+    },
+    videoTitle: { es: 'Recorrido para prensa', en: 'Walkthrough for press' },
+    steps: [
+      { when: { es: 'Hoy', en: 'Today' }, title: { es: 'Forja tu SGX Pass', en: 'Forge your SGX Pass' }, body: { es: 'Gratis y en un minuto. Desde tu pase solicitas la acreditación.', en: 'Free and in a minute. You request accreditation from your pass.' } },
+      { when: { es: 'Antes del 1 dic', en: 'Before Dec 1' }, title: { es: 'Solicita tu acreditación', en: 'Request accreditation' }, body: { es: 'En la Sala de prensa: tu medio, tu cargo, enlaces a coberturas previas y los días que cubrirás. 6 cupos, uno por medio. Recibes un código de seguimiento.', en: 'In the Press room: your outlet, your title, links to past coverage and the days you will cover. 6 slots, one per outlet. You get a tracking code.' } },
+      { when: { es: 'Tras la revisión', en: 'After review' }, title: { es: 'Tu pase dice PRENSA', en: 'Your pass says PRESS' }, body: { es: 'Si te aprueban, el equipo te escribe, tu Holo Card cambia a PRENSA y tu pase queda invitado al Día 3.', en: 'If approved, the team writes to you, your Holo Card switches to PRESS and your pass is invited to Day 3.' } },
+      { when: { es: '11–13 dic', en: 'Dec 11–13' }, title: { es: 'Cubre los 3 días', en: 'Cover all 3 days' }, body: { es: 'Días 1 y 2 por YouTube Live, con Los Mismos TV transmitiendo junto a nosotros. Día 3 presencial en Chroma Space Studios, San Juan: entras con el QR de tu SGX Pass.', en: 'Days 1 and 2 on YouTube Live, with Los Mismos TV streaming alongside us. Day 3 in person at Chroma Space Studios, San Juan: you get in with your SGX Pass QR.' } },
+    ],
+    faq: PRESS_FAQ,
+  },
   equipo: {
     role: 'equipo',
     internal: true,
@@ -311,9 +333,12 @@ export function welcomeHead(role: WelcomeRole | null, ids: WelcomeVideoIds): Wel
 }
 
 /** JSON-LD graph: the Event, the page's VideoObject (when there is a video) and its FAQPage. */
-export function welcomeJsonLd(head: WelcomeHead, uploadDate?: string | null): Record<string, unknown> {
-  const organizer = { '@type': 'Organization', name: 'Spatialgineers LLC', url: 'https://spatialgineers.com' };
-  const event = {
+export const SGX_ORGANIZER_LD = { '@type': 'Organization', name: 'Spatialgineers LLC', url: 'https://spatialgineers.com' };
+
+/** The Summit as a schema.org Event (shared by the welcome portal and the press room). */
+export function summitEventLd(): Record<string, unknown> {
+  const organizer = SGX_ORGANIZER_LD;
+  return {
     '@type': 'Event',
     '@id': `${WELCOME_ORIGIN}/#event`,
     name: 'Spatialgineers Summit 2026',
@@ -333,6 +358,11 @@ export function welcomeJsonLd(head: WelcomeHead, uploadDate?: string | null): Re
     isAccessibleForFree: true,
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD', availability: 'https://schema.org/InStock', url: WELCOME_ORIGIN, validFrom: '2026-01-01T00:00:00-04:00' },
   };
+}
+
+export function welcomeJsonLd(head: WelcomeHead, uploadDate?: string | null): Record<string, unknown> {
+  const organizer = SGX_ORGANIZER_LD;
+  const event = summitEventLd();
   const graph: Record<string, unknown>[] = [
     event,
     { '@type': 'WebPage', '@id': head.canonical, url: head.canonical, name: head.title, description: head.description, inLanguage: 'es', about: { '@id': `${WELCOME_ORIGIN}/#event` }, isPartOf: { '@type': 'WebSite', name: 'Spatialgineers Summit 2026', url: WELCOME_ORIGIN } },

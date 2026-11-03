@@ -4,7 +4,7 @@
  * Every minute it reads Firestore and sends, once per person:
  *   - confirm  : "Tu SGX Pass está forjado"        → every new registration (ticket_inquiries)
  *   - invite   : "Estás invitado al Día 3"         → registrations the team marks INVITED in the admin
- *   - holo     : "Tu Holo Card está lista"         → speakers / sponsors approved in the admin (credential_grants)
+ *   - holo     : "Tu Holo Card está lista"         → speakers / sponsors / press approved in the admin (credential_grants)
  *   - remind1  : "Mañana empieza el Summit"        → everyone, on REMIND_DAY1_AT
  *   - remind3  : "Mañana nos vemos en Chroma"      → Day 3 guests, on REMIND_DAY3_AT
  *
@@ -105,7 +105,7 @@ function sendInvites_(budget) {
 function sendHoloCards_(budget) {
   forEachSince_('credential_grants', 'updatedAt', 'CURSOR_HOLO', (uid, grant) => {
     let ok = true;
-    ['speaker', 'sponsor'].forEach((role) => {
+    ['speaker', 'sponsor', 'press'].forEach((role) => {
       if (!ok || !grant[role]) return;
       const logId = 'holo_' + role + '_' + uid;
       if (logExists_(logId)) return;
@@ -350,7 +350,7 @@ const TEMPLATES = {
   }),
 
   holo: (grant, role) => {
-    const label = role === 'sponsor' ? 'Sponsor' : 'Speaker';
+    const label = role === 'sponsor' ? 'Sponsor' : role === 'press' ? 'Prensa' : 'Speaker';
     return layout_({
       subject: '✨ Tu Holo Card de ' + label + ' está lista',
       preheader: 'Descárgala y compártela: post, story o badge.',

@@ -87,7 +87,7 @@ async function startServer() {
         else if (name === 'sw.js' || name === 'index.html' || name === 'manifest.webmanifest') res.setHeader('Cache-Control', 'no-cache');
       },
     }));
-    // The welcome portal (/bienvenida, /bienvenida/<rol>) gets its own head (title, OG, JSON-LD)
+    // The welcome portal (/bienvenida, /bienvenida/<rol>) and the press room (/prensa) get their own head (title, OG, JSON-LD)
     // and a no-JS copy of its text; every other route gets index.html as is.
     const indexFile = path.join(distPath, 'index.html');
     let indexCache: { mtime: number; html: string } | null = null;

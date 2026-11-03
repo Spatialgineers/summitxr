@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { ArrowRight, Calendar, ExternalLink, Gamepad2, Handshake, Building2, Mail, Mic, Phone, Play, ShieldCheck, Sparkles, Zap, MessageCircle } from 'lucide-react';
+import { ArrowRight, Calendar, Download, ExternalLink, Gamepad2, Handshake, Building2, Mail, Mic, Newspaper, Phone, Play, ShieldCheck, Sparkles, Zap, MessageCircle } from 'lucide-react';
 import { db } from '../../../lib/firebase';
 import { useLanguage } from '../../../context/LanguageContext';
 import { useOptionalSgxIdentity } from '../../../identity/SgxIdentityContext';
@@ -146,6 +146,11 @@ export const SgxWelcomePage: React.FC = () => {
   }, []);
 
   const goSection = (section: SummitSectionKey) => () => fire('sgx:switch_summit_section', { section });
+  // The press room is its own page (/prensa); land on the block the shortcut names.
+  const goPress = (anchor: string) => () => {
+    fire('sgx:open_press');
+    window.setTimeout(() => document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 700);
+  };
   const link = (href: string, go: () => void) => (e: React.MouseEvent) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
     e.preventDefault();
@@ -161,6 +166,11 @@ export const SgxWelcomePage: React.FC = () => {
       case 'sponsor': return [
         { href: '/patrocina', label: es ? 'Patrocina el Summit' : 'Sponsor the Summit', icon: Handshake, go: goSection('SPONSOR') },
         { href: '/sponsors', label: 'Partners & Brand Showcases', icon: Building2, go: goSection('SPONSORS_HUB') },
+      ];
+      case 'prensa': return [
+        { href: '/prensa', label: es ? 'Solicitar acreditación' : 'Request accreditation', icon: Newspaper, go: goPress('acreditacion') },
+        { href: '/prensa#kit', label: es ? 'Kit de prensa' : 'Press kit', icon: Download, go: goPress('kit') },
+        { href: '/agenda', label: es ? 'Agenda de 3 días' : '3-day agenda', icon: Calendar, go: goSection('AGENDA') },
       ];
       case 'equipo': return [
         { href: '/admin', label: es ? 'Centro de mando (admin)' : 'Command center (admin)', icon: ShieldCheck, go: () => { window.location.href = '/admin'; } },
@@ -259,7 +269,7 @@ export const SgxWelcomePage: React.FC = () => {
           <ul className="sgx-wel-roles">
             {WELCOME_PUBLIC_ROLES.map((r) => {
               const c = WELCOME_ROLE_COPY[r];
-              const Icon = r === 'speaker' ? Mic : r === 'sponsor' ? Handshake : Sparkles;
+              const Icon = r === 'speaker' ? Mic : r === 'sponsor' ? Handshake : r === 'prensa' ? Newspaper : Sparkles;
               return (
                 <li key={r}>
                   <a href={welcomePathFor(r)} className={`sgx-wel-role is-${r}`} onClick={openRole(r)}>

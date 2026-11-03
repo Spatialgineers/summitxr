@@ -29,6 +29,7 @@ export const SECTION_TO_SLUG: Record<SummitSectionKey, string> = {
   MODELS_3D: 'modelos-3d',
   SPONSOR: 'patrocina',
   SPEAKER_PORTAL: 'portal-speakers',
+  PRESS: 'prensa',
   WELCOME: 'bienvenida',
 };
 
@@ -176,6 +177,15 @@ export const SLUG_TO_SECTION: Record<string, SummitSectionKey> = {
   sponsor: 'SPONSOR',
   'portal-speakers': 'SPEAKER_PORTAL',
   'speaker-portal': 'SPEAKER_PORTAL',
+
+  // Press room (accreditation + press kit)
+  prensa: 'PRESS',
+  press: 'PRESS',
+  media: 'PRESS',
+  'sala-de-prensa': 'PRESS',
+  'kit-de-prensa': 'PRESS',
+  'press-kit': 'PRESS',
+  acreditacion: 'PRESS',
 
   // Welcome portal (/bienvenida/<rol>)
   bienvenida: 'WELCOME',

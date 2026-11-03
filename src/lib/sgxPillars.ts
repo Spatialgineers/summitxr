@@ -1,7 +1,7 @@
 import {
   Boxes, Instagram, UserCircle2, Globe, Building2, Gamepad2, Vote, Map as MapIcon, Gift,
   Calendar, Radio, Users, BadgeCheck, ScanLine, Terminal, Zap, MessageSquare, Award, Radar,
-  Box, Handshake, MonitorPlay, Mic,
+  Box, Handshake, MonitorPlay, Mic, Newspaper,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
 
@@ -131,6 +131,7 @@ export const SGX_PILLARS: SgxPillar[] = [
       { kind: 'section', key: 'SPEAKERS', icon: Users, label: { es: 'Speakers & artistas', en: 'Speakers & artists' }, desc: { es: 'Solo se publican quienes están confirmados por escrito.', en: 'Only people confirmed in writing are published.' } },
       { kind: 'page', page: 'stage', icon: MonitorPlay, label: { es: 'Escenario en vivo', en: 'Live stage' }, desc: { es: 'La pantalla del escenario: preguntas, votos y reacciones en vivo.', en: 'The stage screen: live questions, votes and reactions.' } },
       { kind: 'section', key: 'SPEAKER_PORTAL', icon: Mic, label: { es: 'Portal de speakers', en: 'Speaker portal' }, desc: { es: 'Para speakers y artistas: tu ficha, tu avatar y tu Holo Card de speaker.', en: 'For speakers and artists: your profile, avatar and speaker Holo Card.' } },
+      { kind: 'section', key: 'PRESS', icon: Newspaper, label: { es: 'Sala de prensa', en: 'Press room' }, desc: { es: 'Acreditación de prensa (antes del 1 de dic, 6 cupos, uno por medio), kit de prensa y ficha del Summit.', en: 'Press accreditation (before Dec 1, 6 slots, one per outlet), press kit and Summit fact sheet.' } },
     ],
   },
   {

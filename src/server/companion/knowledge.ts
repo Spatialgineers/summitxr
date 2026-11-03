@@ -79,7 +79,7 @@ const EVENT = `## Spatialgineers Summit 2026: lo esencial
 - Fechas: 11, 12 y 13 de diciembre de 2026. En español.
 - Días 1 y 2: 100% digitales y gratis por YouTube Live (canal principal, https://www.youtube.com/@spatialgineers), también en LinkedIn y Facebook Live; Los Mismos TV transmite junto a Spatialgineers. El Día 1 hay artistas invitados presentándose dentro de Roblox.
 - Día 3 (domingo 13): SGX Showcase presencial en Chroma Space Studios, San Juan. Por invitación. Demos en vivo de todos los pilares y networking. El check-in del Día 3 se hace con el SGX Pass escaneando el QR de la entrada.
-- Prensa: acreditación antes del 1 de diciembre (6 cupos, uno por medio), por info@spatialgineers.com.
+- Prensa: la acreditación se solicita en la Sala de prensa (summit.spatialgineers.com/prensa) antes del 1 de diciembre: 6 cupos, uno por medio, con el SGX Pass forjado primero. Cubre los 3 días (YouTube Live los Días 1 y 2 y entrada al Día 3 en Chroma con el QR del pase); al aprobarse, la Holo Card dice PRENSA. La misma página tiene el kit de prensa (logos, fotos de los fundadores, capturas y ficha en PDF). Contacto de prensa: info@spatialgineers.com.
 - Partners: Chroma Space Studios (sede del Día 3, Paquete 5: alianza de servicios esenciales) y Los Mismos TV (medio aliado de la transmisión). Los espacios "Tu marca aquí" de la app están abiertos a marcas a propósito.
 - Patrocinio: Paquete 1 Digital Presence ($50–$100, 10 cupos), Paquete 2 Gamified ($250–$500, 6 cupos), Paquete 3 Experience ($750–$1,000, 6 cupos), Paquete 4 Signature Experience ($1,500–$2,500, 3 cupos), Paquete 5 Alianza de servicios esenciales (a convenir, 3 cupos). Cada paquete incluye lo del anterior. Detalle y solicitud en la página "Patrocina el Summit".
 

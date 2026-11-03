@@ -16,6 +16,7 @@ import { AdminRewardsManager } from "./AdminRewardsManager";
 import { INITIAL_TENANTS } from '../../lib/schemas';
 import { TenantRoomManager } from './TenantRoomManager';
 import { SummitRegistrationsPanel } from './SummitRegistrationsPanel';
+import { PressRequestsPanel } from './PressRequestsPanel';
 import { AdminThemeStudio } from './AdminThemeStudio';
 import { useAuth, AUTHORIZED_SUPER_ADMIN_EMAIL } from '../../context/AuthContext';
 import { telemetry } from '../../lib/telemetry';
@@ -79,7 +80,7 @@ import { WelcomePortalPanel } from './WelcomePortalPanel';
 import { WelcomeInvitePanel } from './WelcomeInvitePanel';
 import { CSV_ENTITIES } from '../../lib/csv/entities';
 import './admin.css';
-import { Star, Instagram, UploadCloud, Sliders, Download as DownloadIcon, Megaphone, Vote, CalendarDays, Mic2, Handshake, Layers3, Sparkle, Map as MapIcon, AppWindow, Package, Images, Ticket, Gift, Target, HelpCircle as HelpIcon, BarChart2, Brush, Wand2, ShieldCheck as ShieldIcon, UserCog, DatabaseBackup, Users2, Briefcase, Radio as RadioIcon, Bug } from 'lucide-react';
+import { Star, Instagram, UploadCloud, Sliders, Download as DownloadIcon, Megaphone, Vote, CalendarDays, Mic2, Handshake, Layers3, Sparkle, Map as MapIcon, AppWindow, Package, Images, Ticket, Gift, Target, HelpCircle as HelpIcon, BarChart2, Brush, Wand2, ShieldCheck as ShieldIcon, UserCog, DatabaseBackup, Users2, Briefcase, Radio as RadioIcon, Bug, Newspaper } from 'lucide-react';
 import { 
   SummitSession, 
   SummitSpeaker, 
@@ -140,7 +141,7 @@ export type AdminSubpage =
   // Contenido
   | 'AGENDA' | 'SPEAKERS' | 'SPONSORS' | 'TIERS' | 'INITIATES' | 'MAP' | 'EMBEDS' | 'GALLERY' | 'SOCIAL' | 'PILLAR_CASES' | 'HIGHBOT_QA' | 'WELCOME_PORTAL'
   // Personas
-  | 'REGISTRATIONS' | 'LEADS' | 'AUDIENCE_LEADS' | 'ENTREPRENEUR_MATCH'
+  | 'REGISTRATIONS' | 'PRESS' | 'LEADS' | 'AUDIENCE_LEADS' | 'ENTREPRENEUR_MATCH'
   // Juego
   | 'REWARDS' | 'MISSIONS' | 'CYOA_SCENARIOS'
   // Sistema
@@ -170,6 +171,7 @@ const ADMIN_NAV: { id: string; label: string; items: NavItem[] }[] = [
   ] },
   { id: 'people', label: 'Personas', items: [
     { id: 'REGISTRATIONS', label: 'Inscritos y Día 3', icon: Ticket, keywords: 'registro check-in propuestas' },
+    { id: 'PRESS', label: 'Prensa', icon: Newspaper, keywords: 'medios periodistas acreditacion cupos press media' },
     { id: 'LEADS', label: 'Clientes potenciales', icon: Star, keywords: 'leads seguimiento ventas follow up interesados crm' },
     { id: 'AUDIENCE_LEADS', label: 'Audiencia y leads', icon: Users2, keywords: 'creadores emails' },
     { id: 'ENTREPRENEUR_MATCH', label: 'Entrepreneur Match', icon: Briefcase, keywords: 'match perfiles' },
@@ -595,6 +597,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {activeSubpage === 'LEADS' && (
             <AdminSection title="Clientes potenciales" desc="Visitantes, solicitudes de sponsor y marcas que el equipo marcó con la ⭐ para darles seguimiento después del evento.">
               <LeadsPanel />
+            </AdminSection>
+          )}
+
+          {activeSubpage === 'PRESS' && (
+            <AdminSection title="Prensa" desc="Solicitudes de acreditación de /prensa: 6 cupos, uno por medio. Aprobar da la Holo Card PRENSA y la invitación al Día 3.">
+              <PressRequestsPanel />
             </AdminSection>
           )}
 

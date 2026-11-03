@@ -66,7 +66,7 @@ const S = (v) => ({ stringValue: v });
   await p.click(`${Q} .sgx-hstudio__formats button:has-text("Tarjeta 3D"), ${Q} .sgx-hstudio__formats button:has-text("3D card")`).catch(() => {});
   const roles = () => p.$$eval(`${Q} .sgx-roles__item`, (els) => els.map((e) => e.textContent || ''));
   const r0 = await roles();
-  check('the pass offers Speaker, Initiate and Sponsor requests', r0.length === 3 && r0.every((t) => /Solicitar|Apply/.test(t)), JSON.stringify(r0));
+  check('the pass offers Speaker, Initiate, Sponsor and Press requests', r0.length === 4 && r0.every((t) => /Solicitar|Apply/.test(t)) && r0.some((t) => /Prensa|Press/.test(t)), JSON.stringify(r0));
   // initiate request from the pass -> in review
   await p.click(`${Q} .sgx-roles__item:has-text("Initiate") button`);
   await p.waitForSelector('#sgx-initiate-form', { timeout: 8000 });

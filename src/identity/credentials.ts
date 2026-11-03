@@ -10,14 +10,14 @@ import { useSgxIdentity } from './SgxIdentityContext';
    a pass first, then can ask for a role from it; once the team approves,
    that same card switches to the role (its stub and band):
    - visitor: your SGX Pass (always, once forged): CREADOR.
-   - speaker / sponsor / initiate: what you sent from your pass (speaker
-     portal, sponsor form, initiate request). "In review" until the team
+   - speaker / sponsor / initiate / press: what you sent from your pass
+     (speaker portal, sponsor form, initiate request, /prensa). "In review" until the team
      approves it in the admin, which writes credential_grants/{uid}.
    - initiate: the team lists the Guild initiates (public card data) and
      their email (private). Signed in with Google with that email, your pass
      carries the Initiate card. */
 
-export type CredentialRole = 'visitor' | 'speaker' | 'initiate' | 'sponsor';
+export type CredentialRole = 'visitor' | 'speaker' | 'initiate' | 'sponsor' | 'press';
 
 export interface CredentialData {
   name: string;
@@ -39,20 +39,21 @@ export const ROLE_COPY: Record<CredentialRole, { label: [string, string]; band: 
   speaker: { label: ['Speaker', 'Speaker'], band: ['SPEAKER OFICIAL · SGX STAGE', 'OFFICIAL SPEAKER · SGX STAGE'], color: '#FDCC0D' },
   initiate: { label: ['Initiate', 'Initiate'], band: ['SGX GUILD · INITIATE 2026', 'SGX GUILD · INITIATE 2026'], color: '#00DDFF' },
   sponsor: { label: ['Sponsor', 'Sponsor'], band: ['SPONSOR OFICIAL · SUMMIT 2026', 'OFFICIAL SPONSOR · SUMMIT 2026'], color: '#FFBB00' },
+  press: { label: ['Prensa', 'Press'], band: ['PRENSA ACREDITADA · SUMMIT 2026', 'ACCREDITED PRESS · SUMMIT 2026'], color: '#00DDFF' },
 };
 
 /* ---------- pending (sent, not yet approved): kept on this device ---------- */
 
 const PENDING_KEY = 'sgx_pending_credentials_v1';
 const CHANGED = 'sgx:credentials_changed';
-type GrantRole = 'speaker' | 'sponsor' | 'initiate';
+type GrantRole = 'speaker' | 'sponsor' | 'initiate' | 'press';
 type PendingMap = Partial<Record<GrantRole, CredentialData & { at: number }>>;
 
 function loadPending(): PendingMap {
   try { return JSON.parse(localStorage.getItem(PENDING_KEY) || '{}') || {}; } catch { return {}; }
 }
 
-/** Called by the speaker portal and the sponsor form after a successful send. */
+/** Called by the speaker portal, the sponsor form and the press form after a successful send. */
 export function savePendingCredential(role: GrantRole, data: CredentialData) {
   const next = { ...loadPending(), [role]: { ...data, photo: data.photo && data.photo.length < 400_000 ? data.photo : null, at: Date.now() } };
   try { localStorage.setItem(PENDING_KEY, JSON.stringify(next)); } catch { /* storage full: still shown once granted */ }
@@ -142,7 +143,7 @@ export function useHoloCredentials(): { credentials: HoloCredential[]; googleEma
         pillar: identity.affinity, handle: identity.callsign,
       });
     }
-    (['speaker', 'sponsor', 'initiate'] as const).forEach((role) => {
+    (['speaker', 'sponsor', 'initiate', 'press'] as const).forEach((role) => {
       const granted = grants?.[role];
       if (granted?.name) out.push({ ...(granted as CredentialData), role, status: 'official' });
       else if (pending[role]?.name) out.push({ ...(pending[role] as CredentialData), role, status: 'review' });

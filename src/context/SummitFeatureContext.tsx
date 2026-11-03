@@ -152,13 +152,13 @@ export const DEFAULT_FEATURE_CONFIG: Record<string, FeatureToggleItem> = {
   },
   section_sponsors_hub: {
     id: 'section_sponsors_hub',
-    name: 'Dossier de Auspicios & Marcas Aliadas (5 Tiers)',
+    name: 'Dossier de Auspicios & Marcas Aliadas (5 Paquetes)',
     category: 'SECTIONS',
     pillar: 'SGX.SHOWCASE',
     description: 'Matriz comparativa de 5 niveles de patrocinio, Brand Showcases y formulario de alianzas.',
     status: 'ACTIVE',
     requiresContent: false,
-    contentAuditNotes: 'Estructura de 5 Tiers según el Dossier de Auspicio v2026.10.1.',
+    contentAuditNotes: 'Estructura de 5 Paquetes según el Dossier de Auspicio v2026.10.1.',
   },
   section_social_stream: {
     id: 'section_social_stream',

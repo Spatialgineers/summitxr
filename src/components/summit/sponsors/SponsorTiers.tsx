@@ -111,7 +111,7 @@ export const SponsorTiers: React.FC<SponsorTiersProps> = ({ tiers, onApply }) =>
       <p className="spx-note">
         <Info aria-hidden />
         <span>
-          <b>{es ? 'Tiers 4 y 5: 365 días. ' : 'Tiers 4 and 5: 365 days. '}</b>
+          <b>{es ? 'Paquetes 4 y 5: 365 días. ' : 'Packages 4 and 5: 365 days. '}</b>
           {es
             ? 'Mantienen su acceso a la webapp y a sus espacios de promoción por 365 días desde noviembre, y reciben un reporte final a los 30 días. Spatialgineers no garantiza un número de vistas, asistentes ni clics.'
             : 'They keep their access to the web app and its promotion spaces for 365 days starting in November, and receive a final report at 30 days. Spatialgineers does not guarantee a number of views, attendees or clicks.'}

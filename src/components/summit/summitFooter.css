@@ -94,8 +94,10 @@
 /* Phones: sit just above the fixed dock (the dock hides while the hero is calm). */
 @media (max-width: 639px) {
   /* the page already keeps room for the bottom dock (body padding): no second gap here */
-  .sgx-corefoot { gap: 2px 14px; padding-top: 6px; padding-bottom: 6px; }
-  .sgx-corefoot__logo { width: 20px; }
+  /* tight: one short line so the 3D core keeps the height */
+  .sgx-corefoot { gap: 0 12px; min-height: 22px; padding-top: 1px; padding-bottom: 1px; font-size: 0.6875rem; }
+  .sgx-corefoot__logo { width: 16px; }
+  footer.sgx-corefoot > .sgx-corefoot__link { padding: 2px 0 !important; min-height: 24px !important; display: inline-flex; align-items: center; }
   .sgx-corefoot__copy { display: none; }
 }
 

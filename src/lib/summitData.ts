@@ -530,7 +530,7 @@ function refreshEmbedSeeds(stored: EmbedWidget[]): EmbedWidget[] {
 }
 
 // Sponsorship Tiers (Dossier de Auspicio v2026.10.1). Each Tier includes everything in the one before it.
-// Payment in full by Nov 14, 2026 (Tiers 4 and 5 may pay in two installments). Materials by Nov 30, 2026.
+// Applications through Nov 28, 2026; payment in full and materials no later than Nov 30, 2026 (Packages 4 and 5 may pay in two installments; dates in lib/summitDeadlines.ts).
 // Only sponsors confirmed in writing are listed; no placeholder brands.
 export const SPONSORSHIP_TIERS: SponsorshipTier[] = [
   {

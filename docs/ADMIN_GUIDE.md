@@ -45,9 +45,24 @@ People data is export-only:
 - sponsor inquiries
 - registrations, from their own panels
 
+## Fechas límite
+
+All dates are Puerto Rico time. They live in one file, `src/lib/summitDeadlines.ts`: the forms, the welcome portal, the Highbot, the offline guide, the invite emails and the press kit all read them from there. Change a date there, then run `npm run build` (and `node scripts/press-kit/build.cjs` for the fact sheet).
+
+| Qué | Fecha límite | Qué pasa después |
+|---|---|---|
+| Perfiles de speakers y artistas | hasta el 21 de noviembre de 2026 | El Portal de speakers se cierra solo (desde el 22 nov): "El portal de speakers cerró el 21 de noviembre. Escríbenos a info@spatialgineers.com". El admin sigue pudiendo añadir y editar speakers en el CMS. |
+| Solicitudes de auspicio | hasta el 28 de noviembre de 2026 | El formulario de sponsors se cierra solo (desde el 29 nov) y apunta a info@spatialgineers.com. |
+| Pago total de sponsors | a más tardar el 30 de noviembre de 2026 | Aviso en el formulario, la página de sponsors y los correos. |
+| Materiales de la marca | a más tardar el 30 de noviembre de 2026 | Igual que el pago. |
+| Invitaciones al Día 3 | a más tardar el 5 de diciembre de 2026 | Nota en Inscritos y Día 3; desde el 6 dic sale un aviso suave si quedan pendientes (no bloquea). |
+| Acreditación de prensa | antes del 1 de diciembre de 2026 | La Sala de prensa se cierra sola; el kit sigue disponible. |
+
+To check a closed state without waiting, set `localStorage.sgx_now` to a time in ms in the browser console (e.g. `localStorage.sgx_now = Date.parse('2026-11-23T12:00:00-04:00')`) and reload; remove it afterwards. It only affects that browser.
+
 ## Prensa (press accreditation)
 
-Requests come from `/prensa` (the Sala de prensa, under SGX.Stage). They close on December 1, 2026. There are **6 slots, one per outlet**; the panel shows `aprobados X/6` and warns when two approved people share the same outlet (it also asks before you go over).
+Requests come from `/prensa` (the Sala de prensa, under SGX.Stage). They close on December 1, 2026. There are **10 press slots** (no per-outlet rule); the panel shows `aprobados X/10` and asks for confirmation before you approve past 10.
 
 - **Aprobar**: the person's SGX Pass becomes the **PRENSA** Holo Card (`credential_grants/{uid}.press`) and their pass is invited to Day 3 in Inscritos (status `INVITED`, so the mailer sends the Day 3 invitation and their QR is their entrance at Chroma).
 - **No aprobar** / **Pendiente**: removes PRENSA from their card and, if the approval was what invited them, puts their Day 3 status back to `PENDING`.

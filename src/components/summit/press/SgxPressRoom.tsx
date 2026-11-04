@@ -10,6 +10,7 @@ import {
   PRESS_MEDIA_TYPES, PRESS_META, PRESS_PATH, PRESS_RULES, PRESS_SLOTS, isPressOpen, mediaTypeLabel, type PressAssetKind, type PressMediaType,
 } from '../../../lib/pressKit';
 import { clearPressReceipt, loadPressReceipt, submitPressRequest, type PressRequest } from '../../../lib/pressRequests';
+import { deadlineLabel } from '../../../lib/summitDeadlines';
 import '../welcome/sgxWelcome.css';
 import '../sgxModals.css';
 import './sgxPress.css';
@@ -198,8 +199,8 @@ const PressForm: React.FC<{ es: boolean; onSent: (r: PressRequest) => void }> = 
         <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} aria-invalid={errors.consent ? true : undefined} aria-describedby={errors.consent ? 'sgx-press-err-consent' : undefined} />
         <span>
           {es
-            ? 'Acepto que Spatialgineers use estos datos para revisar mi acreditación y escribirme sobre el Summit. Entiendo que hay 6 cupos, uno por medio, y que la acreditación se confirma por escrito.'
-            : 'I agree that Spatialgineers may use these details to review my accreditation and write to me about the Summit. I understand there are 6 slots, one per outlet, and that accreditation is confirmed in writing.'}
+            ? 'Acepto que Spatialgineers use estos datos para revisar mi acreditación y escribirme sobre el Summit. Entiendo que hay 10 cupos de prensa y que la acreditación se confirma por escrito.'
+            : 'I agree that Spatialgineers may use these details to review my accreditation and write to me about the Summit. I understand there are 10 press slots and that accreditation is confirmed in writing.'}
         </span>
       </label>
       {errors.consent && <span id="sgx-press-err-consent" className="sgx-m-err">{errors.consent}</span>}
@@ -211,7 +212,7 @@ const PressForm: React.FC<{ es: boolean; onSent: (r: PressRequest) => void }> = 
             <Send aria-hidden="true" />{busy ? (es ? 'Enviando…' : 'Sending…') : (es ? 'Enviar solicitud de acreditación' : 'Send accreditation request')}
           </button>
         </span>
-        <p className="sgx-m-fine">{es ? `Las acreditaciones cierran el 1 de diciembre de 2026. Dudas: ${SGX_EMAIL}` : `Accreditation closes December 1, 2026. Questions: ${SGX_EMAIL}`}</p>
+        <p className="sgx-m-fine">{es ? `Las acreditaciones cierran el ${deadlineLabel('pressAccreditation', 'es')}. Dudas: ${SGX_EMAIL}` : `Accreditation closes ${deadlineLabel('pressAccreditation', 'en')}. Questions: ${SGX_EMAIL}`}</p>
       </div>
     </form>
   );
@@ -245,7 +246,7 @@ const PressReceipt: React.FC<{ es: boolean; req: PressRequest; approved: boolean
       `Días: ${req.days.map((d) => `Día ${d}`).join(', ')}`,
       req.passCode ? `SGX Pass: ${req.passCode}` : '',
       '',
-      '6 cupos, uno por medio. La acreditación se confirma por escrito.',
+      `${PRESS_SLOTS} cupos de prensa. La acreditación se confirma por escrito.`,
       `Contacto: ${SGX_EMAIL} · ${SGX_PHONE}`,
     ].filter((l, i, a) => l !== '' || a[i - 1] !== '');
     const url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' }));
@@ -344,8 +345,8 @@ export const SgxPressRoom: React.FC = () => {
 
   const deadline = es ? PRESS_RULES.deadline.es : PRESS_RULES.deadline.en;
   const facts = [
-    { k: es ? 'Fecha límite' : 'Deadline', v: es ? '1 de diciembre de 2026' : 'December 1, 2026' },
-    { k: es ? `${PRESS_SLOTS} cupos` : `${PRESS_SLOTS} slots`, v: es ? 'Uno por medio' : 'One per outlet' },
+    { k: es ? 'Fecha límite' : 'Deadline', v: deadlineLabel('pressAccreditation', es) },
+    { k: es ? `${PRESS_SLOTS} cupos` : `${PRESS_SLOTS} slots`, v: es ? 'De prensa' : 'For press' },
     { k: es ? 'Los 3 días' : 'All 3 days', v: es ? 'YouTube Live + Día 3 en Chroma' : 'YouTube Live + Day 3 at Chroma' },
   ];
 
@@ -362,7 +363,7 @@ export const SgxPressRoom: React.FC = () => {
         <Lock aria-hidden="true" />
         <div>
           <h3>{es ? 'Las acreditaciones de prensa cerraron' : 'Press accreditation is closed'}</h3>
-          <p>{es ? `La fecha límite era el 1 de diciembre de 2026. Para entrevistas o material del Summit, escríbenos a ${SGX_EMAIL}. El kit de prensa sigue disponible abajo.` : `The deadline was December 1, 2026. For interviews or Summit material, write to ${SGX_EMAIL}. The press kit is still available below.`}</p>
+          <p>{es ? `La fecha límite era el ${deadlineLabel('pressAccreditation', 'es')}. Para entrevistas o material del Summit, escríbenos a ${SGX_EMAIL}. El kit de prensa sigue disponible abajo.` : `The deadline was ${deadlineLabel('pressAccreditation', 'en')}. For interviews or Summit material, write to ${SGX_EMAIL}. The press kit is still available below.`}</p>
         </div>
       </div>
     );
@@ -418,8 +419,8 @@ export const SgxPressRoom: React.FC = () => {
         </div>
         <ul className="sgx-press-rules">
           <li><Calendar aria-hidden="true" /><span><b>{deadline}.</b> {es ? 'Después de esa fecha no se reciben solicitudes.' : 'No requests are taken after that date.'}</span></li>
-          <li><Newspaper aria-hidden="true" /><span><b>{es ? PRESS_RULES.slots.es : PRESS_RULES.slots.en}.</b> {es ? 'Si dos personas del mismo medio solicitan, el equipo acredita a una.' : 'If two people from the same outlet apply, the team accredits one.'}</span></li>
-          <li><BadgeCheck aria-hidden="true" /><span><b>{es ? 'Los 3 días.' : 'All 3 days.'}</b> {es ? 'Días 1 y 2 por YouTube Live; Día 3 presencial en Chroma Space Studios con el QR de tu SGX Pass (cuenta dentro de los 6 cupos).' : 'Days 1 and 2 on YouTube Live; Day 3 in person at Chroma Space Studios with your SGX Pass QR (it counts within the 6 slots).'}</span></li>
+          <li><Newspaper aria-hidden="true" /><span><b>{es ? PRESS_RULES.slots.es : PRESS_RULES.slots.en}.</b> {es ? 'El equipo de Spatialgineers revisa cada solicitud y te escribe al aprobarla.' : 'The Spatialgineers team reviews each request and writes to you once it is approved.'}</span></li>
+          <li><BadgeCheck aria-hidden="true" /><span><b>{es ? 'Los 3 días.' : 'All 3 days.'}</b> {es ? `Días 1 y 2 por YouTube Live; Día 3 presencial en Chroma Space Studios con el QR de tu SGX Pass (cuenta dentro de los ${PRESS_SLOTS} cupos).` : `Days 1 and 2 on YouTube Live; Day 3 in person at Chroma Space Studios with your SGX Pass QR (it counts within the ${PRESS_SLOTS} slots).`}</span></li>
         </ul>
         <div className="sgx-press-panel">{formBody}</div>
       </section>

@@ -81,7 +81,7 @@ export const SummitFooter: React.FC<SummitFooterProps> = ({ onOpenPrivacy, onOpe
             <li><a href={TEL}>{SGX_PHONE}</a></li>
             <li>
               <a href="/prensa" className="sgx-foot__link" onClick={openPress}>
-                {es ? 'Prensa: pide tu acreditación antes del 1 de diciembre (6 cupos, uno por medio)' : 'Press: request accreditation before December 1 (6 slots, one per outlet)'}
+                {es ? 'Prensa: pide tu acreditación antes del 1 de diciembre (10 cupos de prensa)' : 'Press: request accreditation before December 1 (10 press slots)'}
               </a>
             </li>
             <li>

@@ -13,6 +13,7 @@ import { PilotBuilder } from './PilotBuilder';
 import { randomPilot, type PilotConfig } from './pilotAvatar';
 import { HoloGlass } from '../immersion/shaders/HoloGlass';
 import { checkEmailClaim, findMyRegistration, type MyRegistration } from './passNetwork';
+import { deadlineDay } from '../lib/summitDeadlines';
 
 /* FORJA DE IDENTIDAD: one ~60 second ceremony replaces the taquilla form, the
    Holo Card generator, the role selector and both tours. Name → pillar →
@@ -294,7 +295,7 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
               <label className={tier === 'SHOWCASE' ? 'is-on' : ''}>
                 <input type="radio" name="tier" checked={tier === 'SHOWCASE'} onChange={() => setTier('SHOWCASE')} />
                 <strong>{es ? 'Día 3 presencial' : 'Day 3 in person'}</strong>
-                <span>{es ? 'Chroma Space Studios, San Juan. Por invitación y cupo limitado: recibes la invitación por correo. Último llamado: 1 de diciembre.' : 'Chroma Space Studios, San Juan. By invitation, limited capacity: invitations arrive by email. Last call: December 1.'}</span>
+                <span>{es ? `Chroma Space Studios, San Juan. Por invitación y cupo limitado: solicítalo hasta el 1 de diciembre y recibes la invitación por correo a más tardar el ${deadlineDay('day3Invitations', 'es')}.` : `Chroma Space Studios, San Juan. By invitation, limited capacity: request it by December 1 and invitations arrive by email no later than ${deadlineDay('day3Invitations', 'en')}.`}</span>
               </label>
             </fieldset>
             <label className="sgx-forge__consent">

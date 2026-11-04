@@ -1,12 +1,12 @@
 // Press room end-to-end against the EMULATORS: /prensa gate → forge → accreditation form →
-// tracking code; admin (emulated Google info@) approves in Personas → Prensa (counter, same-outlet
-// warning, CSV); the pass becomes PRENSA and is invited to Day 3; /bienvenida/prensa; closed state.
+// tracking code; admin (emulated Google info@) approves in Personas → Prensa (counter X/10, two
+// people from the same outlet both approved with no warning, CSV); the pass becomes PRENSA and is invited to Day 3; /bienvenida/prensa; closed state.
 // Screenshots at 390×844 and 1440×900 in scripts/e2e/out/press_*.png.
 const { chromium } = require('playwright');
 const APP = process.env.APP_URL || 'http://localhost:3200';
 const PROJECT = 'gen-lang-client-0564995587';
 const DB = 'ai-studio-sgxliveengine-630b78e7-0845-4046-9176-53bab53744ac';
-const REST = `http://127.0.0.1:8085/v1/projects/${PROJECT}/databases/${DB}/documents`;
+const REST = `http://127.0.0.1:${process.env.FS_PORT || 8085}/v1/projects/${PROJECT}/databases/${DB}/documents`;
 const get = async (path) => (await fetch(`${REST}/${path}`, { headers: { Authorization: 'Bearer owner' } })).json();
 const put = (path, fields) => fetch(`${REST}/${path}`, { method: 'PATCH', headers: { Authorization: 'Bearer owner', 'Content-Type': 'application/json' }, body: JSON.stringify({ fields }) }).then((r) => r.json());
 const OUT = require('path').join(__dirname, 'out'); require('fs').mkdirSync(OUT, { recursive: true });
@@ -107,7 +107,7 @@ const toSection = (p, id) => p.evaluate((i) => document.getElementById(i)?.scrol
   const passCode = (goals.find((g) => g.startsWith('PASS:')) || '').slice(5);
   check('request linked to the visitor account', !!uid);
 
-  // a second request from the same outlet (another person) to exercise the one-per-outlet warning
+  // a second request from the same outlet (another person): no per-outlet rule any more
   const otherId = `press_e2e_${RUN}`;
   await put(`sponsor_inquiries/${otherId}`, { id: S(otherId), companyName: S(OUTLET.toUpperCase()), contactName: S(`Alex Otro ${RUN}`), roleTitle: S('Camarógrafo'), email: S(`alex.${RUN.toLowerCase()}@example.com`), phone: S('787-555-0199'), websiteUrl: S('https://medioprueba.example.com'), selectedTierId: S('PRESS'), selectedTierName: S('Prensa · TV'), goals: { arrayValue: { values: [S('TYPE:tv'), S('DAY:1'), S('CONSENT:yes')] } }, customMessage: S('Cámara'), submittedAt: { integerValue: String(Date.now() - 1000) }, status: S('PENDING_REVIEW'), referenceCode: S(`SGX-PRENSA-2026-E2E${RUN.slice(0, 1)}`) });
 
@@ -134,8 +134,9 @@ const toSection = (p, id) => p.evaluate((i) => document.getElementById(i)?.scrol
     await a.waitForTimeout(1000);
     if (size === 'd') {
       check('admin lists the press requests', await a.locator('[data-testid=press-row]', { hasText: code }).count() === 1);
-      check('counter shows aprobados X/6', /aprobados \d+\/6/.test(await a.textContent('[data-testid=press-approved]')));
-      a.on('dialog', (d) => d.accept());
+      check('counter shows aprobados X/10', /aprobados \d+\/10/.test(await a.textContent('[data-testid=press-approved]')));
+      const dialogs = [];
+      a.on('dialog', (d) => { dialogs.push(d.message()); d.accept(); });
       await a.locator('[data-testid=press-row]', { hasText: code }).locator('button:text-is("Aprobar")').click();
       await a.waitForTimeout(4000);
       const msg = await a.textContent('[role=status]').catch(() => '');
@@ -146,10 +147,12 @@ const toSection = (p, id) => p.evaluate((i) => document.getElementById(i)?.scrol
       check('credential_grants press written', grant.fields?.press?.mapValue?.fields?.org?.stringValue === OUTLET);
       const reg = await get(`ticket_inquiries/${passCode}`);
       check('their pass is INVITED to Day 3 (Inscritos)', reg.fields?.status?.stringValue === 'INVITED');
-      // same outlet: approving the second shows the warning
+      // same outlet: the second is approved too, with no outlet warning or prompt
+      const before = dialogs.length;
       await a.locator('[data-testid=press-row]', { hasText: `Alex Otro ${RUN}` }).locator('button:text-is("Aprobar")').click();
       await a.waitForTimeout(3000);
-      check('same-outlet warning after a second approval', await a.isVisible('[data-testid=press-dupe]'));
+      check('same outlet approved with no warning', !(await a.isVisible('[data-testid=press-dupe]')) && !dialogs.slice(before).some((m) => /medio/i.test(m)), dialogs.slice(before).join(' | '));
+      check('no "uno por medio" anywhere in the panel', !/uno por medio|mismo medio/i.test(await a.textContent('[data-testid=press-panel]')));
       await a.screenshot({ path: `${OUT}/press_d_admin.png` });
       const [dl] = await Promise.all([a.waitForEvent('download', { timeout: 8000 }).catch(() => null), a.click('button:has-text("Exportar CSV")')]);
       const csv = dl ? require('fs').readFileSync(await dl.path(), 'utf8') : '';
@@ -157,7 +160,7 @@ const toSection = (p, id) => p.evaluate((i) => document.getElementById(i)?.scrol
       // back to pending: the second loses PRENSA (it had no account) and nothing else changes
       await a.locator('[data-testid=press-row]', { hasText: `Alex Otro ${RUN}` }).locator('button:has-text("Pendiente")').click();
       await a.waitForTimeout(2500);
-      check('back to pending clears the warning', !(await a.isVisible('[data-testid=press-dupe]')));
+      check('back to pending: still no warning', !(await a.isVisible('[data-testid=press-dupe]')));
     } else {
       await a.screenshot({ path: `${OUT}/press_m_admin.png` });
     }

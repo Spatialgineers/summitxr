@@ -4,9 +4,11 @@
    which injects the same title, description, FAQ and JSON-LD into index.html
    so the pages can be indexed and quoted without running JavaScript.
    Every fact here comes from the app's own copy (footer, sponsors page,
-   speaker portal, press room, Highbot knowledge). Do not add dates or promises. */
+   speaker portal, press room, Highbot knowledge). Deadlines come from
+   summitDeadlines.ts. Do not add dates or promises. */
 
 import { PRESS_FAQ, PRESS_RULES } from './pressKit';
+import { DEADLINE_COPY, SUMMIT_DEADLINES as D } from './summitDeadlines';
 
 export const WELCOME_ORIGIN = 'https://summit.spatialgineers.com';
 export const WELCOME_PATH = '/bienvenida';
@@ -98,6 +100,7 @@ export const WELCOME_FACTS = {
     en: 'Days 1 and 2: free on YouTube Live, with Los Mismos TV streaming alongside us.',
   },
   day3: { es: 'Día 3: Chroma Space Studios, San Juan. Por invitación.', en: 'Day 3: Chroma Space Studios, San Juan. By invitation.' },
+  day3Invitations: DEADLINE_COPY.day3Invitations,
   language: { es: 'En español.', en: 'In Spanish.' },
   press: PRESS_RULES.line,
 };
@@ -112,8 +115,8 @@ const FAQ_FREE: WelcomeFaq = {
 const FAQ_DAY3: WelcomeFaq = {
   q: { es: '¿Dónde es el Día 3?', en: 'Where is Day 3?' },
   a: {
-    es: 'El Día 3 (domingo 13 de diciembre) es el SGX Showcase en Chroma Space Studios, San Juan, Puerto Rico: presencial, por invitación y con cupo limitado (40 a 60 personas). El check-in se hace con el SGX Pass escaneando el QR de la entrada.',
-    en: 'Day 3 (Sunday, December 13) is the SGX Showcase at Chroma Space Studios, San Juan, Puerto Rico: in person, by invitation and with limited capacity (40 to 60 people). Check-in is done with the SGX Pass by scanning the QR at the entrance.',
+    es: `El Día 3 (domingo 13 de diciembre) es el SGX Showcase en Chroma Space Studios, San Juan, Puerto Rico: presencial, por invitación y con cupo limitado (40 a 60 personas). ${DEADLINE_COPY.day3Invitations.es} El check-in se hace con el SGX Pass escaneando el QR de la entrada.`,
+    en: `Day 3 (Sunday, December 13) is the SGX Showcase at Chroma Space Studios, San Juan, Puerto Rico: in person, by invitation and with limited capacity (40 to 60 people). ${DEADLINE_COPY.day3Invitations.en} Check-in is done with the SGX Pass by scanning the QR at the entrance.`,
   },
 };
 const FAQ_PASS: WelcomeFaq = {
@@ -131,8 +134,8 @@ export const WELCOME_HUB = {
     en: 'Welcome · Spatialgineers Summit 2026 · Dec 11–13 · San Juan, PR',
   },
   description: {
-    es: 'Tu entrada al Spatialgineers Summit 2026 (11–13 dic): elige tu rol, mira tu video de recorrido y forja tu SGX Pass. Días 1 y 2 gratis por YouTube Live; Día 3 en Chroma Space Studios, San Juan.',
-    en: 'Your way into Spatialgineers Summit 2026 (Dec 11–13): pick your role, watch your walkthrough video and forge your SGX Pass. Days 1 and 2 free on YouTube Live; Day 3 at Chroma Space Studios, San Juan.',
+    es: `Tu entrada al Spatialgineers Summit 2026 (11–13 dic): elige tu rol, mira tu video de recorrido y forja tu SGX Pass. Días 1 y 2 gratis por YouTube Live; Día 3 en Chroma Space Studios, San Juan (invitaciones a más tardar el ${D.day3Invitations.short.es}).`,
+    en: `Your way into Spatialgineers Summit 2026 (Dec 11–13): pick your role, watch your walkthrough video and forge your SGX Pass. Days 1 and 2 free on YouTube Live; Day 3 at Chroma Space Studios, San Juan (invitations by ${D.day3Invitations.short.en}).`,
   },
   intro: {
     es: 'Tres días de spatial computing, artistas invitados y producción virtual en vivo, en español. Elige cómo llegas al Summit: cada rol tiene su video corto y sus fechas clave.',
@@ -151,8 +154,8 @@ export const WELCOME_ROLE_COPY: Record<WelcomeRole, WelcomeRoleCopy> = {
     title: { es: 'Bienvenida, Creador', en: 'Welcome, Creator' },
     metaTitle: { es: 'Creadores: cómo vivir el Spatialgineers Summit 2026', en: 'Creators: how to experience Spatialgineers Summit 2026' },
     description: {
-      es: 'Guía para Creadores del Spatialgineers Summit 2026: forja tu SGX Pass gratis, arma tu agenda, juega y gana XP. Días 1 y 2 gratis por YouTube Live (11 y 12 dic); Día 3 por invitación en Chroma Space Studios.',
-      en: 'Creator guide to Spatialgineers Summit 2026: forge your free SGX Pass, build your agenda, play and earn XP. Days 1 and 2 free on YouTube Live (Dec 11 and 12); Day 3 by invitation at Chroma Space Studios.',
+      es: `Guía para Creadores del Spatialgineers Summit 2026: forja tu SGX Pass gratis, arma tu agenda, juega y gana XP. Días 1 y 2 gratis por YouTube Live (11 y 12 dic); Día 3 por invitación en Chroma Space Studios (invitaciones a más tardar el ${D.day3Invitations.short.es}).`,
+      en: `Creator guide to Spatialgineers Summit 2026: forge your free SGX Pass, build your agenda, play and earn XP. Days 1 and 2 free on YouTube Live (Dec 11 and 12); Day 3 by invitation at Chroma Space Studios (invitations by ${D.day3Invitations.short.en}).`,
     },
     intro: {
       es: 'Vienes a ver, jugar y conectar. Tu SGX Pass es tu Holo Card: con él guardas tu progreso, ganas XP y entras a Tu Estudio.',
@@ -164,6 +167,7 @@ export const WELCOME_ROLE_COPY: Record<WelcomeRole, WelcomeRoleCopy> = {
       { when: { es: 'Antes del evento', en: 'Before the event' }, title: { es: 'Arma tu agenda y gana XP', en: 'Build your agenda and earn XP' }, body: { es: 'Mira la agenda de los tres días, juega en el hub de juegos y completa las misiones del Reactor.', en: 'Browse the three-day agenda, play in the games hub and complete the Reactor missions.' } },
       { when: { es: '11 y 12 dic', en: 'Dec 11 and 12' }, title: { es: 'Días 1 y 2 en vivo', en: 'Days 1 and 2 live' }, body: { es: 'Gratis por YouTube Live, con Los Mismos TV transmitiendo junto a nosotros. Vota en vivo y gana XP.', en: 'Free on YouTube Live, with Los Mismos TV streaming alongside us. Vote live and earn XP.' } },
       { when: { es: '13 dic', en: 'Dec 13' }, title: { es: 'Día 3: SGX Showcase', en: 'Day 3: SGX Showcase' }, body: { es: 'En Chroma Space Studios, San Juan, por invitación. Puedes solicitar el Día 3 presencial desde tu pase; el check-in es con el QR de tu SGX Pass.', en: 'At Chroma Space Studios, San Juan, by invitation. You can request in-person Day 3 from your pass; check-in uses your SGX Pass QR.' } },
+      { when: { es: `A más tardar el ${D.day3Invitations.short.es}`, en: `By ${D.day3Invitations.short.en}` }, title: { es: 'Invitaciones al Día 3', en: 'Day 3 invitations' }, body: { es: `${DEADLINE_COPY.day3Invitations.es} Llegan por correo y tu SGX Pass muestra si estás invitado.`, en: `${DEADLINE_COPY.day3Invitations.en} They arrive by email and your SGX Pass shows whether you are invited.` } },
     ],
     faq: [FAQ_FREE, FAQ_PASS, FAQ_DAY3, {
       q: { es: '¿Cómo gano XP?', en: 'How do I earn XP?' },
@@ -176,8 +180,8 @@ export const WELCOME_ROLE_COPY: Record<WelcomeRole, WelcomeRoleCopy> = {
     title: { es: 'Bienvenida, speaker', en: 'Welcome, speaker' },
     metaTitle: { es: 'Speakers y artistas · Spatialgineers Summit 2026', en: 'Speakers and artists · Spatialgineers Summit 2026' },
     description: {
-      es: 'Guía para speakers y artistas del Spatialgineers Summit 2026 (11–13 dic): registra tu perfil en el Portal de speakers, arma tu avatar y tu Holo Card, y conoce los tres días del programa.',
-      en: 'Guide for speakers and artists at Spatialgineers Summit 2026 (Dec 11–13): register your profile in the Speaker portal, build your avatar and Holo Card, and see the three days of the program.',
+      es: `Guía para speakers y artistas del Spatialgineers Summit 2026 (11–13 dic): registra tu perfil en el Portal de speakers hasta el ${D.speakerProfiles.day.es}, arma tu avatar y tu Holo Card, y conoce los tres días del programa.`,
+      en: `Guide for speakers and artists at Spatialgineers Summit 2026 (Dec 11–13): register your profile in the Speaker portal through ${D.speakerProfiles.day.en}, build your avatar and Holo Card, and see the three days of the program.`,
     },
     intro: {
       es: 'Presentas en el Summit. Registra tu perfil en el Portal de speakers: el equipo lo revisa y lo publica en el cartel cuando tu participación esté confirmada por escrito.',
@@ -185,13 +189,13 @@ export const WELCOME_ROLE_COPY: Record<WelcomeRole, WelcomeRoleCopy> = {
     },
     videoTitle: { es: 'Recorrido para speakers', en: 'Walkthrough for speakers' },
     steps: [
-      { when: { es: 'Hoy', en: 'Today' }, title: { es: 'Registra tu perfil', en: 'Register your profile' }, body: { es: 'En el Portal de speakers: nombre o nombre artístico, rol, organización, día, pilar SGX, biografía y enlaces.', en: 'In the Speaker portal: name or artist name, role, organization, day, SGX pillar, bio and links.' } },
+      { when: { es: `Hasta el ${D.speakerProfiles.short.es}`, en: `By ${D.speakerProfiles.short.en}` }, title: { es: 'Registra tu perfil', en: 'Register your profile' }, body: { es: `En el Portal de speakers: nombre o nombre artístico, rol, organización, día, pilar SGX, biografía y enlaces. ${DEADLINE_COPY.speakerProfiles.es} Después el portal se cierra.`, en: `In the Speaker portal: name or artist name, role, organization, day, SGX pillar, bio and links. ${DEADLINE_COPY.speakerProfiles.en} After that the portal closes.` } },
       { when: { es: 'En el registro', en: 'While registering' }, title: { es: 'Arma tu avatar', en: 'Build your avatar' }, body: { es: 'En el Summit todos aparecen con su avatar SGX. Con él se arma tu Holo Card de speaker.', en: 'Everyone in the Summit appears with their SGX avatar. It becomes your speaker Holo Card.' } },
       { when: { es: 'Tras la revisión', en: 'After review' }, title: { es: 'Confirmación por escrito', en: 'Written confirmation' }, body: { es: 'El equipo revisa tu perfil y te escribe al confirmar tu participación. Solo entonces aparece en el directorio.', en: 'The team reviews your profile and writes to you once your participation is confirmed. Only then does it appear in the directory.' } },
       { when: { es: '11–13 dic', en: 'Dec 11–13' }, title: { es: 'Tu día en el Summit', en: 'Your day at the Summit' }, body: { es: 'Día 1 (vie 11): digital, pilares e Initiates. Día 2 (sáb 12): digital, Día de la Industria. Día 3 (dom 13): SGX Showcase en Chroma Space Studios, por invitación.', en: 'Day 1 (Fri 11): digital, pillars and Initiates. Day 2 (Sat 12): digital, Industry Day. Day 3 (Sun 13): SGX Showcase at Chroma Space Studios, by invitation.' } },
     ],
     faq: [
-      { q: { es: '¿Cómo me registro como speaker o artista?', en: 'How do I register as a speaker or artist?' }, a: { es: 'En el Portal de speakers del Summit (summit.spatialgineers.com/portal-speakers): llenas tu perfil, armas tu avatar y lo envías para revisión.', en: 'In the Summit Speaker portal (summit.spatialgineers.com/portal-speakers): fill in your profile, build your avatar and send it for review.' } },
+      { q: { es: '¿Cómo me registro como speaker o artista?', en: 'How do I register as a speaker or artist?' }, a: { es: `En el Portal de speakers del Summit (summit.spatialgineers.com/portal-speakers): llenas tu perfil, armas tu avatar y lo envías para revisión. ${DEADLINE_COPY.speakerProfiles.es}`, en: `In the Summit Speaker portal (summit.spatialgineers.com/portal-speakers): fill in your profile, build your avatar and send it for review. ${DEADLINE_COPY.speakerProfiles.en}` } },
       { q: { es: '¿Cuándo aparece mi perfil en el cartel?', en: 'When does my profile appear in the lineup?' }, a: { es: 'Cuando el equipo confirma tu participación por escrito. Te escribimos al confirmarla.', en: 'When the team confirms your participation in writing. We write to you when it is confirmed.' } },
       { q: { es: '¿Qué pasa cada día del Summit?', en: 'What happens on each Summit day?' }, a: { es: 'Día 1 (viernes 11 de diciembre): digital, pilares e Initiates. Día 2 (sábado 12): digital, Día de la Industria. Día 3 (domingo 13): SGX Showcase en Chroma Space Studios, San Juan, por invitación.', en: 'Day 1 (Friday, December 11): digital, pillars and Initiates. Day 2 (Saturday 12): digital, Industry Day. Day 3 (Sunday 13): SGX Showcase at Chroma Space Studios, San Juan, by invitation.' } },
       FAQ_PASS,
@@ -203,8 +207,8 @@ export const WELCOME_ROLE_COPY: Record<WelcomeRole, WelcomeRoleCopy> = {
     title: { es: 'Bienvenida, marca', en: 'Welcome, brand' },
     metaTitle: { es: 'Patrocina el Spatialgineers Summit 2026 · Paquetes y fechas', en: 'Sponsor Spatialgineers Summit 2026 · Packages and dates' },
     description: {
-      es: 'Guía para sponsors del Spatialgineers Summit 2026: 5 paquetes con precios en USD, pago total a más tardar el 14 de noviembre y materiales hasta el 30 de noviembre. Tu marca en la webapp, la transmisión y el Día 3.',
-      en: 'Sponsor guide to Spatialgineers Summit 2026: 5 packages priced in USD, full payment by November 14 and materials by November 30. Your brand on the web app, the broadcast and Day 3.',
+      es: `Guía para sponsors del Spatialgineers Summit 2026: 5 paquetes con precios en USD, solicitudes hasta el ${D.sponsorApplications.day.es}, pago total y materiales a más tardar el ${D.sponsorPayment.day.es}. Tu marca en la webapp, la transmisión y el Día 3.`,
+      en: `Sponsor guide to Spatialgineers Summit 2026: 5 packages priced in USD, applications through ${D.sponsorApplications.day.en}, full payment and materials no later than ${D.sponsorPayment.day.en}. Your brand on the web app, the broadcast and Day 3.`,
     },
     intro: {
       es: 'Auspiciar es ocupar con tu marca los espacios del Summit: la webapp con núcleo 3D, minijuegos y misiones, la transmisión por YouTube Live y el Día 3 en Chroma Space Studios.',
@@ -212,14 +216,13 @@ export const WELCOME_ROLE_COPY: Record<WelcomeRole, WelcomeRoleCopy> = {
     },
     videoTitle: { es: 'Recorrido para sponsors', en: 'Walkthrough for sponsors' },
     steps: [
-      { when: { es: 'Hoy', en: 'Today' }, title: { es: 'Solicita', en: 'Apply' }, body: { es: 'Elige uno de los 5 paquetes (precios en USD) y envía el formulario. Recibes un código de seguimiento al instante.', en: 'Pick one of the 5 packages (prices in USD) and send the form. You get a tracking code right away.' } },
+      { when: { es: `Hasta el ${D.sponsorApplications.short.es}`, en: `By ${D.sponsorApplications.short.en}` }, title: { es: 'Solicita', en: 'Apply' }, body: { es: `Elige uno de los 5 paquetes (precios en USD) y envía el formulario. ${DEADLINE_COPY.sponsorApplications.es} Recibes un código de seguimiento al instante.`, en: `Pick one of the 5 packages (prices in USD) and send the form. ${DEADLINE_COPY.sponsorApplications.en} You get a tracking code right away.` } },
       { when: { es: 'Tras la revisión', en: 'After review' }, title: { es: 'Confirmación', en: 'Confirmation' }, body: { es: 'El equipo de Spatialgineers revisa tu propuesta y te escribe por correo. Rige un contrato corto de auspicio firmado por ambas partes.', en: 'The Spatialgineers team reviews your proposal and emails you. A short sponsorship contract signed by both parties governs.' } },
-      { when: { es: '14 nov', en: 'Nov 14' }, title: { es: 'Pago total', en: 'Full payment' }, body: { es: 'Pago total a más tardar el 14 de noviembre.', en: 'Full payment by November 14.' } },
-      { when: { es: '30 nov', en: 'Nov 30' }, title: { es: 'Materiales', en: 'Materials' }, body: { es: 'Materiales de tu marca hasta el 30 de noviembre.', en: 'Your brand materials by November 30.' } },
+      { when: { es: D.sponsorPayment.short.es, en: D.sponsorPayment.short.en }, title: { es: 'Pago total y materiales', en: 'Full payment and materials' }, body: { es: DEADLINE_COPY.sponsorPaymentMaterials.es, en: DEADLINE_COPY.sponsorPaymentMaterials.en } },
       { when: { es: '11–13 dic', en: 'Dec 11–13' }, title: { es: 'En vivo', en: 'Live' }, body: { es: 'Tu marca en la webapp, la transmisión y el Día 3. Paquetes 4 y 5 reciben el reporte final a los 30 días.', en: 'Your brand on the web app, the broadcast and Day 3. Packages 4 and 5 get the final report at 30 days.' } },
     ],
     faq: [
-      { q: { es: '¿Cuáles son las fechas clave para sponsors?', en: 'What are the key dates for sponsors?' }, a: { es: 'Pago total a más tardar el 14 de noviembre y materiales de la marca hasta el 30 de noviembre. El Summit es del 11 al 13 de diciembre de 2026.', en: 'Full payment by November 14 and brand materials by November 30. The Summit runs December 11–13, 2026.' } },
+      { q: { es: '¿Cuáles son las fechas clave para sponsors?', en: 'What are the key dates for sponsors?' }, a: { es: `${DEADLINE_COPY.sponsorKeyDates.es} El Summit es del 11 al 13 de diciembre de 2026.`, en: `${DEADLINE_COPY.sponsorKeyDates.en} The Summit runs December 11–13, 2026.` } },
       { q: { es: '¿El precio es fijo?', en: 'Is the price fixed?' }, a: { es: 'No. Cada uno de los 5 paquetes tiene un rango en USD y el precio exacto se acuerda según el presupuesto del sponsor. El Paquete 5 no tiene precio público.', en: "No. Each of the 5 packages has a range in USD and the exact price is agreed based on the sponsor's budget. Package 5 has no public price." } },
       { q: { es: '¿Garantizan vistas, asistencia o clics?', en: 'Do you guarantee views, attendance or clicks?' }, a: { es: 'No. Spatialgineers no garantiza un número de vistas, asistentes ni clics. Los Paquetes 4 y 5 reciben un reporte final a los 30 días, sin datos personales.', en: 'No. Spatialgineers does not guarantee a number of views, attendees or clicks. Packages 4 and 5 receive a final report at 30 days, with no personal data.' } },
       { q: { es: '¿Hay exclusividad por categoría?', en: 'Is there category exclusivity?' }, a: { es: 'Sí, en los Paquetes 4 y 5: una sola marca de su sector.', en: 'Yes, in Packages 4 and 5: only one brand from your sector.' } },
@@ -231,8 +234,8 @@ export const WELCOME_ROLE_COPY: Record<WelcomeRole, WelcomeRoleCopy> = {
     title: { es: 'Bienvenida, prensa', en: 'Welcome, press' },
     metaTitle: { es: 'Prensa · Acreditación al Spatialgineers Summit 2026 · 11–13 dic', en: 'Press · Spatialgineers Summit 2026 accreditation · Dec 11–13' },
     description: {
-      es: 'Guía para prensa y medios del Spatialgineers Summit 2026: solicita tu acreditación antes del 1 de diciembre (6 cupos, uno por medio), descarga el kit de prensa y cubre los 3 días: YouTube Live y el Día 3 en Chroma Space Studios.',
-      en: 'Press and media guide to Spatialgineers Summit 2026: request accreditation before December 1 (6 slots, one per outlet), download the press kit and cover all 3 days: YouTube Live and Day 3 at Chroma Space Studios.',
+      es: 'Guía para prensa y medios del Spatialgineers Summit 2026: solicita tu acreditación antes del 1 de diciembre (10 cupos de prensa), descarga el kit de prensa y cubre los 3 días: YouTube Live y el Día 3 en Chroma Space Studios.',
+      en: 'Press and media guide to Spatialgineers Summit 2026: request accreditation before December 1 (10 press slots), download the press kit and cover all 3 days: YouTube Live and Day 3 at Chroma Space Studios.',
     },
     intro: {
       es: 'Cubres el Summit. La acreditación de prensa incluye los 3 días: la transmisión por YouTube Live los Días 1 y 2, y la entrada al Día 3 en Chroma Space Studios con el QR de tu SGX Pass.',
@@ -241,7 +244,7 @@ export const WELCOME_ROLE_COPY: Record<WelcomeRole, WelcomeRoleCopy> = {
     videoTitle: { es: 'Recorrido para prensa', en: 'Walkthrough for press' },
     steps: [
       { when: { es: 'Hoy', en: 'Today' }, title: { es: 'Forja tu SGX Pass', en: 'Forge your SGX Pass' }, body: { es: 'Gratis y en un minuto. Desde tu pase solicitas la acreditación.', en: 'Free and in a minute. You request accreditation from your pass.' } },
-      { when: { es: 'Antes del 1 dic', en: 'Before Dec 1' }, title: { es: 'Solicita tu acreditación', en: 'Request accreditation' }, body: { es: 'En la Sala de prensa: tu medio, tu cargo, enlaces a coberturas previas y los días que cubrirás. 6 cupos, uno por medio. Recibes un código de seguimiento.', en: 'In the Press room: your outlet, your title, links to past coverage and the days you will cover. 6 slots, one per outlet. You get a tracking code.' } },
+      { when: { es: 'Antes del 1 dic', en: 'Before Dec 1' }, title: { es: 'Solicita tu acreditación', en: 'Request accreditation' }, body: { es: 'En la Sala de prensa: tu medio, tu cargo, enlaces a coberturas previas y los días que cubrirás. 10 cupos de prensa. Recibes un código de seguimiento.', en: 'In the Press room: your outlet, your title, links to past coverage and the days you will cover. 10 press slots. You get a tracking code.' } },
       { when: { es: 'Tras la revisión', en: 'After review' }, title: { es: 'Tu pase dice PRENSA', en: 'Your pass says PRESS' }, body: { es: 'Si te aprueban, el equipo te escribe, tu Holo Card cambia a PRENSA y tu pase queda invitado al Día 3.', en: 'If approved, the team writes to you, your Holo Card switches to PRESS and your pass is invited to Day 3.' } },
       { when: { es: '11–13 dic', en: 'Dec 11–13' }, title: { es: 'Cubre los 3 días', en: 'Cover all 3 days' }, body: { es: 'Días 1 y 2 por YouTube Live, con Los Mismos TV transmitiendo junto a nosotros. Día 3 presencial en Chroma Space Studios, San Juan: entras con el QR de tu SGX Pass.', en: 'Days 1 and 2 on YouTube Live, with Los Mismos TV streaming alongside us. Day 3 in person at Chroma Space Studios, San Juan: you get in with your SGX Pass QR.' } },
     ],
@@ -264,7 +267,7 @@ export const WELCOME_ROLE_COPY: Record<WelcomeRole, WelcomeRoleCopy> = {
     videoTitle: { es: 'Recorrido para el equipo', en: 'Walkthrough for the team' },
     steps: [
       { when: { es: 'Antes', en: 'Before' }, title: { es: 'Entra al admin', en: 'Open the admin' }, body: { es: 'Con tu cuenta autorizada. Contenido: agenda, speakers, sponsors, paquetes y este portal de bienvenida.', en: 'With your authorized account. Content: agenda, speakers, sponsors, packages and this welcome portal.' } },
-      { when: { es: 'Antes', en: 'Before' }, title: { es: 'Inscritos y Día 3', en: 'Registrations and Day 3' }, body: { es: 'Registros, código de check-in del Día 3 y propuestas de speakers.', en: 'Registrations, the Day 3 check-in code and speaker proposals.' } },
+      { when: { es: 'Antes', en: 'Before' }, title: { es: 'Inscritos y Día 3', en: 'Registrations and Day 3' }, body: { es: `Registros, código de check-in del Día 3 y propuestas de speakers. Invitaciones al Día 3 a más tardar el ${D.day3Invitations.day.es}.`, en: `Registrations, the Day 3 check-in code and speaker proposals. Day 3 invitations no later than ${D.day3Invitations.day.en}.` } },
       { when: { es: '11–13 dic', en: 'Dec 11–13' }, title: { es: 'En vivo', en: 'Live' }, body: { es: 'Consola del director para la pregunta en vivo y anuncios que llegan al instante a todas las páginas abiertas.', en: 'Director console for the live question, and announcements that reach every open page instantly.' } },
     ],
     faq: [],

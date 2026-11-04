@@ -18,6 +18,7 @@ import { GoogleSignInButton } from '../components/common/GoogleSignInButton';
 import { SgxDialog } from '../components/common/SgxDialog';
 import { LeadFlag } from '../components/admin/LeadFlag';
 import './SgxStudio.css';
+import { DEADLINE_COPY } from '../lib/summitDeadlines';
 
 const SgxPilot3D = lazy(() => import('./SgxPilot3D').then((m) => ({ default: m.SgxPilot3D })));
 const CompanionStudio = lazy(() => import('../companion/CompanionStudio').then((m) => ({ default: m.CompanionStudio })));
@@ -342,6 +343,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
               </div>
               <div className="sgx-hangar__day3-info">
                 <h3>{es ? 'Tu pase es la llave del Día 3' : 'Your pass is the Day 3 key'}</h3>
+                <p>{es ? DEADLINE_COPY.day3Invitations.es : DEADLINE_COPY.day3Invitations.en} {es ? 'Si te invitan, este mismo pase es tu entrada.' : 'If you are invited, this same pass is your entrance.'}</p>
                 <ol>
                   <li><b>{es ? 'Entrada' : 'Entrance'}</b> · {es ? 'Escanea el QR de check-in en la puerta de Chroma Space Studios. Tu municipio se enciende en el radar.' : 'Scan the check-in QR at the Chroma Space Studios door. Your municipality lights up on the radar.'}</li>
                   <li><b>Networking</b> · {es ? 'Bloque de 1:00 a 2:00 PM: muestra este QR y escanea otros pases. El intercambio queda en los dos Rolodex.' : '1:00–2:00 PM block: show this QR and scan other passes. The exchange lands in both Rolodexes.'}</li>

@@ -82,10 +82,11 @@ SGX = Spatialgineers Experience. Son seis pilares que se combinan para resolver 
   - Se ven por YouTube Live (canal principal: youtube.com/@spatialgineers), con LinkedIn Live y Facebook Live.
   - Los Mismos TV transmite junto a Spatialgineers desde su canal.
 - **Día 3 (domingo 13):** SGX Showcase presencial en Chroma Space Studios (San Juan).
-  - Por invitación y con cupo limitado (40 a 60 personas).
+  - Por invitación y con cupo limitado (40 a 60 personas). El equipo envía las invitaciones a más tardar el 5 de diciembre.
   - Hay demos en vivo de todos los pilares, artistas, networking y premios.
   - El check-in se hace con el SGX Pass.
-- **Prensa:** acreditación antes del 1 de diciembre, por info@spatialgineers.com (6 cupos, uno por medio).
+- **Prensa:** acreditación antes del 1 de diciembre, por info@spatialgineers.com (10 cupos de prensa).
+- **Fechas límite (hora de Puerto Rico):** perfiles de speakers y artistas hasta el 21 de noviembre; solicitudes de auspicio hasta el 28 de noviembre; pago total y materiales de sponsors a más tardar el 30 de noviembre; invitaciones al Día 3 a más tardar el 5 de diciembre.
 
 ### Run of Show (resumen; la agenda completa está en /agenda)
 

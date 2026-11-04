@@ -4,6 +4,7 @@ import {
   Box, Handshake, MonitorPlay, Mic, Newspaper,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
+import { SUMMIT_DEADLINES as D } from './summitDeadlines';
 
 /* =========================================================================
    THE SIX SGX PILLARS: single source of truth for the whole platform.
@@ -89,7 +90,7 @@ export const SGX_PILLARS: SgxPillar[] = [
       { kind: 'section', key: 'MAP_360', icon: Globe, label: { es: 'Recorrido 360° Chroma Space Studios', en: '360° Chroma Space Studios walk-through' }, desc: { es: 'Recorre Chroma Space Studios, la sede del Día 3 en San Juan.', en: 'Walk Chroma Space Studios, the Day 3 venue in San Juan.' } },
       { kind: 'section', key: 'SPONSORS_HUB', icon: Building2, label: { es: 'Partners & Brand Showcases', en: 'Partners & Brand Showcases' }, desc: { es: 'Las marcas viven dentro de la experiencia. Paquetes 1 a 5.', en: 'Brands live inside the experience. Packages 1 to 5.' } },
       { kind: 'section', key: 'MODELS_3D', icon: Box, label: { es: 'Modelos 3D', en: '3D models' }, desc: { es: 'Los logos y las esculturas de los seis pilares en 3D: gíralos y acércate.', en: 'The logos and the six pillar sculptures in 3D: turn them and zoom in.' } },
-      { kind: 'section', key: 'SPONSOR', icon: Handshake, label: { es: 'Patrocina el Summit', en: 'Sponsor the Summit' }, desc: { es: 'Los paquetes 1 a 5 y los espacios de marca dentro de la experiencia.', en: 'Packages 1 to 5 and the brand spaces inside the experience.' } },
+      { kind: 'section', key: 'SPONSOR', icon: Handshake, label: { es: 'Patrocina el Summit', en: 'Sponsor the Summit' }, desc: { es: `Los paquetes 1 a 5 y los espacios de marca dentro de la experiencia. Solicitudes hasta el ${D.sponsorApplications.day.es}.`, en: `Packages 1 to 5 and the brand spaces inside the experience. Applications through ${D.sponsorApplications.day.en}.` } },
     ],
   },
   {
@@ -130,8 +131,8 @@ export const SGX_PILLARS: SgxPillar[] = [
       { kind: 'section', key: 'BROADCAST_ROOMS', icon: Radio, label: { es: 'Salas de transmisión', en: 'Broadcast rooms' }, desc: { es: 'YouTube Live como canal principal, con LinkedIn y Facebook Live.', en: 'YouTube Live as the main channel, plus LinkedIn and Facebook Live.' } },
       { kind: 'section', key: 'SPEAKERS', icon: Users, label: { es: 'Speakers & artistas', en: 'Speakers & artists' }, desc: { es: 'Solo se publican quienes están confirmados por escrito.', en: 'Only people confirmed in writing are published.' } },
       { kind: 'page', page: 'stage', icon: MonitorPlay, label: { es: 'Escenario en vivo', en: 'Live stage' }, desc: { es: 'La pantalla del escenario: preguntas, votos y reacciones en vivo.', en: 'The stage screen: live questions, votes and reactions.' } },
-      { kind: 'section', key: 'SPEAKER_PORTAL', icon: Mic, label: { es: 'Portal de speakers', en: 'Speaker portal' }, desc: { es: 'Para speakers y artistas: tu ficha, tu avatar y tu Holo Card de speaker.', en: 'For speakers and artists: your profile, avatar and speaker Holo Card.' } },
-      { kind: 'section', key: 'PRESS', icon: Newspaper, label: { es: 'Sala de prensa', en: 'Press room' }, desc: { es: 'Acreditación de prensa (antes del 1 de dic, 6 cupos, uno por medio), kit de prensa y ficha del Summit.', en: 'Press accreditation (before Dec 1, 6 slots, one per outlet), press kit and Summit fact sheet.' } },
+      { kind: 'section', key: 'SPEAKER_PORTAL', icon: Mic, label: { es: 'Portal de speakers', en: 'Speaker portal' }, desc: { es: `Para speakers y artistas: tu ficha, tu avatar y tu Holo Card de speaker. Perfiles hasta el ${D.speakerProfiles.day.es}.`, en: `For speakers and artists: your profile, avatar and speaker Holo Card. Profiles through ${D.speakerProfiles.day.en}.` } },
+      { kind: 'section', key: 'PRESS', icon: Newspaper, label: { es: 'Sala de prensa', en: 'Press room' }, desc: { es: 'Acreditación de prensa (antes del 1 de dic, 10 cupos de prensa), kit de prensa y ficha del Summit.', en: 'Press accreditation (before Dec 1, 10 press slots), press kit and Summit fact sheet.' } },
     ],
   },
   {

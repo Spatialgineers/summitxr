@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Send, Info, Download, Copy, Check, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, Send, Info, Download, Copy, Check, AlertTriangle, Lock, Mail } from 'lucide-react';
 import { SponsorshipTier, SponsorInquiry } from '../../types/summit';
 import { submitSponsorInquiry, SPONSORSHIP_TIERS } from '../../lib/summitData';
 import { auth } from '../../lib/firebase';
@@ -9,11 +9,14 @@ import { loc } from '../../lib/localize';
 import { SgxDialog } from '../common/SgxDialog';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import { ForgeFirst } from '../../identity/ForgeFirst';
+import { DEADLINE_COPY, SUMMIT_CONTACT_EMAIL, deadlineLabel, isClosed } from '../../lib/summitDeadlines';
 import './sgxModals.css';
 
 /* SPONSOR APPLICATION: tier, company, activations and a message. Inline in the
    sponsors section, or in SgxDialog when `isModal`. Lands in Firestore via
-   submitSponsorInquiry; the downloadable .txt is the visitor's receipt. */
+   submitSponsorInquiry; the downloadable .txt is the visitor's receipt.
+   Applications close by themselves after the sponsorApplications deadline
+   (lib/summitDeadlines): the form becomes a closed note pointing to info@. */
 
 interface SummitSponsorInquiryFormProps {
   initialTierId?: string;
@@ -63,6 +66,8 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const formId = React.useId();
+  // Checked once per open (localStorage sgx_now can move "now" in tests).
+  const [closed] = useState(() => isClosed('sponsorApplications'));
 
   const toggleGoal = (goalId: string) => {
     setSelectedGoals(prev => 
@@ -145,7 +150,7 @@ export const SummitSponsorInquiryForm: React.FC<SummitSponsorInquiryFormProps> =
 SPATIALGINEERS SUMMIT 2026 • SOLICITUD DE PATROCINIO
 Día 3 (SGX Showcase): Chroma Space Studios, San Juan, Puerto Rico
 Fecha del Evento: Diciembre 11 - 13, 2026
-Pago total: a más tardar el 14 de noviembre de 2026 · Materiales: hasta el 30 de noviembre de 2026
+Pago total y materiales: a más tardar el ${deadlineLabel('sponsorPayment', 'es')}
 =====================================================
 
 CÓDIGO DE SEGUIMIENTO: ${submittedInquiry.referenceCode}
@@ -177,7 +182,7 @@ Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio fir
 SPATIALGINEERS SUMMIT 2026 • SPONSORSHIP REQUEST
 Day 3 (SGX Showcase): Chroma Space Studios, San Juan, Puerto Rico
 Event Dates: December 11 - 13, 2026
-Full payment: by November 14, 2026 · Materials: by November 30, 2026
+Full payment and materials: no later than ${deadlineLabel('sponsorPayment', 'en')}
 =====================================================
 
 TRACKING CODE: ${submittedInquiry.referenceCode}
@@ -251,7 +256,7 @@ This summary is not a binding offer. The short sponsorship contract signed by bo
         <div>
           <strong>{es ? 'Solicitud enviada. ' : 'Request sent. '}</strong>
           {es ? 'Gracias, ' : 'Thank you, '}{submittedInquiry.companyName}.{' '}
-          {es ? 'El equipo de Spatialgineers revisará tu propuesta y te escribirá por correo. Pago total a más tardar el 14 de noviembre y materiales hasta el 30 de noviembre.' : 'The Spatialgineers team will review your proposal and email you. Full payment by November 14 and materials by November 30.'}
+          {es ? `El equipo de Spatialgineers revisará tu propuesta y te escribirá por correo. ${DEADLINE_COPY.sponsorPaymentMaterials.es}` : `The Spatialgineers team will review your proposal and email you. ${DEADLINE_COPY.sponsorPaymentMaterials.en}`}
         </div>
       </div>
       <div className="sgx-m-code">
@@ -389,7 +394,7 @@ This summary is not a binding offer. The short sponsorship contract signed by bo
 
       <div className="sgx-m-note">
         <Info size={16} aria-hidden />
-        <div>{es ? 'Pago total a más tardar el 14 de noviembre de 2026. Materiales hasta el 30 de noviembre. También puedes escribir a info@spatialgineers.com.' : 'Full payment by November 14, 2026. Materials by November 30. You can also write to info@spatialgineers.com.'}</div>
+        <div data-testid="sponsor-deadline">{es ? `${DEADLINE_COPY.sponsorKeyDates.es} También puedes escribir a ${SUMMIT_CONTACT_EMAIL}.` : `${DEADLINE_COPY.sponsorKeyDates.en} You can also write to ${SUMMIT_CONTACT_EMAIL}.`}</div>
       </div>
 
       {sendError && (
@@ -400,6 +405,46 @@ This summary is not a binding offer. The short sponsorship contract signed by bo
       )}
     </form>
   );
+
+  // After the deadline the form is closed for everyone (no pass needed to read that).
+  if (closed) {
+    const closedNote = (
+      <div className="sgx-m sgx-m-stack" data-testid="sponsor-closed">
+        <div className="sgx-m-note sgx-m-note--warn" role="status">
+          <Lock size={18} aria-hidden />
+          <div>
+            <strong>{es ? 'Solicitudes cerradas. ' : 'Applications closed. '}</strong>
+            {es ? DEADLINE_COPY.sponsorClosed.es : DEADLINE_COPY.sponsorClosed.en}.
+          </div>
+        </div>
+        <p className="sgx-m-p">{es
+          ? `Si ya enviaste tu solicitud, el equipo te escribe por correo. ${DEADLINE_COPY.sponsorPaymentMaterials.es}`
+          : `If you already applied, the team will email you. ${DEADLINE_COPY.sponsorPaymentMaterials.en}`}</p>
+      </div>
+    );
+    const closedActions = (
+      <>
+        <a className="sgx-btn sgx-btn--sm sgx-btn--ground" href={`mailto:${SUMMIT_CONTACT_EMAIL}?subject=${encodeURIComponent(es ? 'Auspicio Spatialgineers Summit 2026' : 'Spatialgineers Summit 2026 sponsorship')}`}>
+          <Mail size={14} aria-hidden /> {SUMMIT_CONTACT_EMAIL}
+        </a>
+        {onClose && <button type="button" className="sgx-btn sgx-btn--sm" onClick={onClose}>{es ? 'Cerrar' : 'Close'}</button>}
+      </>
+    );
+    if (isModal) {
+      return (
+        <SgxDialog onClose={onClose || (() => {})} title={es ? 'Solicitudes de auspicio cerradas' : 'Sponsorship applications closed'} kicker={kicker} icon={<img src="/holo/showcase.png" alt="" />} size="md" footer={closedActions}>
+          {closedNote}
+        </SgxDialog>
+      );
+    }
+    return (
+      <section className="sgx-spn__inline sgx-m sgx-m-stack" aria-labelledby="sgx-spn-title">
+        <h2 id="sgx-spn-title" className="sgx-m-h" style={{ fontSize: 'clamp(1.1rem, 2.6vw, 1.5rem)' }}>{es ? 'Solicitudes de auspicio cerradas' : 'Sponsorship applications closed'}</h2>
+        {closedNote}
+        <div className="sgx-m-row" style={{ justifyContent: 'flex-end', gap: 10 }}>{closedActions}</div>
+      </section>
+    );
+  }
 
   // Every role starts from the pass: no pass yet → forge it first.
   if (!sgx?.isForged) return <ForgeFirst role="sponsor" onClose={onClose || (() => {})} />;

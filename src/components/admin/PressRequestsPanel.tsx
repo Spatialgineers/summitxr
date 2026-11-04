@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, Download, ExternalLink, Newspaper, Search } from 'lucide-react';
+import { Download, ExternalLink, Newspaper, Search } from 'lucide-react';
 import { mediaTypeLabel } from '../../lib/pressKit';
+import { deadlineDay } from '../../lib/summitDeadlines';
 import {
-  PRESS_SLOTS, PRESS_STATUS_LABEL, approvedCount, decidePressRequest, duplicateOutlets, outletKey, pressCsv, subscribePressRequests,
+  PRESS_SLOTS, PRESS_STATUS_LABEL, approvedCount, decidePressRequest, pressCsv, subscribePressRequests,
   type DecisionResult, type PressRequest, type PressStatus,
 } from '../../lib/pressRequests';
 import { LeadFlag } from './LeadFlag';
@@ -10,8 +11,8 @@ import { LeadFlag } from './LeadFlag';
 /* PRENSA (Personas → Prensa): the accreditation requests sent from /prensa.
    Approve / decline / back to pending. Approving turns the person's pass into
    the PRENSA Holo Card and invites their pass to Day 3 in Inscritos (status
-   INVITED, the same as inviting them by hand). 6 slots, one per outlet: the
-   counter and the duplicate-outlet warning are here so nobody over-books. */
+   INVITED, the same as inviting them by hand). 10 press slots: the counter
+   and the over-the-limit confirmation are here so nobody over-books. */
 
 const STATUS_CLASS: Record<PressStatus, string> = {
   PENDING_REVIEW: 'text-slate-300 border-slate-600',
@@ -50,12 +51,6 @@ export const PressRequestsPanel: React.FC = () => {
   useEffect(() => subscribePressRequests((r) => { setRows(r); setLoading(false); setError(null); }, (err) => { setLoading(false); setError(err?.message || String(err)); }), []);
 
   const approved = approvedCount(rows);
-  const dupes = useMemo(() => duplicateOutlets(rows), [rows]);
-  const outletCount = useMemo(() => {
-    const m = new Map<string, number>();
-    rows.forEach((r) => { const k = outletKey(r.outlet); if (k) m.set(k, (m.get(k) || 0) + 1); });
-    return m;
-  }, [rows]);
 
   const filtered = useMemo(() => {
     const s = search.trim().toLowerCase();
@@ -66,8 +61,6 @@ export const PressRequestsPanel: React.FC = () => {
   const decide = async (r: PressRequest, status: PressStatus) => {
     if (status === r.status) return;
     if (status === 'APPROVED') {
-      const sameOutlet = rows.find((x) => x.id !== r.id && x.status === 'APPROVED' && outletKey(x.outlet) === outletKey(r.outlet));
-      if (sameOutlet && !window.confirm(`${sameOutlet.name} ya está aprobado por ${sameOutlet.outlet}. La regla es un cupo por medio. ¿Aprobar de todos modos?`)) return;
       if (approved >= PRESS_SLOTS && !window.confirm(`Ya hay ${approved} de ${PRESS_SLOTS} cupos aprobados. ¿Aprobar de todos modos?`)) return;
     }
     setBusy(r.id);
@@ -101,7 +94,7 @@ export const PressRequestsPanel: React.FC = () => {
               <span>Prensa · solicitudes de acreditación ({rows.length})</span>
             </h3>
             <p className="text-[11px] text-slate-400 font-mono">
-              Llegan desde /prensa (cierra el 1 de diciembre). Aprobar cambia su pase a PRENSA y lo invita al Día 3 en Inscritos.
+              Llegan desde /prensa (cierra el {deadlineDay('pressAccreditation')}). Aprobar cambia su pase a PRENSA y lo invita al Día 3 en Inscritos.
             </p>
           </div>
           <button type="button" onClick={exportCsv} disabled={!filtered.length} className="sgx-btn text-[11px] font-mono font-bold py-1.5 px-3 flex items-center gap-1.5 disabled:opacity-40">
@@ -113,7 +106,7 @@ export const PressRequestsPanel: React.FC = () => {
         <div className="grid grid-cols-3 gap-2 text-center font-mono">
           <div className={`border py-2 ${approved > PRESS_SLOTS ? 'border-red-500/60 bg-red-950/30' : approved === PRESS_SLOTS ? 'border-[#FDCC0D]/60 bg-black/30' : 'border-white/10 bg-black/30'}`}>
             <div className="text-lg font-bold text-white" data-testid="press-approved">aprobados {approved}/{PRESS_SLOTS}</div>
-            <div className="text-[10px] uppercase tracking-wider text-slate-400">Cupos (uno por medio)</div>
+            <div className="text-[10px] uppercase tracking-wider text-slate-400">Cupos de prensa</div>
           </div>
           <div className="border border-white/10 bg-black/30 py-2">
             <div className="text-lg font-bold text-white">{rows.filter((r) => r.status === 'PENDING_REVIEW').length}</div>
@@ -125,12 +118,6 @@ export const PressRequestsPanel: React.FC = () => {
           </div>
         </div>
 
-        {dupes.length > 0 && (
-          <p className="text-xs font-mono text-[#FDCC0D] border border-[#FDCC0D]/50 bg-[#FDCC0D]/10 p-2 flex items-start gap-2" role="alert" data-testid="press-dupe">
-            <AlertTriangle className="w-4 h-4 shrink-0" />
-            <span>Hay más de una persona aprobada del mismo medio: {dupes.join(', ')}. La regla es un cupo por medio.</span>
-          </p>
-        )}
         {approved > PRESS_SLOTS && (
           <p className="text-xs font-mono text-red-300 border border-red-500/40 bg-red-950/30 p-2">Hay {approved} aprobados y solo {PRESS_SLOTS} cupos.</p>
         )}
@@ -153,7 +140,6 @@ export const PressRequestsPanel: React.FC = () => {
 
         <ul className="space-y-2">
           {filtered.map((r) => {
-            const shared = (outletCount.get(outletKey(r.outlet)) || 0) > 1;
             return (
               <li key={r.id} className="border border-white/10 bg-black/30 p-3 text-xs" data-testid="press-row">
                 <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-3">
@@ -161,7 +147,6 @@ export const PressRequestsPanel: React.FC = () => {
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-white font-semibold text-sm">{r.name}</span>
                       <span className={`inline-block border px-1.5 py-0.5 font-mono text-[10px] uppercase ${STATUS_CLASS[r.status]}`}>{PRESS_STATUS_LABEL[r.status]}</span>
-                      {shared && <span className="inline-block border border-[#FDCC0D]/60 text-[#FDCC0D] px-1.5 py-0.5 font-mono text-[10px] uppercase" title="Otra solicitud es del mismo medio">Mismo medio</span>}
                     </div>
                     <div className="text-slate-300">{[r.title, r.outlet, mediaTypeLabel(r.mediaType)].filter(Boolean).join(' · ')}</div>
                     <div className="text-slate-400 break-all">{r.email} · {r.phone}</div>

@@ -601,7 +601,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           )}
 
           {activeSubpage === 'PRESS' && (
-            <AdminSection title="Prensa" desc="Solicitudes de acreditación de /prensa: 6 cupos, uno por medio. Aprobar da la Holo Card PRENSA y la invitación al Día 3.">
+            <AdminSection title="Prensa" desc="Solicitudes de acreditación de /prensa: 10 cupos de prensa. Aprobar da la Holo Card PRENSA y la invitación al Día 3.">
               <PressRequestsPanel />
             </AdminSection>
           )}

@@ -1813,6 +1813,7 @@ export const SummitCMSManager: React.FC<SummitCMSManagerProps> = ({
 
       {/* SPEAKER & ARTIST SELF-SERVICE PORTAL MODAL */}
       <SummitSpeakerPortalModal
+        adminMode
         isOpen={isSpeakerPortalOpen}
         onClose={() => setIsSpeakerPortalOpen(false)}
         onSpeakerRegistered={(newSpeaker) => {

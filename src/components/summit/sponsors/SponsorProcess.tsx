@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, Mail, Plus } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
+import { deadlineDay, deadlineShort } from '../../../lib/summitDeadlines';
 
 interface SponsorProcessProps {
   onApply: () => void;
@@ -13,14 +14,14 @@ export const SponsorProcess: React.FC<SponsorProcessProps> = ({ onApply }) => {
   const es = language === 'es';
 
   const steps = es ? [
-    { when: 'Hoy', title: 'Solicita', body: 'Elige un nivel y envía el formulario. Recibes un código de seguimiento al instante.' },
+    { when: `Hasta el ${deadlineShort('sponsorApplications', 'es')}`, title: 'Solicita', body: `Elige un paquete y envía el formulario a más tardar el ${deadlineDay('sponsorApplications', 'es')}. Recibes un código de seguimiento al instante.` },
     { when: 'Tras la revisión', title: 'Confirmación', body: 'El equipo de Spatialgineers revisa tu propuesta y te escribe por correo. Rige un contrato corto de auspicio firmado por ambas partes.' },
-    { when: '14 nov · 30 nov', title: 'Pago y materiales', body: 'Pago total a más tardar el 14 de noviembre. Materiales de tu marca hasta el 30 de noviembre.' },
+    { when: deadlineShort('sponsorPayment', 'es'), title: 'Pago y materiales', body: `Pago total y materiales de tu marca a más tardar el ${deadlineDay('sponsorPayment', 'es')}.` },
     { when: '11–13 dic', title: 'En vivo', body: 'Tu marca en la webapp, la transmisión y el Día 3. Paquetes 4 y 5 reciben el reporte final a los 30 días.' },
   ] : [
-    { when: 'Today', title: 'Apply', body: 'Pick a tier and send the form. You get a tracking code right away.' },
+    { when: `By ${deadlineShort('sponsorApplications', 'en')}`, title: 'Apply', body: `Pick a package and send the form by ${deadlineDay('sponsorApplications', 'en')}. You get a tracking code right away.` },
     { when: 'After review', title: 'Confirmation', body: 'The Spatialgineers team reviews your proposal and emails you. A short sponsorship contract signed by both parties governs.' },
-    { when: 'Nov 14 · Nov 30', title: 'Payment and materials', body: 'Full payment by November 14. Your brand materials by November 30.' },
+    { when: deadlineShort('sponsorPayment', 'en'), title: 'Payment and materials', body: `Full payment and your brand materials no later than ${deadlineDay('sponsorPayment', 'en')}.` },
     { when: 'Dec 11–13', title: 'Live', body: 'Your brand on the web app, the broadcast and Day 3. Packages 4 and 5 get the final report at 30 days.' },
   ];
 

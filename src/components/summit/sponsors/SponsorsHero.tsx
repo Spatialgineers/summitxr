@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowDown, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import { scrollToSection } from './scrollToSection';
+import { deadlineShort } from '../../../lib/summitDeadlines';
 
 interface SponsorsHeroProps {
   tierCount: number;
@@ -9,7 +10,7 @@ interface SponsorsHeroProps {
 }
 
 /* Opening pitch: what the Summit is, what a brand gets, and the two dates
-   that matter to a sponsor. The collage shows real placements from the app. */
+   that matter to a sponsor (from lib/summitDeadlines). The collage shows real placements from the app. */
 export const SponsorsHero: React.FC<SponsorsHeroProps> = ({ tierCount, onApply }) => {
   const { language } = useLanguage();
   const es = language === 'es';
@@ -17,9 +18,9 @@ export const SponsorsHero: React.FC<SponsorsHeroProps> = ({ tierCount, onApply }
 
   const facts = [
     { k: es ? '11–13 dic' : 'Dec 11–13', v: '2026 · YouTube Live + San Juan' },
-    { k: es ? '14 nov' : 'Nov 14', v: es ? 'Pago total' : 'Full payment' },
-    { k: es ? '30 nov' : 'Nov 30', v: es ? 'Entrega de materiales' : 'Materials due' },
-    { k: es ? `${tierCount} niveles` : `${tierCount} tiers`, v: es ? 'Precios en USD' : 'Prices in USD' },
+    { k: deadlineShort('sponsorApplications', es), v: es ? 'Solicitudes' : 'Applications' },
+    { k: deadlineShort('sponsorPayment', es), v: es ? 'Pago total y materiales' : 'Full payment and materials' },
+    { k: es ? `${tierCount} paquetes` : `${tierCount} packages`, v: es ? 'Precios en USD' : 'Prices in USD' },
   ];
 
   return (
@@ -42,7 +43,7 @@ export const SponsorsHero: React.FC<SponsorsHeroProps> = ({ tierCount, onApply }
             {es ? 'Solicitar auspicio' : 'Request sponsorship'}<ArrowRight aria-hidden />
           </button>
           <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => scrollToSection('spx-tiers')}>
-            {es ? 'Ver niveles' : 'See tiers'}<ArrowDown aria-hidden />
+            {es ? 'Ver paquetes' : 'See packages'}<ArrowDown aria-hidden />
           </button>
         </div>
         <dl className="spx-facts">

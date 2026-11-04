@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Copy, Share2, CheckCircle2, AlertTriangle, UserRound, ArrowLeft, MessageCircle, Send } from 'lucide-react';
+import { Check, Copy, Share2, CheckCircle2, AlertTriangle, UserRound, ArrowLeft, MessageCircle, Send, CalendarClock, Lock, Mail } from 'lucide-react';
 import { SummitSpeaker, SummitPillarId } from '../../types/summit';
 import { registerSpeakerProfile, playNotificationChime } from '../../lib/summitData';
 import { SGX_PILLARS, bi, findPillar } from '../../lib/sgxPillars';
@@ -13,18 +13,24 @@ import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { SgxDialog } from '../common/SgxDialog';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import { ForgeFirst } from '../../identity/ForgeFirst';
+import { DEADLINE_COPY, SUMMIT_CONTACT_EMAIL, isClosed } from '../../lib/summitDeadlines';
 import './sgxModals.css';
 
 /* SPEAKER & ARTIST PORTAL: self-service application. Every person in the
    Summit (visitors, speakers, artists) is shown with an avatar from the SGX
    avatar builder, never an uploaded photo; it travels as `avatarUrl` (a small
-   JPEG). A brand or project logo can be shared as a link. */
+   JPEG). A brand or project logo can be shared as a link.
+   Profiles are accepted through the speakerProfiles deadline
+   (lib/summitDeadlines); after it the public portal shows a closed note.
+   The admin CMS opens it with `adminMode` and is never blocked. */
 
 interface SummitSpeakerPortalModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSpeakerRegistered?: (speaker: SummitSpeaker) => void;
   initialSpeaker?: SummitSpeaker | null;
+  /** The team adding a speaker from the CMS: never closed by the deadline. */
+  adminMode?: boolean;
 }
 
 /** Only a rendered avatar is kept (old photos and pillar marks are replaced by one). */
@@ -46,6 +52,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
   onClose,
   onSpeakerRegistered,
   initialSpeaker,
+  adminMode = false,
 }) => {
   const { language } = useLanguage();
   const es = language === 'es';
@@ -85,8 +92,41 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [createdSpeaker, setCreatedSpeaker] = useState<SummitSpeaker | null>(null);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
+  // Checked when the portal opens (localStorage sgx_now can move "now" in tests).
+  const [closed] = useState(() => !adminMode && isClosed('speakerProfiles'));
 
   if (!isOpen) return null;
+  // After the deadline the public portal is closed for everyone (no pass needed to read that).
+  if (closed) {
+    return (
+      <SgxDialog
+        key="closed"
+        onClose={onClose}
+        title={es ? 'Portal de speakers cerrado' : 'Speaker portal closed'}
+        kicker={es ? 'Spatialgineers Summit 2026 · 11–13 dic' : 'Spatialgineers Summit 2026 · Dec 11–13'}
+        icon={<img src="/holo/stage.png" alt="" />}
+        size="md"
+        footer={
+          <>
+            <a className="sgx-btn sgx-btn--sm sgx-btn--ground" href={`mailto:${SUMMIT_CONTACT_EMAIL}?subject=${encodeURIComponent(es ? 'Portal de speakers · Spatialgineers Summit 2026' : 'Speaker portal · Spatialgineers Summit 2026')}`}>
+              <Mail size={14} aria-hidden /> {SUMMIT_CONTACT_EMAIL}
+            </a>
+            <button type="button" className="sgx-btn sgx-btn--sm" onClick={onClose}>{es ? 'Cerrar' : 'Close'}</button>
+          </>
+        }
+      >
+        <div className="sgx-m sgx-m-stack" data-testid="speaker-closed">
+          <div className="sgx-m-note sgx-m-note--warn" role="status">
+            <Lock size={18} aria-hidden />
+            <div>{es ? DEADLINE_COPY.speakerClosed.es : DEADLINE_COPY.speakerClosed.en}.</div>
+          </div>
+          <p className="sgx-m-p">{es
+            ? 'Si ya enviaste tu perfil, el equipo lo revisa y te escribe al confirmar tu participación. Se publican solo speakers y artistas confirmados por escrito.'
+            : 'If you already sent your profile, the team reviews it and writes to you once your participation is confirmed. Only speakers and artists confirmed in writing are published.'}</p>
+        </div>
+      </SgxDialog>
+    );
+  }
   // Every role starts from the pass: no pass yet → forge it first.
   if (!sgx?.isForged) return <ForgeFirst role="speaker" onClose={onClose} />;
 
@@ -282,6 +322,12 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
       }
     >
       <form id="sgx-speaker-form" onSubmit={handleSubmit} className="sgx-m sgx-m-stack">
+        {!adminMode && (
+          <div className="sgx-m-note" data-testid="speaker-deadline">
+            <CalendarClock size={18} aria-hidden />
+            <div>{es ? DEADLINE_COPY.speakerProfiles.es : DEADLINE_COPY.speakerProfiles.en} {es ? 'Se publican solo los confirmados por escrito.' : 'Only those confirmed in writing are published.'}</div>
+          </div>
+        )}
         {submitError && (
           <div className="sgx-m-note sgx-m-note--warn" role="alert">
             <AlertTriangle size={18} aria-hidden />

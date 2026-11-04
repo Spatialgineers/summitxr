@@ -1781,6 +1781,87 @@ import {
   Mic,
   Newspaper
 } from "lucide-react";
+
+// src/lib/summitDeadlines.ts
+var SUMMIT_DEADLINES = {
+  /** Speaker and artist profiles: through November 21. */
+  speakerProfiles: {
+    closesAt: "2026-11-22T00:00:00-04:00",
+    label: { es: "21 de noviembre de 2026", en: "November 21, 2026" },
+    short: { es: "21 nov", en: "Nov 21" },
+    day: { es: "21 de noviembre", en: "November 21" }
+  },
+  /** Sponsor applications: through November 28. */
+  sponsorApplications: {
+    closesAt: "2026-11-29T00:00:00-04:00",
+    label: { es: "28 de noviembre de 2026", en: "November 28, 2026" },
+    short: { es: "28 nov", en: "Nov 28" },
+    day: { es: "28 de noviembre", en: "November 28" }
+  },
+  /** Sponsor full payment: no later than November 30. */
+  sponsorPayment: {
+    closesAt: "2026-12-01T00:00:00-04:00",
+    label: { es: "30 de noviembre de 2026", en: "November 30, 2026" },
+    short: { es: "30 nov", en: "Nov 30" },
+    day: { es: "30 de noviembre", en: "November 30" }
+  },
+  /** Sponsor brand materials: no later than November 30. */
+  sponsorMaterials: {
+    closesAt: "2026-12-01T00:00:00-04:00",
+    label: { es: "30 de noviembre de 2026", en: "November 30, 2026" },
+    short: { es: "30 nov", en: "Nov 30" },
+    day: { es: "30 de noviembre", en: "November 30" }
+  },
+  /** The team sends the Day 3 invitations no later than December 5. */
+  day3Invitations: {
+    closesAt: "2026-12-06T00:00:00-04:00",
+    label: { es: "5 de diciembre de 2026", en: "December 5, 2026" },
+    short: { es: "5 dic", en: "Dec 5" },
+    day: { es: "5 de diciembre", en: "December 5" }
+  },
+  /** Press accreditation: requests before December 1 (closes at the start of December 1). */
+  pressAccreditation: {
+    closesAt: "2026-12-01T00:00:00-04:00",
+    label: { es: "1 de diciembre de 2026", en: "December 1, 2026" },
+    short: { es: "1 dic", en: "Dec 1" },
+    day: { es: "1 de diciembre", en: "December 1" }
+  }
+};
+var deadlineMs = (key) => Date.parse(SUMMIT_DEADLINES[key].closesAt);
+var SUMMIT_CONTACT_EMAIL = "info@spatialgineers.com";
+var D = SUMMIT_DEADLINES;
+var DEADLINE_COPY = {
+  speakerProfiles: {
+    es: `Los perfiles de speakers y artistas se reciben hasta el ${D.speakerProfiles.day.es}.`,
+    en: `Speaker and artist profiles are accepted through ${D.speakerProfiles.day.en}.`
+  },
+  speakerClosed: {
+    es: `El portal de speakers cerr\xF3 el ${D.speakerProfiles.day.es}. Escr\xEDbenos a ${SUMMIT_CONTACT_EMAIL}`,
+    en: `The speaker portal closed on ${D.speakerProfiles.day.en}. Write to us at ${SUMMIT_CONTACT_EMAIL}`
+  },
+  sponsorApplications: {
+    es: `Solicitudes de auspicio hasta el ${D.sponsorApplications.day.es}.`,
+    en: `Sponsorship applications through ${D.sponsorApplications.day.en}.`
+  },
+  sponsorClosed: {
+    es: `Las solicitudes de auspicio cerraron el ${D.sponsorApplications.day.es}. Escr\xEDbenos a ${SUMMIT_CONTACT_EMAIL}`,
+    en: `Sponsorship applications closed on ${D.sponsorApplications.day.en}. Write to us at ${SUMMIT_CONTACT_EMAIL}`
+  },
+  sponsorPaymentMaterials: {
+    es: `Pago total y materiales de tu marca a m\xE1s tardar el ${D.sponsorPayment.day.es}.`,
+    en: `Full payment and your brand materials no later than ${D.sponsorPayment.day.en}.`
+  },
+  sponsorKeyDates: {
+    es: `Solicitudes hasta el ${D.sponsorApplications.day.es}; pago total y materiales de la marca a m\xE1s tardar el ${D.sponsorPayment.day.es}.`,
+    en: `Applications through ${D.sponsorApplications.day.en}; full payment and brand materials no later than ${D.sponsorPayment.day.en}.`
+  },
+  day3Invitations: {
+    es: `El equipo env\xEDa las invitaciones al D\xEDa 3 a m\xE1s tardar el ${D.day3Invitations.day.es}.`,
+    en: `The team sends Day 3 invitations no later than ${D.day3Invitations.day.en}.`
+  }
+};
+
+// src/lib/sgxPillars.ts
 var ICON_BASE = "https://cdn.spatialgineers.com/Branding/Pilares/";
 var SGX_PILLARS = [
   {
@@ -1829,7 +1910,7 @@ var SGX_PILLARS = [
       { kind: "section", key: "MAP_360", icon: Globe, label: { es: "Recorrido 360\xB0 Chroma Space Studios", en: "360\xB0 Chroma Space Studios walk-through" }, desc: { es: "Recorre Chroma Space Studios, la sede del D\xEDa 3 en San Juan.", en: "Walk Chroma Space Studios, the Day 3 venue in San Juan." } },
       { kind: "section", key: "SPONSORS_HUB", icon: Building2, label: { es: "Partners & Brand Showcases", en: "Partners & Brand Showcases" }, desc: { es: "Las marcas viven dentro de la experiencia. Paquetes 1 a 5.", en: "Brands live inside the experience. Packages 1 to 5." } },
       { kind: "section", key: "MODELS_3D", icon: Box, label: { es: "Modelos 3D", en: "3D models" }, desc: { es: "Los logos y las esculturas de los seis pilares en 3D: g\xEDralos y ac\xE9rcate.", en: "The logos and the six pillar sculptures in 3D: turn them and zoom in." } },
-      { kind: "section", key: "SPONSOR", icon: Handshake, label: { es: "Patrocina el Summit", en: "Sponsor the Summit" }, desc: { es: "Los paquetes 1 a 5 y los espacios de marca dentro de la experiencia.", en: "Packages 1 to 5 and the brand spaces inside the experience." } }
+      { kind: "section", key: "SPONSOR", icon: Handshake, label: { es: "Patrocina el Summit", en: "Sponsor the Summit" }, desc: { es: `Los paquetes 1 a 5 y los espacios de marca dentro de la experiencia. Solicitudes hasta el ${SUMMIT_DEADLINES.sponsorApplications.day.es}.`, en: `Packages 1 to 5 and the brand spaces inside the experience. Applications through ${SUMMIT_DEADLINES.sponsorApplications.day.en}.` } }
     ]
   },
   {
@@ -1880,8 +1961,8 @@ var SGX_PILLARS = [
       { kind: "section", key: "BROADCAST_ROOMS", icon: Radio, label: { es: "Salas de transmisi\xF3n", en: "Broadcast rooms" }, desc: { es: "YouTube Live como canal principal, con LinkedIn y Facebook Live.", en: "YouTube Live as the main channel, plus LinkedIn and Facebook Live." } },
       { kind: "section", key: "SPEAKERS", icon: Users, label: { es: "Speakers & artistas", en: "Speakers & artists" }, desc: { es: "Solo se publican quienes est\xE1n confirmados por escrito.", en: "Only people confirmed in writing are published." } },
       { kind: "page", page: "stage", icon: MonitorPlay, label: { es: "Escenario en vivo", en: "Live stage" }, desc: { es: "La pantalla del escenario: preguntas, votos y reacciones en vivo.", en: "The stage screen: live questions, votes and reactions." } },
-      { kind: "section", key: "SPEAKER_PORTAL", icon: Mic, label: { es: "Portal de speakers", en: "Speaker portal" }, desc: { es: "Para speakers y artistas: tu ficha, tu avatar y tu Holo Card de speaker.", en: "For speakers and artists: your profile, avatar and speaker Holo Card." } },
-      { kind: "section", key: "PRESS", icon: Newspaper, label: { es: "Sala de prensa", en: "Press room" }, desc: { es: "Acreditaci\xF3n de prensa (antes del 1 de dic, 6 cupos, uno por medio), kit de prensa y ficha del Summit.", en: "Press accreditation (before Dec 1, 6 slots, one per outlet), press kit and Summit fact sheet." } }
+      { kind: "section", key: "SPEAKER_PORTAL", icon: Mic, label: { es: "Portal de speakers", en: "Speaker portal" }, desc: { es: `Para speakers y artistas: tu ficha, tu avatar y tu Holo Card de speaker. Perfiles hasta el ${SUMMIT_DEADLINES.speakerProfiles.day.es}.`, en: `For speakers and artists: your profile, avatar and speaker Holo Card. Profiles through ${SUMMIT_DEADLINES.speakerProfiles.day.en}.` } },
+      { kind: "section", key: "PRESS", icon: Newspaper, label: { es: "Sala de prensa", en: "Press room" }, desc: { es: "Acreditaci\xF3n de prensa (antes del 1 de dic, 10 cupos de prensa), kit de prensa y ficha del Summit.", en: "Press accreditation (before Dec 1, 10 press slots), press kit and Summit fact sheet." } }
     ]
   },
   {
@@ -3067,7 +3148,7 @@ var APP_FAQ = [
     id: "day3",
     keys: ["dia 3", "presencial", "chroma", "showcase", "invitacion", "invitado", "domingo", "in person", "invitation", "invite", "sunday", "venue", "sede"],
     q: { es: "\xBFC\xF3mo voy al D\xEDa 3?", en: "How do I get to Day 3?" },
-    a: { es: "El D\xEDa 3 (domingo 13) es el SGX Showcase en Chroma Space Studios, San Juan: demos en vivo de todos los pilares, artistas, networking y premios. Es por invitaci\xF3n y con cupo limitado (40 a 60 personas); las invitaciones las maneja el equipo (info@spatialgineers.com). Si tienes invitaci\xF3n, entras con el QR de tu SGX Pass.", en: "Day 3 (Sunday the 13th) is the SGX Showcase at Chroma Space Studios, San Juan: live demos of every pillar, artists, networking and prizes. It is by invitation with limited capacity (40 to 60 people); the team handles invitations (info@spatialgineers.com). If invited, you get in with your SGX Pass QR." },
+    a: { es: `El D\xEDa 3 (domingo 13) es el SGX Showcase en Chroma Space Studios, San Juan: demos en vivo de todos los pilares, artistas, networking y premios. Es por invitaci\xF3n y con cupo limitado (40 a 60 personas); las invitaciones las maneja el equipo (info@spatialgineers.com) y las env\xEDa a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}. Si tienes invitaci\xF3n, entras con el QR de tu SGX Pass.`, en: `Day 3 (Sunday the 13th) is the SGX Showcase at Chroma Space Studios, San Juan: live demos of every pillar, artists, networking and prizes. It is by invitation with limited capacity (40 to 60 people); the team handles invitations (info@spatialgineers.com) and sends them no later than ${SUMMIT_DEADLINES.day3Invitations.day.en}. If invited, you get in with your SGX Pass QR.` },
     go: "mapa"
   },
   {
@@ -3193,8 +3274,21 @@ var APP_FAQ = [
     id: "sponsor",
     keys: ["patrocinar", "patrocinio", "patrocinador", "paquete", "paquetes", "marca", "auspicio", "sponsor", "sponsorship", "package", "brand"],
     q: { es: "\xBFC\xF3mo patrocino el Summit?", en: "How do I sponsor the Summit?" },
-    a: { es: "Con los Paquetes 1 a 5: Digital Presence ($50\u2013$100), Gamified ($250\u2013$500), Experience ($750\u2013$1,000), Signature Experience ($1,500\u2013$2,500) y Alianza de servicios esenciales (a convenir). Cada uno incluye lo del anterior. Todo est\xE1 en Patrocina el Summit; dudas a info@spatialgineers.com.", en: "With Packages 1 to 5: Digital Presence ($50\u2013$100), Gamified ($250\u2013$500), Experience ($750\u2013$1,000), Signature Experience ($1,500\u2013$2,500) and Essential services alliance (to agree). Each includes the one before. It is all in Sponsor the Summit; questions to info@spatialgineers.com." },
+    a: { es: `Con los Paquetes 1 a 5: Digital Presence ($50\u2013$100), Gamified ($250\u2013$500), Experience ($750\u2013$1,000), Signature Experience ($1,500\u2013$2,500) y Alianza de servicios esenciales (a convenir). Cada uno incluye lo del anterior. ${DEADLINE_COPY.sponsorKeyDates.es} Todo est\xE1 en Patrocina el Summit; dudas a info@spatialgineers.com.`, en: `With Packages 1 to 5: Digital Presence ($50\u2013$100), Gamified ($250\u2013$500), Experience ($750\u2013$1,000), Signature Experience ($1,500\u2013$2,500) and Essential services alliance (to agree). Each includes the one before. ${DEADLINE_COPY.sponsorKeyDates.en} It is all in Sponsor the Summit; questions to info@spatialgineers.com.` },
     go: "patrocina"
+  },
+  {
+    id: "deadlines",
+    keys: ["fecha limite", "fechas limite", "deadline", "deadlines", "hasta cuando", "cierra", "cierre", "ultimo dia", "a mas tardar", "pago", "materiales", "payment", "materials", "closes", "last day"],
+    q: { es: "\xBFCu\xE1les son las fechas l\xEDmite?", en: "What are the deadlines?" },
+    a: { es: `Perfiles de speakers y artistas: hasta el ${SUMMIT_DEADLINES.speakerProfiles.day.es}. Solicitudes de auspicio: hasta el ${SUMMIT_DEADLINES.sponsorApplications.day.es}. Pago total y materiales de sponsors: a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}. Prensa: antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es}. Invitaciones al D\xEDa 3: el equipo las env\xEDa a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}. Hora de Puerto Rico.`, en: `Speaker and artist profiles: through ${SUMMIT_DEADLINES.speakerProfiles.day.en}. Sponsorship applications: through ${SUMMIT_DEADLINES.sponsorApplications.day.en}. Sponsor full payment and materials: no later than ${SUMMIT_DEADLINES.sponsorPayment.day.en}. Press: before ${SUMMIT_DEADLINES.pressAccreditation.day.en}. Day 3 invitations: the team sends them no later than ${SUMMIT_DEADLINES.day3Invitations.day.en}. Puerto Rico time.` }
+  },
+  {
+    id: "speaker-portal",
+    keys: ["portal de speakers", "portal speakers", "ser speaker", "presentar", "postularme", "registrar perfil", "mi perfil de speaker", "speaker portal", "apply as speaker", "present"],
+    q: { es: "\xBFC\xF3mo me registro como speaker o artista?", en: "How do I register as a speaker or artist?" },
+    a: { es: `En el Portal de speakers: llenas tu perfil, armas tu avatar y lo env\xEDas para revisi\xF3n. ${DEADLINE_COPY.speakerProfiles.es} Despu\xE9s el portal se cierra; para lo que falte, info@spatialgineers.com. Se publican solo los confirmados por escrito.`, en: `In the Speaker portal: fill in your profile, build your avatar and send it for review. ${DEADLINE_COPY.speakerProfiles.en} After that the portal closes; for anything else, info@spatialgineers.com. Only those confirmed in writing are published.` },
+    go: "portal-speakers"
   },
   {
     id: "partners",
@@ -3238,7 +3332,7 @@ var APP_FAQ = [
     id: "press",
     keys: ["prensa", "medio", "medios", "periodista", "acreditacion", "kit de prensa", "press", "media", "journalist", "press kit"],
     q: { es: "Soy prensa", en: "I am press" },
-    a: { es: "Solicita tu acreditaci\xF3n en la Sala de prensa (/prensa) antes del 1 de diciembre: 6 cupos, uno por medio, y primero forjas tu SGX Pass. Cubre los 3 d\xEDas, con entrada al D\xEDa 3 en Chroma. Ah\xED mismo est\xE1 el kit de prensa. Dudas: info@spatialgineers.com.", en: "Request accreditation in the Press room (/prensa) before December 1: 6 spots, one per outlet, and you forge your SGX Pass first. It covers all 3 days, with Day 3 entry at Chroma. The press kit is right there too. Questions: info@spatialgineers.com." },
+    a: { es: "Solicita tu acreditaci\xF3n en la Sala de prensa (/prensa) antes del 1 de diciembre: 10 cupos de prensa, y primero forjas tu SGX Pass. Cubre los 3 d\xEDas, con entrada al D\xEDa 3 en Chroma. Ah\xED mismo est\xE1 el kit de prensa. Dudas: info@spatialgineers.com.", en: "Request accreditation in the Press room (/prensa) before December 1: 10 press spots, and you forge your SGX Pass first. It covers all 3 days, with Day 3 entry at Chroma. The press kit is right there too. Questions: info@spatialgineers.com." },
     go: "prensa"
   },
   {
@@ -3567,13 +3661,19 @@ var GUILD_HIGHCOON = `## SGX Guild
 - Highcoon es la IP propia de Spatialgineers: un mapache cient\xEDfico bioingenierado creado por Danelson Maldonado Gonz\xE1lez "The Highgineer". El Highbot es Highcoon en su forma de robot.
 - Highcade (In The Cloud PR \xD7 Highcoon): hub de juegos web con leaderboard en vivo.
 - Para visitar su mundo: @Highcoonvibes en Instagram, X y TikTok.`;
+var DEADLINES = `## Fechas l\xEDmite (hora de Puerto Rico)
+- Perfiles de speakers y artistas (Portal de speakers): hasta el ${SUMMIT_DEADLINES.speakerProfiles.day.es}. Despu\xE9s el portal se cierra solo; para lo que falte, info@spatialgineers.com. Se publican solo los confirmados por escrito.
+- Solicitudes de auspicio (Patrocina el Summit): hasta el ${SUMMIT_DEADLINES.sponsorApplications.day.es}. Despu\xE9s el formulario se cierra; para lo que falte, info@spatialgineers.com.
+- Pago total y materiales de la marca (sponsors): a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}.
+- Acreditaci\xF3n de prensa: antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es}.
+- Invitaciones al D\xEDa 3: el equipo las env\xEDa a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}.`;
 var EVENT = `## Spatialgineers Summit 2026: lo esencial
 - Fechas: 11, 12 y 13 de diciembre de 2026. En espa\xF1ol.
 - D\xEDas 1 y 2: 100% digitales y gratis por YouTube Live (canal principal, https://www.youtube.com/@spatialgineers), tambi\xE9n en LinkedIn y Facebook Live; Los Mismos TV transmite junto a Spatialgineers. El D\xEDa 1 hay artistas invitados present\xE1ndose dentro de Roblox.
-- D\xEDa 3 (domingo 13): SGX Showcase presencial en Chroma Space Studios, San Juan. Por invitaci\xF3n. Demos en vivo de todos los pilares y networking. El check-in del D\xEDa 3 se hace con el SGX Pass escaneando el QR de la entrada.
-- Prensa: la acreditaci\xF3n se solicita en la Sala de prensa (summit.spatialgineers.com/prensa) antes del 1 de diciembre: 6 cupos, uno por medio, con el SGX Pass forjado primero. Cubre los 3 d\xEDas (YouTube Live los D\xEDas 1 y 2 y entrada al D\xEDa 3 en Chroma con el QR del pase); al aprobarse, la Holo Card dice PRENSA. La misma p\xE1gina tiene el kit de prensa (logos, fotos de los fundadores, capturas y ficha en PDF). Contacto de prensa: info@spatialgineers.com.
+- D\xEDa 3 (domingo 13): SGX Showcase presencial en Chroma Space Studios, San Juan. Por invitaci\xF3n: el equipo env\xEDa las invitaciones a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}. Demos en vivo de todos los pilares y networking. El check-in del D\xEDa 3 se hace con el SGX Pass escaneando el QR de la entrada.
+- Prensa: la acreditaci\xF3n se solicita en la Sala de prensa (summit.spatialgineers.com/prensa) antes del 1 de diciembre: 10 cupos de prensa, con el SGX Pass forjado primero. Cubre los 3 d\xEDas (YouTube Live los D\xEDas 1 y 2 y entrada al D\xEDa 3 en Chroma con el QR del pase); al aprobarse, la Holo Card dice PRENSA. La misma p\xE1gina tiene el kit de prensa (logos, fotos de los fundadores, capturas y ficha en PDF). Contacto de prensa: info@spatialgineers.com.
 - Partners: Chroma Space Studios (sede del D\xEDa 3, Paquete 5: alianza de servicios esenciales) y Los Mismos TV (medio aliado de la transmisi\xF3n). Los espacios "Tu marca aqu\xED" de la app est\xE1n abiertos a marcas a prop\xF3sito.
-- Patrocinio: Paquete 1 Digital Presence ($50\u2013$100, 10 cupos), Paquete 2 Gamified ($250\u2013$500, 6 cupos), Paquete 3 Experience ($750\u2013$1,000, 6 cupos), Paquete 4 Signature Experience ($1,500\u2013$2,500, 3 cupos), Paquete 5 Alianza de servicios esenciales (a convenir, 3 cupos). Cada paquete incluye lo del anterior. Detalle y solicitud en la p\xE1gina "Patrocina el Summit".
+- Patrocinio: Paquete 1 Digital Presence ($50\u2013$100, 10 cupos), Paquete 2 Gamified ($250\u2013$500, 6 cupos), Paquete 3 Experience ($750\u2013$1,000, 6 cupos), Paquete 4 Signature Experience ($1,500\u2013$2,500, 3 cupos), Paquete 5 Alianza de servicios esenciales (a convenir, 3 cupos). Cada paquete incluye lo del anterior. Detalle y solicitud en la p\xE1gina "Patrocina el Summit": solicitudes hasta el ${SUMMIT_DEADLINES.sponsorApplications.day.es}; pago total y materiales a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}.
 
 ## El SGX Pass y la experiencia en la app
 - El SGX Pass es la credencial gratis del Summit y ES la Holo Card del Creador. Se "forja" en un minuto (nombre, email, pilar favorito, su Highbot). Da el QR de networking, la entrada del D\xEDa 3, las misiones y el XP. Un pase por email.
@@ -3647,6 +3747,8 @@ function buildSystemPrompt(live) {
 # Conocimiento
 
 ${EVENT}${partners}
+
+${DEADLINES}
 
 ${SPATIALGINEERS}
 
@@ -4297,32 +4399,33 @@ var SGX_SOCIAL = "@spatialgineers";
 var PRESS_PATH = "/prensa";
 var PRESS_ORIGIN = "https://summit.spatialgineers.com";
 var PRESS_URL = `${PRESS_ORIGIN}${PRESS_PATH}`;
-var PRESS_DEADLINE_ISO = "2026-12-01T00:00:00-04:00";
-var PRESS_DEADLINE = Date.parse(PRESS_DEADLINE_ISO);
+var PRESS_DEADLINE_ISO = SUMMIT_DEADLINES.pressAccreditation.closesAt;
+var PRESS_DEADLINE = deadlineMs("pressAccreditation");
+var PRESS_SLOTS = 10;
 var PRESS_RULES = {
-  deadline: { es: "Solicita antes del 1 de diciembre de 2026", en: "Apply before December 1, 2026" },
-  slots: { es: "6 cupos, uno por medio", en: "6 slots, one per outlet" },
+  deadline: { es: `Solicita antes del ${SUMMIT_DEADLINES.pressAccreditation.label.es}`, en: `Apply before ${SUMMIT_DEADLINES.pressAccreditation.label.en}` },
+  slots: { es: `${PRESS_SLOTS} cupos de prensa`, en: `${PRESS_SLOTS} press slots` },
   access: {
     es: "La acreditaci\xF3n cubre los 3 d\xEDas: la transmisi\xF3n por YouTube Live los D\xEDas 1 y 2, y la entrada presencial al D\xEDa 3 en Chroma Space Studios con el QR de tu SGX Pass.",
     en: "Accreditation covers all 3 days: the YouTube Live broadcast on Days 1 and 2, and in-person entry to Day 3 at Chroma Space Studios with your SGX Pass QR."
   },
   line: {
-    es: "Prensa: solicita tu acreditaci\xF3n en summit.spatialgineers.com/prensa antes del 1 de diciembre (6 cupos, uno por medio).",
-    en: "Press: request accreditation at summit.spatialgineers.com/prensa before December 1 (6 slots, one per outlet)."
+    es: "Prensa: solicita tu acreditaci\xF3n en summit.spatialgineers.com/prensa antes del 1 de diciembre (10 cupos de prensa).",
+    en: "Press: request accreditation at summit.spatialgineers.com/prensa before December 1 (10 press slots)."
   }
 };
 var PRESS_FACTS = [
   { k: { es: "Evento", en: "Event" }, v: { es: "Spatialgineers Summit 2026", en: "Spatialgineers Summit 2026" } },
   { k: { es: "Fechas", en: "Dates" }, v: { es: "11, 12 y 13 de diciembre de 2026", en: "December 11, 12 and 13, 2026" } },
   { k: { es: "D\xEDas 1 y 2", en: "Days 1 and 2" }, v: { es: "Digitales y gratis por YouTube Live, con Los Mismos TV transmitiendo junto a Spatialgineers.", en: "Digital and free on YouTube Live, with Los Mismos TV streaming alongside Spatialgineers." } },
-  { k: { es: "D\xEDa 3", en: "Day 3" }, v: { es: "SGX Showcase presencial en Chroma Space Studios, San Juan, Puerto Rico. Por invitaci\xF3n.", en: "In-person SGX Showcase at Chroma Space Studios, San Juan, Puerto Rico. By invitation." } },
+  { k: { es: "D\xEDa 3", en: "Day 3" }, v: { es: "SGX Showcase presencial en Chroma Space Studios, San Juan, Puerto Rico. Por invitaci\xF3n: el equipo las env\xEDa a m\xE1s tardar el 5 de diciembre.", en: "In-person SGX Showcase at Chroma Space Studios, San Juan, Puerto Rico. By invitation: the team sends them no later than December 5." } },
   { k: { es: "Idioma", en: "Language" }, v: { es: "Espa\xF1ol", en: "Spanish" } },
   { k: { es: "Formato", en: "Format" }, v: { es: "Seis pilares del SGX Framework: Story, Showcase, Spark, Stage, System y Synthesize.", en: "Six pillars of the SGX Framework: Story, Showcase, Spark, Stage, System and Synthesize." } },
   { k: { es: "Organiza", en: "Organizer" }, v: { es: "Spatialgineers LLC, estudio de ingenier\xEDa creativa y computaci\xF3n espacial en Puerto Rico.", en: "Spatialgineers LLC, a creative engineering and spatial computing studio in Puerto Rico." } },
   { k: { es: "Fundadores", en: "Founders" }, v: { es: 'Danelson Maldonado Gonz\xE1lez "The Highgineer" y Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers".', en: 'Danelson Maldonado Gonz\xE1lez "The Highgineer" and Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers".' } },
   { k: { es: "Portafolio", en: "Portfolio" }, v: { es: "60+ espacios digitales y 10 juegos interactivos.", en: "60+ digital spaces and 10 interactive games." } },
   { k: { es: "Web del Summit", en: "Summit website" }, v: { es: "summit.spatialgineers.com", en: "summit.spatialgineers.com" } },
-  { k: { es: "Prensa", en: "Press" }, v: { es: "Acreditaci\xF3n antes del 1 de diciembre de 2026: 6 cupos, uno por medio. info@spatialgineers.com", en: "Accreditation before December 1, 2026: 6 slots, one per outlet. info@spatialgineers.com" } }
+  { k: { es: "Prensa", en: "Press" }, v: { es: "Acreditaci\xF3n antes del 1 de diciembre de 2026: 10 cupos de prensa. info@spatialgineers.com", en: "Accreditation before December 1, 2026: 10 press slots. info@spatialgineers.com" } }
 ];
 var PRESS_ABOUT = {
   summit: {
@@ -4400,7 +4503,7 @@ var PRESS_FAQ = [
   },
   {
     q: { es: "\xBFCu\xE1ntos cupos de prensa hay?", en: "How many press slots are there?" },
-    a: { es: "Seis cupos, uno por medio. El equipo de Spatialgineers revisa cada solicitud y te escribe al aprobarla.", en: "Six slots, one per outlet. The Spatialgineers team reviews each request and writes to you once it is approved." }
+    a: { es: "Diez cupos de prensa. El equipo de Spatialgineers revisa cada solicitud y te escribe al aprobarla.", en: "Ten press slots. The Spatialgineers team reviews each request and writes to you once it is approved." }
   },
   {
     q: { es: "\xBFQu\xE9 incluye la acreditaci\xF3n?", en: "What does accreditation include?" },
@@ -4414,8 +4517,8 @@ var PRESS_FAQ = [
 var PRESS_META = {
   title: { es: "Sala de prensa \xB7 Spatialgineers Summit 2026 \xB7 Acreditaci\xF3n y kit de prensa", en: "Press room \xB7 Spatialgineers Summit 2026 \xB7 Accreditation and press kit" },
   description: {
-    es: "Acreditaci\xF3n de prensa para el Spatialgineers Summit 2026 (11\u201313 dic): solicita antes del 1 de diciembre, 6 cupos, uno por medio. Kit de prensa con logos, fotos, capturas y ficha en PDF.",
-    en: "Press accreditation for Spatialgineers Summit 2026 (Dec 11\u201313): apply before December 1, 6 slots, one per outlet. Press kit with logos, photos, screenshots and a PDF fact sheet."
+    es: "Acreditaci\xF3n de prensa para el Spatialgineers Summit 2026 (11\u201313 dic): solicita antes del 1 de diciembre, 10 cupos de prensa. Kit de prensa con logos, fotos, capturas y ficha en PDF.",
+    en: "Press accreditation for Spatialgineers Summit 2026 (Dec 11\u201313): apply before December 1, 10 press slots. Press kit with logos, photos, screenshots and a PDF fact sheet."
   }
 };
 
@@ -4492,6 +4595,7 @@ var WELCOME_FACTS = {
     en: "Days 1 and 2: free on YouTube Live, with Los Mismos TV streaming alongside us."
   },
   day3: { es: "D\xEDa 3: Chroma Space Studios, San Juan. Por invitaci\xF3n.", en: "Day 3: Chroma Space Studios, San Juan. By invitation." },
+  day3Invitations: DEADLINE_COPY.day3Invitations,
   language: { es: "En espa\xF1ol.", en: "In Spanish." },
   press: PRESS_RULES.line
 };
@@ -4505,8 +4609,8 @@ var FAQ_FREE = {
 var FAQ_DAY3 = {
   q: { es: "\xBFD\xF3nde es el D\xEDa 3?", en: "Where is Day 3?" },
   a: {
-    es: "El D\xEDa 3 (domingo 13 de diciembre) es el SGX Showcase en Chroma Space Studios, San Juan, Puerto Rico: presencial, por invitaci\xF3n y con cupo limitado (40 a 60 personas). El check-in se hace con el SGX Pass escaneando el QR de la entrada.",
-    en: "Day 3 (Sunday, December 13) is the SGX Showcase at Chroma Space Studios, San Juan, Puerto Rico: in person, by invitation and with limited capacity (40 to 60 people). Check-in is done with the SGX Pass by scanning the QR at the entrance."
+    es: `El D\xEDa 3 (domingo 13 de diciembre) es el SGX Showcase en Chroma Space Studios, San Juan, Puerto Rico: presencial, por invitaci\xF3n y con cupo limitado (40 a 60 personas). ${DEADLINE_COPY.day3Invitations.es} El check-in se hace con el SGX Pass escaneando el QR de la entrada.`,
+    en: `Day 3 (Sunday, December 13) is the SGX Showcase at Chroma Space Studios, San Juan, Puerto Rico: in person, by invitation and with limited capacity (40 to 60 people). ${DEADLINE_COPY.day3Invitations.en} Check-in is done with the SGX Pass by scanning the QR at the entrance.`
   }
 };
 var FAQ_PASS = {
@@ -4523,8 +4627,8 @@ var WELCOME_HUB = {
     en: "Welcome \xB7 Spatialgineers Summit 2026 \xB7 Dec 11\u201313 \xB7 San Juan, PR"
   },
   description: {
-    es: "Tu entrada al Spatialgineers Summit 2026 (11\u201313 dic): elige tu rol, mira tu video de recorrido y forja tu SGX Pass. D\xEDas 1 y 2 gratis por YouTube Live; D\xEDa 3 en Chroma Space Studios, San Juan.",
-    en: "Your way into Spatialgineers Summit 2026 (Dec 11\u201313): pick your role, watch your walkthrough video and forge your SGX Pass. Days 1 and 2 free on YouTube Live; Day 3 at Chroma Space Studios, San Juan."
+    es: `Tu entrada al Spatialgineers Summit 2026 (11\u201313 dic): elige tu rol, mira tu video de recorrido y forja tu SGX Pass. D\xEDas 1 y 2 gratis por YouTube Live; D\xEDa 3 en Chroma Space Studios, San Juan (invitaciones a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.short.es}).`,
+    en: `Your way into Spatialgineers Summit 2026 (Dec 11\u201313): pick your role, watch your walkthrough video and forge your SGX Pass. Days 1 and 2 free on YouTube Live; Day 3 at Chroma Space Studios, San Juan (invitations by ${SUMMIT_DEADLINES.day3Invitations.short.en}).`
   },
   intro: {
     es: "Tres d\xEDas de spatial computing, artistas invitados y producci\xF3n virtual en vivo, en espa\xF1ol. Elige c\xF3mo llegas al Summit: cada rol tiene su video corto y sus fechas clave.",
@@ -4542,8 +4646,8 @@ var WELCOME_ROLE_COPY = {
     title: { es: "Bienvenida, Creador", en: "Welcome, Creator" },
     metaTitle: { es: "Creadores: c\xF3mo vivir el Spatialgineers Summit 2026", en: "Creators: how to experience Spatialgineers Summit 2026" },
     description: {
-      es: "Gu\xEDa para Creadores del Spatialgineers Summit 2026: forja tu SGX Pass gratis, arma tu agenda, juega y gana XP. D\xEDas 1 y 2 gratis por YouTube Live (11 y 12 dic); D\xEDa 3 por invitaci\xF3n en Chroma Space Studios.",
-      en: "Creator guide to Spatialgineers Summit 2026: forge your free SGX Pass, build your agenda, play and earn XP. Days 1 and 2 free on YouTube Live (Dec 11 and 12); Day 3 by invitation at Chroma Space Studios."
+      es: `Gu\xEDa para Creadores del Spatialgineers Summit 2026: forja tu SGX Pass gratis, arma tu agenda, juega y gana XP. D\xEDas 1 y 2 gratis por YouTube Live (11 y 12 dic); D\xEDa 3 por invitaci\xF3n en Chroma Space Studios (invitaciones a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.short.es}).`,
+      en: `Creator guide to Spatialgineers Summit 2026: forge your free SGX Pass, build your agenda, play and earn XP. Days 1 and 2 free on YouTube Live (Dec 11 and 12); Day 3 by invitation at Chroma Space Studios (invitations by ${SUMMIT_DEADLINES.day3Invitations.short.en}).`
     },
     intro: {
       es: "Vienes a ver, jugar y conectar. Tu SGX Pass es tu Holo Card: con \xE9l guardas tu progreso, ganas XP y entras a Tu Estudio.",
@@ -4554,7 +4658,8 @@ var WELCOME_ROLE_COPY = {
       { when: { es: "Hoy", en: "Today" }, title: { es: "Forja tu SGX Pass", en: "Forge your SGX Pass" }, body: { es: "Gratis y en un minuto: nombre, email, pilar favorito y tu Highbot. Te da el QR de networking y tus misiones.", en: "Free and in a minute: name, email, favorite pillar and your Highbot. It gives you the networking QR and your missions." } },
       { when: { es: "Antes del evento", en: "Before the event" }, title: { es: "Arma tu agenda y gana XP", en: "Build your agenda and earn XP" }, body: { es: "Mira la agenda de los tres d\xEDas, juega en el hub de juegos y completa las misiones del Reactor.", en: "Browse the three-day agenda, play in the games hub and complete the Reactor missions." } },
       { when: { es: "11 y 12 dic", en: "Dec 11 and 12" }, title: { es: "D\xEDas 1 y 2 en vivo", en: "Days 1 and 2 live" }, body: { es: "Gratis por YouTube Live, con Los Mismos TV transmitiendo junto a nosotros. Vota en vivo y gana XP.", en: "Free on YouTube Live, with Los Mismos TV streaming alongside us. Vote live and earn XP." } },
-      { when: { es: "13 dic", en: "Dec 13" }, title: { es: "D\xEDa 3: SGX Showcase", en: "Day 3: SGX Showcase" }, body: { es: "En Chroma Space Studios, San Juan, por invitaci\xF3n. Puedes solicitar el D\xEDa 3 presencial desde tu pase; el check-in es con el QR de tu SGX Pass.", en: "At Chroma Space Studios, San Juan, by invitation. You can request in-person Day 3 from your pass; check-in uses your SGX Pass QR." } }
+      { when: { es: "13 dic", en: "Dec 13" }, title: { es: "D\xEDa 3: SGX Showcase", en: "Day 3: SGX Showcase" }, body: { es: "En Chroma Space Studios, San Juan, por invitaci\xF3n. Puedes solicitar el D\xEDa 3 presencial desde tu pase; el check-in es con el QR de tu SGX Pass.", en: "At Chroma Space Studios, San Juan, by invitation. You can request in-person Day 3 from your pass; check-in uses your SGX Pass QR." } },
+      { when: { es: `A m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.short.es}`, en: `By ${SUMMIT_DEADLINES.day3Invitations.short.en}` }, title: { es: "Invitaciones al D\xEDa 3", en: "Day 3 invitations" }, body: { es: `${DEADLINE_COPY.day3Invitations.es} Llegan por correo y tu SGX Pass muestra si est\xE1s invitado.`, en: `${DEADLINE_COPY.day3Invitations.en} They arrive by email and your SGX Pass shows whether you are invited.` } }
     ],
     faq: [FAQ_FREE, FAQ_PASS, FAQ_DAY3, {
       q: { es: "\xBFC\xF3mo gano XP?", en: "How do I earn XP?" },
@@ -4567,8 +4672,8 @@ var WELCOME_ROLE_COPY = {
     title: { es: "Bienvenida, speaker", en: "Welcome, speaker" },
     metaTitle: { es: "Speakers y artistas \xB7 Spatialgineers Summit 2026", en: "Speakers and artists \xB7 Spatialgineers Summit 2026" },
     description: {
-      es: "Gu\xEDa para speakers y artistas del Spatialgineers Summit 2026 (11\u201313 dic): registra tu perfil en el Portal de speakers, arma tu avatar y tu Holo Card, y conoce los tres d\xEDas del programa.",
-      en: "Guide for speakers and artists at Spatialgineers Summit 2026 (Dec 11\u201313): register your profile in the Speaker portal, build your avatar and Holo Card, and see the three days of the program."
+      es: `Gu\xEDa para speakers y artistas del Spatialgineers Summit 2026 (11\u201313 dic): registra tu perfil en el Portal de speakers hasta el ${SUMMIT_DEADLINES.speakerProfiles.day.es}, arma tu avatar y tu Holo Card, y conoce los tres d\xEDas del programa.`,
+      en: `Guide for speakers and artists at Spatialgineers Summit 2026 (Dec 11\u201313): register your profile in the Speaker portal through ${SUMMIT_DEADLINES.speakerProfiles.day.en}, build your avatar and Holo Card, and see the three days of the program.`
     },
     intro: {
       es: "Presentas en el Summit. Registra tu perfil en el Portal de speakers: el equipo lo revisa y lo publica en el cartel cuando tu participaci\xF3n est\xE9 confirmada por escrito.",
@@ -4576,13 +4681,13 @@ var WELCOME_ROLE_COPY = {
     },
     videoTitle: { es: "Recorrido para speakers", en: "Walkthrough for speakers" },
     steps: [
-      { when: { es: "Hoy", en: "Today" }, title: { es: "Registra tu perfil", en: "Register your profile" }, body: { es: "En el Portal de speakers: nombre o nombre art\xEDstico, rol, organizaci\xF3n, d\xEDa, pilar SGX, biograf\xEDa y enlaces.", en: "In the Speaker portal: name or artist name, role, organization, day, SGX pillar, bio and links." } },
+      { when: { es: `Hasta el ${SUMMIT_DEADLINES.speakerProfiles.short.es}`, en: `By ${SUMMIT_DEADLINES.speakerProfiles.short.en}` }, title: { es: "Registra tu perfil", en: "Register your profile" }, body: { es: `En el Portal de speakers: nombre o nombre art\xEDstico, rol, organizaci\xF3n, d\xEDa, pilar SGX, biograf\xEDa y enlaces. ${DEADLINE_COPY.speakerProfiles.es} Despu\xE9s el portal se cierra.`, en: `In the Speaker portal: name or artist name, role, organization, day, SGX pillar, bio and links. ${DEADLINE_COPY.speakerProfiles.en} After that the portal closes.` } },
       { when: { es: "En el registro", en: "While registering" }, title: { es: "Arma tu avatar", en: "Build your avatar" }, body: { es: "En el Summit todos aparecen con su avatar SGX. Con \xE9l se arma tu Holo Card de speaker.", en: "Everyone in the Summit appears with their SGX avatar. It becomes your speaker Holo Card." } },
       { when: { es: "Tras la revisi\xF3n", en: "After review" }, title: { es: "Confirmaci\xF3n por escrito", en: "Written confirmation" }, body: { es: "El equipo revisa tu perfil y te escribe al confirmar tu participaci\xF3n. Solo entonces aparece en el directorio.", en: "The team reviews your profile and writes to you once your participation is confirmed. Only then does it appear in the directory." } },
       { when: { es: "11\u201313 dic", en: "Dec 11\u201313" }, title: { es: "Tu d\xEDa en el Summit", en: "Your day at the Summit" }, body: { es: "D\xEDa 1 (vie 11): digital, pilares e Initiates. D\xEDa 2 (s\xE1b 12): digital, D\xEDa de la Industria. D\xEDa 3 (dom 13): SGX Showcase en Chroma Space Studios, por invitaci\xF3n.", en: "Day 1 (Fri 11): digital, pillars and Initiates. Day 2 (Sat 12): digital, Industry Day. Day 3 (Sun 13): SGX Showcase at Chroma Space Studios, by invitation." } }
     ],
     faq: [
-      { q: { es: "\xBFC\xF3mo me registro como speaker o artista?", en: "How do I register as a speaker or artist?" }, a: { es: "En el Portal de speakers del Summit (summit.spatialgineers.com/portal-speakers): llenas tu perfil, armas tu avatar y lo env\xEDas para revisi\xF3n.", en: "In the Summit Speaker portal (summit.spatialgineers.com/portal-speakers): fill in your profile, build your avatar and send it for review." } },
+      { q: { es: "\xBFC\xF3mo me registro como speaker o artista?", en: "How do I register as a speaker or artist?" }, a: { es: `En el Portal de speakers del Summit (summit.spatialgineers.com/portal-speakers): llenas tu perfil, armas tu avatar y lo env\xEDas para revisi\xF3n. ${DEADLINE_COPY.speakerProfiles.es}`, en: `In the Summit Speaker portal (summit.spatialgineers.com/portal-speakers): fill in your profile, build your avatar and send it for review. ${DEADLINE_COPY.speakerProfiles.en}` } },
       { q: { es: "\xBFCu\xE1ndo aparece mi perfil en el cartel?", en: "When does my profile appear in the lineup?" }, a: { es: "Cuando el equipo confirma tu participaci\xF3n por escrito. Te escribimos al confirmarla.", en: "When the team confirms your participation in writing. We write to you when it is confirmed." } },
       { q: { es: "\xBFQu\xE9 pasa cada d\xEDa del Summit?", en: "What happens on each Summit day?" }, a: { es: "D\xEDa 1 (viernes 11 de diciembre): digital, pilares e Initiates. D\xEDa 2 (s\xE1bado 12): digital, D\xEDa de la Industria. D\xEDa 3 (domingo 13): SGX Showcase en Chroma Space Studios, San Juan, por invitaci\xF3n.", en: "Day 1 (Friday, December 11): digital, pillars and Initiates. Day 2 (Saturday 12): digital, Industry Day. Day 3 (Sunday 13): SGX Showcase at Chroma Space Studios, San Juan, by invitation." } },
       FAQ_PASS
@@ -4594,8 +4699,8 @@ var WELCOME_ROLE_COPY = {
     title: { es: "Bienvenida, marca", en: "Welcome, brand" },
     metaTitle: { es: "Patrocina el Spatialgineers Summit 2026 \xB7 Paquetes y fechas", en: "Sponsor Spatialgineers Summit 2026 \xB7 Packages and dates" },
     description: {
-      es: "Gu\xEDa para sponsors del Spatialgineers Summit 2026: 5 paquetes con precios en USD, pago total a m\xE1s tardar el 14 de noviembre y materiales hasta el 30 de noviembre. Tu marca en la webapp, la transmisi\xF3n y el D\xEDa 3.",
-      en: "Sponsor guide to Spatialgineers Summit 2026: 5 packages priced in USD, full payment by November 14 and materials by November 30. Your brand on the web app, the broadcast and Day 3."
+      es: `Gu\xEDa para sponsors del Spatialgineers Summit 2026: 5 paquetes con precios en USD, solicitudes hasta el ${SUMMIT_DEADLINES.sponsorApplications.day.es}, pago total y materiales a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}. Tu marca en la webapp, la transmisi\xF3n y el D\xEDa 3.`,
+      en: `Sponsor guide to Spatialgineers Summit 2026: 5 packages priced in USD, applications through ${SUMMIT_DEADLINES.sponsorApplications.day.en}, full payment and materials no later than ${SUMMIT_DEADLINES.sponsorPayment.day.en}. Your brand on the web app, the broadcast and Day 3.`
     },
     intro: {
       es: "Auspiciar es ocupar con tu marca los espacios del Summit: la webapp con n\xFAcleo 3D, minijuegos y misiones, la transmisi\xF3n por YouTube Live y el D\xEDa 3 en Chroma Space Studios.",
@@ -4603,14 +4708,13 @@ var WELCOME_ROLE_COPY = {
     },
     videoTitle: { es: "Recorrido para sponsors", en: "Walkthrough for sponsors" },
     steps: [
-      { when: { es: "Hoy", en: "Today" }, title: { es: "Solicita", en: "Apply" }, body: { es: "Elige uno de los 5 paquetes (precios en USD) y env\xEDa el formulario. Recibes un c\xF3digo de seguimiento al instante.", en: "Pick one of the 5 packages (prices in USD) and send the form. You get a tracking code right away." } },
+      { when: { es: `Hasta el ${SUMMIT_DEADLINES.sponsorApplications.short.es}`, en: `By ${SUMMIT_DEADLINES.sponsorApplications.short.en}` }, title: { es: "Solicita", en: "Apply" }, body: { es: `Elige uno de los 5 paquetes (precios en USD) y env\xEDa el formulario. ${DEADLINE_COPY.sponsorApplications.es} Recibes un c\xF3digo de seguimiento al instante.`, en: `Pick one of the 5 packages (prices in USD) and send the form. ${DEADLINE_COPY.sponsorApplications.en} You get a tracking code right away.` } },
       { when: { es: "Tras la revisi\xF3n", en: "After review" }, title: { es: "Confirmaci\xF3n", en: "Confirmation" }, body: { es: "El equipo de Spatialgineers revisa tu propuesta y te escribe por correo. Rige un contrato corto de auspicio firmado por ambas partes.", en: "The Spatialgineers team reviews your proposal and emails you. A short sponsorship contract signed by both parties governs." } },
-      { when: { es: "14 nov", en: "Nov 14" }, title: { es: "Pago total", en: "Full payment" }, body: { es: "Pago total a m\xE1s tardar el 14 de noviembre.", en: "Full payment by November 14." } },
-      { when: { es: "30 nov", en: "Nov 30" }, title: { es: "Materiales", en: "Materials" }, body: { es: "Materiales de tu marca hasta el 30 de noviembre.", en: "Your brand materials by November 30." } },
+      { when: { es: SUMMIT_DEADLINES.sponsorPayment.short.es, en: SUMMIT_DEADLINES.sponsorPayment.short.en }, title: { es: "Pago total y materiales", en: "Full payment and materials" }, body: { es: DEADLINE_COPY.sponsorPaymentMaterials.es, en: DEADLINE_COPY.sponsorPaymentMaterials.en } },
       { when: { es: "11\u201313 dic", en: "Dec 11\u201313" }, title: { es: "En vivo", en: "Live" }, body: { es: "Tu marca en la webapp, la transmisi\xF3n y el D\xEDa 3. Paquetes 4 y 5 reciben el reporte final a los 30 d\xEDas.", en: "Your brand on the web app, the broadcast and Day 3. Packages 4 and 5 get the final report at 30 days." } }
     ],
     faq: [
-      { q: { es: "\xBFCu\xE1les son las fechas clave para sponsors?", en: "What are the key dates for sponsors?" }, a: { es: "Pago total a m\xE1s tardar el 14 de noviembre y materiales de la marca hasta el 30 de noviembre. El Summit es del 11 al 13 de diciembre de 2026.", en: "Full payment by November 14 and brand materials by November 30. The Summit runs December 11\u201313, 2026." } },
+      { q: { es: "\xBFCu\xE1les son las fechas clave para sponsors?", en: "What are the key dates for sponsors?" }, a: { es: `${DEADLINE_COPY.sponsorKeyDates.es} El Summit es del 11 al 13 de diciembre de 2026.`, en: `${DEADLINE_COPY.sponsorKeyDates.en} The Summit runs December 11\u201313, 2026.` } },
       { q: { es: "\xBFEl precio es fijo?", en: "Is the price fixed?" }, a: { es: "No. Cada uno de los 5 paquetes tiene un rango en USD y el precio exacto se acuerda seg\xFAn el presupuesto del sponsor. El Paquete 5 no tiene precio p\xFAblico.", en: "No. Each of the 5 packages has a range in USD and the exact price is agreed based on the sponsor's budget. Package 5 has no public price." } },
       { q: { es: "\xBFGarantizan vistas, asistencia o clics?", en: "Do you guarantee views, attendance or clicks?" }, a: { es: "No. Spatialgineers no garantiza un n\xFAmero de vistas, asistentes ni clics. Los Paquetes 4 y 5 reciben un reporte final a los 30 d\xEDas, sin datos personales.", en: "No. Spatialgineers does not guarantee a number of views, attendees or clicks. Packages 4 and 5 receive a final report at 30 days, with no personal data." } },
       { q: { es: "\xBFHay exclusividad por categor\xEDa?", en: "Is there category exclusivity?" }, a: { es: "S\xED, en los Paquetes 4 y 5: una sola marca de su sector.", en: "Yes, in Packages 4 and 5: only one brand from your sector." } }
@@ -4622,8 +4726,8 @@ var WELCOME_ROLE_COPY = {
     title: { es: "Bienvenida, prensa", en: "Welcome, press" },
     metaTitle: { es: "Prensa \xB7 Acreditaci\xF3n al Spatialgineers Summit 2026 \xB7 11\u201313 dic", en: "Press \xB7 Spatialgineers Summit 2026 accreditation \xB7 Dec 11\u201313" },
     description: {
-      es: "Gu\xEDa para prensa y medios del Spatialgineers Summit 2026: solicita tu acreditaci\xF3n antes del 1 de diciembre (6 cupos, uno por medio), descarga el kit de prensa y cubre los 3 d\xEDas: YouTube Live y el D\xEDa 3 en Chroma Space Studios.",
-      en: "Press and media guide to Spatialgineers Summit 2026: request accreditation before December 1 (6 slots, one per outlet), download the press kit and cover all 3 days: YouTube Live and Day 3 at Chroma Space Studios."
+      es: "Gu\xEDa para prensa y medios del Spatialgineers Summit 2026: solicita tu acreditaci\xF3n antes del 1 de diciembre (10 cupos de prensa), descarga el kit de prensa y cubre los 3 d\xEDas: YouTube Live y el D\xEDa 3 en Chroma Space Studios.",
+      en: "Press and media guide to Spatialgineers Summit 2026: request accreditation before December 1 (10 press slots), download the press kit and cover all 3 days: YouTube Live and Day 3 at Chroma Space Studios."
     },
     intro: {
       es: "Cubres el Summit. La acreditaci\xF3n de prensa incluye los 3 d\xEDas: la transmisi\xF3n por YouTube Live los D\xEDas 1 y 2, y la entrada al D\xEDa 3 en Chroma Space Studios con el QR de tu SGX Pass.",
@@ -4632,7 +4736,7 @@ var WELCOME_ROLE_COPY = {
     videoTitle: { es: "Recorrido para prensa", en: "Walkthrough for press" },
     steps: [
       { when: { es: "Hoy", en: "Today" }, title: { es: "Forja tu SGX Pass", en: "Forge your SGX Pass" }, body: { es: "Gratis y en un minuto. Desde tu pase solicitas la acreditaci\xF3n.", en: "Free and in a minute. You request accreditation from your pass." } },
-      { when: { es: "Antes del 1 dic", en: "Before Dec 1" }, title: { es: "Solicita tu acreditaci\xF3n", en: "Request accreditation" }, body: { es: "En la Sala de prensa: tu medio, tu cargo, enlaces a coberturas previas y los d\xEDas que cubrir\xE1s. 6 cupos, uno por medio. Recibes un c\xF3digo de seguimiento.", en: "In the Press room: your outlet, your title, links to past coverage and the days you will cover. 6 slots, one per outlet. You get a tracking code." } },
+      { when: { es: "Antes del 1 dic", en: "Before Dec 1" }, title: { es: "Solicita tu acreditaci\xF3n", en: "Request accreditation" }, body: { es: "En la Sala de prensa: tu medio, tu cargo, enlaces a coberturas previas y los d\xEDas que cubrir\xE1s. 10 cupos de prensa. Recibes un c\xF3digo de seguimiento.", en: "In the Press room: your outlet, your title, links to past coverage and the days you will cover. 10 press slots. You get a tracking code." } },
       { when: { es: "Tras la revisi\xF3n", en: "After review" }, title: { es: "Tu pase dice PRENSA", en: "Your pass says PRESS" }, body: { es: "Si te aprueban, el equipo te escribe, tu Holo Card cambia a PRENSA y tu pase queda invitado al D\xEDa 3.", en: "If approved, the team writes to you, your Holo Card switches to PRESS and your pass is invited to Day 3." } },
       { when: { es: "11\u201313 dic", en: "Dec 11\u201313" }, title: { es: "Cubre los 3 d\xEDas", en: "Cover all 3 days" }, body: { es: "D\xEDas 1 y 2 por YouTube Live, con Los Mismos TV transmitiendo junto a nosotros. D\xEDa 3 presencial en Chroma Space Studios, San Juan: entras con el QR de tu SGX Pass.", en: "Days 1 and 2 on YouTube Live, with Los Mismos TV streaming alongside us. Day 3 in person at Chroma Space Studios, San Juan: you get in with your SGX Pass QR." } }
     ],
@@ -4655,7 +4759,7 @@ var WELCOME_ROLE_COPY = {
     videoTitle: { es: "Recorrido para el equipo", en: "Walkthrough for the team" },
     steps: [
       { when: { es: "Antes", en: "Before" }, title: { es: "Entra al admin", en: "Open the admin" }, body: { es: "Con tu cuenta autorizada. Contenido: agenda, speakers, sponsors, paquetes y este portal de bienvenida.", en: "With your authorized account. Content: agenda, speakers, sponsors, packages and this welcome portal." } },
-      { when: { es: "Antes", en: "Before" }, title: { es: "Inscritos y D\xEDa 3", en: "Registrations and Day 3" }, body: { es: "Registros, c\xF3digo de check-in del D\xEDa 3 y propuestas de speakers.", en: "Registrations, the Day 3 check-in code and speaker proposals." } },
+      { when: { es: "Antes", en: "Before" }, title: { es: "Inscritos y D\xEDa 3", en: "Registrations and Day 3" }, body: { es: `Registros, c\xF3digo de check-in del D\xEDa 3 y propuestas de speakers. Invitaciones al D\xEDa 3 a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}.`, en: `Registrations, the Day 3 check-in code and speaker proposals. Day 3 invitations no later than ${SUMMIT_DEADLINES.day3Invitations.day.en}.` } },
       { when: { es: "11\u201313 dic", en: "Dec 11\u201313" }, title: { es: "En vivo", en: "Live" }, body: { es: "Consola del director para la pregunta en vivo y anuncios que llegan al instante a todas las p\xE1ginas abiertas.", en: "Director console for the live question, and announcements that reach every open page instantly." } }
     ],
     faq: []
@@ -4836,7 +4940,7 @@ function renderWelcomeHtml(indexHtml, reqPath, cfg, hasQuery = false) {
   const parts = [
     `<h1>${escapeHtml(head.heading)}</h1>`,
     `<p>${escapeHtml(head.intro)}</p>`,
-    `<ul>${[WELCOME_FACTS.dates.es, WELCOME_FACTS.days12.es, WELCOME_FACTS.day3.es, WELCOME_FACTS.language.es].map(li).join("")}</ul>`
+    `<ul>${[WELCOME_FACTS.dates.es, WELCOME_FACTS.days12.es, WELCOME_FACTS.day3.es, WELCOME_FACTS.day3Invitations.es, WELCOME_FACTS.language.es].map(li).join("")}</ul>`
   ];
   if (head.videoId) parts.push(`<p><a href="${escapeHtml(youTubeWatchUrl(head.videoId))}">Ver el video en YouTube</a></p>`);
   if (head.steps.length) {

@@ -14,6 +14,7 @@ import type { SummitSession } from '../types/summit';
 import { SGX_PILLARS, findPillar } from './sgxPillars';
 import { welcomeUrlFor, type WelcomeRole } from './welcomePortal';
 import { SGX_EMAIL, SGX_INSTAGRAM, SGX_YOUTUBE } from './sgxLinks';
+import { SUMMIT_DEADLINES as D } from './summitDeadlines';
 
 export const INVITE_TEMPLATES: Record<WelcomeRole, { subject: string; lines: string[] }> = {
   speaker: {
@@ -21,7 +22,7 @@ export const INVITE_TEMPLATES: Record<WelcomeRole, { subject: string; lines: str
     lines: [
       'Hola {nombre}, te esperamos en el Spatialgineers Summit 2026.',
       '?Tu sesión: «{titulo}» · {pilar} · {dia}, {hora}.',
-      'Aquí tienes tu video guía y los pasos para dejar tu perfil listo: {link}',
+      `Deja tu perfil listo a más tardar el ${D.speakerProfiles.day.es}. Aquí tienes tu video guía y los pasos: {link}`,
     ],
   },
   sponsor: {
@@ -29,7 +30,7 @@ export const INVITE_TEMPLATES: Record<WelcomeRole, { subject: string; lines: str
     lines: [
       'Hola {nombre}, gracias por sumar tu marca al Spatialgineers Summit 2026 (11–13 dic).',
       '?Tu nivel: {paquete}.',
-      'Fechas clave: pago total a más tardar el 14 de noviembre y materiales hasta el 30 de noviembre.',
+      `Fechas clave: solicitudes hasta el ${D.sponsorApplications.day.es}; pago total y materiales a más tardar el ${D.sponsorPayment.day.es}.`,
       'Tu video guía y los pasos, aquí: {link}',
     ],
   },
@@ -38,14 +39,14 @@ export const INVITE_TEMPLATES: Record<WelcomeRole, { subject: string; lines: str
     lines: [
       'Hola {nombre}, te invitamos a cubrir el Spatialgineers Summit 2026 (11–13 dic).',
       'La acreditación de prensa cubre los 3 días: YouTube Live los Días 1 y 2 y el Día 3 en Chroma Space Studios.',
-      'Solicítala antes del 1 de diciembre (6 cupos, uno por medio). Tu video guía, los pasos y el kit de prensa: {link}',
+      'Solicítala antes del 1 de diciembre (10 cupos de prensa). Tu video guía, los pasos y el kit de prensa: {link}',
     ],
   },
   visitante: {
     subject: 'Te esperamos en el Spatialgineers Summit 2026',
     lines: [
       'Hola {nombre}, te esperamos en el Spatialgineers Summit 2026: 11–13 de diciembre.',
-      'Días 1 y 2 gratis por YouTube Live; el Día 3 en Chroma Space Studios, por invitación.',
+      `Días 1 y 2 gratis por YouTube Live; el Día 3 en Chroma Space Studios, por invitación (las enviamos a más tardar el ${D.day3Invitations.day.es}).`,
       'Mira tu video guía y forja tu SGX Pass gratis aquí: {link}',
     ],
   },
@@ -153,35 +154,35 @@ export function inviteMessage(role: WelcomeRole, f: InviteFields): { subject: st
 
 export const INVITE_EMAILS: Record<WelcomeRole, { preheader: string; intro: string; steps: [string, string, string] }> = {
   speaker: {
-    preheader: 'Tu video guía y los pasos para dejar tu perfil listo.',
+    preheader: `Tu video guía y los pasos: perfiles hasta el ${D.speakerProfiles.short.es}.`,
     intro: 'Te esperamos en el Spatialgineers Summit 2026, del 11 al 13 de diciembre. Aquí tienes tu video guía y lo que te toca antes del evento.',
     steps: [
-      'Registra tu perfil en el Portal de speakers: rol, organización, biografía y enlaces.',
+      `Registra tu perfil en el Portal de speakers a más tardar el ${D.speakerProfiles.day.es}: rol, organización, biografía y enlaces.`,
       'Arma tu avatar SGX: con él se crea tu Holo Card de speaker.',
       'El equipo confirma tu participación por escrito y publica tu perfil en el cartel.',
     ],
   },
   sponsor: {
-    preheader: 'Fechas clave: pago total 14 nov · materiales 30 nov.',
+    preheader: `Fechas clave: solicitudes ${D.sponsorApplications.short.es} · pago total y materiales ${D.sponsorPayment.short.es}.`,
     intro: 'Gracias por sumar tu marca al Spatialgineers Summit 2026 (11–13 dic): la webapp, la transmisión por YouTube Live y el Día 3 en Chroma Space Studios.',
     steps: [
-      'Elige tu paquete y envía la solicitud desde Patrocina el Summit.',
-      'Pago total a más tardar el 14 de noviembre.',
-      'Materiales de tu marca hasta el 30 de noviembre.',
+      `Elige tu paquete y envía la solicitud desde Patrocina el Summit a más tardar el ${D.sponsorApplications.day.es}.`,
+      `Pago total a más tardar el ${D.sponsorPayment.day.es}.`,
+      `Materiales de tu marca a más tardar el ${D.sponsorMaterials.day.es}.`,
     ],
   },
   prensa: {
-    preheader: 'Acreditación antes del 1 de diciembre · 6 cupos, uno por medio.',
+    preheader: 'Acreditación antes del 1 de diciembre · 10 cupos de prensa.',
     intro: 'Te invitamos a cubrir el Spatialgineers Summit 2026 (11–13 dic). La acreditación de prensa incluye los 3 días: la transmisión por YouTube Live los Días 1 y 2, y la entrada al Día 3 en Chroma Space Studios, San Juan.',
     steps: [
       'Forja tu SGX Pass gratis y solicita tu acreditación en la Sala de prensa antes del 1 de diciembre.',
-      'Hay 6 cupos, uno por medio. Si te aprueban, tu Holo Card dice PRENSA y tu pase queda invitado al Día 3.',
+      'Hay 10 cupos de prensa. Si te aprueban, tu Holo Card dice PRENSA y tu pase queda invitado al Día 3.',
       'Descarga el kit de prensa: logos, fotos de los fundadores, capturas de la webapp y la ficha en PDF.',
     ],
   },
   visitante: {
     preheader: 'Forja tu SGX Pass gratis y mira tu video guía.',
-    intro: 'Te esperamos en el Spatialgineers Summit 2026: Días 1 y 2 gratis por YouTube Live (11 y 12 dic) y el Día 3 en Chroma Space Studios, por invitación.',
+    intro: `Te esperamos en el Spatialgineers Summit 2026: Días 1 y 2 gratis por YouTube Live (11 y 12 dic) y el Día 3 en Chroma Space Studios, por invitación (las enviamos a más tardar el ${D.day3Invitations.day.es}).`,
     steps: [
       'Forja tu SGX Pass gratis en un minuto.',
       'Arma tu agenda de los tres días y juega para ganar XP.',
@@ -193,7 +194,7 @@ export const INVITE_EMAILS: Record<WelcomeRole, { preheader: string; intro: stri
     intro: 'Bienvenido al equipo del Spatialgineers Summit 2026. Lo que usamos durante el evento vive en el admin.',
     steps: [
       'Entra al admin con tu cuenta autorizada.',
-      'Revisa Inscritos y Día 3: registros y código de check-in.',
+      `Revisa Inscritos y Día 3: registros, código de check-in e invitaciones (a más tardar el ${D.day3Invitations.day.es}).`,
       'Durante el Summit: Consola del director y Anuncios.',
     ],
   },

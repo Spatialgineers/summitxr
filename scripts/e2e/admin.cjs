@@ -4,7 +4,7 @@ const { chromium } = require('playwright');
 const APP = process.env.APP_URL || 'http://localhost:3200';
 const PROJECT = 'gen-lang-client-0564995587';
 const DB = 'ai-studio-sgxliveengine-630b78e7-0845-4046-9176-53bab53744ac';
-const REST = `http://127.0.0.1:8085/v1/projects/${PROJECT}/databases/${DB}/documents`;
+const REST = `http://127.0.0.1:${process.env.FS_PORT || 8085}/v1/projects/${PROJECT}/databases/${DB}/documents`;
 const get = async (path) => (await fetch(`${REST}/${path}`, { headers: { Authorization: 'Bearer owner' } })).json();
 const list = async (col) => ((await get(`${col}?pageSize=300`)).documents || []);
 let pass = 0, fail = 0;

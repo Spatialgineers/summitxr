@@ -5,30 +5,32 @@
    Every fact comes from the app's own copy or from the team. Do not add
    numbers, dates or promises here that the team has not confirmed. */
 
+import { SUMMIT_DEADLINES, deadlineMs, summitNow } from './summitDeadlines';
+
 type Bi = { es: string; en: string };
 
 export const PRESS_PATH = '/prensa';
 export const PRESS_ORIGIN = 'https://summit.spatialgineers.com';
 export const PRESS_URL = `${PRESS_ORIGIN}${PRESS_PATH}`;
 
-/** Requests close at the start of December 1, 2026 (Puerto Rico time). */
-export const PRESS_DEADLINE_ISO = '2026-12-01T00:00:00-04:00';
-export const PRESS_DEADLINE = Date.parse(PRESS_DEADLINE_ISO);
-/** Six accreditations in all, one per outlet. */
-export const PRESS_SLOTS = 6;
+/** Requests close at the start of December 1, 2026 (Puerto Rico time). The date lives in summitDeadlines.ts. */
+export const PRESS_DEADLINE_ISO = SUMMIT_DEADLINES.pressAccreditation.closesAt;
+export const PRESS_DEADLINE = deadlineMs('pressAccreditation');
+/** Ten press accreditations in all (no per-outlet rule). */
+export const PRESS_SLOTS = 10;
 
-export const isPressOpen = (now = Date.now()) => now < PRESS_DEADLINE;
+export const isPressOpen = (now = summitNow()) => now < PRESS_DEADLINE;
 
 export const PRESS_RULES = {
-  deadline: { es: 'Solicita antes del 1 de diciembre de 2026', en: 'Apply before December 1, 2026' },
-  slots: { es: '6 cupos, uno por medio', en: '6 slots, one per outlet' },
+  deadline: { es: `Solicita antes del ${SUMMIT_DEADLINES.pressAccreditation.label.es}`, en: `Apply before ${SUMMIT_DEADLINES.pressAccreditation.label.en}` },
+  slots: { es: `${PRESS_SLOTS} cupos de prensa`, en: `${PRESS_SLOTS} press slots` },
   access: {
     es: 'La acreditación cubre los 3 días: la transmisión por YouTube Live los Días 1 y 2, y la entrada presencial al Día 3 en Chroma Space Studios con el QR de tu SGX Pass.',
     en: 'Accreditation covers all 3 days: the YouTube Live broadcast on Days 1 and 2, and in-person entry to Day 3 at Chroma Space Studios with your SGX Pass QR.',
   },
   line: {
-    es: 'Prensa: solicita tu acreditación en summit.spatialgineers.com/prensa antes del 1 de diciembre (6 cupos, uno por medio).',
-    en: 'Press: request accreditation at summit.spatialgineers.com/prensa before December 1 (6 slots, one per outlet).',
+    es: 'Prensa: solicita tu acreditación en summit.spatialgineers.com/prensa antes del 1 de diciembre (10 cupos de prensa).',
+    en: 'Press: request accreditation at summit.spatialgineers.com/prensa before December 1 (10 press slots).',
   },
 } satisfies Record<string, Bi>;
 
@@ -58,14 +60,14 @@ export const PRESS_FACTS: { k: Bi; v: Bi }[] = [
   { k: { es: 'Evento', en: 'Event' }, v: { es: 'Spatialgineers Summit 2026', en: 'Spatialgineers Summit 2026' } },
   { k: { es: 'Fechas', en: 'Dates' }, v: { es: '11, 12 y 13 de diciembre de 2026', en: 'December 11, 12 and 13, 2026' } },
   { k: { es: 'Días 1 y 2', en: 'Days 1 and 2' }, v: { es: 'Digitales y gratis por YouTube Live, con Los Mismos TV transmitiendo junto a Spatialgineers.', en: 'Digital and free on YouTube Live, with Los Mismos TV streaming alongside Spatialgineers.' } },
-  { k: { es: 'Día 3', en: 'Day 3' }, v: { es: 'SGX Showcase presencial en Chroma Space Studios, San Juan, Puerto Rico. Por invitación.', en: 'In-person SGX Showcase at Chroma Space Studios, San Juan, Puerto Rico. By invitation.' } },
+  { k: { es: 'Día 3', en: 'Day 3' }, v: { es: 'SGX Showcase presencial en Chroma Space Studios, San Juan, Puerto Rico. Por invitación: el equipo las envía a más tardar el 5 de diciembre.', en: 'In-person SGX Showcase at Chroma Space Studios, San Juan, Puerto Rico. By invitation: the team sends them no later than December 5.' } },
   { k: { es: 'Idioma', en: 'Language' }, v: { es: 'Español', en: 'Spanish' } },
   { k: { es: 'Formato', en: 'Format' }, v: { es: 'Seis pilares del SGX Framework: Story, Showcase, Spark, Stage, System y Synthesize.', en: 'Six pillars of the SGX Framework: Story, Showcase, Spark, Stage, System and Synthesize.' } },
   { k: { es: 'Organiza', en: 'Organizer' }, v: { es: 'Spatialgineers LLC, estudio de ingeniería creativa y computación espacial en Puerto Rico.', en: 'Spatialgineers LLC, a creative engineering and spatial computing studio in Puerto Rico.' } },
   { k: { es: 'Fundadores', en: 'Founders' }, v: { es: 'Danelson Maldonado González "The Highgineer" y Ricardo A. Hernández Díaz "Lightning Fingers".', en: 'Danelson Maldonado González "The Highgineer" and Ricardo A. Hernández Díaz "Lightning Fingers".' } },
   { k: { es: 'Portafolio', en: 'Portfolio' }, v: { es: '60+ espacios digitales y 10 juegos interactivos.', en: '60+ digital spaces and 10 interactive games.' } },
   { k: { es: 'Web del Summit', en: 'Summit website' }, v: { es: 'summit.spatialgineers.com', en: 'summit.spatialgineers.com' } },
-  { k: { es: 'Prensa', en: 'Press' }, v: { es: 'Acreditación antes del 1 de diciembre de 2026: 6 cupos, uno por medio. info@spatialgineers.com', en: 'Accreditation before December 1, 2026: 6 slots, one per outlet. info@spatialgineers.com' } },
+  { k: { es: 'Prensa', en: 'Press' }, v: { es: 'Acreditación antes del 1 de diciembre de 2026: 10 cupos de prensa. info@spatialgineers.com', en: 'Accreditation before December 1, 2026: 10 press slots. info@spatialgineers.com' } },
 ];
 
 export const PRESS_ABOUT: { summit: Bi; studio: Bi } = {
@@ -161,7 +163,7 @@ export const PRESS_FAQ: { q: Bi; a: Bi }[] = [
   },
   {
     q: { es: '¿Cuántos cupos de prensa hay?', en: 'How many press slots are there?' },
-    a: { es: 'Seis cupos, uno por medio. El equipo de Spatialgineers revisa cada solicitud y te escribe al aprobarla.', en: 'Six slots, one per outlet. The Spatialgineers team reviews each request and writes to you once it is approved.' },
+    a: { es: 'Diez cupos de prensa. El equipo de Spatialgineers revisa cada solicitud y te escribe al aprobarla.', en: 'Ten press slots. The Spatialgineers team reviews each request and writes to you once it is approved.' },
   },
   {
     q: { es: '¿Qué incluye la acreditación?', en: 'What does accreditation include?' },
@@ -176,7 +178,7 @@ export const PRESS_FAQ: { q: Bi; a: Bi }[] = [
 export const PRESS_META = {
   title: { es: 'Sala de prensa · Spatialgineers Summit 2026 · Acreditación y kit de prensa', en: 'Press room · Spatialgineers Summit 2026 · Accreditation and press kit' },
   description: {
-    es: 'Acreditación de prensa para el Spatialgineers Summit 2026 (11–13 dic): solicita antes del 1 de diciembre, 6 cupos, uno por medio. Kit de prensa con logos, fotos, capturas y ficha en PDF.',
-    en: 'Press accreditation for Spatialgineers Summit 2026 (Dec 11–13): apply before December 1, 6 slots, one per outlet. Press kit with logos, photos, screenshots and a PDF fact sheet.',
+    es: 'Acreditación de prensa para el Spatialgineers Summit 2026 (11–13 dic): solicita antes del 1 de diciembre, 10 cupos de prensa. Kit de prensa con logos, fotos, capturas y ficha en PDF.',
+    en: 'Press accreditation for Spatialgineers Summit 2026 (Dec 11–13): apply before December 1, 10 press slots. Press kit with logos, photos, screenshots and a PDF fact sheet.',
   },
 };

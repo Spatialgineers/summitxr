@@ -39,7 +39,7 @@ La app del Spatialgineers Summit 2026, completa: del SGX Pass al Centro de mando
 El Spatialgineers Summit es el evento de computación espacial, 3D, XR, juegos e inteligencia artificial de Spatialgineers, el estudio de ingeniería creativa de Danelson Maldonado y Ricardo Hernández en Puerto Rico.
 📅 11 al 13 de diciembre de 2026
 📺 Días 1 y 2: gratis por YouTube Live, junto a Los Mismos TV
-📍 Día 3: presencial en Chroma Space Studios, San Juan, por invitación
+📍 Día 3: presencial en Chroma Space Studios, San Juan, por invitación (las enviamos a más tardar el 5 de diciembre)
 
 Forja tu SGX Pass gratis: https://summit.spatialgineers.com/bienvenida
 
@@ -88,7 +88,7 @@ Forja tu SGX Pass, arma tu Highbot y vive el Summit desde tu teléfono: misiones
 
 **Descripción:**
 ```
-Forja tu SGX Pass, entra a Speakers y toca "Soy speaker: enviar mi perfil". Cuando el equipo lo aprueba, sales en la app y en la agenda, y tu pase se vuelve tu Holo Card de speaker.
+Forja tu SGX Pass, entra a Speakers y toca "Soy speaker: enviar mi perfil". Los perfiles se reciben hasta el 21 de noviembre. Cuando el equipo lo aprueba, sales en la app y en la agenda, y tu pase se vuelve tu Holo Card de speaker.
 
 📅 11–13 dic 2026
 👉 https://summit.spatialgineers.com/bienvenida/speaker
@@ -104,7 +104,7 @@ Forja tu SGX Pass, entra a Speakers y toca "Soy speaker: enviar mi perfil". Cuan
 **Descripción:**
 ```
 Tu marca dentro del Summit: en el núcleo 3D, los juegos, la app y la transmisión, según tu paquete (del 1 al 5).
-Pago total: 14 de noviembre · Materiales: 30 de noviembre · Precios en USD.
+Solicitudes hasta el 28 de noviembre · Pago total y materiales a más tardar el 30 de noviembre · Precios en USD.
 
 👉 https://summit.spatialgineers.com/bienvenida/sponsor
 Contacto: info@spatialgineers.com
@@ -148,7 +148,7 @@ Hecha por Spatialgineers · Ingeniando imaginación, construyendo realidades.
 
 **Descripción:**
 ```
-Forja tu SGX Pass, entra a la Sala de prensa y pide tu acreditación: 6 cupos, uno por medio, antes del 1 de diciembre. Si te aprueban, tu pase se vuelve tu credencial de PRENSA: cubres los Días 1 y 2 en la transmisión en vivo y entras al Día 3 en Chroma Space Studios con tu QR.
+Forja tu SGX Pass, entra a la Sala de prensa y pide tu acreditación: 10 cupos de prensa, antes del 1 de diciembre. Si te aprueban, tu pase se vuelve tu credencial de PRENSA: cubres los Días 1 y 2 en la transmisión en vivo y entras al Día 3 en Chroma Space Studios con tu QR.
 Kit de prensa: logos, fotos, hoja de datos y bios de los fundadores.
 
 👉 https://summit.spatialgineers.com/bienvenida/prensa

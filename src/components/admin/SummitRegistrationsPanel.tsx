@@ -8,6 +8,7 @@ import type { SummitSpeaker } from '../../types/summit';
 import { findPillar } from '../../lib/sgxPillars';
 import { grantCredential } from '../../identity/credentials';
 import { LeadFlag } from './LeadFlag';
+import { deadlineDay, isClosed } from '../../lib/summitDeadlines';
 
 /* INSCRITOS: every SGX Pass forged lands in `ticket_inquiries`. The team
    reviews them here, marks who gets the Day 3 invitation, exports the list
@@ -185,7 +186,10 @@ export const SummitRegistrationsPanel: React.FC = () => {
     invited: rows.filter((r) => r.status === 'INVITED' || r.status === 'CONFIRMED').length,
     confirmed: rows.filter((r) => r.status === 'CONFIRMED').length,
     noConsent: rows.filter((r) => r.imageConsent !== true).length,
+    day3Pending: rows.filter((r) => r.ticketType === 'SHOWCASE_PHYSICAL' && r.status === 'PENDING').length,
   }), [rows]);
+  // Past the Day 3 invitation deadline: a soft warning only (the admin is never blocked).
+  const invitesLate = isClosed('day3Invitations');
 
   const setStatus = async (r: Registration, status: RegStatus) => {
     setBusyId(r.id);
@@ -260,6 +264,16 @@ export const SummitRegistrationsPanel: React.FC = () => {
             <span>Exportar CSV ({filtered.length})</span>
           </button>
         </div>
+
+        <p className="text-[11px] font-mono text-[#00DDFF] border border-[#00DDFF]/30 bg-[#00DDFF]/5 p-2" data-testid="day3-invite-note">
+          Invitaciones al Día 3: a más tardar el {deadlineDay('day3Invitations')}.
+        </p>
+        {invitesLate && (
+          <p className="text-[11px] font-mono text-[#FDCC0D] border border-[#FDCC0D]/50 bg-[#FDCC0D]/10 p-2" role="status" data-testid="day3-invite-late">
+            Ya pasó el {deadlineDay('day3Invitations')}, la fecha límite para enviar las invitaciones al Día 3.
+            {counts.day3Pending > 0 ? ` Quedan ${counts.day3Pending} solicitudes del Día 3 pendientes: puedes seguir invitando, pero avísales cuanto antes.` : ' Puedes seguir invitando si hace falta.'}
+          </p>
+        )}
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center font-mono">
           {[

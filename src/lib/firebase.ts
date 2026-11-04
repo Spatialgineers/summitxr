@@ -23,8 +23,11 @@ export const auth = getAuth(app);
 // Local testing only: point the app at the Firebase emulators instead of the real project.
 // Needs BOTH the explicit build flag and a localhost page, so it can never switch on in production.
 if (USE_EMULATORS) {
-  connectFirestoreEmulator(db, '127.0.0.1', 8085);
-  connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+  // Ports can be moved for a second test stack (VITE_EMULATOR_FIRESTORE_PORT / VITE_EMULATOR_AUTH_PORT).
+  const fsPort = Number((import.meta as any).env?.VITE_EMULATOR_FIRESTORE_PORT) || 8085;
+  const authPort = Number((import.meta as any).env?.VITE_EMULATOR_AUTH_PORT) || 9099;
+  connectFirestoreEmulator(db, '127.0.0.1', fsPort);
+  connectAuthEmulator(auth, `http://127.0.0.1:${authPort}`, { disableWarnings: true });
   console.info('[SGX] Firebase emulators in use (local testing).');
 }
 

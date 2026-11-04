@@ -22,6 +22,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { SummitPushAlertToast } from './SummitPushAlertToast';
 import { subscribeAnnouncement } from '../../lib/summitData';
+import { deadlineDay } from '../../lib/summitDeadlines';
 import { SgxChromaArrival } from './SgxChromaArrival';
 import { SummitSponsorTicker } from './SummitSponsorTicker';
 import type { SummitSectionKey } from './sectionKeys';
@@ -909,7 +910,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <SummitSectionBanner
               sectionKey="SPEAKERS"
               title={es ? 'Directorio Oficial de Speakers & Artistas' : 'Official Speakers & Artists Directory'}
-              subtitle={es ? 'Se publican solo speakers y artistas confirmados por escrito. Los anuncios van del 7 al 21 de noviembre.' : 'Only speakers and artists confirmed in writing are published. Announcements run from November 7 to 21.'}
+              subtitle={es ? `Se publican solo los speakers y artistas confirmados por escrito; los perfiles se reciben hasta el ${deadlineDay('speakerProfiles', 'es')}.` : `Only speakers and artists confirmed in writing are published; profiles are accepted through ${deadlineDay('speakerProfiles', 'en')}.`}
               pillarBadge="SGX.STAGE"
               pillarIconUrl={pillarIcon('STAGE')}
             />

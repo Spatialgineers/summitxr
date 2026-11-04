@@ -115,7 +115,7 @@ export function renderWelcomeHtml(indexHtml: string, reqPath: string, cfg: Welco
   const parts: string[] = [
     `<h1>${escapeHtml(head.heading)}</h1>`,
     `<p>${escapeHtml(head.intro)}</p>`,
-    `<ul>${[WELCOME_FACTS.dates.es, WELCOME_FACTS.days12.es, WELCOME_FACTS.day3.es, WELCOME_FACTS.language.es].map(li).join('')}</ul>`,
+    `<ul>${[WELCOME_FACTS.dates.es, WELCOME_FACTS.days12.es, WELCOME_FACTS.day3.es, WELCOME_FACTS.day3Invitations.es, WELCOME_FACTS.language.es].map(li).join('')}</ul>`,
   ];
   if (head.videoId) parts.push(`<p><a href="${escapeHtml(youTubeWatchUrl(head.videoId))}">Ver el video en YouTube</a></p>`);
   if (head.steps.length) {

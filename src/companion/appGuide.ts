@@ -4,7 +4,10 @@
    - with Claude off, paused or out of budget, the chat answers from it
      locally (localKb.ts), so the bot always knows the app.
    Pure data: safe to import on the server. `go` is a destination id
-   (destinations.ts) the local answer can take the Creador to. */
+   (destinations.ts) the local answer can take the Creador to.
+   Deadlines come from summitDeadlines.ts (one source of truth). */
+
+import { DEADLINE_COPY, SUMMIT_DEADLINES as D } from '../lib/summitDeadlines';
 
 export interface Bi { es: string; en: string }
 export interface GuideEntry {
@@ -26,7 +29,7 @@ export const APP_FAQ: GuideEntry[] = [
     a: { es: 'Los Días 1 y 2 son gratis por YouTube Live. El Día 3 en Chroma Space Studios es por invitación, con cupo limitado. El SGX Pass también es gratis.', en: 'Days 1 and 2 are free on YouTube Live. Day 3 at Chroma Space Studios is by invitation, with limited capacity. The SGX Pass is free too.' } },
   { id: 'day3', keys: ['dia 3', 'presencial', 'chroma', 'showcase', 'invitacion', 'invitado', 'domingo', 'in person', 'invitation', 'invite', 'sunday', 'venue', 'sede'],
     q: { es: '¿Cómo voy al Día 3?', en: 'How do I get to Day 3?' },
-    a: { es: 'El Día 3 (domingo 13) es el SGX Showcase en Chroma Space Studios, San Juan: demos en vivo de todos los pilares, artistas, networking y premios. Es por invitación y con cupo limitado (40 a 60 personas); las invitaciones las maneja el equipo (info@spatialgineers.com). Si tienes invitación, entras con el QR de tu SGX Pass.', en: 'Day 3 (Sunday the 13th) is the SGX Showcase at Chroma Space Studios, San Juan: live demos of every pillar, artists, networking and prizes. It is by invitation with limited capacity (40 to 60 people); the team handles invitations (info@spatialgineers.com). If invited, you get in with your SGX Pass QR.' },
+    a: { es: `El Día 3 (domingo 13) es el SGX Showcase en Chroma Space Studios, San Juan: demos en vivo de todos los pilares, artistas, networking y premios. Es por invitación y con cupo limitado (40 a 60 personas); las invitaciones las maneja el equipo (info@spatialgineers.com) y las envía a más tardar el ${D.day3Invitations.day.es}. Si tienes invitación, entras con el QR de tu SGX Pass.`, en: `Day 3 (Sunday the 13th) is the SGX Showcase at Chroma Space Studios, San Juan: live demos of every pillar, artists, networking and prizes. It is by invitation with limited capacity (40 to 60 people); the team handles invitations (info@spatialgineers.com) and sends them no later than ${D.day3Invitations.day.en}. If invited, you get in with your SGX Pass QR.` },
     go: 'mapa' },
   { id: 'watch', keys: ['ver', 'transmision', 'stream', 'youtube', 'live', 'linkedin', 'facebook', 'watch', 'broadcast', 'canal', 'channel'],
     q: { es: '¿Dónde veo la transmisión?', en: 'Where do I watch it?' },
@@ -98,8 +101,15 @@ export const APP_FAQ: GuideEntry[] = [
     go: 'pilares' },
   { id: 'sponsor', keys: ['patrocinar', 'patrocinio', 'patrocinador', 'paquete', 'paquetes', 'marca', 'auspicio', 'sponsor', 'sponsorship', 'package', 'brand'],
     q: { es: '¿Cómo patrocino el Summit?', en: 'How do I sponsor the Summit?' },
-    a: { es: 'Con los Paquetes 1 a 5: Digital Presence ($50–$100), Gamified ($250–$500), Experience ($750–$1,000), Signature Experience ($1,500–$2,500) y Alianza de servicios esenciales (a convenir). Cada uno incluye lo del anterior. Todo está en Patrocina el Summit; dudas a info@spatialgineers.com.', en: 'With Packages 1 to 5: Digital Presence ($50–$100), Gamified ($250–$500), Experience ($750–$1,000), Signature Experience ($1,500–$2,500) and Essential services alliance (to agree). Each includes the one before. It is all in Sponsor the Summit; questions to info@spatialgineers.com.' },
+    a: { es: `Con los Paquetes 1 a 5: Digital Presence ($50–$100), Gamified ($250–$500), Experience ($750–$1,000), Signature Experience ($1,500–$2,500) y Alianza de servicios esenciales (a convenir). Cada uno incluye lo del anterior. ${DEADLINE_COPY.sponsorKeyDates.es} Todo está en Patrocina el Summit; dudas a info@spatialgineers.com.`, en: `With Packages 1 to 5: Digital Presence ($50–$100), Gamified ($250–$500), Experience ($750–$1,000), Signature Experience ($1,500–$2,500) and Essential services alliance (to agree). Each includes the one before. ${DEADLINE_COPY.sponsorKeyDates.en} It is all in Sponsor the Summit; questions to info@spatialgineers.com.` },
     go: 'patrocina' },
+  { id: 'deadlines', keys: ['fecha limite', 'fechas limite', 'deadline', 'deadlines', 'hasta cuando', 'cierra', 'cierre', 'ultimo dia', 'a mas tardar', 'pago', 'materiales', 'payment', 'materials', 'closes', 'last day'],
+    q: { es: '¿Cuáles son las fechas límite?', en: 'What are the deadlines?' },
+    a: { es: `Perfiles de speakers y artistas: hasta el ${D.speakerProfiles.day.es}. Solicitudes de auspicio: hasta el ${D.sponsorApplications.day.es}. Pago total y materiales de sponsors: a más tardar el ${D.sponsorPayment.day.es}. Prensa: antes del ${D.pressAccreditation.day.es}. Invitaciones al Día 3: el equipo las envía a más tardar el ${D.day3Invitations.day.es}. Hora de Puerto Rico.`, en: `Speaker and artist profiles: through ${D.speakerProfiles.day.en}. Sponsorship applications: through ${D.sponsorApplications.day.en}. Sponsor full payment and materials: no later than ${D.sponsorPayment.day.en}. Press: before ${D.pressAccreditation.day.en}. Day 3 invitations: the team sends them no later than ${D.day3Invitations.day.en}. Puerto Rico time.` } },
+  { id: 'speaker-portal', keys: ['portal de speakers', 'portal speakers', 'ser speaker', 'presentar', 'postularme', 'registrar perfil', 'mi perfil de speaker', 'speaker portal', 'apply as speaker', 'present'],
+    q: { es: '¿Cómo me registro como speaker o artista?', en: 'How do I register as a speaker or artist?' },
+    a: { es: `En el Portal de speakers: llenas tu perfil, armas tu avatar y lo envías para revisión. ${DEADLINE_COPY.speakerProfiles.es} Después el portal se cierra; para lo que falte, info@spatialgineers.com. Se publican solo los confirmados por escrito.`, en: `In the Speaker portal: fill in your profile, build your avatar and send it for review. ${DEADLINE_COPY.speakerProfiles.en} After that the portal closes; for anything else, info@spatialgineers.com. Only those confirmed in writing are published.` },
+    go: 'portal-speakers' },
   { id: 'partners', keys: ['partners', 'aliados', 'los mismos', 'chroma space', 'tu marca aqui', 'marcas'],
     q: { es: '¿Quiénes son los partners?', en: 'Who are the partners?' },
     a: { es: 'Chroma Space Studios (sede del Día 3) y Los Mismos TV (transmite junto a nosotros). Los espacios "Tu marca aquí" están abiertos a propósito para nuevas marcas.', en: 'Chroma Space Studios (Day 3 venue) and Los Mismos TV (streams alongside us). The "Your brand here" spots are open on purpose for new brands.' },
@@ -122,7 +132,7 @@ export const APP_FAQ: GuideEntry[] = [
     a: { es: 'No: todo corre en el navegador. Si quieres, instálala como app (PWA) desde el menú del navegador, y el QR de tu pase funciona sin conexión.', en: 'No: it all runs in the browser. If you like, install it as an app (PWA) from the browser menu, and your pass QR works offline.' } },
   { id: 'press', keys: ['prensa', 'medio', 'medios', 'periodista', 'acreditacion', 'kit de prensa', 'press', 'media', 'journalist', 'press kit'],
     q: { es: 'Soy prensa', en: 'I am press' },
-    a: { es: 'Solicita tu acreditación en la Sala de prensa (/prensa) antes del 1 de diciembre: 6 cupos, uno por medio, y primero forjas tu SGX Pass. Cubre los 3 días, con entrada al Día 3 en Chroma. Ahí mismo está el kit de prensa. Dudas: info@spatialgineers.com.', en: 'Request accreditation in the Press room (/prensa) before December 1: 6 spots, one per outlet, and you forge your SGX Pass first. It covers all 3 days, with Day 3 entry at Chroma. The press kit is right there too. Questions: info@spatialgineers.com.' },
+    a: { es: 'Solicita tu acreditación en la Sala de prensa (/prensa) antes del 1 de diciembre: 10 cupos de prensa, y primero forjas tu SGX Pass. Cubre los 3 días, con entrada al Día 3 en Chroma. Ahí mismo está el kit de prensa. Dudas: info@spatialgineers.com.', en: 'Request accreditation in the Press room (/prensa) before December 1: 10 press spots, and you forge your SGX Pass first. It covers all 3 days, with Day 3 entry at Chroma. The press kit is right there too. Questions: info@spatialgineers.com.' },
     go: 'prensa' },
   { id: 'terminal', keys: ['terminal', 'comando', 'atajo', 'teclado', 'ctrl', 'command', 'shortcut', 'keyboard'],
     q: { es: '¿Qué es la terminal?', en: 'What is the terminal?' },

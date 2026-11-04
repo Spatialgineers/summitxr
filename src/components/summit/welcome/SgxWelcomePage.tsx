@@ -14,6 +14,7 @@ import {
 import type { SummitSectionKey } from '../sectionKeys';
 import { loadPersistedSessions } from '../../../lib/summitData';
 import { DAY_LABEL, fromSession, parseInvite, pillarName, type InviteFields } from '../../../lib/welcomeInvites';
+import { deadlineShort } from '../../../lib/summitDeadlines';
 import './sgxWelcome.css';
 
 /* The welcome portal: /bienvenida (hub) and /bienvenida/<rol>. One link the
@@ -205,7 +206,7 @@ export const SgxWelcomePage: React.FC = () => {
   const facts = [
     { k: es ? '11–13 dic 2026' : 'Dec 11–13, 2026', v: es ? 'En español' : 'In Spanish' },
     { k: es ? 'Días 1 y 2' : 'Days 1 and 2', v: es ? 'Gratis por YouTube Live' : 'Free on YouTube Live' },
-    { k: es ? 'Día 3' : 'Day 3', v: es ? 'Chroma Space Studios, San Juan · por invitación' : 'Chroma Space Studios, San Juan · by invitation' },
+    { k: es ? 'Día 3' : 'Day 3', v: es ? `Chroma Space Studios, San Juan · por invitación (salen a más tardar el ${deadlineShort('day3Invitations', 'es')})` : `Chroma Space Studios, San Juan · by invitation (sent by ${deadlineShort('day3Invitations', 'en')})` },
   ];
 
   const faq = copy ? copy.faq : WELCOME_HUB.faq;

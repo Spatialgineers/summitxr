@@ -149,20 +149,6 @@ export function subscribePressRequests(onRows: (rows: PressRequest[]) => void, o
   }, onError);
 }
 
-/** Same outlet, written differently ("El Nuevo Día" / "el nuevo dia"). */
-export const outletKey = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '');
-
-/** Approved outlets that appear more than once (one per outlet). */
-export function duplicateOutlets(rows: PressRequest[]): string[] {
-  const seen = new Map<string, string[]>();
-  rows.filter((r) => r.status === 'APPROVED').forEach((r) => {
-    const k = outletKey(r.outlet);
-    if (!k) return;
-    seen.set(k, [...(seen.get(k) || []), r.outlet]);
-  });
-  return Array.from(seen.values()).filter((v) => v.length > 1).map((v) => v[0]);
-}
-
 export const approvedCount = (rows: PressRequest[]) => rows.filter((r) => r.status === 'APPROVED').length;
 export { PRESS_SLOTS };
 

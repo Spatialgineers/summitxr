@@ -80,7 +80,7 @@ import { WelcomePortalPanel } from './WelcomePortalPanel';
 import { WelcomeInvitePanel } from './WelcomeInvitePanel';
 import { CSV_ENTITIES } from '../../lib/csv/entities';
 import './admin.css';
-import { Star, Instagram, UploadCloud, Sliders, Download as DownloadIcon, Megaphone, Vote, CalendarDays, Mic2, Handshake, Layers3, Sparkle, Map as MapIcon, AppWindow, Package, Images, Ticket, Gift, Target, HelpCircle as HelpIcon, BarChart2, Brush, Wand2, ShieldCheck as ShieldIcon, UserCog, DatabaseBackup, Users2, Briefcase, Radio as RadioIcon, Bug, Newspaper } from 'lucide-react';
+import { Star, Instagram, UploadCloud, Sliders, Download as DownloadIcon, Megaphone, Vote, CalendarDays, Mic2, Handshake, Layers3, Sparkle, Map as MapIcon, AppWindow, Package, Ticket, Gift, Target, HelpCircle as HelpIcon, BarChart2, Brush, Wand2, ShieldCheck as ShieldIcon, UserCog, DatabaseBackup, Users2, Briefcase, Radio as RadioIcon, Bug, Newspaper } from 'lucide-react';
 import { 
   SummitSession, 
   SummitSpeaker, 
@@ -139,7 +139,7 @@ export type AdminSubpage =
   // En vivo
   | 'DIRECTOR' | 'ANNOUNCE' | 'POLLS' | 'ERRORS'
   // Contenido
-  | 'AGENDA' | 'SPEAKERS' | 'SPONSORS' | 'TIERS' | 'INITIATES' | 'MAP' | 'EMBEDS' | 'GALLERY' | 'SOCIAL' | 'PILLAR_CASES' | 'HIGHBOT_QA' | 'WELCOME_PORTAL'
+  | 'AGENDA' | 'SPEAKERS' | 'SPONSORS' | 'TIERS' | 'INITIATES' | 'MAP' | 'EMBEDS' | 'SOCIAL' | 'PILLAR_CASES' | 'HIGHBOT_QA' | 'WELCOME_PORTAL'
   // Personas
   | 'REGISTRATIONS' | 'PRESS' | 'LEADS' | 'AUDIENCE_LEADS' | 'ENTREPRENEUR_MATCH'
   // Juego
@@ -163,7 +163,6 @@ const ADMIN_NAV: { id: string; label: string; items: NavItem[] }[] = [
     { id: 'INITIATES', label: 'Guild Initiates', icon: Sparkle, keywords: 'guild iniciados' },
     { id: 'MAP', label: 'Mapa 360', icon: MapIcon, keywords: 'tour chroma nodos' },
     { id: 'EMBEDS', label: 'Apps embebidas', icon: AppWindow, keywords: 'juegos widgets' },
-    { id: 'GALLERY', label: 'Galería', icon: Images, keywords: 'fotos retrospectiva' },
     { id: 'SOCIAL', label: 'Redes sociales', icon: Instagram, keywords: 'instagram reels' },
     { id: 'PILLAR_CASES', label: 'Pilares: casos y proyectos', icon: Presentation, keywords: 'dia 1 casos de uso portafolio highcoon' },
     { id: 'HIGHBOT_QA', label: 'Highbot: control y preguntas', icon: Bot, keywords: 'companion ia claude faq respuestas gasto apagar tope' },
@@ -390,7 +389,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       lead.score || 0,
       lead.streak || 0,
       lead.totalInteractions || 0,
-      `"${(lead.prizeTier || 'Bronze Contributor').replace(/"/g, '""')}"`,
+      `"${(lead.prizeTier || 'Nivel Bronce').replace(/"/g, '""')}"`,
       lead.isLive ? 'EN_SALA' : 'REGISTRADO',
       lead.tenantId || tenantId,
       lead.eventId || eventId,
@@ -957,16 +956,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </AdminSection>
           )}
 
-
-          {activeSubpage === 'GALLERY' && (
-            <AdminSection title="Galería retrospectiva" desc="Fotos de ediciones anteriores y del equipo." publishKeys={['gallery']} csv={[CSV_ENTITIES.gallery]} onCsvApplied={bumpCsv}>
-              <LiveListTable entity={CSV_ENTITIES.gallery} version={csvRev} columns={[
-                { label: 'Foto', get: (g: any) => <img src={g.url} alt="" className="w-16 h-10 object-cover" /> },
-                { label: 'Título', get: (g: any) => g.title },
-                { label: 'Categoría', get: (g: any) => g.tag },
-              ]} />
-            </AdminSection>
-          )}
 
           {activeSubpage === 'PILLAR_CASES' && (
             <AdminSection title="Pilares: casos del Día 1 y proyectos" desc="Lo que muestra la página de cada pilar: los casos de uso del bloque del Día 1 y los proyectos e iniciativas. Empieza como borrador sacado del portafolio; corrígelo con el CSV." publishKeys={['pillar_showcase']} csv={[CSV_ENTITIES.pillar_showcase]} onCsvApplied={bumpCsv}>

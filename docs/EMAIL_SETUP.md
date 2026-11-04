@@ -6,7 +6,7 @@ El script vive en la cuenta **info@spatialgineers.com**. Cada minuto lee Firesto
 |---|---|
 | ⚡ Tu SGX Pass está forjado | Alguien forja su pase |
 | 🎟️ Estás invitado al Día 3 | En el admin (Personas → Inscritos y Día 3) cambias a alguien a **Invitado** |
-| ✨ Tu Holo Card está lista | Apruebas a un speaker o sponsor en el admin |
+| ✨ Tu Holo Card está lista (Speaker, Sponsor o Prensa) | Apruebas a un speaker o sponsor en el admin, o una acreditación en Personas → Prensa (la Holo Card PRENSA) |
 | ⏳ Mañana empieza el Summit | 10 dic, 10:00 AM, a todos los inscritos (menos los rechazados) |
 | 📍 Mañana nos vemos en Chroma | 12 dic, 10:00 AM, solo a los invitados al Día 3 |
 

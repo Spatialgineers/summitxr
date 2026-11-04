@@ -28,7 +28,7 @@ interface SummitSponsorInquiryFormProps {
 const AVAILABLE_GOALS = [
   { id: '4K_STREAM_OVERLAY', label: 'Logo en la webapp y en los overlays de la transmisión (Días 1-3)', labelEn: 'Logo on the web app and on the broadcast overlays (Days 1-3)' },
   { id: 'PHYSICAL_BOOTH_CHROMA', label: 'Activación "Experience by [Marca]" (Paquete 4 y 5)', labelEn: '"Experience by [Brand]" activation (Package 4 and 5)' },
-  { id: 'DRONE_MINIGAME_BRANDING', label: 'Branding en Minijuego de Drones & Zonas de Aterrizaje', labelEn: 'Branding in the Drone Mini-Game & Landing Zones' },
+  { id: 'DRONE_MINIGAME_BRANDING', label: 'Branding en el minijuego del dron y sus zonas de entrega', labelEn: 'Branding in the Drone Mini-Game & Landing Zones' },
   { id: 'GAMIFIED_CHALLENGE_POINTS', label: 'Pregunta de trivia de marca en vivo (+25 XP)', labelEn: 'Live brand trivia question (+25 XP)' },
   { id: 'SEGMENT_NAMING', label: 'Naming de Segmento o Pilar ("Showcase Powered by...")', labelEn: 'Segment or Pillar Naming ("Showcase Powered by...")' },
   { id: 'VIP_CATERING', label: 'Alianza de servicios esenciales: venue, internet, comida u otros (Paquete 5)', labelEn: 'Essential services alliance: venue, internet, food or others (Package 5)' },
@@ -314,7 +314,7 @@ This summary is not a binding offer. The short sponsorship contract signed by bo
     <form id={formId} onSubmit={handleSubmit} className="sgx-m sgx-m-stack">
       <fieldset className="sgx-m-stack" style={{ border: 0, margin: 0, padding: 0, gap: 10 }}>
         <legend className="sgx-m-row sgx-m-row--between" style={{ width: '100%', marginBottom: 10 }}>
-          <span className="sgx-spn__step"><b>1</b>{es ? 'Elige tu nivel' : 'Pick your tier'}</span>
+          <span className="sgx-spn__step"><b>1</b>{es ? 'Elige tu nivel' : 'Pick your package'}</span>
           <span className="sgx-m-fine">{es ? 'Precios en USD' : 'Prices in USD'}</span>
         </legend>
         <div className="sgx-spn__tiers" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 180px), 1fr))' }}>

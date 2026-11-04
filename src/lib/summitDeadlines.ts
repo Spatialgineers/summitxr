@@ -18,6 +18,7 @@ export type DeadlineKey =
   | 'sponsorPayment'
   | 'sponsorMaterials'
   | 'day3Invitations'
+  | 'day3Requests'
   | 'pressAccreditation';
 
 export interface SummitDeadline {
@@ -66,6 +67,13 @@ export const SUMMIT_DEADLINES: Record<DeadlineKey, SummitDeadline> = {
     label: { es: '5 de diciembre de 2026', en: 'December 5, 2026' },
     short: { es: '5 dic', en: 'Dec 5' },
     day: { es: '5 de diciembre', en: 'December 5' },
+  },
+  /** Day 3 (in person, by invitation): visitors request it through December 1. */
+  day3Requests: {
+    closesAt: '2026-12-02T00:00:00-04:00',
+    label: { es: '1 de diciembre de 2026', en: 'December 1, 2026' },
+    short: { es: '1 dic', en: 'Dec 1' },
+    day: { es: '1 de diciembre', en: 'December 1' },
   },
   /** Press accreditation: requests before December 1 (closes at the start of December 1). */
   pressAccreditation: {
@@ -134,6 +142,10 @@ export const DEADLINE_COPY = {
   sponsorKeyDates: {
     es: `Solicitudes hasta el ${D.sponsorApplications.day.es}; pago total y materiales de la marca a más tardar el ${D.sponsorPayment.day.es}.`,
     en: `Applications through ${D.sponsorApplications.day.en}; full payment and brand materials no later than ${D.sponsorPayment.day.en}.`,
+  },
+  day3Requests: {
+    es: `Las solicitudes para el Día 3 se reciben hasta el ${D.day3Requests.day.es}.`,
+    en: `Day 3 requests are accepted through ${D.day3Requests.day.en}.`,
   },
   day3Invitations: {
     es: `El equipo envía las invitaciones al Día 3 a más tardar el ${D.day3Invitations.day.es}.`,

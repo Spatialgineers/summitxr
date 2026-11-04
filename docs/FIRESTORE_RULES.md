@@ -31,6 +31,12 @@ Admins = `info@spatialgineers.com` or `support@spatialgineers.com` signed in wit
 | `summit_constellations` | everyone | owner (counts only) |
 | `summit_checkin_proofs` | admins | Day 3 only, with the door code |
 | `summit_checkins` | everyone (region only) | Day 3 only, together with a valid proof |
+| `pass_emails/{sha256(email)}` (one pass per email: which pass code and uid claimed an email) | anyone signed in, one doc at a time (`get`); list: admins | create: signed in, the key is a 64-char hash, `userId` is yours, `at` = server time; update: the uid that claimed it, or the person signed in with that verified email; delete: admins |
+| `initiate_requests/{uid}` (a Creador asks to be an SGX Guild Initiate) | owner, admins | create/update: owner only (`uid` = you; name, email, pass code, pillar, portfolio, note; `at` = server time); delete: admins (on review) |
+| `client_errors` (error monitor: what failed on visitors' phones) | admins | create: anyone, validated shape and sizes (`isValidClientError`); delete: admins. Shown in Admin → Errores en vivo |
+| `mail_log` (one doc per email the Apps Script mailer sent, so none repeats) | admins | nobody from the app (the mailer writes with the info@ account) |
+| `game_scores/{game}/players/{uid}` (leaderboards of the Spark games `stack`, `pulse`, `bolt`) | everyone (those three games only) | owner only: `uid`, `name` (≤ 16), `score` (1–10,000,000), `updatedAt` = server time; an update must raise the score |
+| `summit_visitors/{visitorId}` (one doc per visiting device for the visit radar) | `get` by valid id; list: admins | create once: `regionId` (≤ 64 chars) and `createdAt` = server time; never updated; delete: admins |
 | `telemetry_*`, `leaderboard_scores` | admins | admins |
 
 Tests: `scripts/rules-test/` (175 cases + Day 3 window) and `scripts/e2e/` (the real app against the emulators).

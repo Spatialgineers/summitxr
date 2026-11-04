@@ -2,7 +2,7 @@ import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebas
 import { doc, setDoc, getDoc, getDocs, query, where, collection, serverTimestamp, updateDoc, deleteDoc, writeBatch, increment, arrayUnion, addDoc, deleteField } from 'firebase/firestore';
 import fs from 'fs';
 
-const env = await initializeTestEnvironment({ projectId: 'demo-sgx', firestore: { rules: fs.readFileSync('firestore.rules', 'utf8'), host: '127.0.0.1', port: 8085 } });
+const env = await initializeTestEnvironment({ projectId: 'demo-sgx', firestore: { rules: fs.readFileSync('firestore.rules', 'utf8'), host: '127.0.0.1', port: Number(process.env.FS_PORT || 8085) } });
 await env.clearFirestore();
 const ctx = (uid, token) => env.authenticatedContext(uid, token).firestore();
 const alice = ctx('alice');

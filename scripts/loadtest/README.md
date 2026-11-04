@@ -41,7 +41,8 @@ Exactamente lo que hace `src/App.tsx`:
 2. Al recibir `QUESTION_START` decide una sola vez si vota (`--vote-rate`) y,
    tras un tiempo de reacción aleatorio, envía **`SUBMIT_VOTE` JSON con el
    `questionId`**, igual que `handleCastVote`. El cliente real solo usa
-   `POST /api/vote` cuando el socket está caído; `--rest` lo fuerza siempre.
+   `POST /api/vote` cuando el socket está caído; `--rest` lo fuerza siempre
+   (con el `voterToken` que recibió en `INIT_STATE`, en `X-SGX-Voter`).
 3. Envía reacciones (`SEND_REACTION` por WS; `POST /api/reaction` solo con
    `--rest`) a `--reaction-rate` toques por segundo por persona.
 
@@ -127,5 +128,10 @@ Arreglos que salieron de esta prueba:
 - Reconexión con espera exponencial y aleatoria (no todos a la vez tras un deploy).
 - El cliente solo usa REST cuando el socket está caído.
 
-Pendiente: `POST /api/vote` acepta el `userId` del cuerpo (lo usa el teléfono
-solo cuando el socket está caído).
+- `POST /api/vote` y `POST /api/reaction` (el respaldo REST) ya no aceptan el
+  `userId` del cuerpo. Al conectar, el servidor firma el id del socket (HMAC) y
+  lo manda en `INIT_STATE.voterToken`; el teléfono lo devuelve en la cabecera
+  `X-SGX-Voter`, y el servidor saca de ahí quién vota (sin token: 401
+  `VOTER_TOKEN_REQUIRED`). Hay un límite por esa identidad (votos: 6 de golpe y
+  1 cada 2 s; reacciones: 30 y 5/s), además del límite por IP. El script hace lo
+  mismo con `--rest`.

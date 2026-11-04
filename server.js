@@ -143,7 +143,7 @@ var BUILTIN_PRESETS = {
     id: "preset_sgx_icon_3d",
     name: "SGX.STAGE \u2014 SGX Icon Holographic 3D",
     category: "Abstract",
-    description: "Modelo 3D oficial del icono de Spatialgineers rotando en escenario espacial hologr\xE1fico con part\xEDculas de alta energ\xEDa.",
+    description: "Modelo 3D oficial del icono de Spatialgineers rotando en un escenario hologr\xE1fico con part\xEDculas de alta energ\xEDa.",
     themeColor: "#FDCC0D",
     accentColor: "#00DDFF",
     shaderKey: "grid",
@@ -616,9 +616,9 @@ var SAMPLE_QUESTIONS = [
         presetId: "preset_particle_storm",
         color: "#5f86b4",
         effectType: "quantum_vortex",
-        effectName: "V\xF3rtice Orbital SGX",
+        effectName: "V\xF3rtice SGX",
         effectMultiplier: 1.4,
-        effectTargetParam: "Giro Orbital & Gravitaci\xF3n"
+        effectTargetParam: "Giro y atracci\xF3n"
       },
       {
         id: "opt_d",
@@ -646,7 +646,7 @@ var SAMPLE_QUESTIONS = [
     order: 2,
     prompt: "TRIVIA: \xBFQu\xE9 hace posible que el navegador dibuje 3D en tiempo real?",
     subtitle: "Responde r\xE1pido y bien: sumas m\xE1s XP.",
-    category: "Trivia espacial",
+    category: "Trivia 3D",
     answerType: "KNOWLEDGE",
     durationSeconds: 20,
     basePoints: 300,
@@ -755,8 +755,8 @@ var SAMPLE_QUESTIONS = [
         id: "opt_c",
         index: 2,
         code: 3,
-        label: "C: Tormenta c\xF3smica",
-        description: "Un v\xF3rtice gal\xE1ctico con dos pozos de gravedad",
+        label: "C: Tormenta de energ\xEDa",
+        description: "Un v\xF3rtice de part\xEDculas con dos n\xFAcleos de energ\xEDa",
         presetId: "preset_particle_storm",
         color: "#9d4edd",
         effectType: "quantum_vortex",
@@ -1215,8 +1215,8 @@ function processVoteSubmission(room, voterId, payload, broadcast) {
   if (!user) {
     user = {
       id: voterId,
-      nickname: cleanNickname(payload.nickname) || `User #${voterId.slice(-4)}`,
-      avatar: cleanAvatar(payload.avatar) || "\u{1F680}",
+      nickname: cleanNickname(payload.nickname) || `Creador #${voterId.slice(-4)}`,
+      avatar: cleanAvatar(payload.avatar) || "\u26A1",
       avatarSeed: voterId,
       tenantId: room.tenantId,
       eventId: room.eventId,
@@ -1229,7 +1229,7 @@ function processVoteSubmission(room, voterId, payload, broadcast) {
       multiplier: 1,
       totalInteractions: 0,
       activeSeconds: 120,
-      prizeTier: "Bronze Contributor",
+      prizeTier: "Nivel Bronce",
       unlockedPrizeIds: [],
       choiceHistory: []
     };
@@ -1493,6 +1493,32 @@ function ipRateLimit(opts) {
   };
 }
 
+// src/server/security/voterToken.ts
+import crypto from "crypto";
+var SECRET = process.env.SGX_VOTER_SECRET ? Buffer.from(process.env.SGX_VOTER_SECRET) : crypto.randomBytes(32);
+function mac(userId) {
+  return crypto.createHmac("sha256", SECRET).update(`voter:${userId}`).digest("base64url").slice(0, 32);
+}
+function signVoterToken(userId) {
+  return `${userId}.${mac(userId)}`;
+}
+function verifyVoterToken(token) {
+  if (typeof token !== "string" || token.length > 200) return null;
+  const dot = token.lastIndexOf(".");
+  if (dot <= 0) return null;
+  const userId = token.slice(0, dot);
+  const sig = token.slice(dot + 1);
+  if (!isValidId(userId)) return null;
+  const want = mac(userId);
+  if (sig.length !== want.length) return null;
+  return crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(want)) ? userId : null;
+}
+function voterIdFromRequest(req) {
+  const h = req.headers["x-sgx-voter"];
+  const fromHeader = Array.isArray(h) ? h[0] : h;
+  return verifyVoterToken(fromHeader ?? req.body?.voterToken);
+}
+
 // src/server/engine/wsHandler.ts
 var DIRECTOR_MESSAGES = /* @__PURE__ */ new Set([
   "BROADCAST_QUESTION",
@@ -1623,7 +1649,7 @@ function setupWebSocketEngine(server) {
         connectedAudienceCount: roomCount(tenantId, eventId),
         users: Array.from(room.users.values()).slice(0, 200)
       };
-      ws.send(JSON.stringify({ type: "INIT_STATE", tenantId, eventId, timestamp: Date.now(), payload: initStatePayload }));
+      ws.send(JSON.stringify({ type: "INIT_STATE", tenantId, eventId, timestamp: Date.now(), payload: { ...initStatePayload, voterToken: signVoterToken(userId) } }));
       ws.send(JSON.stringify({ type: "ROOM_STATE_SYNC", tenantId, eventId, timestamp: Date.now(), payload: initStatePayload }));
       scheduleCountSync(tenantId, eventId);
       ws.on("message", (data, isBinary) => {
@@ -1751,7 +1777,7 @@ import { Router as Router2 } from "express";
 
 // src/server/companion/companionRouter.ts
 import { Router } from "express";
-import crypto from "crypto";
+import crypto2 from "crypto";
 import Anthropic from "@anthropic-ai/sdk";
 
 // src/lib/sgxPillars.ts
@@ -1819,6 +1845,13 @@ var SUMMIT_DEADLINES = {
     short: { es: "5 dic", en: "Dec 5" },
     day: { es: "5 de diciembre", en: "December 5" }
   },
+  /** Day 3 (in person, by invitation): visitors request it through December 1. */
+  day3Requests: {
+    closesAt: "2026-12-02T00:00:00-04:00",
+    label: { es: "1 de diciembre de 2026", en: "December 1, 2026" },
+    short: { es: "1 dic", en: "Dec 1" },
+    day: { es: "1 de diciembre", en: "December 1" }
+  },
   /** Press accreditation: requests before December 1 (closes at the start of December 1). */
   pressAccreditation: {
     closesAt: "2026-12-01T00:00:00-04:00",
@@ -1855,6 +1888,10 @@ var DEADLINE_COPY = {
     es: `Solicitudes hasta el ${D.sponsorApplications.day.es}; pago total y materiales de la marca a m\xE1s tardar el ${D.sponsorPayment.day.es}.`,
     en: `Applications through ${D.sponsorApplications.day.en}; full payment and brand materials no later than ${D.sponsorPayment.day.en}.`
   },
+  day3Requests: {
+    es: `Las solicitudes para el D\xEDa 3 se reciben hasta el ${D.day3Requests.day.es}.`,
+    en: `Day 3 requests are accepted through ${D.day3Requests.day.en}.`
+  },
   day3Invitations: {
     es: `El equipo env\xEDa las invitaciones al D\xEDa 3 a m\xE1s tardar el ${D.day3Invitations.day.es}.`,
     en: `The team sends Day 3 invitations no later than ${D.day3Invitations.day.en}.`
@@ -1884,7 +1921,7 @@ var SGX_PILLARS = [
     ],
     modules: [
       { kind: "section", key: "PILLARS_MANIFESTO", icon: Boxes, label: { es: "Manifiesto de los 6 pilares", en: "The 6 pillars manifesto" }, desc: { es: "El SGX Framework y la historia detr\xE1s de cada pilar.", en: "The SGX Framework and the story behind each pillar." } },
-      { kind: "section", key: "SOCIAL_STREAM", icon: Instagram, label: { es: "Radar social", en: "Social radar" }, desc: { es: "Las historias de la comunidad en vivo con #SpatialgineersSummit.", en: "Community stories live with #SGXSummit2026." } },
+      { kind: "section", key: "SOCIAL_STREAM", icon: Instagram, label: { es: "Radar social", en: "Social radar" }, desc: { es: "Las historias de la comunidad en vivo con #SpatialgineersSummit.", en: "Community stories live with #SpatialgineersSummit." } },
       { kind: "section", key: "AVATAR_STUDIO", icon: UserCircle2, label: { es: "Avatar Studio", en: "Avatar Studio" }, desc: { es: "Arma tu Highbot: cara, colores, texturas SGX y tu pilar en el pecho.", en: "Build your Highbot: face, colors, SGX textures and your pillar on its chest." } }
     ]
   },
@@ -1962,7 +1999,7 @@ var SGX_PILLARS = [
       { kind: "section", key: "SPEAKERS", icon: Users, label: { es: "Speakers & artistas", en: "Speakers & artists" }, desc: { es: "Solo se publican quienes est\xE1n confirmados por escrito.", en: "Only people confirmed in writing are published." } },
       { kind: "page", page: "stage", icon: MonitorPlay, label: { es: "Escenario en vivo", en: "Live stage" }, desc: { es: "La pantalla del escenario: preguntas, votos y reacciones en vivo.", en: "The stage screen: live questions, votes and reactions." } },
       { kind: "section", key: "SPEAKER_PORTAL", icon: Mic, label: { es: "Portal de speakers", en: "Speaker portal" }, desc: { es: `Para speakers y artistas: tu ficha, tu avatar y tu Holo Card de speaker. Perfiles hasta el ${SUMMIT_DEADLINES.speakerProfiles.day.es}.`, en: `For speakers and artists: your profile, avatar and speaker Holo Card. Profiles through ${SUMMIT_DEADLINES.speakerProfiles.day.en}.` } },
-      { kind: "section", key: "PRESS", icon: Newspaper, label: { es: "Sala de prensa", en: "Press room" }, desc: { es: "Acreditaci\xF3n de prensa (antes del 1 de dic, 10 cupos de prensa), kit de prensa y ficha del Summit.", en: "Press accreditation (before Dec 1, 10 press slots), press kit and Summit fact sheet." } }
+      { kind: "section", key: "PRESS", icon: Newspaper, label: { es: "Sala de prensa", en: "Press room" }, desc: { es: `Acreditaci\xF3n de prensa (antes del ${SUMMIT_DEADLINES.pressAccreditation.short.es}, 10 cupos de prensa), kit de prensa y ficha del Summit.`, en: `Press accreditation (before ${SUMMIT_DEADLINES.pressAccreditation.short.en}, 10 press slots), press kit and Summit fact sheet.` } }
     ]
   },
   {
@@ -2188,7 +2225,7 @@ var INITIAL_SUMMIT_SESSIONS = [
     titleEn: "Second Pillar Block: SGX.Showcase",
     subtitle: "Portafolios 3D en tiempo real, pabellones virtuales y demostraci\xF3n de casos reales (25 min)",
     subtitleEn: "Real-time 3D portfolios, virtual pavilions and a demo of real case studies (25 min)",
-    description: 'Bloque oficial del segundo pilar (SGX.Showcase) junto a Ricardo A. Hern\xE1ndez D\xEDaz ("Lightning Fingers"): exhibici\xF3n espacial en WebGL, gemelos digitales, fotogrametr\xEDa y pabellones interactivos para marcas e instituciones.',
+    description: 'Bloque oficial del segundo pilar (SGX.Showcase) junto a Ricardo A. Hern\xE1ndez D\xEDaz ("Lightning Fingers"): exhibici\xF3n 3D en WebGL, gemelos digitales, fotogrametr\xEDa y pabellones interactivos para marcas e instituciones.',
     descriptionEn: 'Official block of the second pillar (SGX.Showcase) with Ricardo A. Hern\xE1ndez D\xEDaz ("Lightning Fingers"): spatial exhibition in WebGL, digital twins, photogrammetry and interactive pavilions for brands and institutions.',
     pillarId: "SGX.SHOWCASE",
     speakerIds: ["spk_ricardo"],
@@ -2501,7 +2538,7 @@ var INITIAL_SUMMIT_SESSIONS = [
     startMinutes: 685,
     title: "Conversaci\xF3n SGX.Showcase \u2014 Persona invitada del pilar (por anunciar)",
     titleEn: "SGX.Showcase Conversation \u2014 Pillar Guest (TBA)",
-    subtitle: "Conversatorio de industria sobre portafolios 3D, gemelos digitales, comercio y turismo espacial (45 min)",
+    subtitle: "Conversatorio de industria sobre portafolios 3D, gemelos digitales, comercio y turismo inmersivo (45 min)",
     subtitleEn: "Industry conversation on 3D portfolios, digital twins, commerce and spatial tourism (45 min)",
     description: "Segunda conversaci\xF3n del D\xEDa de la Industria enfocada en SGX.Showcase con persona invitada del pilar: impacto de exhibiciones 3D WebGL en turismo, arquitectura y ventas B2B.",
     descriptionEn: "Second Industry Day conversation, focused on SGX.Showcase with the pillar's guest: the impact of WebGL 3D exhibitions on tourism, architecture and B2B sales.",
@@ -2525,8 +2562,8 @@ var INITIAL_SUMMIT_SESSIONS = [
     titleEn: "Break 2 & Gamified Voting Round",
     subtitle: "Pausa de 10 minutos y desaf\xEDo interactivo en vivo",
     subtitleEn: "10-minute break and a live interactive challenge",
-    description: "Segunda pausa de 10 minutos con trivia interactiva del ecosistema SGX (+25 XP por participaci\xF3n).",
-    descriptionEn: "Second 10-minute break with interactive trivia about the SGX ecosystem (+25 XP for taking part).",
+    description: "Segunda pausa de 10 minutos con trivia interactiva del ecosistema SGX (+25 XP por voto).",
+    descriptionEn: "Second 10-minute break with interactive trivia about the SGX ecosystem (+25 XP per vote).",
     speakerIds: [],
     format: "DIGITAL",
     venueLocation: "Summit Site /play Console",
@@ -2780,8 +2817,8 @@ var INITIAL_SUMMIT_SESSIONS = [
     startMinutes: 780,
     title: "Networking \u2014 Votaci\xF3n Gamificada Activa & Canje de Premios",
     titleEn: "Networking \u2014 Live Gamified Voting & Prize Redemption",
-    subtitle: "Conexi\xF3n presencial y digital, escaneo de QR (+50 XP), votaci\xF3n activa (+25 XP) y canje de recompensas (60 min)",
-    subtitleEn: "In-person and digital connection, QR scanning (+50 XP), live voting (+25 XP) and reward redemption (60 min)",
+    subtitle: "Conexi\xF3n presencial y digital, escaneo de QR (+50 XP), votaci\xF3n activa (+25 XP por voto) y canje de recompensas (60 min)",
+    subtitleEn: "In-person and digital connection, QR scanning (+50 XP), live voting (+25 XP per vote) and reward redemption (60 min)",
     description: "Bloque de networking en Chroma Space Studios y en la plataforma digital. Votaci\xF3n gamificada activa y canje de premios (mayormente digitales) por XP acumulada: cup\xF3n de descuento de un auspiciador y suscripci\xF3n de 3 meses a nuestras plataformas.",
     descriptionEn: "Networking block at Chroma Space Studios and on the digital platform. Live gamified voting and prize redemption (mostly digital) for accumulated XP: a sponsor discount coupon and a 3-month subscription to our platforms.",
     speakerIds: ["spk_ricardo"],
@@ -3129,237 +3166,6 @@ var SGX_PORTFOLIO = [
   }
 ];
 
-// src/companion/appGuide.ts
-var APP_FAQ = [
-  {
-    id: "when",
-    keys: ["cuando", "fecha", "fechas", "donde", "dia", "dias", "when", "date", "dates", "where", "summit", "evento", "event"],
-    q: { es: "\xBFCu\xE1ndo y d\xF3nde es el Summit?", en: "When and where is the Summit?" },
-    a: { es: "Del 11 al 13 de diciembre de 2026, en espa\xF1ol. Los D\xEDas 1 y 2 son digitales y gratis por YouTube Live (tambi\xE9n LinkedIn y Facebook Live). El D\xEDa 3 es el SGX Showcase presencial en Chroma Space Studios, San Juan, por invitaci\xF3n.", en: "December 11 to 13, 2026, in Spanish. Days 1 and 2 are digital and free on YouTube Live (also LinkedIn and Facebook Live). Day 3 is the in-person SGX Showcase at Chroma Space Studios, San Juan, by invitation." },
-    go: "agenda"
-  },
-  {
-    id: "cost",
-    keys: ["cuesta", "precio", "gratis", "pagar", "boleto", "entrada", "cost", "price", "free", "ticket", "pay"],
-    q: { es: "\xBFCu\xE1nto cuesta?", en: "How much is it?" },
-    a: { es: "Los D\xEDas 1 y 2 son gratis por YouTube Live. El D\xEDa 3 en Chroma Space Studios es por invitaci\xF3n, con cupo limitado. El SGX Pass tambi\xE9n es gratis.", en: "Days 1 and 2 are free on YouTube Live. Day 3 at Chroma Space Studios is by invitation, with limited capacity. The SGX Pass is free too." }
-  },
-  {
-    id: "day3",
-    keys: ["dia 3", "presencial", "chroma", "showcase", "invitacion", "invitado", "domingo", "in person", "invitation", "invite", "sunday", "venue", "sede"],
-    q: { es: "\xBFC\xF3mo voy al D\xEDa 3?", en: "How do I get to Day 3?" },
-    a: { es: `El D\xEDa 3 (domingo 13) es el SGX Showcase en Chroma Space Studios, San Juan: demos en vivo de todos los pilares, artistas, networking y premios. Es por invitaci\xF3n y con cupo limitado (40 a 60 personas); las invitaciones las maneja el equipo (info@spatialgineers.com) y las env\xEDa a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}. Si tienes invitaci\xF3n, entras con el QR de tu SGX Pass.`, en: `Day 3 (Sunday the 13th) is the SGX Showcase at Chroma Space Studios, San Juan: live demos of every pillar, artists, networking and prizes. It is by invitation with limited capacity (40 to 60 people); the team handles invitations (info@spatialgineers.com) and sends them no later than ${SUMMIT_DEADLINES.day3Invitations.day.en}. If invited, you get in with your SGX Pass QR.` },
-    go: "mapa"
-  },
-  {
-    id: "watch",
-    keys: ["ver", "transmision", "stream", "youtube", "live", "linkedin", "facebook", "watch", "broadcast", "canal", "channel"],
-    q: { es: "\xBFD\xF3nde veo la transmisi\xF3n?", en: "Where do I watch it?" },
-    a: { es: "Por YouTube Live (youtube.com/@spatialgineers), el canal principal, y tambi\xE9n por LinkedIn y Facebook Live. Los Mismos TV transmite junto a nosotros desde su canal. En la app, todo est\xE1 en Salas de transmisi\xF3n.", en: "On YouTube Live (youtube.com/@spatialgineers), the main channel, plus LinkedIn and Facebook Live. Los Mismos TV streams alongside us from its channel. In the app, it is all in the broadcast rooms." },
-    go: "broadcast"
-  },
-  {
-    id: "pass",
-    keys: ["pase", "sgx pass", "pass", "credencial", "holo card", "holocard", "forjar", "forja", "registro", "registrarme", "credential", "forge", "register", "sign up"],
-    q: { es: "\xBFQu\xE9 es el SGX Pass?", en: "What is the SGX Pass?" },
-    a: { es: "Tu credencial gratis del Summit, que tambi\xE9n es tu Holo Card. Se forja en un minuto (nombre, email, pilar favorito y tu Highbot) y te da tu QR de networking, la entrada del D\xEDa 3, las misiones y el XP. Hay un pase por email.", en: "Your free Summit credential, which is also your Holo Card. You forge it in a minute (name, email, favorite pillar and your Highbot) and it gives you your networking QR, your Day 3 entrance, missions and XP. One pass per email." },
-    go: "pase"
-  },
-  {
-    id: "lost",
-    keys: ["perdi", "recuperar", "otro telefono", "cambie", "nuevo telefono", "otro dispositivo", "lost", "recover", "new phone", "another device", "google", "cuenta", "account", "login", "entrar"],
-    q: { es: "Perd\xED mi pase o cambi\xE9 de tel\xE9fono", en: "I lost my pass or changed phones" },
-    a: { es: "Entra con Google usando el mismo email de tu pase: tu pase, tu Highbot y tu progreso aparecen solos, sin recuperar nada. Con Google todo queda atado a tu cuenta.", en: "Sign in with Google using your pass email: your pass, your Highbot and your progress show up on their own, nothing to recover. With Google everything stays tied to your account." },
-    go: "pase"
-  },
-  {
-    id: "xp",
-    keys: ["xp", "puntos", "ganar", "rango", "nivel", "points", "earn", "rank", "level"],
-    q: { es: "\xBFC\xF3mo gano XP?", en: "How do I earn XP?" },
-    a: { es: "Con las misiones del Reactor, los juegos del Spark, votando en vivo en la arena (+25 XP por voto), escaneando pases (+50 XP) y encontrando los rayos SGX escondidos en las secciones. Tu rango sube con el XP total.", en: "With the Reactor missions, the Spark games, voting live in the arena (+25 XP per vote), scanning passes (+50 XP) and finding the SGX bolts hidden across the sections. Your rank grows with your total XP." },
-    go: "reactor"
-  },
-  {
-    id: "reactor",
-    keys: ["mision", "misiones", "reactor", "sello", "sellar", "mission", "missions", "stamp", "quest"],
-    q: { es: "\xBFQu\xE9 es el Reactor de misiones?", en: "What is the mission Reactor?" },
-    a: { es: 'Son 24 misiones repartidas en los seis pilares. Cada pilar completo queda sellado en tu SGX Pass. \xC1brelo desde el contador "Misiones x/24": cada misi\xF3n tiene un bot\xF3n que te lleva a donde se hace.', en: 'They are 24 missions across the six pillars. Every completed pillar is stamped on your SGX Pass. Open it from the "Missions x/24" counter: each mission has a button that takes you where it is done.' },
-    go: "reactor"
-  },
-  {
-    id: "store",
-    keys: ["tienda", "premios", "canjear", "gastar", "store", "shop", "rewards", "prize", "redeem", "spend"],
-    q: { es: "\xBFQu\xE9 hago con mi XP?", en: "What do I do with my XP?" },
-    a: { es: "Lo gastas en la Tienda del Reactor sin bajar de rango: el rango cuenta el XP total que has ganado.", en: "You spend it in the Reactor store without losing rank: your rank counts all the XP you ever earned." },
-    go: "tienda"
-  },
-  {
-    id: "games",
-    keys: ["juego", "juegos", "jugar", "dron", "drone", "torre", "pulso", "rayo", "arcade", "game", "games", "play", "tower"],
-    q: { es: "\xBFQu\xE9 juegos hay?", en: "What games are there?" },
-    a: { es: "En Juegos y laboratorios (SGX.Spark): Dron SGX (cruza anillos), Torre de Pilares (apila los seis pilares en orden), Pulso SGX (ritmo) y Rayo en tus manos (derriba al Jefe SGX). Todos dan XP y tienen misiones.", en: "In Games & labs (SGX.Spark): SGX Drone (fly through rings), Pillar Tower (stack the six pillars in order), SGX Pulse (rhythm) and Bolt in your hands (take down the SGX Boss). They all give XP and have missions." },
-    go: "juegos"
-  },
-  {
-    id: "vote",
-    keys: ["votar", "voto", "votos", "votacion", "votar en vivo", "encuesta", "trivia", "kahoot", "vote", "voting", "poll"],
-    q: { es: "\xBFC\xF3mo voto en vivo?", en: "How do I vote live?" },
-    a: { es: "En la arena de votaci\xF3n en vivo, estilo Kahoot, durante las pausas de la transmisi\xF3n (+25 XP por voto). Las encuestas solo aceptan votos mientras el equipo las tiene abiertas.", en: "In the live voting arena, Kahoot style, during the stream breaks (+25 XP per vote). Polls only take votes while the team has them open." },
-    go: "play"
-  },
-  {
-    id: "highbot",
-    keys: ["highbot", "avatar", "robot", "disenar", "personalizar", "colores", "visor", "accesorios", "design", "customize", "colors"],
-    q: { es: "\xBFC\xF3mo dise\xF1o mi Highbot?", en: "How do I design my Highbot?" },
-    a: { es: "En Avatar Studio. Todo Highbot es Highcoon (orejas, antifaz y nariz), y t\xFA escoges el resto: colores, p\xE1rpados, visor, accesorios de cabeza, el pilar en el pecho (logo en el engrane o pilar grande), un emblema 3D extra y un motivo SGX grabado en el torso. Tambi\xE9n hay presets.", en: "In Avatar Studio. Every Highbot is Highcoon (ears, mask and nose) and you pick the rest: colors, eyelids, visor, headgear, the pillar on the chest (logo on the gear or a big pillar), an extra 3D emblem and an SGX motif on the torso. There are presets too." },
-    go: "avatar"
-  },
-  {
-    id: "chat",
-    keys: ["hablar", "chat", "conversar", "preguntar", "despertar", "talk", "ask", "claude", "ia", "ai"],
-    q: { es: "\xBFC\xF3mo hablo contigo?", en: "How do I talk to you?" },
-    a: { es: "Con tu SGX Pass forjado y tu cuenta de Google conectada, me preguntas lo que quieras y te llevo por la app. Si estoy descansando, igual te contesto lo esencial desde aqu\xED.", en: "With your SGX Pass forged and your Google account connected, ask me anything and I take you around the app. If I am resting, I still answer the essentials from here." },
-    go: "tu-highbot"
-  },
-  {
-    id: "network",
-    keys: ["networking", "escanear", "escaner", "qr", "contacto", "contactos", "rolodex", "conectar", "red", "scan", "contact", "connect"],
-    q: { es: "\xBFC\xF3mo hago networking?", en: "How do I network?" },
-    a: { es: "Escanea el QR del pase de otra persona: quedan en el Rolodex de los dos (+50 XP). Tu Red muestra tus contactos como una constelaci\xF3n; si conectas con creadores de los seis pilares, ganas un sello secreto. El Rolodex se exporta a tus contactos.", en: "Scan someone's pass QR: you both land in each other's Rolodex (+50 XP). Your Network shows contacts as a constellation; link creators from all six pillars for a secret stamp. The Rolodex exports to your contacts." },
-    go: "escaner"
-  },
-  {
-    id: "agenda",
-    keys: ["agenda", "programa", "horario", "run of show", "itinerario", "alerta", "calendario", "recordatorio", "schedule", "program", "calendar", "reminder"],
-    q: { es: "\xBFD\xF3nde est\xE1 la agenda?", en: "Where is the agenda?" },
-    a: { es: 'En el Run of Show: el programa minuto a minuto de los tres d\xEDas. Ah\xED armas "Mi Agenda" y pones alertas en tu calendario (.ics o Google Calendar) 15 minutos antes de cada bloque.', en: 'In the Run of Show: the minute-by-minute program for the three days. Build "My Agenda" there and add alerts to your calendar (.ics or Google Calendar) 15 minutes before each block.' },
-    go: "agenda"
-  },
-  {
-    id: "day1",
-    keys: ["dia 1", "viernes", "day 1", "friday", "artistas", "roblox", "bloques"],
-    q: { es: "\xBFQu\xE9 pasa el D\xEDa 1?", en: "What happens on Day 1?" },
-    a: { es: "Viernes 11, digital: apertura a las 10:00 AM, luego seis bloques de 25 minutos (uno por pilar) con un artista invitado en Roblox antes de cada uno, los portafolios de los 8 Initiates del Guild y el cierre a las 4:30 PM con los 6 Initiates del D\xEDa 3.", en: "Friday the 11th, digital: opening at 10:00 AM, then six 25-minute blocks (one per pillar) with a guest artist in Roblox before each, the portfolios of the 8 Guild Initiates and the close at 4:30 PM with the 6 Initiates for Day 3." },
-    go: "agenda"
-  },
-  {
-    id: "day2",
-    keys: ["dia 2", "sabado", "industria", "conversaciones", "conversatorio", "day 2", "saturday", "industry", "panel"],
-    q: { es: "\xBFQu\xE9 pasa el D\xEDa 2?", en: "What happens on Day 2?" },
-    a: { es: "S\xE1bado 12, D\xEDa de la Industria (digital): seis conversaciones de 45 minutos, una por pilar, con personas invitadas (se anuncian al confirmarse), y entre cada una una pausa con votaci\xF3n gamificada (+25 XP).", en: "Saturday the 12th, Industry Day (digital): six 45-minute conversations, one per pillar, with guests (announced once confirmed), and a gamified voting break between each (+25 XP)." },
-    go: "agenda"
-  },
-  {
-    id: "speakers",
-    keys: ["speaker", "speakers", "ponentes", "invitados", "artista", "artistas", "quien", "quienes", "line-up", "lineup", "guests", "who"],
-    q: { es: "\xBFQui\xE9nes son los speakers?", en: "Who are the speakers?" },
-    a: { es: 'Confirmados: Danelson Maldonado Gonz\xE1lez "The Highgineer" y Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers". Los artistas e invitados se anuncian solo cuando est\xE1n confirmados por escrito; los ver\xE1s en Speakers & artistas.', en: 'Confirmed: Danelson Maldonado Gonz\xE1lez "The Highgineer" and Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers". Artists and guests are announced only once confirmed in writing; you will see them in Speakers & artists.' },
-    go: "speakers"
-  },
-  {
-    id: "spatialgineers",
-    keys: ["spatialgineers", "estudio", "empresa", "quienes son", "fundadores", "danelson", "ricardo", "highgineer", "lightning", "company", "founders", "studio"],
-    q: { es: "\xBFQui\xE9nes son Spatialgineers?", en: "Who are Spatialgineers?" },
-    a: { es: 'Spatialgineers LLC es un estudio de ingenier\xEDa creativa y computaci\xF3n espacial en Puerto Rico: 3D, medios inmersivos, gamificaci\xF3n, WebXR, VR/AR e IA. Lo fundaron Danelson Maldonado Gonz\xE1lez "The Highgineer" y Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers", ingenieros mec\xE1nicos del RUM. Su lema: "Ingeniando imaginaci\xF3n, construyendo realidades."', en: 'Spatialgineers LLC is a creative engineering and spatial computing studio in Puerto Rico: 3D, immersive media, gamification, WebXR, VR/AR and AI. Founded by Danelson Maldonado Gonz\xE1lez "The Highgineer" and Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers", mechanical engineers from RUM. Motto: "Engineering Imagination, Building Reality."' },
-    go: "pilares"
-  },
-  {
-    id: "pillars",
-    keys: ["pilar", "pilares", "framework", "sgx", "story", "showcase", "spark", "stage", "system", "synthesize", "pillar", "pillars"],
-    q: { es: "\xBFQu\xE9 son los seis pilares?", en: "What are the six pillars?" },
-    a: { es: "El SGX Framework de Spatialgineers: Story (narrativa y cultura), Showcase (3D, XR y gemelos digitales), Spark (juegos y gamificaci\xF3n), Stage (shows y transmisiones), System (apps, IA y operaciones) y Synthesize (donde todo converge, con el SGX Guild). Cada uno tiene su bloque el D\xEDa 1 y su conversaci\xF3n el D\xEDa 2.", en: "The Spatialgineers SGX Framework: Story (narrative and culture), Showcase (3D, XR and digital twins), Spark (games and gamification), Stage (shows and broadcasts), System (apps, AI and operations) and Synthesize (where it all converges, with the SGX Guild). Each has its block on Day 1 and its conversation on Day 2." },
-    go: "pilares"
-  },
-  {
-    id: "sponsor",
-    keys: ["patrocinar", "patrocinio", "patrocinador", "paquete", "paquetes", "marca", "auspicio", "sponsor", "sponsorship", "package", "brand"],
-    q: { es: "\xBFC\xF3mo patrocino el Summit?", en: "How do I sponsor the Summit?" },
-    a: { es: `Con los Paquetes 1 a 5: Digital Presence ($50\u2013$100), Gamified ($250\u2013$500), Experience ($750\u2013$1,000), Signature Experience ($1,500\u2013$2,500) y Alianza de servicios esenciales (a convenir). Cada uno incluye lo del anterior. ${DEADLINE_COPY.sponsorKeyDates.es} Todo est\xE1 en Patrocina el Summit; dudas a info@spatialgineers.com.`, en: `With Packages 1 to 5: Digital Presence ($50\u2013$100), Gamified ($250\u2013$500), Experience ($750\u2013$1,000), Signature Experience ($1,500\u2013$2,500) and Essential services alliance (to agree). Each includes the one before. ${DEADLINE_COPY.sponsorKeyDates.en} It is all in Sponsor the Summit; questions to info@spatialgineers.com.` },
-    go: "patrocina"
-  },
-  {
-    id: "deadlines",
-    keys: ["fecha limite", "fechas limite", "deadline", "deadlines", "hasta cuando", "cierra", "cierre", "ultimo dia", "a mas tardar", "pago", "materiales", "payment", "materials", "closes", "last day"],
-    q: { es: "\xBFCu\xE1les son las fechas l\xEDmite?", en: "What are the deadlines?" },
-    a: { es: `Perfiles de speakers y artistas: hasta el ${SUMMIT_DEADLINES.speakerProfiles.day.es}. Solicitudes de auspicio: hasta el ${SUMMIT_DEADLINES.sponsorApplications.day.es}. Pago total y materiales de sponsors: a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}. Prensa: antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es}. Invitaciones al D\xEDa 3: el equipo las env\xEDa a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}. Hora de Puerto Rico.`, en: `Speaker and artist profiles: through ${SUMMIT_DEADLINES.speakerProfiles.day.en}. Sponsorship applications: through ${SUMMIT_DEADLINES.sponsorApplications.day.en}. Sponsor full payment and materials: no later than ${SUMMIT_DEADLINES.sponsorPayment.day.en}. Press: before ${SUMMIT_DEADLINES.pressAccreditation.day.en}. Day 3 invitations: the team sends them no later than ${SUMMIT_DEADLINES.day3Invitations.day.en}. Puerto Rico time.` }
-  },
-  {
-    id: "speaker-portal",
-    keys: ["portal de speakers", "portal speakers", "ser speaker", "presentar", "postularme", "registrar perfil", "mi perfil de speaker", "speaker portal", "apply as speaker", "present"],
-    q: { es: "\xBFC\xF3mo me registro como speaker o artista?", en: "How do I register as a speaker or artist?" },
-    a: { es: `En el Portal de speakers: llenas tu perfil, armas tu avatar y lo env\xEDas para revisi\xF3n. ${DEADLINE_COPY.speakerProfiles.es} Despu\xE9s el portal se cierra; para lo que falte, info@spatialgineers.com. Se publican solo los confirmados por escrito.`, en: `In the Speaker portal: fill in your profile, build your avatar and send it for review. ${DEADLINE_COPY.speakerProfiles.en} After that the portal closes; for anything else, info@spatialgineers.com. Only those confirmed in writing are published.` },
-    go: "portal-speakers"
-  },
-  {
-    id: "partners",
-    keys: ["partners", "aliados", "los mismos", "chroma space", "tu marca aqui", "marcas"],
-    q: { es: "\xBFQui\xE9nes son los partners?", en: "Who are the partners?" },
-    a: { es: 'Chroma Space Studios (sede del D\xEDa 3) y Los Mismos TV (transmite junto a nosotros). Los espacios "Tu marca aqu\xED" est\xE1n abiertos a prop\xF3sito para nuevas marcas.', en: 'Chroma Space Studios (Day 3 venue) and Los Mismos TV (streams alongside us). The "Your brand here" spots are open on purpose for new brands.' },
-    go: "sponsors"
-  },
-  {
-    id: "hire",
-    keys: ["contratar", "cotizar", "cotizacion", "servicios", "proyecto", "trabajar con", "hire", "quote", "services", "project", "work with"],
-    q: { es: "Quiero trabajar con Spatialgineers", en: "I want to work with Spatialgineers" },
-    a: { es: "\xA1Brutal! Escr\xEDbele al equipo a info@spatialgineers.com con tu idea y te contestan con una propuesta. Los precios de servicios no los doy por aqu\xED.", en: "Awesome! Write to the team at info@spatialgineers.com with your idea and they will reply with a proposal. I do not give service prices here." }
-  },
-  {
-    id: "guild",
-    keys: ["guild", "initiates", "iniciados", "unirme", "talento", "join", "talent", "trials"],
-    q: { es: "\xBFQu\xE9 es el SGX Guild?", en: "What is the SGX Guild?" },
-    a: { es: "El pipeline gamificado de talento creativo de Puerto Rico, con rangos, pilares y Trials. En el Summit, los 8 Initiates presentan portafolios el D\xEDa 1 y los top 6 hacen su pitch el D\xEDa 3. Ser parte es un privilegio; ahora no hay convocatoria abierta (sigue a @spatialgineers).", en: "The gamified creative talent pipeline of Puerto Rico, with ranks, pillars and Trials. At the Summit, the 8 Initiates present portfolios on Day 1 and the top 6 pitch on Day 3. Being part of it is a privilege; there is no open call now (follow @spatialgineers)." },
-    go: "guild"
-  },
-  {
-    id: "highcoon",
-    keys: ["highcoon", "mapache", "raccoon", "highcade"],
-    q: { es: "\xBFQui\xE9n es Highcoon?", en: "Who is Highcoon?" },
-    a: { es: 'Highcoon es la IP propia de Spatialgineers: un mapache cient\xEDfico creado por Danelson "The Highgineer". Yo soy Highcoon en mi forma de robot. S\xEDguelo en @Highcoonvibes (Instagram, X y TikTok).', en: `Highcoon is Spatialgineers' own IP: a scientist raccoon created by Danelson "The Highgineer". I am Highcoon in robot form. Follow @Highcoonvibes (Instagram, X and TikTok).` }
-  },
-  {
-    id: "lite",
-    keys: ["lento", "bateria", "ligero", "lite", "fx", "datos", "pesado", "slow", "battery", "data", "laggy"],
-    q: { es: "La app va lenta o gasta bater\xEDa", en: "The app is slow or drains battery" },
-    a: { es: "Toca FX en el header para pasar a modo Ligero: apaga el 3D, los shaders y las animaciones y me ves en 2D. Gasta mucha menos bater\xEDa y datos. Se activa solo en tel\xE9fonos que piden ahorrar datos.", en: "Tap FX in the header to switch to Lite mode: it turns off the 3D, shaders and animations and shows me in 2D. Much less battery and data. It turns on by itself on phones that ask to save data." }
-  },
-  {
-    id: "install",
-    keys: ["instalar", "app", "descargar", "pwa", "offline", "sin internet", "install", "download"],
-    q: { es: "\xBFHay que descargar algo?", en: "Do I need to download anything?" },
-    a: { es: "No: todo corre en el navegador. Si quieres, inst\xE1lala como app (PWA) desde el men\xFA del navegador, y el QR de tu pase funciona sin conexi\xF3n.", en: "No: it all runs in the browser. If you like, install it as an app (PWA) from the browser menu, and your pass QR works offline." }
-  },
-  {
-    id: "press",
-    keys: ["prensa", "medio", "medios", "periodista", "acreditacion", "kit de prensa", "press", "media", "journalist", "press kit"],
-    q: { es: "Soy prensa", en: "I am press" },
-    a: { es: "Solicita tu acreditaci\xF3n en la Sala de prensa (/prensa) antes del 1 de diciembre: 10 cupos de prensa, y primero forjas tu SGX Pass. Cubre los 3 d\xEDas, con entrada al D\xEDa 3 en Chroma. Ah\xED mismo est\xE1 el kit de prensa. Dudas: info@spatialgineers.com.", en: "Request accreditation in the Press room (/prensa) before December 1: 10 press spots, and you forge your SGX Pass first. It covers all 3 days, with Day 3 entry at Chroma. The press kit is right there too. Questions: info@spatialgineers.com." },
-    go: "prensa"
-  },
-  {
-    id: "terminal",
-    keys: ["terminal", "comando", "atajo", "teclado", "ctrl", "command", "shortcut", "keyboard"],
-    q: { es: "\xBFQu\xE9 es la terminal?", en: "What is the terminal?" },
-    a: { es: "La Terminal de mando te deja navegar toda la plataforma escribiendo. \xC1brela con Ctrl+K o la tecla /.", en: "The command terminal lets you move around the whole platform by typing. Open it with Ctrl+K or the / key." },
-    go: "terminal"
-  },
-  {
-    id: "contact",
-    keys: ["contacto", "email", "correo", "telefono", "instagram", "redes", "contact", "phone", "social"],
-    q: { es: "\xBFC\xF3mo contacto al equipo?", en: "How do I contact the team?" },
-    a: { es: "info@spatialgineers.com \xB7 +1 (787) 445-5284 \xB7 @spatialgineers en Instagram y YouTube.", en: "info@spatialgineers.com \xB7 +1 (787) 445-5284 \xB7 @spatialgineers on Instagram and YouTube." }
-  }
-];
-var APP_CONTROLS_ES = `- Header: logo del Summit (inicio), la tarjeta del sponsor del momento junto al logo con "Patrocina el Summit", idioma ES/EN, sonido, FX/Ligero, el chip del Creador (abre Tu Estudio), compartir y el Men\xFA con todos los m\xF3dulos.
-- Barra del n\xFAcleo (portada): la fecha y los relojes del Summit (cuenta regresiva al D\xEDa 1), las visitas totales y Agenda. Los Ajustes del n\xFAcleo (girar, zoom, sponsors en 3D, inmersi\xF3n total, modo ligero) est\xE1n en el engranaje del header de arriba. Tocar un pilar 3D abre su tarjeta con "Visitar pilar".
-- Riel "Misiones x/24": abre el Reactor como pop-up; cada misi\xF3n tiene un bot\xF3n a donde se hace.
-- La cabecita del Highbot (abajo a la derecha) abre este chat.
-- Pulso en vivo: reacciones y encuesta de la keynote, solo durante los d\xEDas del Summit.
-- Al ganar XP, a veces sale "Presentado por" con una marca por unos segundos (m\xE1ximo cada 5 minutos); tocarlo la fija y lleva a su showcase.
-- Modo Ligero (FX \u2192 Ligero): sin 3D ni animaciones, el Highbot en 2D; ahorra bater\xEDa y datos.`;
-function appGuidePrompt() {
-  return APP_FAQ.map((e) => `- ${e.q.es} ${e.a.es}${e.go ? ` (ir_a: ${e.go})` : ""}`).join("\n");
-}
-
 // src/identity/reactor.ts
 var REACTOR_MISSIONS = [
   // SGX.Story
@@ -3508,7 +3314,7 @@ var REACTOR_MISSIONS = [
     pillar: "SYSTEM",
     xp: 50,
     trigger: { quest: "q_core_boot" },
-    es: { title: "Inicia el n\xFAcleo", hint: "Orbita el n\xFAcleo 3D de la portada." },
+    es: { title: "Inicia el n\xFAcleo", hint: "Gira el n\xFAcleo 3D de la portada." },
     en: { title: "Boot the core", hint: "Orbit the 3D core on the front page." },
     go: { section: "OVERVIEW" }
   },
@@ -3604,6 +3410,238 @@ function missionPlace(m, es) {
   return key ? es ? "Ir" : "Go" : null;
 }
 
+// src/companion/appGuide.ts
+var FIXED_MISSIONS = REACTOR_MISSIONS.length;
+var APP_FAQ = [
+  {
+    id: "when",
+    keys: ["cuando", "fecha", "fechas", "donde", "dia", "dias", "when", "date", "dates", "where", "summit", "evento", "event"],
+    q: { es: "\xBFCu\xE1ndo y d\xF3nde es el Summit?", en: "When and where is the Summit?" },
+    a: { es: "Del 11 al 13 de diciembre de 2026, en espa\xF1ol. Los D\xEDas 1 y 2 son digitales y gratis por YouTube Live (tambi\xE9n LinkedIn y Facebook Live). El D\xEDa 3 es el SGX Showcase presencial en Chroma Space Studios, San Juan, por invitaci\xF3n.", en: "December 11 to 13, 2026, in Spanish. Days 1 and 2 are digital and free on YouTube Live (also LinkedIn and Facebook Live). Day 3 is the in-person SGX Showcase at Chroma Space Studios, San Juan, by invitation." },
+    go: "agenda"
+  },
+  {
+    id: "cost",
+    keys: ["cuesta", "precio", "gratis", "pagar", "boleto", "entrada", "cost", "price", "free", "ticket", "pay"],
+    q: { es: "\xBFCu\xE1nto cuesta?", en: "How much is it?" },
+    a: { es: "Los D\xEDas 1 y 2 son gratis por YouTube Live. El D\xEDa 3 en Chroma Space Studios es por invitaci\xF3n, con cupo limitado. El SGX Pass tambi\xE9n es gratis.", en: "Days 1 and 2 are free on YouTube Live. Day 3 at Chroma Space Studios is by invitation, with limited capacity. The SGX Pass is free too." }
+  },
+  {
+    id: "day3",
+    keys: ["dia 3", "presencial", "chroma", "showcase", "invitacion", "invitado", "domingo", "in person", "invitation", "invite", "sunday", "venue", "sede"],
+    q: { es: "\xBFC\xF3mo voy al D\xEDa 3?", en: "How do I get to Day 3?" },
+    a: { es: `El D\xEDa 3 (domingo 13) es el SGX Showcase en Chroma Space Studios, San Juan: demos en vivo de todos los pilares, artistas, networking y premios. Es por invitaci\xF3n y con cupo limitado (40 a 60 personas); las invitaciones las maneja el equipo (info@spatialgineers.com) y las env\xEDa a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}. Si tienes invitaci\xF3n, entras con el QR de tu SGX Pass.`, en: `Day 3 (Sunday the 13th) is the SGX Showcase at Chroma Space Studios, San Juan: live demos of every pillar, artists, networking and prizes. It is by invitation with limited capacity (40 to 60 people); the team handles invitations (info@spatialgineers.com) and sends them no later than ${SUMMIT_DEADLINES.day3Invitations.day.en}. If invited, you get in with your SGX Pass QR.` },
+    go: "mapa"
+  },
+  {
+    id: "watch",
+    keys: ["ver", "transmision", "stream", "youtube", "live", "linkedin", "facebook", "watch", "broadcast", "canal", "channel"],
+    q: { es: "\xBFD\xF3nde veo la transmisi\xF3n?", en: "Where do I watch it?" },
+    a: { es: "Por YouTube Live (youtube.com/@spatialgineers), el canal principal, y tambi\xE9n por LinkedIn y Facebook Live. Los Mismos TV transmite junto a nosotros desde su canal. En la app, todo est\xE1 en Salas de transmisi\xF3n.", en: "On YouTube Live (youtube.com/@spatialgineers), the main channel, plus LinkedIn and Facebook Live. Los Mismos TV streams alongside us from its channel. In the app, it is all in the broadcast rooms." },
+    go: "broadcast"
+  },
+  {
+    id: "pass",
+    keys: ["pase", "sgx pass", "pass", "credencial", "holo card", "holocard", "forjar", "forja", "registro", "registrarme", "credential", "forge", "register", "sign up"],
+    q: { es: "\xBFQu\xE9 es el SGX Pass?", en: "What is the SGX Pass?" },
+    a: { es: "Tu credencial gratis del Summit, que tambi\xE9n es tu Holo Card. Se forja en un minuto (nombre, email, pilar favorito y tu Highbot) y te da tu QR de networking, la entrada del D\xEDa 3, las misiones y el XP. Hay un pase por email.", en: "Your free Summit credential, which is also your Holo Card. You forge it in a minute (name, email, favorite pillar and your Highbot) and it gives you your networking QR, your Day 3 entrance, missions and XP. One pass per email." },
+    go: "pase"
+  },
+  {
+    id: "lost",
+    keys: ["perdi", "recuperar", "otro telefono", "cambie", "nuevo telefono", "otro dispositivo", "lost", "recover", "new phone", "another device", "google", "cuenta", "account", "login", "entrar"],
+    q: { es: "Perd\xED mi pase o cambi\xE9 de tel\xE9fono", en: "I lost my pass or changed phones" },
+    a: { es: "Entra con Google usando el mismo email de tu pase: tu pase, tu Highbot y tu progreso aparecen solos, sin recuperar nada. Con Google todo queda atado a tu cuenta.", en: "Sign in with Google using your pass email: your pass, your Highbot and your progress show up on their own, nothing to recover. With Google everything stays tied to your account." },
+    go: "pase"
+  },
+  {
+    id: "xp",
+    keys: ["xp", "puntos", "ganar", "rango", "nivel", "points", "earn", "rank", "level"],
+    q: { es: "\xBFC\xF3mo gano XP?", en: "How do I earn XP?" },
+    a: { es: "Con las misiones del Reactor, los juegos del Spark, votando en vivo en la arena (+25 XP por voto), escaneando pases (+50 XP) y encontrando los rayos SGX escondidos en las secciones. Tu rango sube con el XP total.", en: "With the Reactor missions, the Spark games, voting live in the arena (+25 XP per vote), scanning passes (+50 XP) and finding the SGX bolts hidden across the sections. Your rank grows with your total XP." },
+    go: "reactor"
+  },
+  {
+    id: "reactor",
+    keys: ["mision", "misiones", "reactor", "sello", "sellar", "mission", "missions", "stamp", "quest"],
+    q: { es: "\xBFQu\xE9 es el Reactor de misiones?", en: "What is the mission Reactor?" },
+    a: { es: `Son ${FIXED_MISSIONS} misiones fijas repartidas en los seis pilares, m\xE1s una por cada partner de Paquete 3\u20135. Cada pilar completo queda sellado en tu SGX Pass. \xC1brelo desde el contador "Misiones" (muestra cu\xE1ntas llevas del total): cada misi\xF3n tiene un bot\xF3n que te lleva a donde se hace.`, en: `There are ${FIXED_MISSIONS} fixed missions across the six pillars, plus one for each Package 3\u20135 partner. Every completed pillar is stamped on your SGX Pass. Open it from the "Missions" counter (it shows how many you have done out of the total): each mission has a button that takes you where it is done.` },
+    go: "reactor"
+  },
+  {
+    id: "store",
+    keys: ["tienda", "premios", "canjear", "gastar", "store", "shop", "rewards", "prize", "redeem", "spend"],
+    q: { es: "\xBFQu\xE9 hago con mi XP?", en: "What do I do with my XP?" },
+    a: { es: "Lo gastas en la Tienda del Reactor sin bajar de rango: el rango cuenta el XP total que has ganado.", en: "You spend it in the Reactor store without losing rank: your rank counts all the XP you ever earned." },
+    go: "tienda"
+  },
+  {
+    id: "games",
+    keys: ["juego", "juegos", "jugar", "dron", "drone", "torre", "pulso", "rayo", "arcade", "game", "games", "play", "tower"],
+    q: { es: "\xBFQu\xE9 juegos hay?", en: "What games are there?" },
+    a: { es: "En Juegos y laboratorios (SGX.Spark): Dron SGX (cruza anillos), Torre de Pilares (apila los seis pilares en orden), Pulso SGX (ritmo) y Rayo en tus manos (derriba al Jefe SGX). Todos dan XP y tienen misiones.", en: "In Games & labs (SGX.Spark): SGX Drone (fly through rings), Pillar Tower (stack the six pillars in order), SGX Pulse (rhythm) and Bolt in your hands (take down the SGX Boss). They all give XP and have missions." },
+    go: "juegos"
+  },
+  {
+    id: "vote",
+    keys: ["votar", "voto", "votos", "votacion", "votar en vivo", "encuesta", "trivia", "kahoot", "vote", "voting", "poll"],
+    q: { es: "\xBFC\xF3mo voto en vivo?", en: "How do I vote live?" },
+    a: { es: "En la arena de votaci\xF3n en vivo, estilo Kahoot, durante las pausas de la transmisi\xF3n (+25 XP por voto). Las encuestas solo aceptan votos mientras el equipo las tiene abiertas.", en: "In the live voting arena, Kahoot style, during the stream breaks (+25 XP per vote). Polls only take votes while the team has them open." },
+    go: "play"
+  },
+  {
+    id: "highbot",
+    keys: ["highbot", "avatar", "robot", "disenar", "personalizar", "colores", "visor", "accesorios", "design", "customize", "colors"],
+    q: { es: "\xBFC\xF3mo dise\xF1o mi Highbot?", en: "How do I design my Highbot?" },
+    a: { es: "En Avatar Studio. Todo Highbot es Highcoon (orejas, antifaz y nariz), y t\xFA escoges el resto: colores, p\xE1rpados, visor, accesorios de cabeza, el pilar en el pecho (logo en el engrane o pilar grande), un emblema 3D extra y un motivo SGX grabado en el torso. Tambi\xE9n hay presets.", en: "In Avatar Studio. Every Highbot is Highcoon (ears, mask and nose) and you pick the rest: colors, eyelids, visor, headgear, the pillar on the chest (logo on the gear or a big pillar), an extra 3D emblem and an SGX motif on the torso. There are presets too." },
+    go: "avatar"
+  },
+  {
+    id: "chat",
+    keys: ["hablar", "chat", "conversar", "preguntar", "despertar", "talk", "ask", "claude", "ia", "ai"],
+    q: { es: "\xBFC\xF3mo hablo contigo?", en: "How do I talk to you?" },
+    a: { es: "Con tu SGX Pass forjado y tu cuenta de Google conectada, me preguntas lo que quieras y te llevo por la app. Si estoy descansando, igual te contesto lo esencial desde aqu\xED.", en: "With your SGX Pass forged and your Google account connected, ask me anything and I take you around the app. If I am resting, I still answer the essentials from here." },
+    go: "tu-highbot"
+  },
+  {
+    id: "network",
+    keys: ["networking", "escanear", "escaner", "qr", "contacto", "contactos", "rolodex", "conectar", "red", "scan", "contact", "connect"],
+    q: { es: "\xBFC\xF3mo hago networking?", en: "How do I network?" },
+    a: { es: "Escanea el QR del pase de otra persona: quedan en el Rolodex de los dos (+50 XP). Tu Red muestra tus contactos como una constelaci\xF3n; si conectas con creadores de los seis pilares, ganas un sello secreto. El Rolodex se exporta a tus contactos.", en: "Scan someone's pass QR: you both land in each other's Rolodex (+50 XP). Your Network shows contacts as a constellation; link creators from all six pillars for a secret stamp. The Rolodex exports to your contacts." },
+    go: "escaner"
+  },
+  {
+    id: "agenda",
+    keys: ["agenda", "programa", "horario", "run of show", "itinerario", "alerta", "calendario", "recordatorio", "schedule", "program", "calendar", "reminder"],
+    q: { es: "\xBFD\xF3nde est\xE1 la agenda?", en: "Where is the agenda?" },
+    a: { es: 'En el Run of Show: el programa minuto a minuto de los tres d\xEDas. Ah\xED armas "Mi Agenda" y pones alertas en tu calendario (.ics o Google Calendar) 15 minutos antes de cada bloque.', en: 'In the Run of Show: the minute-by-minute program for the three days. Build "My Agenda" there and add alerts to your calendar (.ics or Google Calendar) 15 minutes before each block.' },
+    go: "agenda"
+  },
+  {
+    id: "day1",
+    keys: ["dia 1", "viernes", "day 1", "friday", "artistas", "roblox", "bloques"],
+    q: { es: "\xBFQu\xE9 pasa el D\xEDa 1?", en: "What happens on Day 1?" },
+    a: { es: "Viernes 11, digital: apertura a las 10:00 AM, luego seis bloques de 25 minutos (uno por pilar) con un artista invitado en Roblox antes de cada uno, los portafolios de los 8 Initiates del Guild y el cierre a las 4:30 PM con los 6 Initiates del D\xEDa 3.", en: "Friday the 11th, digital: opening at 10:00 AM, then six 25-minute blocks (one per pillar) with a guest artist in Roblox before each, the portfolios of the 8 Guild Initiates and the close at 4:30 PM with the 6 Initiates for Day 3." },
+    go: "agenda"
+  },
+  {
+    id: "day2",
+    keys: ["dia 2", "sabado", "industria", "conversaciones", "conversatorio", "day 2", "saturday", "industry", "panel"],
+    q: { es: "\xBFQu\xE9 pasa el D\xEDa 2?", en: "What happens on Day 2?" },
+    a: { es: "S\xE1bado 12, D\xEDa de la Industria (digital): seis conversaciones de 45 minutos, una por pilar, con personas invitadas (se anuncian al confirmarse), y entre cada una una pausa con votaci\xF3n gamificada (+25 XP por voto).", en: "Saturday the 12th, Industry Day (digital): six 45-minute conversations, one per pillar, with guests (announced once confirmed), and a gamified voting break between each (+25 XP per vote)." },
+    go: "agenda"
+  },
+  {
+    id: "speakers",
+    keys: ["speaker", "speakers", "ponentes", "invitados", "artista", "artistas", "quien", "quienes", "line-up", "lineup", "guests", "who"],
+    q: { es: "\xBFQui\xE9nes son los speakers?", en: "Who are the speakers?" },
+    a: { es: 'Confirmados: Danelson Maldonado Gonz\xE1lez "The Highgineer" y Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers". Los artistas e invitados se anuncian solo cuando est\xE1n confirmados por escrito; los ver\xE1s en Speakers & artistas.', en: 'Confirmed: Danelson Maldonado Gonz\xE1lez "The Highgineer" and Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers". Artists and guests are announced only once confirmed in writing; you will see them in Speakers & artists.' },
+    go: "speakers"
+  },
+  {
+    id: "spatialgineers",
+    keys: ["spatialgineers", "estudio", "empresa", "quienes son", "fundadores", "danelson", "ricardo", "highgineer", "lightning", "company", "founders", "studio"],
+    q: { es: "\xBFQui\xE9nes son Spatialgineers?", en: "Who are Spatialgineers?" },
+    a: { es: 'Spatialgineers LLC es un estudio de ingenier\xEDa creativa y computaci\xF3n espacial en Puerto Rico: 3D, medios inmersivos, gamificaci\xF3n, WebXR, VR/AR e IA. Lo fundaron Danelson Maldonado Gonz\xE1lez "The Highgineer" y Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers", ingenieros mec\xE1nicos del RUM. Su lema: "Ingeniando imaginaci\xF3n, construyendo realidades."', en: 'Spatialgineers LLC is a creative engineering and spatial computing studio in Puerto Rico: 3D, immersive media, gamification, WebXR, VR/AR and AI. Founded by Danelson Maldonado Gonz\xE1lez "The Highgineer" and Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers", mechanical engineers from RUM. Motto: "Engineering Imagination, Building Reality."' },
+    go: "pilares"
+  },
+  {
+    id: "pillars",
+    keys: ["pilar", "pilares", "framework", "sgx", "story", "showcase", "spark", "stage", "system", "synthesize", "pillar", "pillars"],
+    q: { es: "\xBFQu\xE9 son los seis pilares?", en: "What are the six pillars?" },
+    a: { es: "El SGX Framework de Spatialgineers: Story (narrativa y cultura), Showcase (3D, XR y gemelos digitales), Spark (juegos y gamificaci\xF3n), Stage (shows y transmisiones), System (apps, IA y operaciones) y Synthesize (donde todo converge, con el SGX Guild). Cada uno tiene su bloque el D\xEDa 1 y su conversaci\xF3n el D\xEDa 2.", en: "The Spatialgineers SGX Framework: Story (narrative and culture), Showcase (3D, XR and digital twins), Spark (games and gamification), Stage (shows and broadcasts), System (apps, AI and operations) and Synthesize (where it all converges, with the SGX Guild). Each has its block on Day 1 and its conversation on Day 2." },
+    go: "pilares"
+  },
+  {
+    id: "sponsor",
+    keys: ["patrocinar", "patrocinio", "patrocinador", "paquete", "paquetes", "marca", "auspicio", "sponsor", "sponsorship", "package", "brand"],
+    q: { es: "\xBFC\xF3mo patrocino el Summit?", en: "How do I sponsor the Summit?" },
+    a: { es: `Con los Paquetes 1 a 5: Digital Presence ($50\u2013$100), Gamified ($250\u2013$500), Experience ($750\u2013$1,000), Signature Experience ($1,500\u2013$2,500) y Alianza de servicios esenciales (a convenir). Cada uno incluye lo del anterior. ${DEADLINE_COPY.sponsorKeyDates.es} Todo est\xE1 en Patrocina el Summit; dudas a info@spatialgineers.com.`, en: `With Packages 1 to 5: Digital Presence ($50\u2013$100), Gamified ($250\u2013$500), Experience ($750\u2013$1,000), Signature Experience ($1,500\u2013$2,500) and Essential services alliance (to agree). Each includes the one before. ${DEADLINE_COPY.sponsorKeyDates.en} It is all in Sponsor the Summit; questions to info@spatialgineers.com.` },
+    go: "patrocina"
+  },
+  {
+    id: "deadlines",
+    keys: ["fecha limite", "fechas limite", "deadline", "deadlines", "hasta cuando", "cierra", "cierre", "ultimo dia", "a mas tardar", "pago", "materiales", "payment", "materials", "closes", "last day"],
+    q: { es: "\xBFCu\xE1les son las fechas l\xEDmite?", en: "What are the deadlines?" },
+    a: { es: `Perfiles de speakers y artistas: hasta el ${SUMMIT_DEADLINES.speakerProfiles.day.es}. Solicitudes de auspicio: hasta el ${SUMMIT_DEADLINES.sponsorApplications.day.es}. Pago total y materiales de sponsors: a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}. Prensa: antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es}. Solicitudes para el D\xEDa 3: hasta el ${SUMMIT_DEADLINES.day3Requests.day.es}. Invitaciones al D\xEDa 3: el equipo las env\xEDa a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}. Hora de Puerto Rico.`, en: `Speaker and artist profiles: through ${SUMMIT_DEADLINES.speakerProfiles.day.en}. Sponsorship applications: through ${SUMMIT_DEADLINES.sponsorApplications.day.en}. Sponsor full payment and materials: no later than ${SUMMIT_DEADLINES.sponsorPayment.day.en}. Press: before ${SUMMIT_DEADLINES.pressAccreditation.day.en}. Day 3 requests: through ${SUMMIT_DEADLINES.day3Requests.day.en}. Day 3 invitations: the team sends them no later than ${SUMMIT_DEADLINES.day3Invitations.day.en}. Puerto Rico time.` }
+  },
+  {
+    id: "speaker-portal",
+    keys: ["portal de speakers", "portal speakers", "ser speaker", "presentar", "postularme", "registrar perfil", "mi perfil de speaker", "speaker portal", "apply as speaker", "present"],
+    q: { es: "\xBFC\xF3mo me registro como speaker o artista?", en: "How do I register as a speaker or artist?" },
+    a: { es: `En el Portal de speakers: llenas tu perfil, armas tu avatar y lo env\xEDas para revisi\xF3n. ${DEADLINE_COPY.speakerProfiles.es} Despu\xE9s el portal se cierra; para lo que falte, info@spatialgineers.com. Se publican solo los confirmados por escrito.`, en: `In the Speaker portal: fill in your profile, build your avatar and send it for review. ${DEADLINE_COPY.speakerProfiles.en} After that the portal closes; for anything else, info@spatialgineers.com. Only those confirmed in writing are published.` },
+    go: "portal-speakers"
+  },
+  {
+    id: "partners",
+    keys: ["partners", "aliados", "los mismos", "chroma space", "tu marca aqui", "marcas"],
+    q: { es: "\xBFQui\xE9nes son los partners?", en: "Who are the partners?" },
+    a: { es: 'Chroma Space Studios (sede del D\xEDa 3) y Los Mismos TV (transmite junto a nosotros). Los espacios "Tu marca aqu\xED" est\xE1n abiertos a prop\xF3sito para nuevas marcas.', en: 'Chroma Space Studios (Day 3 venue) and Los Mismos TV (streams alongside us). The "Your brand here" spots are open on purpose for new brands.' },
+    go: "sponsors"
+  },
+  {
+    id: "hire",
+    keys: ["contratar", "cotizar", "cotizacion", "servicios", "proyecto", "trabajar con", "hire", "quote", "services", "project", "work with"],
+    q: { es: "Quiero trabajar con Spatialgineers", en: "I want to work with Spatialgineers" },
+    a: { es: "\xA1Brutal! Escr\xEDbele al equipo a info@spatialgineers.com con tu idea y te contestan con una propuesta. Los precios de servicios no los doy por aqu\xED.", en: "Awesome! Write to the team at info@spatialgineers.com with your idea and they will reply with a proposal. I do not give service prices here." }
+  },
+  {
+    id: "guild",
+    keys: ["guild", "initiates", "iniciados", "unirme", "talento", "join", "talent", "trials"],
+    q: { es: "\xBFQu\xE9 es el SGX Guild?", en: "What is the SGX Guild?" },
+    a: { es: "El pipeline gamificado de talento creativo de Puerto Rico, con rangos, pilares y Trials. En el Summit, los 8 Initiates presentan portafolios el D\xEDa 1 y los top 6 hacen su pitch el D\xEDa 3. Ser parte es un privilegio; ahora no hay convocatoria abierta (sigue a @spatialgineers).", en: "The gamified creative talent pipeline of Puerto Rico, with ranks, pillars and Trials. At the Summit, the 8 Initiates present portfolios on Day 1 and the top 6 pitch on Day 3. Being part of it is a privilege; there is no open call now (follow @spatialgineers)." },
+    go: "guild"
+  },
+  {
+    id: "highcoon",
+    keys: ["highcoon", "mapache", "raccoon", "highcade"],
+    q: { es: "\xBFQui\xE9n es Highcoon?", en: "Who is Highcoon?" },
+    a: { es: 'Highcoon es la IP propia de Spatialgineers: un mapache cient\xEDfico creado por Danelson "The Highgineer". Yo soy Highcoon en mi forma de robot. S\xEDguelo en @Highcoonvibes (Instagram, X y TikTok).', en: `Highcoon is Spatialgineers' own IP: a scientist raccoon created by Danelson "The Highgineer". I am Highcoon in robot form. Follow @Highcoonvibes (Instagram, X and TikTok).` }
+  },
+  {
+    id: "lite",
+    keys: ["lento", "bateria", "ligero", "lite", "fx", "datos", "pesado", "slow", "battery", "data", "laggy"],
+    q: { es: "La app va lenta o gasta bater\xEDa", en: "The app is slow or drains battery" },
+    a: { es: "Toca FX en el header para pasar a modo Ligero: apaga el 3D, los shaders y las animaciones y me ves en 2D. Gasta mucha menos bater\xEDa y datos. Se activa solo en tel\xE9fonos que piden ahorrar datos.", en: "Tap FX in the header to switch to Lite mode: it turns off the 3D, shaders and animations and shows me in 2D. Much less battery and data. It turns on by itself on phones that ask to save data." }
+  },
+  {
+    id: "install",
+    keys: ["instalar", "app", "descargar", "pwa", "offline", "sin internet", "install", "download"],
+    q: { es: "\xBFHay que descargar algo?", en: "Do I need to download anything?" },
+    a: { es: "No: todo corre en el navegador. Si quieres, inst\xE1lala como app (PWA) desde el men\xFA del navegador, y el QR de tu pase funciona sin conexi\xF3n.", en: "No: it all runs in the browser. If you like, install it as an app (PWA) from the browser menu, and your pass QR works offline." }
+  },
+  {
+    id: "press",
+    keys: ["prensa", "medio", "medios", "periodista", "acreditacion", "kit de prensa", "press", "media", "journalist", "press kit"],
+    q: { es: "Soy prensa", en: "I am press" },
+    a: { es: "Solicita tu acreditaci\xF3n en la Sala de prensa (/prensa) antes del 1 de diciembre: 10 cupos de prensa, y primero forjas tu SGX Pass. Cubre los 3 d\xEDas, con entrada al D\xEDa 3 en Chroma. Ah\xED mismo est\xE1 el kit de prensa. Dudas: info@spatialgineers.com.", en: "Request accreditation in the Press room (/prensa) before December 1: 10 press spots, and you forge your SGX Pass first. It covers all 3 days, with Day 3 entry at Chroma. The press kit is right there too. Questions: info@spatialgineers.com." },
+    go: "prensa"
+  },
+  {
+    id: "terminal",
+    keys: ["terminal", "comando", "atajo", "teclado", "ctrl", "command", "shortcut", "keyboard"],
+    q: { es: "\xBFQu\xE9 es la terminal?", en: "What is the terminal?" },
+    a: { es: "La Terminal de mando te deja navegar toda la plataforma escribiendo. \xC1brela con Ctrl+K o la tecla /.", en: "The command terminal lets you move around the whole platform by typing. Open it with Ctrl+K or the / key." },
+    go: "terminal"
+  },
+  {
+    id: "contact",
+    keys: ["contacto", "email", "correo", "telefono", "instagram", "redes", "contact", "phone", "social"],
+    q: { es: "\xBFC\xF3mo contacto al equipo?", en: "How do I contact the team?" },
+    a: { es: "info@spatialgineers.com \xB7 +1 (787) 445-5284 \xB7 @spatialgineers en Instagram y YouTube.", en: "info@spatialgineers.com \xB7 +1 (787) 445-5284 \xB7 @spatialgineers on Instagram and YouTube." }
+  }
+];
+var APP_CONTROLS_ES = `- Header: logo del Summit (inicio), la tarjeta del sponsor del momento junto al logo con "Patrocina el Summit", idioma ES/EN, sonido, FX/Ligero, el chip del Creador (abre Tu Estudio), compartir y el Men\xFA con todos los m\xF3dulos.
+- Barra del n\xFAcleo (portada): la fecha y los relojes del Summit (cuenta regresiva al D\xEDa 1), las visitas totales y Agenda. Los Ajustes del n\xFAcleo (girar, zoom, sponsors en 3D, inmersi\xF3n total, modo ligero) est\xE1n en el engranaje del header de arriba. Tocar un pilar 3D abre su tarjeta con "Visitar pilar".
+- Riel "Misiones x/N" (N es el total real: ${FIXED_MISSIONS} fijas m\xE1s una por partner de Paquete 3\u20135): abre el Reactor como pop-up; cada misi\xF3n tiene un bot\xF3n a donde se hace.
+- La cabecita del Highbot (abajo a la derecha) abre este chat.
+- Pulso en vivo: reacciones y encuesta de la keynote, solo durante los d\xEDas del Summit.
+- Al ganar XP, a veces sale "Presentado por" con una marca por unos segundos (m\xE1ximo cada 5 minutos); tocarlo la fija y lleva a su showcase.
+- Modo Ligero (FX \u2192 Ligero): sin 3D ni animaciones, el Highbot en 2D; ahorra bater\xEDa y datos.`;
+function appGuidePrompt() {
+  return APP_FAQ.map((e) => `- ${e.q.es} ${e.a.es}${e.go ? ` (ir_a: ${e.go})` : ""}`).join("\n");
+}
+
 // src/server/companion/knowledge.ts
 var PERSONA = `Eres un Highbot: el compa\xF1ero del Creador dentro de la app del Spatialgineers Summit 2026. En el Summit cada visitante es un "Creador" y arma su propio Highbot (Highcoon en su forma de robot) en Avatar Studio; t\xFA eres el suyo, con sus colores. Vives en "Tu Estudio" (la p\xE1gina personal del Creador) y tambi\xE9n flotas como una cabecita en las dem\xE1s p\xE1ginas.
 
@@ -3666,19 +3704,20 @@ var DEADLINES = `## Fechas l\xEDmite (hora de Puerto Rico)
 - Solicitudes de auspicio (Patrocina el Summit): hasta el ${SUMMIT_DEADLINES.sponsorApplications.day.es}. Despu\xE9s el formulario se cierra; para lo que falte, info@spatialgineers.com.
 - Pago total y materiales de la marca (sponsors): a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}.
 - Acreditaci\xF3n de prensa: antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es}.
+- Solicitudes para el D\xEDa 3 (presencial, por invitaci\xF3n): hasta el ${SUMMIT_DEADLINES.day3Requests.day.es}.
 - Invitaciones al D\xEDa 3: el equipo las env\xEDa a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}.`;
 var EVENT = `## Spatialgineers Summit 2026: lo esencial
 - Fechas: 11, 12 y 13 de diciembre de 2026. En espa\xF1ol.
 - D\xEDas 1 y 2: 100% digitales y gratis por YouTube Live (canal principal, https://www.youtube.com/@spatialgineers), tambi\xE9n en LinkedIn y Facebook Live; Los Mismos TV transmite junto a Spatialgineers. El D\xEDa 1 hay artistas invitados present\xE1ndose dentro de Roblox.
 - D\xEDa 3 (domingo 13): SGX Showcase presencial en Chroma Space Studios, San Juan. Por invitaci\xF3n: el equipo env\xEDa las invitaciones a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}. Demos en vivo de todos los pilares y networking. El check-in del D\xEDa 3 se hace con el SGX Pass escaneando el QR de la entrada.
-- Prensa: la acreditaci\xF3n se solicita en la Sala de prensa (summit.spatialgineers.com/prensa) antes del 1 de diciembre: 10 cupos de prensa, con el SGX Pass forjado primero. Cubre los 3 d\xEDas (YouTube Live los D\xEDas 1 y 2 y entrada al D\xEDa 3 en Chroma con el QR del pase); al aprobarse, la Holo Card dice PRENSA. La misma p\xE1gina tiene el kit de prensa (logos, fotos de los fundadores, capturas y ficha en PDF). Contacto de prensa: info@spatialgineers.com.
+- Prensa: la acreditaci\xF3n se solicita en la Sala de prensa (summit.spatialgineers.com/prensa) antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es}: 10 cupos de prensa, con el SGX Pass forjado primero. Cubre los 3 d\xEDas (YouTube Live los D\xEDas 1 y 2 y entrada al D\xEDa 3 en Chroma con el QR del pase); al aprobarse, la Holo Card dice PRENSA. La misma p\xE1gina tiene el kit de prensa (logos, fotos de los fundadores, capturas y ficha en PDF). Contacto de prensa: info@spatialgineers.com.
 - Partners: Chroma Space Studios (sede del D\xEDa 3, Paquete 5: alianza de servicios esenciales) y Los Mismos TV (medio aliado de la transmisi\xF3n). Los espacios "Tu marca aqu\xED" de la app est\xE1n abiertos a marcas a prop\xF3sito.
 - Patrocinio: Paquete 1 Digital Presence ($50\u2013$100, 10 cupos), Paquete 2 Gamified ($250\u2013$500, 6 cupos), Paquete 3 Experience ($750\u2013$1,000, 6 cupos), Paquete 4 Signature Experience ($1,500\u2013$2,500, 3 cupos), Paquete 5 Alianza de servicios esenciales (a convenir, 3 cupos). Cada paquete incluye lo del anterior. Detalle y solicitud en la p\xE1gina "Patrocina el Summit": solicitudes hasta el ${SUMMIT_DEADLINES.sponsorApplications.day.es}; pago total y materiales a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}.
 
 ## El SGX Pass y la experiencia en la app
 - El SGX Pass es la credencial gratis del Summit y ES la Holo Card del Creador. Se "forja" en un minuto (nombre, email, pilar favorito, su Highbot). Da el QR de networking, la entrada del D\xEDa 3, las misiones y el XP. Un pase por email.
 - Tu Estudio es la p\xE1gina personal: Pase, Tu Highbot, Reactor (misiones por pilar), Red (constelaci\xF3n de contactos), Rolodex, D\xEDa 3 y Telemetr\xEDa. Con Google se guarda el progreso en la cuenta.
-- XP: se gana jugando, votando en vivo (+25 XP en la arena), completando misiones y escaneando pases. La Tienda del Reactor deja gastar XP sin bajar de rango.
+- XP: se gana jugando, votando en vivo (+25 XP por voto, una vez por pregunta), completando misiones y escaneando pases. La Tienda del Reactor deja gastar XP sin bajar de rango.
 - Networking: escanear el QR del pase de otra persona los guarda en el Rolodex de ambos; completar los seis pilares en la Red da un sello secreto.
 - Encuestas: solo aceptan votos mientras el equipo las tiene abiertas.
 - Avatar Studio: arma tu Highbot (colores, cara, p\xE1rpados, visor, patr\xF3n SGX en el torso, accesorios y el emblema de tu pilar).
@@ -3897,7 +3936,7 @@ function jwtPayload(token) {
     return null;
   }
 }
-var sha256 = (s) => crypto.createHash("sha256").update(s).digest("hex");
+var sha256 = (s) => crypto2.createHash("sha256").update(s).digest("hex");
 var passCache = /* @__PURE__ */ new Map();
 async function verifyPass(idToken, email, code) {
   const claims = jwtPayload(idToken);
@@ -4324,12 +4363,31 @@ function createApiRouter(broadcastToRoom) {
     }
     res.json({ success: true, session: room.session, question });
   });
+  const voterBuckets = /* @__PURE__ */ new Map();
+  const voterSweep = setInterval(() => {
+    for (const [k, b] of voterBuckets) if (b.isFull()) voterBuckets.delete(k);
+  }, 6e4);
+  voterSweep.unref?.();
+  const takeVoterBudget = (key, capacity = 6, refillPerSec = 0.5) => {
+    let b = voterBuckets.get(key);
+    if (!b) {
+      if (voterBuckets.size >= 5e4) voterBuckets.clear();
+      b = new TokenBucket(capacity, refillPerSec);
+      voterBuckets.set(key, b);
+    }
+    return b.take();
+  };
   router.post("/vote", (req, res) => {
     const room = roomFrom(req, res);
     if (!room) return;
-    const voterId = req.body?.userId;
-    if (!isValidId(voterId)) return res.status(400).json({ error: "INVALID_USER_ID" });
-    const result = processVoteSubmission(room, voterId, req.body || {}, broadcastToRoom);
+    const voterId = voterIdFromRequest(req);
+    if (!voterId) return res.status(401).json({ error: "VOTER_TOKEN_REQUIRED" });
+    if (!takeVoterBudget(`vote:${voterId}`)) {
+      res.setHeader("Retry-After", "5");
+      return res.status(429).json({ error: "RATE_LIMITED" });
+    }
+    const { userId: _ignored, ...body } = req.body || {};
+    const result = processVoteSubmission(room, voterId, body, broadcastToRoom);
     if (result.status !== "ACCEPTED") {
       return res.status(result.status === "DUPLICATE" || result.status === "STALE" ? 409 : 400).json({ error: result.status });
     }
@@ -4339,7 +4397,12 @@ function createApiRouter(broadcastToRoom) {
   router.post("/reaction", (req, res) => {
     const room = roomFrom(req, res);
     if (!room) return;
-    const reaction = processAudienceReaction(room, { emoji: req.body?.emoji, color: req.body?.color, userId: isValidId(req.body?.userId) ? req.body.userId : "anon" }, broadcastToRoom);
+    const voterId = voterIdFromRequest(req);
+    if (!takeVoterBudget(`rx:${voterId || "anon:" + (req.ip || "unknown")}`, 30, 5)) {
+      res.setHeader("Retry-After", "5");
+      return res.status(429).json({ error: "RATE_LIMITED" });
+    }
+    const reaction = processAudienceReaction(room, { emoji: req.body?.emoji, color: req.body?.color, userId: voterId || "anon" }, broadcastToRoom);
     res.json({ success: true, reaction });
   });
   router.post("/action/close-voting", requireAdmin, (req, res) => {
@@ -4410,8 +4473,8 @@ var PRESS_RULES = {
     en: "Accreditation covers all 3 days: the YouTube Live broadcast on Days 1 and 2, and in-person entry to Day 3 at Chroma Space Studios with your SGX Pass QR."
   },
   line: {
-    es: "Prensa: solicita tu acreditaci\xF3n en summit.spatialgineers.com/prensa antes del 1 de diciembre (10 cupos de prensa).",
-    en: "Press: request accreditation at summit.spatialgineers.com/prensa before December 1 (10 press slots)."
+    es: `Prensa: solicita tu acreditaci\xF3n en summit.spatialgineers.com/prensa antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es} (10 cupos de prensa).`,
+    en: `Press: request accreditation at summit.spatialgineers.com/prensa before ${SUMMIT_DEADLINES.pressAccreditation.day.en} (10 press slots).`
   }
 };
 var PRESS_FACTS = [
@@ -4425,7 +4488,7 @@ var PRESS_FACTS = [
   { k: { es: "Fundadores", en: "Founders" }, v: { es: 'Danelson Maldonado Gonz\xE1lez "The Highgineer" y Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers".', en: 'Danelson Maldonado Gonz\xE1lez "The Highgineer" and Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers".' } },
   { k: { es: "Portafolio", en: "Portfolio" }, v: { es: "60+ espacios digitales y 10 juegos interactivos.", en: "60+ digital spaces and 10 interactive games." } },
   { k: { es: "Web del Summit", en: "Summit website" }, v: { es: "summit.spatialgineers.com", en: "summit.spatialgineers.com" } },
-  { k: { es: "Prensa", en: "Press" }, v: { es: "Acreditaci\xF3n antes del 1 de diciembre de 2026: 10 cupos de prensa. info@spatialgineers.com", en: "Accreditation before December 1, 2026: 10 press slots. info@spatialgineers.com" } }
+  { k: { es: "Prensa", en: "Press" }, v: { es: `Acreditaci\xF3n antes del ${SUMMIT_DEADLINES.pressAccreditation.label.es}: 10 cupos de prensa. info@spatialgineers.com`, en: `Accreditation before ${SUMMIT_DEADLINES.pressAccreditation.label.en}: 10 press slots. info@spatialgineers.com` } }
 ];
 var PRESS_ABOUT = {
   summit: {
@@ -4499,7 +4562,7 @@ var PRESS_ASSETS = [
 var PRESS_FAQ = [
   {
     q: { es: "\xBFC\xF3mo pido la acreditaci\xF3n de prensa para el Spatialgineers Summit 2026?", en: "How do I request press accreditation for Spatialgineers Summit 2026?" },
-    a: { es: "En summit.spatialgineers.com/prensa: forjas tu SGX Pass gratis y llenas la solicitud con tu medio, tu cargo, enlaces a coberturas previas y los d\xEDas que cubrir\xE1s. Recibes un c\xF3digo de seguimiento al enviarla. La fecha l\xEDmite es el 1 de diciembre de 2026.", en: "At summit.spatialgineers.com/prensa: forge your free SGX Pass and fill in the request with your outlet, your title, links to past coverage and the days you will cover. You get a tracking code when you send it. The deadline is December 1, 2026." }
+    a: { es: `En summit.spatialgineers.com/prensa: forjas tu SGX Pass gratis y llenas la solicitud con tu medio, tu cargo, enlaces a coberturas previas y los d\xEDas que cubrir\xE1s. Recibes un c\xF3digo de seguimiento al enviarla. La fecha l\xEDmite es el ${SUMMIT_DEADLINES.pressAccreditation.label.es}.`, en: `At summit.spatialgineers.com/prensa: forge your free SGX Pass and fill in the request with your outlet, your title, links to past coverage and the days you will cover. You get a tracking code when you send it. The deadline is ${SUMMIT_DEADLINES.pressAccreditation.label.en}.` }
   },
   {
     q: { es: "\xBFCu\xE1ntos cupos de prensa hay?", en: "How many press slots are there?" },
@@ -4726,8 +4789,8 @@ var WELCOME_ROLE_COPY = {
     title: { es: "Bienvenida, prensa", en: "Welcome, press" },
     metaTitle: { es: "Prensa \xB7 Acreditaci\xF3n al Spatialgineers Summit 2026 \xB7 11\u201313 dic", en: "Press \xB7 Spatialgineers Summit 2026 accreditation \xB7 Dec 11\u201313" },
     description: {
-      es: "Gu\xEDa para prensa y medios del Spatialgineers Summit 2026: solicita tu acreditaci\xF3n antes del 1 de diciembre (10 cupos de prensa), descarga el kit de prensa y cubre los 3 d\xEDas: YouTube Live y el D\xEDa 3 en Chroma Space Studios.",
-      en: "Press and media guide to Spatialgineers Summit 2026: request accreditation before December 1 (10 press slots), download the press kit and cover all 3 days: YouTube Live and Day 3 at Chroma Space Studios."
+      es: `Gu\xEDa para prensa y medios del Spatialgineers Summit 2026: solicita tu acreditaci\xF3n antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es} (10 cupos de prensa), descarga el kit de prensa y cubre los 3 d\xEDas: YouTube Live y el D\xEDa 3 en Chroma Space Studios.`,
+      en: `Press and media guide to Spatialgineers Summit 2026: request accreditation before ${SUMMIT_DEADLINES.pressAccreditation.day.en} (10 press slots), download the press kit and cover all 3 days: YouTube Live and Day 3 at Chroma Space Studios.`
     },
     intro: {
       es: "Cubres el Summit. La acreditaci\xF3n de prensa incluye los 3 d\xEDas: la transmisi\xF3n por YouTube Live los D\xEDas 1 y 2, y la entrada al D\xEDa 3 en Chroma Space Studios con el QR de tu SGX Pass.",
@@ -4736,7 +4799,7 @@ var WELCOME_ROLE_COPY = {
     videoTitle: { es: "Recorrido para prensa", en: "Walkthrough for press" },
     steps: [
       { when: { es: "Hoy", en: "Today" }, title: { es: "Forja tu SGX Pass", en: "Forge your SGX Pass" }, body: { es: "Gratis y en un minuto. Desde tu pase solicitas la acreditaci\xF3n.", en: "Free and in a minute. You request accreditation from your pass." } },
-      { when: { es: "Antes del 1 dic", en: "Before Dec 1" }, title: { es: "Solicita tu acreditaci\xF3n", en: "Request accreditation" }, body: { es: "En la Sala de prensa: tu medio, tu cargo, enlaces a coberturas previas y los d\xEDas que cubrir\xE1s. 10 cupos de prensa. Recibes un c\xF3digo de seguimiento.", en: "In the Press room: your outlet, your title, links to past coverage and the days you will cover. 10 press slots. You get a tracking code." } },
+      { when: { es: `Antes del ${SUMMIT_DEADLINES.pressAccreditation.short.es}`, en: `Before ${SUMMIT_DEADLINES.pressAccreditation.short.en}` }, title: { es: "Solicita tu acreditaci\xF3n", en: "Request accreditation" }, body: { es: "En la Sala de prensa: tu medio, tu cargo, enlaces a coberturas previas y los d\xEDas que cubrir\xE1s. 10 cupos de prensa. Recibes un c\xF3digo de seguimiento.", en: "In the Press room: your outlet, your title, links to past coverage and the days you will cover. 10 press slots. You get a tracking code." } },
       { when: { es: "Tras la revisi\xF3n", en: "After review" }, title: { es: "Tu pase dice PRENSA", en: "Your pass says PRESS" }, body: { es: "Si te aprueban, el equipo te escribe, tu Holo Card cambia a PRENSA y tu pase queda invitado al D\xEDa 3.", en: "If approved, the team writes to you, your Holo Card switches to PRESS and your pass is invited to Day 3." } },
       { when: { es: "11\u201313 dic", en: "Dec 11\u201313" }, title: { es: "Cubre los 3 d\xEDas", en: "Cover all 3 days" }, body: { es: "D\xEDas 1 y 2 por YouTube Live, con Los Mismos TV transmitiendo junto a nosotros. D\xEDa 3 presencial en Chroma Space Studios, San Juan: entras con el QR de tu SGX Pass.", en: "Days 1 and 2 on YouTube Live, with Los Mismos TV streaming alongside us. Day 3 in person at Chroma Space Studios, San Juan: you get in with your SGX Pass QR." } }
     ],
@@ -5110,6 +5173,10 @@ async function startServer() {
         else if (name === "sw.js" || name === "index.html" || name === "manifest.webmanifest") res.setHeader("Cache-Control", "no-cache");
       }
     }));
+    app.use("/assets", (_req, res) => {
+      res.setHeader("Cache-Control", "no-store");
+      res.status(404).type("text/plain").send("Not found");
+    });
     const indexFile = path.join(distPath, "index.html");
     let indexCache = null;
     const readIndex = () => {

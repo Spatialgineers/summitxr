@@ -1,7 +1,7 @@
 const { chromium } = require('playwright');
 const APP = process.env.APP_URL || 'http://localhost:3200';
 const OUT = require('path').join(__dirname, 'out'); require('fs').mkdirSync(OUT, { recursive: true });
-const REST = 'http://127.0.0.1:8085/v1/projects/gen-lang-client-0564995587/databases/ai-studio-sgxliveengine-630b78e7-0845-4046-9176-53bab53744ac/documents';
+const REST = `http://127.0.0.1:${process.env.FS_PORT || 8085}/v1/projects/gen-lang-client-0564995587/databases/ai-studio-sgxliveengine-630b78e7-0845-4046-9176-53bab53744ac/documents`;
 const put = (path, fields) => fetch(`${REST}/${path}`, { method: 'PATCH', headers: { Authorization: 'Bearer owner', 'Content-Type': 'application/json' }, body: JSON.stringify({ fields }) }).then((r) => r.json());
 let pass = 0, fail = 0;
 const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS' : 'FAIL', n, extra); };

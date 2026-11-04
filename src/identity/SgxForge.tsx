@@ -290,12 +290,12 @@ export const SgxForge: React.FC<Props> = ({ onClose, onOpenHangar, initialTier =
               <label className={tier === 'DIGITAL' ? 'is-on' : ''}>
                 <input type="radio" name="tier" checked={tier === 'DIGITAL'} onChange={() => setTier('DIGITAL')} />
                 <strong>{es ? 'Digital global' : 'Global digital'}</strong>
-                <span>{es ? 'Los 3 días por YouTube Live, en español. Gratis y confirmado al instante.' : 'All 3 days on YouTube Live, in Spanish. Free and confirmed instantly.'}</span>
+                <span>{es ? 'Días 1 y 2 por YouTube Live, en español. Gratis y confirmado al instante. El Día 3 es presencial, por invitación.' : 'Days 1 and 2 on YouTube Live, in Spanish. Free and confirmed instantly. Day 3 is in person, by invitation.'}</span>
               </label>
               <label className={tier === 'SHOWCASE' ? 'is-on' : ''}>
                 <input type="radio" name="tier" checked={tier === 'SHOWCASE'} onChange={() => setTier('SHOWCASE')} />
                 <strong>{es ? 'Día 3 presencial' : 'Day 3 in person'}</strong>
-                <span>{es ? `Chroma Space Studios, San Juan. Por invitación y cupo limitado: solicítalo hasta el 1 de diciembre y recibes la invitación por correo a más tardar el ${deadlineDay('day3Invitations', 'es')}.` : `Chroma Space Studios, San Juan. By invitation, limited capacity: request it by December 1 and invitations arrive by email no later than ${deadlineDay('day3Invitations', 'en')}.`}</span>
+                <span>{es ? `Chroma Space Studios, San Juan. Por invitación y cupo limitado: solicítalo hasta el ${deadlineDay('day3Requests', 'es')} y recibes la invitación por correo a más tardar el ${deadlineDay('day3Invitations', 'es')}.` : `Chroma Space Studios, San Juan. By invitation, limited capacity: request it by ${deadlineDay('day3Requests', 'en')} and invitations arrive by email no later than ${deadlineDay('day3Invitations', 'en')}.`}</span>
               </label>
             </fieldset>
             <label className="sgx-forge__consent">

@@ -6,17 +6,20 @@ const crypto = require('crypto');
 const APP = process.env.APP_URL || 'http://localhost:3200';
 const PROJECT = 'gen-lang-client-0564995587';
 const DB = 'ai-studio-sgxliveengine-630b78e7-0845-4046-9176-53bab53744ac';
-const REST = `http://127.0.0.1:8085/v1/projects/${PROJECT}/databases/${DB}/documents`;
+const REST = `http://127.0.0.1:${process.env.FS_PORT || 8085}/v1/projects/${PROJECT}/databases/${DB}/documents`;
 let pass = 0, fail = 0;
 const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS' : 'FAIL', n, extra); };
 const run = Date.now().toString(36);
 
+// Sign-in / sign-out the visitor asked for: the app marks it (markAccountAction in AuthContext),
+// so the slot swap may reload even if the session already reloaded once (src/lib/reloadGuard.ts).
 const signIn = (p, who) => p.evaluate(async (who) => {
+  (await import('/src/identity/accountSlots.ts')).markAccountAction();
   const m = await import('/src/lib/firebase.ts');
   const idToken = JSON.stringify({ sub: who.sub, email: who.email, email_verified: true, name: who.name });
   await m.signInWithCredential(m.auth, m.googleProvider.constructor.credential(idToken));
 }, who);
-const signOut = (p) => p.evaluate(async () => { const m = await import('/src/lib/firebase.ts'); await m.signOut(m.auth); });
+const signOut = (p) => p.evaluate(async () => { (await import('/src/identity/accountSlots.ts')).markAccountAction(); const m = await import('/src/lib/firebase.ts'); await m.signOut(m.auth); });
 const state = (p) => p.evaluate(() => {
   const id = JSON.parse(localStorage.getItem('sgx_identity_v1') || '{}');
   const prof = JSON.parse(localStorage.getItem('sgx_pilot_profile_v2') || '{}');

@@ -1,12 +1,12 @@
 # Admin guide
 
-The admin console (`?page=admin`) has 5 areas, a left-side menu and a search box (Ctrl/Cmd+K).
+The admin console (`/admin`) has 5 areas, a left-side menu and a search box (Ctrl/Cmd+K).
 
 | Area | Sections |
 |---|---|
-| En vivo | Consola del director, Anuncios, Encuestas del keynote |
-| Contenido | Agenda / Run of Show, Speakers, Sponsors, Niveles de auspicio, Guild Initiates, Mapa 360, Apps embebidas, Cápsulas semanales, Galería, Redes sociales |
-| Personas | Inscritos y Día 3, Prensa, Audiencia y leads, Entrepreneur Match |
+| En vivo | Consola del director, Anuncios, Encuestas del keynote, Errores en vivo |
+| Contenido | Agenda / Run of Show, Speakers, Sponsors, Paquetes de auspicio, Guild Initiates, Mapa 360, Apps embebidas, Redes sociales, Pilares: casos y proyectos, Highbot: control y preguntas, Portal de bienvenida |
+| Personas | Inscritos y Día 3, Prensa, Clientes potenciales, Audiencia y leads, Entrepreneur Match |
 | Juego | Tienda del Reactor, Misiones, Preguntas en vivo |
 | Sistema | Analítica, Marca y tenants, Efectos visuales, Funciones y QA, Admins, Respaldo y restauración |
 
@@ -38,12 +38,38 @@ Every content section has **Exportar · Plantilla · Importar**.
 
 ### Data sets
 
-Agenda, speakers, sponsorship tiers, approved sponsors (showcases), Guild Initiates (including their private claim email), map 360, embedded apps, Reactor store prizes, keynote polls, weekly capsules, gallery and missions (text and XP only).
+Agenda, speakers, sponsorship packages (Paquetes 1–5), approved sponsors (showcases), Guild Initiates (including their private claim email), map 360, embedded apps, Reactor store prizes, keynote polls, the Highbot question bank, the pillar cases and projects, and missions (text and XP only).
+
+The retrospective gallery (`summit_content/gallery`) is no longer in the admin: nothing in the app shows it. Its data stays in Firestore untouched.
 
 People data is export-only:
 - leads
 - sponsor inquiries
 - registrations, from their own panels
+
+## Errores en vivo
+
+What failed on visitors' phones (JavaScript errors, rejected promises, React crashes, chunks that did not load, WebGL), grouped and newest first, with a badge for recent ones. It reads `client_errors`; the app writes there itself (deduplicated, capped per session). Nothing to configure.
+
+## Clientes potenciales
+
+Everyone marked with ⭐ in Inscritos, Sponsors or a visitor's Rolodex. For each one: status, pillars of interest and a note, plus a CSV export for the CRM (`leads`).
+
+## Highbot: control y preguntas
+
+- **On / off** for the Claude chat. Off, the Highbot answers from the on-device guide.
+- **Daily cap** ("Guardar tope", or "Usar el del servidor"), today's spend and "Bloqueados hoy".
+- The **question bank** (questions and answers the Highbot reads, `summit_content/companion_kb`), with CSV.
+
+## Portal de bienvenida
+
+- The YouTube video for each role (`/bienvenida/visitante`, `speaker`, `sponsor`, `prensa`, `equipo`); it takes the id or any YouTube link (`site_config/welcome`).
+- Copy each role's link.
+- **Invitation generator**: a message per role with the person's name, their session (typed or picked from the agenda) and a personal link. Copy it, send it by WhatsApp or email, or get it as an **HTML email** (copy with formatting, preview, download).
+
+## Pilares: casos y proyectos
+
+What each pillar page shows: the use cases of that pillar's Day 1 block and its projects and initiatives (`summit_content/pillar_showcase`). It starts as a draft taken from the portfolio; correct it with the CSV. The "Estado" column says Borrador or Listo.
 
 ## Fechas límite
 
@@ -55,6 +81,7 @@ All dates are Puerto Rico time. They live in one file, `src/lib/summitDeadlines.
 | Solicitudes de auspicio | hasta el 28 de noviembre de 2026 | El formulario de sponsors se cierra solo (desde el 29 nov) y apunta a info@spatialgineers.com. |
 | Pago total de sponsors | a más tardar el 30 de noviembre de 2026 | Aviso en el formulario, la página de sponsors y los correos. |
 | Materiales de la marca | a más tardar el 30 de noviembre de 2026 | Igual que el pago. |
+| Solicitudes para el Día 3 | hasta el 1 de diciembre de 2026 | La Forja lo dice al elegir el pase del Día 3 (`day3Requests`). |
 | Invitaciones al Día 3 | a más tardar el 5 de diciembre de 2026 | Nota en Inscritos y Día 3; desde el 6 dic sale un aviso suave si quedan pendientes (no bloquea). |
 | Acreditación de prensa | antes del 1 de diciembre de 2026 | La Sala de prensa se cierra sola; el kit sigue disponible. |
 

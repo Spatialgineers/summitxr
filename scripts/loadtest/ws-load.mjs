@@ -97,6 +97,9 @@ function runWorker() {
     stats.restCalls++;
     const headers = { 'Content-Type': 'application/json' };
     if (c.ip) headers['X-Forwarded-For'] = c.ip;
+    // Same as src/App.tsx: the REST fallback proves the voter with the token the
+    // server signed for this socket (INIT_STATE.voterToken); a body userId is ignored.
+    if (c.voterToken) headers['X-SGX-Voter'] = c.voterToken;
     return fetch(httpBase + p, { method: 'POST', headers, body: JSON.stringify(body), signal: AbortSignal.timeout(15000) })
       .then(async (r) => { bump(stats.restStatus, r.status); bump(stats.restStatusByPath, `${p}:${r.status}`); await r.arrayBuffer().catch(() => {}); return r.status; })
       .catch((e) => { stats.restErrors++; bump(stats.restErrorKinds, `${p}:${e?.name === 'TimeoutError' ? 'timeout' : (e?.cause?.code || e?.name || 'error')}`); return 0; });
@@ -124,7 +127,7 @@ function runWorker() {
     const t = tally(q.id); t.voters++; bump(t.sentByOption, opt.id);
     c.lastVoteQ = q.id;
     if (cfg.rest) {
-      rest(c, '/api/vote', { tenantId: cfg.tenantId, eventId: cfg.eventId, userId: c.userId, optionId: opt.id, optionCode: opt.code, questionId: q.id, user: { id: c.userId, nickname: c.nick } })
+      rest(c, '/api/vote', { tenantId: cfg.tenantId, eventId: cfg.eventId, optionId: opt.id, optionCode: opt.code, questionId: q.id, user: { id: c.userId, nickname: c.nick } })
         .then((s) => { if (s === 200) { t.restAccepted++; c.acceptedCount.set(q.id, (c.acceptedCount.get(q.id) || 0) + 1); if (c.acceptedCount.get(q.id) > 1) t.doubleAccepted++; } });
     }
   }
@@ -133,7 +136,7 @@ function runWorker() {
     const rx = REACTIONS[(Math.random() * REACTIONS.length) | 0];
     if (!send(c, JSON.stringify({ type: 'SEND_REACTION', payload: { emoji: rx.emoji, type: rx.type, color: rx.color, userId: c.userId, userName: c.nick }, tenantId: cfg.tenantId, eventId: cfg.eventId }))) return;
     stats.reactionsSent++;
-    if (cfg.rest) rest(c, '/api/reaction', { tenantId: cfg.tenantId, eventId: cfg.eventId, userId: c.userId, emoji: rx.emoji, color: rx.color });
+    if (cfg.rest) rest(c, '/api/reaction', { tenantId: cfg.tenantId, eventId: cfg.eventId, emoji: rx.emoji, color: rx.color });
   }
 
   function recordReceipt(c, key, hr) {
@@ -160,9 +163,12 @@ function runWorker() {
     if (ts && !c.slow) histAdd(fanout[type] ||= newHist(), now - Number(ts[1]));
 
     switch (type) {
-      case 'INIT_STATE':
+      case 'INIT_STATE': {
         if (c.tInit == null) { c.tInit = hr; if (!c.slow) stats.initMs.push(hr - c.tStart); }
+        const vt = /"voterToken":"([^"]+)"/.exec(buf.toString('utf8'));
+        if (vt) c.voterToken = vt[1];
         break;
+      }
       case 'QUESTION_START': {
         const msg = JSON.parse(buf.toString('utf8'));
         const q = msg.payload?.question;

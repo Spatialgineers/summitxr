@@ -1,7 +1,7 @@
 import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
 import { doc, setDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
 import fs from 'fs';
-const env = await initializeTestEnvironment({ projectId: 'demo-sgx3', firestore: { rules: fs.readFileSync('firestore.day3.rules', 'utf8'), host: '127.0.0.1', port: 8085 } });
+const env = await initializeTestEnvironment({ projectId: 'demo-sgx3', firestore: { rules: fs.readFileSync('firestore.day3.rules', 'utf8'), host: '127.0.0.1', port: Number(process.env.FS_PORT || 8085) } });
 await env.clearFirestore();
 await env.withSecurityRulesDisabled(async (c) => { await setDoc(doc(c.firestore(), 'summit_private', 'checkin'), { code: 'chroma-test1234' }); });
 const db = (u) => env.authenticatedContext(u).firestore();

@@ -6,7 +6,7 @@ export const BUILTIN_PRESETS: Record<string, VisualizerPreset> = {
     id: 'preset_sgx_icon_3d',
     name: 'SGX.STAGE — SGX Icon Holographic 3D',
     category: 'Abstract',
-    description: 'Modelo 3D oficial del icono de Spatialgineers rotando en escenario espacial holográfico con partículas de alta energía.',
+    description: 'Modelo 3D oficial del icono de Spatialgineers rotando en un escenario holográfico con partículas de alta energía.',
     themeColor: '#FDCC0D',
     accentColor: '#00DDFF',
     shaderKey: 'grid',

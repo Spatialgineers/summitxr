@@ -234,8 +234,8 @@ export const WELCOME_ROLE_COPY: Record<WelcomeRole, WelcomeRoleCopy> = {
     title: { es: 'Bienvenida, prensa', en: 'Welcome, press' },
     metaTitle: { es: 'Prensa · Acreditación al Spatialgineers Summit 2026 · 11–13 dic', en: 'Press · Spatialgineers Summit 2026 accreditation · Dec 11–13' },
     description: {
-      es: 'Guía para prensa y medios del Spatialgineers Summit 2026: solicita tu acreditación antes del 1 de diciembre (10 cupos de prensa), descarga el kit de prensa y cubre los 3 días: YouTube Live y el Día 3 en Chroma Space Studios.',
-      en: 'Press and media guide to Spatialgineers Summit 2026: request accreditation before December 1 (10 press slots), download the press kit and cover all 3 days: YouTube Live and Day 3 at Chroma Space Studios.',
+      es: `Guía para prensa y medios del Spatialgineers Summit 2026: solicita tu acreditación antes del ${D.pressAccreditation.day.es} (10 cupos de prensa), descarga el kit de prensa y cubre los 3 días: YouTube Live y el Día 3 en Chroma Space Studios.`,
+      en: `Press and media guide to Spatialgineers Summit 2026: request accreditation before ${D.pressAccreditation.day.en} (10 press slots), download the press kit and cover all 3 days: YouTube Live and Day 3 at Chroma Space Studios.`,
     },
     intro: {
       es: 'Cubres el Summit. La acreditación de prensa incluye los 3 días: la transmisión por YouTube Live los Días 1 y 2, y la entrada al Día 3 en Chroma Space Studios con el QR de tu SGX Pass.',
@@ -244,7 +244,7 @@ export const WELCOME_ROLE_COPY: Record<WelcomeRole, WelcomeRoleCopy> = {
     videoTitle: { es: 'Recorrido para prensa', en: 'Walkthrough for press' },
     steps: [
       { when: { es: 'Hoy', en: 'Today' }, title: { es: 'Forja tu SGX Pass', en: 'Forge your SGX Pass' }, body: { es: 'Gratis y en un minuto. Desde tu pase solicitas la acreditación.', en: 'Free and in a minute. You request accreditation from your pass.' } },
-      { when: { es: 'Antes del 1 dic', en: 'Before Dec 1' }, title: { es: 'Solicita tu acreditación', en: 'Request accreditation' }, body: { es: 'En la Sala de prensa: tu medio, tu cargo, enlaces a coberturas previas y los días que cubrirás. 10 cupos de prensa. Recibes un código de seguimiento.', en: 'In the Press room: your outlet, your title, links to past coverage and the days you will cover. 10 press slots. You get a tracking code.' } },
+      { when: { es: `Antes del ${D.pressAccreditation.short.es}`, en: `Before ${D.pressAccreditation.short.en}` }, title: { es: 'Solicita tu acreditación', en: 'Request accreditation' }, body: { es: 'En la Sala de prensa: tu medio, tu cargo, enlaces a coberturas previas y los días que cubrirás. 10 cupos de prensa. Recibes un código de seguimiento.', en: 'In the Press room: your outlet, your title, links to past coverage and the days you will cover. 10 press slots. You get a tracking code.' } },
       { when: { es: 'Tras la revisión', en: 'After review' }, title: { es: 'Tu pase dice PRENSA', en: 'Your pass says PRESS' }, body: { es: 'Si te aprueban, el equipo te escribe, tu Holo Card cambia a PRENSA y tu pase queda invitado al Día 3.', en: 'If approved, the team writes to you, your Holo Card switches to PRESS and your pass is invited to Day 3.' } },
       { when: { es: '11–13 dic', en: 'Dec 11–13' }, title: { es: 'Cubre los 3 días', en: 'Cover all 3 days' }, body: { es: 'Días 1 y 2 por YouTube Live, con Los Mismos TV transmitiendo junto a nosotros. Día 3 presencial en Chroma Space Studios, San Juan: entras con el QR de tu SGX Pass.', en: 'Days 1 and 2 on YouTube Live, with Los Mismos TV streaming alongside us. Day 3 in person at Chroma Space Studios, San Juan: you get in with your SGX Pass QR.' } },
     ],

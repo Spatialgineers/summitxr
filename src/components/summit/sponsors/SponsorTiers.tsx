@@ -43,7 +43,7 @@ export const SponsorTiers: React.FC<SponsorTiersProps> = ({ tiers, onApply }) =>
         <p className="spx-lead">
           {es
             ? 'Cada nivel incluye todo lo del anterior. El precio exacto dentro de cada rango se acuerda según el presupuesto del sponsor.'
-            : "Each tier includes everything in the one before it. The exact price within each range is agreed based on the sponsor's budget."}
+            : "Each package includes everything in the one before it. The exact price within each range is agreed based on the sponsor's budget."}
         </p>
       </div>
 
@@ -75,7 +75,7 @@ export const SponsorTiers: React.FC<SponsorTiersProps> = ({ tiers, onApply }) =>
           );
         })}
       </ol>
-      <p className="spx-swipe" aria-hidden="true">{es ? 'Desliza para ver los 5 niveles →' : 'Swipe to see all 5 tiers →'}</p>
+      <p className="spx-swipe" aria-hidden="true">{es ? 'Desliza para ver los 5 niveles →' : 'Swipe to see all 5 packages →'}</p>
 
       <div className="spx-compare">
         <table>

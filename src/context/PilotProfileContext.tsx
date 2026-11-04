@@ -201,8 +201,8 @@ interface PilotProfileContextType {
   liteMode: boolean;
   setLiteMode: (enabled: boolean | ((prev: boolean) => boolean)) => void;
   selectPilotRole: (role: 'CREATOR' | 'SPONSOR' | 'STUDENT' | 'VISIONARY') => void;
-  /** Pays XP once per action (same category + title) on this device; returns false when it was already paid. */
-  recordActivity: (category: WeekendActivityCategory, title: string, details: string, xpEarned: number, highlightColor?: string) => boolean;
+  /** Pays XP once per action (same category + title, or the given onceKey) on this device; returns false when it was already paid. */
+  recordActivity: (category: WeekendActivityCategory, title: string, details: string, xpEarned: number, highlightColor?: string, onceKey?: string) => boolean;
   recordDroneTrick: (trick: DroneTrickType) => number; // returns XP earned
   recordDroneFlight: (score: number, packages: number, tricks: number) => void;
   updateProfileName: (nickname: string, callsign?: string) => void;
@@ -443,9 +443,12 @@ export const PilotProfileProvider: React.FC<{ children: React.ReactNode }> = ({ 
     title: string, 
     details: string, 
     xpEarned: number,
-    highlightColor: string = '#00DDFF'
+    highlightColor: string = '#00DDFF',
+    onceKey?: string
   ): boolean => {
-    if (xpEarned > 0 && !claimXpOnce(`${category}|${title}`)) return false;
+    // onceKey lets a caller key the payout by a stable id (e.g. a live question id) instead of
+    // the visible title, which can change with the language.
+    if (xpEarned > 0 && !claimXpOnce(onceKey || `${category}|${title}`)) return false;
     setProfile(prev => {
       const newXp = prev.totalXp + xpEarned;
       const { level, rankTitle } = calculateRankAndLevel(newXp);

@@ -18,7 +18,7 @@ export const TOTAL_CELLS = SECTION_META.length;
 export const QUESTS: QuestDef[] = [
   {
     id: 'q_core_boot', kind: 'main', xp: 50, target: 1,
-    es: { title: 'Iniciar Sistema', hint: 'Entra al Núcleo 3D y orbita la escena.' },
+    es: { title: 'Iniciar Sistema', hint: 'Entra al Núcleo 3D y gira la escena.' },
     en: { title: 'Boot the System', hint: 'Enter the 3D Core and orbit the scene.' },
   },
   {

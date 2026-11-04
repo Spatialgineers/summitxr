@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SUMMIT_DEADLINES as D } from '../lib/summitDeadlines';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
@@ -16,7 +17,7 @@ const ROLES: { role: Exclude<CredentialRole, 'visitor'>; es: [string, string]; e
   { role: 'speaker', es: ['Speaker o artista', 'Presenta en la agenda del Summit.'], en: ['Speaker or artist', 'Present on the Summit agenda.'] },
   { role: 'initiate', es: ['Initiate del SGX Guild', 'Muestra tu portafolio en el Guild.'], en: ['SGX Guild initiate', 'Show your portfolio in the Guild.'] },
   { role: 'sponsor', es: ['Sponsor', 'Pon tu marca dentro del Summit.'], en: ['Sponsor', 'Put your brand inside the Summit.'] },
-  { role: 'press', es: ['Prensa', 'Cubre el Summit: acreditación antes del 1 de diciembre.'], en: ['Press', 'Cover the Summit: accreditation before December 1.'] },
+  { role: 'press', es: ['Prensa', `Cubre el Summit: acreditación antes del ${D.pressAccreditation.day.es}.`], en: ['Press', `Cover the Summit: accreditation before ${D.pressAccreditation.day.en}.`] },
 ];
 
 const fire = (name: string, detail?: unknown) => window.dispatchEvent(new CustomEvent(name, { detail }));

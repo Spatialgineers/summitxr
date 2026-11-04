@@ -3,6 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { ScrambleText } from './ScrambleText';
 import { loc } from '../lib/localize';
 import { isFallback, isOpenSlot, pickSplashSponsors, sponsorTierLevel } from './splashSponsors';
+import { setSplashActive } from './splashState';
 
 /*
  * The one splash: a swarm of particles streaks in and assembles the Summit
@@ -11,12 +12,23 @@ import { isFallback, isOpenSlot, pickSplashSponsors, sponsorTierLevel } from './
  * decode, and the Tier 3+ partner row (with open "your brand here" slots)
  * gets its moment. ~5 s, skippable with any key, a tap, or the Skip button.
  * If the logo image can't load, the SGX bolt stands in.
+ *
+ * Time-bounded: the timeline starts on mount (the logo gets LOGO_WAIT_MS to
+ * arrive, then the bolt stands in), and a hard cap ends the splash even if
+ * frames stall. `short` (returning Creadores with a pass, reduced motion) is
+ * the same splash in ~2.4 s, partner row included.
  */
 
 /** The Summit logo, trimmed and served locally so the splash never waits on the network. */
 const SUMMIT_LOGO = '/brand/summit-logo.png';
 const BOLT_PATH = 'M1665 62 L121 1265 L763 1266 L382 1987 L1925 784 L1284 782 Z';
-const TOTAL_MS = 5200;
+/** Full and short timelines (ms): swarm, logo ignites, title + partners, end. */
+const FULL = { swarm: 1500, ignite: 1450, title: 1850, total: 5200 } as const;
+const SHORT = { swarm: 550, ignite: 500, title: 650, total: 2400 } as const;
+/** Longest wait for the logo image before the bolt stands in. */
+const LOGO_WAIT_MS = 400;
+/** The splash never stays longer than this after mounting, whatever happens to the frames. */
+const HARD_CAP_MS = { full: 6200, short: 3000 } as const;
 const COLORS = ['#FDCC0D', '#FDCC0D', '#FDCC0D', '#FFBB00', '#00DDFF', '#32527B'];
 
 interface Particle { x: number; y: number; sx: number; sy: number; tx: number; ty: number; c: string; d: number; s: number }
@@ -57,7 +69,7 @@ function sampleMark(size: number, count: number, logo: HTMLImageElement | null):
   return pts;
 }
 
-export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: () => void }> = ({ onComplete, onFadeStart }) => {
+export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: () => void; short?: boolean }> = ({ onComplete, onFadeStart, short: shortProp = false }) => {
   const { language } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, setPhase] = useState<'swarm' | 'ignite' | 'title' | 'out'>('swarm');
@@ -65,13 +77,34 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
   const doneRef = useRef(false);
   const [sponsors] = useState(() => { try { return pickSplashSponsors(4); } catch { return []; } });
 
+  const [short] = useState<boolean>(() => {
+    if (shortProp) return true;
+    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; }
+  });
+  const T = short ? SHORT : FULL;
+
   const finish = () => {
     if (doneRef.current) return;
     doneRef.current = true;
+    setSplashActive(false);
     setPhase('out');
     onFadeStart?.();
     window.setTimeout(onComplete, 380);
   };
+
+  // While the splash covers the screen the 3D core waits (splashState.ts), so the two
+  // never fight for the main thread and the GPU.
+  useEffect(() => {
+    setSplashActive(true);
+    return () => setSplashActive(false);
+  }, []);
+
+  // Hard cap: the splash ends on time even if the logo, the frames or the tab stall.
+  useEffect(() => {
+    const cap = window.setTimeout(() => finish(), short ? HARD_CAP_MS.short : HARD_CAP_MS.full);
+    return () => window.clearTimeout(cap);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Skip on any key or tap.
   useEffect(() => {
@@ -83,10 +116,11 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
 
   // Boot log: each pillar comes online.
   useEffect(() => {
+    const k = short ? 0.35 : 1;
     const timers = PILLARS.map((p, i) =>
-      window.setTimeout(() => setLog((l) => [...l.slice(-6), `${p.padEnd(15, '.')} ONLINE`]), 220 + i * 190),
+      window.setTimeout(() => setLog((l) => [...l.slice(-6), `${p.padEnd(15, '.')} ONLINE`]), (220 + i * 190) * k),
     );
-    timers.push(window.setTimeout(() => setLog((l) => [...l.slice(-6), 'REACTOR ............ 100%']), 1500));
+    timers.push(window.setTimeout(() => setLog((l) => [...l.slice(-6), 'REACTOR ............ 100%']), 1500 * k));
     return () => timers.forEach(window.clearTimeout);
   }, []);
 
@@ -97,9 +131,12 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
     let raf = 0;
     let cancelled = false;
     const logo = new Image();
-    const begin = (mark: HTMLImageElement | null) => { if (!cancelled) run(mark); };
-    logo.onload = () => begin(logo);
-    logo.onerror = () => begin(null);
+    let begun = false;
+    // The logo gets a short head start; if it is late the bolt stands in, so the clock never waits on the network.
+    const begin = (mark: HTMLImageElement | null) => { if (!cancelled && !begun) { begun = true; run(mark); } };
+    const late = window.setTimeout(() => begin(null), LOGO_WAIT_MS);
+    logo.onload = () => { window.clearTimeout(late); begin(logo); };
+    logo.onerror = () => { window.clearTimeout(late); begin(null); };
     logo.src = SUMMIT_LOGO;
 
     const run = (mark: HTMLImageElement | null) => {
@@ -160,7 +197,7 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
         ctx.fillStyle = grad;
         ctx.fillRect(0, hy, W, 1);
 
-        const swarmT = reduce ? 1 : Math.min(1, t / 1500);
+        const swarmT = reduce ? 1 : Math.min(1, t / T.swarm);
         ctx.globalCompositeOperation = 'lighter';
         for (const p of particles) {
           const local = Math.min(1, Math.max(0, (swarmT - p.d) / (1 - p.d)));
@@ -175,11 +212,11 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
         ctx.globalCompositeOperation = 'source-over';
 
         // Ignite: the real logo fades in and a shockwave rolls out.
-        if (t > 1450) {
+        if (t > T.ignite) {
           if (!ignited) { ignited = true; setPhase('ignite'); }
-          const it = Math.min(1, (t - 1450) / 450);
+          const it = Math.min(1, (t - T.ignite) / 450);
           drawLogo(easeOutCubic(it));
-          const wt = Math.min(1, (t - 1450) / 900);
+          const wt = Math.min(1, (t - T.ignite) / 900);
           if (wt < 1) {
             ctx.beginPath();
             ctx.strokeStyle = `rgba(0, 221, 255, ${0.8 * (1 - wt)})`;
@@ -188,15 +225,15 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
             ctx.stroke();
           }
         }
-        if (t > 1850 && !titled) { titled = true; setPhase('title'); }
-        if (t > TOTAL_MS) { finish(); return; }
+        if (t > T.title && !titled) { titled = true; setPhase('title'); }
+        if (t > T.total) { finish(); return; }
         raf = requestAnimationFrame(frame);
       };
       ctx.fillStyle = '#050505';
       ctx.fillRect(0, 0, W, H);
       raf = requestAnimationFrame(frame);
     };
-    return () => { cancelled = true; cancelAnimationFrame(raf); };
+    return () => { cancelled = true; window.clearTimeout(late); cancelAnimationFrame(raf); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

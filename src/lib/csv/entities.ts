@@ -368,6 +368,7 @@ export const CSV_ENTITIES = {
   polls: POLLS_CSV,
   companion_kb: COMPANION_KB_CSV,
   pillar_showcase: PILLAR_SHOWCASE_CSV,
-  gallery: GALLERY_CSV,
+  // The retrospective gallery (summit_content/gallery) is shown nowhere in the app, so it
+  // is not editable from the admin; its data stays as it is. GALLERY_CSV is kept for reuse.
   missions: MISSIONS_CSV,
 };

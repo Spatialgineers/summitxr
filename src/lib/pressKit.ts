@@ -29,8 +29,8 @@ export const PRESS_RULES = {
     en: 'Accreditation covers all 3 days: the YouTube Live broadcast on Days 1 and 2, and in-person entry to Day 3 at Chroma Space Studios with your SGX Pass QR.',
   },
   line: {
-    es: 'Prensa: solicita tu acreditación en summit.spatialgineers.com/prensa antes del 1 de diciembre (10 cupos de prensa).',
-    en: 'Press: request accreditation at summit.spatialgineers.com/prensa before December 1 (10 press slots).',
+    es: `Prensa: solicita tu acreditación en summit.spatialgineers.com/prensa antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es} (10 cupos de prensa).`,
+    en: `Press: request accreditation at summit.spatialgineers.com/prensa before ${SUMMIT_DEADLINES.pressAccreditation.day.en} (10 press slots).`,
   },
 } satisfies Record<string, Bi>;
 
@@ -67,7 +67,7 @@ export const PRESS_FACTS: { k: Bi; v: Bi }[] = [
   { k: { es: 'Fundadores', en: 'Founders' }, v: { es: 'Danelson Maldonado González "The Highgineer" y Ricardo A. Hernández Díaz "Lightning Fingers".', en: 'Danelson Maldonado González "The Highgineer" and Ricardo A. Hernández Díaz "Lightning Fingers".' } },
   { k: { es: 'Portafolio', en: 'Portfolio' }, v: { es: '60+ espacios digitales y 10 juegos interactivos.', en: '60+ digital spaces and 10 interactive games.' } },
   { k: { es: 'Web del Summit', en: 'Summit website' }, v: { es: 'summit.spatialgineers.com', en: 'summit.spatialgineers.com' } },
-  { k: { es: 'Prensa', en: 'Press' }, v: { es: 'Acreditación antes del 1 de diciembre de 2026: 10 cupos de prensa. info@spatialgineers.com', en: 'Accreditation before December 1, 2026: 10 press slots. info@spatialgineers.com' } },
+  { k: { es: 'Prensa', en: 'Press' }, v: { es: `Acreditación antes del ${SUMMIT_DEADLINES.pressAccreditation.label.es}: 10 cupos de prensa. info@spatialgineers.com`, en: `Accreditation before ${SUMMIT_DEADLINES.pressAccreditation.label.en}: 10 press slots. info@spatialgineers.com` } },
 ];
 
 export const PRESS_ABOUT: { summit: Bi; studio: Bi } = {
@@ -159,7 +159,7 @@ export const PRESS_ASSETS: PressAsset[] = [
 export const PRESS_FAQ: { q: Bi; a: Bi }[] = [
   {
     q: { es: '¿Cómo pido la acreditación de prensa para el Spatialgineers Summit 2026?', en: 'How do I request press accreditation for Spatialgineers Summit 2026?' },
-    a: { es: 'En summit.spatialgineers.com/prensa: forjas tu SGX Pass gratis y llenas la solicitud con tu medio, tu cargo, enlaces a coberturas previas y los días que cubrirás. Recibes un código de seguimiento al enviarla. La fecha límite es el 1 de diciembre de 2026.', en: 'At summit.spatialgineers.com/prensa: forge your free SGX Pass and fill in the request with your outlet, your title, links to past coverage and the days you will cover. You get a tracking code when you send it. The deadline is December 1, 2026.' },
+    a: { es: `En summit.spatialgineers.com/prensa: forjas tu SGX Pass gratis y llenas la solicitud con tu medio, tu cargo, enlaces a coberturas previas y los días que cubrirás. Recibes un código de seguimiento al enviarla. La fecha límite es el ${SUMMIT_DEADLINES.pressAccreditation.label.es}.`, en: `At summit.spatialgineers.com/prensa: forge your free SGX Pass and fill in the request with your outlet, your title, links to past coverage and the days you will cover. You get a tracking code when you send it. The deadline is ${SUMMIT_DEADLINES.pressAccreditation.label.en}.` },
   },
   {
     q: { es: '¿Cuántos cupos de prensa hay?', en: 'How many press slots are there?' },

@@ -8,6 +8,10 @@
    Deadlines come from summitDeadlines.ts (one source of truth). */
 
 import { DEADLINE_COPY, SUMMIT_DEADLINES as D } from '../lib/summitDeadlines';
+import { REACTOR_MISSIONS } from '../identity/reactor';
+
+/** The Reactor's fixed missions; each approved partner of Paquete 3–5 adds one more. */
+const FIXED_MISSIONS = REACTOR_MISSIONS.length;
 
 export interface Bi { es: string; en: string }
 export interface GuideEntry {
@@ -49,7 +53,7 @@ export const APP_FAQ: GuideEntry[] = [
     go: 'reactor' },
   { id: 'reactor', keys: ['mision', 'misiones', 'reactor', 'sello', 'sellar', 'mission', 'missions', 'stamp', 'quest'],
     q: { es: '¿Qué es el Reactor de misiones?', en: 'What is the mission Reactor?' },
-    a: { es: 'Son 24 misiones repartidas en los seis pilares. Cada pilar completo queda sellado en tu SGX Pass. Ábrelo desde el contador "Misiones x/24": cada misión tiene un botón que te lleva a donde se hace.', en: 'They are 24 missions across the six pillars. Every completed pillar is stamped on your SGX Pass. Open it from the "Missions x/24" counter: each mission has a button that takes you where it is done.' },
+    a: { es: `Son ${FIXED_MISSIONS} misiones fijas repartidas en los seis pilares, más una por cada partner de Paquete 3–5. Cada pilar completo queda sellado en tu SGX Pass. Ábrelo desde el contador "Misiones" (muestra cuántas llevas del total): cada misión tiene un botón que te lleva a donde se hace.`, en: `There are ${FIXED_MISSIONS} fixed missions across the six pillars, plus one for each Package 3–5 partner. Every completed pillar is stamped on your SGX Pass. Open it from the "Missions" counter (it shows how many you have done out of the total): each mission has a button that takes you where it is done.` },
     go: 'reactor' },
   { id: 'store', keys: ['tienda', 'premios', 'canjear', 'gastar', 'store', 'shop', 'rewards', 'prize', 'redeem', 'spend'],
     q: { es: '¿Qué hago con mi XP?', en: 'What do I do with my XP?' },
@@ -85,7 +89,7 @@ export const APP_FAQ: GuideEntry[] = [
     go: 'agenda' },
   { id: 'day2', keys: ['dia 2', 'sabado', 'industria', 'conversaciones', 'conversatorio', 'day 2', 'saturday', 'industry', 'panel'],
     q: { es: '¿Qué pasa el Día 2?', en: 'What happens on Day 2?' },
-    a: { es: 'Sábado 12, Día de la Industria (digital): seis conversaciones de 45 minutos, una por pilar, con personas invitadas (se anuncian al confirmarse), y entre cada una una pausa con votación gamificada (+25 XP).', en: 'Saturday the 12th, Industry Day (digital): six 45-minute conversations, one per pillar, with guests (announced once confirmed), and a gamified voting break between each (+25 XP).' },
+    a: { es: 'Sábado 12, Día de la Industria (digital): seis conversaciones de 45 minutos, una por pilar, con personas invitadas (se anuncian al confirmarse), y entre cada una una pausa con votación gamificada (+25 XP por voto).', en: 'Saturday the 12th, Industry Day (digital): six 45-minute conversations, one per pillar, with guests (announced once confirmed), and a gamified voting break between each (+25 XP per vote).' },
     go: 'agenda' },
   { id: 'speakers', keys: ['speaker', 'speakers', 'ponentes', 'invitados', 'artista', 'artistas', 'quien', 'quienes', 'line-up', 'lineup', 'guests', 'who'],
     q: { es: '¿Quiénes son los speakers?', en: 'Who are the speakers?' },
@@ -105,7 +109,7 @@ export const APP_FAQ: GuideEntry[] = [
     go: 'patrocina' },
   { id: 'deadlines', keys: ['fecha limite', 'fechas limite', 'deadline', 'deadlines', 'hasta cuando', 'cierra', 'cierre', 'ultimo dia', 'a mas tardar', 'pago', 'materiales', 'payment', 'materials', 'closes', 'last day'],
     q: { es: '¿Cuáles son las fechas límite?', en: 'What are the deadlines?' },
-    a: { es: `Perfiles de speakers y artistas: hasta el ${D.speakerProfiles.day.es}. Solicitudes de auspicio: hasta el ${D.sponsorApplications.day.es}. Pago total y materiales de sponsors: a más tardar el ${D.sponsorPayment.day.es}. Prensa: antes del ${D.pressAccreditation.day.es}. Invitaciones al Día 3: el equipo las envía a más tardar el ${D.day3Invitations.day.es}. Hora de Puerto Rico.`, en: `Speaker and artist profiles: through ${D.speakerProfiles.day.en}. Sponsorship applications: through ${D.sponsorApplications.day.en}. Sponsor full payment and materials: no later than ${D.sponsorPayment.day.en}. Press: before ${D.pressAccreditation.day.en}. Day 3 invitations: the team sends them no later than ${D.day3Invitations.day.en}. Puerto Rico time.` } },
+    a: { es: `Perfiles de speakers y artistas: hasta el ${D.speakerProfiles.day.es}. Solicitudes de auspicio: hasta el ${D.sponsorApplications.day.es}. Pago total y materiales de sponsors: a más tardar el ${D.sponsorPayment.day.es}. Prensa: antes del ${D.pressAccreditation.day.es}. Solicitudes para el Día 3: hasta el ${D.day3Requests.day.es}. Invitaciones al Día 3: el equipo las envía a más tardar el ${D.day3Invitations.day.es}. Hora de Puerto Rico.`, en: `Speaker and artist profiles: through ${D.speakerProfiles.day.en}. Sponsorship applications: through ${D.sponsorApplications.day.en}. Sponsor full payment and materials: no later than ${D.sponsorPayment.day.en}. Press: before ${D.pressAccreditation.day.en}. Day 3 requests: through ${D.day3Requests.day.en}. Day 3 invitations: the team sends them no later than ${D.day3Invitations.day.en}. Puerto Rico time.` } },
   { id: 'speaker-portal', keys: ['portal de speakers', 'portal speakers', 'ser speaker', 'presentar', 'postularme', 'registrar perfil', 'mi perfil de speaker', 'speaker portal', 'apply as speaker', 'present'],
     q: { es: '¿Cómo me registro como speaker o artista?', en: 'How do I register as a speaker or artist?' },
     a: { es: `En el Portal de speakers: llenas tu perfil, armas tu avatar y lo envías para revisión. ${DEADLINE_COPY.speakerProfiles.es} Después el portal se cierra; para lo que falte, info@spatialgineers.com. Se publican solo los confirmados por escrito.`, en: `In the Speaker portal: fill in your profile, build your avatar and send it for review. ${DEADLINE_COPY.speakerProfiles.en} After that the portal closes; for anything else, info@spatialgineers.com. Only those confirmed in writing are published.` },
@@ -146,7 +150,7 @@ export const APP_FAQ: GuideEntry[] = [
 /** Controls that are always on screen, for the prompt. */
 export const APP_CONTROLS_ES = `- Header: logo del Summit (inicio), la tarjeta del sponsor del momento junto al logo con "Patrocina el Summit", idioma ES/EN, sonido, FX/Ligero, el chip del Creador (abre Tu Estudio), compartir y el Menú con todos los módulos.
 - Barra del núcleo (portada): la fecha y los relojes del Summit (cuenta regresiva al Día 1), las visitas totales y Agenda. Los Ajustes del núcleo (girar, zoom, sponsors en 3D, inmersión total, modo ligero) están en el engranaje del header de arriba. Tocar un pilar 3D abre su tarjeta con "Visitar pilar".
-- Riel "Misiones x/24": abre el Reactor como pop-up; cada misión tiene un botón a donde se hace.
+- Riel "Misiones x/N" (N es el total real: ${FIXED_MISSIONS} fijas más una por partner de Paquete 3–5): abre el Reactor como pop-up; cada misión tiene un botón a donde se hace.
 - La cabecita del Highbot (abajo a la derecha) abre este chat.
 - Pulso en vivo: reacciones y encuesta de la keynote, solo durante los días del Summit.
 - Al ganar XP, a veces sale "Presentado por" con una marca por unos segundos (máximo cada 5 minutos); tocarlo la fija y lleva a su showcase.

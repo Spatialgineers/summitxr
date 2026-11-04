@@ -28,37 +28,50 @@ import { usePilotProfile } from '../../context/PilotProfileContext';
 import { SummitRewardsStoreModal } from '../summit/SummitRewardsStoreModal';
 import { QuickGuideModal, GuideStep } from '../common/QuickGuideModal';
 import { TransientSponsorSlot } from '../summit/TransientSponsorSlot';
+import { useLanguage } from '../../context/LanguageContext';
 
-const VOTING_GUIDE_STEPS: GuideStep[] = [
+/** +25 XP per question voted (paid once per question id). Matches the "+25 XP por voto" copy. */
+export const LIVE_VOTE_XP = 25;
+
+const votingGuideSteps = (es: boolean): GuideStep[] => [
   {
-    badge: 'GUÍA 1/3 • VELOCIDAD & PRECISIÓN',
-    title: 'Bonos de Velocidad y Rachas',
-    subtitle: 'Vota en los primeros segundos para maximizar tus puntos',
-    description: 'Mientras más rápido envíes tu respuesta en las preguntas de trivia o decisiones narrativas, mayor será tu bono de velocidad (hasta +150 PTS extras). Mantén una racha de aciertos para duplicar tus puntos (hasta 2.0x).',
+    badge: es ? 'GUÍA 1/3 • VELOCIDAD & PRECISIÓN' : 'GUIDE 1/3 • SPEED & ACCURACY',
+    title: es ? 'Bonos de Velocidad y Rachas' : 'Speed Bonuses and Streaks',
+    subtitle: es ? 'Vota en los primeros segundos para maximizar tus puntos' : 'Vote in the first seconds to maximize your points',
+    description: es
+      ? `Cada voto suma +${LIVE_VOTE_XP} XP a tu SGX Pass (una vez por pregunta). En la tabla del escenario, mientras más rápido respondas mayor es tu bono de velocidad (hasta +150 PTS extras), y una racha de aciertos duplica tus puntos (hasta 2.0x).`
+      : `Every vote adds +${LIVE_VOTE_XP} XP to your SGX Pass (once per question). On the stage leaderboard, the faster you answer the bigger your speed bonus (up to +150 extra PTS), and a streak of right answers doubles your points (up to 2.0x).`,
     icon: Zap,
-    tips: [
+    tips: es ? [
       'La barra de tiempo superior te indica los segundos restantes antes del cierre de votación.',
       'Las preguntas de opinión (CYOA) otorgan puntos garantizados por participar.'
+    ] : [
+      'The time bar at the top shows the seconds left before voting closes.',
+      'Opinion questions (CYOA) give guaranteed points for taking part.'
     ]
   },
   {
-    badge: 'GUÍA 2/3 • RECOMPENSAS Y CUPONES',
-    title: 'Niveles de Recompensa (Tiers)',
-    subtitle: 'Canjea cupones de patrocinadores con tu puntaje',
-    description: 'A medida que acumulas puntos desbloqueas los niveles Bronce, Plata, Oro, Platino y Backstage. Los premios son mayormente digitales y se anuncian según el Run of Show.',
+    badge: es ? 'GUÍA 2/3 • RECOMPENSAS Y CUPONES' : 'GUIDE 2/3 • REWARDS AND COUPONS',
+    title: es ? 'Niveles de recompensa' : 'Reward levels',
+    subtitle: es ? 'Canjea cupones de patrocinadores con tu puntaje' : 'Redeem sponsor coupons with your score',
+    description: es
+      ? 'A medida que acumulas puntos desbloqueas los niveles Bronce, Plata, Oro, Platino y Backstage. Los premios son mayormente digitales y se anuncian según el Run of Show.'
+      : 'As you earn points you unlock the Bronze, Silver, Gold, Platinum and Backstage levels. Prizes are mostly digital and are announced along the Run of Show.',
     icon: Award,
     tips: [
-      'Visita la pestaña "Premios" para consultar tus códigos desbloqueados.'
+      es ? 'Visita la pestaña "Premios" para consultar tus códigos desbloqueados.' : 'Open "Prizes" to see your unlocked codes.'
     ]
   },
   {
-    badge: 'GUÍA 3/3 • TU PERFIL',
-    title: 'Tu registro del Summit',
-    subtitle: 'Cada voto suma a tu nivel y rango',
-    description: 'Tus votos, respuestas correctas y reacciones se registran automáticamente en tu perfil de creador y tabla de clasificación en tiempo real.',
+    badge: es ? 'GUÍA 3/3 • TU PERFIL' : 'GUIDE 3/3 • YOUR PROFILE',
+    title: es ? 'Tu registro del Summit' : 'Your Summit record',
+    subtitle: es ? 'Cada voto suma a tu nivel y rango' : 'Every vote adds to your level and rank',
+    description: es
+      ? 'Tus votos, respuestas correctas y reacciones se registran automáticamente en tu perfil de creador y tabla de clasificación en tiempo real.'
+      : 'Your votes, right answers and reactions are recorded automatically in your creator profile and the live leaderboard.',
     icon: Trophy,
     tips: [
-      'Toca tu avatar superior para abrir el desglose completo del fin de semana.'
+      es ? 'Toca tu avatar superior para abrir el desglose completo del fin de semana.' : 'Tap your avatar at the top to open your full weekend breakdown.'
     ]
   }
 ];
@@ -91,6 +104,8 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
   isConnected,
 }) => {
   const { savePlayerProfile } = useAuth();
+  const { language } = useLanguage();
+  const es = language === 'es';
   const { recordActivity, setIsProfileModalOpen } = usePilotProfile();
   // The SGX Pass is the player profile: its callsign is the nickname on the stage and
   // its email ties prizes to the registration. There is no separate SGX Live profile.
@@ -119,12 +134,17 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
     });
 
     const isCYOA = currentQuestion?.answerType === 'OPINION_CYOA';
+    // +25 XP per question voted, keyed by the question id: each new question pays once,
+    // a re-vote (or a re-broadcast) of the same question pays nothing, and the language
+    // of the title does not matter.
+    const qid = currentQuestion?.id || `${session.currentQuestionId || 'live'}`;
     recordActivity(
       isCYOA ? 'stage_cyoa' : 'trivia_vote',
-      isCYOA ? 'Decisión CYOA 3D Emitida' : 'Voto de Trivia Emitido',
+      `${isCYOA ? 'Decisión en vivo' : 'Voto en vivo'}: ${currentQuestion?.prompt || 'SGX Live'}`,
       `Votaste en "${currentQuestion?.prompt || 'Votación en vivo'}".`,
-      isCYOA ? 120 : 100,
-      isCYOA ? '#8B5CF6' : '#00DDFF'
+      LIVE_VOTE_XP,
+      isCYOA ? '#8B5CF6' : '#00DDFF',
+      `live_vote|${qid}`
     );
 
     onCastVote(optionId, optionCode);
@@ -151,7 +171,7 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
               {sgx?.isForged ? (
                 <SgxPilotGlyph seed={sgx.identity.avatar.seed} config={sgx.identity.avatar.pilot} accent={sgx.identity.affinity ? PILLAR_ACCENT[sgx.identity.affinity] : '#FDCC0D'} size={26} />
               ) : (
-                <span>{user.avatar || '🚀'}</span>
+                <span>{user.avatar || '⚡'}</span>
               )}
             </div>
             <div className="min-w-0">
@@ -223,7 +243,7 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
             style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
           >
             <Vote className="w-3.5 h-3.5" />
-            <span>1. Vote / Decidir</span>
+            <span>{es ? '1. Votar' : '1. Vote'}</span>
           </button>
 
           <button
@@ -236,7 +256,7 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
             style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }}
           >
             <Tv className="w-3.5 h-3.5" />
-            <span>2. Live Visualizer</span>
+            <span>{es ? '2. Visual en vivo' : '2. Live visual'}</span>
           </button>
         </div>
       </header>
@@ -466,7 +486,7 @@ export const AudiencePWA: React.FC<AudiencePWAProps> = ({
         onClose={() => setIsGuideOpen(false)}
         guideTitle="Consola de Votación & Puntos Live"
         guideCategory="GUÍA DE JUEGO"
-        steps={VOTING_GUIDE_STEPS}
+        steps={votingGuideSteps(es)}
         primaryActionLabel="¡Listo para votar!"
       />
 

@@ -12,7 +12,7 @@ import {
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, googleProvider, db, firebaseConfig, handleFirestoreError, OperationType } from '../lib/firebase';
 import { UserProfile } from '../types/engine';
-import { SIGNED_IN_EVENT, syncAccountOwner, watchAccountOwner } from '../identity/accountSlots';
+import { SIGNED_IN_EVENT, markAccountAction, syncAccountOwner, watchAccountOwner } from '../identity/accountSlots';
 
 export const AUTHORIZED_SUPER_ADMIN_EMAIL = 'info@spatialgineers.com';
 /** Same list as isSuperAdmin() in firestore.rules and SGX_ADMIN_EMAILS on the server. */
@@ -205,6 +205,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuthError(null);
     setLoading(true);
     try {
+      markAccountAction();
       const result = await signInWithPopup(auth, googleProvider);
       if (result.user) {
         if (await syncAccountOwner(result.user)) return;
@@ -235,6 +236,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuthError(null);
     setLoading(true);
     try {
+      markAccountAction();
       const credential = GoogleAuthProvider.credential(idToken);
       const result = await signInWithCredential(auth, credential);
       if (result.user) {
@@ -320,6 +322,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
+      markAccountAction();
       await signOut(auth);
       // This account's data is parked in its slot; the page reloads as a guest.
       if (await syncAccountOwner(null)) return;

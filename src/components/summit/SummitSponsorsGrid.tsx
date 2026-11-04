@@ -65,7 +65,7 @@ export const SummitSponsorsGrid: React.FC<SummitSponsorsGridProps> = ({ sponsors
               <span className="spx-wall__logo"><Plus aria-hidden /></span>
               <span className="spx-wall__info">
                 <strong>{es ? 'Tu marca aquí' : 'Your brand here'}</strong>
-                <small>{es ? 'Cada nivel tiene cupos limitados.' : 'Every tier has limited slots.'}</small>
+                <small>{es ? 'Cada nivel tiene cupos limitados.' : 'Every package has limited slots.'}</small>
               </span>
               <span className="spx-wall__go">{es ? 'Solicitar auspicio' : 'Request sponsorship'}<ArrowRight aria-hidden /></span>
             </button>

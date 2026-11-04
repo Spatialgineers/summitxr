@@ -375,7 +375,8 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
     if (onSelectNode) onSelectNode(nodeId);
     try {
       const selected = nodes.find(n => n.id === nodeId);
-      recordActivity(`Exploración 360°: ${selected?.title || 'Recinto Chroma'}`, 30, 'summit');
+      // One payout per 360° point (keyed by its id), never twice.
+      recordActivity('tour_complete', `Exploración 360°: ${selected?.title || 'Recinto Chroma'}`, 'Recorrido 360° de Chroma', 30, '#00DDFF', `tour_complete|360|${nodeId}`);
       playUiChirp(840);
     } catch {}
   };
@@ -498,7 +499,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                 <span className="text-xs font-mono text-[var(--sgx-neon)] font-bold uppercase tracking-wider">
-                  {es ? 'DISTRIBUCIÓN ESPACIAL — CHROMA SPACE STUDIOS' : 'SPATIAL LAYOUT — CHROMA SPACE STUDIOS'}
+                  {es ? 'PLANO DEL ESTUDIO — CHROMA SPACE STUDIOS' : 'SPATIAL LAYOUT — CHROMA SPACE STUDIOS'}
                 </span>
                 <span className="text-[10px] font-mono text-slate-400">
                   {es ? 'SAN JUAN, PUERTO RICO • VENUE PRINCIPAL' : 'SAN JUAN, PUERTO RICO • MAIN VENUE'}
@@ -562,7 +563,7 @@ export const Summit360MapViewer: React.FC<Summit360MapViewerProps> = ({
               <Compass className="w-5 h-5 text-[var(--sgx-neon)]" />
             </div>
             <p className="text-xs font-mono font-bold text-white uppercase tracking-wider">
-              {es ? 'Calibrando Nodo Espacial 360°...' : 'Calibrating 360° Spatial Node...'}
+              {es ? 'Cargando punto 360°...' : 'Calibrating 360° Spatial Node...'}
             </p>
             <span className="text-[10px] font-mono text-[var(--sgx-neon)] mt-1">
               {activeNode && loc(activeNode, 'title', language)}

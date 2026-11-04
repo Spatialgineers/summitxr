@@ -41,7 +41,7 @@ export const PRIZE_TIERS: PrizeTier[] = [
     id: 'tier_platinum',
     tier: 'PLATINUM',
     name: 'Grand Architect',
-    description: 'Top-tier event influencer with unmatched streak mastery.',
+    description: 'Top event influencer with unmatched streak mastery.',
     minPoints: 1200,
     minInteractions: 4,
     badgeIcon: '💎',

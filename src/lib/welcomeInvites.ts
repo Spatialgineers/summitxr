@@ -12,9 +12,14 @@
 
 import type { SummitSession } from '../types/summit';
 import { SGX_PILLARS, findPillar } from './sgxPillars';
-import { welcomeUrlFor, type WelcomeRole } from './welcomePortal';
+import { WELCOME_ORIGIN, welcomeUrlFor, type WelcomeRole } from './welcomePortal';
 import { SGX_EMAIL, SGX_INSTAGRAM, SGX_YOUTUBE } from './sgxLinks';
 import { SUMMIT_DEADLINES as D } from './summitDeadlines';
+import { SPONSOR_TERMS_PATH, SPONSOR_TERMS_SUMMARY } from './sponsorTerms';
+import { SPEAKER_GUIDE_ANCHOR, SPEAKER_GUIDE_SUMMARY } from './speakerGuide';
+
+/** Sponsors: the "Términos y logística" block on the sponsors page. */
+export const SPONSOR_TERMS_URL = `${WELCOME_ORIGIN}${SPONSOR_TERMS_PATH}`;
 
 export const INVITE_TEMPLATES: Record<WelcomeRole, { subject: string; lines: string[] }> = {
   speaker: {
@@ -23,15 +28,17 @@ export const INVITE_TEMPLATES: Record<WelcomeRole, { subject: string; lines: str
       'Hola {nombre}, te esperamos en el Spatialgineers Summit 2026.',
       '?Tu sesión: «{titulo}» · {pilar} · {dia}, {hora}.',
       `Deja tu perfil listo a más tardar el ${D.speakerProfiles.day.es}. Aquí tienes tu video guía y los pasos: {link}`,
+      `Guía del speaker (qué enviar, tu sesión de 45 min y la prueba técnica antes del ${D.speakerTechCheck.day.es}): {guia}`,
     ],
   },
   sponsor: {
     subject: 'Tu marca en el Spatialgineers Summit 2026',
     lines: [
       'Hola {nombre}, gracias por sumar tu marca al Spatialgineers Summit 2026 (11–13 dic).',
-      '?Tu nivel: {paquete}.',
+      '?Tu paquete: {paquete}.',
       `Fechas clave: solicitudes hasta el ${D.sponsorApplications.day.es}; pago total y materiales a más tardar el ${D.sponsorPayment.day.es}.`,
       'Tu video guía y los pasos, aquí: {link}',
+      'Formas de pago, IVU, materiales y cancelación: {terminos}',
     ],
   },
   prensa: {
@@ -123,6 +130,9 @@ export function inviteLink(role: WelcomeRole, f: InviteFields): string {
   return `${welcomeUrlFor(role)}${q ? `?${q}` : ''}`;
 }
 
+/** The speaker guide on the person's own welcome link (keeps the greeting). */
+export const speakerGuideLink = (link: string) => `${link}#${SPEAKER_GUIDE_ANCHOR}`;
+
 /** The message for a role with the fields swapped in. */
 export function inviteMessage(role: WelcomeRole, f: InviteFields): { subject: string; text: string; link: string } {
   const link = inviteLink(role, f);
@@ -134,6 +144,8 @@ export function inviteMessage(role: WelcomeRole, f: InviteFields): { subject: st
     hora: clean(f.hora, LIMITS.h),
     paquete: f.paquete ? `Paquete ${f.paquete}` : '',
     link,
+    guia: speakerGuideLink(link),
+    terminos: SPONSOR_TERMS_URL,
   };
   const lines = INVITE_TEMPLATES[role].lines.map((raw) => {
     const optional = raw.startsWith('?');
@@ -151,6 +163,14 @@ export function inviteMessage(role: WelcomeRole, f: InviteFields): { subject: st
 /* ---------- HTML email (Gmail / Outlook / Apple Mail safe) ----------
    Tables, inline styles, no scripts, no external CSS, 600px wide.
    EDIT THE COPY HERE: one intro line and three short next steps per role. */
+
+export interface InviteGuide { kicker: string; body: string; cta: string }
+
+/** The guide card in the speaker and sponsor emails (the link is added per person). */
+export const INVITE_GUIDES: Partial<Record<WelcomeRole, InviteGuide>> = {
+  speaker: { kicker: 'Guía del speaker', body: SPEAKER_GUIDE_SUMMARY.es, cta: 'Leer la guía del speaker' },
+  sponsor: { kicker: 'Términos y logística', body: SPONSOR_TERMS_SUMMARY.es, cta: 'Ver términos y logística' },
+};
 
 export const INVITE_EMAILS: Record<WelcomeRole, { preheader: string; intro: string; steps: [string, string, string] }> = {
   speaker: {
@@ -228,8 +248,20 @@ export function inviteEmailHtml(role: WelcomeRole, f: InviteFields, videoId?: st
       </td></tr>` : '';
   const paquete = role === 'sponsor' && f.paquete ? `
       <tr><td style="padding:0 32px 24px;">
-        <p style="${kicker}">Tu nivel</p>
+        <p style="${kicker}">Tu paquete</p>
         <p style="margin:0;${font}font-size:16px;color:#FFFFFF;">Paquete ${esc(String(f.paquete))}</p>
+      </td></tr>` : '';
+  const g = INVITE_GUIDES[role];
+  const guideHref = role === 'speaker' ? speakerGuideLink(link) : SPONSOR_TERMS_URL;
+  const guide = g ? `
+      <tr><td style="padding:4px 32px 24px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#111111;border-left:3px solid #FDCC0D;">
+          <tr><td style="padding:14px 16px;">
+            <p style="${kicker}">${esc(g.kicker)}</p>
+            <p style="margin:0 0 10px;${font}font-size:14px;line-height:1.5;color:#DDDDDD;">${esc(g.body)}</p>
+            <a href="${esc(guideHref)}" style="${font}font-size:14px;font-weight:bold;color:#FDCC0D;text-decoration:underline;">${esc(g.cta)} &rarr;</a>
+          </td></tr>
+        </table>
       </td></tr>` : '';
   const steps = copy.steps.map((s, i) => `
           <tr>
@@ -271,7 +303,7 @@ export function inviteEmailHtml(role: WelcomeRole, f: InviteFields, videoId?: st
         <p style="${kicker}margin-bottom:12px;">Tus próximos pasos</p>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${steps}
         </table>
-      </td></tr>
+      </td></tr>${guide}
       <tr><td style="padding:16px 32px 28px;border-top:1px solid #222222;${font}font-size:13px;line-height:1.6;color:#999999;">
         <a href="mailto:${esc(SGX_EMAIL)}" style="color:#FDCC0D;text-decoration:none;">${esc(SGX_EMAIL)}</a>
         &nbsp;&middot;&nbsp;<a href="${esc(SGX_INSTAGRAM)}" style="color:#FDCC0D;text-decoration:none;">Instagram</a>

@@ -18,7 +18,8 @@ export type DeadlineKey =
   | 'sponsorPayment'
   | 'sponsorMaterials'
   | 'day3Invitations'
-  | 'pressAccreditation';
+  | 'pressAccreditation'
+  | 'speakerTechCheck';
 
 export interface SummitDeadline {
   /** First instant when it is closed (Puerto Rico time). */
@@ -73,6 +74,14 @@ export const SUMMIT_DEADLINES: Record<DeadlineKey, SummitDeadline> = {
     label: { es: '1 de diciembre de 2026', en: 'December 1, 2026' },
     short: { es: '1 dic', en: 'Dec 1' },
     day: { es: '1 de diciembre', en: 'December 1' },
+  },
+  /** Speakers: the technical test with the team happens before December 8 (the production
+      dress rehearsal). Read as "antes del 8 de diciembre", like the press date. */
+  speakerTechCheck: {
+    closesAt: '2026-12-08T00:00:00-04:00',
+    label: { es: '8 de diciembre de 2026', en: 'December 8, 2026' },
+    short: { es: '8 dic', en: 'Dec 8' },
+    day: { es: '8 de diciembre', en: 'December 8' },
   },
 };
 
@@ -134,6 +143,10 @@ export const DEADLINE_COPY = {
   sponsorKeyDates: {
     es: `Solicitudes hasta el ${D.sponsorApplications.day.es}; pago total y materiales de la marca a más tardar el ${D.sponsorPayment.day.es}.`,
     en: `Applications through ${D.sponsorApplications.day.en}; full payment and brand materials no later than ${D.sponsorPayment.day.en}.`,
+  },
+  speakerTechCheck: {
+    es: `Prueba técnica con el equipo antes del ${D.speakerTechCheck.day.es}; el día de tu bloque te conectas 30 minutos antes.`,
+    en: `Technical test with the team before ${D.speakerTechCheck.day.en}; on the day of your block you connect 30 minutes early.`,
   },
   day3Invitations: {
     es: `El equipo envía las invitaciones al Día 3 a más tardar el ${D.day3Invitations.day.es}.`,

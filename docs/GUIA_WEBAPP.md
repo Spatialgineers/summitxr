@@ -362,7 +362,7 @@ Entrar a las seis estaciones cumple la quest "Los Seis Pilares".
 | Módulo | Qué es y qué se hace | Datos | Pase | XP / misión | Archivo |
 |---|---|---|---|---|---|
 | **02.1 Recorrido 360° de Chroma Space Studios** (`/mapa`) | Primero, la animación de llegada: pases que forman "Chroma Space Studios · Día 3". Luego, el recorrido 360° por nodos (sets, escenario, networking) con hotspots. | `summit_content/map_nodes` (admin "Mapa 360") | **Sí** | "Recorre Chroma Space Studios" 60 XP | `SgxChromaArrival.tsx`, `Summit360MapViewer.tsx` |
-| **02.2 Partners & Brand Showcases** (`/sponsors`) | Hero para marcas, muro de partners confirmados (cada logo abre su showcase), los Paquetes 1–5, "Dónde aparece tu marca", el proceso y las preguntas frecuentes | `summit_content/approved_sponsors`, `sponsorship_tiers` | No | "Visita el pabellón de partners" 60 XP; cada partner de Paquete 3+ suma "Reto <marca>" 90 XP y su sello | `SummitSponsorshipMatrix.tsx`, `SummitSponsorsGrid.tsx`, `SummitBrandShowcaseModal.tsx`, `sponsors/SponsorsHero.tsx`, `SponsorTiers.tsx`, `SponsorPlacements.tsx`, `SponsorProcess.tsx`, `sponsorPlacements.ts` |
+| **02.2 Partners & Brand Showcases** (`/sponsors`) | Hero para marcas, muro de partners confirmados (cada logo abre su showcase), "Dónde aparece tu marca", los Paquetes 1–5, **Términos y logística** (`/sponsors#terminos`: pago, IVU, materiales, categorías, licencia y reporte de los Paquetes 4 y 5, cancelación, fuerza mayor, Día 3 y contrato), el proceso y las preguntas frecuentes | `summit_content/approved_sponsors`, `sponsorship_tiers` | No | "Visita el pabellón de partners" 60 XP; cada partner de Paquete 3+ suma "Reto <marca>" 90 XP y su sello | `SummitSponsorshipMatrix.tsx`, `SummitSponsorsGrid.tsx`, `SummitBrandShowcaseModal.tsx`, `sponsors/SponsorsHero.tsx`, `SponsorTiers.tsx`, `SponsorTerms.tsx`, `SponsorPlacements.tsx`, `SponsorProcess.tsx`, `sponsorPlacements.ts`, `src/lib/sponsorTerms.ts` |
 | **02.3 Modelos 3D** (`/modelos-3d`) | El ícono de Spatialgineers, el emblema del Guild, las seis esculturas de pilar y el Highbot en un visor con la luz del estudio. Se arrastra para girar y se pellizca para acercar. | `.glb` del CDN | No | — | `SgxModelsViewer.tsx` |
 | **02.4 Patrocina el Summit** (`/patrocina`) | Solicitud de paquete (sección 9) | crea `sponsor_inquiries` | Para enviar | — | `SummitSponsorInquiryForm.tsx` |
 
@@ -387,7 +387,7 @@ Entrar a las seis estaciones cumple la quest "Los Seis Pilares".
 | **04.2 Salas de transmisión** (`/broadcast`) | Tarjetas de sala: EN VIVO con el embed de YouTube, o inactiva. Sin salas sale "Señal en espera". | `tenants` (salas del tenant, admin "Marca y tenants") | No | "Sintoniza una sala" 60 XP | `SummitLandingPage.tsx`, admin `TenantRoomManager.tsx` |
 | **04.3 Speakers & artistas** (`/speakers`) | Un deck con solo los confirmados por escrito; cada tarjeta abre la ficha y su Holo Card | `summit_content/speakers` | No | "Conoce el line-up" 60 XP | `SummitSpeakersDeck.tsx`, `SgxHoloViewer.tsx` |
 | **Escenario en vivo** (`/stage`) | Ver la sección 7 | motor WS | No | — | `StagePage.tsx` |
-| **04.4 Portal de speakers** (`/portal-speakers`) | Solicitud propia (sección 9). Cierra sola después del 21 nov. | crea `speaker_submissions` | Para enviar | — | `SummitSpeakerPortalModal.tsx` |
+| **04.4 Portal de speakers** (`/portal-speakers`) | Solicitud propia (sección 9) con la **Guía del speaker** (antes de enviar, después de enviar y, ya aprobado, como próximos pasos). Cierra sola después del 21 nov. | crea `speaker_submissions` | Para enviar | — | `SummitSpeakerPortalModal.tsx`, `speakers/SpeakerGuide.tsx`, `src/lib/speakerGuide.ts` |
 | **04.5 Sala de prensa** (`/prensa`) | Acreditación, la ficha del Summit, las biografías de los fundadores y el kit de descargas (sección 9) | crea `sponsor_inquiries` con `selectedTierId: "PRESS"`; datos de `src/lib/pressKit.ts` | Para acreditarse | — | `press/SgxPressRoom.tsx`, `src/lib/pressRequests.ts` |
 
 ### SGX.System
@@ -413,7 +413,7 @@ El SGX Guild es un privilegio: no hay convocatoria abierta, y la app celebra a s
 
 | Página | Qué es | Archivo |
 |---|---|---|
-| **Agenda / Run of Show** | La misma `/agenda` (SGX.Stage 04.1). El programa base de 3 días está en `src/lib/summitProgram.ts`; el admin lo edita y publica (`summit_content/sessions`). | ver arriba |
+| **Agenda / Run of Show** | La misma `/agenda` (SGX.Stage 04.1). El programa base de 3 días está en `src/lib/summitProgram.ts`; el admin lo edita y publica (`summit_content/sessions`). El bloque del Día 3 de 2:00 a 3:30 p.m. es **Entrepreneurship Match** (`d3_05`, según el Run of Show del 25 oct): si la agenda ya estaba publicada en Firestore con "Interacción libre", se edita aquí (Contenido → Agenda). | ver arriba |
 | **Bienvenida** (`/bienvenida[/rol]`) | Ver la sección 11 | `welcome/SgxWelcomePage.tsx` |
 | **Sala de prensa** (`/prensa`) | Ver la sección 9 | `press/SgxPressRoom.tsx` |
 | **Play / Arena** (`/play`) | Ver la sección 7 | `AudiencePWA.tsx` |
@@ -827,7 +827,8 @@ Un prompt de sistema largo y estable, en caché por 1 h, con:
 - los pilares (`sgxPillars`) y el portafolio (`sgxPortfolio`);
 - las misiones (`REACTOR_MISSIONS`);
 - el mapa de la app (`COMPANION_DESTINATIONS`) y la guía de la app (`src/companion/appGuide.ts`);
-- las fechas de `summitDeadlines.ts`.
+- las fechas de `summitDeadlines.ts`;
+- los **Términos y logística** de sponsors (`sponsorTermsPrompt()` de `sponsorTerms.ts`) y la **Guía del speaker** (`speakerGuidePrompt()` de `speakerGuide.ts`), con dónde encontrarlos (`/sponsors#terminos`, el Portal de speakers y `/bienvenida/speaker#guia`). La guía local (`appGuide.ts`) tiene sus respuestas cortas (`sponsor-terms` y `speaker-guide`).
 
 **En vivo**, cada 10 min se leen de Firestore `summit_content/sessions`, `speakers`, `approved_sponsors` y **`companion_kb`**: las preguntas y respuestas propias del equipo (Admin → Highbot: control y preguntas), hasta 120.
 
@@ -867,6 +868,11 @@ Para otros agentes: el prompt está en `docs/highbot/HIGHBOT_AGENT.md` y el cono
    - el mailer manda "Tu Holo Card está lista".
 5. Su pase se vuelve la **Holo Card de speaker**. Sale en `/speakers` y su sesión en la agenda, que el admin edita en Contenido → Agenda.
 6. El portal **se cierra solo** al terminar el 21 nov (sección 12). Después, el admin sigue pudiendo añadir y editar desde el CMS.
+7. **Guía del speaker** (`src/lib/speakerGuide.ts`, `src/components/summit/speakers/SpeakerGuide.tsx`; fuente: el kit para speakers "Media-Kit-D-Speakers-Summit v2026.10.4"). Sale en el portal (desplegable en el formulario, abierta después de enviar y, cuando `credential_grants/{uid}.speaker` existe, como "Ya eres speaker oficial"), en `/bienvenida/speaker#guia` y en el correo de invitación del speaker. Dice:
+   - qué enviar: bio de 50 a 80 palabras, redes y logo (en el portal, con contador de palabras en la bio); foto de 1500 px o más y datos técnicos (ciudad, zona horaria, equipo y conexión) **por correo a info@**, porque el portal no guarda fotos ni tiene esos campos (las reglas de `speaker_submissions` solo aceptan sus campos actuales y no hay Storage);
+   - la sesión del Día 2: 45 minutos por pilar, 5 de presentación, 30 de conversación guiada y 10 de preguntas del chat, 100% remoto;
+   - la prueba técnica antes del 8 dic (`speakerTechCheck`) y conectarse 30 minutos antes;
+   - las reglas de tono: casos reales, sin pitch de ventas, spatial computing, lenguaje inclusivo, sin música con derechos de autor ni datos confidenciales de clientes.
 
 ### Sponsor
 
@@ -876,7 +882,15 @@ Para otros agentes: el prompt está en `docs/highbot/HIGHBOT_AGENT.md` y el cono
    - crea el showcase en `approved_sponsors` (publicado);
    - pone el estado `APPROVED`;
    - otorga `credential_grants/{uid}.sponsor` (Holo Card de sponsor y correo).
-4. **Lugares de marca** (`sponsorPlacements.ts`; "todos" = Paquetes 1–5):
+4. **Términos y logística** (`src/lib/sponsorTerms.ts`, `sponsors/SponsorTerms.tsx`; fuente: el Dossier de Auspicio ES-EN y el Kit de Patrocinio v2026.10.2, con las fechas de `summitDeadlines.ts`). Vive en `/sponsors#terminos` y en `/bienvenida/sponsor#terminos`; lo enlazan el hero de sponsors, el formulario (nota de fechas, confirmación y nota de cerrado), el `.txt` de recibo y la invitación del sponsor (texto y correo). Dice:
+   - pago total a más tardar el 30 nov por ATH Móvil Business ("SpatialgineersLLC"), cheque o transferencia (cuenta a solicitud), con el comentario "Spatialgineers Summit Auspicio [marca] Paquete [N]" (botón para copiarlo); Paquetes 4 y 5 en dos plazos coordinados con el equipo, con el total a más tardar el 30 nov;
+   - precio dentro del rango según presupuesto y sin IVU por separado;
+   - materiales a más tardar el 30 nov, aprobados o comentados en 4 días calendario; integración final después;
+   - no se aceptan sponsors de política partidista ni de alcohol; exclusividad por categoría solo en Paquetes 4 y 5;
+   - licencia de Paquetes 4 y 5 del 1 nov 2026 al 31 oct 2027, sin transferencia de código; primera renovación del Paquete 4; reporte final alrededor del 12 ene 2027, sin datos personales; no se garantizan cifras;
+   - cancelación y reembolso, fuerza mayor, el Día 3 que se pospone o se hace virtual, y que la página no es una oferta vinculante (rige el contrato firmado).
+   - Se dejó fuera, a propósito: la dirección postal, presupuestos y metas, costos, seguro, la plantilla del contrato y todo lo "por confirmar".
+5. **Lugares de marca** (`sponsorPlacements.ts`; "todos" = Paquetes 1–5):
 
 | Lugar | Paquetes |
 |---|---|
@@ -890,7 +904,7 @@ Para otros agentes: el prompt está en `docs/highbot/HIGHBOT_AGENT.md` y el cono
 | Transmisión en YouTube Live | todos |
 | Día 3 en Chroma Space Studios | 4, 5 |
 
-5. **Paquetes** (`summit_content/sponsorship_tiers`; el id interno es `tier_N`, pero en pantalla siempre se lee "Paquete N"):
+6. **Paquetes** (`summit_content/sponsorship_tiers`; el id interno es `tier_N`, pero en pantalla siempre se lee "Paquete N"):
 
 | Paquete | Nombre | Precio | Cupos |
 |---|---|---|---|
@@ -1034,6 +1048,8 @@ Claves:
 - **Hub** (`/bienvenida`): el video del recorrido completo y una tarjeta por rol público.
 - **Roles:** `visitante`, `speaker`, `sponsor`, `prensa` y `equipo` (interno, `noindex`, fuera del hub).
 - Cada página de rol tiene su video guía (YouTube, vertical para los roles), los pasos y fechas que importan a ese rol (de `summitDeadlines.ts`), preguntas frecuentes y accesos directos a la app.
+- `/bienvenida/speaker` trae la **Guía del speaker** completa (`#guia`) y `/bienvenida/sponsor` los **Términos y logística** (`#terminos`), con su atajo en los botones de arriba. Así basta con mandar el enlace: no hace falta adjuntar el kit ni el dossier.
+- Las invitaciones del speaker y del sponsor (texto y correo HTML) llevan una línea y una tarjeta con el resumen y el enlace a esa guía (`INVITE_GUIDES` en `welcomeInvites.ts`).
 - **Videos extra:** `tour` (horizontal), `pass` y `build`.
 - **IDs de YouTube** en `site_config/welcome`, uno por clave (`visitante`, `speaker`, `sponsor`, `prensa`, `equipo`, `pass`, `tour`, `build`). Se editan en Admin → Contenido → Portal de bienvenida y salen al instante, sin redeploy. El embed usa `youtube-nocookie.com`.
 
@@ -1100,6 +1116,7 @@ Una sola fuente: **`src/lib/summitDeadlines.ts`**. Todas las fechas son hora de 
 | `sponsorMaterials` | Materiales de la marca | 30 nov 2026 | 2026-12-01 00:00 | Igual que el pago |
 | `day3Invitations` | El equipo envía las invitaciones al Día 3 | 5 dic 2026 | 2026-12-06 00:00 | Nota en Inscritos; desde el 6 dic, aviso suave si quedan pendientes |
 | `pressAccreditation` | Acreditación de prensa (antes del 1 dic) | 30 nov 2026 | 2026-12-01 00:00 | La Sala de prensa cierra el formulario; el kit sigue |
+| `speakerTechCheck` | Prueba técnica de los speakers (antes del 8 dic, el ensayo general) | 7 dic 2026 | 2026-12-08 00:00 | Solo informativa: la Guía del speaker, el Highbot y la invitación la muestran; nada se cierra |
 
 **Quién las lee:** los formularios, las páginas de sponsors y speakers, el portal de bienvenida, el Highbot (prompt y guía local), las plantillas de invitación y el kit de prensa (`scripts/press-kit/build.cjs` regenera la ficha). También hay frases hechas en `DEADLINE_COPY`.
 
@@ -1387,6 +1404,7 @@ Las capturas van a `scripts/e2e/out/`. Hay que correr `visitor.cjs` antes que `a
 | XP y perfil | `src/context/PilotProfileContext.tsx`, `src/lib/gamification.ts`, `src/lib/rewardsStore.ts`, `src/lib/gameScores.ts` |
 | Contenido | `src/lib/summitData.ts`, `src/lib/summitProgram.ts`, `src/lib/sgxPortfolio.ts`, `src/lib/content/liveLists.ts`, `src/lib/csv/*` |
 | Fechas | `src/lib/summitDeadlines.ts` |
+| Términos de sponsors y guía del speaker | `src/lib/sponsorTerms.ts`, `src/lib/speakerGuide.ts`, `src/components/summit/sponsors/SponsorTerms.tsx`, `src/components/summit/speakers/SpeakerGuide.tsx`, `src/components/summit/sgxGuides.css`, `src/lib/anchorScroll.ts` |
 | Bienvenida, prensa y SEO | `src/lib/welcomePortal.ts`, `src/lib/welcomeInvites.ts`, `src/lib/pressKit.ts`, `src/lib/pressRequests.ts`, `src/server/welcomeMeta.ts`, `src/components/summit/welcome/*`, `src/components/summit/press/*` |
 | Sponsors | `src/components/summit/sponsors/*`, `SummitSponsorInquiryForm.tsx`, `SummitBrandShowcaseModal.tsx`, `TransientSponsorSlot.tsx`, `src/immersion/splashSponsors.ts` |
 | En vivo | `server.ts`, `src/server/engine/*`, `src/server/routes/apiRouter.ts`, `src/server/security/*`, `src/components/audience/AudiencePWA.tsx`, `src/components/stage/*`, `src/components/visualizer/*`, `src/lib/presets.ts` |

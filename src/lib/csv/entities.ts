@@ -95,19 +95,19 @@ export const SPEAKERS_CSV: CsvEntity<SummitSpeaker> = {
 };
 
 export const TIERS_CSV: CsvEntity<SponsorshipTier> = {
-  key: 'sponsorship_tiers', label: 'Paquetes de auspicio', file: 'sgx_niveles_auspicio', idPrefix: 'tier',
+  key: 'sponsorship_tiers', label: 'Paquetes de auspicio', file: 'sgx_paquetes_auspicio', idPrefix: 'tier',
   load: loadAllSponsorshipTiers,
   save: (items) => saveAllSponsorshipTiers(items),
   blank: () => ({ tierNumber: 1, features: [], sponsors: [], yearLongLicense: false, priceRange: '', keyBenefit: '' }),
   cols: [
     ID('tier_1'),
-    { field: 'tierNumber', help: 'Número de nivel', kind: { oneOf: [1, 2, 3, 4, 5] }, required: true },
-    ...bi('name', 'Nombre del nivel', true),
+    { field: 'tierNumber', help: 'Número de paquete', kind: { oneOf: [1, 2, 3, 4, 5] }, required: true },
+    ...bi('name', 'Nombre del paquete', true),
     ...bi('priceRange', 'Rango de precio'),
     ...bi('keyBenefit', 'Beneficio principal'),
     { field: 'yearLongLicense', help: 'Licencia de un año', kind: 'bool' },
     ...biList('features', 'Beneficios incluidos'),
-    { field: 'sponsors', help: 'Marcas en este nivel: [{"name","logoUrl","websiteUrl","description"}]', kind: 'json' },
+    { field: 'sponsors', help: 'Marcas en este paquete: [{"name","logoUrl","websiteUrl","description"}]', kind: 'json' },
   ],
 };
 
@@ -122,8 +122,8 @@ export const SHOWCASES_CSV: CsvEntity<ApprovedSponsor> = {
     ID('sp_marca'),
     ...bi('companyName', 'Nombre de la marca', true),
     { field: 'brandSlug', help: 'Slug para la URL; vacío = se crea del nombre' },
-    { field: 'tierId', help: 'ID del nivel (de la hoja de niveles)' },
-    ...bi('tierName', 'Nombre del nivel mostrado'),
+    { field: 'tierId', help: 'ID del paquete (de la hoja de paquetes)' },
+    ...bi('tierName', 'Nombre del paquete mostrado'),
     ...bi('tagline', 'Frase corta'),
     { field: 'logoUrl', help: 'URL del logo' },
     { field: 'bannerUrl', help: 'URL del banner' },

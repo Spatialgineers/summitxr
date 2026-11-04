@@ -1,0 +1,98 @@
+/* =========================================================================
+   GUIDES: "Términos y logística" for sponsors (SponsorTerms) and the
+   "Guía del speaker" (SpeakerGuide). Self-contained (scoped under .sgx-guide)
+   so the same block works on /sponsors, the welcome portal and inside the
+   Speaker portal dialog.
+   ========================================================================= */
+
+.sgx-guide {
+  --g-cut: 12px;
+  --g-panel: linear-gradient(180deg, rgba(22, 22, 22, 0.92), rgba(6, 6, 6, 0.96));
+  --g-accent: var(--SGX_Yellow, #FDCC0D);
+  display: flex; flex-direction: column; gap: clamp(16px, 2.6vw, 26px); min-width: 0;
+  color: var(--SGX_White, #fff); scroll-margin-top: 150px;
+}
+.sgx-guide:focus { outline: none; }
+.sgx-guide :is(h2, h3, h4, p, ul, ol, dl) { margin: 0; }
+.sgx-guide--cyan { --g-accent: var(--SGX_Cyan, #00DDFF); }
+
+.sgx-guide__head { display: flex; flex-direction: column; gap: 10px; max-width: 760px; }
+.sgx-guide__kicker { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--SGX_Cyan, #00DDFF); }
+.sgx-guide__kicker::before { content: ""; display: inline-block; width: 18px; height: 2px; margin: 0 10px 3px 0; vertical-align: middle; background: currentColor; }
+.sgx-guide__h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.35rem, 3.2vw, 2.2rem); line-height: 1.1; letter-spacing: 0.02em; text-transform: uppercase; overflow-wrap: anywhere; }
+.sgx-guide__lead { font-family: var(--font-body); font-size: clamp(0.95rem, 1.4vw, 1.05rem); line-height: 1.6; color: rgba(255, 255, 255, 0.76); }
+
+/* Key numbers */
+.sgx-guide__facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: rgba(255, 255, 255, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+.sgx-guide__facts > div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 4px; padding: 12px 14px; background: #070707; min-width: 0; }
+.sgx-guide__facts dt { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.66); }
+.sgx-guide__facts dd { margin: 0; font-family: var(--font-display); font-size: clamp(0.95rem, 1.4vw, 1.1rem); font-weight: 700; line-height: 1.2; color: var(--g-accent); overflow-wrap: anywhere; }
+
+/* Accordion */
+.sgx-guide__list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-items: start; }
+.sgx-guide__item { background: var(--g-panel); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); clip-path: polygon(var(--g-cut) 0, 100% 0, 100% calc(100% - var(--g-cut)), calc(100% - var(--g-cut)) 100%, 0 100%, 0 var(--g-cut)); min-width: 0; }
+.sgx-guide__item[open] { box-shadow: inset 0 0 0 1px rgba(0, 221, 255, 0.4); }
+.sgx-guide__item > summary { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 15px 18px; cursor: pointer; list-style: none; }
+.sgx-guide__item > summary::-webkit-details-marker { display: none; }
+.sgx-guide__item > summary:focus-visible { outline: 2px solid var(--SGX_Cyan, #00DDFF); outline-offset: -4px; }
+.sgx-guide__item > summary h3 { font-family: var(--font-hud); font-size: 1rem; font-weight: 600; letter-spacing: 0.02em; color: var(--SGX_White, #fff); overflow-wrap: anywhere; }
+.sgx-guide__item > summary svg { flex: none; width: 18px; height: 18px; color: var(--g-accent); transition: transform 0.25s; }
+.sgx-guide__item[open] > summary svg { transform: rotate(45deg); }
+.sgx-guide__body { display: flex; flex-direction: column; gap: 12px; padding: 0 18px 18px; }
+.sgx-guide__lines { display: flex; flex-direction: column; gap: 8px; padding: 0; list-style: none; }
+.sgx-guide__lines li { position: relative; padding-left: 18px; font-family: var(--font-body); font-size: 0.93rem; line-height: 1.55; color: rgba(255, 255, 255, 0.8); overflow-wrap: anywhere; }
+.sgx-guide__lines li::before { content: ""; position: absolute; left: 2px; top: 0.62em; width: 7px; height: 7px; background: var(--g-accent); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+
+/* "Copy the payment comment" */
+.sgx-guide__copy { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 12px; background: #050505; box-shadow: inset 0 0 0 1px rgba(253, 204, 13, 0.3); }
+.sgx-guide__copy code { flex: 1 1 220px; min-width: 0; font-family: var(--font-mono); font-size: 0.85rem; color: var(--SGX_Yellow, #FDCC0D); overflow-wrap: anywhere; }
+.sgx-guide__copy .sgx-btn svg { width: 14px; height: 14px; }
+
+/* Tags: "en el portal" / "por correo" */
+.sgx-guide__tag { display: inline-block; margin-left: 6px; padding: 1px 7px; font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; vertical-align: 1px; color: #050505; background: var(--SGX_Cyan, #00DDFF); white-space: nowrap; }
+.sgx-guide__tag.is-email { background: var(--SGX_Yellow, #FDCC0D); }
+
+/* Session bar (5 / 30 / 10) */
+.sgx-guide__bar { display: grid; gap: 2px; grid-template-columns: 5fr 30fr 10fr; min-width: 0; }
+.sgx-guide__bar > div { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-width: 0; padding: 10px 8px; background: rgba(0, 221, 255, 0.12); box-shadow: inset 0 2px 0 var(--SGX_Cyan, #00DDFF); }
+.sgx-guide__bar > div:nth-child(2) { background: rgba(253, 204, 13, 0.1); box-shadow: inset 0 2px 0 var(--SGX_Yellow, #FDCC0D); }
+.sgx-guide__bar b { font-family: var(--font-display); font-size: 1rem; color: var(--SGX_White, #fff); }
+.sgx-guide__bar span { font-family: var(--font-body); font-size: 0.74rem; line-height: 1.3; color: rgba(255, 255, 255, 0.76); overflow-wrap: anywhere; }
+
+/* Route (when → what) */
+.sgx-guide__route { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1px; padding: 0; list-style: none; background: rgba(255, 255, 255, 0.08); }
+.sgx-guide__route li { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; background: #070707; min-width: 0; }
+.sgx-guide__route b { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--SGX_Cyan, #00DDFF); }
+.sgx-guide__route span { font-family: var(--font-body); font-size: 0.92rem; line-height: 1.5; color: rgba(255, 255, 255, 0.82); overflow-wrap: anywhere; }
+
+.sgx-guide__fine { font-family: var(--font-body); font-size: 0.85rem; line-height: 1.5; color: rgba(255, 255, 255, 0.66); }
+.sgx-guide__fine a, .sgx-guide__lines a { color: var(--SGX_Yellow, #FDCC0D); text-decoration: underline; text-underline-offset: 3px; }
+
+/* Status note (portal: in review / approved) */
+.sgx-guide__status { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; background: rgba(0, 221, 255, 0.08); box-shadow: inset 3px 0 0 var(--SGX_Cyan, #00DDFF); font-family: var(--font-body); font-size: 0.92rem; line-height: 1.5; }
+.sgx-guide__status.is-ok { background: rgba(253, 204, 13, 0.08); box-shadow: inset 3px 0 0 var(--SGX_Yellow, #FDCC0D); }
+.sgx-guide__status svg { flex: none; width: 18px; height: 18px; margin-top: 2px; color: var(--g-accent); }
+
+/* Compact (inside the Speaker portal dialog) */
+.sgx-guide--compact { gap: 12px; }
+.sgx-guide--compact .sgx-guide__h2 { font-size: 1.05rem; }
+.sgx-guide--compact .sgx-guide__item > summary { padding: 12px 14px; }
+.sgx-guide--compact .sgx-guide__body { padding: 0 14px 14px; }
+
+/* Link to the terms from forms and notes */
+.sgx-guide-link { display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; background: none; font: inherit; color: var(--SGX_Yellow, #FDCC0D); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.sgx-guide-link svg { width: 14px; height: 14px; flex: none; }
+.sgx-guide-link:focus-visible { outline: 2px solid var(--SGX_Cyan, #00DDFF); outline-offset: 2px; }
+
+@media (min-width: 640px) {
+  .sgx-guide__facts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .sgx-guide__route { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 900px) {
+  .sgx-guide:not(.sgx-guide--compact) .sgx-guide__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sgx-guide:not(.sgx-guide--compact) .sgx-guide__route { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sgx-guide *, .sgx-guide *::before { transition: none !important; }
+}
+.sgx-guide__fine svg, .sgx-guide-link svg { display: inline-block; }

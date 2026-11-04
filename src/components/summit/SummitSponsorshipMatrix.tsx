@@ -5,6 +5,7 @@ import { SponsorsHero } from './sponsors/SponsorsHero';
 import { SponsorPlacements } from './sponsors/SponsorPlacements';
 import { SponsorTiers } from './sponsors/SponsorTiers';
 import { SponsorProcess } from './sponsors/SponsorProcess';
+import { SponsorTerms } from './sponsors/SponsorTerms';
 import './sgx-kit.css';
 import './SummitSponsors.css';
 
@@ -16,8 +17,8 @@ interface SummitSponsorshipMatrixProps {
 }
 
 /* The sponsors page (SGX.Showcase 02.2): sells the Summit's digital real
-   estate. Hero → partners → where your brand shows up → tiers → process,
-   FAQ and closing CTA. Every CTA opens the inquiry dialog. */
+   estate. Hero → partners → where your brand shows up → packages → terms
+   and logistics (#terminos) → process, FAQ and closing CTA. Every CTA opens the inquiry dialog. */
 export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = ({
   tiers = SPONSORSHIP_TIERS,
   onOpenInquiryModal,
@@ -31,6 +32,7 @@ export const SummitSponsorshipMatrix: React.FC<SummitSponsorshipMatrixProps> = (
       {partners}
       <SponsorPlacements />
       <SponsorTiers tiers={tiers} onApply={apply} />
+      <SponsorTerms />
       <SponsorProcess onApply={() => apply()} />
     </div>
   );

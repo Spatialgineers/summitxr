@@ -104,7 +104,7 @@ export const SGX_PILLARS: SgxPillar[] = [
       { day: 1, time: '11:50 AM–12:05 PM', label: { es: 'Artista invitado (por anunciar)', en: 'Guest artist (to be announced)' } },
       { day: 1, time: '12:05–12:30 PM', label: { es: 'Bloque SGX.Spark', en: 'SGX.Spark block' } },
       { day: 2, time: '12:20–1:05 PM', label: { es: 'Conversación de industria SGX.Spark', en: 'SGX.Spark industry conversation' } },
-      { day: 3, time: '2:00–3:30 PM', label: { es: 'Interacción libre: demos y Roblox', en: 'Free interaction: demos and Roblox' } },
+      { day: 3, time: '2:00–3:30 PM', label: { es: 'Entrepreneurship Match: networking, demos y Roblox', en: 'Entrepreneurship Match: networking, demos and Roblox' } },
     ],
     modules: [
       { kind: 'section', key: 'EMBEDS_GAMES', icon: Gamepad2, label: { es: 'Juegos y laboratorios', en: 'Games & labs' }, desc: { es: 'Dron SGX, Torre de Pilares, Pulso SGX y Rayo en tus manos. Juega y gana XP.', en: 'SGX Drone, Pillar Tower, SGX Pulse and Bolt in your hands. Play and earn XP.' } },

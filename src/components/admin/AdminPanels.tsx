@@ -215,7 +215,7 @@ export const ContentBackupPanel: React.FC<{ onRestored: () => void }> = ({ onRes
     saveAllEmbedWidgets(INITIAL_EMBED_WIDGETS);
     saveAllSponsorshipTiers(SPONSORSHIP_TIERS);
     setConfirm(''); setBusy(false);
-    setMsg('Agenda, speakers, mapa, apps y niveles volvieron al contenido original. Se descargó un respaldo de lo anterior.');
+    setMsg('Agenda, speakers, mapa, apps y paquetes volvieron al contenido original. Se descargó un respaldo de lo anterior.');
     onRestored();
   };
 
@@ -228,7 +228,7 @@ export const ContentBackupPanel: React.FC<{ onRestored: () => void }> = ({ onRes
       </div>
       <div data-danger>
         <h3>Restaurar contenido original</h3>
-        <p>Vuelve agenda, speakers, mapa, apps y niveles de auspicio al contenido de fábrica, en vivo para todos. Antes descarga un respaldo. Escribe <b>RESTAURAR</b> para confirmar.</p>
+        <p>Vuelve agenda, speakers, mapa, apps y paquetes de auspicio al contenido de fábrica, en vivo para todos. Antes descarga un respaldo. Escribe <b>RESTAURAR</b> para confirmar.</p>
         <div className="sgx-backup__row">
           <input value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="RESTAURAR" />
           <button type="button" className="sgx-btn" disabled={busy || confirm.trim().toUpperCase() !== 'RESTAURAR'} onClick={restore}><RotateCcw className="w-4 h-4" /> Restaurar</button>

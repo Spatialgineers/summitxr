@@ -26,7 +26,7 @@ export const SponsorProcess: React.FC<SponsorProcessProps> = ({ onApply }) => {
   ];
 
   const faq = es ? [
-    { q: '¿El precio es fijo?', a: 'No. Cada nivel tiene un rango en USD y el precio exacto se acuerda según el presupuesto del sponsor. El Paquete 5 no tiene precio público.' },
+    { q: '¿El precio es fijo?', a: 'No. Cada paquete tiene un rango en USD y el precio exacto se acuerda según el presupuesto del sponsor. El Paquete 5 no tiene precio público.' },
     { q: '¿Garantizan vistas, asistencia o clics?', a: 'No. Spatialgineers no garantiza un número de vistas, asistentes ni clics. Los Paquetes 4 y 5 reciben un reporte final a los 30 días con vistas, asistencia, clics y participación, sin datos personales.' },
     { q: '¿Cómo es el Día 3?', a: 'Es el SGX Showcase en Chroma Space Studios, San Juan: presencial, por invitación y con cupo limitado (40 a 60 personas). Los Días 1 y 2 son gratis por YouTube Live, junto a Los Mismos TV.' },
     { q: '¿Qué es la licencia de 365 días?', a: 'Paquetes 4 y 5 mantienen su acceso a la webapp y a sus espacios de promoción y contenido en redes por 365 días desde noviembre. No hay transferencia de código.' },

@@ -16,6 +16,8 @@ const SCREENS = [
   ['agenda', '/?tab=agenda', null],
   ['speakers', '/?tab=speakers', null],
   ['sponsors', '/?tab=sponsors', null],
+  ['bienvenida-speaker', '/bienvenida/speaker', null],
+  ['bienvenida-sponsor', '/bienvenida/sponsor', null],
   ['forja', '/', async (p) => { await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_forge', { detail: { tier: 'DIGITAL' } }))); await p.waitForSelector('.sgx-forge', { timeout: 20000 }); }],
   ['sgx-live', '/?page=play', null],
   ['admin-login', '/?page=admin', null],

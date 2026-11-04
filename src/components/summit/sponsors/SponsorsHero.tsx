@@ -1,8 +1,9 @@
 import React from 'react';
-import { ArrowDown, ArrowRight } from 'lucide-react';
+import { ArrowDown, ArrowRight, FileText } from 'lucide-react';
 import { useLanguage } from '../../../context/LanguageContext';
 import { scrollToSection } from './scrollToSection';
 import { deadlineShort } from '../../../lib/summitDeadlines';
+import { SPONSOR_TERMS_ANCHOR } from '../../../lib/sponsorTerms';
 
 interface SponsorsHeroProps {
   tierCount: number;
@@ -44,6 +45,9 @@ export const SponsorsHero: React.FC<SponsorsHeroProps> = ({ tierCount, onApply }
           </button>
           <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => scrollToSection('spx-tiers')}>
             {es ? 'Ver paquetes' : 'See packages'}<ArrowDown aria-hidden />
+          </button>
+          <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => scrollToSection(SPONSOR_TERMS_ANCHOR)}>
+            {es ? 'Términos y logística' : 'Terms and logistics'}<FileText aria-hidden />
           </button>
         </div>
         <dl className="spx-facts">

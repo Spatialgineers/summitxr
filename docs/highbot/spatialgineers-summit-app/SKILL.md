@@ -109,7 +109,7 @@ Todas las horas son AST (Puerto Rico).
 - 11:00 a 12:30: presentación y showcase. Danelson presenta con su avatar y captura facial en tiempo real, con artistas y los visualizadores SGX.
 - 12:30 a 1:00: SGX Guild Ranked Trials Pitch Session, con los top 6 Initiates (5 minutos cada uno).
 - 1:00 a 2:00: networking con escaneo de QR (+50 XP), votación (+25 XP) y canje de premios.
-- 2:00 a 3:30: interacción libre (demos, Initiates y Roblox).
+- 2:00 a 3:30: Entrepreneurship Match. Primero una sesión rápida: grupos por pilar de interés, ideas de conversación y parejas por intereses; después networking general con demos, Initiates y Roblox (si se usa).
 - 3:30 a 4:00: cierre con premios mayores, incluido el Premio Mayor "Spatialgineers activa tu evento".
 
 **Speakers confirmados:** Danelson Maldonado González y Ricardo A. Hernández Díaz. El resto se anuncia solo cuando está confirmado por escrito. Lo que dice "por anunciar" se queda así.

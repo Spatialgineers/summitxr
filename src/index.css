@@ -5,6 +5,7 @@
 @import "./immersion/hero.css";
 @import "./identity/identity.css";
 @import "./styles/sgx-mobile.css";
+:root { --sgx-safe-top: env(safe-area-inset-top, 0px); }
 
 @layer base {
   :root {

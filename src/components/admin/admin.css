@@ -66,7 +66,7 @@
 .sgx-admin__flash { padding: 4px 9px; border: 1px solid #FDCC0D; background: rgba(253, 204, 13, 0.12); color: #FDCC0D; max-width: 520px; }
 
 .sgx-admin__layout { display: grid; grid-template-columns: 248px minmax(0, 1fr); gap: 20px; padding: 18px 20px 40px; max-width: 1700px; margin: 0 auto; }
-.sgx-admin__nav { position: sticky; top: 64px; align-self: start; max-height: calc(100dvh - 80px); overflow-y: auto; display: grid; gap: 14px; padding-right: 4px; }
+.sgx-admin__nav { position: sticky; top: calc(64px + var(--sgx-safe-top)); align-self: start; max-height: calc(100dvh - 80px); overflow-y: auto; display: grid; gap: 14px; padding-right: 4px; }
 .sgx-admin__search { display: flex; align-items: center; gap: 6px; padding: 7px 9px; border: 1px solid rgba(0, 221, 255, 0.35); background: rgba(0, 221, 255, 0.04); color: #00DDFF; }
 .sgx-admin__search input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: #f1f5f9; font-size: 13px; }
 .sgx-admin__area { display: grid; gap: 2px; }

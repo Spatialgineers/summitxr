@@ -9,13 +9,14 @@ import { playUiChirp } from '../lib/cyberAudioEngine';
    place: the info (agenda, speakers, pillars, sponsors, 3D core) stays open
    for everyone; the interactive things need a pass. Admins always pass. */
 
-export type GatedFeature = 'live' | 'games' | 'match' | 'networking' | 'tour360';
+export type GatedFeature = 'live' | 'games' | 'match' | 'networking' | 'tour360' | 'avatar';
 
 export const PASS_GATED_SECTIONS: Record<string, GatedFeature> = {
   EMBEDS_GAMES: 'games',
   ENTREPRENEUR_MATCH: 'match',
   NETWORKING: 'networking',
   MAP_360: 'tour360',
+  AVATAR_STUDIO: 'avatar',
 };
 
 const FEATURE_COPY: Record<GatedFeature, { es: string; en: string }> = {
@@ -24,6 +25,7 @@ const FEATURE_COPY: Record<GatedFeature, { es: string; en: string }> = {
   match: { es: 'SGX.Match, tus citas con creadores y marcas', en: 'SGX.Match, your meetings with creators and brands' },
   networking: { es: 'Los foros y el chat de networking', en: 'The networking forums and chat' },
   tour360: { es: 'El recorrido 360° de Chroma Space Studios', en: 'The 360° tour of Chroma Space Studios' },
+  avatar: { es: 'Tu Highbot: ármalo pieza por pieza en Avatar Studio', en: 'Your Highbot: build it piece by piece in Avatar Studio' },
 };
 
 export function useHasPass(): boolean {

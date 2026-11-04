@@ -6,7 +6,7 @@
 
 /* ---------- Section HUD bar (sub-pages) ---------- */
 .sgx-sechud {
-  position: sticky; top: 48px; z-index: 30;
+  position: sticky; top: calc(48px + var(--sgx-safe-top)); z-index: 30;
   background: rgba(13, 13, 13, 0.88);
   backdrop-filter: blur(var(--blur-panel)); -webkit-backdrop-filter: blur(var(--blur-panel));
   border-bottom: 1px solid var(--panel-line);

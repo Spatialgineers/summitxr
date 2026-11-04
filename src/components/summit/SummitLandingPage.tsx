@@ -597,7 +597,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
         {/* Modules that used to be dialogs: each is its own page now */}
         {activeSection === 'AVATAR_STUDIO' && (
           <SgxModulePage sectionKey="AVATAR_STUDIO">
-            <LazyBoundary fallback={<LazyFallback />}><PilotBuilderModal onClose={leaveModule} /></LazyBoundary>
+            <PassGate feature="avatar"><LazyBoundary fallback={<LazyFallback />}><PilotBuilderModal onClose={leaveModule} /></LazyBoundary></PassGate>
           </SgxModulePage>
         )}
         {activeSection === 'REWARDS' && (

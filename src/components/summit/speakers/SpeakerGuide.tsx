@@ -51,9 +51,7 @@ export const SpeakerGuide: React.FC<SpeakerGuideProps> = ({ stage = 'public', co
             ))}
           </ul>
           <p className="sgx-guide__fine">
-            {es ? 'La foto y los datos técnicos se envían a ' : 'Send the photo and the technical details to '}
-            <a href={`mailto:${SUMMIT_CONTACT_EMAIL}?subject=${encodeURIComponent('Speaker · Spatialgineers Summit 2026')}`}>{SUMMIT_CONTACT_EMAIL}</a>
-            {es ? ', con tu confirmación. En la app tu imagen es tu avatar SGX.' : ', with your confirmation. In the app your picture is your SGX avatar.'}
+            {es ? 'Todo se envía en el formulario del portal. No necesitas foto: tu imagen en el Summit es tu Highbot.' : 'Everything goes in the portal form. No photo needed: your image at the Summit is your Highbot.'}
           </p>
         </>
       ),

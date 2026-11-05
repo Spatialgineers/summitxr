@@ -73,6 +73,7 @@ export interface SummitSpeaker {
     /** Link to the speaker or project logo (no uploads). */
     logo?: string;
     roblox?: string;
+    tech?: string;
   };
 }
 

@@ -96,7 +96,7 @@ const shotBlock = async (p, sel, file) => {
     await open(p, '/bienvenida/speaker#guia', 7000);
     const guide = await text(p, '#guia[data-testid=speaker-guide]');
     check(`[${size}] /bienvenida/speaker: speaker guide`, !!guide);
-    check(`[${size}] guide: bio 50–80, 1500 px, 5/30/10, antes del 8 de diciembre, 30 minutos antes`, /50 a 80 palabras/.test(guide) && /1500 px/.test(guide) && /5 min/.test(guide) && /30 min/.test(guide) && /10 min/.test(guide) && /antes del 8 de diciembre/.test(guide) && /30 minutos antes/.test(guide));
+    check(`[${size}] guide: bio 50–80, 5/30/10, antes del 8 de diciembre, 30 minutos antes`, /50 a 80 palabras/.test(guide) && /5 min/.test(guide) && /30 min/.test(guide) && /10 min/.test(guide) && /antes del 8 de diciembre/.test(guide) && /30 minutos antes/.test(guide));
     check(`[${size}] guide: tone rules (sin pitch, sin música con derechos)`, /Sin pitch de ventas/.test(guide) && /Sin música con derechos de autor/.test(guide));
     check(`[${size}] guide: no 4 nov confirmation date`, !/4 de noviembre/.test(guide));
     await p.screenshot({ path: `${OUT}/guides_welcome_speaker_${size}.png` });

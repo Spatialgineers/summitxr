@@ -124,7 +124,7 @@ export default function App() {
     return {
       id: savedId,
       nickname: nickname || `Creador_${savedId.slice(-4).toUpperCase()}`,
-      avatar: '🚀',
+      avatar: '⚡',
       avatarSeed: savedId,
       tenantId: 'tenant_spatialgineers',
       eventId: 'event_live_main',
@@ -137,13 +137,16 @@ export default function App() {
       multiplier: 1.0,
       totalInteractions: 0,
       activeSeconds: 0,
-      prizeTier: 'Bronze Contributor',
+      prizeTier: 'Nivel Bronce',
       unlockedPrizeIds: [],
       choiceHistory: [],
     };
   });
 
   const wsRef = useRef<WebSocket | null>(null);
+  // The server signs this socket's voter id (INIT_STATE.voterToken); the REST fallback
+  // sends it back so the server, not the request body, decides who voted.
+  const voterTokenRef = useRef<string>('');
   const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Path Parsing and Routing Synchronizer
@@ -374,6 +377,7 @@ export default function App() {
       case 'STATE_SYNC': {
         const payload = msg.payload;
         if (!payload) break;
+        if (typeof payload.voterToken === 'string') voterTokenRef.current = payload.voterToken;
         if (payload.session) {
           setSession(payload.session);
         }
@@ -702,11 +706,10 @@ export default function App() {
     if (viaSocket) return;
     fetch('/api/vote', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(voterTokenRef.current ? { 'X-SGX-Voter': voterTokenRef.current } : {}) },
       body: JSON.stringify({
         tenantId: selectedTenantId,
         eventId: selectedEventId,
-        userId: userProfile.id,
         optionId,
         optionCode,
         questionId,
@@ -744,11 +747,10 @@ export default function App() {
     if (viaSocket) return;
     fetch('/api/reaction', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(voterTokenRef.current ? { 'X-SGX-Voter': voterTokenRef.current } : {}) },
       body: JSON.stringify({
         tenantId: selectedTenantId,
         eventId: selectedEventId,
-        userId: userProfile.id,
         emoji,
         color: optimisticRx.color,
       }),

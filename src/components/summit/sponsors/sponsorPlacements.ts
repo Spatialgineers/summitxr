@@ -23,7 +23,7 @@ export const SPONSOR_PLACEMENTS: SponsorPlacement[] = [
   {
     // SgxOrbitalCore3D: SGX_3D_SPONSOR_STATIONS (Tier 3, Tier 4 and Tier 5 stations).
     id: 'core-3d', img: 'core-3d-feature', tiers: [3, 4, 5], feature: true,
-    es: { title: 'Estación en el núcleo 3D', where: 'Portada · Núcleo 3D', body: 'Un panel con tu marca orbita el núcleo 3D de la portada. Se toca, la cámara viaja hasta él y abre tu ficha. Los paneles "Tu marca aquí" son los cupos abiertos de Paquete 3 y Paquete 4.' },
+    es: { title: 'Estación en el núcleo 3D', where: 'Portada · Núcleo 3D', body: 'Un panel con tu marca gira alrededor del núcleo 3D de la portada. Se toca, la cámara viaja hasta él y abre tu ficha. Los paneles "Tu marca aquí" son los cupos abiertos de Paquete 3 y Paquete 4.' },
     en: { title: 'Station in the 3D core', where: 'Home · 3D core', body: 'A panel with your brand orbits the 3D core on the home screen. Tap it, the camera flies to it and your profile opens. The "Your brand here" panels are the open Package 3 and Package 4 slots.' },
   },
   {
@@ -65,8 +65,8 @@ export const SPONSOR_PLACEMENTS: SponsorPlacement[] = [
   {
     // Tier data (Dossier v2026.10.1): broadcast overlays (Tier 1+), named segment + intro video (Tier 3+).
     id: 'broadcast', mark: '/holo/stage.png', tiers: ALL,
-    es: { title: 'Transmisión en YouTube Live', where: 'Días 1–3 · junto a Los Mismos TV', body: 'Tu logo en los overlays de la transmisión de los tres días. Desde Paquete 3, un segmento con tu nombre y un video de presentación de 30 a 60 segundos.' },
-    en: { title: 'YouTube Live broadcast', where: 'Days 1–3 · with Los Mismos TV', body: 'Your logo on the broadcast overlays all three days. From Package 3, a segment carrying your name and a 30- to 60-second intro video.' },
+    es: { title: 'Transmisión en YouTube Live', where: 'Días 1–2 · junto a Los Mismos TV', body: 'Tu logo en los overlays de la transmisión de los Días 1 y 2. Desde Paquete 3, un segmento con tu nombre y un video de presentación de 30 a 60 segundos.' },
+    en: { title: 'YouTube Live broadcast', where: 'Days 1–2 · with Los Mismos TV', body: 'Your logo on the broadcast overlays on Days 1 and 2. From Package 3, a segment carrying your name and a 30- to 60-second intro video.' },
   },
   {
     // Tier data: "Experience by [Marca]" main activation (Tier 4); Tier 5 includes Tier 4 per agreement.

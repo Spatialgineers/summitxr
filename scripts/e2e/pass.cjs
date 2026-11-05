@@ -1,7 +1,7 @@
 // SGX Pass: edit is one form (same pass, no ceremony) and one email = one pass. Emulators only.
 const { chromium } = require('playwright');
 const APP = process.env.APP_URL || 'http://localhost:3200';
-const REST = 'http://127.0.0.1:8085/v1/projects/gen-lang-client-0564995587/databases/ai-studio-sgxliveengine-630b78e7-0845-4046-9176-53bab53744ac/documents';
+const REST = `http://127.0.0.1:${process.env.FS_PORT || 8085}/v1/projects/gen-lang-client-0564995587/databases/ai-studio-sgxliveengine-630b78e7-0845-4046-9176-53bab53744ac/documents`;
 const list = async (col) => (((await (await fetch(`${REST}/${col}?pageSize=300`, { headers: { Authorization: 'Bearer owner' } })).json()).documents) || []);
 let pass = 0, fail = 0;
 const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS' : 'FAIL', n, extra); };

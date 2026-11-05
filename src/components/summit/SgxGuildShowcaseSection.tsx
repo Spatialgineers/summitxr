@@ -10,7 +10,7 @@ import { initiateCredential } from '../../identity/credentials';
 export { INITIAL_INITIATES as OFFICIAL_INITIATES } from '../../lib/summitData';
 
 export const GUILD_MINDSET_QUOTES = [
-  "De espectadores pasivos a ingenieros creativos del futuro espacial.",
+  "De espectadores pasivos a participantes activos: los ingenieros creativos que vienen.",
   "La promesa no es un empleo fácil, la promesa es una educación que te separará del resto.",
   "El talento que no se muestra, no existe. Construimos en público.",
   "No medimos de dónde vienes, medimos a qué velocidad evolucionas.",
@@ -195,7 +195,7 @@ export const SgxGuildShowcaseSection: React.FC = () => {
             >
               <span className="font-bold block" style={{ color: tenant.branding.accentColor }}>{language === 'es' ? '3. Visión & Consistencia' : '3. Vision & Consistency'}</span>
               <p className="text-slate-400 text-[11px]">
-                {language === 'es' ? 'Coherencia temática del entregable espacial y presentación interactiva impecable.' : 'Thematic coherence of the spatial deliverable and a flawless interactive presentation.'}
+                {language === 'es' ? 'Coherencia temática del entregable 3D y presentación interactiva impecable.' : 'Thematic coherence of the spatial deliverable and a flawless interactive presentation.'}
               </p>
             </div>
           </div>

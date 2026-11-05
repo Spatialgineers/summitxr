@@ -143,7 +143,7 @@ var BUILTIN_PRESETS = {
     id: "preset_sgx_icon_3d",
     name: "SGX.STAGE \u2014 SGX Icon Holographic 3D",
     category: "Abstract",
-    description: "Modelo 3D oficial del icono de Spatialgineers rotando en escenario espacial hologr\xE1fico con part\xEDculas de alta energ\xEDa.",
+    description: "Modelo 3D oficial del icono de Spatialgineers rotando en un escenario hologr\xE1fico con part\xEDculas de alta energ\xEDa.",
     themeColor: "#FDCC0D",
     accentColor: "#00DDFF",
     shaderKey: "grid",
@@ -616,9 +616,9 @@ var SAMPLE_QUESTIONS = [
         presetId: "preset_particle_storm",
         color: "#5f86b4",
         effectType: "quantum_vortex",
-        effectName: "V\xF3rtice Orbital SGX",
+        effectName: "V\xF3rtice SGX",
         effectMultiplier: 1.4,
-        effectTargetParam: "Giro Orbital & Gravitaci\xF3n"
+        effectTargetParam: "Giro y atracci\xF3n"
       },
       {
         id: "opt_d",
@@ -646,7 +646,7 @@ var SAMPLE_QUESTIONS = [
     order: 2,
     prompt: "TRIVIA: \xBFQu\xE9 hace posible que el navegador dibuje 3D en tiempo real?",
     subtitle: "Responde r\xE1pido y bien: sumas m\xE1s XP.",
-    category: "Trivia espacial",
+    category: "Trivia 3D",
     answerType: "KNOWLEDGE",
     durationSeconds: 20,
     basePoints: 300,
@@ -755,8 +755,8 @@ var SAMPLE_QUESTIONS = [
         id: "opt_c",
         index: 2,
         code: 3,
-        label: "C: Tormenta c\xF3smica",
-        description: "Un v\xF3rtice gal\xE1ctico con dos pozos de gravedad",
+        label: "C: Tormenta de energ\xEDa",
+        description: "Un v\xF3rtice de part\xEDculas con dos n\xFAcleos de energ\xEDa",
         presetId: "preset_particle_storm",
         color: "#9d4edd",
         effectType: "quantum_vortex",
@@ -1215,8 +1215,8 @@ function processVoteSubmission(room, voterId, payload, broadcast) {
   if (!user) {
     user = {
       id: voterId,
-      nickname: cleanNickname(payload.nickname) || `User #${voterId.slice(-4)}`,
-      avatar: cleanAvatar(payload.avatar) || "\u{1F680}",
+      nickname: cleanNickname(payload.nickname) || `Creador #${voterId.slice(-4)}`,
+      avatar: cleanAvatar(payload.avatar) || "\u26A1",
       avatarSeed: voterId,
       tenantId: room.tenantId,
       eventId: room.eventId,
@@ -1229,7 +1229,7 @@ function processVoteSubmission(room, voterId, payload, broadcast) {
       multiplier: 1,
       totalInteractions: 0,
       activeSeconds: 120,
-      prizeTier: "Bronze Contributor",
+      prizeTier: "Nivel Bronce",
       unlockedPrizeIds: [],
       choiceHistory: []
     };
@@ -1493,6 +1493,32 @@ function ipRateLimit(opts) {
   };
 }
 
+// src/server/security/voterToken.ts
+import crypto from "crypto";
+var SECRET = process.env.SGX_VOTER_SECRET ? Buffer.from(process.env.SGX_VOTER_SECRET) : crypto.randomBytes(32);
+function mac(userId) {
+  return crypto.createHmac("sha256", SECRET).update(`voter:${userId}`).digest("base64url").slice(0, 32);
+}
+function signVoterToken(userId) {
+  return `${userId}.${mac(userId)}`;
+}
+function verifyVoterToken(token) {
+  if (typeof token !== "string" || token.length > 200) return null;
+  const dot = token.lastIndexOf(".");
+  if (dot <= 0) return null;
+  const userId = token.slice(0, dot);
+  const sig = token.slice(dot + 1);
+  if (!isValidId(userId)) return null;
+  const want = mac(userId);
+  if (sig.length !== want.length) return null;
+  return crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(want)) ? userId : null;
+}
+function voterIdFromRequest(req) {
+  const h = req.headers["x-sgx-voter"];
+  const fromHeader = Array.isArray(h) ? h[0] : h;
+  return verifyVoterToken(fromHeader ?? req.body?.voterToken);
+}
+
 // src/server/engine/wsHandler.ts
 var DIRECTOR_MESSAGES = /* @__PURE__ */ new Set([
   "BROADCAST_QUESTION",
@@ -1623,7 +1649,7 @@ function setupWebSocketEngine(server) {
         connectedAudienceCount: roomCount(tenantId, eventId),
         users: Array.from(room.users.values()).slice(0, 200)
       };
-      ws.send(JSON.stringify({ type: "INIT_STATE", tenantId, eventId, timestamp: Date.now(), payload: initStatePayload }));
+      ws.send(JSON.stringify({ type: "INIT_STATE", tenantId, eventId, timestamp: Date.now(), payload: { ...initStatePayload, voterToken: signVoterToken(userId) } }));
       ws.send(JSON.stringify({ type: "ROOM_STATE_SYNC", tenantId, eventId, timestamp: Date.now(), payload: initStatePayload }));
       scheduleCountSync(tenantId, eventId);
       ws.on("message", (data, isBinary) => {
@@ -1751,7 +1777,7 @@ import { Router as Router2 } from "express";
 
 // src/server/companion/companionRouter.ts
 import { Router } from "express";
-import crypto from "crypto";
+import crypto2 from "crypto";
 import Anthropic from "@anthropic-ai/sdk";
 
 // src/lib/sgxPillars.ts
@@ -1819,6 +1845,13 @@ var SUMMIT_DEADLINES = {
     short: { es: "5 dic", en: "Dec 5" },
     day: { es: "5 de diciembre", en: "December 5" }
   },
+  /** Day 3 (in person, by invitation): visitors request it through December 1. */
+  day3Requests: {
+    closesAt: "2026-12-02T00:00:00-04:00",
+    label: { es: "1 de diciembre de 2026", en: "December 1, 2026" },
+    short: { es: "1 dic", en: "Dec 1" },
+    day: { es: "1 de diciembre", en: "December 1" }
+  },
   /** Press accreditation: requests before December 1 (closes at the start of December 1). */
   pressAccreditation: {
     closesAt: "2026-12-01T00:00:00-04:00",
@@ -1863,6 +1896,10 @@ var DEADLINE_COPY = {
     es: `Solicitudes hasta el ${D.sponsorApplications.day.es}; pago total y materiales de la marca a m\xE1s tardar el ${D.sponsorPayment.day.es}.`,
     en: `Applications through ${D.sponsorApplications.day.en}; full payment and brand materials no later than ${D.sponsorPayment.day.en}.`
   },
+  day3Requests: {
+    es: `Las solicitudes para el D\xEDa 3 se reciben hasta el ${D.day3Requests.day.es}.`,
+    en: `Day 3 requests are accepted through ${D.day3Requests.day.en}.`
+  },
   speakerTechCheck: {
     es: `Prueba t\xE9cnica con el equipo antes del ${D.speakerTechCheck.day.es}; el d\xEDa de tu bloque te conectas 30 minutos antes.`,
     en: `Technical test with the team before ${D.speakerTechCheck.day.en}; on the day of your block you connect 30 minutes early.`
@@ -1896,7 +1933,7 @@ var SGX_PILLARS = [
     ],
     modules: [
       { kind: "section", key: "PILLARS_MANIFESTO", icon: Boxes, label: { es: "Manifiesto de los 6 pilares", en: "The 6 pillars manifesto" }, desc: { es: "El SGX Framework y la historia detr\xE1s de cada pilar.", en: "The SGX Framework and the story behind each pillar." } },
-      { kind: "section", key: "SOCIAL_STREAM", icon: Instagram, label: { es: "Radar social", en: "Social radar" }, desc: { es: "Las historias de la comunidad en vivo con #SpatialgineersSummit.", en: "Community stories live with #SGXSummit2026." } },
+      { kind: "section", key: "SOCIAL_STREAM", icon: Instagram, label: { es: "Radar social", en: "Social radar" }, desc: { es: "Las historias de la comunidad en vivo con #SpatialgineersSummit.", en: "Community stories live with #SpatialgineersSummit." } },
       { kind: "section", key: "AVATAR_STUDIO", icon: UserCircle2, label: { es: "Avatar Studio", en: "Avatar Studio" }, desc: { es: "Arma tu Highbot: cara, colores, texturas SGX y tu pilar en el pecho.", en: "Build your Highbot: face, colors, SGX textures and your pillar on its chest." } }
     ]
   },
@@ -1974,7 +2011,7 @@ var SGX_PILLARS = [
       { kind: "section", key: "SPEAKERS", icon: Users, label: { es: "Speakers & artistas", en: "Speakers & artists" }, desc: { es: "Solo se publican quienes est\xE1n confirmados por escrito.", en: "Only people confirmed in writing are published." } },
       { kind: "page", page: "stage", icon: MonitorPlay, label: { es: "Escenario en vivo", en: "Live stage" }, desc: { es: "La pantalla del escenario: preguntas, votos y reacciones en vivo.", en: "The stage screen: live questions, votes and reactions." } },
       { kind: "section", key: "SPEAKER_PORTAL", icon: Mic, label: { es: "Portal de speakers", en: "Speaker portal" }, desc: { es: `Para speakers y artistas: tu ficha, tu avatar y tu Holo Card de speaker. Perfiles hasta el ${SUMMIT_DEADLINES.speakerProfiles.day.es}.`, en: `For speakers and artists: your profile, avatar and speaker Holo Card. Profiles through ${SUMMIT_DEADLINES.speakerProfiles.day.en}.` } },
-      { kind: "section", key: "PRESS", icon: Newspaper, label: { es: "Sala de prensa", en: "Press room" }, desc: { es: "Acreditaci\xF3n de prensa (antes del 1 de dic, 10 cupos de prensa), kit de prensa y ficha del Summit.", en: "Press accreditation (before Dec 1, 10 press slots), press kit and Summit fact sheet." } }
+      { kind: "section", key: "PRESS", icon: Newspaper, label: { es: "Sala de prensa", en: "Press room" }, desc: { es: `Acreditaci\xF3n de prensa (antes del ${SUMMIT_DEADLINES.pressAccreditation.short.es}, 10 cupos de prensa), kit de prensa y ficha del Summit.`, en: `Press accreditation (before ${SUMMIT_DEADLINES.pressAccreditation.short.en}, 10 press slots), press kit and Summit fact sheet.` } }
     ]
   },
   {
@@ -2200,7 +2237,7 @@ var INITIAL_SUMMIT_SESSIONS = [
     titleEn: "Second Pillar Block: SGX.Showcase",
     subtitle: "Portafolios 3D en tiempo real, pabellones virtuales y demostraci\xF3n de casos reales (25 min)",
     subtitleEn: "Real-time 3D portfolios, virtual pavilions and a demo of real case studies (25 min)",
-    description: 'Bloque oficial del segundo pilar (SGX.Showcase) junto a Ricardo A. Hern\xE1ndez D\xEDaz ("Lightning Fingers"): exhibici\xF3n espacial en WebGL, gemelos digitales, fotogrametr\xEDa y pabellones interactivos para marcas e instituciones.',
+    description: 'Bloque oficial del segundo pilar (SGX.Showcase) junto a Ricardo A. Hern\xE1ndez D\xEDaz ("Lightning Fingers"): exhibici\xF3n 3D en WebGL, gemelos digitales, fotogrametr\xEDa y pabellones interactivos para marcas e instituciones.',
     descriptionEn: 'Official block of the second pillar (SGX.Showcase) with Ricardo A. Hern\xE1ndez D\xEDaz ("Lightning Fingers"): spatial exhibition in WebGL, digital twins, photogrammetry and interactive pavilions for brands and institutions.',
     pillarId: "SGX.SHOWCASE",
     speakerIds: ["spk_ricardo"],
@@ -2513,7 +2550,7 @@ var INITIAL_SUMMIT_SESSIONS = [
     startMinutes: 685,
     title: "Conversaci\xF3n SGX.Showcase \u2014 Persona invitada del pilar (por anunciar)",
     titleEn: "SGX.Showcase Conversation \u2014 Pillar Guest (TBA)",
-    subtitle: "Conversatorio de industria sobre portafolios 3D, gemelos digitales, comercio y turismo espacial (45 min)",
+    subtitle: "Conversatorio de industria sobre portafolios 3D, gemelos digitales, comercio y turismo inmersivo (45 min)",
     subtitleEn: "Industry conversation on 3D portfolios, digital twins, commerce and spatial tourism (45 min)",
     description: "Segunda conversaci\xF3n del D\xEDa de la Industria enfocada en SGX.Showcase con persona invitada del pilar: impacto de exhibiciones 3D WebGL en turismo, arquitectura y ventas B2B.",
     descriptionEn: "Second Industry Day conversation, focused on SGX.Showcase with the pillar's guest: the impact of WebGL 3D exhibitions on tourism, architecture and B2B sales.",
@@ -2537,8 +2574,8 @@ var INITIAL_SUMMIT_SESSIONS = [
     titleEn: "Break 2 & Gamified Voting Round",
     subtitle: "Pausa de 10 minutos y desaf\xEDo interactivo en vivo",
     subtitleEn: "10-minute break and a live interactive challenge",
-    description: "Segunda pausa de 10 minutos con trivia interactiva del ecosistema SGX (+25 XP por participaci\xF3n).",
-    descriptionEn: "Second 10-minute break with interactive trivia about the SGX ecosystem (+25 XP for taking part).",
+    description: "Segunda pausa de 10 minutos con trivia interactiva del ecosistema SGX (+25 XP por voto).",
+    descriptionEn: "Second 10-minute break with interactive trivia about the SGX ecosystem (+25 XP per vote).",
     speakerIds: [],
     format: "DIGITAL",
     venueLocation: "Summit Site /play Console",
@@ -2792,8 +2829,8 @@ var INITIAL_SUMMIT_SESSIONS = [
     startMinutes: 780,
     title: "Networking \u2014 Votaci\xF3n Gamificada Activa & Canje de Premios",
     titleEn: "Networking \u2014 Live Gamified Voting & Prize Redemption",
-    subtitle: "Conexi\xF3n presencial y digital, escaneo de QR (+50 XP), votaci\xF3n activa (+25 XP) y canje de recompensas (60 min)",
-    subtitleEn: "In-person and digital connection, QR scanning (+50 XP), live voting (+25 XP) and reward redemption (60 min)",
+    subtitle: "Conexi\xF3n presencial y digital, escaneo de QR (+50 XP), votaci\xF3n activa (+25 XP por voto) y canje de recompensas (60 min)",
+    subtitleEn: "In-person and digital connection, QR scanning (+50 XP), live voting (+25 XP per vote) and reward redemption (60 min)",
     description: "Bloque de networking en Chroma Space Studios y en la plataforma digital. Votaci\xF3n gamificada activa y canje de premios (mayormente digitales) por XP acumulada: cup\xF3n de descuento de un auspiciador y suscripci\xF3n de 3 meses a nuestras plataformas.",
     descriptionEn: "Networking block at Chroma Space Studios and on the digital platform. Live gamified voting and prize redemption (mostly digital) for accumulated XP: a sponsor discount coupon and a 3-month subscription to our platforms.",
     speakerIds: ["spk_ricardo"],
@@ -3141,6 +3178,250 @@ var SGX_PORTFOLIO = [
   }
 ];
 
+// src/identity/reactor.ts
+var REACTOR_MISSIONS = [
+  // SGX.Story
+  {
+    id: "m_story_forge",
+    pillar: "STORY",
+    xp: 120,
+    trigger: { flag: "forged" },
+    es: { title: "Forja tu SGX Pass", hint: "Tu nombre, tu pilar y tu avatar en tu pase." },
+    en: { title: "Forge your SGX Pass", hint: "Your name, your pillar and your avatar on your pass." },
+    go: { event: "sgx:open_forge" }
+  },
+  {
+    id: "m_story_manifesto",
+    pillar: "STORY",
+    xp: 60,
+    trigger: { visit: ["PILLARS_MANIFESTO"] },
+    es: { title: "Lee el manifiesto", hint: "La historia detr\xE1s de los 6 pilares." },
+    en: { title: "Read the manifesto", hint: "The story behind the 6 pillars." },
+    go: { section: "PILLARS_MANIFESTO" }
+  },
+  {
+    id: "m_story_avatar",
+    pillar: "STORY",
+    xp: 80,
+    trigger: { flag: "avatar" },
+    es: { title: "Dise\xF1a tu Highbot", hint: "Elige su cara, colores, textura y el pilar de su pecho; queda impreso en tu pase." },
+    en: { title: "Design your Highbot", hint: "Pick its face, colors, texture and the pillar on its chest; it is printed on your pass." },
+    go: { event: "sgx:open_avatar" }
+  },
+  // SGX.Showcase
+  {
+    id: "m_showcase_360",
+    pillar: "SHOWCASE",
+    xp: 60,
+    trigger: { visit: ["MAP_360"] },
+    es: { title: "Recorre Chroma Space Studios", hint: "Entra al tour 360\xB0 de la sede del D\xEDa 3." },
+    en: { title: "Walk Chroma Space Studios", hint: "Enter the 360\xB0 tour of the Day 3 venue." },
+    go: { section: "MAP_360" }
+  },
+  {
+    id: "m_showcase_partners",
+    pillar: "SHOWCASE",
+    xp: 60,
+    trigger: { visit: ["SPONSORS_HUB"] },
+    es: { title: "Visita el pabell\xF3n de partners", hint: "Las marcas que viven dentro de la experiencia." },
+    en: { title: "Visit the partner pavilion", hint: "The brands living inside the experience." },
+    go: { section: "SPONSORS_HUB" }
+  },
+  // SGX.Spark
+  {
+    id: "m_spark_play",
+    pillar: "SPARK",
+    xp: 60,
+    trigger: { visit: ["EMBEDS_GAMES", "PAGE_PLAY"] },
+    es: { title: "Juega en el Spark", hint: "Entra a Juegos y laboratorios o al arcade." },
+    en: { title: "Play in Spark", hint: "Open Games & labs or the arcade." },
+    go: { section: "EMBEDS_GAMES" }
+  },
+  {
+    id: "m_spark_drone_route",
+    pillar: "SPARK",
+    xp: 150,
+    trigger: { flag: "drone_route" },
+    secret: true,
+    es: { title: "Ruta de los 6 pilares", hint: "En el dron, cruza seis anillos seguidos con los colores de los pilares en orden." },
+    en: { title: "Six-pillar route", hint: "In the drone game, fly through six rings in a row in the pillar colors, in order." },
+    go: { section: "EMBEDS_GAMES" }
+  },
+  {
+    id: "m_spark_stack",
+    pillar: "SPARK",
+    xp: 120,
+    trigger: { flag: "stack_pillars" },
+    es: { title: "Torre de los 6 pilares", hint: "En Torre de Pilares, apila los seis pilares en orden sin cortes grandes." },
+    en: { title: "Six-pillar tower", hint: "In Pillar Tower, stack the six pillars in order without big cuts." },
+    go: { section: "EMBEDS_GAMES" }
+  },
+  {
+    id: "m_spark_pulse",
+    pillar: "SPARK",
+    xp: 120,
+    trigger: { flag: "pulse_s" },
+    es: { title: "Pulso perfecto", hint: "En Pulso SGX, termina una canci\xF3n con nota S o combo completo." },
+    en: { title: "Perfect pulse", hint: "In SGX Pulse, finish a song with an S grade or a full combo." },
+    go: { section: "EMBEDS_GAMES" }
+  },
+  {
+    id: "m_spark_bolt",
+    pillar: "SPARK",
+    xp: 150,
+    trigger: { flag: "bolt_boss" },
+    es: { title: "Derriba al Jefe SGX", hint: "En Rayo en tus manos, derriba al Jefe SGX antes de que acabe el tiempo." },
+    en: { title: "Take down the SGX Boss", hint: "In Bolt in your hands, take down the SGX Boss before time runs out." },
+    go: { section: "EMBEDS_GAMES" }
+  },
+  {
+    id: "m_spark_cells",
+    pillar: "SPARK",
+    xp: 120,
+    trigger: { quest: "q_cells_6" },
+    es: { title: "Carga 6 celdas", hint: "Encuentra 6 rayos SGX escondidos en las secciones. Empieza por la Agenda." },
+    en: { title: "Charge 6 cells", hint: "Find 6 SGX bolts hidden across the sections. Start with the Agenda." },
+    go: { section: "AGENDA" }
+  },
+  {
+    id: "m_spark_overdrive",
+    pillar: "SPARK",
+    xp: 200,
+    trigger: { quest: "q_overdrive" },
+    es: { title: "Overdrive", hint: "Llena la barra de energ\xEDa al 100%: cada secci\xF3n y cada juego la cargan." },
+    en: { title: "Overdrive", hint: "Fill the energy bar to 100%: every section and game charges it." },
+    go: { section: "EMBEDS_GAMES" }
+  },
+  // SGX.Stage
+  {
+    id: "m_stage_agenda",
+    pillar: "STAGE",
+    xp: 60,
+    trigger: { visit: ["AGENDA"] },
+    es: { title: "Arma tu Run of Show", hint: "Explora los 3 d\xEDas del programa." },
+    en: { title: "Build your Run of Show", hint: "Explore the 3-day program." },
+    go: { section: "AGENDA" }
+  },
+  {
+    id: "m_stage_rooms",
+    pillar: "STAGE",
+    xp: 60,
+    trigger: { visit: ["BROADCAST_ROOMS"] },
+    es: { title: "Sintoniza una sala", hint: "Entra a las salas de transmisi\xF3n." },
+    en: { title: "Tune into a room", hint: "Enter the broadcast rooms." },
+    go: { section: "BROADCAST_ROOMS" }
+  },
+  {
+    id: "m_stage_speakers",
+    pillar: "STAGE",
+    xp: 60,
+    trigger: { visit: ["SPEAKERS"] },
+    es: { title: "Conoce el line-up", hint: "Speakers y artistas confirmados." },
+    en: { title: "Meet the line-up", hint: "Confirmed speakers and artists." },
+    go: { section: "SPEAKERS" }
+  },
+  // SGX.System
+  {
+    id: "m_system_core",
+    pillar: "SYSTEM",
+    xp: 50,
+    trigger: { quest: "q_core_boot" },
+    es: { title: "Inicia el n\xFAcleo", hint: "Gira el n\xFAcleo 3D de la portada." },
+    en: { title: "Boot the core", hint: "Orbit the 3D core on the front page." },
+    go: { section: "OVERVIEW" }
+  },
+  {
+    id: "m_system_terminal",
+    pillar: "SYSTEM",
+    xp: 40,
+    trigger: { quest: "q_terminal" },
+    es: { title: "Terminal de mando", hint: "\xC1brela con Ctrl+K o la tecla /." },
+    en: { title: "Command terminal", hint: "Open it with Ctrl+K or the / key." },
+    go: { event: "sgx:open_terminal" }
+  },
+  {
+    id: "m_system_radar",
+    pillar: "SYSTEM",
+    xp: 60,
+    trigger: { visit: ["VISITS"] },
+    es: { title: "Lee el radar", hint: "Mira desde d\xF3nde nos visitan, en vivo." },
+    en: { title: "Read the radar", hint: "See where visitors come from, live." },
+    go: { section: "VISITS" }
+  },
+  {
+    id: "m_system_holo",
+    pillar: "SYSTEM",
+    xp: 60,
+    trigger: { flag: "holo" },
+    es: { title: "Holo Card", hint: "Comparte tu Holo Card: tu pase como tarjeta 3D, post o story." },
+    en: { title: "Holo Card", hint: "Share your Holo Card: your pass as a 3D card, post or story." },
+    go: { event: "sgx:open_credential_generator" }
+  },
+  // SGX.Synthesize
+  {
+    id: "m_syn_match",
+    pillar: "SYNTHESIZE",
+    xp: 60,
+    trigger: { visit: ["ENTREPRENEUR_MATCH"] },
+    es: { title: "Entra a SGX.Match", hint: "Conecta con creadores y marcas." },
+    en: { title: "Enter SGX.Match", hint: "Connect with creators and brands." },
+    go: { section: "ENTREPRENEUR_MATCH" }
+  },
+  {
+    id: "m_syn_contact",
+    pillar: "SYNTHESIZE",
+    xp: 100,
+    trigger: { flag: "contact" },
+    es: { title: "Intercambia pases", hint: "Escanea el QR del pase de otra persona. Quedan en los dos Rolodex." },
+    en: { title: "Swap passes", hint: "Scan someone's pass QR. You land in both Rolodexes." },
+    go: { event: "sgx:open_qr_scanner" }
+  },
+  {
+    id: "m_syn_chroma",
+    pillar: "SYNTHESIZE",
+    xp: 250,
+    trigger: { flag: "checkin" },
+    day3: true,
+    es: { title: "Presente en Chroma", hint: "D\xEDa 3: escanea el QR de entrada en Chroma Space Studios." },
+    en: { title: "Present at Chroma", hint: "Day 3: scan the entrance QR at Chroma Space Studios." }
+  },
+  {
+    id: "m_syn_constellation",
+    pillar: "SYNTHESIZE",
+    xp: 300,
+    trigger: { flag: "constellation" },
+    secret: true,
+    es: { title: "Red completa", hint: "Tu Rolodex conecta creadores de los 6 pilares." },
+    en: { title: "Full network", hint: "Your Rolodex links creators from all 6 pillars." },
+    go: { event: "sgx:open_hangar", detail: { tab: "stars" } }
+  }
+];
+var PLACE = {
+  PILLARS_MANIFESTO: ["Manifiesto", "Manifesto"],
+  MAP_360: ["Tour 360\xB0", "360\xB0 tour"],
+  SPONSORS_HUB: ["Partners", "Partners"],
+  EMBEDS_GAMES: ["Juegos", "Games"],
+  AGENDA: ["Agenda", "Agenda"],
+  BROADCAST_ROOMS: ["Salas", "Rooms"],
+  SPEAKERS: ["Line-up", "Line-up"],
+  OVERVIEW: ["N\xFAcleo 3D", "3D core"],
+  VISITS: ["Radar", "Radar"],
+  ENTREPRENEUR_MATCH: ["SGX.Match", "SGX.Match"],
+  "sgx:open_forge": ["Forja", "Forge"],
+  "sgx:open_avatar": ["Tu Highbot", "Your Highbot"],
+  "sgx:open_terminal": ["Terminal", "Terminal"],
+  "sgx:open_credential_generator": ["Holo Card", "Holo Card"],
+  "sgx:open_qr_scanner": ["Esc\xE1ner QR", "QR scanner"],
+  "sgx:open_hangar": ["Tu Estudio", "Your Studio"],
+  "sgx:open_brand_showcase": ["Showcase", "Showcase"]
+};
+function missionPlace(m, es) {
+  const key = m.go?.event || m.go?.section || m.go?.page;
+  const hit = key ? PLACE[key] : void 0;
+  if (hit) return es ? hit[0] : hit[1];
+  return key ? es ? "Ir" : "Go" : null;
+}
+
 // src/lib/sponsorTerms.ts
 var SPONSOR_ATH_NAME = "SpatialgineersLLC";
 var SPONSOR_PAYMENT_COMMENT = {
@@ -3324,6 +3605,7 @@ function speakerGuidePrompt() {
 }
 
 // src/companion/appGuide.ts
+var FIXED_MISSIONS = REACTOR_MISSIONS.length;
 var APP_FAQ = [
   {
     id: "when",
@@ -3377,7 +3659,7 @@ var APP_FAQ = [
     id: "reactor",
     keys: ["mision", "misiones", "reactor", "sello", "sellar", "mission", "missions", "stamp", "quest"],
     q: { es: "\xBFQu\xE9 es el Reactor de misiones?", en: "What is the mission Reactor?" },
-    a: { es: 'Son 24 misiones repartidas en los seis pilares. Cada pilar completo queda sellado en tu SGX Pass. \xC1brelo desde el contador "Misiones x/24": cada misi\xF3n tiene un bot\xF3n que te lleva a donde se hace.', en: 'They are 24 missions across the six pillars. Every completed pillar is stamped on your SGX Pass. Open it from the "Missions x/24" counter: each mission has a button that takes you where it is done.' },
+    a: { es: `Son ${FIXED_MISSIONS} misiones fijas repartidas en los seis pilares, m\xE1s una por cada partner de Paquete 3\u20135. Cada pilar completo queda sellado en tu SGX Pass. \xC1brelo desde el contador "Misiones" (muestra cu\xE1ntas llevas del total): cada misi\xF3n tiene un bot\xF3n que te lleva a donde se hace.`, en: `There are ${FIXED_MISSIONS} fixed missions across the six pillars, plus one for each Package 3\u20135 partner. Every completed pillar is stamped on your SGX Pass. Open it from the "Missions" counter (it shows how many you have done out of the total): each mission has a button that takes you where it is done.` },
     go: "reactor"
   },
   {
@@ -3440,7 +3722,7 @@ var APP_FAQ = [
     id: "day2",
     keys: ["dia 2", "sabado", "industria", "conversaciones", "conversatorio", "day 2", "saturday", "industry", "panel"],
     q: { es: "\xBFQu\xE9 pasa el D\xEDa 2?", en: "What happens on Day 2?" },
-    a: { es: "S\xE1bado 12, D\xEDa de la Industria (digital): seis conversaciones de 45 minutos, una por pilar, con personas invitadas (se anuncian al confirmarse), y entre cada una una pausa con votaci\xF3n gamificada (+25 XP).", en: "Saturday the 12th, Industry Day (digital): six 45-minute conversations, one per pillar, with guests (announced once confirmed), and a gamified voting break between each (+25 XP)." },
+    a: { es: "S\xE1bado 12, D\xEDa de la Industria (digital): seis conversaciones de 45 minutos, una por pilar, con personas invitadas (se anuncian al confirmarse), y entre cada una una pausa con votaci\xF3n gamificada (+25 XP por voto).", en: "Saturday the 12th, Industry Day (digital): six 45-minute conversations, one per pillar, with guests (announced once confirmed), and a gamified voting break between each (+25 XP per vote)." },
     go: "agenda"
   },
   {
@@ -3475,7 +3757,7 @@ var APP_FAQ = [
     id: "deadlines",
     keys: ["fecha limite", "fechas limite", "deadline", "deadlines", "hasta cuando", "cierra", "cierre", "ultimo dia", "a mas tardar", "pago", "materiales", "payment", "materials", "closes", "last day"],
     q: { es: "\xBFCu\xE1les son las fechas l\xEDmite?", en: "What are the deadlines?" },
-    a: { es: `Perfiles de speakers y artistas: hasta el ${SUMMIT_DEADLINES.speakerProfiles.day.es}. Solicitudes de auspicio: hasta el ${SUMMIT_DEADLINES.sponsorApplications.day.es}. Pago total y materiales de sponsors: a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}. Prensa: antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es}. Invitaciones al D\xEDa 3: el equipo las env\xEDa a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}. Hora de Puerto Rico.`, en: `Speaker and artist profiles: through ${SUMMIT_DEADLINES.speakerProfiles.day.en}. Sponsorship applications: through ${SUMMIT_DEADLINES.sponsorApplications.day.en}. Sponsor full payment and materials: no later than ${SUMMIT_DEADLINES.sponsorPayment.day.en}. Press: before ${SUMMIT_DEADLINES.pressAccreditation.day.en}. Day 3 invitations: the team sends them no later than ${SUMMIT_DEADLINES.day3Invitations.day.en}. Puerto Rico time.` }
+    a: { es: `Perfiles de speakers y artistas: hasta el ${SUMMIT_DEADLINES.speakerProfiles.day.es}. Solicitudes de auspicio: hasta el ${SUMMIT_DEADLINES.sponsorApplications.day.es}. Pago total y materiales de sponsors: a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}. Prensa: antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es}. Solicitudes para el D\xEDa 3: hasta el ${SUMMIT_DEADLINES.day3Requests.day.es}. Invitaciones al D\xEDa 3: el equipo las env\xEDa a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}. Hora de Puerto Rico.`, en: `Speaker and artist profiles: through ${SUMMIT_DEADLINES.speakerProfiles.day.en}. Sponsorship applications: through ${SUMMIT_DEADLINES.sponsorApplications.day.en}. Sponsor full payment and materials: no later than ${SUMMIT_DEADLINES.sponsorPayment.day.en}. Press: before ${SUMMIT_DEADLINES.pressAccreditation.day.en}. Day 3 requests: through ${SUMMIT_DEADLINES.day3Requests.day.en}. Day 3 invitations: the team sends them no later than ${SUMMIT_DEADLINES.day3Invitations.day.en}. Puerto Rico time.` }
   },
   {
     id: "speaker-portal",
@@ -3559,257 +3841,13 @@ var APP_FAQ = [
 ];
 var APP_CONTROLS_ES = `- Header: logo del Summit (inicio), la tarjeta del sponsor del momento junto al logo con "Patrocina el Summit", idioma ES/EN, sonido, FX/Ligero, el chip del Creador (abre Tu Estudio), compartir y el Men\xFA con todos los m\xF3dulos.
 - Barra del n\xFAcleo (portada): la fecha y los relojes del Summit (cuenta regresiva al D\xEDa 1), las visitas totales y Agenda. Los Ajustes del n\xFAcleo (girar, zoom, sponsors en 3D, inmersi\xF3n total, modo ligero) est\xE1n en el engranaje del header de arriba. Tocar un pilar 3D abre su tarjeta con "Visitar pilar".
-- Riel "Misiones x/24": abre el Reactor como pop-up; cada misi\xF3n tiene un bot\xF3n a donde se hace.
+- Riel "Misiones x/N" (N es el total real: ${FIXED_MISSIONS} fijas m\xE1s una por partner de Paquete 3\u20135): abre el Reactor como pop-up; cada misi\xF3n tiene un bot\xF3n a donde se hace.
 - La cabecita del Highbot (abajo a la derecha) abre este chat.
 - Pulso en vivo: reacciones y encuesta de la keynote, solo durante los d\xEDas del Summit.
 - Al ganar XP, a veces sale "Presentado por" con una marca por unos segundos (m\xE1ximo cada 5 minutos); tocarlo la fija y lleva a su showcase.
 - Modo Ligero (FX \u2192 Ligero): sin 3D ni animaciones, el Highbot en 2D; ahorra bater\xEDa y datos.`;
 function appGuidePrompt() {
   return APP_FAQ.map((e) => `- ${e.q.es} ${e.a.es}${e.go ? ` (ir_a: ${e.go})` : ""}`).join("\n");
-}
-
-// src/identity/reactor.ts
-var REACTOR_MISSIONS = [
-  // SGX.Story
-  {
-    id: "m_story_forge",
-    pillar: "STORY",
-    xp: 120,
-    trigger: { flag: "forged" },
-    es: { title: "Forja tu SGX Pass", hint: "Tu nombre, tu pilar y tu avatar en tu pase." },
-    en: { title: "Forge your SGX Pass", hint: "Your name, your pillar and your avatar on your pass." },
-    go: { event: "sgx:open_forge" }
-  },
-  {
-    id: "m_story_manifesto",
-    pillar: "STORY",
-    xp: 60,
-    trigger: { visit: ["PILLARS_MANIFESTO"] },
-    es: { title: "Lee el manifiesto", hint: "La historia detr\xE1s de los 6 pilares." },
-    en: { title: "Read the manifesto", hint: "The story behind the 6 pillars." },
-    go: { section: "PILLARS_MANIFESTO" }
-  },
-  {
-    id: "m_story_avatar",
-    pillar: "STORY",
-    xp: 80,
-    trigger: { flag: "avatar" },
-    es: { title: "Dise\xF1a tu Highbot", hint: "Elige su cara, colores, textura y el pilar de su pecho; queda impreso en tu pase." },
-    en: { title: "Design your Highbot", hint: "Pick its face, colors, texture and the pillar on its chest; it is printed on your pass." },
-    go: { event: "sgx:open_avatar" }
-  },
-  // SGX.Showcase
-  {
-    id: "m_showcase_360",
-    pillar: "SHOWCASE",
-    xp: 60,
-    trigger: { visit: ["MAP_360"] },
-    es: { title: "Recorre Chroma Space Studios", hint: "Entra al tour 360\xB0 de la sede del D\xEDa 3." },
-    en: { title: "Walk Chroma Space Studios", hint: "Enter the 360\xB0 tour of the Day 3 venue." },
-    go: { section: "MAP_360" }
-  },
-  {
-    id: "m_showcase_partners",
-    pillar: "SHOWCASE",
-    xp: 60,
-    trigger: { visit: ["SPONSORS_HUB"] },
-    es: { title: "Visita el pabell\xF3n de partners", hint: "Las marcas que viven dentro de la experiencia." },
-    en: { title: "Visit the partner pavilion", hint: "The brands living inside the experience." },
-    go: { section: "SPONSORS_HUB" }
-  },
-  // SGX.Spark
-  {
-    id: "m_spark_play",
-    pillar: "SPARK",
-    xp: 60,
-    trigger: { visit: ["EMBEDS_GAMES", "PAGE_PLAY"] },
-    es: { title: "Juega en el Spark", hint: "Entra a Juegos y laboratorios o al arcade." },
-    en: { title: "Play in Spark", hint: "Open Games & labs or the arcade." },
-    go: { section: "EMBEDS_GAMES" }
-  },
-  {
-    id: "m_spark_drone_route",
-    pillar: "SPARK",
-    xp: 150,
-    trigger: { flag: "drone_route" },
-    secret: true,
-    es: { title: "Ruta de los 6 pilares", hint: "En el dron, cruza seis anillos seguidos con los colores de los pilares en orden." },
-    en: { title: "Six-pillar route", hint: "In the drone game, fly through six rings in a row in the pillar colors, in order." },
-    go: { section: "EMBEDS_GAMES" }
-  },
-  {
-    id: "m_spark_stack",
-    pillar: "SPARK",
-    xp: 120,
-    trigger: { flag: "stack_pillars" },
-    es: { title: "Torre de los 6 pilares", hint: "En Torre de Pilares, apila los seis pilares en orden sin cortes grandes." },
-    en: { title: "Six-pillar tower", hint: "In Pillar Tower, stack the six pillars in order without big cuts." },
-    go: { section: "EMBEDS_GAMES" }
-  },
-  {
-    id: "m_spark_pulse",
-    pillar: "SPARK",
-    xp: 120,
-    trigger: { flag: "pulse_s" },
-    es: { title: "Pulso perfecto", hint: "En Pulso SGX, termina una canci\xF3n con nota S o combo completo." },
-    en: { title: "Perfect pulse", hint: "In SGX Pulse, finish a song with an S grade or a full combo." },
-    go: { section: "EMBEDS_GAMES" }
-  },
-  {
-    id: "m_spark_bolt",
-    pillar: "SPARK",
-    xp: 150,
-    trigger: { flag: "bolt_boss" },
-    es: { title: "Derriba al Jefe SGX", hint: "En Rayo en tus manos, derriba al Jefe SGX antes de que acabe el tiempo." },
-    en: { title: "Take down the SGX Boss", hint: "In Bolt in your hands, take down the SGX Boss before time runs out." },
-    go: { section: "EMBEDS_GAMES" }
-  },
-  {
-    id: "m_spark_cells",
-    pillar: "SPARK",
-    xp: 120,
-    trigger: { quest: "q_cells_6" },
-    es: { title: "Carga 6 celdas", hint: "Encuentra 6 rayos SGX escondidos en las secciones. Empieza por la Agenda." },
-    en: { title: "Charge 6 cells", hint: "Find 6 SGX bolts hidden across the sections. Start with the Agenda." },
-    go: { section: "AGENDA" }
-  },
-  {
-    id: "m_spark_overdrive",
-    pillar: "SPARK",
-    xp: 200,
-    trigger: { quest: "q_overdrive" },
-    es: { title: "Overdrive", hint: "Llena la barra de energ\xEDa al 100%: cada secci\xF3n y cada juego la cargan." },
-    en: { title: "Overdrive", hint: "Fill the energy bar to 100%: every section and game charges it." },
-    go: { section: "EMBEDS_GAMES" }
-  },
-  // SGX.Stage
-  {
-    id: "m_stage_agenda",
-    pillar: "STAGE",
-    xp: 60,
-    trigger: { visit: ["AGENDA"] },
-    es: { title: "Arma tu Run of Show", hint: "Explora los 3 d\xEDas del programa." },
-    en: { title: "Build your Run of Show", hint: "Explore the 3-day program." },
-    go: { section: "AGENDA" }
-  },
-  {
-    id: "m_stage_rooms",
-    pillar: "STAGE",
-    xp: 60,
-    trigger: { visit: ["BROADCAST_ROOMS"] },
-    es: { title: "Sintoniza una sala", hint: "Entra a las salas de transmisi\xF3n." },
-    en: { title: "Tune into a room", hint: "Enter the broadcast rooms." },
-    go: { section: "BROADCAST_ROOMS" }
-  },
-  {
-    id: "m_stage_speakers",
-    pillar: "STAGE",
-    xp: 60,
-    trigger: { visit: ["SPEAKERS"] },
-    es: { title: "Conoce el line-up", hint: "Speakers y artistas confirmados." },
-    en: { title: "Meet the line-up", hint: "Confirmed speakers and artists." },
-    go: { section: "SPEAKERS" }
-  },
-  // SGX.System
-  {
-    id: "m_system_core",
-    pillar: "SYSTEM",
-    xp: 50,
-    trigger: { quest: "q_core_boot" },
-    es: { title: "Inicia el n\xFAcleo", hint: "Orbita el n\xFAcleo 3D de la portada." },
-    en: { title: "Boot the core", hint: "Orbit the 3D core on the front page." },
-    go: { section: "OVERVIEW" }
-  },
-  {
-    id: "m_system_terminal",
-    pillar: "SYSTEM",
-    xp: 40,
-    trigger: { quest: "q_terminal" },
-    es: { title: "Terminal de mando", hint: "\xC1brela con Ctrl+K o la tecla /." },
-    en: { title: "Command terminal", hint: "Open it with Ctrl+K or the / key." },
-    go: { event: "sgx:open_terminal" }
-  },
-  {
-    id: "m_system_radar",
-    pillar: "SYSTEM",
-    xp: 60,
-    trigger: { visit: ["VISITS"] },
-    es: { title: "Lee el radar", hint: "Mira desde d\xF3nde nos visitan, en vivo." },
-    en: { title: "Read the radar", hint: "See where visitors come from, live." },
-    go: { section: "VISITS" }
-  },
-  {
-    id: "m_system_holo",
-    pillar: "SYSTEM",
-    xp: 60,
-    trigger: { flag: "holo" },
-    es: { title: "Holo Card", hint: "Comparte tu Holo Card: tu pase como tarjeta 3D, post o story." },
-    en: { title: "Holo Card", hint: "Share your Holo Card: your pass as a 3D card, post or story." },
-    go: { event: "sgx:open_credential_generator" }
-  },
-  // SGX.Synthesize
-  {
-    id: "m_syn_match",
-    pillar: "SYNTHESIZE",
-    xp: 60,
-    trigger: { visit: ["ENTREPRENEUR_MATCH"] },
-    es: { title: "Entra a SGX.Match", hint: "Conecta con creadores y marcas." },
-    en: { title: "Enter SGX.Match", hint: "Connect with creators and brands." },
-    go: { section: "ENTREPRENEUR_MATCH" }
-  },
-  {
-    id: "m_syn_contact",
-    pillar: "SYNTHESIZE",
-    xp: 100,
-    trigger: { flag: "contact" },
-    es: { title: "Intercambia pases", hint: "Escanea el QR del pase de otra persona. Quedan en los dos Rolodex." },
-    en: { title: "Swap passes", hint: "Scan someone's pass QR. You land in both Rolodexes." },
-    go: { event: "sgx:open_qr_scanner" }
-  },
-  {
-    id: "m_syn_chroma",
-    pillar: "SYNTHESIZE",
-    xp: 250,
-    trigger: { flag: "checkin" },
-    day3: true,
-    es: { title: "Presente en Chroma", hint: "D\xEDa 3: escanea el QR de entrada en Chroma Space Studios." },
-    en: { title: "Present at Chroma", hint: "Day 3: scan the entrance QR at Chroma Space Studios." }
-  },
-  {
-    id: "m_syn_constellation",
-    pillar: "SYNTHESIZE",
-    xp: 300,
-    trigger: { flag: "constellation" },
-    secret: true,
-    es: { title: "Red completa", hint: "Tu Rolodex conecta creadores de los 6 pilares." },
-    en: { title: "Full network", hint: "Your Rolodex links creators from all 6 pillars." },
-    go: { event: "sgx:open_hangar", detail: { tab: "stars" } }
-  }
-];
-var PLACE = {
-  PILLARS_MANIFESTO: ["Manifiesto", "Manifesto"],
-  MAP_360: ["Tour 360\xB0", "360\xB0 tour"],
-  SPONSORS_HUB: ["Partners", "Partners"],
-  EMBEDS_GAMES: ["Juegos", "Games"],
-  AGENDA: ["Agenda", "Agenda"],
-  BROADCAST_ROOMS: ["Salas", "Rooms"],
-  SPEAKERS: ["Line-up", "Line-up"],
-  OVERVIEW: ["N\xFAcleo 3D", "3D core"],
-  VISITS: ["Radar", "Radar"],
-  ENTREPRENEUR_MATCH: ["SGX.Match", "SGX.Match"],
-  "sgx:open_forge": ["Forja", "Forge"],
-  "sgx:open_avatar": ["Tu Highbot", "Your Highbot"],
-  "sgx:open_terminal": ["Terminal", "Terminal"],
-  "sgx:open_credential_generator": ["Holo Card", "Holo Card"],
-  "sgx:open_qr_scanner": ["Esc\xE1ner QR", "QR scanner"],
-  "sgx:open_hangar": ["Tu Estudio", "Your Studio"],
-  "sgx:open_brand_showcase": ["Showcase", "Showcase"]
-};
-function missionPlace(m, es) {
-  const key = m.go?.event || m.go?.section || m.go?.page;
-  const hit = key ? PLACE[key] : void 0;
-  if (hit) return es ? hit[0] : hit[1];
-  return key ? es ? "Ir" : "Go" : null;
 }
 
 // src/server/companion/knowledge.ts
@@ -3874,6 +3912,7 @@ var DEADLINES = `## Fechas l\xEDmite (hora de Puerto Rico)
 - Solicitudes de auspicio (Patrocina el Summit): hasta el ${SUMMIT_DEADLINES.sponsorApplications.day.es}. Despu\xE9s el formulario se cierra; para lo que falte, info@spatialgineers.com.
 - Pago total y materiales de la marca (sponsors): a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}.
 - Acreditaci\xF3n de prensa: antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es}.
+- Solicitudes para el D\xEDa 3 (presencial, por invitaci\xF3n): hasta el ${SUMMIT_DEADLINES.day3Requests.day.es}.
 - Invitaciones al D\xEDa 3: el equipo las env\xEDa a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}.
 - Speakers: prueba t\xE9cnica con el equipo antes del ${SUMMIT_DEADLINES.speakerTechCheck.day.es}; el d\xEDa de su bloque se conectan 30 minutos antes.`;
 var SPONSOR_TERMS_BLOCK = `## Sponsors: t\xE9rminos y log\xEDstica
@@ -3886,14 +3925,14 @@ var EVENT = `## Spatialgineers Summit 2026: lo esencial
 - Fechas: 11, 12 y 13 de diciembre de 2026. En espa\xF1ol.
 - D\xEDas 1 y 2: 100% digitales y gratis por YouTube Live (canal principal, https://www.youtube.com/@spatialgineers), tambi\xE9n en LinkedIn y Facebook Live; Los Mismos TV transmite junto a Spatialgineers. El D\xEDa 1 hay artistas invitados present\xE1ndose dentro de Roblox.
 - D\xEDa 3 (domingo 13): SGX Showcase presencial en Chroma Space Studios, San Juan. Por invitaci\xF3n: el equipo env\xEDa las invitaciones a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}. Demos en vivo de todos los pilares y networking. El check-in del D\xEDa 3 se hace con el SGX Pass escaneando el QR de la entrada.
-- Prensa: la acreditaci\xF3n se solicita en la Sala de prensa (summit.spatialgineers.com/prensa) antes del 1 de diciembre: 10 cupos de prensa, con el SGX Pass forjado primero. Cubre los 3 d\xEDas (YouTube Live los D\xEDas 1 y 2 y entrada al D\xEDa 3 en Chroma con el QR del pase); al aprobarse, la Holo Card dice PRENSA. La misma p\xE1gina tiene el kit de prensa (logos, fotos de los fundadores, capturas y ficha en PDF). Contacto de prensa: info@spatialgineers.com.
+- Prensa: la acreditaci\xF3n se solicita en la Sala de prensa (summit.spatialgineers.com/prensa) antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es}: 10 cupos de prensa, con el SGX Pass forjado primero. Cubre los 3 d\xEDas (YouTube Live los D\xEDas 1 y 2 y entrada al D\xEDa 3 en Chroma con el QR del pase); al aprobarse, la Holo Card dice PRENSA. La misma p\xE1gina tiene el kit de prensa (logos, fotos de los fundadores, capturas y ficha en PDF). Contacto de prensa: info@spatialgineers.com.
 - Partners: Chroma Space Studios (sede del D\xEDa 3, Paquete 5: alianza de servicios esenciales) y Los Mismos TV (medio aliado de la transmisi\xF3n). Los espacios "Tu marca aqu\xED" de la app est\xE1n abiertos a marcas a prop\xF3sito.
 - Patrocinio: Paquete 1 Digital Presence ($50\u2013$100, 10 cupos), Paquete 2 Gamified ($250\u2013$500, 6 cupos), Paquete 3 Experience ($750\u2013$1,000, 6 cupos), Paquete 4 Signature Experience ($1,500\u2013$2,500, 3 cupos), Paquete 5 Alianza de servicios esenciales (a convenir, 3 cupos). Cada paquete incluye lo del anterior. Detalle y solicitud en la p\xE1gina "Patrocina el Summit": solicitudes hasta el ${SUMMIT_DEADLINES.sponsorApplications.day.es}; pago total y materiales a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}.
 
 ## El SGX Pass y la experiencia en la app
 - El SGX Pass es la credencial gratis del Summit y ES la Holo Card del Creador. Se "forja" en un minuto (nombre, email, pilar favorito, su Highbot). Da el QR de networking, la entrada del D\xEDa 3, las misiones y el XP. Un pase por email.
 - Tu Estudio es la p\xE1gina personal: Pase, Tu Highbot, Reactor (misiones por pilar), Red (constelaci\xF3n de contactos), Rolodex, D\xEDa 3 y Telemetr\xEDa. Con Google se guarda el progreso en la cuenta.
-- XP: se gana jugando, votando en vivo (+25 XP en la arena), completando misiones y escaneando pases. La Tienda del Reactor deja gastar XP sin bajar de rango.
+- XP: se gana jugando, votando en vivo (+25 XP por voto, una vez por pregunta), completando misiones y escaneando pases. La Tienda del Reactor deja gastar XP sin bajar de rango.
 - Networking: escanear el QR del pase de otra persona los guarda en el Rolodex de ambos; completar los seis pilares en la Red da un sello secreto.
 - Encuestas: solo aceptan votos mientras el equipo las tiene abiertas.
 - Avatar Studio: arma tu Highbot (colores, cara, p\xE1rpados, visor, patr\xF3n SGX en el torso, accesorios y el emblema de tu pilar).
@@ -4116,7 +4155,7 @@ function jwtPayload(token) {
     return null;
   }
 }
-var sha256 = (s) => crypto.createHash("sha256").update(s).digest("hex");
+var sha256 = (s) => crypto2.createHash("sha256").update(s).digest("hex");
 var passCache = /* @__PURE__ */ new Map();
 async function verifyPass(idToken, email, code) {
   const claims = jwtPayload(idToken);
@@ -4543,12 +4582,31 @@ function createApiRouter(broadcastToRoom) {
     }
     res.json({ success: true, session: room.session, question });
   });
+  const voterBuckets = /* @__PURE__ */ new Map();
+  const voterSweep = setInterval(() => {
+    for (const [k, b] of voterBuckets) if (b.isFull()) voterBuckets.delete(k);
+  }, 6e4);
+  voterSweep.unref?.();
+  const takeVoterBudget = (key, capacity = 6, refillPerSec = 0.5) => {
+    let b = voterBuckets.get(key);
+    if (!b) {
+      if (voterBuckets.size >= 5e4) voterBuckets.clear();
+      b = new TokenBucket(capacity, refillPerSec);
+      voterBuckets.set(key, b);
+    }
+    return b.take();
+  };
   router.post("/vote", (req, res) => {
     const room = roomFrom(req, res);
     if (!room) return;
-    const voterId = req.body?.userId;
-    if (!isValidId(voterId)) return res.status(400).json({ error: "INVALID_USER_ID" });
-    const result = processVoteSubmission(room, voterId, req.body || {}, broadcastToRoom);
+    const voterId = voterIdFromRequest(req);
+    if (!voterId) return res.status(401).json({ error: "VOTER_TOKEN_REQUIRED" });
+    if (!takeVoterBudget(`vote:${voterId}`)) {
+      res.setHeader("Retry-After", "5");
+      return res.status(429).json({ error: "RATE_LIMITED" });
+    }
+    const { userId: _ignored, ...body } = req.body || {};
+    const result = processVoteSubmission(room, voterId, body, broadcastToRoom);
     if (result.status !== "ACCEPTED") {
       return res.status(result.status === "DUPLICATE" || result.status === "STALE" ? 409 : 400).json({ error: result.status });
     }
@@ -4558,7 +4616,12 @@ function createApiRouter(broadcastToRoom) {
   router.post("/reaction", (req, res) => {
     const room = roomFrom(req, res);
     if (!room) return;
-    const reaction = processAudienceReaction(room, { emoji: req.body?.emoji, color: req.body?.color, userId: isValidId(req.body?.userId) ? req.body.userId : "anon" }, broadcastToRoom);
+    const voterId = voterIdFromRequest(req);
+    if (!takeVoterBudget(`rx:${voterId || "anon:" + (req.ip || "unknown")}`, 30, 5)) {
+      res.setHeader("Retry-After", "5");
+      return res.status(429).json({ error: "RATE_LIMITED" });
+    }
+    const reaction = processAudienceReaction(room, { emoji: req.body?.emoji, color: req.body?.color, userId: voterId || "anon" }, broadcastToRoom);
     res.json({ success: true, reaction });
   });
   router.post("/action/close-voting", requireAdmin, (req, res) => {
@@ -4629,8 +4692,8 @@ var PRESS_RULES = {
     en: "Accreditation covers all 3 days: the YouTube Live broadcast on Days 1 and 2, and in-person entry to Day 3 at Chroma Space Studios with your SGX Pass QR."
   },
   line: {
-    es: "Prensa: solicita tu acreditaci\xF3n en summit.spatialgineers.com/prensa antes del 1 de diciembre (10 cupos de prensa).",
-    en: "Press: request accreditation at summit.spatialgineers.com/prensa before December 1 (10 press slots)."
+    es: `Prensa: solicita tu acreditaci\xF3n en summit.spatialgineers.com/prensa antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es} (10 cupos de prensa).`,
+    en: `Press: request accreditation at summit.spatialgineers.com/prensa before ${SUMMIT_DEADLINES.pressAccreditation.day.en} (10 press slots).`
   }
 };
 var PRESS_FACTS = [
@@ -4644,7 +4707,7 @@ var PRESS_FACTS = [
   { k: { es: "Fundadores", en: "Founders" }, v: { es: 'Danelson Maldonado Gonz\xE1lez "The Highgineer" y Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers".', en: 'Danelson Maldonado Gonz\xE1lez "The Highgineer" and Ricardo A. Hern\xE1ndez D\xEDaz "Lightning Fingers".' } },
   { k: { es: "Portafolio", en: "Portfolio" }, v: { es: "60+ espacios digitales y 10 juegos interactivos.", en: "60+ digital spaces and 10 interactive games." } },
   { k: { es: "Web del Summit", en: "Summit website" }, v: { es: "summit.spatialgineers.com", en: "summit.spatialgineers.com" } },
-  { k: { es: "Prensa", en: "Press" }, v: { es: "Acreditaci\xF3n antes del 1 de diciembre de 2026: 10 cupos de prensa. info@spatialgineers.com", en: "Accreditation before December 1, 2026: 10 press slots. info@spatialgineers.com" } }
+  { k: { es: "Prensa", en: "Press" }, v: { es: `Acreditaci\xF3n antes del ${SUMMIT_DEADLINES.pressAccreditation.label.es}: 10 cupos de prensa. info@spatialgineers.com`, en: `Accreditation before ${SUMMIT_DEADLINES.pressAccreditation.label.en}: 10 press slots. info@spatialgineers.com` } }
 ];
 var PRESS_ABOUT = {
   summit: {
@@ -4718,7 +4781,7 @@ var PRESS_ASSETS = [
 var PRESS_FAQ = [
   {
     q: { es: "\xBFC\xF3mo pido la acreditaci\xF3n de prensa para el Spatialgineers Summit 2026?", en: "How do I request press accreditation for Spatialgineers Summit 2026?" },
-    a: { es: "En summit.spatialgineers.com/prensa: forjas tu SGX Pass gratis y llenas la solicitud con tu medio, tu cargo, enlaces a coberturas previas y los d\xEDas que cubrir\xE1s. Recibes un c\xF3digo de seguimiento al enviarla. La fecha l\xEDmite es el 1 de diciembre de 2026.", en: "At summit.spatialgineers.com/prensa: forge your free SGX Pass and fill in the request with your outlet, your title, links to past coverage and the days you will cover. You get a tracking code when you send it. The deadline is December 1, 2026." }
+    a: { es: `En summit.spatialgineers.com/prensa: forjas tu SGX Pass gratis y llenas la solicitud con tu medio, tu cargo, enlaces a coberturas previas y los d\xEDas que cubrir\xE1s. Recibes un c\xF3digo de seguimiento al enviarla. La fecha l\xEDmite es el ${SUMMIT_DEADLINES.pressAccreditation.label.es}.`, en: `At summit.spatialgineers.com/prensa: forge your free SGX Pass and fill in the request with your outlet, your title, links to past coverage and the days you will cover. You get a tracking code when you send it. The deadline is ${SUMMIT_DEADLINES.pressAccreditation.label.en}.` }
   },
   {
     q: { es: "\xBFCu\xE1ntos cupos de prensa hay?", en: "How many press slots are there?" },
@@ -4950,8 +5013,8 @@ var WELCOME_ROLE_COPY = {
     title: { es: "Bienvenida, prensa", en: "Welcome, press" },
     metaTitle: { es: "Prensa \xB7 Acreditaci\xF3n al Spatialgineers Summit 2026 \xB7 11\u201313 dic", en: "Press \xB7 Spatialgineers Summit 2026 accreditation \xB7 Dec 11\u201313" },
     description: {
-      es: "Gu\xEDa para prensa y medios del Spatialgineers Summit 2026: solicita tu acreditaci\xF3n antes del 1 de diciembre (10 cupos de prensa), descarga el kit de prensa y cubre los 3 d\xEDas: YouTube Live y el D\xEDa 3 en Chroma Space Studios.",
-      en: "Press and media guide to Spatialgineers Summit 2026: request accreditation before December 1 (10 press slots), download the press kit and cover all 3 days: YouTube Live and Day 3 at Chroma Space Studios."
+      es: `Gu\xEDa para prensa y medios del Spatialgineers Summit 2026: solicita tu acreditaci\xF3n antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es} (10 cupos de prensa), descarga el kit de prensa y cubre los 3 d\xEDas: YouTube Live y el D\xEDa 3 en Chroma Space Studios.`,
+      en: `Press and media guide to Spatialgineers Summit 2026: request accreditation before ${SUMMIT_DEADLINES.pressAccreditation.day.en} (10 press slots), download the press kit and cover all 3 days: YouTube Live and Day 3 at Chroma Space Studios.`
     },
     intro: {
       es: "Cubres el Summit. La acreditaci\xF3n de prensa incluye los 3 d\xEDas: la transmisi\xF3n por YouTube Live los D\xEDas 1 y 2, y la entrada al D\xEDa 3 en Chroma Space Studios con el QR de tu SGX Pass.",
@@ -4960,7 +5023,7 @@ var WELCOME_ROLE_COPY = {
     videoTitle: { es: "Recorrido para prensa", en: "Walkthrough for press" },
     steps: [
       { when: { es: "Hoy", en: "Today" }, title: { es: "Forja tu SGX Pass", en: "Forge your SGX Pass" }, body: { es: "Gratis y en un minuto. Desde tu pase solicitas la acreditaci\xF3n.", en: "Free and in a minute. You request accreditation from your pass." } },
-      { when: { es: "Antes del 1 dic", en: "Before Dec 1" }, title: { es: "Solicita tu acreditaci\xF3n", en: "Request accreditation" }, body: { es: "En la Sala de prensa: tu medio, tu cargo, enlaces a coberturas previas y los d\xEDas que cubrir\xE1s. 10 cupos de prensa. Recibes un c\xF3digo de seguimiento.", en: "In the Press room: your outlet, your title, links to past coverage and the days you will cover. 10 press slots. You get a tracking code." } },
+      { when: { es: `Antes del ${SUMMIT_DEADLINES.pressAccreditation.short.es}`, en: `Before ${SUMMIT_DEADLINES.pressAccreditation.short.en}` }, title: { es: "Solicita tu acreditaci\xF3n", en: "Request accreditation" }, body: { es: "En la Sala de prensa: tu medio, tu cargo, enlaces a coberturas previas y los d\xEDas que cubrir\xE1s. 10 cupos de prensa. Recibes un c\xF3digo de seguimiento.", en: "In the Press room: your outlet, your title, links to past coverage and the days you will cover. 10 press slots. You get a tracking code." } },
       { when: { es: "Tras la revisi\xF3n", en: "After review" }, title: { es: "Tu pase dice PRENSA", en: "Your pass says PRESS" }, body: { es: "Si te aprueban, el equipo te escribe, tu Holo Card cambia a PRENSA y tu pase queda invitado al D\xEDa 3.", en: "If approved, the team writes to you, your Holo Card switches to PRESS and your pass is invited to Day 3." } },
       { when: { es: "11\u201313 dic", en: "Dec 11\u201313" }, title: { es: "Cubre los 3 d\xEDas", en: "Cover all 3 days" }, body: { es: "D\xEDas 1 y 2 por YouTube Live, con Los Mismos TV transmitiendo junto a nosotros. D\xEDa 3 presencial en Chroma Space Studios, San Juan: entras con el QR de tu SGX Pass.", en: "Days 1 and 2 on YouTube Live, with Los Mismos TV streaming alongside us. Day 3 in person at Chroma Space Studios, San Juan: you get in with your SGX Pass QR." } }
     ],
@@ -5334,6 +5397,10 @@ async function startServer() {
         else if (name === "sw.js" || name === "index.html" || name === "manifest.webmanifest") res.setHeader("Cache-Control", "no-cache");
       }
     }));
+    app.use("/assets", (_req, res) => {
+      res.setHeader("Cache-Control", "no-store");
+      res.status(404).type("text/plain").send("Not found");
+    });
     const indexFile = path.join(distPath, "index.html");
     let indexCache = null;
     const readIndex = () => {

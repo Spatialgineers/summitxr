@@ -1,5 +1,6 @@
 import type { User } from 'firebase/auth';
 import { checkEmailClaim, findMyRegistration, type EmailClaim } from './passNetwork';
+import { canAutoReload, guardedReload } from '../lib/reloadGuard';
 
 /* ACCOUNT SLOTS: the pass, XP, avatar, Rolodex and agenda live in this
    browser's localStorage, so they must follow the Google account that made
@@ -43,6 +44,17 @@ const ACCOUNT_KEYS = [
   'sgx_pending_credentials_v1',
 ];
 
+/** When the visitor last pressed sign in / sign out (ms), so that swap counts as one they asked for. */
+const ACTION_KEY = 'sgx_account_action_at';
+const ACTION_WINDOW_MS = 2 * 60 * 1000;
+/** Call right before a sign-in or sign-out the visitor started. */
+export function markAccountAction() {
+  try { sessionStorage.setItem(ACTION_KEY, String(Date.now())); } catch { /* blocked */ }
+}
+function userAskedForSwitch(): boolean {
+  try { return Date.now() - Number(sessionStorage.getItem(ACTION_KEY) || 0) < ACTION_WINDOW_MS; } catch { return false; }
+}
+
 let switching = false;
 /** True while the slots are being swapped: stores must not write until the reload. */
 export const isAccountSwitching = () => switching;
@@ -59,7 +71,11 @@ function withTimeout<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
   return Promise.race([p, new Promise<T>((r) => window.setTimeout(() => r(fallback), ms))]);
 }
 
-function swapTo(owner: string, target: string) {
+/** Swaps the slots and reloads. Returns false (and changes nothing) when the reload guard
+    says no: an automatic swap never adds a second reload to the same session. */
+function swapTo(owner: string, target: string): boolean {
+  const userInitiated = userAskedForSwitch();
+  if (!canAutoReload({ userInitiated })) return false;
   switching = true;
   const parked: Record<string, string> = {};
   ACCOUNT_KEYS.forEach((k) => { const v = get(k); if (v !== null) parked[k] = v; });
@@ -75,7 +91,9 @@ function swapTo(owner: string, target: string) {
   if (target !== GUEST && !currentPass()) {
     try { sessionStorage.setItem(FORGE_AFTER_SWITCH, '1'); } catch { /* ignore */ }
   }
-  window.location.reload();
+  try { sessionStorage.removeItem(ACTION_KEY); } catch { /* ignore */ }
+  guardedReload('account_swap', { userInitiated });
+  return true;
 }
 
 let inflight: { target: string; p: Promise<boolean> } | null = null;
@@ -128,15 +146,18 @@ async function decide(target: string, email: string): Promise<boolean> {
     owner = parkAs;
   }
 
-  swapTo(owner, target);
-  return true;
+  return swapTo(owner, target);
 }
 
 /** Another tab switched accounts: this tab's in-memory data belongs to the old one. */
 export function watchAccountOwner() {
   window.addEventListener('storage', (e) => {
     if (e.key !== OWNER_KEY || switching) return;
+    // The other tab's first run only records "guest" (nothing was swapped): no reload needed.
+    if (e.oldValue === null && e.newValue === GUEST) return;
+    // From here this tab's in-memory data belongs to the old account: stop its writes,
+    // then reload once (the shared guard keeps it to one).
     switching = true;
-    window.location.reload();
+    guardedReload('account_other_tab');
   });
 }

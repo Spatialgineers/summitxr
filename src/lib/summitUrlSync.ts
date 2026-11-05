@@ -217,7 +217,6 @@ export const APP_PAGE_SLUGS: Record<string, PageRoute> = {
   firestore: 'schema',
   multiview: 'multiview',
   master: 'multiview',
-  studio: 'multiview',
 };
 
 export interface ParsedAppLocation {

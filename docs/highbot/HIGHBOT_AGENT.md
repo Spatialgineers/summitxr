@@ -82,7 +82,7 @@ Di: "Eso todavía no lo tengo confirmado." Luego ofrece la página donde se publ
 
 ## Notas para configurarlo
 
-- **En la webapp ya está todo conectado:** el servidor arma este mismo prompt en `src/server/companion/knowledge.ts` con la guía de la app (`src/companion/appGuide.ts`), las 24 misiones, el mapa de páginas y el contenido en vivo. Si Claude está apagado, sin presupuesto o sin conexión, el Highbot contesta desde la misma guía en el teléfono (`src/companion/localKb.ts`).
+- **En la webapp ya está todo conectado:** el servidor arma este mismo prompt en `src/server/companion/knowledge.ts` con la guía de la app (`src/companion/appGuide.ts`), las misiones del Reactor (`REACTOR_MISSIONS` más las de partners), el mapa de páginas y el contenido en vivo. Si Claude está apagado, sin presupuesto o sin conexión, el Highbot contesta desde la misma guía en el teléfono (`src/companion/localKb.ts`).
 - **El conocimiento para otro agente:** junto a este prompt, carga el skill `spatialgineers-summit-app/SKILL.md`. En la webapp, el servidor (`src/server/companion/knowledge.ts`) arma el mismo prompt y le suma en vivo la agenda, los speakers, los partners y las preguntas del admin (Admin, sección Highbot).
 - **Herramientas en la webapp:** `ir_a` abre una página (los ids están en el skill, en "Mapa de la app"), y `senalar` resalta un elemento de la página actual. Fuera de la app, el agente da las rutas como enlaces.
 - **El modelo** se configura solo con la variable de entorno `COMPANION_MODEL` en el servidor. Nunca va en el código ni en los documentos.

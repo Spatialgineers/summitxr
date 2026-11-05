@@ -1,5 +1,6 @@
 import WebSocket from 'ws';
-const base = 'ws://localhost:3000/ws?tenantId=tenant_spatialgineers&eventId=event_live_main';
+const HOST = process.env.WS_HOST || 'ws://localhost:3000';
+const base = `${HOST}/ws?tenantId=tenant_spatialgineers&eventId=event_live_main`;
 const open = (q = '') => new Promise((res, rej) => { const ws = new WebSocket(base + q); const msgs = []; ws.on('message', d => { try { msgs.push(JSON.parse(d.toString())); } catch {} }); ws.on('open', () => res({ ws, msgs })); ws.on('error', rej); });
 const wait = (ms) => new Promise(r => setTimeout(r, ms));
 const send = (ws, type, payload) => ws.send(JSON.stringify({ type, payload }));
@@ -14,7 +15,7 @@ check('unauth START/SIMULATE rejected', a.msgs.filter(m => m.type === 'ERROR').l
 const d = await open('&userId=director1&role=admin');
 send(d.ws, 'AUTH', { token: 'wrong' }); await wait(300);
 check('bad token not admin', d.msgs.some(m => m.type === 'AUTH_RESULT' && m.payload.isAdmin === false));
-send(d.ws, 'AUTH', { token: 'testadmin123' }); await wait(300);
+send(d.ws, 'AUTH', { token: process.env.SGX_TEST_ADMIN_TOKEN || 'testadmin123' }); await wait(300);
 check('test token admin', d.msgs.some(m => m.type === 'AUTH_RESULT' && m.payload.isAdmin === true));
 send(d.ws, 'UPDATE_QUESTIONS', [{}]); await wait(200);
 check('admin invalid questions rejected with error', d.msgs.some(m => m.type === 'ERROR' && /prompt|options/.test(m.payload.error)));
@@ -54,6 +55,6 @@ check('oversized payload closes that socket', closed);
 const c3 = await open('&userId=alive2'); await wait(200);
 check('server alive after oversized', c3.msgs.some(m => m.type === 'INIT_STATE'));
 
-const bad = await new Promise(r => { const ws = new WebSocket('ws://localhost:3000/ws?tenantId=%3Cscript%3E&eventId=x'); ws.on('close', (code) => r(code)); ws.on('error', () => {}); });
+const bad = await new Promise(r => { const ws = new WebSocket(`${HOST}/ws?tenantId=%3Cscript%3E&eventId=x`); ws.on('close', (code) => r(code)); ws.on('error', () => {}); });
 check('invalid tenant id refused', bad === 1008);
 console.log(`DONE ${pass} pass ${fail} fail`); process.exit(0);

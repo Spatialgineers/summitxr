@@ -123,7 +123,7 @@ El SGX Pass es el perfil del Creador y su llave de la app. La información está
 | Juegos con cámara | "Rayo en tus manos" usa MediaPipe Tasks Vision (HandLandmarker) en un worker (`public/games/bolt/hand-worker.js`), cargado desde jsDelivr. El video no sale del dispositivo. |
 | i18n | Español e inglés. `src/context/LanguageContext.tsx` y `src/lib/localize.ts` (`loc()`). Los textos bilingües van como `{ es, en }`, y los CSV usan columnas `…En`. |
 | Modo ligero | `src/lib/lite.ts`: un solo interruptor para toda la app que apaga el 3D, los shaders y las animaciones. Se enciende solo con "ahorro de datos" o con poca memoria. |
-| División del bundle | Rutas y módulos con `React.lazy` (`App.tsx`, `SummitLandingPage.tsx`), envueltos en `LazyBoundary` (error boundary con "Reintentar"). En `main.tsx`, ante `vite:preloadError` la página recarga una vez. |
+| División del bundle | Rutas y módulos con `React.lazy` (`App.tsx`, `SummitLandingPage.tsx`), envueltos en `LazyBoundary` (error boundary con "Reintentar"). En `main.tsx`, ante `vite:preloadError` la página recarga, pero por el **guardia de recargas** (`src/lib/reloadGuard.ts`): como mucho una recarga automática por sesión y ninguna si hubo otra en los últimos 2 minutos, sea cual sea el motivo (chunk, cambio de cuenta u otra pestaña). |
 | Monitoreo de errores | Propio, sin terceros. `src/lib/errorMonitor.ts` manda errores, promesas rechazadas, fallos de React, de chunks y de WebGL a `client_errors`, deduplicados y con tope por sesión. El admin los ve en "Errores en vivo". |
 
 ### Backend
@@ -135,7 +135,7 @@ El SGX Pass es el perfil del Creador y su llave de la app. La información está
 | REST | `/api/*` (`src/server/routes/apiRouter.ts`), con límite por IP (token bucket de 120 y 40/s). Las acciones del director piden `requireAdmin`. |
 | Highbot | `/api/companion/*` (`src/server/companion/`). Ver la sección 8. |
 | SEO | `src/server/welcomeMeta.ts` inyecta el `<head>` de `/bienvenida*` y `/prensa`. |
-| Producción | Comprime con brotli o gzip y guarda en memoria. `/assets/*` va inmutable por un año; `sw.js`, `index.html` y el manifest van con `no-cache`. Cabeceras `nosniff`, `Referrer-Policy` y HSTS. `trust proxy = 1`, para que `X-Forwarded-For` no se pueda falsificar. |
+| Producción | Comprime con brotli o gzip y guarda en memoria. `/assets/*` va inmutable por un año, y un archivo de `/assets/` que no existe (un chunk del deploy anterior) responde **404**, nunca la página; `sw.js`, `index.html` y el manifest van con `no-cache`. Cabeceras `nosniff`, `Referrer-Policy` y HSTS. `trust proxy = 1`, para que `X-Forwarded-For` no se pueda falsificar. |
 | Salud | `/healthz` y `/api/health` |
 | Instancias | **Una sola instancia de Cloud Run, con afinidad de sesión** durante el evento (mín. 1, máx. 1). Dos instancias partirían la audiencia en salas que no se ven. Ver `docs/DEPLOY.md`. |
 
@@ -148,7 +148,7 @@ El SGX Pass es el perfil del Creador y su llave de la app. La información está
 ### Hosting, despliegue y PWA
 
 - El proyecto vive en Google AI Studio, que despliega en Cloud Run. Se sube a `main`, se hace pull en AI Studio y se despliega. Ver la sección 15.
-- **PWA**: `public/manifest.webmanifest` (standalone, vertical, atajos "Mi SGX Pass", "Agenda" y "SGX Live") y `public/sw.js`. El build le pone a `sw.js` un id de build y la lista de chunks pequeños que precachea (el plugin `swBuildStamp` en `vite.config.ts`).
+- **PWA**: `public/manifest.webmanifest` (standalone, vertical, atajos "Mi SGX Pass", "Agenda" y "SGX Live") y `public/sw.js`. El build le pone a `sw.js` un id de build y escribe `dist/sw-precache.json` con los chunks pequeños y el arte del pase (el plugin `swBuildStamp` en `vite.config.ts`). Ver "Pase sin conexión" en la sección 5.
 
 ---
 
@@ -180,7 +180,7 @@ Otras reglas:
 | `/admin` | `/director`, `/cms` | Centro de mando | `src/components/admin/AdminDashboard.tsx` | **Admin** (`AdminAuthGuard`) |
 | `/analytics` | `/telemetry`, `/metrics` | Analítica del motor en vivo | `src/components/analytics/AnalyticsDashboard.tsx` | Admin |
 | `/schema` | `/database`, `/firestore` | Visor del esquema de datos | `src/components/schema/DatabaseSchemaViewer.tsx` | Admin |
-| `/multiview` | `/master`, `/studio` | Director + teléfono de audiencia en una vista | inline en `App.tsx` | Admin. A quien no es admin le muestra `/play` (con pase). |
+| `/multiview` | `/master` | Director + teléfono de audiencia en una vista | inline en `App.tsx` | Admin. A quien no es admin le muestra `/play` (con pase). |
 
 ### Secciones del Summit (`SummitSectionKey`)
 
@@ -203,7 +203,7 @@ La columna "Pase" indica lo que pide un SGX Pass forjado.
 | `/portal-speakers` | `speaker-portal` | `SPEAKER_PORTAL` | Stage 04.4 | `SummitSpeakerPortalModal.tsx` | Para enviar (`ForgeFirst`) |
 | `/prensa` | `press`, `media`, `sala-de-prensa`, `kit-de-prensa`, `press-kit`, `acreditacion` | `PRESS` | Stage 04.5 | `press/SgxPressRoom.tsx` | Para acreditarse |
 | `/visitas` | `visits`, `radar`, `visitantes` | `VISITS` | System 05.1 | `SummitVisitRadar.tsx` (+ `SgxVisitGlobe.tsx`) | No |
-| `/pase` | `sgx-pass`, `pass`, `hangar`, `estudio`, `credencial(es)`, `credential(s)`, `credential-generator`, `holo`, `holocard`, `holo-card` | `CREDENTIAL_GENERATOR` (Tu Estudio) | System 05.2 | `SgxHangar.tsx` (`asPage`) | Sin pase muestra la invitación a forjar |
+| `/pase` | `sgx-pass`, `pass`, `hangar`, `estudio`, `studio`, `credencial(es)`, `credential(s)`, `credential-generator`, `holo`, `holocard`, `holo-card` | `CREDENTIAL_GENERATOR` (Tu Estudio) | System 05.2 | `SgxHangar.tsx` (`asPage`) | Sin pase muestra la invitación a forjar |
 | `/escaner` | `scanner`, `rolodex` | `PASS_SCANNER` | System 05.3 | `NetworkingQrScannerModal.tsx` | No para abrir; el intercambio pide pase |
 | `/terminal` | — | `TERMINAL` | System 05.4 | `src/immersion/CommandTerminal.tsx` | No |
 | `/match` | `sgx_match`, `entrepreneur_match`, `speed_pitch`, `citas`, `pitch`, `matchmaking` | `ENTREPRENEUR_MATCH` | Synthesize 06.1 | `src/modules/match/MatchModule.tsx` | **Sí** (`match`) |
@@ -361,7 +361,7 @@ Entrar a las seis estaciones cumple la quest "Los Seis Pilares".
 
 | Módulo | Qué es y qué se hace | Datos | Pase | XP / misión | Archivo |
 |---|---|---|---|---|---|
-| **02.1 Recorrido 360° de Chroma Space Studios** (`/mapa`) | Primero, la animación de llegada: pases que forman "Chroma Space Studios · Día 3". Luego, el recorrido 360° por nodos (sets, escenario, networking) con hotspots. | `summit_content/map_nodes` (admin "Mapa 360") | **Sí** | "Recorre Chroma Space Studios" 60 XP | `SgxChromaArrival.tsx`, `Summit360MapViewer.tsx` |
+| **02.1 Recorrido 360° de Chroma Space Studios** (`/mapa`) | Primero, la animación de llegada: pases que forman "Chroma Space Studios · Día 3". Luego, el recorrido 360° por nodos (sets, escenario, networking) con hotspots. | `summit_content/map_nodes` (admin "Mapa 360") | **Sí** | "Recorre Chroma Space Studios" 60 XP; +30 XP por cada punto 360° la primera vez | `SgxChromaArrival.tsx`, `Summit360MapViewer.tsx` |
 | **02.2 Partners & Brand Showcases** (`/sponsors`) | Hero para marcas, muro de partners confirmados (cada logo abre su showcase), "Dónde aparece tu marca", los Paquetes 1–5, **Términos y logística** (`/sponsors#terminos`: pago, IVU, materiales, categorías, licencia y reporte de los Paquetes 4 y 5, cancelación, fuerza mayor, Día 3 y contrato), el proceso y las preguntas frecuentes | `summit_content/approved_sponsors`, `sponsorship_tiers` | No | "Visita el pabellón de partners" 60 XP; cada partner de Paquete 3+ suma "Reto <marca>" 90 XP y su sello | `SummitSponsorshipMatrix.tsx`, `SummitSponsorsGrid.tsx`, `SummitBrandShowcaseModal.tsx`, `sponsors/SponsorsHero.tsx`, `SponsorTiers.tsx`, `SponsorTerms.tsx`, `SponsorPlacements.tsx`, `SponsorProcess.tsx`, `sponsorPlacements.ts`, `src/lib/sponsorTerms.ts` |
 | **02.3 Modelos 3D** (`/modelos-3d`) | El ícono de Spatialgineers, el emblema del Guild, las seis esculturas de pilar y el Highbot en un visor con la luz del estudio. Se arrastra para girar y se pellizca para acercar. | `.glb` del CDN | No | — | `SgxModelsViewer.tsx` |
 | **02.4 Patrocina el Summit** (`/patrocina`) | Solicitud de paquete (sección 9) | crea `sponsor_inquiries` | Para enviar | — | `SummitSponsorInquiryForm.tsx` |
@@ -545,7 +545,7 @@ Diseñarlo cumple "Diseña tu Highbot" (80 XP). Queda guardado en `ticket_inquir
 
 `src/identity/accountSlots.ts` guarda **un slot por cuenta**. El pase, el XP, el avatar, el Rolodex y la agenda viven en `localStorage`, en la lista de `ACCOUNT_KEYS`:
 
-- Al cambiar de cuenta o cerrar sesión, guarda los datos bajo su dueño, carga el slot de la otra cuenta y recarga.
+- Al cambiar de cuenta o cerrar sesión, guarda los datos bajo su dueño, carga el slot de la otra cuenta y recarga. La recarga pasa por el guardia de recargas (`src/lib/reloadGuard.ts`): un cambio que el Creador pidió (entrar o salir, marcado con `markAccountAction`) siempre recarga; uno automático (por ejemplo, la sesión de Google que no carga al abrir) solo si no hubo otra recarga automática en la sesión, y si no, no cambia nada y se reintenta la próxima vez. Otra pestaña que cambia de cuenta hace que esta deje de escribir y recargue una vez.
 - Un invitado anónimo que entra con Google conserva su progreso. La excepción es una cuenta que ya tiene su propio pase en el servidor: entonces el pase de invitado queda guardado aparte y la Forja ofrece traer el de la cuenta.
 - Los ajustes del dispositivo (idioma, audio, modo ligero) se comparten entre cuentas.
 
@@ -555,8 +555,11 @@ Diseñarlo cumple "Diseña tu Highbot" (80 XP). Queda guardado en `ticket_inquir
 
 `public/sw.js` guarda en caché:
 
-- la página (network first);
-- el arte del pase (`/holo/*`) y los chunks pequeños.
+- al instalarse, solo lo mínimo: la página (network first), su script y su estilo de entrada, el manifest y los íconos;
+- después, cuando la página está quieta (8 s tras `load` y en un momento ocioso; no con "Ahorro de datos" ni en 2G), `src/lib/swRegister.ts` le pide (`SGX_PRECACHE`) que guarde el arte del pase (`/holo/*`) y los chunks pequeños de `dist/sw-precache.json`, de dos en dos. Así la primera carga y el splash no compiten con esa descarga.
+- nunca guarda una respuesta HTML en lugar de un script o una imagen.
+
+Un worker nuevo (otro deploy) **no toca la página abierta**: se instala, espera a que se cierren todas las ventanas de la app y solo entonces se activa y borra las cachés viejas (sin `skipWaiting` ni `clients.claim` en las actualizaciones; el primer worker sí se activa de una vez). Nada en la app recarga por `controllerchange`.
 
 Así, el pase y su QR se abren sin señal en Chroma. Los prueba `scripts/e2e/pwa.cjs`. El atajo "Mi SGX Pass" del manifest abre `/?estudio=pass`.
 
@@ -577,6 +580,7 @@ Así, el pase y su QR se abren sin señal en Chroma. Los prueba `scripts/e2e/pwa
 
 - Todo XP pasa por `recordActivity(category, title, details, xp)` en `PilotProfileContext.tsx`.
 - **Anti-farm:** `claimXpOnce(\`${category}|${title}\`)` guarda un libro (`sgx_xp_ledger_v1`, los últimos 800 registros) y **cada acción paga una sola vez por dispositivo**. Tocar otra vez la misma estación, orbe, punto 360° o botón no da nada.
+- `recordActivity` acepta un sexto argumento, `onceKey`, para pagar una vez por un id estable en lugar del título: los votos (`live_vote|<id de la pregunta>`, `poll_vote|<id de la encuesta>`) y los puntos 360° (`tour_complete|360|<id del punto>`).
 - Nivel: `floor(XP/500) + 1`.
 
 | Nivel | Rango |
@@ -622,7 +626,7 @@ Es el único sistema de misiones del Summit. Cada pilar completo **queda sellado
 | Synthesize | Presente en Chroma (**Día 3**) | 250 | `checkin` | QR de la puerta de Chroma |
 | Synthesize | Red completa (**secreta**) | 300 | `constellation` | contactos de los 6 pilares |
 
-Son 23 misiones fijas más una por cada partner de Paquete 3–5. La documentación pública dice "24", contando el reto de partner como una. El riel y Tu Estudio muestran el total real (`missions.length`).
+Son 23 misiones fijas (`REACTOR_MISSIONS.length`) más una por cada partner aprobado de Paquete 3–5, así que el total cambia con los partners. Ningún texto da un número fijo: el riel y Tu Estudio muestran el total real (`missions.length`), la guía del Highbot calcula las fijas de `REACTOR_MISSIONS`, y el hub del núcleo calcula cuántas misiones de sello tiene cada pilar (de 2 a 6) y el rango de XP.
 
 Las misiones que vienen de una quest de la plataforma no pagan dos veces: el XP lo paga la quest (`completeMission`, `SgxIdentityContext.tsx`).
 
@@ -704,13 +708,14 @@ Se ven en el pase y en el Reactor.
   - un voto por socket y por pregunta (uno tardío de otra pregunta se rechaza);
   - un preset repetido en menos de 2 s se ignora;
   - un cliente con más de 512 KB pendientes pierde los mensajes decorativos, y con más de 8 MB se le cierra la conexión.
-- **REST de respaldo** (el cliente solo lo usa con el socket caído): `POST /api/vote` y `POST /api/reaction`; para el director, `POST /api/action/broadcast-question`, `/close-voting`, `/trigger-preset` y `POST /api/questions`. También `GET /api/state`, `/api/questions`, `/api/tenants`, `/api/engine/status` y `/api/analytics` (admin). Un inicio o cierre duplicado (socket + REST) no borra votos.
+- **REST de respaldo** (el cliente solo lo usa con el socket caído): `POST /api/vote` y `POST /api/reaction`. Quién vota no sale del cuerpo: al conectar, el servidor firma el id del socket (HMAC, `src/server/security/voterToken.ts`) y lo manda en `INIT_STATE.voterToken`; el teléfono lo devuelve en `X-SGX-Voter`. Sin token válido, `401`. Además del límite por IP, hay un límite por esa identidad (votos: 6 seguidos y 1 cada 2 s; reacciones: 30 y 5/s). Para el director, para el director, `POST /api/action/broadcast-question`, `/close-voting`, `/trigger-preset` y `POST /api/questions`. También `GET /api/state`, `/api/questions`, `/api/tenants`, `/api/engine/status` y `/api/analytics` (admin). Un inicio o cierre duplicado (socket + REST) no borra votos.
 
 ### Arena de votación (`/play`, SGX Live)
 
 **Archivo:** `src/components/audience/AudiencePWA.tsx`. Pide pase.
 
-- Es una votación estilo Kahoot durante la transmisión, con dos modos: "Vote / Decidir" y "Live Visualizer".
+- Es una votación estilo Kahoot durante la transmisión, con dos modos: "1. Votar" y "2. Visual en vivo" (en inglés, "1. Vote" y "2. Live visual").
+- **+25 XP por voto**: cada pregunta paga una vez, por su id (`live_vote|<id>`). Volver a votar la misma pregunta (o una que el director relanza) no paga; cambiar de idioma tampoco. Las encuestas del Pulso en vivo pagan igual, +25 XP por encuesta (`poll_vote|<id>`).
 - Las preguntas son de conocimiento (`KNOWLEDGE`, con respuesta correcta, bono de velocidad y rachas) u opinión (`OPINION_CYOA`, donde la audiencia elige qué pasa en el escenario).
 - Hay reacciones, una guía de 3 pasos, PREMIOS y BITÁCORA, y un indicador OFFLINE.
 - El nombre en el escenario es el callsign del pase. Los votos y las reacciones suman XP al pase (no existe un perfil aparte de SGX Live).
@@ -763,7 +768,7 @@ Resultados del 28 oct 2026, en una máquina de 4 vCPU con Node 22:
 | `VOTING_CLOSED` por teléfono | 455–738 KB | 21 KB |
 | 2000 teléfonos | — | p99 ≤ 102 ms, CPU 27 %, votos exactos |
 
-Queda pendiente un punto: `POST /api/vote` acepta el `userId` del cuerpo.
+`POST /api/vote` ya no acepta el `userId` del cuerpo: el votante sale del token firmado del socket (ver "REST de respaldo" arriba). `scripts/loadtest/ws-load.mjs --rest` lo usa igual que el teléfono.
 
 ---
 
@@ -901,7 +906,7 @@ Para otros agentes: el prompt está en `docs/highbot/HIGHBOT_AGENT.md` y el cono
 | Reto de marca en el Reactor | 3, 4, 5 |
 | Ficha de marca (showcase) | todos |
 | Holo Card de sponsor | todos |
-| Transmisión en YouTube Live | todos |
+| Transmisión en YouTube Live (Días 1 y 2) | todos |
 | Día 3 en Chroma Space Studios | 4, 5 |
 
 6. **Paquetes** (`summit_content/sponsorship_tiers`; el id interno es `tier_N`, pero en pantalla siempre se lee "Paquete N"):
@@ -973,7 +978,6 @@ Chroma Space Studios es la sede del Día 3 (Paquete 5) y Los Mismos TV es el med
 | **Guild Initiates** | Lista pública, email privado y solicitudes de Initiate (aprobar otorga la credencial) | `summit_content/initiates`, `summit_private/initiate_emails`, `initiate_claims`, `initiate_requests` (`SummitInitiatesPanel.tsx`) |
 | **Mapa 360** | Nodos y hotspots (JSON) | `summit_content/map_nodes` |
 | **Apps embebidas** | Juegos y apps del hub: URL, HTML en sandbox, nativo o enlace | `summit_content/embeds` |
-| **Galería** | Fotos de la retrospectiva | `summit_content/gallery` (ver la lista de hallazgos: no se muestra en público) |
 | **Redes sociales** | Importa publicaciones de Instagram en lote y modera | `social_posts` (`BulkInstagramImportModal.tsx`) |
 | **Pilares: casos y proyectos** | Casos de uso y proyectos que muestran las páginas de pilar (incluido el bloque del Día 1) | `summit_content/pillar_showcase` |
 | **Highbot: control y preguntas** | Apagar o encender, tope diario ("Guardar tope", "Usar el del servidor"), gasto de hoy, "Bloqueados hoy", y el banco de preguntas y respuestas que lee el Highbot | `CompanionControlPanel.tsx`, `site_config/companion`, `summit_content/companion_kb` |
@@ -1035,7 +1039,7 @@ Más detalle: `docs/ADMIN_GUIDE.md`.
 Claves:
 
 - `sessions`, `speakers`, `map_nodes`, `embeds`, `sponsorship_tiers`, `approved_sponsors`, `initiates`;
-- con `makeLiveList`: `polls`, `gallery`, `mission_overrides`, `companion_kb`, `pillar_showcase`.
+- con `makeLiveList`: `polls`, `gallery`, `mission_overrides`, `companion_kb`, `pillar_showcase`. (`gallery` ya no se edita en el admin ni se muestra en la app; sus datos quedan como están.)
 
 ---
 
@@ -1114,6 +1118,7 @@ Una sola fuente: **`src/lib/summitDeadlines.ts`**. Todas las fechas son hora de 
 | `sponsorApplications` | Solicitudes de auspicio | 28 nov 2026 | 2026-11-29 00:00 | El formulario de Patrocina se cierra y apunta a info@ |
 | `sponsorPayment` | Pago total de sponsors | 30 nov 2026 | 2026-12-01 00:00 | Aviso en el formulario, la página de sponsors y los correos |
 | `sponsorMaterials` | Materiales de la marca | 30 nov 2026 | 2026-12-01 00:00 | Igual que el pago |
+| `day3Requests` | Solicitudes para el Día 3 (la Forja: "solicítalo hasta el 1 de diciembre") | 1 dic 2026 | 2026-12-02 00:00 | Texto de la Forja, el Highbot y la guía local (no cierra ningún formulario) |
 | `day3Invitations` | El equipo envía las invitaciones al Día 3 | 5 dic 2026 | 2026-12-06 00:00 | Nota en Inscritos; desde el 6 dic, aviso suave si quedan pendientes |
 | `pressAccreditation` | Acreditación de prensa (antes del 1 dic) | 30 nov 2026 | 2026-12-01 00:00 | La Sala de prensa cierra el formulario; el kit sigue |
 | `speakerTechCheck` | Prueba técnica de los speakers (antes del 8 dic, el ensayo general) | 7 dic 2026 | 2026-12-08 00:00 | Solo informativa: la Guía del speaker, el Highbot y la invitación la muestran; nada se cierra |
@@ -1282,6 +1287,7 @@ Las capturas van a `scripts/e2e/out/`. Hay que correr `visitor.cjs` antes que `a
 | `leads.cjs` | ⭐ en Inscritos, Sponsors y Rolodex; seguimiento; un visitante nunca ve la estrella |
 | `errors.cjs` | Un error en la página llega a `client_errors` (deduplicado y con tope) y se ve en "Errores en vivo" |
 | `pwa.cjs` | Manifest, íconos, service worker y el SGX Pass sin red (build con emuladores servido en :3400) |
+| `fixes.cjs` | El recorrido 360° paga XP una vez por punto; `/play` paga +25 XP por pregunta (no al relanzarla); `POST /api/vote` toma al votante del token firmado (401 sin él, 409 duplicado, 429 por ritmo); `/studio` y `/estudio` abren Tu Estudio y `/multiview` no. Necesita el servidor con `SGX_TEST_ADMIN_TOKEN` y `ADMIN_TOKEN` igual en el script. |
 | `a11y.cjs` | axe-core WCAG 2.1 A/AA en 16 pantallas × 2 tamaños más teclado (`A11Y_STRICT=1`; ver `docs/ACCESIBILIDAD.md`) |
 | `prod-readonly.cjs` | Humo de **solo lectura** contra producción: bloquea toda escritura antes de que salga |
 
@@ -1323,7 +1329,7 @@ Las capturas van a `scripts/e2e/out/`. Hay que correr `visitor.cjs` antes que `a
 - **Reglas sin publicar** o publicadas antes que el código: escrituras rechazadas (chat, registros, premios).
 - **Sin código de check-in guardado**, el check-in del Día 3 no abre.
 - **`/sponsors`** es a la vez página y carpeta de logos (`public/sponsors/`): `express.static` corre con `redirect: false` para no redirigir a `/sponsors/`.
-- **Una pestaña abierta tras un deploy** pide chunks que ya no existen: la app recarga una vez sola (`vite:preloadError`).
+- **Una pestaña abierta tras un deploy** pide chunks que ya no existen: el servidor responde 404 y la app recarga sola, una vez como mucho (`vite:preloadError` por el guardia de recargas). Si ya recargó en esa sesión, la sección muestra "Reintentar".
 - **`sgx_now`** se queda en el navegador: hay que borrarlo después de probar.
 - **El XP es por dispositivo** (el libro está en `localStorage`) y se sincroniza al perfil con Google. Al probar, usar ventanas limpias.
 

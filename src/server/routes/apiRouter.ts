@@ -4,7 +4,8 @@ import { VISUALIZER_PRESETS, DEFAULT_PRESET } from '../../lib/presets';
 import { VisualizerPresetId } from '../../types/engine';
 import { resolveRoom, RoomState } from '../engine/roomManager';
 import { requireAdmin } from '../security/adminAuth';
-import { ipRateLimit } from '../security/rateLimit';
+import { ipRateLimit, TokenBucket } from '../security/rateLimit';
+import { voterIdFromRequest } from '../security/voterToken';
 import { isValidId, LIMITS, validateQuestionList } from '../security/validation';
 import type { Request, Response } from 'express';
 import { 
@@ -107,14 +108,39 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
     res.json({ success: true, session: room.session, question });
   });
 
+  // Per-voter budgets for the REST fallback, keyed by the server-derived identity
+  // (never by a body field). A phone votes once per question; this stops a script
+  // that holds one valid token from hammering the endpoint.
+  const voterBuckets = new Map<string, TokenBucket>();
+  const voterSweep = setInterval(() => {
+    for (const [k, b] of voterBuckets) if (b.isFull()) voterBuckets.delete(k);
+  }, 60_000);
+  voterSweep.unref?.();
+  const takeVoterBudget = (key: string, capacity = 6, refillPerSec = 0.5): boolean => {
+    let b = voterBuckets.get(key);
+    if (!b) {
+      if (voterBuckets.size >= 50_000) voterBuckets.clear();
+      b = new TokenBucket(capacity, refillPerSec);
+      voterBuckets.set(key, b);
+    }
+    return b.take();
+  };
+
   // Audience Vote Submission (REST Fallback)
+  // The voter is whoever the server signed the token for when the socket connected
+  // (INIT_STATE.voterToken, sent back as X-SGX-Voter). `userId` in the body is ignored.
   router.post('/vote', (req, res) => {
     const room = roomFrom(req, res);
     if (!room) return;
-    const voterId = req.body?.userId;
-    if (!isValidId(voterId)) return res.status(400).json({ error: 'INVALID_USER_ID' });
+    const voterId = voterIdFromRequest(req);
+    if (!voterId) return res.status(401).json({ error: 'VOTER_TOKEN_REQUIRED' });
+    if (!takeVoterBudget(`vote:${voterId}`)) {
+      res.setHeader('Retry-After', '5');
+      return res.status(429).json({ error: 'RATE_LIMITED' });
+    }
 
-    const result = processVoteSubmission(room, voterId, req.body || {}, broadcastToRoom);
+    const { userId: _ignored, ...body } = (req.body || {}) as Record<string, unknown>;
+    const result = processVoteSubmission(room, voterId, body, broadcastToRoom);
     if (result.status !== 'ACCEPTED') {
       return res.status(result.status === 'DUPLICATE' || result.status === 'STALE' ? 409 : 400).json({ error: result.status });
     }
@@ -126,7 +152,13 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
   router.post('/reaction', (req, res) => {
     const room = roomFrom(req, res);
     if (!room) return;
-    const reaction = processAudienceReaction(room, { emoji: req.body?.emoji, color: req.body?.color, userId: isValidId(req.body?.userId) ? req.body.userId : 'anon' }, broadcastToRoom);
+    // Same identity rule as /vote: the signed voter token, or 'anon' (rate-limited together).
+    const voterId = voterIdFromRequest(req);
+    if (!takeVoterBudget(`rx:${voterId || 'anon:' + (req.ip || 'unknown')}`, 30, 5)) {
+      res.setHeader('Retry-After', '5');
+      return res.status(429).json({ error: 'RATE_LIMITED' });
+    }
+    const reaction = processAudienceReaction(room, { emoji: req.body?.emoji, color: req.body?.color, userId: voterId || 'anon' }, broadcastToRoom);
     res.json({ success: true, reaction });
   });
 

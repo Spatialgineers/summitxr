@@ -3,9 +3,9 @@ import type { ApprovedSponsor } from '../types/summit';
 
 /* =========================================================================
    REACTOR: the Summit's one mission system. Every mission lives inside one
-   of the six pillar stations (2–3 each), pays the same XP the rank and the
+   of the six pillar stations, pays the same XP the rank and the
    leaderboard use, and closing every mission of a pillar stamps that pillar
-   on your SGX Pass. Sponsor challenges (Tier 3+ "reto en el Pasaporte") are
+   on your SGX Pass. Sponsor challenges (Paquete 3+ "reto en el Pasaporte") are
    branded missions inside SGX.Showcase.
    ========================================================================= */
 
@@ -105,7 +105,7 @@ export const REACTOR_MISSIONS: ReactorMission[] = [
 
   // SGX.System
   { id: 'm_system_core', pillar: 'SYSTEM', xp: 50, trigger: { quest: 'q_core_boot' },
-    es: { title: 'Inicia el núcleo', hint: 'Orbita el núcleo 3D de la portada.' },
+    es: { title: 'Inicia el núcleo', hint: 'Gira el núcleo 3D de la portada.' },
     en: { title: 'Boot the core', hint: 'Orbit the 3D core on the front page.' },
     go: { section: 'OVERVIEW' } },
   { id: 'm_system_terminal', pillar: 'SYSTEM', xp: 40, trigger: { quest: 'q_terminal' },

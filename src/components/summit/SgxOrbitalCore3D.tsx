@@ -1916,7 +1916,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
               style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
             >
               <div className="px-2 py-1 text-[10px] font-bold text-slate-400 border-b border-[#32527B]/60 uppercase tracking-wider">
-                {es ? 'Control de Cámara & Espacio 3D' : 'Camera & 3D Space Control'}
+                {es ? 'Cámara y vista del núcleo 3D' : 'Camera and 3D core view'}
               </div>
 
               {cameraFocusedOnPillar || focusedSponsorId ? (
@@ -1995,7 +1995,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
                     setDrawerOpen(false);
                     setCameraFocusedOnPillar(true);
                     setOrbitSpeedMultiplier(1.8);
-                    setFloatingXpNotice((es ? '🌌 MODO INMERSIÓN TOTAL ACTIVO' : '🌌 FULL IMMERSION MODE ON'));
+                    setFloatingXpNotice((es ? '⚡ INMERSIÓN TOTAL EN EL NÚCLEO' : '⚡ FULL IMMERSION IN THE CORE'));
                     setTimeout(() => setFloatingXpNotice(null), 2400);
                   } else {
                     setCameraFocusedOnPillar(false);

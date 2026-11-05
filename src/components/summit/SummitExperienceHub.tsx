@@ -32,6 +32,8 @@ import { SgxDialog } from '../common/SgxDialog';
 import { useSummitFeatures } from '../../context/SummitFeatureContext';
 import { PILLAR_BY_KEY, PillarKey, bi } from '../../lib/sgxPillars';
 import { navigateToPillar } from '../../immersion/navigation';
+import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
+import { REACTOR_MISSIONS } from '../../identity/reactor';
 // three.js and the core arrive after the page shell has painted.
 const SgxOrbitalCore3D = lazy(() => import('./SgxOrbitalCore3D').then((m) => ({ default: m.SgxOrbitalCore3D })));
 
@@ -117,6 +119,18 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
 
   // Strict logical separation of all modules into their 6 SGX Pillars in official v2026.10 order:
   // 1. STORY -> 2. SHOWCASE -> 3. SPARK -> 4. STAGE -> 5. SYSTEM -> 6. SYNTHESIZE
+  // Mission numbers come from the Reactor itself (with the admin's XP overrides when the
+  // identity provider is mounted), so the copy never drifts from the real missions.
+  const sgxIdentity = useOptionalSgxIdentity();
+  const reactorMissions = sgxIdentity?.missions ?? REACTOR_MISSIONS;
+  const avatarMissionXp = reactorMissions.find((m) => m.id === 'm_story_avatar')?.xp ?? 80;
+  const corePerPillar = (['STORY', 'SHOWCASE', 'SPARK', 'STAGE', 'SYSTEM', 'SYNTHESIZE'] as const)
+    .map((p) => reactorMissions.filter((m) => m.pillar === p && !m.day3 && !m.secret && !('sponsor' in m.trigger)).length);
+  const coreMin = Math.min(...corePerPillar);
+  const coreMax = Math.max(...corePerPillar);
+  const missionXpValues = reactorMissions.map((m) => m.xp).filter((x) => x > 0);
+  const missionXpRange = missionXpValues.length ? `+${Math.min(...missionXpValues)}–${Math.max(...missionXpValues)} XP` : '';
+
   const rawPillarStations: { id: SgxCorePillarId; modules: PillarModuleItem[] }[] = [
     {
       id: 'STORY',
@@ -138,8 +152,8 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           subtitle: (es ? 'Arma tu Highbot, el avatar del Summit' : 'Build your Highbot, the Summit avatar'),
           description:
             (es ? 'Personaliza tu insignia y avatar cibernético para las salas de networking, leaderboard y acreditación oficial del Summit.' : 'Customize your badge and cyber avatar for the networking rooms, the leaderboard and official Summit accreditation.'),
-          xpReward: '+200 XP',
-          actionLabel: (es ? 'Crear Avatar (+200 XP)' : 'Create Avatar (+200 XP)'),
+          xpReward: `+${avatarMissionXp} XP`,
+          actionLabel: (es ? `Crear Avatar (+${avatarMissionXp} XP)` : `Create Avatar (+${avatarMissionXp} XP)`),
           icon: User,
           onLaunch: () => {
             if (onOpenAvatarGenerator) onOpenAvatarGenerator();
@@ -151,8 +165,8 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           title: (es ? 'Reactor de misiones' : 'Mission Reactor'),
           subtitle: (es ? 'Misiones por pilar & sellos en tu SGX Pass' : 'Missions by pillar & stamps on your SGX Pass'),
           description:
-            (es ? 'Cada pilar tiene 2 o 3 misiones. Complétalas y el pilar queda sellado en tu pase. El XP se gasta en la Tienda del Reactor sin bajar de rango.' : 'Each pillar has 2 or 3 missions. Complete them and the pillar is stamped on your pass. XP is spent in the Reactor Store without lowering your rank.'),
-          xpReward: '+60–250 XP',
+            (es ? `Cada pilar tiene de ${coreMin} a ${coreMax} misiones para su sello, y hay misiones secretas, del Día 3 y de sponsors. Completa las del sello y el pilar queda sellado en tu pase. El XP se gasta en la Tienda del Reactor sin bajar de rango.` : `Each pillar has ${coreMin} to ${coreMax} missions for its stamp, plus secret, Day 3 and sponsor missions. Complete the stamp missions and the pillar is stamped on your pass. XP is spent in the Reactor Store without lowering your rank.`),
+          xpReward: missionXpRange || '+40–300 XP',
           actionLabel: (es ? 'Abrir Reactor' : 'Open Reactor'),
           icon: Award,
           onLaunch: () => {
@@ -181,7 +195,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         {
           id: 'mod_map_360',
           title: (es ? 'Recorrido 360° Chroma Space Studios' : 'Chroma Space Studios 360° Tour'),
-          subtitle: (es ? 'Recorrido Espacial por la Sede Híbrida en San Juan' : 'Spatial Tour of the Hybrid Venue in San Juan'),
+          subtitle: (es ? 'Recorrido 360° del estudio del Día 3 en San Juan' : '360° tour of the Day 3 studio in San Juan'),
           description:
             (es ? 'Explora en 360° los sets de producción virtual, escenario principal y zonas de networking de Chroma Space Studios, la sede del Día 3.' : 'Explore in 360° the virtual production sets, main stage and networking areas of Chroma Space Studios, the Day 3 venue.'),
           xpReward: '+90 XP',
@@ -266,9 +280,9 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         {
           id: 'mod_rewards_store',
           title: (es ? 'Tienda de Premios Oficiales & Canje XP' : 'Official Prize Store & XP Redemption'),
-          subtitle: (es ? 'Cupones, suscripción 3 meses, sesión Grit y premio mayor' : 'Coupons, 3-month subscription, Grit session and the grand prize'),
+          subtitle: (es ? 'Cupones, suscripción 3 meses y premio mayor' : 'Coupons, 3-month subscription and the grand prize'),
           description:
-            (es ? 'Canjea tus XP por cupones de auspiciadores, 3 meses en plataformas SGX, sesión "Grit" con artistas (por confirmar) o el premio mayor "Spatialgineers activa tu evento".' : 'Redeem your XP for sponsor coupons, 3 months on SGX platforms, a "Grit" session with artists (TBC) or the grand prize "Spatialgineers activa tu evento" (Spatialgineers activates your event).'),
+            (es ? 'Canjea tus XP por cupones de auspiciadores, 3 meses en plataformas SGX o el premio mayor "Spatialgineers activa tu evento".' : 'Redeem your XP for sponsor coupons, 3 months on SGX platforms or the grand prize "Spatialgineers activa tu evento" (Spatialgineers activates your event).'),
           xpReward: (es ? 'PREMIOS XP' : 'XP PRIZES'),
           actionLabel: (es ? 'Abrir Tienda de Premios' : 'Open Prize Store'),
           icon: Trophy,

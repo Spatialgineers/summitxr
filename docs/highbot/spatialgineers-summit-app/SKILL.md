@@ -198,9 +198,9 @@ La app vive en **summit.spatialgineers.com**. Se abre en el navegador sin descar
 - **Tienda del Reactor** (/tienda): se gasta el mismo XP sin bajar de rango.
 - **Patrocinadores:** a veces, al ganar XP, aparece por unos segundos "Presentado por" con una marca, como mucho una vez cada 5 minutos. Al tocarlo se queda abierto y lleva al showcase de la marca.
 
-### Reactor de misiones (24 misiones, 6 pilares)
+### Reactor de misiones (6 pilares)
 
-Cada pilar completo queda **sellado** en el pase. El Reactor se abre como pop-up desde el contador de misiones ("x/24"), y cada misión tiene un botón que dice a dónde lleva.
+Son las misiones fijas de la tabla, más una por cada partner aprobado de Paquete 3–5 (el total cambia con los partners; no des un número fijo). Cada pilar completo queda **sellado** en el pase. El Reactor se abre como pop-up desde el contador de misiones ("x/N", con el total real), y cada misión tiene un botón que dice a dónde lleva.
 
 | Pilar | Misión | XP | Dónde se hace |
 |---|---|---|---|
@@ -269,7 +269,7 @@ Las rutas van detrás de summit.spatialgineers.com. El id es el que usa la herra
 | networking | /networking | Foros y chat | Salas por tema y preguntas para los speakers. |
 | guild | /guild | SGX Guild Initiates | Los 8 Initiates y sus portafolios. |
 | tu-highbot | Tu Estudio | Tu Highbot | Hablar con el Highbot y verlo en 3D. |
-| reactor | Tu Estudio | Reactor de misiones | Las 24 misiones; también se abre como pop-up. |
+| reactor | Tu Estudio | Reactor de misiones | Todas las misiones; también se abre como pop-up. |
 | red | Tu Estudio | Red | La constelación de contactos. |
 | rolodex | Tu Estudio | Rolodex | Los pases escaneados. |
 | dia-3 | Tu Estudio | Día 3 | El check-in y los sellos en Chroma Space Studios. |
@@ -290,7 +290,7 @@ Las rutas van detrás de summit.spatialgineers.com. El id es el que usa la herra
   - Agenda;
   - "Elige un pilar" / "Explorar";
   - Ajustes: girar el núcleo, zoom, sponsors en 3D, inmersión total y modo ligero.
-- **Riel "Misiones x/24":** abre el Reactor.
+- **Riel "Misiones x/N":** abre el Reactor (N es el total real).
 - **Cabecita del Highbot:** el chat, en la esquina inferior derecha.
 - **Pulso en vivo:** reacciones y encuesta de la keynote. Aparece solo durante los días del Summit.
 - **Modo Ligero (FX → Ligero):** apaga el 3D, los shaders y las animaciones, y muestra el Highbot en 2D. Gasta mucha menos batería y datos. Se activa solo en teléfonos que piden ahorrar datos o tienen poca memoria.

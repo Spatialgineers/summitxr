@@ -46,7 +46,7 @@ export const INVITE_TEMPLATES: Record<WelcomeRole, { subject: string; lines: str
     lines: [
       'Hola {nombre}, te invitamos a cubrir el Spatialgineers Summit 2026 (11–13 dic).',
       'La acreditación de prensa cubre los 3 días: YouTube Live los Días 1 y 2 y el Día 3 en Chroma Space Studios.',
-      'Solicítala antes del 1 de diciembre (10 cupos de prensa). Tu video guía, los pasos y el kit de prensa: {link}',
+      `Solicítala antes del ${D.pressAccreditation.day.es} (10 cupos de prensa). Tu video guía, los pasos y el kit de prensa: {link}`,
     ],
   },
   visitante: {
@@ -192,10 +192,10 @@ export const INVITE_EMAILS: Record<WelcomeRole, { preheader: string; intro: stri
     ],
   },
   prensa: {
-    preheader: 'Acreditación antes del 1 de diciembre · 10 cupos de prensa.',
+    preheader: `Acreditación antes del ${D.pressAccreditation.day.es} · 10 cupos de prensa.`,
     intro: 'Te invitamos a cubrir el Spatialgineers Summit 2026 (11–13 dic). La acreditación de prensa incluye los 3 días: la transmisión por YouTube Live los Días 1 y 2, y la entrada al Día 3 en Chroma Space Studios, San Juan.',
     steps: [
-      'Forja tu SGX Pass gratis y solicita tu acreditación en la Sala de prensa antes del 1 de diciembre.',
+      `Forja tu SGX Pass gratis y solicita tu acreditación en la Sala de prensa antes del ${D.pressAccreditation.day.es}.`,
       'Hay 10 cupos de prensa. Si te aprueban, tu Holo Card dice PRENSA y tu pase queda invitado al Día 3.',
       'Descarga el kit de prensa: logos, fotos de los fundadores, capturas de la webapp y la ficha en PDF.',
     ],

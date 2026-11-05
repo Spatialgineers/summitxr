@@ -82,7 +82,7 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
       focus: (es ? 'Introducción (30 min) con resumen del Día 1 y recordatorio de los 6 Initiates, 6 conversaciones de industria de 45 min (una por pilar, persona invitada por anunciar) con pausas de 10 min y cierre de 3:50 a 4:00 p.m.' : 'Introduction (30 min) with a Day 1 recap and a reminder of the 6 Initiates, 6 45-min industry conversations (one per pillar, guest TBA) with 10-min breaks, and the closing from 3:50 to 4:00 p.m.'),
       highlight: (es ? 'Orden oficial de conversaciones: SGX.Story, SGX.Showcase, SGX.Spark, SGX.Stage, SGX.System y SGX.Synthesize.' : 'Official order of the conversations: SGX.Story, SGX.Showcase, SGX.Spark, SGX.Stage, SGX.System and SGX.Synthesize.'),
       themeColor: '#00DDFF',
-      streamNotice: (es ? '6 conversaciones profundas de industria y rondas de votación estilo Kahoot (+25 XP).' : '6 in-depth industry conversations and Kahoot-style voting rounds (+25 XP).'),
+      streamNotice: (es ? '6 conversaciones profundas de industria y rondas de votación estilo Kahoot (+25 XP por voto).' : '6 in-depth industry conversations and Kahoot-style voting rounds (+25 XP per vote).'),
     },
     3: {
       title: (es ? 'Día 3 — Domingo 13 de Diciembre (SGX Showcase)' : 'Day 3 — Sunday, December 13 (SGX Showcase)'),

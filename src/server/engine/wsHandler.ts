@@ -12,6 +12,7 @@ import {
 import { triggerPresetOverride, processAudienceReaction } from './visualizerBridge';
 import { verifyAdminToken } from '../security/adminAuth';
 import { TokenBucket } from '../security/rateLimit';
+import { signVoterToken } from '../security/voterToken';
 import { cleanNickname, isValidId, LIMITS, validateQuestionList } from '../security/validation';
 
 export interface ClientMeta {
@@ -164,7 +165,9 @@ export function setupWebSocketEngine(server: http.Server) {
         users: Array.from(room.users.values()).slice(0, 200),
       };
 
-      ws.send(JSON.stringify({ type: 'INIT_STATE', tenantId, eventId, timestamp: Date.now(), payload: initStatePayload }));
+      // voterToken: this socket's signed voter id, for the REST fallback (POST /api/vote)
+      // when the socket drops. Only this socket gets it.
+      ws.send(JSON.stringify({ type: 'INIT_STATE', tenantId, eventId, timestamp: Date.now(), payload: { ...initStatePayload, voterToken: signVoterToken(userId) } }));
       ws.send(JSON.stringify({ type: 'ROOM_STATE_SYNC', tenantId, eventId, timestamp: Date.now(), payload: initStatePayload }));
       scheduleCountSync(tenantId, eventId);
 

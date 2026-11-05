@@ -80,7 +80,7 @@ export const PillarDirectoryGrid: React.FC<{ onDone: () => void }> = ({ onDone }
       >
         <Orbit className="w-5 h-5" />
         <span className="sgx-pdir__core-title">{es ? 'Núcleo 3D' : '3D Core'}</span>
-        <span className="sgx-pdir__core-desc">{es ? 'Los seis pilares orbitando en un solo espacio. Tecla 0.' : 'The six pillars orbiting in one space. Key 0.'}</span>
+        <span className="sgx-pdir__core-desc">{es ? 'Los seis pilares girando en un solo núcleo. Tecla 0.' : 'The six pillars orbiting in one space. Key 0.'}</span>
       </button>
 
       <div className="sgx-pdir__grid">

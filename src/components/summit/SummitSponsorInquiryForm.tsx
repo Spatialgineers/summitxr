@@ -30,7 +30,7 @@ interface SummitSponsorInquiryFormProps {
 const AVAILABLE_GOALS = [
   { id: '4K_STREAM_OVERLAY', label: 'Logo en la webapp y en los overlays de la transmisión (Días 1-3)', labelEn: 'Logo on the web app and on the broadcast overlays (Days 1-3)' },
   { id: 'PHYSICAL_BOOTH_CHROMA', label: 'Activación "Experience by [Marca]" (Paquete 4 y 5)', labelEn: '"Experience by [Brand]" activation (Package 4 and 5)' },
-  { id: 'DRONE_MINIGAME_BRANDING', label: 'Branding en Minijuego de Drones & Zonas de Aterrizaje', labelEn: 'Branding in the Drone Mini-Game & Landing Zones' },
+  { id: 'DRONE_MINIGAME_BRANDING', label: 'Branding en el minijuego del dron y sus zonas de entrega', labelEn: 'Branding in the Drone Mini-Game & Landing Zones' },
   { id: 'GAMIFIED_CHALLENGE_POINTS', label: 'Pregunta de trivia de marca en vivo (+25 XP)', labelEn: 'Live brand trivia question (+25 XP)' },
   { id: 'SEGMENT_NAMING', label: 'Naming de Segmento o Pilar ("Showcase Powered by...")', labelEn: 'Segment or Pillar Naming ("Showcase Powered by...")' },
   { id: 'VIP_CATERING', label: 'Alianza de servicios esenciales: venue, internet, comida u otros (Paquete 5)', labelEn: 'Essential services alliance: venue, internet, food or others (Package 5)' },

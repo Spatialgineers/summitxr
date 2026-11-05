@@ -949,7 +949,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
             <SummitSectionBanner
               sectionKey="NETWORKING"
               title={es ? 'Foros del Summit & Espacio de Networking' : 'Summit Forums & Networking Space'}
-              subtitle={es ? 'Conecta con asistentes, speakers y empresas para generar alianzas, co-creación y proyectos espaciales.' : 'Connect with attendees, speakers and companies to build alliances, co-creation and spatial projects.'}
+              subtitle={es ? 'Conecta con asistentes, speakers y empresas para generar alianzas, co-creación y proyectos 3D e inmersivos.' : 'Connect with attendees, speakers and companies to build alliances, co-creation and spatial projects.'}
               pillarBadge="SGX.SYNTHESIZE"
               pillarIconUrl={pillarIcon('SYNTHESIZE')}
             />

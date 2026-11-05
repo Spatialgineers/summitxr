@@ -87,6 +87,13 @@ async function startServer() {
         else if (name === 'sw.js' || name === 'index.html' || name === 'manifest.webmanifest') res.setHeader('Cache-Control', 'no-cache');
       },
     }));
+    // A build file that is not here (an old tab asking for last deploy's chunk) is a real 404,
+    // never the page: an HTML answer to a script request breaks the import, and the service
+    // worker must not keep it.
+    app.use('/assets', (_req, res) => {
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(404).type('text/plain').send('Not found');
+    });
     // The welcome portal (/bienvenida, /bienvenida/<rol>) and the press room (/prensa) get their own head (title, OG, JSON-LD)
     // and a no-JS copy of its text; every other route gets index.html as is.
     const indexFile = path.join(distPath, 'index.html');

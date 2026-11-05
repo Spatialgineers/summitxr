@@ -290,8 +290,8 @@ export function processVoteSubmission(
   if (!user) {
     user = {
       id: voterId,
-      nickname: cleanNickname(payload.nickname) || `User #${voterId.slice(-4)}`,
-      avatar: cleanAvatar(payload.avatar) || '🚀',
+      nickname: cleanNickname(payload.nickname) || `Creador #${voterId.slice(-4)}`,
+      avatar: cleanAvatar(payload.avatar) || '⚡',
       avatarSeed: voterId,
       tenantId: room.tenantId,
       eventId: room.eventId,
@@ -304,7 +304,7 @@ export function processVoteSubmission(
       multiplier: 1.0,
       totalInteractions: 0,
       activeSeconds: 120,
-      prizeTier: 'Bronze Contributor',
+      prizeTier: 'Nivel Bronce',
       unlockedPrizeIds: [],
       choiceHistory: [],
     };

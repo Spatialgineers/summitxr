@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti';
 import { CheckCircle2, Minimize2, Radio, Sparkles, Vote } from 'lucide-react';
 import { playCyberBurstSound, playUiChirp } from '../../lib/cyberAudioEngine';
 import { useAuth } from '../../context/AuthContext';
+import { usePilotProfile } from '../../context/PilotProfileContext';
 import { collection, doc, onSnapshot, query, serverTimestamp, setDoc, where, limit } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useLanguage } from '../../context/LanguageContext';
@@ -56,6 +57,7 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
   const { language } = useLanguage();
   const es = language === 'es';
   const { playerProfile, savePlayerProfile, user } = useAuth();
+  const { recordActivity } = usePilotProfile();
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'REACTIONS' | 'POLL'>('REACTIONS');
   const [selectedPollIndex, setSelectedPollIndex] = useState<number>(0);
@@ -214,7 +216,10 @@ export const KeynotePulseReactions: React.FC<KeynotePulseReactionsProps> = ({
       disableForReducedMotion: true,
     });
 
+    // +25 XP per poll voted, keyed by the poll id (once per poll on this device).
     const earnedXp = 25;
+    const pollTitle = polls.find((p) => p.id === pollId)?.question;
+    recordActivity('trivia_vote', `Encuesta en vivo: ${pollTitle || pollId}`, 'Pulso en vivo', earnedXp, '#00DDFF', `poll_vote|${pollId}`);
     if (onAwardXp) {
       onAwardXp(earnedXp, (es ? 'Voto en Encuesta de Keynote' : 'Keynote Poll Vote'));
     }

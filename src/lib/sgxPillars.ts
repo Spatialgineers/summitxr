@@ -69,7 +69,7 @@ export const SGX_PILLARS: SgxPillar[] = [
     ],
     modules: [
       { kind: 'section', key: 'PILLARS_MANIFESTO', icon: Boxes, label: { es: 'Manifiesto de los 6 pilares', en: 'The 6 pillars manifesto' }, desc: { es: 'El SGX Framework y la historia detrás de cada pilar.', en: 'The SGX Framework and the story behind each pillar.' } },
-      { kind: 'section', key: 'SOCIAL_STREAM', icon: Instagram, label: { es: 'Radar social', en: 'Social radar' }, desc: { es: 'Las historias de la comunidad en vivo con #SpatialgineersSummit.', en: 'Community stories live with #SGXSummit2026.' } },
+      { kind: 'section', key: 'SOCIAL_STREAM', icon: Instagram, label: { es: 'Radar social', en: 'Social radar' }, desc: { es: 'Las historias de la comunidad en vivo con #SpatialgineersSummit.', en: 'Community stories live with #SpatialgineersSummit.' } },
       { kind: 'section', key: 'AVATAR_STUDIO', icon: UserCircle2, label: { es: 'Avatar Studio', en: 'Avatar Studio' }, desc: { es: 'Arma tu Highbot: cara, colores, texturas SGX y tu pilar en el pecho.', en: 'Build your Highbot: face, colors, SGX textures and your pillar on its chest.' } },
     ],
   },
@@ -132,7 +132,7 @@ export const SGX_PILLARS: SgxPillar[] = [
       { kind: 'section', key: 'SPEAKERS', icon: Users, label: { es: 'Speakers & artistas', en: 'Speakers & artists' }, desc: { es: 'Solo se publican quienes están confirmados por escrito.', en: 'Only people confirmed in writing are published.' } },
       { kind: 'page', page: 'stage', icon: MonitorPlay, label: { es: 'Escenario en vivo', en: 'Live stage' }, desc: { es: 'La pantalla del escenario: preguntas, votos y reacciones en vivo.', en: 'The stage screen: live questions, votes and reactions.' } },
       { kind: 'section', key: 'SPEAKER_PORTAL', icon: Mic, label: { es: 'Portal de speakers', en: 'Speaker portal' }, desc: { es: `Para speakers y artistas: tu ficha, tu avatar y tu Holo Card de speaker. Perfiles hasta el ${D.speakerProfiles.day.es}.`, en: `For speakers and artists: your profile, avatar and speaker Holo Card. Profiles through ${D.speakerProfiles.day.en}.` } },
-      { kind: 'section', key: 'PRESS', icon: Newspaper, label: { es: 'Sala de prensa', en: 'Press room' }, desc: { es: 'Acreditación de prensa (antes del 1 de dic, 10 cupos de prensa), kit de prensa y ficha del Summit.', en: 'Press accreditation (before Dec 1, 10 press slots), press kit and Summit fact sheet.' } },
+      { kind: 'section', key: 'PRESS', icon: Newspaper, label: { es: 'Sala de prensa', en: 'Press room' }, desc: { es: `Acreditación de prensa (antes del ${D.pressAccreditation.short.es}, 10 cupos de prensa), kit de prensa y ficha del Summit.`, en: `Press accreditation (before ${D.pressAccreditation.short.en}, 10 press slots), press kit and Summit fact sheet.` } },
     ],
   },
   {

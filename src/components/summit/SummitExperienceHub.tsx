@@ -34,7 +34,6 @@ import { PILLAR_BY_KEY, PillarKey, bi } from '../../lib/sgxPillars';
 import { navigateToPillar } from '../../immersion/navigation';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import { REACTOR_MISSIONS } from '../../identity/reactor';
-import { useSplashActive } from '../../immersion/splashState';
 // three.js and the core arrive after the page shell has painted.
 const SgxOrbitalCore3D = lazy(() => import('./SgxOrbitalCore3D').then((m) => ({ default: m.SgxOrbitalCore3D })));
 
@@ -120,10 +119,6 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
 
   // Strict logical separation of all modules into their 6 SGX Pillars in official v2026.10 order:
   // 1. STORY -> 2. SHOWCASE -> 3. SPARK -> 4. STAGE -> 5. SYSTEM -> 6. SYNTHESIZE
-  // The core's loading and first setup are the page's heaviest work: they wait for the boot
-  // splash to end, so the splash never freezes and stays on time.
-  const splashOn = useSplashActive();
-
   // Mission numbers come from the Reactor itself (with the admin's XP overrides when the
   // identity provider is mounted), so the copy never drifts from the real missions.
   const sgxIdentity = useOptionalSgxIdentity();
@@ -481,7 +476,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
   return (
     <div id="summit-experience-hub" className="w-full h-full flex-1 min-h-0 flex flex-col overflow-hidden">
       <LazyBoundary fallback={<LazyFallback fullScreen label={es ? 'Cargando núcleo 3D…' : 'Loading the 3D core…'} />}>
-      {splashOn ? <LazyFallback fullScreen label={es ? 'Cargando núcleo 3D…' : 'Loading the 3D core…'} /> : <SgxOrbitalCore3D
+      <SgxOrbitalCore3D
         activePillarId={activePillarId}
         noSelection={!pillarChosen}
         onSelectPillar={handleDockPillar}
@@ -494,7 +489,7 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
           const st = pillarStations.find((s) => s.id === pillarId);
           st?.modules[0]?.onLaunch();
         }}
-      />}
+      />
       </LazyBoundary>
 
     </div>

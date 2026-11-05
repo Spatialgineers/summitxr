@@ -42,33 +42,17 @@ import { PassGate } from './identity/PassGate';
 import { ImmersionLayer } from './immersion/ImmersionLayer';
 import { useLite } from './lib/lite';
 import { SgxBootSequence } from './immersion/SgxBootSequence';
-import { setSplashActive } from './immersion/splashState';
 import { recordVisit } from './lib/visitTracker';
-
-/** When the splash last played on this device, and how long it stays quiet after that. */
-const SPLASH_LAST_KEY = 'sgx_splash_last';
-const SPLASH_QUIET_MS = 30 * 60 * 1000;
 
 export default function App() {
   const { language: skipLang } = useLanguage();
   const { isAdmin, user: authUser } = useAuth();
-  // The splash plays once per session, and not again within SPLASH_QUIET_MS on this device
-  // (an installed iPhone app starts a new session on every launch). A returning Creador
-  // with a pass gets the short version.
   const [showSplash, setShowSplash] = useState<boolean>(() => {
-    let show = true;
     try {
-      if (sessionStorage.getItem('sgx_splash_shown')) show = false;
-      else {
-        const last = Number(localStorage.getItem(SPLASH_LAST_KEY) || 0);
-        show = !(last && Date.now() - last < SPLASH_QUIET_MS);
-      }
-    } catch { /* storage blocked: show it */ }
-    if (show && new URLSearchParams(window.location.search).get('embed') !== 'true') setSplashActive(true);
-    return show;
-  });
-  const [splashShort] = useState<boolean>(() => {
-    try { return !!JSON.parse(localStorage.getItem('sgx_identity_v1') || 'null')?.pass?.code; } catch { return false; }
+      return !sessionStorage.getItem('sgx_splash_shown');
+    } catch {
+      return true;
+    }
   });
   // Cinematic SGX boot plays first, then hands off to the sponsor splash.
   const [bootDone, setBootDone] = useState<boolean>(() => new URLSearchParams(window.location.search).get('embed') === 'true');
@@ -94,7 +78,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const handleReplaySplash = () => { setSplashActive(true); setBootDone(false); setBootFading(false); setSplashReplay(true); setShowSplash(true); };
+    const handleReplaySplash = () => { setBootDone(false); setBootFading(false); setSplashReplay(true); setShowSplash(true); };
     window.addEventListener('sgx:replay_splash', handleReplaySplash);
     return () => window.removeEventListener('sgx:replay_splash', handleReplaySplash);
   }, []);
@@ -1097,14 +1081,12 @@ export default function App() {
       {/* The one splash: particle bolt, Summit wordmark and the Tier 3+ partner row */}
       {showSplash && !bootDone && (
         <SgxBootSequence
-          short={splashShort && !splashReplay}
           onFadeStart={() => setBootFading(true)}
           onComplete={() => {
             setBootDone(true);
             setShowSplash(false);
             setSplashReplay(false);
             try { sessionStorage.setItem('sgx_splash_shown', '1'); } catch { /* private mode */ }
-            try { localStorage.setItem(SPLASH_LAST_KEY, String(Date.now())); } catch { /* private mode */ }
           }}
         />
       )}

@@ -280,8 +280,6 @@ Notas:
 ### Arranque y primera visita
 
 - **`SgxBootSequence.tsx`** (~5 s, una vez por sesión, se salta con una tecla o un toque): un enjambre de partículas arma el logo del Summit, que se enciende con una onda. Aparecen "Spatialgineers LLC presenta", el wordmark y la fila de partners de Paquete 3 en adelante, con los lugares "Tu marca aquí" abiertos.
-  - **Con límite de tiempo:** el reloj empieza al montarse (el logo tiene 400 ms para llegar; si no, lo sustituye el rayo SGX) y un tope duro lo cierra a los 6.2 s pase lo que pase. Un Creador que vuelve con pase ve la versión corta (~2.4 s, con la fila de partners); también quien pide menos movimiento. No vuelve a salir en 30 minutos en el mismo dispositivo (`sgx_splash_last`), aunque la sesión sea nueva (la app instalada en iPhone empieza una sesión en cada apertura). "Ver intro" lo repite completo.
-  - Mientras el splash tapa la pantalla, el núcleo 3D de atrás carga pero no dibuja (`body[data-sgx-splash]`), para no pelearse por el procesador.
 - **Modo calma** (`src/immersion/calmMode.ts`): el primer pantallazo muestra solo el núcleo y el hero (`SgxHeroOverlay.tsx`), con:
   - "Regresa el Spatialgineers Summit · segunda edición";
   - "11–13 dic 2026 · YouTube Live + San Juan, PR";
@@ -558,7 +556,7 @@ Diseñarlo cumple "Diseña tu Highbot" (80 XP). Queda guardado en `ticket_inquir
 `public/sw.js` guarda en caché:
 
 - al instalarse, solo lo mínimo: la página (network first), su script y su estilo de entrada, el manifest y los íconos;
-- después, cuando la página está quieta (8 s tras `load` y en un momento ocioso; no con "Ahorro de datos" ni en 2G), `src/lib/swRegister.ts` le pide (`SGX_PRECACHE`) que guarde el arte del pase (`/holo/*`) y los chunks pequeños de `dist/sw-precache.json`, de dos en dos. Así la primera carga y el splash nunca compiten con esa descarga.
+- después, cuando la página está quieta (8 s tras `load` y en un momento ocioso; no con "Ahorro de datos" ni en 2G), `src/lib/swRegister.ts` le pide (`SGX_PRECACHE`) que guarde el arte del pase (`/holo/*`) y los chunks pequeños de `dist/sw-precache.json`, de dos en dos. Así la primera carga y el splash no compiten con esa descarga.
 - nunca guarda una respuesta HTML en lugar de un script o una imagen.
 
 Un worker nuevo (otro deploy) **no toca la página abierta**: se instala, espera a que se cierren todas las ventanas de la app y solo entonces se activa y borra las cachés viejas (sin `skipWaiting` ni `clients.claim` en las actualizaciones; el primer worker sí se activa de una vez). Nada en la app recarga por `controllerchange`.

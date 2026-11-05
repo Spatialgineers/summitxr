@@ -1454,8 +1454,6 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
 
     const animate = (timestamp?: number) => {
       reqId = requestAnimationFrame(animate);
-      // Covered by the boot splash: skip the frame (the splash gets the whole device).
-      if (document.body.dataset.sgxSplash === '1') { lastTime = timestamp ?? performance.now(); return; }
       let delta = 0.016;
       let elapsed = 0;
 

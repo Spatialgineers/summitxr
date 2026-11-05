@@ -1,4 +1,4 @@
-# Campaña en redes · Spatialgineers Summit 2026 (6 nov → 13 dic)
+# Campaña en redes · Spatialgineers Summit 2026 (11 nov → 13 dic)
 
 ## Lo que ya se hizo (5 oct → 5 nov, @spatialgineers)
 - **Volumen:** 33 posts, todos en carrusel y ninguno en reel. Sale uno al día con formato fijo: "Día · tema", una mirada (POV) por pilar y un repaso los martes.
@@ -37,38 +37,43 @@
 
 ## Calendario
 
-| Fecha | Formato | Pieza | CTA / enlace |
+**Lo que ya está programado** (se queda, 10:00 am IG/Threads con tap · 9:00 am FB nativo): la serie "los tres días".
+- 6 nov: Día 3 · SPARK
+- 7 nov: Día 4 · STAGE
+- 8 nov: Día 5 · SYSTEMS
+- 9 nov: Día 6 · SYNTHESIZE
+- 10 nov: Día 7 · REVIEW
+
+Antes de que salgan, cambiar #SGXSummit2026 → #SpatialgineersSummit en los captions (Symphony puede editar lo programado).
+
+**La campaña nueva arranca el miércoles 11 nov, a 1 mes exacto del evento.**
+
+| Fecha | Formato | Pieza | CTA |
 |---|---|---|---|
-| **Sem. 1 · 6–12 nov · "La app ya está"** | | | |
-| jue 6 nov | Reel | «Así construimos la webapp» (build 9:16) | bienvenida |
-| sáb 8 nov | Reel | Video SGX Pass: forja el tuyo en un minuto | visitante |
-| lun 10 nov | Carrusel | Qué abre tu SGX Pass (Holo Card, Reactor, QR del Día 3) | visitante |
-| mar 11 nov | Story | Cuenta regresiva **1 mes** + encuesta "¿qué pilar eres?" | visitante |
-| mié 12 nov | Reel | Video Speakers: envía tu perfil | speaker |
-| **Sem. 2 · 13–19 nov · "Súbete al escenario"** | | | |
-| jue 13 nov | Reel | Video Sponsors: los 5 paquetes en 1 minuto | sponsor |
-| sáb 15 nov | Carrusel | Speakers confirmados (solo los confirmados por escrito) | speaker |
-| lun 17 nov | Reel | Video Prensa: 10 cupos de acreditación | prensa |
+| **Sem. 1 · 11–17 nov · "Falta 1 mes: la app ya está"** | | | |
+| mié 11 nov | Reel + story | **FALTA 1 MES** · «Así construimos la webapp» | bienvenida |
+| jue 12 nov | Reel | SGX Pass: fórjalo en un minuto | visitante |
+| vie 13 nov | Carrusel | Qué abre tu SGX Pass (Holo Card, Reactor, QR del Día 3) | visitante |
+| sáb 14 nov | Reel | Speakers: envía tu perfil (cierra 21 nov) | speaker |
+| lun 16 nov | Reel | Sponsors: los 5 paquetes en 1 minuto | sponsor |
+| **Sem. 2 · 18–24 nov · "Súbete al escenario"** | | | |
+| mar 18 nov | Reel | Prensa: 10 cupos de acreditación | prensa |
 | mié 19 nov | Story ×3 | Faltan 2 días para el cierre de speakers | speaker |
-| **Sem. 3 · 20–26 nov · "Últimos días"** | | | |
-| vie 21 nov | Story + post | **Hoy cierra el Portal de speakers** | speaker |
-| dom 23 nov | Reel | Recorrido completo vertical (cortado a 60–90 s) | bienvenida |
-| mar 25 nov | Carrusel | Programa de los 3 días (11 · 12 · 13 dic) | visitante |
-| mié 26 nov | Story | Sponsors: faltan 2 días para solicitar | sponsor |
-| **Sem. 4 · 27 nov–3 dic · "Cierres"** | | | |
+| vie 21 nov | Post + story | **Hoy cierra el Portal de speakers** | speaker |
+| dom 23 nov | Reel | Recorrido completo (corte de 60–90 s) | bienvenida |
+| **Sem. 3 · 25 nov–1 dic · "Cierres"** | | | |
+| mar 25 nov | Carrusel | Programa de los 3 días | visitante |
+| mié 26 nov | Story | Sponsors: faltan 2 días | sponsor |
 | vie 28 nov | Post + story | **Hoy cierran las solicitudes de sponsors** | sponsor |
-| dom 30 nov | Story | Prensa: cierra mañana · sponsors: hoy vence pago y materiales | prensa |
+| dom 30 nov | Story | Hoy vencen pago y materiales · prensa cierra mañana | sponsor / prensa |
 | lun 1 dic | Story | **Último día: acreditación de prensa y solicitudes al Día 3** | prensa / visitante |
+| **Sem. 4 · 2–10 dic · "Semana del Summit"** | | | |
 | mar 2 dic | Reel | Arena en vivo: tu voto dirige el escenario | visitante |
-| **Sem. 5 · 4–10 dic · "Semana del Summit"** | | | |
-| vie 5 dic | Story | Invitaciones al Día 3 enviadas: revisa tu correo y tu Estudio | visitante |
-| sáb 6 dic | Carrusel | Partners y marcas del Summit | sponsor |
-| lun 8 dic | Reel | Cuenta regresiva **3 días** con el núcleo 3D | visitante |
-| mié 10 dic | Story ×3 | **Mañana empezamos**: enlace a YouTube Live + recordatorio | visitante |
-| **En vivo · 11–13 dic** | | | |
-| 11 dic | Stories en vivo + post | Día 1 al aire: Framework & Guild | YouTube Live |
-| 12 dic | Stories en vivo + post | Día 2: Industry Day | YouTube Live |
-| 13 dic | Stories + reel resumen | Día 3 en Chroma | — |
+| vie 5 dic | Story | Invitaciones al Día 3 enviadas | visitante |
+| sáb 6 dic | Carrusel | Speakers confirmados + partners | speaker / sponsor |
+| lun 8 dic | Reel | Faltan 3 días (núcleo 3D) | visitante |
+| mié 10 dic | Story ×3 | Mañana empezamos: YouTube Live | visitante |
+| **En vivo · 11–13 dic** | Stories + posts | Día 1, Día 2, Día 3 en Chroma y reel resumen | YouTube Live |
 
 ## Textos base
 

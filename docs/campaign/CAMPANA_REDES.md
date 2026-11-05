@@ -184,45 +184,74 @@ Ritmo sugerido: 1 o 2 orgánicos por semana entre las piezas de la campaña, sin
 Cifras: usa solo las públicas (60+ espacios digitales, 10 juegos interactivos, FITUR ~564 registros únicos) y no las infles.
 
 
-## Calendario diario (un post cada día, 11 nov → 13 dic)
-Reemplaza el calendario semanal de arriba en cuanto a frecuencia: **un post al día** más stories. La columna "Faltan" es el número para la cuenta regresiva en cada pieza.
-Los "Anuncios" usan las plantillas de abajo. Si ese día no hay nada confirmado, se pone en su lugar un micro-reel de feature o un orgánico.
+## Calendario diario: plan total (11 nov → 13 dic)
+Sigue nuestro sistema diario: **mié STORY · jue SHOWCASE · vie SPARK · sáb STAGE · dom SYSTEMS · lun SYNTHESIZE · mar REVIEW**. Cada semana tiene un tema y las semanas avanzan como una historia: **tu pase → el escenario → las alianzas → lo que vas a vivir → el Summit**. Cada pieza lleva "Faltan N días".
 
-| Fecha | Faltan | Formato | Pieza |
-|---|---|---|---|
-| mié 11 nov | 30 | Reel | FALTA 1 MES · Así construimos la webapp |
-| jue 12 nov | 29 | Reel | SGX Pass: fórjalo en 1 minuto |
-| vie 13 nov | 28 | Carrusel | Qué abre tu SGX Pass |
-| sáb 14 nov | 27 | Reel | Speakers: envía tu perfil (cierra 21 nov) |
-| dom 15 nov | 26 | Orgánico | Summit 2025 en Aguadilla: la primera edición |
-| lun 16 nov | 25 | Reel | Sponsors: los 5 paquetes en 1 minuto |
-| mar 17 nov | 24 | Micro-reel | Feature: Núcleo 3D |
-| mié 18 nov | 23 | Reel | Prensa: 10 cupos de acreditación |
-| jue 19 nov | 22 | Micro-reel | Feature: Arma tu Highbot · story: faltan 2 días para speakers |
-| vie 20 nov | 21 | Orgánico | FITUR 2026: de Puerto Rico a Madrid con VR |
-| sáb 21 nov | 20 | Post + story | HOY cierra el Portal de speakers |
-| dom 22 nov | 19 | Micro-reel | Feature: Pregúntale a tu Highbot (IA) |
-| lun 23 nov | 18 | Reel | Recorrido completo (corte de 60–90 s) |
-| mar 24 nov | 17 | Anuncio | Speaker confirmado #1 |
-| mié 25 nov | 16 | Carrusel | Programa de los 3 días |
-| jue 26 nov | 15 | Micro-reel | Feature: Holo Card · story: sponsors, faltan 2 días |
-| vie 27 nov | 14 | Orgánico | Drones: "ahora vuela tú" (Dron SGX) |
-| sáb 28 nov | 13 | Post + story | HOY cierran las solicitudes de sponsors |
-| dom 29 nov | 12 | Anuncio | Speaker confirmado #2 |
-| lun 30 nov | 11 | Micro-reel | Feature: Reactor + Tienda · story: pago y materiales vencen hoy |
-| mar 1 dic | 10 | Post + story | ÚLTIMO DÍA: prensa y solicitudes al Día 3 |
-| mié 2 dic | 9 | Micro-reel | Feature: Arena en vivo |
-| jue 3 dic | 8 | Anuncio | Sponsor / partner confirmado |
-| vie 4 dic | 7 | Orgánico | VR: gente jugando en Quest |
-| sáb 5 dic | 6 | Post + story | Invitaciones al Día 3 enviadas |
-| dom 6 dic | 5 | Anuncio | Speaker confirmado #3 (o carrusel con todos) |
-| lun 7 dic | 4 | Micro-reel | Feature: Dron SGX |
-| mar 8 dic | 3 | Reel | FALTAN 3 DÍAS (núcleo 3D) |
-| mié 9 dic | 2 | Anuncio | Agenda del Día 1 + sponsors del Summit |
-| jue 10 dic | 1 | Reel + stories | MAÑANA EMPEZAMOS · enlace a YouTube Live |
-| vie 11 dic | — | En vivo | Día 1 · Framework & Guild (stories + post) |
-| sáb 12 dic | — | En vivo | Día 2 · Industry Day (stories + post) |
-| dom 13 dic | — | En vivo | Día 3 en Chroma + reel resumen |
+
+### Semana 1 · 11–17 nov · TU PASE (falta 1 mes)
+Tu SGX Pass y lo que abre: la puerta de entrada. CTA: forja tu pase.
+
+| Fecha | Faltan | Pilar del día | Formato | Pieza |
+|---|---|---|---|---|
+| mié 11 nov | 30 | STORY | Reel | FALTA 1 MES · «Así construimos la webapp»: la historia de cómo hicimos la app |
+| jue 12 nov | 29 | SHOWCASE | Reel | Tu Holo Card: el pase es una carta 3D (micro-reel) |
+| vie 13 nov | 28 | SPARK | Reel | SGX Pass en 1 minuto: forja, Highbot, misiones (video SGX Pass) |
+| sáb 14 nov | 27 | STAGE | Carrusel | Tu pase en vivo: votas en la Arena y es tu entrada al Día 3 |
+| dom 15 nov | 26 | SYSTEMS | Micro-reel | Sin descargar y sin señal: añádela a tu pantalla |
+| lun 16 nov | 25 | SYNTHESIZE | Micro-reel | Tu Highbot con IA te guía por todo el Summit |
+| mar 17 nov | 24 | REVIEW | Carrusel | Repaso: lo que abre tu pase · "¿ya forjaste el tuyo?" |
+
+### Semana 2 · 18–24 nov · EL ESCENARIO
+Quién sube y cómo: speakers, artistas, Guild. Cierra con el portal de speakers el 21.
+
+| Fecha | Faltan | Pilar del día | Formato | Pieza |
+|---|---|---|---|---|
+| mié 18 nov | 23 | STORY | Orgánico | Summit 2025 en Aguadilla: así empezó el escenario |
+| jue 19 nov | 22 | SHOWCASE | Reel | Video Speakers: cómo enviar tu perfil (faltan 2 días) |
+| vie 20 nov | 21 | SPARK | Carrusel | SGX Guild: Top 6 Initiates presentan el Día 3 (plantilla Guild) |
+| sáb 21 nov | 20 | STAGE | Post + story | HOY cierra el Portal de speakers |
+| dom 22 nov | 19 | SYSTEMS | Carrusel | Cómo es una sesión del Día 2: 5 / 30 / 10 min, 100% remoto |
+| lun 23 nov | 18 | SYNTHESIZE | Anuncio | Speaker confirmado (plantilla) · si aún no hay: los dos fundadores abren el Día 1 |
+| mar 24 nov | 17 | REVIEW | Carrusel | Repaso: el escenario del Summit · programa del Día 2 |
+
+### Semana 3 · 25 nov–1 dic · LAS ALIANZAS
+Marcas, medios y comunidad. Cierres de sponsors (28 y 30) y prensa (1 dic).
+
+| Fecha | Faltan | Pilar del día | Formato | Pieza |
+|---|---|---|---|---|
+| mié 25 nov | 16 | STORY | Orgánico | FITUR 2026: de Puerto Rico a Madrid con VR |
+| jue 26 nov | 15 | SHOWCASE | Reel | Video Sponsors: tu marca dentro del núcleo 3D (faltan 2 días) |
+| vie 27 nov | 14 | SPARK | Micro-reel | Dron SGX y minijuegos: donde viven las marcas |
+| sáb 28 nov | 13 | STAGE | Post + story | HOY cierran las solicitudes de sponsors |
+| dom 29 nov | 12 | SYSTEMS | Reel | Video Prensa: 10 cupos y kit de prensa |
+| lun 30 nov | 11 | SYNTHESIZE | Anuncio | Partners del Summit (Los Mismos TV y Chroma, con acuerdos firmados) · story: hoy vencen pago y materiales |
+| mar 1 dic | 10 | REVIEW | Post + story | ÚLTIMO DÍA: prensa y solicitudes al Día 3 · repaso de la semana |
+
+### Semana 4 · 2–8 dic · LO QUE VAS A VIVIR
+Los 3 días, en vivo: Arena, Día 3 en Chroma, invitaciones del 5 dic.
+
+| Fecha | Faltan | Pilar del día | Formato | Pieza |
+|---|---|---|---|---|
+| mié 2 dic | 9 | STORY | Carrusel | El programa: 3 días, 3 actos (Framework · Industria · Showcase) |
+| jue 3 dic | 8 | SHOWCASE | Micro-reel | Recorrido 360° de Chroma: la sede del Día 3 |
+| vie 4 dic | 7 | SPARK | Micro-reel | Reactor y Tienda: misiones, XP y premios |
+| sáb 5 dic | 6 | STAGE | Post + story | Invitaciones al Día 3 enviadas · Arena en vivo: tu voto dirige el escenario |
+| dom 6 dic | 5 | SYSTEMS | Orgánico | Detrás de la app: hecho en Puerto Rico (código, editor del Highbot) |
+| lun 7 dic | 4 | SYNTHESIZE | Micro-reel | Escáner + Rolodex + SGX.Match: networking con un QR |
+| mar 8 dic | 3 | REVIEW | Reel | FALTAN 3 DÍAS · corte del recorrido completo |
+
+### Semana final · 9–13 dic · EL SUMMIT
+Víspera, en vivo y cierre.
+
+| Fecha | Faltan | Pilar del día | Formato | Pieza |
+|---|---|---|---|---|
+| mié 9 dic | 2 | — | Anuncio | Agenda del Día 1 + todos los speakers y sponsors confirmados |
+| jue 10 dic | 1 | — | Reel + stories | MAÑANA EMPEZAMOS · YouTube Live |
+| vie 11 dic | — | EN VIVO | Stories + post | Día 1 · Framework & Guild |
+| sáb 12 dic | — | EN VIVO | Stories + post | Día 2 · Industry Day |
+| dom 13 dic | — | EN VIVO | Stories + reel | Día 3 en Chroma + reel resumen |
+
+Los anuncios de speakers y sponsors **no son relleno**: tienen su día en la progresión. Cuando haya más confirmados, se añaden como stories y como carrusel el 9 dic.
 
 ## Plantillas de anuncio (carrusel o reel, 1080×1350 y 1080×1920)
 Misma estructura para todos, así la serie se reconoce. Fondo `#050505`, amarillo `#FDCC0D`, cian `#00DDFF`, logo del Summit en una esquina y "Faltan N días" en el pie.

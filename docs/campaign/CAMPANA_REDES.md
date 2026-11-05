@@ -185,72 +185,44 @@ Cifras: usa solo las públicas (60+ espacios digitales, 10 juegos interactivos, 
 
 
 ## Calendario diario: plan total (11 nov → 13 dic)
-La progresión es la del plan inicial (**la app ya está → súbete al escenario → últimos días → semana del Summit → en vivo**), con un post diario. Cada día sigue nuestro sistema de pilar del día (mié STORY · jue SHOWCASE · vie SPARK · sáb STAGE · dom SYSTEMS · lun SYNTHESIZE · mar REVIEW). Cada pieza lleva "Faltan N días".
-Del **SGX Guild** se habla en general (18–24 nov). El **Top 6** se anuncia solo en la semana del evento (6 dic).
+Progresión: **la app ya está (11–17 nov) → súbete al escenario (18–24 nov) → últimos días (25 nov–1 dic) → semana del Summit (2–10 dic) → en vivo (11–13 dic)**.
+Cada día sigue nuestro sistema de pilar del día. Todos los captions terminan con **#SpatialgineersSummit #RoadToSummit #Spatialgineers**, y la portada de cada pieza lleva "Faltan N días".
 
-
-### Semana 1 · 11–17 nov · LA APP YA ESTÁ (falta 1 mes)
-Presentamos la app y el SGX Pass. CTA: forja tu pase.
-
-| Fecha | Faltan | Pilar | Formato | Pieza |
-|---|---|---|---|---|
-| mié 11 nov | 30 | STORY | Reel | FALTA 1 MES · «Así construimos la webapp» |
-| jue 12 nov | 29 | SHOWCASE | Reel | Video SGX Pass: fórjalo en 1 minuto |
-| vie 13 nov | 28 | SPARK | Carrusel | Qué abre tu SGX Pass: Holo Card, Reactor, XP y QR del Día 3 |
-| sáb 14 nov | 27 | STAGE | Micro-reel | Arena en vivo: tu voto dirige el escenario |
-| dom 15 nov | 26 | SYSTEMS | Micro-reel | Sin descargar y sin señal: añádela a tu pantalla |
-| lun 16 nov | 25 | SYNTHESIZE | Micro-reel | Tu Highbot con IA te guía por todo el Summit |
-| mar 17 nov | 24 | REVIEW | Carrusel | Repaso de la semana: la app por dentro · "¿ya forjaste tu pase?" |
-
-### Semana 2 · 18–24 nov · SÚBETE AL ESCENARIO
-Speakers, sponsors y prensa: cómo ser parte. El SGX Guild en general. El portal de speakers cierra el 21.
-
-| Fecha | Faltan | Pilar | Formato | Pieza |
-|---|---|---|---|---|
-| mié 18 nov | 23 | STORY | Orgánico | Summit 2025 en Aguadilla: la primera edición |
-| jue 19 nov | 22 | SHOWCASE | Reel | Video Speakers: envía tu perfil (faltan 2 días) · story de cuenta regresiva |
-| vie 20 nov | 21 | SPARK | Carrusel | El SGX Guild: qué es, cómo se forma talento en los 6 pilares |
-| sáb 21 nov | 20 | STAGE | Post + story | HOY cierra el Portal de speakers |
-| dom 22 nov | 19 | SYSTEMS | Reel | Video Prensa: 10 cupos y kit de prensa |
-| lun 23 nov | 18 | SYNTHESIZE | Reel | Video Sponsors: los 5 paquetes en 1 minuto |
-| mar 24 nov | 17 | REVIEW | Carrusel | Repaso: cómo ser parte (speaker, sponsor, prensa, Creador) |
-
-### Semana 3 · 25 nov–1 dic · ÚLTIMOS DÍAS / CIERRES
-El programa y los cierres: sponsors (28 y 30) y prensa y Día 3 (1 dic).
-
-| Fecha | Faltan | Pilar | Formato | Pieza |
-|---|---|---|---|---|
-| mié 25 nov | 16 | STORY | Carrusel | El programa: 3 días, 3 actos |
-| jue 26 nov | 15 | SHOWCASE | Micro-reel | Tu marca dentro del núcleo 3D · story: sponsors, faltan 2 días |
-| vie 27 nov | 14 | SPARK | Orgánico | Drones: "ahora vuela tú" (Dron SGX) |
-| sáb 28 nov | 13 | STAGE | Post + story | HOY cierran las solicitudes de sponsors |
-| dom 29 nov | 12 | SYSTEMS | Anuncio | Speaker confirmado (plantilla) · si aún no hay: los dos fundadores abren el Día 1 |
-| lun 30 nov | 11 | SYNTHESIZE | Reel | Recorrido completo (corte de 60–90 s) · story: hoy vencen pago y materiales |
-| mar 1 dic | 10 | REVIEW | Post + story | ÚLTIMO DÍA: prensa y solicitudes al Día 3 · repaso de los cierres |
-
-### Semana 4 · 2–10 dic · SEMANA DEL SUMMIT
-Lo que vas a vivir, las invitaciones del 5 dic, el Top 6 del Guild y la cuenta regresiva final.
-
-| Fecha | Faltan | Pilar | Formato | Pieza |
-|---|---|---|---|---|
-| mié 2 dic | 9 | STORY | Orgánico | FITUR 2026: de Puerto Rico a Madrid con VR |
-| jue 3 dic | 8 | SHOWCASE | Micro-reel | Recorrido 360° de Chroma: la sede del Día 3 |
-| vie 4 dic | 7 | SPARK | Micro-reel | Reactor y Tienda: misiones, XP y premios |
-| sáb 5 dic | 6 | STAGE | Post + story | Invitaciones al Día 3 enviadas: revisa tu correo y tu Estudio |
-| dom 6 dic | 5 | SYSTEMS | Anuncio | Top 6 del SGX Guild: presentan el Día 3 (plantilla Guild) |
-| lun 7 dic | 4 | SYNTHESIZE | Anuncio | Partners y sponsors del Summit (con acuerdos firmados) |
-| mar 8 dic | 3 | REVIEW | Reel | FALTAN 3 DÍAS (núcleo 3D) |
-| mié 9 dic | 2 | STORY | Anuncio | Agenda del Día 1 + todos los speakers confirmados |
-| jue 10 dic | 1 | SHOWCASE | Reel + stories | MAÑANA EMPEZAMOS · YouTube Live |
-
-### En vivo · 11–13 dic
-Cobertura de los 3 días.
-
-| Fecha | Faltan | Pilar | Formato | Pieza |
-|---|---|---|---|---|
-| vie 11 dic | — | EN VIVO | Stories + post | Día 1 · Framework & Guild |
-| sáb 12 dic | — | EN VIVO | Stories + post | Día 2 · Industry Day |
-| dom 13 dic | — | EN VIVO | Stories + reel | Día 3 en Chroma + reel resumen |
+| Fecha | Faltan | Pilar | Formato | Concepto | Caption sugerido |
+|---|---|---|---|---|---|
+| mié 11 nov | 30 | STORY | Reel | Falta 1 mes. Reel «Así construimos la webapp»: la historia de cómo se hizo la app. | FALTA 1 MES ⚡ No hicimos una página de evento: construimos una webapp 3D en Puerto Rico para el Spatialgineers Summit 2026. Del 11 al 13 de diciembre. Forja tu pase: link en bio. |
+| jue 12 nov | 29 | SHOWCASE | Reel | Video SGX Pass: forja tu pase en un minuto. | Tu entrada al Summit se forja en un minuto: nombre, correo, pilar y tu Highbot. Gratis. Link en bio. |
+| vie 13 nov | 28 | SPARK | Carrusel | Qué abre tu SGX Pass, una lámina por cosa: Holo Card, Reactor, XP, QR del Día 3. | Tu SGX Pass no es un boleto, es una llave: tu Holo Card, tus misiones, tu XP y tu entrada al Día 3. ¿Cuál abres primero? |
+| sáb 14 nov | 27 | STAGE | Micro-reel | La Arena en vivo: alguien vota en el teléfono y la pantalla del escenario cambia. | En el Summit no solo miras: votas desde tu teléfono y el escenario cambia en segundos. Los Días 1 y 2, gratis por YouTube Live. |
+| dom 15 nov | 26 | SYSTEMS | Micro-reel | Se añade la app a la pantalla de inicio y el pase abre en modo avión. | Sin descargar nada. Añádela a tu pantalla de inicio y tu pase abre hasta sin señal. Así se construye para un evento real. |
+| lun 16 nov | 25 | SYNTHESIZE | Micro-reel | Una pregunta al Highbot: responde y te lleva a la sección. | Tu Highbot tiene inteligencia artificial: conoce todo el Summit, te contesta y te lleva a donde necesitas. Pregúntale lo que quieras. |
+| mar 17 nov | 24 | REVIEW | Carrusel | Repaso de la semana: la app por dentro, una lámina por pieza. | Esta semana te enseñamos la app por dentro: pase, Arena, modo sin señal y tu Highbot con IA. ¿Ya forjaste el tuyo? Link en bio. |
+| mié 18 nov | 23 | STORY | Orgánico | Clips del Summit 2025 en Aguadilla. | Así empezó todo: el Spatialgineers Summit 2025 en Aguadilla. La segunda edición viene más grande. 11–13 dic. |
+| jue 19 nov | 22 | SHOWCASE | Reel | Video Speakers: cómo enviar tu perfil. Story con la cuenta regresiva. | ¿Te ves en el escenario del Summit? Forja tu pase y envía tu perfil en el Portal de speakers. Cierra el 21 de noviembre. Link en bio. |
+| vie 20 nov | 21 | SPARK | Carrusel | El SGX Guild en general: qué es, los 6 pilares y cómo se forma talento. | El SGX Guild es donde se forma el talento creativo de Puerto Rico: trials, rangos y proyectos reales en los 6 pilares. Ser parte es un privilegio. |
+| sáb 21 nov | 20 | STAGE | Post + story | Hoy cierra el Portal de speakers. | HOY cierra el Portal de speakers. Si te ves en el escenario del Summit, este es el día. Link en bio. |
+| dom 22 nov | 19 | SYSTEMS | Reel | Video Prensa: la Sala de prensa, la acreditación y el kit. | ¿Cubres tecnología, cultura o negocios? Hay 10 cupos de prensa para el Spatialgineers Summit 2026. Acredítate antes del 1 de diciembre. Link en bio. |
+| lun 23 nov | 18 | SYNTHESIZE | Reel | Video Sponsors: los 5 paquetes en un minuto. | Tu marca dentro del Summit: en el núcleo 3D, los juegos, la app y la transmisión. 5 paquetes, solicitudes hasta el 28 de noviembre. Link en bio. |
+| mar 24 nov | 17 | REVIEW | Carrusel | Cómo ser parte del Summit: una lámina por rol (Creador, speaker, sponsor, prensa) con su portal. | Hay un lugar para ti en el Summit: Creador, speaker, sponsor o prensa. Cada uno tiene su portal. ¿Cuál es el tuyo? |
+| mié 25 nov | 16 | STORY | Carrusel | El programa: 3 días, 3 actos (Framework y Guild · Industry Day · Showcase en Chroma). | Tres días, tres actos: el framework, la industria y el futuro. Así se vive el Spatialgineers Summit 2026, del 11 al 13 de diciembre. |
+| jue 26 nov | 15 | SHOWCASE | Micro-reel | Una marca dentro del núcleo 3D, el juego y la pantalla. Story: faltan 2 días para sponsors. | Así se ve tu marca dentro del Summit: no un logo en una esquina, sino parte de la experiencia. Quedan 2 días para solicitar tu paquete. |
+| vie 27 nov | 14 | SPARK | Orgánico | Tomas de drones del estudio, cerrando con el Dron SGX de la app. | Lo hacemos en la vida real y ahora lo puedes hacer tú: el Dron SGX te pone a volar por San Juan dentro de la app. |
+| sáb 28 nov | 13 | STAGE | Post + story | Hoy cierran las solicitudes de sponsors. | HOY cierran las solicitudes de sponsors del Spatialgineers Summit 2026. Pago y materiales hasta el 30 de noviembre. Link en bio. |
+| dom 29 nov | 12 | SYSTEMS | Anuncio | Primer speaker confirmado, con la plantilla de speaker. Si aún no hay, los fundadores abren el Día 1. | CONFIRMADO: [Nombre], [rol] en [org], abre la conversación de [pilar] el 12 de diciembre. Gratis por YouTube Live. Link en bio. |
+| lun 30 nov | 11 | SYNTHESIZE | Reel | Corte de 60–90 s del recorrido completo. Story: hoy vencen pago y materiales. | Todo el Summit en una app: 6 pilares y más de 20 módulos, del pase al escenario. Recórrela antes del 11 de diciembre. |
+| mar 1 dic | 10 | REVIEW | Post + story | Último día de la acreditación de prensa y de las solicitudes al Día 3. | ÚLTIMO DÍA para acreditarte como prensa y para solicitar tu lugar en el Día 3 en Chroma Space Studios. Link en bio. |
+| mié 2 dic | 9 | STORY | Orgánico | Highlights de FITUR 2026 con «Un Viaje a Aguadilla». | De Puerto Rico a Madrid con realidad virtual: así llevamos Aguadilla a FITUR 2026. Eso es lo que hacemos, y eso es lo que verás en el Summit. |
+| jue 3 dic | 8 | SHOWCASE | Micro-reel | Recorrido 360° de Chroma Space Studios. | Conoce la sede del Día 3 antes de llegar: recorre Chroma Space Studios en 360° desde la app. |
+| vie 4 dic | 7 | SPARK | Micro-reel | Reactor y Tienda: completar una misión, ganar XP y canjear. | Cada misión te da XP y cada XP se canjea en la Tienda del Reactor. El Summit se juega. |
+| sáb 5 dic | 6 | STAGE | Post + story | Invitaciones al Día 3 enviadas. | Las invitaciones al Día 3 ya salieron. Revisa tu correo y tu Estudio: si estás dentro, tu QR es tu entrada a Chroma. |
+| dom 6 dic | 5 | SYSTEMS | Anuncio | Top 6 del SGX Guild con la plantilla Guild, uno por lámina. | Estos son los Top 6 del SGX Guild: presentan su trabajo el Día 3 frente a la industria. Felicidades. |
+| lun 7 dic | 4 | SYNTHESIZE | Anuncio | Partners y sponsors del Summit, solo con acuerdos firmados. | Gracias a las marcas y aliados que hacen posible el Spatialgineers Summit 2026. Encuéntralos dentro de la app. |
+| mar 8 dic | 3 | REVIEW | Reel | Faltan 3 días, sobre el núcleo 3D girando. | FALTAN 3 DÍAS ⚡ 11 y 12 de diciembre gratis por YouTube Live, 13 de diciembre en Chroma Space Studios. ¿Ya tienes tu pase? |
+| mié 9 dic | 2 | STORY | Anuncio | Agenda del Día 1 con todos los speakers confirmados. | Pasado mañana arranca el Día 1: Framework & Guild. Aquí va la agenda. Ponle alerta desde la app. |
+| jue 10 dic | 1 | SHOWCASE | Reel + stories | Mañana empezamos: el enlace al YouTube Live. | MAÑANA EMPEZAMOS. Día 1 del Spatialgineers Summit 2026, en vivo y gratis por YouTube Live. Ten tu pase listo para votar. |
+| vie 11 dic | — | EN VIVO | Stories + post | Día 1 · Framework & Guild: stories en vivo y post del momento del día. | Día 1 en vivo ⚡ Entra ya a YouTube Live y vota desde la app. |
+| sáb 12 dic | — | EN VIVO | Stories + post | Día 2 · Industry Day: stories y post de los speakers. | Día 2: la industria toma el escenario. En vivo ahora por YouTube Live. |
+| dom 13 dic | — | EN VIVO | Stories + reel | Día 3 en Chroma: stories y reel resumen. | Día 3 en Chroma Space Studios. Gracias a todos los que lo hicieron posible. Spatialgineers Summit 2026. |
 
 ## Plantillas de anuncio (carrusel o reel, 1080×1350 y 1080×1920)
 Misma estructura para todos, así la serie se reconoce. Fondo `#050505`, amarillo `#FDCC0D`, cian `#00DDFF`, logo del Summit en una esquina y "Faltan N días" en el pie.

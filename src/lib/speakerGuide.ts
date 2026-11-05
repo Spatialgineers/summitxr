@@ -34,8 +34,8 @@ export const SPEAKER_SEND: GuideItem[] = [
   { where: 'portal', text: { es: 'Tu usuario de Instagram, LinkedIn o el canal que prefieras, para etiquetarte.', en: 'Your Instagram, LinkedIn or preferred channel handle, so we can tag you.' } },
   { where: 'portal', text: { es: 'Logo de tu empresa o proyecto, si aplica (como enlace).', en: 'Your company or project logo, if any (as a link).' } },
   { where: 'portal', text: { es: '(Opcional) 2 o 3 ideas clave para la audiencia: alimentan las preguntas de votación.', en: '(Optional) 2 or 3 key ideas for the audience: they feed the voting questions.' } },
-  { where: 'email', text: { es: `Foto en alta resolución (mínimo ${SPEAKER_PHOTO_MIN_PX} px).`, en: `A high-resolution photo (at least ${SPEAKER_PHOTO_MIN_PX} px).` } },
-  { where: 'email', text: { es: 'Datos técnicos: ciudad, zona horaria, equipo y conexión.', en: 'Technical details: city, time zone, equipment and connection.' } },
+  { where: 'portal', text: { es: 'Datos técnicos: ciudad, zona horaria, equipo y conexión.', en: 'Technical details: city, time zone, equipment and connection.' } },
+  { where: 'portal', text: { es: 'No necesitas foto: tu imagen en el Summit es tu Highbot, el que armas en tu SGX Pass.', en: 'No photo needed: your image at the Summit is your Highbot, the one you build in your SGX Pass.' } },
 ];
 
 /** How a Day 2 conversation runs (45 minutes per pillar). */
@@ -82,7 +82,7 @@ export const SPEAKER_RECEIVE: Bi[] = [
 /** Your route to the Summit, in order. */
 export const SPEAKER_ROUTE: { when: Bi; what: Bi }[] = [
   { when: { es: `Hasta el ${D.speakerProfiles.short.es}`, en: `By ${D.speakerProfiles.short.en}` }, what: { es: `Tu perfil en el Portal de speakers. ${DEADLINE_COPY.speakerProfiles.es}`, en: `Your profile in the Speaker portal. ${DEADLINE_COPY.speakerProfiles.en}` } },
-  { when: { es: 'Con tu confirmación', en: 'With your confirmation' }, what: { es: `Foto y datos técnicos a ${SUMMIT_CONTACT_EMAIL}; recibes tu briefing.`, en: `Photo and technical details to ${SUMMIT_CONTACT_EMAIL}; you get your briefing.` } },
+  { when: { es: 'Con tu confirmación', en: 'With your confirmation' }, what: { es: 'Recibes tu briefing y coordinamos lo técnico.', en: 'You get your briefing and we coordinate the technical setup.' } },
   { when: { es: `Antes del ${D.speakerTechCheck.short.es}`, en: `Before ${D.speakerTechCheck.short.en}` }, what: { es: 'Prueba técnica con el equipo.', en: 'Technical test with the team.' } },
   { when: { es: '12 dic', en: 'Dec 12' }, what: { es: 'Tu conversación: conéctate 30 minutos antes.', en: 'Your conversation: connect 30 minutes early.' } },
 ];
@@ -95,8 +95,8 @@ export const SPEAKER_CONTACTS: Bi[] = [
 
 /** One short paragraph for invites. */
 export const SPEAKER_GUIDE_SUMMARY: Bi = {
-  es: `Día 2: 45 minutos por pilar (5 de presentación, 30 de conversación y 10 de preguntas), 100% remoto. Bio de ${SPEAKER_BIO_WORDS.min} a ${SPEAKER_BIO_WORDS.max} palabras, foto de ${SPEAKER_PHOTO_MIN_PX} px o más y datos técnicos; prueba técnica antes del ${D.speakerTechCheck.day.es} y conexión 30 minutos antes.`,
-  en: `Day 2: 45 minutes per pillar (5 to introduce, 30 of conversation and 10 of questions), 100% remote. A ${SPEAKER_BIO_WORDS.min} to ${SPEAKER_BIO_WORDS.max} word bio, a photo of ${SPEAKER_PHOTO_MIN_PX} px or more and technical details; technical test before ${D.speakerTechCheck.day.en} and connect 30 minutes early.`,
+  es: `Día 2: 45 minutos por pilar (5 de presentación, 30 de conversación y 10 de preguntas), 100% remoto. Bio de ${SPEAKER_BIO_WORDS.min} a ${SPEAKER_BIO_WORDS.max} palabras y datos técnicos en el portal (tu imagen es tu Highbot); prueba técnica antes del ${D.speakerTechCheck.day.es} y conexión 30 minutos antes.`,
+  en: `Day 2: 45 minutes per pillar (5 to introduce, 30 of conversation and 10 of questions), 100% remote. A ${SPEAKER_BIO_WORDS.min} to ${SPEAKER_BIO_WORDS.max} word bio and technical details in the portal (your image is your Highbot); technical test before ${D.speakerTechCheck.day.en} and connect 30 minutes early.`,
 };
 
 /** Word count for the bio hint in the portal. */

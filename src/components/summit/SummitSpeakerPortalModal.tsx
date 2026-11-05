@@ -105,6 +105,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
   const [github, setGithub] = useState<string>(initialSpeaker?.socialLinks?.github || '');
   const [portfolio, setPortfolio] = useState<string>(initialSpeaker?.socialLinks?.portfolio || '');
   const [logo, setLogo] = useState<string>(initialSpeaker?.socialLinks?.logo || '');
+  const [tech, setTech] = useState<string>((initialSpeaker?.socialLinks as Record<string, string> | undefined)?.tech || '');
   const roblox = initialSpeaker?.socialLinks?.roblox || '';
 
   // Avatar builder view (inside the same dialog)
@@ -220,6 +221,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
           portfolio: portfolio.trim() || undefined,
           logo: logo.trim() || undefined,
           roblox: roblox.trim() || undefined,
+          tech: tech.trim().slice(0, 500) || undefined,
         }
       };
 
@@ -408,6 +410,13 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
               <span className="sgx-m-row sgx-m-row--between">{es ? 'Biografía y lo que presentarás' : 'Bio and what you will present'} <small className="sgx-m-fine" data-testid="speaker-bio-words">{es ? `${countWords(bio)} palabras · recomendado ${SPEAKER_BIO_WORDS.min}–${SPEAKER_BIO_WORDS.max}` : `${countWords(bio)} words · ${SPEAKER_BIO_WORDS.min}–${SPEAKER_BIO_WORDS.max} recommended`} · {bio.length} / 2500</small></span>
               <textarea className="sgx-m-input" rows={4} maxLength={2500} value={bio} onChange={(e) => setBio(e.target.value)}
                 placeholder={es ? 'Tu bio (50 a 80 palabras) y 2 o 3 ideas clave para la audiencia: tu trabajo en WebXR, computación espacial, shaders o arte generativo…' : 'Your bio (50 to 80 words) and 2 or 3 key ideas for the audience: your work in WebXR, spatial computing, shaders or generative art…'} />
+            </label>
+
+            <label className="sgx-m-field">
+              <span>{es ? 'Datos técnicos' : 'Technical details'}</span>
+              <textarea className="sgx-m-input" rows={2} maxLength={500} value={tech} onChange={(e) => setTech(e.target.value)}
+                placeholder={es ? 'Ciudad, zona horaria, equipo (cámara, micrófono) y tipo de conexión' : 'City, time zone, gear (camera, mic) and connection type'} />
+              <small className="sgx-m-fine">{es ? 'No necesitas foto: tu imagen en el Summit es tu Highbot.' : 'No photo needed: your image at the Summit is your Highbot.'}</small>
             </label>
 
             <fieldset className="sgx-m-stack" style={{ gap: 8, border: 0, margin: 0, padding: 0 }}>

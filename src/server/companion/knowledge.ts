@@ -91,7 +91,7 @@ Todo está en la página de sponsors, sección "Términos y logística" (summit.
 ${sponsorTermsPrompt()}`;
 
 const SPEAKER_GUIDE_BLOCK = `## Speakers: guía del speaker
-Está en el Portal de speakers (antes y después de enviar el perfil, y como próximos pasos cuando el equipo lo aprueba) y en /bienvenida/speaker#guia (ir_a: portal-speakers). La foto en alta resolución y los datos técnicos se envían por correo a info@spatialgineers.com: el portal no recibe fotos (en la app la imagen es el avatar SGX).
+Está en el Portal de speakers (antes y después de enviar el perfil, y como próximos pasos cuando el equipo lo aprueba) y en /bienvenida/speaker#guia (ir_a: portal-speakers). Los datos técnicos se envían en el formulario del portal. No hay fotos: la imagen de cada speaker es su Highbot.
 ${speakerGuidePrompt()}`;
 
 const EVENT = `## Spatialgineers Summit 2026: lo esencial

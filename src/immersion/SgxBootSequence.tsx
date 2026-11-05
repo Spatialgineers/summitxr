@@ -37,24 +37,32 @@ function drawMark(g: CanvasRenderingContext2D, size: number, logo: HTMLImageElem
   g.restore();
 }
 
-/** Samples points inside the mark at the given on-screen size, each with the mark's own color there. */
-function sampleMark(size: number, count: number, logo: HTMLImageElement | null): { x: number; y: number; c: string }[] {
-  const c = document.createElement('canvas');
-  c.width = c.height = size;
-  const g = c.getContext('2d');
-  if (!g) return [];
-  drawMark(g, size, logo);
-  const data = g.getImageData(0, 0, size, size).data;
-  const pts: { x: number; y: number; c: string }[] = [];
-  const area = data.reduce((n, v, i) => (i % 4 === 3 && v > 128 ? n + 1 : n), 0);
-  const step = Math.max(2, Math.floor(Math.sqrt(area / count)));
-  for (let y = 0; y < size; y += step) {
-    for (let x = 0; x < size; x += step) {
-      const i = (y * size + x) * 4;
-      if (data[i + 3] > 128) pts.push({ x: x / size - 0.5, y: y / size - 0.5, c: `rgb(${data[i]},${data[i + 1]},${data[i + 2]})` });
+/** Samples points inside the mark on a fixed 96x96 grid (well under 1 ms), each with the
+    mark's own color there. x/y are -0.5..0.5 of the mark box. */
+const GRID = 96;
+function sampleMark(count: number, logo: HTMLImageElement | null): { x: number; y: number; c: string }[] {
+  try {
+    const c = document.createElement('canvas');
+    c.width = c.height = GRID;
+    const g = c.getContext('2d', { willReadFrequently: true }) as CanvasRenderingContext2D | null;
+    if (!g) return [];
+    drawMark(g, GRID, logo);
+    const data = g.getImageData(0, 0, GRID, GRID).data;
+    const inside: { x: number; y: number; c: string }[] = [];
+    for (let y = 0; y < GRID; y++) {
+      for (let x = 0; x < GRID; x++) {
+        const i = (y * GRID + x) * 4;
+        if (data[i + 3] > 128) inside.push({ x: (x + 0.5) / GRID - 0.5, y: (y + 0.5) / GRID - 0.5, c: `rgb(${data[i]},${data[i + 1]},${data[i + 2]})` });
+      }
     }
+    if (inside.length <= count) return inside;
+    const stride = inside.length / count;
+    const out: { x: number; y: number; c: string }[] = [];
+    for (let k = 0; k < count; k++) out.push(inside[Math.floor(k * stride)]);
+    return out;
+  } catch {
+    return [];
   }
-  return pts;
 }
 
 export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: () => void }> = ({ onComplete, onFadeStart }) => {
@@ -96,12 +104,6 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
     if (!canvas || !ctx) return;
     let raf = 0;
     let cancelled = false;
-    const logo = new Image();
-    const begin = (mark: HTMLImageElement | null) => { if (!cancelled) run(mark); };
-    logo.onload = () => begin(logo);
-    logo.onerror = () => begin(null);
-    logo.src = SUMMIT_LOGO;
-
     const run = (mark: HTMLImageElement | null) => {
       let reduce = false;
       try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch {}
@@ -115,8 +117,9 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
       // Room below for the title and the partner row.
       const boltSize = Math.min(W, H) * (W < 640 ? 0.42 : 0.33);
       const cx = W / 2, cy = H * (W < 640 ? 0.27 : 0.33);
-      const count = W < 640 ? 650 : 1400;
-      const pts = sampleMark(Math.round(boltSize), count, mark);
+      // Particle budget: light on phones so the swarm holds 60 fps from the first frame.
+      const count = W < 640 ? 240 : 650;
+      const pts = sampleMark(count, mark);
 
       const particles: Particle[] = pts.map((p) => {
         // Spawn on a wide ring outside the viewport so the swarm streaks in.
@@ -196,6 +199,15 @@ export const SgxBootSequence: React.FC<{ onComplete: () => void; onFadeStart?: (
       ctx.fillRect(0, 0, W, H);
       raf = requestAnimationFrame(frame);
     };
+    // Start right away: the logo is preloaded in index.html, so it is usually ready now.
+    let started = false;
+    const begin = (mark: HTMLImageElement | null) => { if (cancelled || started) return; started = true; run(mark); };
+    const logo = new Image();
+    logo.onload = () => begin(logo);
+    logo.onerror = () => begin(null);
+    logo.src = SUMMIT_LOGO;
+    if (logo.complete && logo.naturalWidth) begin(logo);
+
     return () => { cancelled = true; cancelAnimationFrame(raf); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

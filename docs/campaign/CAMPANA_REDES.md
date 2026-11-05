@@ -182,3 +182,83 @@ Muestran que el equipo que hace el Summit hace esto de verdad. Formato: reel de 
 
 Ritmo sugerido: 1 o 2 orgánicos por semana entre las piezas de la campaña, sin pasar de 1 por día.
 Cifras: usa solo las públicas (60+ espacios digitales, 10 juegos interactivos, FITUR ~564 registros únicos) y no las infles.
+
+
+## Calendario diario (un post cada día, 11 nov → 13 dic)
+Reemplaza el calendario semanal de arriba en cuanto a frecuencia: **un post al día** más stories. La columna "Faltan" es el número para la cuenta regresiva en cada pieza.
+Los "Anuncios" usan las plantillas de abajo. Si ese día no hay nada confirmado, se pone en su lugar un micro-reel de feature o un orgánico.
+
+| Fecha | Faltan | Formato | Pieza |
+|---|---|---|---|
+| mié 11 nov | 30 | Reel | FALTA 1 MES · Así construimos la webapp |
+| jue 12 nov | 29 | Reel | SGX Pass: fórjalo en 1 minuto |
+| vie 13 nov | 28 | Carrusel | Qué abre tu SGX Pass |
+| sáb 14 nov | 27 | Reel | Speakers: envía tu perfil (cierra 21 nov) |
+| dom 15 nov | 26 | Orgánico | Summit 2025 en Aguadilla: la primera edición |
+| lun 16 nov | 25 | Reel | Sponsors: los 5 paquetes en 1 minuto |
+| mar 17 nov | 24 | Micro-reel | Feature: Núcleo 3D |
+| mié 18 nov | 23 | Reel | Prensa: 10 cupos de acreditación |
+| jue 19 nov | 22 | Micro-reel | Feature: Arma tu Highbot · story: faltan 2 días para speakers |
+| vie 20 nov | 21 | Orgánico | FITUR 2026: de Puerto Rico a Madrid con VR |
+| sáb 21 nov | 20 | Post + story | HOY cierra el Portal de speakers |
+| dom 22 nov | 19 | Micro-reel | Feature: Pregúntale a tu Highbot (IA) |
+| lun 23 nov | 18 | Reel | Recorrido completo (corte de 60–90 s) |
+| mar 24 nov | 17 | Anuncio | Speaker confirmado #1 |
+| mié 25 nov | 16 | Carrusel | Programa de los 3 días |
+| jue 26 nov | 15 | Micro-reel | Feature: Holo Card · story: sponsors, faltan 2 días |
+| vie 27 nov | 14 | Orgánico | Drones: "ahora vuela tú" (Dron SGX) |
+| sáb 28 nov | 13 | Post + story | HOY cierran las solicitudes de sponsors |
+| dom 29 nov | 12 | Anuncio | Speaker confirmado #2 |
+| lun 30 nov | 11 | Micro-reel | Feature: Reactor + Tienda · story: pago y materiales vencen hoy |
+| mar 1 dic | 10 | Post + story | ÚLTIMO DÍA: prensa y solicitudes al Día 3 |
+| mié 2 dic | 9 | Micro-reel | Feature: Arena en vivo |
+| jue 3 dic | 8 | Anuncio | Sponsor / partner confirmado |
+| vie 4 dic | 7 | Orgánico | VR: gente jugando en Quest |
+| sáb 5 dic | 6 | Post + story | Invitaciones al Día 3 enviadas |
+| dom 6 dic | 5 | Anuncio | Speaker confirmado #3 (o carrusel con todos) |
+| lun 7 dic | 4 | Micro-reel | Feature: Dron SGX |
+| mar 8 dic | 3 | Reel | FALTAN 3 DÍAS (núcleo 3D) |
+| mié 9 dic | 2 | Anuncio | Agenda del Día 1 + sponsors del Summit |
+| jue 10 dic | 1 | Reel + stories | MAÑANA EMPEZAMOS · enlace a YouTube Live |
+| vie 11 dic | — | En vivo | Día 1 · Framework & Guild (stories + post) |
+| sáb 12 dic | — | En vivo | Día 2 · Industry Day (stories + post) |
+| dom 13 dic | — | En vivo | Día 3 en Chroma + reel resumen |
+
+## Plantillas de anuncio (carrusel o reel, 1080×1350 y 1080×1920)
+Misma estructura para todos, así la serie se reconoce. Fondo `#050505`, amarillo `#FDCC0D`, cian `#00DDFF`, logo del Summit en una esquina y "Faltan N días" en el pie.
+
+**1. Speaker confirmado**
+- **Portada:** "SPEAKER CONFIRMADO" · su **Highbot** (nunca foto) · nombre · rol y organización.
+- **Lámina 2:** su sesión · pilar con su color · Día 2, 12 dic, hora.
+- **Lámina 3:** de qué va a hablar, en 2 líneas.
+- **Lámina 4:** "Míralo en vivo, gratis, por YouTube Live" + "link en bio".
+- **Caption:** "Confirmado: [Nombre], [rol] en [org], abre la conversación de [pilar] el 12 dic. [1 línea del tema]. Gratis por YouTube Live. Link en bio. #SpatialgineersSummit #RoadToSummit"
+- **Publicar** como Collab con su cuenta.
+
+**2. Sponsor / partner confirmado**
+- **Portada:** "CON EL APOYO DE" · logo de la marca · "Paquete N".
+- **Lámina 2:** qué hace la marca, en 1 línea.
+- **Lámina 3:** dónde vive dentro del Summit: núcleo 3D, juego, transmisión o Día 3 (con una captura de la app).
+- **Caption:** "Gracias a [Marca] por ser parte del Spatialgineers Summit 2026. [1 línea]. Encuéntrala dentro de la app. Link en bio. #SpatialgineersSummit"
+- **Publicar** como Collab con la marca, y **solo** cuando el acuerdo esté firmado.
+
+**3. Artista confirmado**
+- **Portada:** "ARTISTA CONFIRMADO" · su Highbot o arte · nombre.
+- **Lámina 2:** día y bloque del programa.
+- **Caption:** igual que el de speaker, con "en el escenario".
+
+**4. Medio de prensa acreditado** (opcional, si el medio quiere)
+- **Lámina única:** "COBERTURA OFICIAL" · logo del medio · "Acreditado para los 3 días".
+
+**5. Initiate del Guild (Top 6)**
+- **Portada:** "TOP 6 · SGX GUILD" · su Highbot · nombre · pilar.
+- **Lámina 2:** su proyecto en 1 línea · "Presenta en el Día 3".
+
+**6. Agenda del día** (víspera de cada día del Summit)
+- **Lámina 1:** "DÍA N · [nombre del día]".
+- **Láminas 2–4:** bloques con hora, sacados del Run of Show de la app.
+- **Lámina 5:** dónde verlo (YouTube Live o Chroma).
+
+**7. Cuenta regresiva**
+- **Lámina única:** el número gigante "FALTAN N DÍAS" sobre el núcleo 3D · la fecha · "link en bio".
+- **Uso:** los hitos (30, 21, 14, 7, 3 y 1 días).

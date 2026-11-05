@@ -1858,6 +1858,14 @@ var SUMMIT_DEADLINES = {
     label: { es: "1 de diciembre de 2026", en: "December 1, 2026" },
     short: { es: "1 dic", en: "Dec 1" },
     day: { es: "1 de diciembre", en: "December 1" }
+  },
+  /** Speakers: the technical test with the team happens before December 8 (the production
+      dress rehearsal). Read as "antes del 8 de diciembre", like the press date. */
+  speakerTechCheck: {
+    closesAt: "2026-12-08T00:00:00-04:00",
+    label: { es: "8 de diciembre de 2026", en: "December 8, 2026" },
+    short: { es: "8 dic", en: "Dec 8" },
+    day: { es: "8 de diciembre", en: "December 8" }
   }
 };
 var deadlineMs = (key) => Date.parse(SUMMIT_DEADLINES[key].closesAt);
@@ -1891,6 +1899,10 @@ var DEADLINE_COPY = {
   day3Requests: {
     es: `Las solicitudes para el D\xEDa 3 se reciben hasta el ${D.day3Requests.day.es}.`,
     en: `Day 3 requests are accepted through ${D.day3Requests.day.en}.`
+  },
+  speakerTechCheck: {
+    es: `Prueba t\xE9cnica con el equipo antes del ${D.speakerTechCheck.day.es}; el d\xEDa de tu bloque te conectas 30 minutos antes.`,
+    en: `Technical test with the team before ${D.speakerTechCheck.day.en}; on the day of your block you connect 30 minutes early.`
   },
   day3Invitations: {
     es: `El equipo env\xEDa las invitaciones al D\xEDa 3 a m\xE1s tardar el ${D.day3Invitations.day.es}.`,
@@ -1966,7 +1978,7 @@ var SGX_PILLARS = [
       { day: 1, time: "11:50 AM\u201312:05 PM", label: { es: "Artista invitado (por anunciar)", en: "Guest artist (to be announced)" } },
       { day: 1, time: "12:05\u201312:30 PM", label: { es: "Bloque SGX.Spark", en: "SGX.Spark block" } },
       { day: 2, time: "12:20\u20131:05 PM", label: { es: "Conversaci\xF3n de industria SGX.Spark", en: "SGX.Spark industry conversation" } },
-      { day: 3, time: "2:00\u20133:30 PM", label: { es: "Interacci\xF3n libre: demos y Roblox", en: "Free interaction: demos and Roblox" } }
+      { day: 3, time: "2:00\u20133:30 PM", label: { es: "Entrepreneurship Match: networking, demos y Roblox", en: "Entrepreneurship Match: networking, demos and Roblox" } }
     ],
     modules: [
       { kind: "section", key: "EMBEDS_GAMES", icon: Gamepad2, label: { es: "Juegos y laboratorios", en: "Games & labs" }, desc: { es: "Dron SGX, Torre de Pilares, Pulso SGX y Rayo en tus manos. Juega y gana XP.", en: "SGX Drone, Pillar Tower, SGX Pulse and Bolt in your hands. Play and earn XP." } },
@@ -2837,18 +2849,18 @@ var INITIAL_SUMMIT_SESSIONS = [
     startTime: "2:00 PM",
     endTime: "3:30 PM",
     startMinutes: 840,
-    title: "Interacci\xF3n Libre \u2014 Initiates, Demos & Roblox",
-    titleEn: "Open Interaction \u2014 Initiates, Demos & Roblox",
-    subtitle: "Sesi\xF3n abierta para explorar demos en vivo, conversar con los Initiates y recorrer el espacio de Roblox (90 min). Din\xE1mica por anunciar",
-    subtitleEn: "Open session to explore live demos, talk with the Initiates and tour the Roblox space (90 min). Format TBA",
-    description: "Espacio de interacci\xF3n libre donde los invitados en San Juan y los participantes en l\xEDnea prueban las demos de Spatialgineers, conversan directamente con los Initiates del Guild y participan dentro del entorno de Roblox.",
-    descriptionEn: "Open interaction space where guests in San Juan and online participants try Spatialgineers demos, talk directly with the Guild Initiates and join in inside the Roblox environment.",
+    title: "Entrepreneurship Match \u2014 Networking por pilares, demos e Initiates",
+    titleEn: "Entrepreneurship Match \u2014 Networking by pillar, demos and Initiates",
+    subtitle: "Primero una sesi\xF3n r\xE1pida de Entrepreneurship Match: grupos por pilar de inter\xE9s, ideas de conversaci\xF3n y parejas por intereses. Despu\xE9s, networking general con demos e Initiates (90 min)",
+    subtitleEn: "First a quick Entrepreneurship Match session: groups by pillar of interest, conversation ideas and pairs by shared interests. Then open networking with demos and Initiates (90 min)",
+    description: "Actividades de networking. Primero, una sesi\xF3n r\xE1pida de Entrepreneurship Match: se divide a la gente por pilares de inter\xE9s, se le dan ideas de temas de conversaci\xF3n y se hacen parejas por intereses. Despu\xE9s se pasa a mingling y networking general. El bloque sigue incluyendo a los Initiates, las demos de Spatialgineers y Roblox (si se usa).",
+    descriptionEn: "Networking activities. First, a quick Entrepreneurship Match session: people are grouped by pillar of interest, given conversation topic ideas and paired by shared interests. Then it moves to mingling and open networking. The block still includes the Initiates, the Spatialgineers demos and Roblox (if used).",
     speakerIds: ["spk_danelson", "spk_ricardo"],
     format: "HYBRID",
     venueLocation: "Chroma Space Studios Showroom + Roblox",
     mapNodeId: "node_drone_bay",
-    tags: ["Interacci\xF3n Libre", "Demos en Vivo", "Initiates", "Roblox", "90 Min"],
-    tagsEn: ["Open Interaction", "Live Demos", "Initiates", "Roblox", "90 Min"],
+    tags: ["Entrepreneurship Match", "Networking", "Demos en Vivo", "Initiates", "90 Min"],
+    tagsEn: ["Entrepreneurship Match", "Networking", "Live Demos", "Initiates", "90 Min"],
     status: "UPCOMING"
   },
   {
@@ -2862,8 +2874,8 @@ var INITIAL_SUMMIT_SESSIONS = [
     titleEn: "Closing \u2014 Final Announcements & Grand Prizes",
     subtitle: 'Clausura oficial del Summit 2026: anuncios finales y premios mayores, incluido el Premio Mayor "Spatialgineers activa tu evento" (30 min)',
     subtitleEn: 'Official close of Summit 2026: final announcements and grand prizes, including the Grand Prize "Spatialgineers activa tu evento" (Spatialgineers activates your event) (30 min)',
-    description: 'Cierre oficial del Spatialgineers Summit 2026. Anuncios finales y entrega de los premios mayores: el Premio Mayor "Spatialgineers activa tu evento" (un servicio de Spatialgineers) y la sesi\xF3n "Grit" con artistas (por confirmar).',
-    descriptionEn: 'Official close of the Spatialgineers Summit 2026. Final announcements and the grand prize awards: the Grand Prize "Spatialgineers activa tu evento" (a Spatialgineers service, activating your event) and the "Grit" session with artists (TBC).',
+    description: 'Cierre oficial del Spatialgineers Summit 2026. Anuncios finales y entrega de los premios mayores: el Premio Mayor "Spatialgineers activa tu evento" (un servicio de Spatialgineers).',
+    descriptionEn: 'Official close of the Spatialgineers Summit 2026. Final announcements and the grand prize awards: the Grand Prize "Spatialgineers activa tu evento" (a Spatialgineers service, activating your event).',
     speakerIds: ["spk_danelson", "spk_ricardo"],
     format: "HYBRID",
     venueLocation: "Main Stage + YouTube / LinkedIn / Facebook Live",
@@ -3410,6 +3422,189 @@ function missionPlace(m, es) {
   return key ? es ? "Ir" : "Go" : null;
 }
 
+// src/lib/sponsorTerms.ts
+var SPONSOR_ATH_NAME = "SpatialgineersLLC";
+var SPONSOR_PAYMENT_COMMENT = {
+  es: "Spatialgineers Summit Auspicio [tu marca] Paquete [1\u20135]",
+  en: "Spatialgineers Summit Auspicio [your brand] Paquete [1\u20135]"
+};
+var SPONSOR_LICENSE = {
+  from: { es: "1 de noviembre de 2026", en: "November 1, 2026" },
+  to: { es: "31 de octubre de 2027", en: "October 31, 2027" }
+};
+var SPONSOR_REPORT_DAY = { es: "12 de enero de 2027", en: "January 12, 2027" };
+var SPONSOR_MATERIALS_REVIEW_DAYS = 4;
+var SPONSOR_TERMS_FACTS = [
+  { k: { es: SUMMIT_DEADLINES.sponsorPayment.short.es, en: SUMMIT_DEADLINES.sponsorPayment.short.en }, v: { es: "Pago total", en: "Full payment" } },
+  { k: { es: SUMMIT_DEADLINES.sponsorMaterials.short.es, en: SUMMIT_DEADLINES.sponsorMaterials.short.en }, v: { es: "Materiales de tu marca", en: "Your brand materials" } },
+  { k: { es: `${SPONSOR_MATERIALS_REVIEW_DAYS} d\xEDas`, en: `${SPONSOR_MATERIALS_REVIEW_DAYS} days` }, v: { es: "Aprobaci\xF3n de materiales", en: "Materials review" } },
+  { k: { es: "~12 ene 2027", en: "~Jan 12, 2027" }, v: { es: "Reporte final \xB7 Paquetes 4 y 5", en: "Final report \xB7 Packages 4 and 5" } }
+];
+var SPONSOR_TERMS = [
+  {
+    id: "pago",
+    title: { es: "Formas de pago", en: "How to pay" },
+    lines: [
+      { es: `Pago total a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}, despu\xE9s de firmar el contrato corto de auspicio.`, en: `Full payment no later than ${SUMMIT_DEADLINES.sponsorPayment.day.en}, after signing the short sponsorship contract.` },
+      { es: `ATH M\xF3vil Business a "${SPONSOR_ATH_NAME}".`, en: `ATH M\xF3vil Business to "${SPONSOR_ATH_NAME}".` },
+      { es: "Cheque.", en: "Check." },
+      { es: `Transferencia bancaria: la cuenta se brinda a solicitud (${SUMMIT_CONTACT_EMAIL}).`, en: `Bank transfer: the account is provided on request (${SUMMIT_CONTACT_EMAIL}).` },
+      { es: `En el comentario del pago escribe: "${SPONSOR_PAYMENT_COMMENT.es}".`, en: `In the payment comment write: "${SPONSOR_PAYMENT_COMMENT.en}".` },
+      { es: `Paquetes 4 y 5: pueden pagar en dos plazos si hace falta. Los plazos se coordinan con el equipo y el total queda pagado a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}.`, en: `Packages 4 and 5: may pay in two installments if needed. Installments are coordinated with the team and the total is paid no later than ${SUMMIT_DEADLINES.sponsorPayment.day.en}.` }
+    ]
+  },
+  {
+    id: "precio",
+    title: { es: "Precio e IVU", en: "Price and sales tax (IVU)" },
+    lines: [
+      { es: "El precio exacto dentro de cada rango se acuerda seg\xFAn el presupuesto del sponsor.", en: "The exact price within each range is agreed based on the sponsor's budget." },
+      { es: "El precio acordado es el que se paga: Spatialgineers no cobra IVU por separado.", en: "The agreed price is the price you pay: Spatialgineers does not charge IVU (Puerto Rico sales tax) separately." }
+    ]
+  },
+  {
+    id: "materiales",
+    title: { es: "Materiales de tu marca", en: "Your brand materials" },
+    lines: [
+      { es: `Env\xEDa tu logo, video o mensaje a ${SUMMIT_CONTACT_EMAIL} a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorMaterials.day.es}, en los formatos que te indique el equipo.`, en: `Send your logo, video or message to ${SUMMIT_CONTACT_EMAIL} no later than ${SUMMIT_DEADLINES.sponsorMaterials.day.en}, in the formats the team gives you.` },
+      { es: `Spatialgineers aprueba o comenta tus materiales dentro de ${SPONSOR_MATERIALS_REVIEW_DAYS} d\xEDas calendario despu\xE9s de recibirlos.`, en: `Spatialgineers approves or comments on your materials within ${SPONSOR_MATERIALS_REVIEW_DAYS} calendar days after receiving them.` },
+      { es: "La integraci\xF3n final en la webapp, el ticker y los overlays de la transmisi\xF3n se hace despu\xE9s de esa entrega.", en: "The final integration in the web app, the ticker and the broadcast overlays happens after that delivery." }
+    ]
+  },
+  {
+    id: "categorias",
+    title: { es: "Categor\xEDas no permitidas", en: "Categories not accepted" },
+    lines: [
+      { es: "No se aceptan sponsors de pol\xEDtica partidista ni de alcohol. No habr\xE1 sponsor de alcohol en absoluto.", en: "We do not accept partisan political or alcohol sponsors. There will be no alcohol sponsor at all." }
+    ]
+  },
+  {
+    id: "exclusividad",
+    title: { es: "Exclusividad por categor\xEDa", en: "Category exclusivity" },
+    lines: [
+      { es: "Solo en los Paquetes 4 y 5: una sola marca de su sector.", en: "Packages 4 and 5 only: one brand per sector." }
+    ]
+  },
+  {
+    id: "licencia",
+    title: { es: "Licencia de 365 d\xEDas (Paquetes 4 y 5)", en: "365-day license (Packages 4 and 5)" },
+    lines: [
+      { es: `Acceso a la webapp y a sus espacios de promoci\xF3n y contenido en redes cada vez que se publique algo del Summit, por 365 d\xEDas: del ${SPONSOR_LICENSE.from.es} al ${SPONSOR_LICENSE.to.es}.`, en: `Access to the web app and its promotion and social content spaces every time something about the Summit is published, for 365 days: from ${SPONSOR_LICENSE.from.en} to ${SPONSOR_LICENSE.to.en}.` },
+      { es: "Es una licencia de acceso: no hay transferencia de c\xF3digo.", en: "It is an access license: no code is transferred." },
+      { es: "Paquete 4: derecho de primera renovaci\xF3n para el Summit 2027 en el mismo paquete. La oferta vence 30 d\xEDas despu\xE9s del Summit 2026.", en: "Package 4: first right of renewal for the 2027 Summit in the same package. The offer expires 30 days after the 2026 Summit." }
+    ]
+  },
+  {
+    id: "reporte",
+    title: { es: "Reporte final y cifras", en: "Final report and numbers" },
+    lines: [
+      { es: `Paquetes 4 y 5: reporte final alrededor del ${SPONSOR_REPORT_DAY.es} (30 d\xEDas despu\xE9s del \xFAltimo d\xEDa del Summit), con vistas, asistencia, clics y participaci\xF3n, sin datos personales.`, en: `Packages 4 and 5: a final report around ${SPONSOR_REPORT_DAY.en} (30 days after the last day of the Summit), with views, attendance, clicks and participation, with no personal data.` },
+      { es: "No se garantizan cifras: Spatialgineers no garantiza un n\xFAmero de vistas, asistentes ni clics. El reporte entrega las cifras reales.", en: "No numbers are guaranteed: Spatialgineers does not guarantee a number of views, attendees or clicks. The report gives the actual figures." }
+    ]
+  },
+  {
+    id: "cancelacion",
+    title: { es: "Cancelaci\xF3n y reembolso", en: "Cancellation and refunds" },
+    lines: [
+      { es: "Si Spatialgineers cancela por causas que puede controlar, devuelve lo pagado.", en: "If Spatialgineers cancels for reasons it can control, it refunds what was paid." },
+      { es: "Si el evento se afecta por causas fuera de su control, Spatialgineers informa el dinero ya invertido y devuelve el restante seg\xFAn las aportaciones, u ofrece otros beneficios dentro de la plataforma durante el a\xF1o.", en: "If the event is affected for reasons beyond its control, Spatialgineers reports the money already invested and returns the remainder according to contributions, or offers other benefits on the platform during the year." }
+    ]
+  },
+  {
+    id: "fuerza-mayor",
+    title: { es: "Fuerza mayor", en: "Force majeure" },
+    lines: [
+      { es: "Huracanes, cortes de energ\xEDa o internet y ca\xEDdas de plataformas de terceros (como YouTube).", en: "Hurricanes, power or internet outages and outages of third-party platforms (such as YouTube)." }
+    ]
+  },
+  {
+    id: "dia-3",
+    title: { es: "Si el D\xEDa 3 no puede hacerse en el venue", en: "If Day 3 cannot happen at the venue" },
+    lines: [
+      { es: "El SGX Showcase no se cancela: si el D\xEDa 3 presencial no puede realizarse en el venue, se pospone o se hace virtual. Los D\xEDas 1 y 2 digitales siguen.", en: "The SGX Showcase is not cancelled: if the in-person Day 3 cannot take place at the venue, it is postponed or held virtually. The digital Days 1 and 2 go on." }
+    ]
+  },
+  {
+    id: "contrato",
+    title: { es: "El contrato manda", en: "The contract governs" },
+    lines: [
+      { es: "Esta p\xE1gina y el dossier de auspicio no son una oferta vinculante. Rige el contrato corto de auspicio firmado por ambas partes.", en: "This page and the sponsorship dossier are not a binding offer. The short sponsorship contract signed by both parties governs." },
+      { es: "Si el espa\xF1ol y el ingl\xE9s no coinciden, rige el espa\xF1ol.", en: "If the Spanish and English texts differ, the Spanish text governs." }
+    ]
+  }
+];
+var SPONSOR_TERMS_SUMMARY = {
+  es: `Pago total a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es} por ATH M\xF3vil Business, cheque o transferencia (cuenta a solicitud); materiales a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorMaterials.day.es}. IVU, cancelaci\xF3n, licencia de los Paquetes 4 y 5 y m\xE1s: en "T\xE9rminos y log\xEDstica".`,
+  en: `Full payment no later than ${SUMMIT_DEADLINES.sponsorPayment.day.en} by ATH M\xF3vil Business, check or transfer (account on request); materials no later than ${SUMMIT_DEADLINES.sponsorMaterials.day.en}. Sales tax, cancellation, the Package 4 and 5 license and more: in "Terms and logistics".`
+};
+function sponsorTermsPrompt() {
+  return SPONSOR_TERMS.map((t) => `- ${t.title.es}: ${t.lines.map((l) => l.es).join(" ")}`).join("\n");
+}
+
+// src/lib/speakerGuide.ts
+var SPEAKER_BIO_WORDS = { min: 50, max: 80 };
+var SPEAKER_PHOTO_MIN_PX = 1500;
+var SPEAKER_SEND = [
+  { where: "portal", text: { es: `Bio de ${SPEAKER_BIO_WORDS.min} a ${SPEAKER_BIO_WORDS.max} palabras en espa\xF1ol (y en ingl\xE9s, si prefieres).`, en: `A ${SPEAKER_BIO_WORDS.min} to ${SPEAKER_BIO_WORDS.max} word bio in Spanish (and in English, if you like).` } },
+  { where: "portal", text: { es: "Tu usuario de Instagram, LinkedIn o el canal que prefieras, para etiquetarte.", en: "Your Instagram, LinkedIn or preferred channel handle, so we can tag you." } },
+  { where: "portal", text: { es: "Logo de tu empresa o proyecto, si aplica (como enlace).", en: "Your company or project logo, if any (as a link)." } },
+  { where: "portal", text: { es: "(Opcional) 2 o 3 ideas clave para la audiencia: alimentan las preguntas de votaci\xF3n.", en: "(Optional) 2 or 3 key ideas for the audience: they feed the voting questions." } },
+  { where: "email", text: { es: `Foto en alta resoluci\xF3n (m\xEDnimo ${SPEAKER_PHOTO_MIN_PX} px).`, en: `A high-resolution photo (at least ${SPEAKER_PHOTO_MIN_PX} px).` } },
+  { where: "email", text: { es: "Datos t\xE9cnicos: ciudad, zona horaria, equipo y conexi\xF3n.", en: "Technical details: city, time zone, equipment and connection." } }
+];
+var SPEAKER_SESSION = {
+  parts: [
+    { min: 5, label: { es: "para presentarte", en: "to introduce yourself" } },
+    { min: 30, label: { es: "de conversaci\xF3n guiada", en: "of guided conversation" } },
+    { min: 10, label: { es: "de preguntas del chat", en: "of questions from the chat" } }
+  ],
+  lines: [
+    { es: "D\xEDa 2, s\xE1bado 12 de diciembre: una conversaci\xF3n de 45 minutos por pilar SGX, por YouTube Live. Cada pilar tiene 1 o 2 speakers.", en: "Day 2, Saturday, December 12: one 45-minute conversation per SGX pillar, on YouTube Live. Each pillar has 1 or 2 speakers." },
+    { es: "Es una conversaci\xF3n, no una charla. Si quieres mostrar video o demo, av\xEDsanos antes.", en: "It is a conversation, not a talk. If you want to show a video or a demo, tell us in advance." },
+    { es: "Participas 100% remoto. Todo va en hora de Puerto Rico (AST, UTC-4); el D\xEDa 2 empieza a las 10:00 a.m.", en: "You take part 100% remotely. Everything is in Puerto Rico time (AST, UTC-4); Day 2 starts at 10:00 a.m." },
+    { es: "Si tu bloque es otro d\xEDa (por ejemplo, como artista), el equipo te confirma el formato por escrito.", en: "If your block is on another day (for example, as an artist), the team confirms the format in writing." }
+  ]
+};
+var SPEAKER_TECH = [
+  { es: `Despu\xE9s de tu confirmaci\xF3n coordinamos una prueba t\xE9cnica antes del ${SUMMIT_DEADLINES.speakerTechCheck.day.es}. Ricardo coordina lo t\xE9cnico.`, en: `After you confirm, we schedule a technical test before ${SUMMIT_DEADLINES.speakerTechCheck.day.en}. Ricardo handles the technical side.` },
+  { es: "El d\xEDa de tu bloque, con\xE9ctate 30 minutos antes.", en: "On the day of your block, connect 30 minutes early." },
+  { es: "Recomendado: internet por cable, auriculares, c\xE1mara a la altura de los ojos, luz frontal, fondo ordenado y datos m\xF3viles de respaldo.", en: "Recommended: wired internet, headphones, camera at eye level, front light, a tidy background and mobile data as backup." }
+];
+var SPEAKER_RULES = [
+  { es: "Casos reales, resultados y aprendizajes. Sin pitch de ventas en tu bloque.", en: "Real cases, results and lessons. No sales pitch in your block." },
+  { es: "Hablamos de spatial computing.", en: "We talk about spatial computing." },
+  { es: "En espa\xF1ol los tres d\xEDas; las redes y YouTube pueden traducir y subtitular.", en: "In Spanish all three days; social channels and YouTube may translate and caption." },
+  { es: "Lenguaje inclusivo.", en: "Inclusive language." },
+  { es: "Sin m\xFAsica con derechos de autor (solo con licencia o libre de derechos).", en: "No copyrighted music (only licensed or royalty-free)." },
+  { es: "Sin datos confidenciales de clientes.", en: "No confidential client data." }
+];
+var SPEAKER_RECEIVE = [
+  { es: "Nunca publicamos tu nombre antes de tu confirmaci\xF3n por escrito.", en: "We never publish your name before your written confirmation." },
+  { es: "Ya confirmado: te presentamos en redes y en la p\xE1gina de speakers, y tu pase se vuelve tu Holo Card de speaker.", en: "Once confirmed: we introduce you on social media and on the speakers page, and your pass becomes your speaker Holo Card." },
+  { es: "Coordinamos contigo antes de publicar cortes.", en: "We check with you before publishing clips." },
+  { es: "Recibes tu briefing con horario y preguntas.", en: "You get your briefing with the schedule and questions." },
+  { es: "Votaci\xF3n gamificada tipo Kahoot: tu audiencia vota en las pausas del D\xEDa 2 y nosotros la operamos.", en: "Kahoot-style gamified voting: your audience votes in the Day 2 breaks and we run it." }
+];
+var SPEAKER_ROUTE = [
+  { when: { es: `Hasta el ${SUMMIT_DEADLINES.speakerProfiles.short.es}`, en: `By ${SUMMIT_DEADLINES.speakerProfiles.short.en}` }, what: { es: `Tu perfil en el Portal de speakers. ${DEADLINE_COPY.speakerProfiles.es}`, en: `Your profile in the Speaker portal. ${DEADLINE_COPY.speakerProfiles.en}` } },
+  { when: { es: "Con tu confirmaci\xF3n", en: "With your confirmation" }, what: { es: `Foto y datos t\xE9cnicos a ${SUMMIT_CONTACT_EMAIL}; recibes tu briefing.`, en: `Photo and technical details to ${SUMMIT_CONTACT_EMAIL}; you get your briefing.` } },
+  { when: { es: `Antes del ${SUMMIT_DEADLINES.speakerTechCheck.short.es}`, en: `Before ${SUMMIT_DEADLINES.speakerTechCheck.short.en}` }, what: { es: "Prueba t\xE9cnica con el equipo.", en: "Technical test with the team." } },
+  { when: { es: "12 dic", en: "Dec 12" }, what: { es: "Tu conversaci\xF3n: con\xE9ctate 30 minutos antes.", en: "Your conversation: connect 30 minutes early." } }
+];
+var SPEAKER_GUIDE_SUMMARY = {
+  es: `D\xEDa 2: 45 minutos por pilar (5 de presentaci\xF3n, 30 de conversaci\xF3n y 10 de preguntas), 100% remoto. Bio de ${SPEAKER_BIO_WORDS.min} a ${SPEAKER_BIO_WORDS.max} palabras, foto de ${SPEAKER_PHOTO_MIN_PX} px o m\xE1s y datos t\xE9cnicos; prueba t\xE9cnica antes del ${SUMMIT_DEADLINES.speakerTechCheck.day.es} y conexi\xF3n 30 minutos antes.`,
+  en: `Day 2: 45 minutes per pillar (5 to introduce, 30 of conversation and 10 of questions), 100% remote. A ${SPEAKER_BIO_WORDS.min} to ${SPEAKER_BIO_WORDS.max} word bio, a photo of ${SPEAKER_PHOTO_MIN_PX} px or more and technical details; technical test before ${SUMMIT_DEADLINES.speakerTechCheck.day.en} and connect 30 minutes early.`
+};
+function speakerGuidePrompt() {
+  const send = SPEAKER_SEND.map((i) => `${i.text.es}${i.where === "email" ? ` (por correo a ${SUMMIT_CONTACT_EMAIL})` : " (en el Portal de speakers)"}`).join(" ");
+  return [
+    `- Qu\xE9 enviar: ${send}`,
+    `- La sesi\xF3n: ${SPEAKER_SESSION.lines.map((l) => l.es).join(" ")} Estructura: ${SPEAKER_SESSION.parts.map((p) => `${p.min} min ${p.label.es}`).join(", ")}.`,
+    `- Lo t\xE9cnico: ${SPEAKER_TECH.map((l) => l.es).join(" ")}`,
+    `- Reglas de tono: ${SPEAKER_RULES.map((l) => l.es).join(" ")}`,
+    `- Qu\xE9 recibe: ${SPEAKER_RECEIVE.map((l) => l.es).join(" ")}`
+  ].join("\n");
+}
+
 // src/companion/appGuide.ts
 var FIXED_MISSIONS = REACTOR_MISSIONS.length;
 var APP_FAQ = [
@@ -3573,6 +3768,20 @@ var APP_FAQ = [
     go: "portal-speakers"
   },
   {
+    id: "sponsor-terms",
+    keys: ["terminos", "logistica", "como pago", "forma de pago", "formas de pago", "ath", "ath movil", "cheque", "transferencia", "ivu", "impuesto", "cancelacion", "cancelar", "cancelan", "cancela", "cancelado", "pospone", "reembolso", "devolucion", "fuerza mayor", "huracan", "licencia", "reporte", "exclusividad", "alcohol", "politica", "categorias", "plazos", "contrato", "terms", "logistics", "refund", "cancel", "tax", "license", "report", "exclusivity", "installments"],
+    q: { es: "\xBFC\xF3mo pago el auspicio y qu\xE9 condiciones hay?", en: "How do I pay for a sponsorship and what are the terms?" },
+    a: { es: `Pago total a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es} por ATH M\xF3vil Business a "${SPONSOR_ATH_NAME}", cheque o transferencia (la cuenta se da a solicitud). En el comentario: "${SPONSOR_PAYMENT_COMMENT.es}". Paquetes 4 y 5 pueden pagar en dos plazos coordinados con el equipo. No se cobra IVU por separado. Materiales a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorMaterials.day.es}, aprobados en ${SPONSOR_MATERIALS_REVIEW_DAYS} d\xEDas calendario. No se aceptan sponsors de pol\xEDtica partidista ni de alcohol. Licencia de Paquetes 4 y 5: ${SPONSOR_LICENSE.from.es} al ${SPONSOR_LICENSE.to.es}, sin transferencia de c\xF3digo; reporte final alrededor del ${SPONSOR_REPORT_DAY.es}. Cancelaci\xF3n, fuerza mayor y el D\xEDa 3: todo en "T\xE9rminos y log\xEDstica" de la p\xE1gina de sponsors. Rige el contrato firmado.`, en: `Full payment no later than ${SUMMIT_DEADLINES.sponsorPayment.day.en} by ATH M\xF3vil Business to "${SPONSOR_ATH_NAME}", check or transfer (account on request). Payment comment: "${SPONSOR_PAYMENT_COMMENT.en}". Packages 4 and 5 may pay in two installments coordinated with the team. No separate sales tax (IVU). Materials no later than ${SUMMIT_DEADLINES.sponsorMaterials.day.en}, reviewed within ${SPONSOR_MATERIALS_REVIEW_DAYS} calendar days. No partisan political or alcohol sponsors. Package 4 and 5 license: ${SPONSOR_LICENSE.from.en} to ${SPONSOR_LICENSE.to.en}, no code transfer; final report around ${SPONSOR_REPORT_DAY.en}. Cancellation, force majeure and Day 3: all in "Terms and logistics" on the sponsors page. The signed contract governs.` },
+    go: "sponsors"
+  },
+  {
+    id: "speaker-guide",
+    keys: ["guia del speaker", "guia speaker", "que envio", "que necesito enviar", "bio", "biografia", "foto", "prueba tecnica", "conectarme", "mi sesion", "mi conversacion", "cuanto dura", "musica", "speaker guide", "what do i send", "photo", "tech check", "rehearsal", "my session", "how long"],
+    q: { es: "Soy speaker: \xBFqu\xE9 env\xEDo y c\xF3mo es mi sesi\xF3n?", en: "I am a speaker: what do I send and how does my session run?" },
+    a: { es: `Bio de ${SPEAKER_BIO_WORDS.min} a ${SPEAKER_BIO_WORDS.max} palabras, tus redes y tu logo en el Portal de speakers; foto de ${SPEAKER_PHOTO_MIN_PX} px o m\xE1s y datos t\xE9cnicos (ciudad, zona horaria, equipo y conexi\xF3n) a info@spatialgineers.com. El D\xEDa 2 cada pilar tiene 45 minutos: 5 para presentarte, 30 de conversaci\xF3n guiada y 10 de preguntas del chat, 100% remoto. Prueba t\xE9cnica antes del ${SUMMIT_DEADLINES.speakerTechCheck.day.es} y te conectas 30 minutos antes. Casos reales y aprendizajes, sin pitch de ventas ni m\xFAsica con derechos de autor. Todo est\xE1 en la Gu\xEDa del speaker del portal y en /bienvenida/speaker.`, en: `A ${SPEAKER_BIO_WORDS.min} to ${SPEAKER_BIO_WORDS.max} word bio, your social handles and your logo in the Speaker portal; a photo of ${SPEAKER_PHOTO_MIN_PX} px or more and technical details (city, time zone, equipment and connection) to info@spatialgineers.com. On Day 2 each pillar has 45 minutes: 5 to introduce yourself, 30 of guided conversation and 10 of chat questions, 100% remote. Technical test before ${SUMMIT_DEADLINES.speakerTechCheck.day.en} and connect 30 minutes early. Real cases and lessons, no sales pitch and no copyrighted music. It is all in the Speaker guide in the portal and at /bienvenida/speaker.` },
+    go: "portal-speakers"
+  },
+  {
     id: "partners",
     keys: ["partners", "aliados", "los mismos", "chroma space", "tu marca aqui", "marcas"],
     q: { es: "\xBFQui\xE9nes son los partners?", en: "Who are the partners?" },
@@ -3705,7 +3914,14 @@ var DEADLINES = `## Fechas l\xEDmite (hora de Puerto Rico)
 - Pago total y materiales de la marca (sponsors): a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es}.
 - Acreditaci\xF3n de prensa: antes del ${SUMMIT_DEADLINES.pressAccreditation.day.es}.
 - Solicitudes para el D\xEDa 3 (presencial, por invitaci\xF3n): hasta el ${SUMMIT_DEADLINES.day3Requests.day.es}.
-- Invitaciones al D\xEDa 3: el equipo las env\xEDa a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}.`;
+- Invitaciones al D\xEDa 3: el equipo las env\xEDa a m\xE1s tardar el ${SUMMIT_DEADLINES.day3Invitations.day.es}.
+- Speakers: prueba t\xE9cnica con el equipo antes del ${SUMMIT_DEADLINES.speakerTechCheck.day.es}; el d\xEDa de su bloque se conectan 30 minutos antes.`;
+var SPONSOR_TERMS_BLOCK = `## Sponsors: t\xE9rminos y log\xEDstica
+Todo est\xE1 en la p\xE1gina de sponsors, secci\xF3n "T\xE9rminos y log\xEDstica" (summit.spatialgineers.com/sponsors#terminos; ir_a: sponsors), y tambi\xE9n en /bienvenida/sponsor. Si preguntan por pago, IVU, materiales, cancelaci\xF3n, licencia o reporte, contesta con esto y ll\xE9valos ah\xED. El contrato corto de auspicio firmado manda sobre cualquier resumen. Para la cuenta de banco, el contrato o lo que no est\xE9 aqu\xED: info@spatialgineers.com.
+${sponsorTermsPrompt()}`;
+var SPEAKER_GUIDE_BLOCK = `## Speakers: gu\xEDa del speaker
+Est\xE1 en el Portal de speakers (antes y despu\xE9s de enviar el perfil, y como pr\xF3ximos pasos cuando el equipo lo aprueba) y en /bienvenida/speaker#guia (ir_a: portal-speakers). La foto en alta resoluci\xF3n y los datos t\xE9cnicos se env\xEDan por correo a info@spatialgineers.com: el portal no recibe fotos (en la app la imagen es el avatar SGX).
+${speakerGuidePrompt()}`;
 var EVENT = `## Spatialgineers Summit 2026: lo esencial
 - Fechas: 11, 12 y 13 de diciembre de 2026. En espa\xF1ol.
 - D\xEDas 1 y 2: 100% digitales y gratis por YouTube Live (canal principal, https://www.youtube.com/@spatialgineers), tambi\xE9n en LinkedIn y Facebook Live; Los Mismos TV transmite junto a Spatialgineers. El D\xEDa 1 hay artistas invitados present\xE1ndose dentro de Roblox.
@@ -3788,6 +4004,10 @@ function buildSystemPrompt(live) {
 ${EVENT}${partners}
 
 ${DEADLINES}
+
+${SPONSOR_TERMS_BLOCK}
+
+${SPEAKER_GUIDE_BLOCK}
 
 ${SPATIALGINEERS}
 
@@ -4747,10 +4967,13 @@ var WELCOME_ROLE_COPY = {
       { when: { es: `Hasta el ${SUMMIT_DEADLINES.speakerProfiles.short.es}`, en: `By ${SUMMIT_DEADLINES.speakerProfiles.short.en}` }, title: { es: "Registra tu perfil", en: "Register your profile" }, body: { es: `En el Portal de speakers: nombre o nombre art\xEDstico, rol, organizaci\xF3n, d\xEDa, pilar SGX, biograf\xEDa y enlaces. ${DEADLINE_COPY.speakerProfiles.es} Despu\xE9s el portal se cierra.`, en: `In the Speaker portal: name or artist name, role, organization, day, SGX pillar, bio and links. ${DEADLINE_COPY.speakerProfiles.en} After that the portal closes.` } },
       { when: { es: "En el registro", en: "While registering" }, title: { es: "Arma tu avatar", en: "Build your avatar" }, body: { es: "En el Summit todos aparecen con su avatar SGX. Con \xE9l se arma tu Holo Card de speaker.", en: "Everyone in the Summit appears with their SGX avatar. It becomes your speaker Holo Card." } },
       { when: { es: "Tras la revisi\xF3n", en: "After review" }, title: { es: "Confirmaci\xF3n por escrito", en: "Written confirmation" }, body: { es: "El equipo revisa tu perfil y te escribe al confirmar tu participaci\xF3n. Solo entonces aparece en el directorio.", en: "The team reviews your profile and writes to you once your participation is confirmed. Only then does it appear in the directory." } },
+      { when: { es: `Antes del ${SUMMIT_DEADLINES.speakerTechCheck.short.es}`, en: `Before ${SUMMIT_DEADLINES.speakerTechCheck.short.en}` }, title: { es: "Prueba t\xE9cnica", en: "Technical test" }, body: { es: `${DEADLINE_COPY.speakerTechCheck.es} La gu\xEDa del speaker, m\xE1s abajo, tiene lo que debes enviar y c\xF3mo es tu sesi\xF3n.`, en: `${DEADLINE_COPY.speakerTechCheck.en} The speaker guide, below, has what to send and how your session runs.` } },
       { when: { es: "11\u201313 dic", en: "Dec 11\u201313" }, title: { es: "Tu d\xEDa en el Summit", en: "Your day at the Summit" }, body: { es: "D\xEDa 1 (vie 11): digital, pilares e Initiates. D\xEDa 2 (s\xE1b 12): digital, D\xEDa de la Industria. D\xEDa 3 (dom 13): SGX Showcase en Chroma Space Studios, por invitaci\xF3n.", en: "Day 1 (Fri 11): digital, pillars and Initiates. Day 2 (Sat 12): digital, Industry Day. Day 3 (Sun 13): SGX Showcase at Chroma Space Studios, by invitation." } }
     ],
     faq: [
       { q: { es: "\xBFC\xF3mo me registro como speaker o artista?", en: "How do I register as a speaker or artist?" }, a: { es: `En el Portal de speakers del Summit (summit.spatialgineers.com/portal-speakers): llenas tu perfil, armas tu avatar y lo env\xEDas para revisi\xF3n. ${DEADLINE_COPY.speakerProfiles.es}`, en: `In the Summit Speaker portal (summit.spatialgineers.com/portal-speakers): fill in your profile, build your avatar and send it for review. ${DEADLINE_COPY.speakerProfiles.en}` } },
+      { q: { es: "\xBFQu\xE9 tengo que enviar como speaker?", en: "What do I need to send as a speaker?" }, a: { es: `Una bio de ${SPEAKER_BIO_WORDS.min} a ${SPEAKER_BIO_WORDS.max} palabras, tus redes y tu logo (si aplica) en el Portal de speakers. La foto en alta resoluci\xF3n (m\xEDnimo ${SPEAKER_PHOTO_MIN_PX} px) y los datos t\xE9cnicos (ciudad, zona horaria, equipo y conexi\xF3n) van por correo a info@spatialgineers.com con tu confirmaci\xF3n.`, en: `A ${SPEAKER_BIO_WORDS.min} to ${SPEAKER_BIO_WORDS.max} word bio, your social handles and your logo (if any) in the Speaker portal. The high-resolution photo (at least ${SPEAKER_PHOTO_MIN_PX} px) and the technical details (city, time zone, equipment and connection) go by email to info@spatialgineers.com with your confirmation.` } },
+      { q: { es: "\xBFC\xF3mo es la conversaci\xF3n del D\xEDa 2?", en: "How does the Day 2 conversation run?" }, a: { es: `45 minutos por pilar por YouTube Live, 100% remoto: 5 minutos para presentarte, 30 de conversaci\xF3n guiada y 10 de preguntas del chat. Es una conversaci\xF3n, no una charla, sin pitch de ventas. Prueba t\xE9cnica antes del ${SUMMIT_DEADLINES.speakerTechCheck.day.es}; el d\xEDa de tu bloque te conectas 30 minutos antes.`, en: `45 minutes per pillar on YouTube Live, 100% remote: 5 minutes to introduce yourself, 30 of guided conversation and 10 of chat questions. It is a conversation, not a talk, with no sales pitch. Technical test before ${SUMMIT_DEADLINES.speakerTechCheck.day.en}; on the day of your block you connect 30 minutes early.` } },
       { q: { es: "\xBFCu\xE1ndo aparece mi perfil en el cartel?", en: "When does my profile appear in the lineup?" }, a: { es: "Cuando el equipo confirma tu participaci\xF3n por escrito. Te escribimos al confirmarla.", en: "When the team confirms your participation in writing. We write to you when it is confirmed." } },
       { q: { es: "\xBFQu\xE9 pasa cada d\xEDa del Summit?", en: "What happens on each Summit day?" }, a: { es: "D\xEDa 1 (viernes 11 de diciembre): digital, pilares e Initiates. D\xEDa 2 (s\xE1bado 12): digital, D\xEDa de la Industria. D\xEDa 3 (domingo 13): SGX Showcase en Chroma Space Studios, San Juan, por invitaci\xF3n.", en: "Day 1 (Friday, December 11): digital, pillars and Initiates. Day 2 (Saturday 12): digital, Industry Day. Day 3 (Sunday 13): SGX Showcase at Chroma Space Studios, San Juan, by invitation." } },
       FAQ_PASS
@@ -4780,7 +5003,9 @@ var WELCOME_ROLE_COPY = {
       { q: { es: "\xBFCu\xE1les son las fechas clave para sponsors?", en: "What are the key dates for sponsors?" }, a: { es: `${DEADLINE_COPY.sponsorKeyDates.es} El Summit es del 11 al 13 de diciembre de 2026.`, en: `${DEADLINE_COPY.sponsorKeyDates.en} The Summit runs December 11\u201313, 2026.` } },
       { q: { es: "\xBFEl precio es fijo?", en: "Is the price fixed?" }, a: { es: "No. Cada uno de los 5 paquetes tiene un rango en USD y el precio exacto se acuerda seg\xFAn el presupuesto del sponsor. El Paquete 5 no tiene precio p\xFAblico.", en: "No. Each of the 5 packages has a range in USD and the exact price is agreed based on the sponsor's budget. Package 5 has no public price." } },
       { q: { es: "\xBFGarantizan vistas, asistencia o clics?", en: "Do you guarantee views, attendance or clicks?" }, a: { es: "No. Spatialgineers no garantiza un n\xFAmero de vistas, asistentes ni clics. Los Paquetes 4 y 5 reciben un reporte final a los 30 d\xEDas, sin datos personales.", en: "No. Spatialgineers does not guarantee a number of views, attendees or clicks. Packages 4 and 5 receive a final report at 30 days, with no personal data." } },
-      { q: { es: "\xBFHay exclusividad por categor\xEDa?", en: "Is there category exclusivity?" }, a: { es: "S\xED, en los Paquetes 4 y 5: una sola marca de su sector.", en: "Yes, in Packages 4 and 5: only one brand from your sector." } }
+      { q: { es: "\xBFC\xF3mo se paga el auspicio?", en: "How is the sponsorship paid?" }, a: { es: `Pago total a m\xE1s tardar el ${SUMMIT_DEADLINES.sponsorPayment.day.es} por ATH M\xF3vil Business a "${SPONSOR_ATH_NAME}", cheque o transferencia (la cuenta se brinda a solicitud). En el comentario del pago: "${SPONSOR_PAYMENT_COMMENT.es}". Los Paquetes 4 y 5 pueden pagar en dos plazos coordinados con el equipo. Spatialgineers no cobra IVU por separado.`, en: `Full payment no later than ${SUMMIT_DEADLINES.sponsorPayment.day.en} by ATH M\xF3vil Business to "${SPONSOR_ATH_NAME}", check or bank transfer (account on request). Payment comment: "${SPONSOR_PAYMENT_COMMENT.en}". Packages 4 and 5 may pay in two installments coordinated with the team. Spatialgineers does not charge IVU (sales tax) separately.` } },
+      { q: { es: "\xBFQu\xE9 pasa si el evento se cancela o el D\xEDa 3 no puede hacerse?", en: "What if the event is cancelled or Day 3 cannot happen?" }, a: { es: "Si Spatialgineers cancela por causas que puede controlar, devuelve lo pagado. Si es por causas fuera de su control (huracanes, cortes de energ\xEDa o internet, ca\xEDdas de plataformas), informa lo invertido y devuelve el restante seg\xFAn las aportaciones, u ofrece otros beneficios en la plataforma durante el a\xF1o. Si el D\xEDa 3 presencial no puede hacerse en el venue, se pospone o se hace virtual. Rige el contrato corto de auspicio firmado.", en: "If Spatialgineers cancels for reasons it can control, it refunds what was paid. If it is for reasons beyond its control (hurricanes, power or internet outages, platform outages), it reports what was invested and returns the remainder according to contributions, or offers other benefits on the platform during the year. If in-person Day 3 cannot happen at the venue, it is postponed or held virtually. The signed short sponsorship contract governs." } },
+      { q: { es: "\xBFHay exclusividad por categor\xEDa?", en: "Is there category exclusivity?" }, a: { es: "S\xED, en los Paquetes 4 y 5: una sola marca de su sector. No se aceptan sponsors de pol\xEDtica partidista ni de alcohol.", en: "Yes, in Packages 4 and 5: only one brand from your sector. Partisan political and alcohol sponsors are not accepted." } }
     ]
   },
   prensa: {

@@ -7,6 +7,8 @@ import { APP_CONTROLS_ES, appGuidePrompt } from '../../companion/appGuide';
 import { REACTOR_MISSIONS, missionPlace } from '../../identity/reactor';
 import type { SummitSession, SummitSpeaker } from '../../types/summit';
 import { SUMMIT_DEADLINES as D } from '../../lib/summitDeadlines';
+import { sponsorTermsPrompt } from '../../lib/sponsorTerms';
+import { speakerGuidePrompt } from '../../lib/speakerGuide';
 
 /* What the Highbot companion knows. One long, stable system prompt (persona,
    rules, the event, Spatialgineers, the app map), cached by the API for an
@@ -82,7 +84,16 @@ const DEADLINES = `## Fechas límite (hora de Puerto Rico)
 - Pago total y materiales de la marca (sponsors): a más tardar el ${D.sponsorPayment.day.es}.
 - Acreditación de prensa: antes del ${D.pressAccreditation.day.es}.
 - Solicitudes para el Día 3 (presencial, por invitación): hasta el ${D.day3Requests.day.es}.
-- Invitaciones al Día 3: el equipo las envía a más tardar el ${D.day3Invitations.day.es}.`;
+- Invitaciones al Día 3: el equipo las envía a más tardar el ${D.day3Invitations.day.es}.
+- Speakers: prueba técnica con el equipo antes del ${D.speakerTechCheck.day.es}; el día de su bloque se conectan 30 minutos antes.`;
+
+const SPONSOR_TERMS_BLOCK = `## Sponsors: términos y logística
+Todo está en la página de sponsors, sección "Términos y logística" (summit.spatialgineers.com/sponsors#terminos; ir_a: sponsors), y también en /bienvenida/sponsor. Si preguntan por pago, IVU, materiales, cancelación, licencia o reporte, contesta con esto y llévalos ahí. El contrato corto de auspicio firmado manda sobre cualquier resumen. Para la cuenta de banco, el contrato o lo que no esté aquí: info@spatialgineers.com.
+${sponsorTermsPrompt()}`;
+
+const SPEAKER_GUIDE_BLOCK = `## Speakers: guía del speaker
+Está en el Portal de speakers (antes y después de enviar el perfil, y como próximos pasos cuando el equipo lo aprueba) y en /bienvenida/speaker#guia (ir_a: portal-speakers). La foto en alta resolución y los datos técnicos se envían por correo a info@spatialgineers.com: el portal no recibe fotos (en la app la imagen es el avatar SGX).
+${speakerGuidePrompt()}`;
 
 const EVENT = `## Spatialgineers Summit 2026: lo esencial
 - Fechas: 11, 12 y 13 de diciembre de 2026. En español.
@@ -169,6 +180,10 @@ export function buildSystemPrompt(live: LiveContent): string {
 ${EVENT}${partners}
 
 ${DEADLINES}
+
+${SPONSOR_TERMS_BLOCK}
+
+${SPEAKER_GUIDE_BLOCK}
 
 ${SPATIALGINEERS}
 

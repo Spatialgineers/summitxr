@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Copy, Share2, CheckCircle2, AlertTriangle, UserRound, ArrowLeft, MessageCircle, Send, CalendarClock, Lock, Mail } from 'lucide-react';
+import { Plus, Check, Copy, Share2, CheckCircle2, AlertTriangle, UserRound, ArrowLeft, MessageCircle, Send, CalendarClock, Lock, Mail } from 'lucide-react';
 import { SummitSpeaker, SummitPillarId } from '../../types/summit';
 import { registerSpeakerProfile, playNotificationChime } from '../../lib/summitData';
 import { SGX_PILLARS, bi, findPillar } from '../../lib/sgxPillars';
@@ -14,6 +14,9 @@ import { SgxDialog } from '../common/SgxDialog';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import { ForgeFirst } from '../../identity/ForgeFirst';
 import { DEADLINE_COPY, SUMMIT_CONTACT_EMAIL, isClosed } from '../../lib/summitDeadlines';
+import { SPEAKER_BIO_WORDS, countWords } from '../../lib/speakerGuide';
+import { useHoloCredentials } from '../../identity/credentials';
+import { SpeakerGuide, type SpeakerGuideStage } from './speakers/SpeakerGuide';
 import './sgxModals.css';
 
 /* SPEAKER & ARTIST PORTAL: self-service application. Every person in the
@@ -22,7 +25,31 @@ import './sgxModals.css';
    JPEG). A brand or project logo can be shared as a link.
    Profiles are accepted through the speakerProfiles deadline
    (lib/summitDeadlines); after it the public portal shows a closed note.
-   The admin CMS opens it with `adminMode` and is never blocked. */
+   The admin CMS opens it with `adminMode` and is never blocked.
+   The "Guía del speaker" (lib/speakerGuide.ts) shows in the form (before
+   sending), after sending and, once the team approves, as the next steps. */
+
+/** The speaker guide for this person's moment: before sending, in review or approved (official). */
+const PortalGuide: React.FC<{ sent?: boolean; collapsible?: boolean }> = ({ sent, collapsible }) => {
+  const { language } = useLanguage();
+  const es = language === 'es';
+  const { credentials } = useHoloCredentials();
+  const mine = credentials.find((c) => c.role === 'speaker');
+  const stage: SpeakerGuideStage = mine?.status === 'official' ? 'official' : sent || mine ? 'review' : 'before';
+  const guide = <SpeakerGuide compact stage={stage} idPrefix={`portal-${stage}`} />;
+  if (!collapsible) return guide;
+  return (
+    <div className="sgx-guide sgx-guide--compact"><details className="sgx-guide__item" open={stage === 'official'} data-testid="speaker-guide-toggle">
+      <summary>
+        <h3>{stage === 'official'
+          ? (es ? 'Ya eres speaker oficial · tu guía y lo que sigue' : 'You are an official speaker · your guide and next steps')
+          : (es ? 'Guía del speaker · qué enviar, tu sesión y la prueba técnica' : 'Speaker guide · what to send, your session and the technical test')}</h3>
+        <Plus aria-hidden />
+      </summary>
+      <div className="sgx-guide__body">{guide}</div>
+    </details></div>
+  );
+};
 
 interface SummitSpeakerPortalModalProps {
   isOpen: boolean;
@@ -282,6 +309,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
             </div>
             <p className="sgx-m-p sgx-m-clamp3">{createdSpeaker.bio}</p>
           </div>
+          {!adminMode && <PortalGuide sent />}
         </div>
       </SgxDialog>
     );
@@ -328,6 +356,7 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
             <div>{es ? DEADLINE_COPY.speakerProfiles.es : DEADLINE_COPY.speakerProfiles.en} {es ? 'Se publican solo los confirmados por escrito.' : 'Only those confirmed in writing are published.'}</div>
           </div>
         )}
+        {!adminMode && <PortalGuide collapsible />}
         {submitError && (
           <div className="sgx-m-note sgx-m-note--warn" role="alert">
             <AlertTriangle size={18} aria-hidden />
@@ -376,9 +405,9 @@ export const SummitSpeakerPortalModal: React.FC<SummitSpeakerPortalModalProps> =
             </label>
 
             <label className="sgx-m-field">
-              <span className="sgx-m-row sgx-m-row--between">{es ? 'Biografía y lo que presentarás' : 'Bio and what you will present'} <small className="sgx-m-fine">{bio.length} / 2500</small></span>
+              <span className="sgx-m-row sgx-m-row--between">{es ? 'Biografía y lo que presentarás' : 'Bio and what you will present'} <small className="sgx-m-fine" data-testid="speaker-bio-words">{es ? `${countWords(bio)} palabras · recomendado ${SPEAKER_BIO_WORDS.min}–${SPEAKER_BIO_WORDS.max}` : `${countWords(bio)} words · ${SPEAKER_BIO_WORDS.min}–${SPEAKER_BIO_WORDS.max} recommended`} · {bio.length} / 2500</small></span>
               <textarea className="sgx-m-input" rows={4} maxLength={2500} value={bio} onChange={(e) => setBio(e.target.value)}
-                placeholder={es ? 'Tu trayectoria y tu trabajo en WebXR, computación espacial, shaders o arte generativo…' : 'Your background and your work in WebXR, spatial computing, shaders or generative art…'} />
+                placeholder={es ? 'Tu bio (50 a 80 palabras) y 2 o 3 ideas clave para la audiencia: tu trabajo en WebXR, computación espacial, shaders o arte generativo…' : 'Your bio (50 to 80 words) and 2 or 3 key ideas for the audience: your work in WebXR, spatial computing, shaders or generative art…'} />
             </label>
 
             <fieldset className="sgx-m-stack" style={{ gap: 8, border: 0, margin: 0, padding: 0 }}>

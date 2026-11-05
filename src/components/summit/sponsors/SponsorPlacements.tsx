@@ -30,7 +30,7 @@ export const SponsorPlacements: React.FC = () => {
       </div>
 
       <div className="spx-filter">
-        <div className="sgx-chip-row" role="group" aria-label={es ? 'Ver por nivel' : 'View by package'}>
+        <div className="sgx-chip-row" role="group" aria-label={es ? 'Ver por paquete' : 'View by package'}>
           <button type="button" className="sgx-chip" aria-pressed={tier === null} onClick={() => setTier(null)}>
             {es ? 'Todos' : 'All'}
           </button>

@@ -10,6 +10,8 @@ import { SgxDialog } from '../common/SgxDialog';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import { ForgeFirst } from '../../identity/ForgeFirst';
 import { DEADLINE_COPY, SUMMIT_CONTACT_EMAIL, deadlineLabel, isClosed } from '../../lib/summitDeadlines';
+import { SPONSOR_TERMS_PATH, SPONSOR_TERMS_SUMMARY } from '../../lib/sponsorTerms';
+import { SponsorTermsLink } from './sponsors/SponsorTerms';
 import './sgxModals.css';
 
 /* SPONSOR APPLICATION: tier, company, activations and a message. Inline in the
@@ -175,6 +177,10 @@ ${submittedInquiry.goals.map(g => `  • ${AVAILABLE_GOALS.find(item => item.id 
 MENSAJE / PROPUESTA PERSONALIZADA:
 ${submittedInquiry.customMessage || 'Sin notas adicionales.'}
 
+TÉRMINOS Y LOGÍSTICA:
+${SPONSOR_TERMS_SUMMARY.es}
+${window.location.origin}${SPONSOR_TERMS_PATH}
+
 CONTACTO DIRECTO DE PRODUCCIÓN:
 Correo: info@spatialgineers.com · Teléfono: +1 (787) 445-5284 · @spatialgineers
 Este resumen no es una oferta vinculante. Rige el contrato corto de auspicio firmado por ambas partes.
@@ -198,7 +204,7 @@ COMPANY DETAILS:
 - Website / Link: ${submittedInquiry.websiteUrl || 'N/A'}
 
 SPONSORSHIP DETAILS:
-- Selected Tier: ${submittedInquiry.selectedTierName}
+- Selected Package: ${submittedInquiry.selectedTierName}
 - Estimated Budget: ${submittedInquiry.estimatedBudget || 'N/A'}
 
 SELECTED GOALS AND ACTIVATIONS:
@@ -206,6 +212,10 @@ ${submittedInquiry.goals.map(g => `  • ${AVAILABLE_GOALS.find(item => item.id 
 
 CUSTOM MESSAGE / PROPOSAL:
 ${submittedInquiry.customMessage || 'No additional notes.'}
+
+TERMS AND LOGISTICS:
+${SPONSOR_TERMS_SUMMARY.en}
+${window.location.origin}${SPONSOR_TERMS_PATH}
 
 DIRECT PRODUCTION CONTACT:
 Email: info@spatialgineers.com · Phone: +1 (787) 445-5284 · @spatialgineers
@@ -288,6 +298,10 @@ This summary is not a binding offer. The short sponsorship contract signed by bo
           </ul>
         )}
       </div>
+      <div className="sgx-m-note" data-testid="sponsor-success-terms">
+        <Info size={16} aria-hidden />
+        <div>{es ? SPONSOR_TERMS_SUMMARY.es : SPONSOR_TERMS_SUMMARY.en} <SponsorTermsLink /></div>
+      </div>
     </div>
   );
 
@@ -314,7 +328,7 @@ This summary is not a binding offer. The short sponsorship contract signed by bo
     <form id={formId} onSubmit={handleSubmit} className="sgx-m sgx-m-stack">
       <fieldset className="sgx-m-stack" style={{ border: 0, margin: 0, padding: 0, gap: 10 }}>
         <legend className="sgx-m-row sgx-m-row--between" style={{ width: '100%', marginBottom: 10 }}>
-          <span className="sgx-spn__step"><b>1</b>{es ? 'Elige tu nivel' : 'Pick your package'}</span>
+          <span className="sgx-spn__step"><b>1</b>{es ? 'Elige tu paquete' : 'Pick your package'}</span>
           <span className="sgx-m-fine">{es ? 'Precios en USD' : 'Prices in USD'}</span>
         </legend>
         <div className="sgx-spn__tiers" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 180px), 1fr))' }}>
@@ -394,7 +408,10 @@ This summary is not a binding offer. The short sponsorship contract signed by bo
 
       <div className="sgx-m-note">
         <Info size={16} aria-hidden />
-        <div data-testid="sponsor-deadline">{es ? `${DEADLINE_COPY.sponsorKeyDates.es} También puedes escribir a ${SUMMIT_CONTACT_EMAIL}.` : `${DEADLINE_COPY.sponsorKeyDates.en} You can also write to ${SUMMIT_CONTACT_EMAIL}.`}</div>
+        <div>
+          <div data-testid="sponsor-deadline">{es ? `${DEADLINE_COPY.sponsorKeyDates.es} También puedes escribir a ${SUMMIT_CONTACT_EMAIL}.` : `${DEADLINE_COPY.sponsorKeyDates.en} You can also write to ${SUMMIT_CONTACT_EMAIL}.`}</div>
+          <p style={{ margin: '6px 0 0' }}>{es ? 'Formas de pago, IVU, materiales, cancelación y la licencia de los Paquetes 4 y 5: ' : 'Payment methods, sales tax, materials, cancellation and the Package 4 and 5 license: '}<SponsorTermsLink /></p>
+        </div>
       </div>
 
       {sendError && (
@@ -419,7 +436,7 @@ This summary is not a binding offer. The short sponsorship contract signed by bo
         </div>
         <p className="sgx-m-p">{es
           ? `Si ya enviaste tu solicitud, el equipo te escribe por correo. ${DEADLINE_COPY.sponsorPaymentMaterials.es}`
-          : `If you already applied, the team will email you. ${DEADLINE_COPY.sponsorPaymentMaterials.en}`}</p>
+          : `If you already applied, the team will email you. ${DEADLINE_COPY.sponsorPaymentMaterials.en}`} <SponsorTermsLink /></p>
       </div>
     );
     const closedActions = (

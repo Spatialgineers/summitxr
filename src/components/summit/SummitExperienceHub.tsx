@@ -285,9 +285,9 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
         {
           id: 'mod_rewards_store',
           title: (es ? 'Tienda de Premios Oficiales & Canje XP' : 'Official Prize Store & XP Redemption'),
-          subtitle: (es ? 'Cupones, suscripción 3 meses, sesión Grit y premio mayor' : 'Coupons, 3-month subscription, Grit session and the grand prize'),
+          subtitle: (es ? 'Cupones, suscripción 3 meses y premio mayor' : 'Coupons, 3-month subscription and the grand prize'),
           description:
-            (es ? 'Canjea tus XP por cupones de auspiciadores, 3 meses en plataformas SGX, sesión "Grit" con artistas (por confirmar) o el premio mayor "Spatialgineers activa tu evento".' : 'Redeem your XP for sponsor coupons, 3 months on SGX platforms, a "Grit" session with artists (TBC) or the grand prize "Spatialgineers activa tu evento" (Spatialgineers activates your event).'),
+            (es ? 'Canjea tus XP por cupones de auspiciadores, 3 meses en plataformas SGX o el premio mayor "Spatialgineers activa tu evento".' : 'Redeem your XP for sponsor coupons, 3 months on SGX platforms or the grand prize "Spatialgineers activa tu evento" (Spatialgineers activates your event).'),
           xpReward: (es ? 'PREMIOS XP' : 'XP PRIZES'),
           actionLabel: (es ? 'Abrir Tienda de Premios' : 'Open Prize Store'),
           icon: Trophy,

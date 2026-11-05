@@ -63,32 +63,6 @@ export const INITIAL_REWARDS: GamificationReward[] = [
     updatedAt: Date.now()
   },
   {
-    id: 'reward_grit_session_chroma',
-    title: 'Sesión "Grit" con Artistas (por confirmar)',
-    titleEn: '"Grit" Session with Artists (TBC)',
-    category: 'SERVICE_CONSULTING',
-    description: 'Experiencia "Grit" con artistas. Por confirmar. Se anuncia cuando esté confirmada; hasta entonces no se puede canjear.',
-    descriptionEn: 'A "Grit" experience with artists. To be confirmed. It\'s announced once confirmed; until then it can\'t be redeemed.',
-    xpCost: 1200,
-    originalValueUsd: 'Experiencia (por confirmar)',
-    originalValueUsdEn: 'Experience (TBC)',
-    inventoryCount: 0, // POR CONFIRMAR: not redeemable until confirmed in writing
-    claimedCount: 0,
-    badgeIcon: '🔥',
-    themeColor: '#FFBB00',
-    active: true,
-    accessUrl: 'https://summit.spatialgineers.com',
-    accessCodePrefix: 'SGX-GRIT-',
-    features: [
-      'Sesión "Grit" con artistas: por confirmar',
-      'Los detalles se anuncian solo cuando haya confirmación por escrito'
-    ],
-    featuresEn: ['"Grit" session with artists: to be confirmed', 'Details are announced only once confirmed in writing'],
-    sponsorName: 'Spatialgineers LLC',
-    createdAt: Date.now() - 86400000 * 2,
-    updatedAt: Date.now()
-  },
-  {
     id: 'reward_grand_prize_activate_event',
     title: 'Premio Mayor: "Spatialgineers Activa Tu Evento"',
     titleEn: 'Grand Prize: "Spatialgineers Activa Tu Evento" (Spatialgineers Activates Your Event)',
@@ -122,6 +96,10 @@ export const INITIAL_REWARDS: GamificationReward[] = [
 export const INITIAL_LEADERBOARD: LeaderboardEntry[] = [];
 
 const LOCAL_STORAGE_REWARDS_KEY = 'sgx_gamification_rewards_v2026_10_1';
+/** Rewards that were seeded once but are not confirmed: never listed, even if a copy is still
+    in Firestore or in a visitor's cache. */
+const WITHDRAWN_REWARD_IDS = new Set(['reward_grit_session_chroma']);
+const listed = (items: GamificationReward[]) => items.filter((r) => !WITHDRAWN_REWARD_IDS.has(r.id));
 const LOCAL_STORAGE_REDEEMED_KEY = 'sgx_redeemed_prizes_v2026_10';
 const LOCAL_STORAGE_USER_XP_KEY = 'sgx_user_current_xp';
 
@@ -132,7 +110,7 @@ export async function loadAllRewards(): Promise<GamificationReward[]> {
   try {
     const snap = await getDocs(collection(db, 'gamification_rewards'));
     if (!snap.empty) {
-      const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }) as GamificationReward);
+      const items = listed(snap.docs.map(doc => ({ id: doc.id, ...doc.data() }) as GamificationReward));
       localStorage.setItem(LOCAL_STORAGE_REWARDS_KEY, JSON.stringify(items));
       return withEnTwins(items, INITIAL_REWARDS);
     }
@@ -144,7 +122,7 @@ export async function loadAllRewards(): Promise<GamificationReward[]> {
   try {
     const saved = localStorage.getItem(LOCAL_STORAGE_REWARDS_KEY);
     if (saved) {
-      return withEnTwins(JSON.parse(saved), INITIAL_REWARDS);
+      return withEnTwins(listed(JSON.parse(saved)), INITIAL_REWARDS);
     }
   } catch {}
 

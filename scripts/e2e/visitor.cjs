@@ -43,7 +43,7 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
   await p.fill('.sgx-forge input[type=email]', PASS_EMAIL);
   const inputs = await p.$$('.sgx-forge input:not([type=checkbox]):not([type=radio]):not([type=email])');
   await inputs[0].fill('Piloto Prueba');
-  await p.click('.sgx-forge__tiers label:has-text("Día 3")');
+  await p.click('.sgx-forge__tiers label:has(strong:text-matches("^(Día 3 presencial|Day 3 in person)$"))');
   await p.check('.sgx-forge__consent input');
   await p.$eval('.sgx-forge form', (f) => f.requestSubmit());
   await p.waitForTimeout(500);

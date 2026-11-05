@@ -96,3 +96,89 @@ Antes de que salgan, cambiar #SGXSummit2026 → #SpatialgineersSummit en los cap
 2. Danelson aprueba cada uno. Nada sale sin aprobación.
 3. Se programa con Symphony en la fecha del calendario.
 4. Los videos de la campaña están en `docs/campaign/YOUTUBE_KIT.md`, con YouTube como fuente oficial.
+
+## Banco de contenido
+
+### 1. Lo que ya existe (listo para publicar)
+| Pieza | Formato | Uso en redes |
+|---|---|---|
+| Recorrido completo | 9:16 y 16:9, 3:36 | YouTube completo; cortes de 60–90 s para reels |
+| Así construimos la webapp | 9:16 y 16:9, 68 s | Reel del día que falta 1 mes |
+| SGX Pass | 9:16, 64 s | Reel para Creadores |
+| Speakers | 9:16, 44 s | Reel y story antes del 21 nov |
+| Sponsors | 9:16, 58 s | Reel y story antes del 28 nov |
+| Prensa | 9:16, 54 s | Reel antes del 1 dic |
+| Equipo | 9:16, 53 s | Solo interno (no listado) |
+| Guía PDF con 87 capturas | — | Fuente de capturas para carruseles |
+| Kit de prensa (logos, fotos, ficha) | ZIP | Carrusel "Quiénes somos" y collabs |
+
+### 2. Contenido nuevo: un feature por pieza (micro-reels de 15–25 s)
+Cada pieza es un solo feature, grabado de la app real, con una frase gancho y un CTA.
+
+| # | Feature | Gancho | Pilar |
+|---|---|---|---|
+| 1 | Núcleo 3D | "Esto no es una página web. Tócalo." | Showcase |
+| 2 | Arma tu Highbot | "Tu avatar del Summit, pieza por pieza." | Story |
+| 3 | Pregúntale a tu Highbot | "Tiene IA, conoce el Summit y te lleva." | System |
+| 4 | Holo Card | "Tu pase es una carta 3D. Dale la vuelta." | Showcase |
+| 5 | Arena en vivo | "Tu voto cambia el escenario en segundos." | Stage |
+| 6 | Dron SGX | "Cruza San Juan por los anillos de los 6 pilares." | Spark |
+| 7 | Reactor + Tienda | "Misiones, XP y premios reales." | Spark |
+| 8 | Escáner + Rolodex | "Networking con un QR." | Synthesize |
+| 9 | Recorrido 360° de Chroma | "Conoce la sede del Día 3 antes de llegar." | Showcase |
+| 10 | Terminal de mando | "Navega todo el Summit escribiendo." | System |
+| 11 | Sin descargar + offline | "Añádela a tu pantalla. Tu pase abre sin señal." | System |
+| 12 | SGX.Match | "Encuentra con quién construir." | Synthesize |
+
+### 3. Plantillas de reel por rol (9:16, 20–30 s)
+Usar la misma estructura en todos, para que la serie se reconozca.
+
+| Tiempo | Bloque | Contenido |
+|---|---|---|
+| 0–2 s | Gancho | Texto grande + la toma más fuerte (ver abajo) |
+| 2–6 s | Quién | "¿Eres [rol]?" sobre el núcleo 3D girando |
+| 6–18 s | Cómo | 3 pasos grabados en la app, con un texto corto por paso |
+| 18–24 s | Qué ganas | El beneficio del rol (Holo Card, espacio de marca, credencial…) |
+| 24–28 s | Fecha + CTA | "Hasta el [fecha] · link en bio" + logo del Summit |
+
+- **Speaker:**
+  - Gancho: "¿Quieres el escenario del Summit?"
+  - Pasos: forja tu pase → Portal de speakers → envía tu perfil.
+  - Ganas: tu Highbot en el cartel y tu Holo Card de speaker.
+  - Fecha: hasta el 21 nov.
+- **Sponsor:**
+  - Gancho: "Tu marca dentro del Summit."
+  - Pasos: Partners → elige tu paquete → solicita.
+  - Ganas: núcleo 3D, juegos, transmisión.
+  - Fecha: hasta el 28 nov.
+- **Prensa:**
+  - Gancho: "10 cupos para medios."
+  - Pasos: Sala de prensa → acreditación → kit de prensa.
+  - Ganas: credencial PRENSA y entrada al Día 3.
+  - Fecha: antes del 1 dic.
+- **Creador:**
+  - Gancho: "Tu pase al Summit, gratis en 1 minuto."
+  - Pasos: forja → arma tu Highbot → misiones.
+  - Ganas: XP, premios y votar en vivo.
+  - Fecha: 11–13 dic.
+- **Speaker confirmado** (uno por persona): su Highbot + nombre + pilar + día y hora, publicado en Collab con su cuenta.
+
+Reglas visuales: fondo `#050505`, texto en amarillo `#FDCC0D` y cian `#00DDFF`, la tipografía de la app, música sin derechos de autor y subtítulos siempre (la mayoría ve sin sonido).
+
+### 4. Contenido orgánico del estudio (clips propios, "detrás de Spatialgineers")
+Muestran que el equipo que hace el Summit hace esto de verdad. Formato: reel de 15–30 s con el clip real y una línea de texto.
+
+| Serie | Material | Mensaje |
+|---|---|---|
+| Summit 2025 | Clips del evento en Aguadilla (19–21 dic 2025) | "La primera edición. La segunda viene más grande." |
+| FITUR 2026 | Highlights de "Un Viaje a Aguadilla" en Madrid | "De Puerto Rico a FITUR con VR." |
+| Drones | Tomas volando drones | Conecta con el Dron SGX del app: "Ahora vuela tú." |
+| VR | Gente jugando en Quest | "Así se siente estar dentro." |
+| Highcade | El hub de juegos web con leaderboard | "Juegos que la gente no suelta." |
+| Atlantic University | Reclutamiento con Grimorio | "Así encontramos talento." Conecta con el SGX Guild |
+| Justas LAI / Somos Mayagüez | El ecosistema WebXR de las Justas | "Una ciudad entera sin instalar nada." |
+| Guayacán | El evento de 400+ usuarios simultáneos | "Probado con cientos de personas a la vez." |
+| Detrás de la app | Pantallas de código, el editor del Highbot, el núcleo | "Hecho en Puerto Rico." |
+
+Ritmo sugerido: 1 o 2 orgánicos por semana entre las piezas de la campaña, sin pasar de 1 por día.
+Cifras: usa solo las públicas (60+ espacios digitales, 10 juegos interactivos, FITUR ~564 registros únicos) y no las infles.

@@ -28,6 +28,7 @@ export const SummitPrivacyPolicyModal: React.FC<SummitPrivacyPolicyModalProps> =
       icon={<ShieldCheck className="w-6 h-6 text-[#00DDFF] shrink-0" aria-hidden="true" />}
       footer={
         <>
+          <a className="sgx-btn sgx-btn--sm sgx-btn--ground" href="/privacidad" target="_blank" rel="noopener">{es ? 'Ver página completa' : 'Open full page'}</a>
           <a className="sgx-btn sgx-btn--sm sgx-btn--ground" href={`mailto:${SGX_EMAIL}`}>{SGX_EMAIL}</a>
           <button type="button" className="sgx-btn sgx-btn--sm" onClick={onClose}>{es ? 'Entendido' : 'Got it'}</button>
         </>

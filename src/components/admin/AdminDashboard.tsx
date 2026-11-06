@@ -71,6 +71,7 @@ import { SummitContentAuditModal } from '../summit/SummitContentAuditModal';
 import { BulkQuestionUploadModal } from './BulkQuestionUploadModal';
 import { BulkInstagramImportModal } from './BulkInstagramImportModal';
 import { InstagramRadarPanel } from './InstagramRadarPanel';
+import { SocialPublisherPanel } from './SocialPublisherPanel';
 import { AdminMatchPanel } from '../../modules/match/admin/AdminMatchPanel';
 import { AdminSection, LiveListTable, AdminRosterPanel, ContentBackupPanel } from './AdminPanels';
 import { SummitInitiatesPanel } from './SummitInitiatesPanel';
@@ -992,6 +993,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               actions={<button type="button" className="sgx-btn text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => setIsBulkInstagramModalOpen(true)}><Instagram className="w-3.5 h-3.5" /> Importar publicaciones</button>}>
               <p className="text-sm text-slate-400">Sube un CSV con los enlaces de las publicaciones; aparecen en el radar social de la app.</p>
               <InstagramRadarPanel />
+            </AdminSection>
+          )}
+
+          {activeSubpage === 'SOCIAL' && (
+            <AdminSection title="Publicador · Instagram y Facebook" desc="Carga los posts de la semana, apruébalos de un clic y el servidor los publica solos a su hora (hora de Puerto Rico).">
+              <SocialPublisherPanel />
             </AdminSection>
           )}
 

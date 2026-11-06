@@ -16,6 +16,7 @@ node scripts/e2e/admin.cjs     # Google sign-in as info@ (emulated), invite, Day
 node scripts/e2e/holo.cjs      # Holo Card = pass; speaker in review → approved; initiate by Google email; viewer
 node scripts/e2e/pilot.cjs     # Pilot Builder in the Forge and in Avatar Studio (desktop + 390 px)
 node scripts/e2e/deadlines.cjs # speaker portal / sponsor form close by themselves (localStorage.sgx_now), welcome dates, Day 3 note
+node scripts/e2e/publisher.cjs # Publicador IG+FB (server with SOCIAL_PUBLISH_MOCK=1 SOCIAL_TICK_MS=3000)
 node scripts/e2e/fixes.cjs     # 360° XP once per point, +25 XP per /play question, signed REST voter, /studio → Tu Estudio
                                # (server started with SGX_TEST_ADMIN_TOKEN=x, script run with ADMIN_TOKEN=x)
 node scripts/e2e/igradar.cjs   # Instagram radar: admin candidates, Aprobar → public mural, Ocultar, /candidates 401

@@ -152,6 +152,18 @@ service cloud.firestore {
         (!('interest' in incoming()) || (incoming().interest is list && incoming().interest.size() <= 6));
     }
 
+    // Publicador de redes: posts programados para Instagram y Facebook.
+    // Solo admins (incluido el usuario robot del servidor, listado en admins).
+    match /social_posts/{postId} {
+      allow read, delete: if isAdmin();
+      allow create, update: if isAdmin() && isValidId(postId) &&
+        incoming().keys().hasOnly(['title', 'kind', 'caption', 'mediaUrls', 'publishAt', 'networks', 'status', 'results', 'claimedAt', 'updatedAt', 'week']) &&
+        incoming().kind in ['REEL', 'IMAGE', 'CAROUSEL'] &&
+        incoming().caption is string && incoming().caption.size() <= 2200 &&
+        incoming().mediaUrls is list && incoming().mediaUrls.size() <= 10 &&
+        incoming().status in ['draft', 'approved', 'publishing', 'published', 'failed', 'missed'];
+    }
+
     // Site config: feature toggles and the CMS announcement. Admin writes only.
     match /site_config/{configId} {
       allow get, list: if true;

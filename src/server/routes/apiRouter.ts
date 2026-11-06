@@ -18,6 +18,7 @@ import {
 import { triggerPresetOverride, processAudienceReaction } from '../engine/visualizerBridge';
 import { createCompanionRouter } from '../companion/companionRouter';
 import { createInstagramRadarRouter } from '../social/instagramRadar';
+import { createMetaPublisherRouter } from '../social/metaPublisher';
 
 export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
   const router = Router();
@@ -41,6 +42,9 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
 
   // Radar social · Instagram (Graph API candidates for admins, approved posts for everyone)
   router.use('/social/instagram', createInstagramRadarRouter());
+
+  // Publicador de redes (Instagram + Facebook), admins only
+  router.use('/social/publisher', createMetaPublisherRouter());
 
   // Health check
   router.get('/health', (req, res) => {

@@ -1773,7 +1773,7 @@ function setupWebSocketEngine(server) {
 }
 
 // src/server/routes/apiRouter.ts
-import { Router as Router3 } from "express";
+import { Router as Router4 } from "express";
 
 // src/server/companion/companionRouter.ts
 import { Router } from "express";
@@ -4713,9 +4713,286 @@ function createInstagramRadarRouter() {
   return router;
 }
 
+// src/server/social/metaPublisher.ts
+import { Router as Router3 } from "express";
+var GRAPH_VERSION2 = process.env.IG_GRAPH_VERSION || "v23.0";
+var GRAPH2 = `https://graph.facebook.com/${GRAPH_VERSION2}`;
+var IS_PRODUCTION4 = process.env.NODE_ENV === "production";
+var EMULATOR2 = FIRESTORE_DOCS.startsWith("http://");
+var TICK_MS = Number(process.env.SOCIAL_TICK_MS) || 6e4;
+var MAX_LATE_MS = 6 * 60 * 60 * 1e3;
+var env2 = () => ({
+  igToken: process.env.IG_GRAPH_TOKEN || "",
+  igUser: process.env.IG_USER_ID || "",
+  fbPage: process.env.FB_PAGE_ID || "",
+  fbPageToken: process.env.FB_PAGE_TOKEN || "",
+  botEmail: process.env.SOCIAL_BOT_EMAIL || "",
+  botPassword: process.env.SOCIAL_BOT_PASSWORD || "",
+  mock: process.env.SOCIAL_PUBLISH_MOCK === "1" && !IS_PRODUCTION4
+});
+var state2 = {
+  lastTick: 0,
+  lastError: null,
+  dbAuth: "none",
+  running: null,
+  published: 0
+};
+var tokenCache = { token: "", exp: 0 };
+async function dbToken() {
+  if (EMULATOR2) {
+    state2.dbAuth = "emulator";
+    return "owner";
+  }
+  if (tokenCache.token && tokenCache.exp > Date.now() + 6e4) return tokenCache.token;
+  const e = env2();
+  if (e.botEmail && e.botPassword) {
+    const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebase_applet_config_default.apiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: e.botEmail, password: e.botPassword, returnSecureToken: true }),
+      signal: AbortSignal.timeout(8e3)
+    }).catch(() => null);
+    const b = r ? await r.json().catch(() => ({})) : {};
+    if (r?.ok && b.idToken) {
+      tokenCache = { token: b.idToken, exp: Date.now() + Number(b.expiresIn || 3600) * 1e3 };
+      state2.dbAuth = "bot";
+      return tokenCache.token;
+    }
+    state2.lastError = `bot sign-in: ${b?.error?.message || r?.status || "network"}`;
+  }
+  const m = await fetch("http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token", {
+    headers: { "Metadata-Flavor": "Google" },
+    signal: AbortSignal.timeout(3e3)
+  }).catch(() => null);
+  if (m?.ok) {
+    const b = await m.json().catch(() => ({}));
+    if (b.access_token) {
+      tokenCache = { token: b.access_token, exp: Date.now() + Number(b.expires_in || 3e3) * 1e3 };
+      state2.dbAuth = "service";
+      return tokenCache.token;
+    }
+  }
+  state2.dbAuth = "none";
+  return null;
+}
+function toFs(v) {
+  if (v === null || v === void 0) return { nullValue: null };
+  if (typeof v === "string") return { stringValue: v };
+  if (typeof v === "boolean") return { booleanValue: v };
+  if (typeof v === "number") return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+  if (Array.isArray(v)) return { arrayValue: { values: v.map(toFs) } };
+  return { mapValue: { fields: Object.fromEntries(Object.entries(v).map(([k, x]) => [k, toFs(x)])) } };
+}
+async function listPosts(token) {
+  const out = [];
+  let pageToken = "";
+  for (let i = 0; i < 10; i++) {
+    const qs = new URLSearchParams({ pageSize: "300", ...pageToken ? { pageToken } : {} });
+    const r = await fetch(`${FIRESTORE_DOCS}/social_posts?${qs}`, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(8e3) });
+    if (!r.ok) throw new Error(`firestore list ${r.status}`);
+    const b = await r.json();
+    for (const d of b.documents || []) {
+      const f = fromFirestore({ mapValue: { fields: d.fields || {} } });
+      out.push({
+        id: String(d.name).split("/").pop() || "",
+        kind: f.kind,
+        caption: String(f.caption || ""),
+        mediaUrls: Array.isArray(f.mediaUrls) ? f.mediaUrls.filter((u) => typeof u === "string") : [],
+        publishAt: String(f.publishAt || ""),
+        networks: { ig: !!f.networks?.ig, fb: !!f.networks?.fb },
+        status: String(f.status || "draft"),
+        results: f.results || {}
+      });
+    }
+    if (!b.nextPageToken) break;
+    pageToken = b.nextPageToken;
+  }
+  return out;
+}
+async function patchPost(token, id, data) {
+  const qs = new URLSearchParams({ "currentDocument.exists": "true" });
+  for (const k of Object.keys(data)) qs.append("updateMask.fieldPaths", k);
+  const r = await fetch(`${FIRESTORE_DOCS}/social_posts/${encodeURIComponent(id)}?${qs}`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ fields: Object.fromEntries(Object.entries(data).map(([k, v]) => [k, toFs(v)])) }),
+    signal: AbortSignal.timeout(8e3)
+  });
+  return r.ok;
+}
+async function graph2(method, path2, params, token) {
+  const body = new URLSearchParams({ ...params, access_token: token });
+  const r = await fetch(method === "GET" ? `${GRAPH2}/${path2}?${body}` : `${GRAPH2}/${path2}`, {
+    method,
+    ...method === "POST" ? { body } : {},
+    signal: AbortSignal.timeout(6e4)
+  });
+  const b = await r.json().catch(() => ({}));
+  if (!r.ok || b.error) throw new Error(b?.error?.error_user_msg || b?.error?.message || `HTTP ${r.status}`);
+  return b;
+}
+var sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+async function igWaitReady(container, token) {
+  for (let i = 0; i < 60; i++) {
+    const s = await graph2("GET", container, { fields: "status_code,status" }, token);
+    if (s.status_code === "FINISHED") return;
+    if (s.status_code === "ERROR" || s.status_code === "EXPIRED") throw new Error(`Instagram no pudo procesar el archivo (${s.status || s.status_code})`);
+    await sleep(1e4);
+  }
+  throw new Error("Instagram tard\xF3 demasiado procesando el video");
+}
+async function publishInstagram(p) {
+  const { igToken: t, igUser: u } = env2();
+  if (!t || !u) throw new Error("Falta IG_GRAPH_TOKEN o IG_USER_ID");
+  let creation;
+  if (p.kind === "REEL") {
+    creation = (await graph2("POST", `${u}/media`, { media_type: "REELS", video_url: p.mediaUrls[0], caption: p.caption, share_to_feed: "true" }, t)).id;
+    await igWaitReady(creation, t);
+  } else if (p.kind === "IMAGE") {
+    creation = (await graph2("POST", `${u}/media`, { image_url: p.mediaUrls[0], caption: p.caption }, t)).id;
+    await igWaitReady(creation, t);
+  } else {
+    const children = [];
+    for (const url of p.mediaUrls.slice(0, 10)) {
+      const isVideo = /\.(mp4|mov)(\?|$)|\/video\//i.test(url);
+      const c = (await graph2("POST", `${u}/media`, isVideo ? { media_type: "VIDEO", video_url: url, is_carousel_item: "true" } : { image_url: url, is_carousel_item: "true" }, t)).id;
+      await igWaitReady(c, t);
+      children.push(c);
+    }
+    creation = (await graph2("POST", `${u}/media`, { media_type: "CAROUSEL", children: children.join(","), caption: p.caption }, t)).id;
+    await igWaitReady(creation, t);
+  }
+  const id = (await graph2("POST", `${u}/media_publish`, { creation_id: creation }, t)).id;
+  const permalink = (await graph2("GET", id, { fields: "permalink" }, t).catch(() => ({}))).permalink || "";
+  return { id, permalink };
+}
+var pageTokenCache = "";
+async function fbToken() {
+  const e = env2();
+  if (e.fbPageToken) return e.fbPageToken;
+  if (pageTokenCache) return pageTokenCache;
+  if (!e.igToken || !e.fbPage) throw new Error("Falta FB_PAGE_ID (y el token de Meta)");
+  pageTokenCache = (await graph2("GET", e.fbPage, { fields: "access_token" }, e.igToken)).access_token || "";
+  if (!pageTokenCache) throw new Error("El token de Meta no da acceso a la p\xE1gina (falta pages_manage_posts)");
+  return pageTokenCache;
+}
+async function publishFacebook(p) {
+  const page = env2().fbPage;
+  if (!page) throw new Error("Falta FB_PAGE_ID");
+  const t = await fbToken();
+  let id;
+  if (p.kind === "REEL") {
+    id = (await graph2("POST", `${page}/videos`, { file_url: p.mediaUrls[0], description: p.caption }, t)).id;
+  } else if (p.kind === "IMAGE") {
+    id = (await graph2("POST", `${page}/photos`, { url: p.mediaUrls[0], caption: p.caption }, t)).post_id;
+  } else {
+    const media = [];
+    for (const url of p.mediaUrls.slice(0, 10)) {
+      media.push((await graph2("POST", `${page}/photos`, { url, published: "false" }, t)).id);
+    }
+    const params = { message: p.caption };
+    media.forEach((m, i) => {
+      params[`attached_media[${i}]`] = JSON.stringify({ media_fbid: m });
+    });
+    id = (await graph2("POST", `${page}/feed`, params, t)).id;
+  }
+  return { id, permalink: `https://www.facebook.com/${id}` };
+}
+function validate(p) {
+  if (!["REEL", "IMAGE", "CAROUSEL"].includes(p.kind)) return "Tipo inv\xE1lido";
+  if (!p.mediaUrls.length || !p.mediaUrls.every((u) => /^https:\/\//.test(u))) return "Faltan los enlaces https de los archivos";
+  if (p.kind === "CAROUSEL" && p.mediaUrls.length < 2) return "Un carrusel necesita 2 archivos o m\xE1s";
+  if (p.caption.length > 2200) return "El caption pasa de 2200 caracteres";
+  return null;
+}
+var inFlight = /* @__PURE__ */ new Set();
+async function publishOne(token, post) {
+  if (inFlight.has(post.id)) return;
+  inFlight.add(post.id);
+  try {
+    if (!await patchPost(token, post.id, { status: "publishing", claimedAt: (/* @__PURE__ */ new Date()).toISOString() })) return;
+    await publishClaimed(token, post);
+  } finally {
+    inFlight.delete(post.id);
+  }
+}
+async function publishClaimed(token, post) {
+  const results = { ...post.results };
+  const bad = validate(post);
+  for (const net of ["ig", "fb"]) {
+    if (!post.networks[net] || results[net]?.id) continue;
+    try {
+      if (bad) throw new Error(bad);
+      const r = env2().mock ? { id: `mock_${net}_${post.id}`, permalink: `https://example.com/${net}/${post.id}` } : await (net === "ig" ? publishInstagram(post) : publishFacebook(post));
+      results[net] = { ...r, at: (/* @__PURE__ */ new Date()).toISOString() };
+      state2.published++;
+    } catch (err) {
+      results[net] = { error: String(err?.message || err).slice(0, 300), at: (/* @__PURE__ */ new Date()).toISOString() };
+    }
+  }
+  const wanted = ["ig", "fb"].filter((n) => post.networks[n]);
+  const ok = wanted.every((n) => results[n]?.id);
+  await patchPost(token, post.id, { status: ok ? "published" : "failed", results });
+}
+async function tick() {
+  state2.lastTick = Date.now();
+  const token = await dbToken();
+  if (!token) return;
+  try {
+    const now = Date.now();
+    for (const post of await listPosts(token)) {
+      if (post.status !== "approved") continue;
+      const at = Date.parse(post.publishAt);
+      if (!Number.isFinite(at) || at > now) continue;
+      if (now - at > MAX_LATE_MS) {
+        await patchPost(token, post.id, { status: "missed" });
+        continue;
+      }
+      await publishOne(token, post);
+    }
+    state2.lastError = null;
+  } catch (err) {
+    state2.lastError = String(err?.message || err);
+  }
+}
+function runSoon() {
+  if (!state2.running) state2.running = tick().finally(() => {
+    state2.running = null;
+  });
+  return state2.running;
+}
+var timer2 = null;
+function createMetaPublisherRouter() {
+  const router = Router3();
+  if (!timer2 && process.env.SOCIAL_PUBLISHER !== "off") {
+    timer2 = setInterval(() => void runSoon(), TICK_MS);
+    timer2.unref?.();
+    setTimeout(() => void runSoon(), 5e3).unref?.();
+  }
+  router.get("/status", requireAdmin, async (_req, res) => {
+    const e = env2();
+    if (state2.dbAuth === "none") await dbToken().catch(() => null);
+    res.setHeader("Cache-Control", "no-store");
+    res.json({
+      mode: e.mock ? "mock" : "live",
+      instagram: e.mock || !!(e.igToken && e.igUser),
+      facebook: e.mock || !!(e.fbPage && (e.fbPageToken || e.igToken)),
+      database: state2.dbAuth,
+      lastTick: state2.lastTick ? new Date(state2.lastTick).toISOString() : null,
+      lastError: state2.lastError,
+      publishedSinceStart: state2.published
+    });
+  });
+  router.post("/run", requireAdmin, async (_req, res) => {
+    await runSoon();
+    res.json({ ok: true, lastError: state2.lastError });
+  });
+  return router;
+}
+
 // src/server/routes/apiRouter.ts
 function createApiRouter(broadcastToRoom) {
-  const router = Router3();
+  const router = Router4();
   router.use(ipRateLimit({ capacity: 120, refillPerSec: 40 }));
   const roomFrom = (req, res) => {
     const src = req.method === "GET" ? req.query : req.body || {};
@@ -4729,6 +5006,7 @@ function createApiRouter(broadcastToRoom) {
   };
   router.use("/companion", createCompanionRouter());
   router.use("/social/instagram", createInstagramRadarRouter());
+  router.use("/social/publisher", createMetaPublisherRouter());
   router.get("/health", (req, res) => {
     res.json({ status: "ok", engine: "SGX Live Engine", timestamp: Date.now() });
   });
@@ -5316,7 +5594,7 @@ function summitEventLd() {
 function welcomeJsonLd(head, uploadDate) {
   const organizer = SGX_ORGANIZER_LD;
   const event = summitEventLd();
-  const graph2 = [
+  const graph3 = [
     event,
     { "@type": "WebPage", "@id": head.canonical, url: head.canonical, name: head.title, description: head.description, inLanguage: "es", about: { "@id": `${WELCOME_ORIGIN}/#event` }, isPartOf: { "@type": "WebSite", name: "Spatialgineers Summit 2026", url: WELCOME_ORIGIN } }
   ];
@@ -5333,15 +5611,15 @@ function welcomeJsonLd(head, uploadDate) {
       about: { "@id": `${WELCOME_ORIGIN}/#event` }
     };
     if (uploadDate) video.uploadDate = uploadDate;
-    graph2.push(video);
+    graph3.push(video);
   }
   if (head.faq.length) {
-    graph2.push({
+    graph3.push({
       "@type": "FAQPage",
       mainEntity: head.faq.map((f) => ({ "@type": "Question", name: f.q.es, acceptedAnswer: { "@type": "Answer", text: f.a.es } }))
     });
   }
-  return { "@context": "https://schema.org", "@graph": graph2 };
+  return { "@context": "https://schema.org", "@graph": graph3 };
 }
 
 // src/server/welcomeMeta.ts

@@ -48,7 +48,7 @@ Antes de cualquier cosa, lee `docs/GUIA_WEBAPP.md`. Es la guía maestra de la ap
 
 ## Redes sociales
 - Todo post lleva al final: **#SpatialgineersSummit #RoadToSummit #Spatialgineers**. El Radar de Instagram de la app busca por esos hashtags.
-- A Symphony se le pasa el caption final y completo, con los hashtags. Nunca le des instrucciones de "no uses hashtags": solo publica lo que se le prepara.
-- Nada se publica sin la aprobación de Danelson en su tarjeta.
+- **Instagram y Facebook se publican con el Publicador de la app** (Admin → Redes sociales; `docs/PUBLICADOR_REDES.md`). Claude prepara cada semana un JSON con los enlaces de los archivos y los captions; Danelson lo importa y aprueba la semana con un clic. Nada se publica sin esa aprobación.
+- **TikTok sigue por Symphony** (Symphony no puede publicar en IG/FB con la conexión actual). A Symphony se le pasa el caption final y completo, con los hashtags; nunca le digas "no uses hashtags". Nada sale sin la aprobación de Danelson en su tarjeta.
 - Los créditos de Symphony se reinician el 18 de cada mes.
 - Plan y calendario: `docs/campaign/CAMPANA_REDES.md` y `docs/campaign/calendario_redes.csv`.

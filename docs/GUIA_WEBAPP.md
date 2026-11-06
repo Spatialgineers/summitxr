@@ -134,6 +134,7 @@ El SGX Pass es el perfil del Creador y su llave de la app. La información está
 | Motor en vivo | WebSocket en `/ws` (`src/server/engine/wsHandler.ts`, `roomManager.ts`, `votingEngine.ts`, `visualizerBridge.ts`). El estado vive **en memoria**. |
 | REST | `/api/*` (`src/server/routes/apiRouter.ts`), con límite por IP (token bucket de 120 y 40/s). Las acciones del director piden `requireAdmin`. |
 | Highbot | `/api/companion/*` (`src/server/companion/`). Ver la sección 8. |
+| Radar de Instagram | `/api/social/instagram/candidates` (admin) y `/approved` (público), en `src/server/social/instagramRadar.ts`. Lee la Instagram Graph API cada 15 min y guarda los resultados solo en memoria. Ver `docs/INSTAGRAM_RADAR.md`. |
 | SEO | `src/server/welcomeMeta.ts` inyecta el `<head>` de `/bienvenida*` y `/prensa`. |
 | Producción | Comprime con brotli o gzip y guarda en memoria. `/assets/*` va inmutable por un año, y un archivo de `/assets/` que no existe (un chunk del deploy anterior) responde **404**, nunca la página; `sw.js`, `index.html` y el manifest van con `no-cache`. Cabeceras `nosniff`, `Referrer-Policy` y HSTS. `trust proxy = 1`, para que `X-Forwarded-For` no se pueda falsificar. |
 | Salud | `/healthz` y `/api/health` |
@@ -354,7 +355,7 @@ Entrar a las seis estaciones cumple la quest "Los Seis Pilares".
 | Módulo | Qué es y qué se hace | Datos | Pase | XP / misión | Archivo |
 |---|---|---|---|---|---|
 | **01.1 Manifiesto de los 6 pilares** (`/pilares`) | El SGX Framework y la historia de cada pilar, con casos reales | estático (`sgxPillars`, `sgxPortfolio`) | No | "Lee el manifiesto" 60 XP | `SgxPillarsManifestoSection.tsx` |
-| **01.2 Radar social** (`/social`) | Las historias de la comunidad con #SpatialgineersSummit. Embeds de Instagram/X/Threads/TikTok, publicar, me gusta y comentar. El admin importa publicaciones en lote. | `social_posts` | Publicar pide sesión | — | `LiveSocialStream.tsx`, `InstagramEmbedCard.tsx`, `src/lib/realSocialStreamApi.ts`, admin `BulkInstagramImportModal.tsx` |
+| **01.2 Radar social** (`/social`) | Las historias de la comunidad con #SpatialgineersSummit. Embeds de Instagram/X/Threads/TikTok, publicar, me gusta y comentar. El admin importa publicaciones en lote. | `social_posts` | Publicar pide sesión | — | `LiveSocialStream.tsx`, `InstagramEmbedCard.tsx`, `src/lib/realSocialStreamApi.ts`, `InstagramRadarWall.tsx`, admin `BulkInstagramImportModal.tsx` e `InstagramRadarPanel.tsx`, servidor `src/server/social/instagramRadar.ts` |
 | **01.3 Avatar Studio** (`/avatar`) | Arma tu Highbot (ver la sección 5) | el pase local más `ticket_inquiries.avatar` | **Sí** | "Diseña tu Highbot" 80 XP | `PilotBuilderModal.tsx`, `PilotBuilder.tsx`, `SgxPilot3D.tsx`, `pilotAvatar.ts`, `highbot3d.ts`, `highbotGear.ts`, `highbotStudio.ts` |
 
 ### SGX.Showcase
@@ -978,7 +979,7 @@ Chroma Space Studios es la sede del Día 3 (Paquete 5) y Los Mismos TV es el med
 | **Guild Initiates** | Lista pública, email privado y solicitudes de Initiate (aprobar otorga la credencial) | `summit_content/initiates`, `summit_private/initiate_emails`, `initiate_claims`, `initiate_requests` (`SummitInitiatesPanel.tsx`) |
 | **Mapa 360** | Nodos y hotspots (JSON) | `summit_content/map_nodes` |
 | **Apps embebidas** | Juegos y apps del hub: URL, HTML en sandbox, nativo o enlace | `summit_content/embeds` |
-| **Redes sociales** | Importa publicaciones de Instagram en lote y modera | `social_posts` (`BulkInstagramImportModal.tsx`) |
+| **Redes sociales** | Importa publicaciones de Instagram en lote y modera. **Radar social · Instagram**: candidatos del servidor, Aprobar / Ocultar y la línea de estado | `social_posts` (`BulkInstagramImportModal.tsx`), `site_config/social` (`InstagramRadarPanel.tsx`) |
 | **Pilares: casos y proyectos** | Casos de uso y proyectos que muestran las páginas de pilar (incluido el bloque del Día 1) | `summit_content/pillar_showcase` |
 | **Highbot: control y preguntas** | Apagar o encender, tope diario ("Guardar tope", "Usar el del servidor"), gasto de hoy, "Bloqueados hoy", y el banco de preguntas y respuestas que lee el Highbot | `CompanionControlPanel.tsx`, `site_config/companion`, `summit_content/companion_kb` |
 | **Portal de bienvenida** | IDs de YouTube por rol (acepta el id o cualquier enlace), copiar el enlace de cada rol y el **generador de invitaciones**: mensaje por rol con nombre, sesión (escrita o tomada de la agenda) y enlace personal. Se copia, se manda por WhatsApp o correo, y sale también como **correo HTML** (copiar con formato, vista previa, descargar). | `WelcomePortalPanel.tsx`, `WelcomeInvitePanel.tsx`, `site_config/welcome`, `src/lib/welcomeInvites.ts` |
@@ -1205,7 +1206,7 @@ Pruebas: `scripts/rules-test/` (175 casos más la ventana del Día 3) y `scripts
   - el Highbot no registra lo que se escribe;
   - el consentimiento de imagen es obligatorio al forjar;
   - el CSV de inscritos está protegido contra fórmulas.
-- **Lo que nunca va al cliente**: `ANTHROPIC_API_KEY`, `COMPANION_MODEL`, `SGX_TEST_ADMIN_TOKEN` y el código de check-in (`summit_private`). Nada secreto va con prefijo `VITE_`. `.env*` está en `.gitignore` (salvo `.env.example`).
+- **Lo que nunca va al cliente**: `ANTHROPIC_API_KEY`, `COMPANION_MODEL`, `IG_GRAPH_TOKEN`, `SGX_TEST_ADMIN_TOKEN` y el código de check-in (`summit_private`). Nada secreto va con prefijo `VITE_`. `.env*` está en `.gitignore` (salvo `.env.example`).
 - **Correos**: los manda el Apps Script de info@ con su propio acceso IAM al proyecto, sin contraseñas ni claves (sección 14).
 
 ### Variables de entorno del servidor
@@ -1217,8 +1218,9 @@ Pruebas: `scripts/rules-test/` (175 casos más la ventana del Día 3) y `scripts
 | `SGX_ADMIN_EMAILS` | Admins del motor en vivo (por defecto info@ y support@) |
 | `FIREBASE_API_KEY` | Opcional; si falta, usa la del config para Identity Toolkit |
 | `ANTHROPIC_API_KEY`, `COMPANION_MODEL` | Highbot (secreto en Cloud Run) |
+| `IG_GRAPH_TOKEN` (secreto en Cloud Run), `IG_USER_ID`, `IG_HASHTAGS`, `IG_GRAPH_VERSION` | Radar de Instagram (`docs/INSTAGRAM_RADAR.md`) |
 | `COMPANION_DAILY_USD`, `COMPANION_USER_DAILY`, `COMPANION_PRICES`, `COMPANION_FALLBACKS` | Ajustes del Highbot |
-| `COMPANION_MOCK`, `COMPANION_SETTINGS_TTL_MS`, `SGX_TEST_ADMIN_TOKEN` | Solo para pruebas locales |
+| `COMPANION_MOCK`, `COMPANION_SETTINGS_TTL_MS`, `IG_RADAR_MOCK`, `IG_CONFIG_TTL_MS`, `SGX_TEST_ADMIN_TOKEN` | Solo para pruebas locales |
 | `VITE_USE_EMULATORS`, `VITE_EMULATOR_FIRESTORE_PORT`, `VITE_EMULATOR_AUTH_PORT`, `DISABLE_HMR` | Desarrollo y e2e |
 
 ---

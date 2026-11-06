@@ -1773,7 +1773,7 @@ function setupWebSocketEngine(server) {
 }
 
 // src/server/routes/apiRouter.ts
-import { Router as Router2 } from "express";
+import { Router as Router3 } from "express";
 
 // src/server/companion/companionRouter.ts
 import { Router } from "express";
@@ -4513,9 +4513,209 @@ function createCompanionRouter() {
   return router;
 }
 
+// src/server/social/instagramRadar.ts
+import { Router as Router2 } from "express";
+var GRAPH_VERSION = process.env.IG_GRAPH_VERSION || "v23.0";
+var GRAPH = `https://graph.facebook.com/${GRAPH_VERSION}`;
+var SYNC_MS = 15 * 60 * 1e3;
+var ON_DEMAND_MIN_MS = 2 * 60 * 1e3;
+var CONFIG_TTL_MS = Number(process.env.IG_CONFIG_TTL_MS) || 6e4;
+var MAX_POSTS = 200;
+var HASHTAG_FIELDS = "id,caption,media_type,media_url,permalink,timestamp";
+var TAG_FIELDS = "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,username";
+var env = () => ({
+  token: process.env.IG_GRAPH_TOKEN || "",
+  userId: process.env.IG_USER_ID || "",
+  hashtags: (process.env.IG_HASHTAGS || "SpatialgineersSummit,RoadToSummit").split(",").map((h) => h.trim().replace(/^#/, "")).filter((h) => /^[\p{L}\p{N}_]{1,100}$/u.test(h)).slice(0, 10),
+  mock: process.env.IG_RADAR_MOCK === "1" && process.env.NODE_ENV !== "production"
+});
+var state = {
+  posts: /* @__PURE__ */ new Map(),
+  status: "disabled",
+  lastSync: 0,
+  lastError: null,
+  backoffUntil: 0,
+  failures: 0,
+  syncing: null
+};
+var hashtagIds = /* @__PURE__ */ new Map();
+var MOCK2 = [1, 2, 3, 4].map((n) => ({
+  id: `mock_ig_${n}`,
+  caption: `Post de prueba ${n} rumbo al #SpatialgineersSummit`,
+  mediaType: n === 3 ? "VIDEO" : "IMAGE",
+  mediaUrl: `/favicon-64.png?ig=${n}`,
+  thumbnailUrl: `/favicon-64.png?ig=${n}`,
+  permalink: `https://www.instagram.com/p/MOCK${n}/`,
+  timestamp: new Date(Date.UTC(2026, 10, n)).toISOString(),
+  username: n % 2 ? `creador_${n}` : null,
+  source: n === 4 ? "tag" : "#SpatialgineersSummit"
+}));
+async function graph(path2, params) {
+  const qs = new URLSearchParams({ ...params, access_token: env().token });
+  const r = await fetch(`${GRAPH}/${path2}?${qs}`, { signal: AbortSignal.timeout(1e4) });
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok || body?.error) {
+    const e = body?.error || {};
+    throw new Error(`Graph ${r.status} ${e.code ?? ""}${e.error_subcode ? "/" + e.error_subcode : ""}: ${String(e.message || "error").slice(0, 160)}`);
+  }
+  return body;
+}
+function toPost(m, source) {
+  if (!m || typeof m.id !== "string" || typeof m.permalink !== "string") return null;
+  if (!/^https:\/\/(www\.)?instagram\.com\//.test(m.permalink)) return null;
+  return {
+    id: m.id,
+    caption: typeof m.caption === "string" ? m.caption.slice(0, 2200) : "",
+    mediaType: typeof m.media_type === "string" ? m.media_type : "IMAGE",
+    mediaUrl: typeof m.media_url === "string" ? m.media_url : null,
+    thumbnailUrl: typeof m.thumbnail_url === "string" ? m.thumbnail_url : null,
+    permalink: m.permalink,
+    timestamp: typeof m.timestamp === "string" ? m.timestamp : "",
+    username: typeof m.username === "string" ? m.username : null,
+    // absent for hashtag media
+    source
+  };
+}
+async function fetchAll() {
+  const { userId, hashtags } = env();
+  const out = [];
+  for (const tag of hashtags) {
+    let hid = hashtagIds.get(tag);
+    if (!hid) {
+      const s = await graph("ig_hashtag_search", { user_id: userId, q: tag });
+      hid = s?.data?.[0]?.id;
+      if (!hid) continue;
+      hashtagIds.set(tag, hid);
+    }
+    for (const edge of ["recent_media", "top_media"]) {
+      const r = await graph(`${hid}/${edge}`, { user_id: userId, fields: HASHTAG_FIELDS, limit: "50" });
+      for (const m of r?.data || []) {
+        const p = toPost(m, `#${tag}`);
+        if (p) out.push(p);
+      }
+    }
+  }
+  const t = await graph(`${userId}/tags`, { fields: TAG_FIELDS, limit: "50" });
+  for (const m of t?.data || []) {
+    const p = toPost(m, "tag");
+    if (p) out.push(p);
+  }
+  return out;
+}
+async function sync() {
+  const e = env();
+  if (e.mock) {
+    for (const p of MOCK2) state.posts.set(p.id, p);
+    state.status = "mock";
+    state.lastSync = Date.now();
+    state.lastError = null;
+    return;
+  }
+  if (!e.token || !e.userId) {
+    state.status = "disabled";
+    return;
+  }
+  if (Date.now() < state.backoffUntil) return;
+  state.status = state.lastSync ? state.status : "syncing";
+  try {
+    const fresh = await fetchAll();
+    const next = /* @__PURE__ */ new Map();
+    for (const p of fresh.sort((a, b) => b.timestamp.localeCompare(a.timestamp))) {
+      if (next.size >= MAX_POSTS) break;
+      if (!next.has(p.id)) next.set(p.id, p);
+    }
+    const cfg = await moderation();
+    for (const id of cfg.approved) {
+      const old = state.posts.get(id);
+      if (old && !next.has(id)) next.set(id, { ...old, mediaUrl: null, thumbnailUrl: null });
+    }
+    state.posts = next;
+    state.status = "ok";
+    state.lastSync = Date.now();
+    state.lastError = null;
+    state.failures = 0;
+  } catch (err) {
+    state.failures += 1;
+    state.backoffUntil = Date.now() + Math.min(60, 2 ** (state.failures - 1)) * 6e4;
+    state.status = "error";
+    state.lastError = err?.message || String(err);
+    console.warn("[IG Radar] sync failed:", state.lastError);
+  }
+}
+function syncSoon(force = false) {
+  if (state.syncing) return state.syncing;
+  if (!force && Date.now() - state.lastSync < ON_DEMAND_MIN_MS) return Promise.resolve();
+  state.syncing = sync().finally(() => {
+    state.syncing = null;
+  });
+  return state.syncing;
+}
+var cfgCache = { approved: [], hidden: [], at: 0 };
+async function moderation() {
+  if (Date.now() - cfgCache.at < CONFIG_TTL_MS) return cfgCache;
+  try {
+    const r = await fetch(`${FIRESTORE_DOCS}/site_config/social`, { signal: AbortSignal.timeout(6e3) });
+    if (r.ok) {
+      const f = (await r.json())?.fields || {};
+      const list = (v) => Array.isArray(fromFirestore(v)) ? fromFirestore(v).filter((x) => typeof x === "string") : [];
+      cfgCache = { approved: list(f.approvedIg), hidden: list(f.hiddenIg), at: Date.now() };
+    } else if (r.status === 404) {
+      cfgCache = { approved: [], hidden: [], at: Date.now() };
+    }
+  } catch {
+  }
+  return cfgCache;
+}
+var publicPost = (p) => ({
+  id: p.id,
+  permalink: p.permalink,
+  mediaType: p.mediaType,
+  imageUrl: p.mediaType === "VIDEO" ? p.thumbnailUrl : p.mediaUrl || p.thumbnailUrl,
+  caption: p.caption.length > 280 ? p.caption.slice(0, 277) + "\u2026" : p.caption,
+  timestamp: p.timestamp,
+  username: p.username
+});
+var timer = null;
+function createInstagramRadarRouter() {
+  const router = Router2();
+  if (!timer) {
+    void syncSoon(true);
+    timer = setInterval(() => void syncSoon(true), SYNC_MS);
+    timer.unref?.();
+  }
+  router.get("/candidates", requireAdmin, async (_req, res) => {
+    await syncSoon();
+    const cfg = await moderation();
+    res.setHeader("Cache-Control", "no-store");
+    res.json({
+      status: state.status,
+      lastSync: state.lastSync ? new Date(state.lastSync).toISOString() : null,
+      error: state.lastError,
+      hashtags: env().hashtags,
+      approved: cfg.approved,
+      hidden: cfg.hidden,
+      candidates: [...state.posts.values()].map((p) => ({ ...p, caption: p.caption.slice(0, 600) }))
+    });
+  });
+  let pub = { at: 0, body: null };
+  const PUBLIC_TTL_MS = Math.min(CONFIG_TTL_MS, 6e4);
+  router.get("/approved", async (_req, res) => {
+    if (!pub.body || Date.now() - pub.at > PUBLIC_TTL_MS) {
+      void syncSoon();
+      const cfg = await moderation();
+      const hidden = new Set(cfg.hidden);
+      const posts = cfg.approved.filter((id) => !hidden.has(id)).map((id) => state.posts.get(id)).filter(Boolean).map((p) => publicPost(p));
+      pub = { at: Date.now(), body: { status: state.status === "disabled" ? "disabled" : "ok", posts } };
+    }
+    res.setHeader("Cache-Control", "public, max-age=60");
+    res.json(pub.body);
+  });
+  return router;
+}
+
 // src/server/routes/apiRouter.ts
 function createApiRouter(broadcastToRoom) {
-  const router = Router2();
+  const router = Router3();
   router.use(ipRateLimit({ capacity: 120, refillPerSec: 40 }));
   const roomFrom = (req, res) => {
     const src = req.method === "GET" ? req.query : req.body || {};
@@ -4528,6 +4728,7 @@ function createApiRouter(broadcastToRoom) {
     return r.room;
   };
   router.use("/companion", createCompanionRouter());
+  router.use("/social/instagram", createInstagramRadarRouter());
   router.get("/health", (req, res) => {
     res.json({ status: "ok", engine: "SGX Live Engine", timestamp: Date.now() });
   });
@@ -5115,7 +5316,7 @@ function summitEventLd() {
 function welcomeJsonLd(head, uploadDate) {
   const organizer = SGX_ORGANIZER_LD;
   const event = summitEventLd();
-  const graph = [
+  const graph2 = [
     event,
     { "@type": "WebPage", "@id": head.canonical, url: head.canonical, name: head.title, description: head.description, inLanguage: "es", about: { "@id": `${WELCOME_ORIGIN}/#event` }, isPartOf: { "@type": "WebSite", name: "Spatialgineers Summit 2026", url: WELCOME_ORIGIN } }
   ];
@@ -5132,15 +5333,15 @@ function welcomeJsonLd(head, uploadDate) {
       about: { "@id": `${WELCOME_ORIGIN}/#event` }
     };
     if (uploadDate) video.uploadDate = uploadDate;
-    graph.push(video);
+    graph2.push(video);
   }
   if (head.faq.length) {
-    graph.push({
+    graph2.push({
       "@type": "FAQPage",
       mainEntity: head.faq.map((f) => ({ "@type": "Question", name: f.q.es, acceptedAnswer: { "@type": "Answer", text: f.a.es } }))
     });
   }
-  return { "@context": "https://schema.org", "@graph": graph };
+  return { "@context": "https://schema.org", "@graph": graph2 };
 }
 
 // src/server/welcomeMeta.ts

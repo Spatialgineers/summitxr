@@ -70,6 +70,7 @@ import { SummitBrandShowcaseModal } from '../summit/SummitBrandShowcaseModal';
 import { SummitContentAuditModal } from '../summit/SummitContentAuditModal';
 import { BulkQuestionUploadModal } from './BulkQuestionUploadModal';
 import { BulkInstagramImportModal } from './BulkInstagramImportModal';
+import { InstagramRadarPanel } from './InstagramRadarPanel';
 import { AdminMatchPanel } from '../../modules/match/admin/AdminMatchPanel';
 import { AdminSection, LiveListTable, AdminRosterPanel, ContentBackupPanel } from './AdminPanels';
 import { SummitInitiatesPanel } from './SummitInitiatesPanel';
@@ -163,7 +164,7 @@ const ADMIN_NAV: { id: string; label: string; items: NavItem[] }[] = [
     { id: 'INITIATES', label: 'Guild Initiates', icon: Sparkle, keywords: 'guild iniciados' },
     { id: 'MAP', label: 'Mapa 360', icon: MapIcon, keywords: 'tour chroma nodos' },
     { id: 'EMBEDS', label: 'Apps embebidas', icon: AppWindow, keywords: 'juegos widgets' },
-    { id: 'SOCIAL', label: 'Redes sociales', icon: Instagram, keywords: 'instagram reels' },
+    { id: 'SOCIAL', label: 'Redes sociales', icon: Instagram, keywords: 'instagram reels radar hashtag aprobar ocultar moderar' },
     { id: 'PILLAR_CASES', label: 'Pilares: casos y proyectos', icon: Presentation, keywords: 'dia 1 casos de uso portafolio highcoon' },
     { id: 'HIGHBOT_QA', label: 'Highbot: control y preguntas', icon: Bot, keywords: 'companion ia claude faq respuestas gasto apagar tope' },
     { id: 'WELCOME_PORTAL', label: 'Portal de bienvenida', icon: Clapperboard, keywords: 'bienvenida videos youtube enlaces roles onboarding visitante speaker sponsor equipo' },
@@ -990,6 +991,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <AdminSection title="Redes sociales" desc="Publicaciones y reels de Instagram que alimentan el radar social."
               actions={<button type="button" className="sgx-btn text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => setIsBulkInstagramModalOpen(true)}><Instagram className="w-3.5 h-3.5" /> Importar publicaciones</button>}>
               <p className="text-sm text-slate-400">Sube un CSV con los enlaces de las publicaciones; aparecen en el radar social de la app.</p>
+              <InstagramRadarPanel />
             </AdminSection>
           )}
 

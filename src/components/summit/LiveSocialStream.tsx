@@ -35,6 +35,7 @@ import {
   SocialPlatform 
 } from '../../lib/realSocialStreamApi';
 import { InstagramEmbedCard } from './InstagramEmbedCard';
+import { InstagramRadarWall } from './InstagramRadarWall';
 import { BulkInstagramImportModal } from '../admin/BulkInstagramImportModal';
 import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useAuth } from '../../context/AuthContext';
@@ -493,6 +494,9 @@ export const LiveSocialStream: React.FC<LiveSocialStreamProps> = ({
 
         </div>
       </div>
+
+      {/* Approved Instagram posts found by the radar (server, team-moderated) */}
+      <InstagramRadarWall />
 
       {/* 3. Feed Display Grid */}
       {loading ? (

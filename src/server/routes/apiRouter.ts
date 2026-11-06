@@ -17,6 +17,7 @@ import {
 } from '../engine/votingEngine';
 import { triggerPresetOverride, processAudienceReaction } from '../engine/visualizerBridge';
 import { createCompanionRouter } from '../companion/companionRouter';
+import { createInstagramRadarRouter } from '../social/instagramRadar';
 
 export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
   const router = Router();
@@ -37,6 +38,9 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
 
   // The Highbot companion (Claude, SGX Pass holders only)
   router.use('/companion', createCompanionRouter());
+
+  // Radar social · Instagram (Graph API candidates for admins, approved posts for everyone)
+  router.use('/social/instagram', createInstagramRadarRouter());
 
   // Health check
   router.get('/health', (req, res) => {

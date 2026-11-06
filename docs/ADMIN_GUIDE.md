@@ -55,6 +55,12 @@ What failed on visitors' phones (JavaScript errors, rejected promises, React cra
 
 Everyone marked with ⭐ in Inscritos, Sponsors or a visitor's Rolodex. For each one: status, pillars of interest and a note, plus a CSV export for the CRM (`leads`).
 
+## Redes sociales · Radar de Instagram
+
+- **Import** Instagram posts in bulk (CSV), as before.
+- **Radar social · Instagram**: the posts the server found with `#SpatialgineersSummit` / `#RoadToSummit` or tagging @spatialgineers. Filter Pendientes / Aprobadas / Ocultas; **Aprobar** shows a post in the public mural ("Visto en Instagram") within a minute, **Ocultar** removes it (`site_config/social`).
+- The status line says whether the feature is off (no `IG_GRAPH_TOKEN` yet), the last sync and any Instagram error. Setup and token renewal: `docs/INSTAGRAM_RADAR.md`.
+
 ## Highbot: control y preguntas
 
 - **On / off** for the Claude chat. Off, the Highbot answers from the on-device guide.

@@ -18,6 +18,8 @@ node scripts/e2e/pilot.cjs     # Pilot Builder in the Forge and in Avatar Studio
 node scripts/e2e/deadlines.cjs # speaker portal / sponsor form close by themselves (localStorage.sgx_now), welcome dates, Day 3 note
 node scripts/e2e/fixes.cjs     # 360° XP once per point, +25 XP per /play question, signed REST voter, /studio → Tu Estudio
                                # (server started with SGX_TEST_ADMIN_TOKEN=x, script run with ADMIN_TOKEN=x)
+node scripts/e2e/igradar.cjs   # Instagram radar: admin candidates, Aprobar → public mural, Ocultar, /candidates 401
+                               # (server started with IG_RADAR_MOCK=1 IG_CONFIG_TTL_MS=500; AUTH_PORT for a second stack)
 node scripts/e2e/guides.cjs    # sponsors "Términos y logística" (/sponsors#terminos), "Guía del speaker" (portal + /bienvenida/speaker#guia), Day 3 Entrepreneurship Match
 ```
 

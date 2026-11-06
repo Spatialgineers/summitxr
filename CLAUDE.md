@@ -41,6 +41,7 @@ Antes de cualquier cosa, lee `docs/GUIA_WEBAPP.md`. Es la guía maestra de la ap
 - **Antes de dar algo por hecho:** corre `npx tsc --noEmit -p .`, el build y las suites e2e afectadas (`scripts/e2e/*.cjs`).
 
 ## Documentos útiles
+- `docs/CONTEXTO_SPATIALGINEERS.md`: brief general (estudio, Summit, campaña, Highcoon) para otros agentes. Actualízalo cuando cambie algo grande.
 - `docs/GUIA_WEBAPP.md`: la guía maestra.
 - `docs/guia/`: la guía en PDF; se regenera con `node scripts/guide-pdf/build.cjs`.
 - `docs/ADMIN_GUIDE.md`, `docs/EMAIL_SETUP.md` (el mailer de Apps Script, todavía sin instalar), `docs/FIRESTORE_RULES.md` y `docs/HIGHBOT_COMPANION.md`.

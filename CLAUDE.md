@@ -45,3 +45,10 @@ Antes de cualquier cosa, lee `docs/GUIA_WEBAPP.md`. Es la guía maestra de la ap
 - `docs/guia/`: la guía en PDF; se regenera con `node scripts/guide-pdf/build.cjs`.
 - `docs/ADMIN_GUIDE.md`, `docs/EMAIL_SETUP.md` (el mailer de Apps Script, todavía sin instalar), `docs/FIRESTORE_RULES.md` y `docs/HIGHBOT_COMPANION.md`.
 - `docs/campaign/YOUTUBE_KIT.md`: los videos de la campaña.
+
+## Redes sociales
+- Todo post lleva al final: **#SpatialgineersSummit #RoadToSummit #Spatialgineers**. El Radar de Instagram de la app busca por esos hashtags.
+- A Symphony se le pasa el caption final y completo, con los hashtags. Nunca le des instrucciones de "no uses hashtags": solo publica lo que se le prepara.
+- Nada se publica sin la aprobación de Danelson en su tarjeta.
+- Los créditos de Symphony se reinician el 18 de cada mes.
+- Plan y calendario: `docs/campaign/CAMPANA_REDES.md` y `docs/campaign/calendario_redes.csv`.

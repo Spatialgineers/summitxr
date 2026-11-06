@@ -7,6 +7,7 @@ import { createServer as createViteServer } from 'vite';
 import { setupWebSocketEngine } from './src/server/engine/wsHandler';
 import { createApiRouter } from './src/server/routes/apiRouter';
 import { welcomeHtmlFor } from './src/server/welcomeMeta';
+import { privacyPageHtml } from './src/server/privacyPage';
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
@@ -39,6 +40,12 @@ async function startServer() {
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     if (isProduction) res.setHeader('Strict-Transport-Security', 'max-age=15552000; includeSubDomains');
     next();
+  });
+
+  // Public privacy policy page (Meta and other platforms require a privacy URL).
+  app.get(['/privacidad', '/privacy', '/privacidad/', '/privacy/'], (_req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=600');
+    res.type('html').send(privacyPageHtml());
   });
 
   // Vite middleware in dev or static files in production

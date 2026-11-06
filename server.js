@@ -4474,25 +4474,25 @@ function createCompanionRouter() {
         }
         if (final.stop_reason !== "tool_use") break;
         const results = [];
-        for (const block of final.content) {
-          if (block.type !== "tool_use") continue;
-          const input = block.input || {};
+        for (const block2 of final.content) {
+          if (block2.type !== "tool_use") continue;
+          const input = block2.input || {};
           let ok = false;
           let note = "listo";
-          if (block.name === "ir_a" && typeof input.destino === "string" && DEST_IDS.includes(input.destino)) {
+          if (block2.name === "ir_a" && typeof input.destino === "string" && DEST_IDS.includes(input.destino)) {
             if (navigated) note = "una sola p\xE1gina por respuesta";
             else {
               navigated = true;
               ok = true;
               send("action", { type: "ir_a", id: input.destino });
             }
-          } else if (block.name === "senalar" && typeof input.elemento === "string" && targetIds.has(input.elemento)) {
+          } else if (block2.name === "senalar" && typeof input.elemento === "string" && targetIds.has(input.elemento)) {
             ok = true;
             send("action", { type: "senalar", id: input.elemento });
           } else {
             note = "destino o elemento no v\xE1lido";
           }
-          results.push({ type: "tool_result", tool_use_id: block.id, content: ok ? "listo" : note, ...ok ? {} : { is_error: true } });
+          results.push({ type: "tool_result", tool_use_id: block2.id, content: ok ? "listo" : note, ...ok ? {} : { is_error: true } });
         }
         messages.push({ role: "assistant", content: final.content });
         messages.push({ role: "user", content: results });
@@ -5529,6 +5529,150 @@ async function welcomeHtmlFor(readIndex, reqPath, hasQuery = false) {
   }
 }
 
+// src/lib/privacyPolicy.ts
+var PRIVACY_SECTIONS = [
+  {
+    id: "who",
+    title: { es: "Qui\xE9nes somos", en: "Who we are" },
+    intro: {
+      es: "Spatialgineers LLC, en San Juan, Puerto Rico, organiza el Spatialgineers Summit 2026 y opera esta web app. Para cualquier pregunta sobre tus datos, escr\xEDbenos a info@spatialgineers.com.",
+      en: "Spatialgineers LLC, in San Juan, Puerto Rico, runs the Spatialgineers Summit 2026 and operates this web app. For any question about your data, write to info@spatialgineers.com."
+    }
+  },
+  {
+    id: "collect",
+    title: { es: "Qu\xE9 datos recogemos", en: "What we collect" },
+    items: [
+      { es: "Cuando forjas tu SGX Pass: tu nombre completo, tu correo, tu rol y tu organizaci\xF3n (opcionales), el pilar que eliges y tu consentimiento de imagen (si aceptas que aparezcas en fotos y video del evento).", en: "When you forge your SGX Pass: your full name, your email, your role and organization (optional), the pillar you choose and your image consent (whether you agree to appear in event photos and video)." },
+      { es: "Si entras con Google (opcional): el identificador de tu cuenta, tu nombre y tu correo de Google. No vemos tu contrase\xF1a.", en: "If you sign in with Google (optional): your account identifier, your Google name and email. We never see your password." },
+      { es: "Lo que haces en la app: tu XP, misiones y sellos, tu avatar, los contactos que intercambias y, si los usas, tus votos, mensajes en los foros y tu perfil de SGX.Match.", en: "What you do in the app: your XP, missions and stamps, your avatar, the contacts you exchange and, if you use them, your votes, forum messages and SGX.Match profile." },
+      { es: "D\xEDa 3: el registro de tu entrada (check-in) cuando escaneamos tu pase en Chroma Space Studios.", en: "Day 3: your entry record (check-in) when we scan your pass at Chroma Space Studios." },
+      { es: "Visitas: contamos visitas por regi\xF3n aproximada (municipio, estado o pa\xEDs). Para saber la regi\xF3n, tu navegador consulta un servicio de ubicaci\xF3n por IP (geojs.io o ipapi.co). No guardamos tu IP ni tu ubicaci\xF3n exacta.", en: "Visits: we count visits by approximate region (municipality, state or country). To find the region, your browser asks an IP location service (geojs.io or ipapi.co). We don't store your IP or exact location." },
+      { es: "Errores: si algo falla, la app env\xEDa un reporte t\xE9cnico (el error, la p\xE1gina y el navegador). No incluye datos personales, salvo tu identificador de usuario (uid) si tienes uno.", en: "Errors: if something breaks, the app sends a technical report (the error, the page and the browser). It has no personal data, except your user identifier (uid) if you have one." }
+    ]
+  },
+  {
+    id: "where",
+    title: { es: "D\xF3nde se guardan", en: "Where it is stored" },
+    items: [
+      { es: "En tu navegador: tu pase, tu XP, tu avatar y tus contactos, para que la app funcione aunque no tengas cuenta. Si borras los datos del navegador, se borran de ah\xED.", en: "In your browser: your pass, XP, avatar and contacts, so the app works even without an account. If you clear your browser data, they are removed from there." },
+      { es: "En Firebase (Google Cloud): tu inscripci\xF3n; un \xEDndice de correos de pases guardado como hash SHA-256 (no el correo en texto) para evitar pases duplicados y recuperar el tuyo; tu perfil de creador y tu lugar en el leaderboard; los intercambios de contacto, que solo se completan cuando ambas personas escanean; los check-ins del D\xEDa 3, y los reportes de errores.", en: "In Firebase (Google Cloud): your registration; an index of pass emails stored as a SHA-256 hash (not the plain email) to prevent duplicate passes and recover yours; your creator profile and leaderboard position; contact exchanges, which only complete when both people scan; Day 3 check-ins, and error reports." }
+    ]
+  },
+  {
+    id: "email",
+    title: { es: "Correos que te enviamos", en: "Emails we send you" },
+    intro: { es: "Desde info@spatialgineers.com, y solo sobre el evento:", en: "From info@spatialgineers.com, and only about the event:" },
+    items: [
+      { es: "La confirmaci\xF3n de tu SGX Pass.", en: "Your SGX Pass confirmation." },
+      { es: "La invitaci\xF3n al D\xEDa 3, si te invitamos.", en: "The Day 3 invitation, if you are invited." },
+      { es: "Recordatorios antes del Summit y antes del D\xEDa 3.", en: "Reminders before the Summit and before Day 3." },
+      { es: "El aviso de que tu Holo Card est\xE1 lista (speakers y sponsors).", en: "A notice that your Holo Card is ready (speakers and sponsors)." }
+    ],
+    outro: { es: "Si no quieres recibirlos, escr\xEDbenos y te sacamos de la lista.", en: "If you don't want them, write to us and we'll take you off the list." }
+  },
+  {
+    id: "use",
+    title: { es: "Para qu\xE9 los usamos", en: "What we use it for" },
+    items: [
+      { es: "Para darte tu pase, tu XP y tus premios, y para organizar la entrada al D\xEDa 3.", en: "To give you your pass, XP and prizes, and to organize Day 3 entry." },
+      { es: "Para mostrar el leaderboard (tu nombre de creador y tu XP) y el mapa de visitas por regi\xF3n.", en: "To show the leaderboard (your creator name and XP) and the visit map by region." },
+      { es: "Para arreglar errores y mejorar la app.", en: "To fix errors and improve the app." },
+      { es: "Nunca vendemos ni alquilamos tus datos a nadie.", en: "We never sell or rent your data to anyone." }
+    ]
+  },
+  {
+    id: "social",
+    title: { es: "Redes sociales e Instagram", en: "Social media and Instagram" },
+    items: [
+      { es: "El Radar social muestra publicaciones p\xFAblicas de Instagram que usan #SpatialgineersSummit o #RoadToSummit, o que etiquetan a @spatialgineers. Las obtenemos con la API oficial de Meta y el equipo las revisa antes de mostrarlas.", en: "The Social radar shows public Instagram posts that use #SpatialgineersSummit or #RoadToSummit, or that tag @spatialgineers. We get them through Meta's official API and the team reviews them before showing them." },
+      { es: "De cada publicaci\xF3n usamos solo el enlace, la imagen o miniatura, el texto, la fecha y el usuario cuando Instagram lo da. No guardamos tu cuenta, tus seguidores ni tus mensajes, y las im\xE1genes se cargan desde Instagram.", en: "From each post we use only the link, the image or thumbnail, the caption, the date and the username when Instagram provides it. We don't store your account, followers or messages, and images load from Instagram." },
+      { es: "Si quieres que retiremos una publicaci\xF3n tuya del Radar, escr\xEDbenos y la ocultamos.", en: "If you want one of your posts removed from the radar, write to us and we will hide it." }
+    ]
+  },
+  {
+    id: "delete",
+    title: { es: "C\xF3mo borrar tus datos", en: "How to delete your data" },
+    items: [
+      { es: 'Escribe a info@spatialgineers.com con el asunto "Borrar mis datos" y el correo de tu SGX Pass. Borramos tu inscripci\xF3n, tu pase, tu perfil y tus publicaciones del Radar en un m\xE1ximo de 30 d\xEDas y te confirmamos por correo.', en: 'Email info@spatialgineers.com with the subject "Delete my data" and your SGX Pass email. We delete your registration, pass, profile and radar posts within 30 days and confirm by email.' },
+      { es: "Lo que est\xE1 solo en tu navegador lo borras t\xFA, borrando los datos del sitio summit.spatialgineers.com.", en: "What lives only in your browser you delete yourself, by clearing the site data for summit.spatialgineers.com." }
+    ]
+  },
+  {
+    id: "rights",
+    title: { es: "Tus derechos", en: "Your rights" },
+    intro: {
+      es: "Puedes pedirnos ver, corregir o borrar tus datos (tu inscripci\xF3n, tu pase y tu perfil) escribiendo a info@spatialgineers.com. Esta pol\xEDtica se rige por las leyes de Puerto Rico.",
+      en: "You can ask us to see, correct or delete your data (your registration, pass and profile) by writing to info@spatialgineers.com. This policy is governed by the laws of Puerto Rico."
+    }
+  }
+];
+var PRIVACY_UPDATED = { es: "actualizada el 6 de noviembre de 2026", en: "updated November 6, 2026" };
+var PRIVACY_LEAD = {
+  es: "En corto: para darte tu SGX Pass guardamos tu nombre y tu correo, y lo que haces en la app. Lo usamos solo para el Summit y nunca lo vendemos.",
+  en: "In short: to give you your SGX Pass we keep your name and email, and what you do in the app. We use it only for the Summit and never sell it."
+};
+
+// src/server/privacyPage.ts
+var esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+function block(lang) {
+  const t = (b) => esc(b[lang]);
+  return PRIVACY_SECTIONS.map((sec, i) => `
+    <section id="${lang}-${sec.id}">
+      <h2><span>0${i + 1}</span> ${t(sec.title)}</h2>
+      ${sec.intro ? `<p>${t(sec.intro)}</p>` : ""}
+      ${sec.items ? `<ul>${sec.items.map((it) => `<li>${t(it)}</li>`).join("")}</ul>` : ""}
+      ${sec.outro ? `<p>${t(sec.outro)}</p>` : ""}
+    </section>`).join("");
+}
+function privacyPageHtml() {
+  return `<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pol\xEDtica de privacidad \xB7 Spatialgineers Summit 2026</title>
+<meta name="description" content="Pol\xEDtica de privacidad de la web app del Spatialgineers Summit 2026, operada por Spatialgineers LLC." />
+<link rel="canonical" href="https://summit.spatialgineers.com/privacidad" />
+<link rel="icon" href="/icons/sgx-192.png" />
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #050505; color: #e5e7eb; font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; }
+  header img { height: 56px; }
+  h1 { color: #FDCC0D; font-size: 28px; margin: 16px 0 4px; letter-spacing: .02em; }
+  .meta { color: #9ca3af; font-size: 14px; margin: 0 0 20px; }
+  .lead { border-left: 3px solid #00DDFF; padding: 8px 14px; background: #0d1117; }
+  h2 { color: #fff; font-size: 19px; margin: 28px 0 8px; }
+  h2 span { color: #00DDFF; font-family: ui-monospace, monospace; margin-right: 6px; }
+  ul { padding-left: 20px; } li { margin: 6px 0; }
+  a { color: #00DDFF; }
+  hr { border: 0; border-top: 1px solid #1f2937; margin: 48px 0 24px; }
+  .back { display: inline-block; margin-top: 28px; padding: 10px 16px; border: 1px solid #FDCC0D; color: #FDCC0D; text-decoration: none; }
+</style>
+</head>
+<body>
+<main>
+  <header><a href="/"><img src="/brand/summit-logo.png" alt="Spatialgineers Summit 2026" /></a></header>
+  <h1>Pol\xEDtica de privacidad</h1>
+  <p class="meta">Spatialgineers LLC \xB7 ${esc(PRIVACY_UPDATED.es)} \xB7 summit.spatialgineers.com</p>
+  <p class="lead">${esc(PRIVACY_LEAD.es)}</p>
+  ${block("es")}
+  <p>Contacto: <a href="mailto:info@spatialgineers.com">info@spatialgineers.com</a></p>
+  <hr />
+  <h1 id="en" lang="en">Privacy policy</h1>
+  <div lang="en">
+  <p class="meta">Spatialgineers LLC \xB7 ${esc(PRIVACY_UPDATED.en)}</p>
+  <p class="lead">${esc(PRIVACY_LEAD.en)}</p>
+  ${block("en")}
+  <p>Contact: <a href="mailto:info@spatialgineers.com">info@spatialgineers.com</a></p>
+  </div>
+  <a class="back" href="/">\u2190 Volver al Summit</a>
+</main>
+</body>
+</html>`;
+}
+
 // server.ts
 var PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3e3;
 async function startServer() {
@@ -5549,6 +5693,10 @@ async function startServer() {
     res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
     if (isProduction) res.setHeader("Strict-Transport-Security", "max-age=15552000; includeSubDomains");
     next();
+  });
+  app.get(["/privacidad", "/privacy", "/privacidad/", "/privacy/"], (_req, res) => {
+    res.setHeader("Cache-Control", "public, max-age=600");
+    res.type("html").send(privacyPageHtml());
   });
   if (isProduction) {
     const COMPRESSIBLE = /\.(js|mjs|css|svg|json|webmanifest|glb|txt|xml|wasm)$/i;

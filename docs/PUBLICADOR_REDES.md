@@ -9,7 +9,7 @@ Publica en Instagram (Reels, imágenes y carruseles) y en la página de Facebook
   3. Toca **"Aprobar la semana"**. Ese es tu único clic.
   4. El servidor revisa cada minuto y publica cada post a su hora en Instagram y Facebook. Cuando sale, el post pasa a **Publicado** con sus enlaces "ver post". Si algo falla, pasa a **Falló** con el error de Meta y el botón "Reintentar ahora".
 - **Horas:** son hora de Puerto Rico (UTC-4). Un post aprobado que no salga en 6 horas (por ejemplo, porque el servidor estuvo caído) queda como "No salió" y no se publica tarde.
-- **Archivos:** Instagram y Facebook descargan el video o la imagen desde un enlace `https` público. Claude sube los archivos de cada semana y pone los enlaces en el JSON.
+- **Archivos:** Instagram y Facebook descargan el video o la imagen desde un enlace `https` público y directo. Por ahora, los videos van a la biblioteca de Wix y las láminas a `public/social/`. A futuro van a bunny.net, el storage de Spatialgineers. Google Drive no sirve: sus enlaces abren una página, no el archivo.
 - **Captions:** todo caption termina con `#SpatialgineersSummit #RoadToSummit #Spatialgineers`. El panel no deja importar un caption que no los tenga.
 - **TikTok:** este módulo no publica en TikTok. TikTok sigue por Symphony.
 

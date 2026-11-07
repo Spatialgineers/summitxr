@@ -22,6 +22,9 @@ const owner = { Authorization: 'Bearer owner' };
   const old = await fetch(`${REST}/social_posts?pageSize=300`, { headers: owner }).then((r) => r.json());
   for (const d of old.documents || []) await fetch(`${FS}/v1/${d.name}`, { method: 'DELETE', headers: owner });
 
+  // A half-written doc (no publishAt, no media, unknown status) must not break the panel.
+  await fetch(`${REST}/social_posts?documentId=roto`, { method: 'POST', headers: { ...owner, 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: { title: { stringValue: 'Doc roto' }, status: { stringValue: 'raro' } } }) });
+
   check('status without token → 401', (await fetch(`${APP}/api/social/publisher/status`)).status === 401);
   const su = await fetch(`${AUTH}/identitytoolkit.googleapis.com/v1/accounts:signUp?key=fake`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -71,7 +74,10 @@ const owner = { Authorization: 'Bearer owner' };
   await p.click('.sgx-pub__import button');
   await p.waitForSelector('.sgx-pub__post', { timeout: 10000 }).catch(() => {});
   const drafts = await p.$$eval('.sgx-pub__post.is-draft', (l) => l.length);
-  check('import: 2 posts in as drafts', drafts === 2, String(drafts));
+  check('import: 2 posts in as drafts (+ the broken doc shown as a draft)', drafts === 3, String(drafts));
+  check('broken doc listed under "Sin fecha" without crashing', /Sin fecha/.test(await p.$eval('.sgx-pub', (e) => e.textContent)));
+  await p.click('.sgx-pub__post:has-text("Doc roto") button:has-text("Borrar")');
+  await p.waitForTimeout(800);
 
   for (const btn of await p.$$('.sgx-pub__week header button')) await btn.click();
   await p.waitForTimeout(1000);

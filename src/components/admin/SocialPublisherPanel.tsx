@@ -31,8 +31,10 @@ const toPrInput = (iso: string) => {
   return Number.isFinite(t) ? new Date(t - 4 * 3600_000).toISOString().slice(0, 16) : '';
 };
 const fromPrInput = (local: string) => new Date(`${local}:00-04:00`).toISOString();
-const prLabel = (iso: string) => new Date(iso).toLocaleString('es-PR', { timeZone: 'America/Puerto_Rico', weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+const validIso = (iso: unknown): iso is string => typeof iso === 'string' && Number.isFinite(Date.parse(iso));
+const prLabel = (iso: string) => !validIso(iso) ? 'sin fecha' : new Date(iso).toLocaleString('es-PR', { timeZone: 'America/Puerto_Rico', weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
 const weekKey = (iso: string) => {
+  if (!validIso(iso)) return 'sin-fecha';
   const d = new Date(Date.parse(iso) - 4 * 3600_000);
   const monday = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - ((d.getUTCDay() + 6) % 7)));
   return monday.toISOString().slice(0, 10);
@@ -63,13 +65,28 @@ export function SocialPublisherPanel() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => onSnapshot(collection(db, 'social_posts'), (snap) => {
-    setPosts(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Post, 'id'>) })));
+    // Normalize every doc so a half-written or hand-edited one can't break the list.
+    setPosts(snap.docs.map((d) => {
+      const x = d.data() as Partial<Post>;
+      return {
+        id: d.id,
+        title: String(x.title || d.id),
+        kind: (['REEL', 'IMAGE', 'CAROUSEL'] as Kind[]).includes(x.kind as Kind) ? x.kind as Kind : 'REEL',
+        caption: String(x.caption || ''),
+        mediaUrls: Array.isArray(x.mediaUrls) ? x.mediaUrls.filter((u): u is string => typeof u === 'string') : [],
+        publishAt: validIso(x.publishAt) ? x.publishAt : '',
+        networks: { ig: !!x.networks?.ig, fb: !!x.networks?.fb },
+        status: (Object.keys(STATUS_LABEL) as Status[]).includes(x.status as Status) ? x.status as Status : 'draft',
+        results: x.results && typeof x.results === 'object' ? x.results : {},
+      };
+    }));
   }, () => setMsg('No se pudieron leer los posts (¿publicaste las reglas de Firestore?).')), []);
 
   const api = async (path: string, method = 'GET') => {
     const token = await auth.currentUser?.getIdToken();
     const r = await fetch(`/api/social/publisher/${path}`, { method, headers: token ? { Authorization: `Bearer ${token}` } : {} });
-    return r.ok ? r.json() : null;
+    const j = r.ok ? await r.json().catch(() => null) : null;
+    return j && typeof j === 'object' ? j : null;
   };
   useEffect(() => {
     let alive = true;
@@ -186,7 +203,7 @@ export function SocialPublisherPanel() {
         return (
           <section key={week} className="sgx-pub__week">
             <header>
-              <h4>Semana del {new Date(`${week}T12:00:00Z`).toLocaleDateString('es-PR', { day: 'numeric', month: 'long' })}</h4>
+              <h4>{week === 'sin-fecha' ? 'Sin fecha' : `Semana del ${new Date(`${week}T12:00:00Z`).toLocaleDateString('es-PR', { day: 'numeric', month: 'long' })}`}</h4>
               {drafts.length > 0 && (
                 <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy}
                   onClick={() => window.confirm(`¿Aprobar ${drafts.length} post(s) de esta semana? Salen solos a su hora en Instagram y Facebook.`) && setStatus(drafts.map((p) => p.id), 'approved')}>
@@ -198,7 +215,7 @@ export function SocialPublisherPanel() {
               {list.map((p) => (
                 <li key={p.id} className={`sgx-pub__post is-${p.status}`}>
                   <div className="sgx-pub__thumb">
-                    {p.kind === 'REEL'
+                    {!p.mediaUrls[0] ? null : p.kind === 'REEL'
                       ? <video src={p.mediaUrls[0]} muted playsInline preload="metadata" />
                       : <img src={p.mediaUrls[0]} alt="" loading="lazy" />}
                   </div>

@@ -226,3 +226,7 @@
 .sgx-pub__empty { color: #94a3b8; }
 .sgx-panel-error { display: grid; gap: 8px; padding: 12px; border: 1px solid rgba(248,113,113,.5); border-radius: 8px; font-size: 13px; }
 .sgx-panel-error pre { white-space: pre-wrap; word-break: break-word; color: #f87171; margin: 0; }
+.sgx-pub__batches { display: grid; gap: 8px; padding: 10px; border: 1px solid rgba(0,221,255,.35); border-radius: 8px; }
+.sgx-pub__batches label { display: grid; gap: 4px; }
+.sgx-pub__batches select { background: #05080F; color: inherit; border: 1px solid rgba(255,255,255,.18); border-radius: 6px; padding: 6px 8px; font: inherit; }
+.sgx-pub__batches ul { margin: 0; padding-left: 18px; color: #cbd5e1; }

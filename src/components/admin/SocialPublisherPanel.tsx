@@ -130,25 +130,56 @@ export function SocialPublisherPanel() {
     setBusy(false);
   };
 
+  /* Writes a list of posts. approve=true approves them in the same batch. */
+  const importList = async (list: unknown, approve = false): Promise<number> => {
+    if (!Array.isArray(list)) throw new Error('El JSON tiene que ser una lista');
+    const b = writeBatch(db);
+    for (const raw of list as any[]) {
+      const p: Omit<Post, 'id'> = {
+        title: String(raw.title || ''), kind: raw.kind, caption: String(raw.caption || ''),
+        mediaUrls: Array.isArray(raw.mediaUrls) ? raw.mediaUrls.map(String) : [],
+        publishAt: typeof raw.publishAt === 'string' && raw.publishAt.includes('T') && !/[zZ]|[+-]\d\d:\d\d$/.test(raw.publishAt) ? fromPrInput(raw.publishAt.slice(0, 16)) : new Date(raw.publishAt).toISOString(),
+        networks: { ig: raw.networks?.ig !== false, fb: raw.networks?.fb !== false }, status: approve ? 'approved' : 'draft',
+      };
+      const err = validate(p);
+      if (err) throw new Error(`${p.title || '(sin título)'}: ${err}`);
+      b.set(doc(db, 'social_posts', `${weekKey(p.publishAt)}_${slug(p.title)}`), { ...p, results: {}, week: weekKey(p.publishAt), updatedAt: serverTimestamp() });
+    }
+    await b.commit();
+    return list.length;
+  };
+
   const importJson = async () => {
     try {
-      const list = JSON.parse(importText);
-      if (!Array.isArray(list)) throw new Error('El JSON tiene que ser una lista');
-      const b = writeBatch(db);
-      for (const raw of list) {
-        const p: Omit<Post, 'id'> = {
-          title: String(raw.title || ''), kind: raw.kind, caption: String(raw.caption || ''),
-          mediaUrls: Array.isArray(raw.mediaUrls) ? raw.mediaUrls.map(String) : [],
-          publishAt: raw.publishAt?.includes('T') && !/[zZ]|[+-]\d\d:\d\d$/.test(raw.publishAt) ? fromPrInput(raw.publishAt.slice(0, 16)) : new Date(raw.publishAt).toISOString(),
-          networks: { ig: raw.networks?.ig !== false, fb: raw.networks?.fb !== false }, status: 'draft',
-        };
-        const err = validate(p);
-        if (err) throw new Error(`${p.title || '(sin título)'}: ${err}`);
-        b.set(doc(db, 'social_posts', `${weekKey(p.publishAt)}_${slug(p.title)}`), { ...p, results: {}, week: weekKey(p.publishAt), updatedAt: serverTimestamp() });
-      }
-      await b.commit();
-      setImportText(''); setMsg(`${list.length} post(s) importados como borrador.`);
+      const n = await importList(JSON.parse(importText));
+      setImportText(''); setMsg(`${n} post(s) importados como borrador.`);
     } catch (e) { setMsg(`No se importó nada: ${(e as Error).message}`); }
+  };
+
+  /* Paquetes listos: JSON files Claude ships in public/social/batches/. */
+  const [batches, setBatches] = useState<{ file: string; label: string }[]>([]);
+  const [batch, setBatch] = useState('');
+  const [preview, setPreview] = useState<any[] | null>(null);
+  useEffect(() => {
+    fetch('/social/batches/index.json', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : [])).then((l) => {
+      if (Array.isArray(l)) setBatches(l.filter((x) => x && typeof x.file === 'string' && /^[\w.-]+\.json$/.test(x.file)));
+    }).catch(() => {});
+  }, []);
+  useEffect(() => {
+    setPreview(null);
+    if (!batch) return;
+    fetch(`/social/batches/${batch}`, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((l) => setPreview(Array.isArray(l) ? l : null)).catch(() => setPreview(null));
+  }, [batch]);
+  const loadBatch = async (approve: boolean) => {
+    if (!preview) return;
+    if (approve && !window.confirm(`¿Cargar y APROBAR ${preview.length} post(s)? Salen solos a su hora en Instagram y Facebook.`)) return;
+    setBusy(true);
+    try {
+      const n = await importList(preview, approve);
+      setMsg(approve ? `${n} post(s) cargados y aprobados. Salen solos a su hora.` : `${n} post(s) cargados como borrador.`);
+      setBatch('');
+    } catch (e) { setMsg(`No se cargó nada: ${(e as Error).message}`); }
+    setBusy(false);
   };
 
   const ready = server && server.instagram && server.facebook && server.database !== 'none';
@@ -167,6 +198,26 @@ export function SocialPublisherPanel() {
         {server && !ready && <span className="sgx-pub__hint"> Falta configurar el servidor: mira docs/PUBLICADOR_REDES.md.</span>}
         <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy} onClick={() => api('run', 'POST').then(() => setMsg('Revisado.'))}>Revisar ahora</button>
       </div>
+
+      {batches.length > 0 && (
+        <div className="sgx-pub__batches">
+          <label>Paquetes listos
+            <select value={batch} onChange={(e) => setBatch(e.target.value)}>
+              <option value="">Elige un paquete…</option>
+              {batches.map((x) => <option key={x.file} value={x.file}>{x.label}</option>)}
+            </select>
+          </label>
+          {preview && (
+            <>
+              <ul>{preview.map((x, i) => <li key={i}><strong>{prLabel(typeof x.publishAt === 'string' && !/[zZ]|[+-]\d\d:\d\d$/.test(x.publishAt) ? fromPrInput(x.publishAt.slice(0, 16)) : String(x.publishAt))}</strong> · {String(x.kind)} · {String(x.title)}</li>)}</ul>
+              <div className="sgx-pub__actions">
+                <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy} onClick={() => loadBatch(true)}>Cargar y aprobar</button>
+                <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" disabled={busy} onClick={() => loadBatch(false)}>Solo cargar (borrador)</button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       <div className="sgx-pub__actions">
         <button type="button" className="sgx-btn sgx-btn--sm" onClick={() => setEdit(empty())}>+ Nuevo post</button>

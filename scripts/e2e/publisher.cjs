@@ -92,6 +92,13 @@ const owner = { Authorization: 'Bearer owner' };
   const docs = await fetch(`${REST}/social_posts`, { headers: owner }).then((r) => r.json());
   const teaser = (docs.documents || []).find((d) => d.fields.title.stringValue === 'Teaser powered by');
   check('Firestore: results.ig.id written by the server', /^mock_ig_/.test(teaser?.fields?.results?.mapValue?.fields?.ig?.mapValue?.fields?.id?.stringValue || ''));
+  // Paquetes listos: pick the bundled test batch, load and approve in one go.
+  await p.selectOption('.sgx-pub__batches select', 'test_powered_by.json');
+  await p.waitForSelector('.sgx-pub__batches li', { timeout: 10000 }).catch(() => {});
+  await p.click('.sgx-pub__batches button:has-text("Cargar y aprobar")');
+  await p.waitForSelector('.sgx-pub__post:has-text("TEST · Teaser Powered by")', { timeout: 10000 }).catch(() => {});
+  const testCls = await p.$eval('.sgx-pub__post:has-text("TEST · Teaser Powered by")', (e) => e.className).catch(() => '');
+  check('paquete listo: cargado y aprobado de una', /is-(approved|publishing|published)/.test(testCls), testCls);
   await p.screenshot({ path: `${OUT}/publisher_admin.png`, fullPage: true });
 
   await p.setViewportSize({ width: 390, height: 844 });

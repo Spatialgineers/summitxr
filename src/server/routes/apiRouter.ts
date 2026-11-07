@@ -19,6 +19,7 @@ import { triggerPresetOverride, processAudienceReaction } from '../engine/visual
 import { createCompanionRouter } from '../companion/companionRouter';
 import { createInstagramRadarRouter } from '../social/instagramRadar';
 import { createMetaPublisherRouter } from '../social/metaPublisher';
+import { createDiagRouter } from '../diag/diagRouter';
 
 export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
   const router = Router();
@@ -45,6 +46,9 @@ export function createApiRouter(broadcastToRoom: BroadcastFn): Router {
 
   // Publicador de redes (Instagram + Facebook), admins only
   router.use('/social/publisher', createMetaPublisherRouter());
+
+  // Diagnóstico de solo lectura para Claude (llave CLAUDE_DIAG_TOKEN; 404 sin ella)
+  router.use('/diag', createDiagRouter());
 
   // Health check
   router.get('/health', (req, res) => {

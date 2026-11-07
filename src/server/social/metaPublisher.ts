@@ -65,7 +65,7 @@ const state = {
 /* ---------- Firestore auth + REST ---------- */
 
 let tokenCache = { token: '', exp: 0 };
-async function dbToken(): Promise<string | null> {
+export async function dbToken(): Promise<string | null> {
   if (EMULATOR) { state.dbAuth = 'emulator'; return 'owner'; }
   if (tokenCache.token && tokenCache.exp > Date.now() + 60_000) return tokenCache.token;
   const e = env();
@@ -107,7 +107,7 @@ function toFs(v: unknown): any {
   return { mapValue: { fields: Object.fromEntries(Object.entries(v as object).map(([k, x]) => [k, toFs(x)])) } };
 }
 
-async function listPosts(token: string): Promise<SocialPost[]> {
+export async function listPosts(token: string): Promise<SocialPost[]> {
   const out: SocialPost[] = [];
   let pageToken = '';
   for (let i = 0; i < 10; i++) {
@@ -295,6 +295,16 @@ async function tick() {
 function runSoon() {
   if (!state.running) state.running = tick().finally(() => { state.running = null; });
   return state.running;
+}
+
+/** Read-only state for the diagnostics endpoint. */
+export function publisherSnapshot() {
+  const e = env();
+  return {
+    mode: e.mock ? 'mock' : 'live', instagram: !!(e.igToken && e.igUser), facebook: !!(e.fbPage && (e.fbPageToken || e.igToken)),
+    database: state.dbAuth, lastTick: state.lastTick ? new Date(state.lastTick).toISOString() : null,
+    lastError: state.lastError, publishedSinceStart: state.published,
+  };
 }
 
 let timer: NodeJS.Timeout | null = null;

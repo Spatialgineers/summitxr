@@ -42,6 +42,7 @@ Antes de cualquier cosa, lee `docs/GUIA_WEBAPP.md`. Es la guía maestra de la ap
 
 ## Documentos útiles
 - `docs/CONTEXTO_SPATIALGINEERS.md`: brief general (estudio, Summit, campaña, Highcoon) para otros agentes. Actualízalo cuando cambie algo grande.
+- `docs/DIAGNOSTICO_CLAUDE.md`: `GET /api/diag`, diagnóstico de solo lectura con la llave `CLAUDE_DIAG_TOKEN` (léela del entorno; nunca la pidas en el chat).
 - `docs/GUIA_WEBAPP.md`: la guía maestra.
 - `docs/guia/`: la guía en PDF; se regenera con `node scripts/guide-pdf/build.cjs`.
 - `docs/ADMIN_GUIDE.md`, `docs/EMAIL_SETUP.md` (el mailer de Apps Script, todavía sin instalar), `docs/FIRESTORE_RULES.md` y `docs/HIGHBOT_COMPANION.md`.

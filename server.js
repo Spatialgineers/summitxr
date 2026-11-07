@@ -1478,13 +1478,13 @@ function ipRateLimit(opts) {
   sweep.unref?.();
   return (req, res, next) => {
     const key = req.ip || req.socket.remoteAddress || "unknown";
-    let bucket = buckets.get(key);
-    if (!bucket) {
+    let bucket2 = buckets.get(key);
+    if (!bucket2) {
       if (buckets.size >= maxKeys) buckets.clear();
-      bucket = new TokenBucket(opts.capacity, opts.refillPerSec);
-      buckets.set(key, bucket);
+      bucket2 = new TokenBucket(opts.capacity, opts.refillPerSec);
+      buckets.set(key, bucket2);
     }
-    if (!bucket.take()) {
+    if (!bucket2.take()) {
       res.setHeader("Retry-After", "5");
       res.status(429).json({ error: "RATE_LIMITED" });
       return;
@@ -1773,7 +1773,7 @@ function setupWebSocketEngine(server) {
 }
 
 // src/server/routes/apiRouter.ts
-import { Router as Router4 } from "express";
+import { Router as Router5 } from "express";
 
 // src/server/companion/companionRouter.ts
 import { Router } from "express";
@@ -4341,6 +4341,10 @@ async function mockAnswer(send, q, ctx) {
   if (/agenda/i.test(q)) send("action", { type: "ir_a", id: "agenda" });
   else if (/señala|senala|dónde|donde|where/i.test(q) && ctx.targets[0]) send("action", { type: "senalar", id: ctx.targets[0].id });
 }
+function companionSnapshot() {
+  rollDay();
+  return { mode: companionMode(), enabled: settings.enabled, day, dailyCapUsd: dailyCap(), spentUsd: Number(spentUsd.toFixed(4)), people: userDay.size, active, ...stats };
+}
 function createCompanionRouter() {
   const router = Router();
   router.get("/status", (_req, res) => {
@@ -4675,6 +4679,9 @@ var publicPost = (p) => ({
   timestamp: p.timestamp,
   username: p.username
 });
+function radarSnapshot() {
+  return { status: state.status, lastSync: state.lastSync ? new Date(state.lastSync).toISOString() : null, lastError: state.lastError, candidates: state.posts.size, failures: state.failures };
+}
 var timer = null;
 function createInstagramRadarRouter() {
   const router = Router2();
@@ -4961,6 +4968,18 @@ function runSoon() {
   });
   return state2.running;
 }
+function publisherSnapshot() {
+  const e = env2();
+  return {
+    mode: e.mock ? "mock" : "live",
+    instagram: !!(e.igToken && e.igUser),
+    facebook: !!(e.fbPage && (e.fbPageToken || e.igToken)),
+    database: state2.dbAuth,
+    lastTick: state2.lastTick ? new Date(state2.lastTick).toISOString() : null,
+    lastError: state2.lastError,
+    publishedSinceStart: state2.published
+  };
+}
 var timer2 = null;
 function createMetaPublisherRouter() {
   const router = Router3();
@@ -4990,9 +5009,98 @@ function createMetaPublisherRouter() {
   return router;
 }
 
+// src/server/diag/diagRouter.ts
+import { Router as Router4 } from "express";
+import { createHash, timingSafeEqual } from "crypto";
+var MIN_TOKEN = 32;
+var bucket = new TokenBucket(10, 1 / 6);
+var startedAt = Date.now();
+function tokenOk(header) {
+  const want = process.env.CLAUDE_DIAG_TOKEN || "";
+  if (want.length < MIN_TOKEN || typeof header !== "string") return false;
+  const got = header.replace(/^Bearer\s+/i, "").trim();
+  const a = createHash("sha256").update(got).digest();
+  const b = createHash("sha256").update(want).digest();
+  return timingSafeEqual(a, b);
+}
+async function recentErrors(token, limit = 40) {
+  const base = FIRESTORE_DOCS.replace(/\/documents$/, "/documents:runQuery");
+  const r = await fetch(base, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ structuredQuery: { from: [{ collectionId: "client_errors" }], orderBy: [{ field: { fieldPath: "at" }, direction: "DESCENDING" }], limit } }),
+    signal: AbortSignal.timeout(8e3)
+  });
+  if (!r.ok) throw new Error(`client_errors ${r.status}`);
+  const rows = await r.json();
+  return rows.filter((x) => x.document).map((x) => {
+    const f = fromFirestore({ mapValue: { fields: x.document.fields || {} } });
+    return {
+      at: f.at,
+      kind: f.kind,
+      message: String(f.message || "").slice(0, 300),
+      component: f.component || null,
+      path: String(f.path || "").split("?")[0].slice(0, 120),
+      ua: String(f.ua || "").slice(0, 120),
+      viewport: f.viewport || null,
+      build: f.build || null,
+      stack: String(f.stack || "").split("\n").slice(0, 6).join("\n")
+    };
+  });
+}
+function createDiagRouter() {
+  const router = Router4();
+  router.all("*", async (req, res) => {
+    res.setHeader("Cache-Control", "no-store");
+    res.setHeader("X-Robots-Tag", "noindex");
+    if (req.method !== "GET" || !tokenOk(req.headers.authorization)) {
+      res.status(404).end();
+      return;
+    }
+    if (!bucket.take()) {
+      res.status(429).json({ error: "SLOW_DOWN" });
+      return;
+    }
+    const out = {
+      at: (/* @__PURE__ */ new Date()).toISOString(),
+      uptimeMin: Math.round((Date.now() - startedAt) / 6e4),
+      node: process.version,
+      memoryMb: Math.round(process.memoryUsage().rss / 1048576),
+      companion: companionSnapshot(),
+      radar: radarSnapshot(),
+      publisher: publisherSnapshot()
+    };
+    const token = await dbToken().catch(() => null);
+    if (!token) {
+      out.database = "sin acceso (configura SOCIAL_BOT_EMAIL/PASSWORD o la cuenta de servicio)";
+    } else {
+      out.database = "ok";
+      try {
+        out.clientErrors = await recentErrors(token);
+      } catch (e) {
+        out.clientErrors = { error: String(e.message) };
+      }
+      try {
+        out.socialPosts = (await listPosts(token)).map((p) => ({
+          id: p.id,
+          kind: p.kind,
+          status: p.status,
+          publishAt: p.publishAt,
+          networks: p.networks,
+          results: Object.fromEntries(Object.entries(p.results || {}).map(([n, r]) => [n, { ok: !!r?.id, permalink: r?.permalink || null, error: r?.error || null }]))
+        }));
+      } catch (e) {
+        out.socialPosts = { error: String(e.message) };
+      }
+    }
+    res.json(out);
+  });
+  return router;
+}
+
 // src/server/routes/apiRouter.ts
 function createApiRouter(broadcastToRoom) {
-  const router = Router4();
+  const router = Router5();
   router.use(ipRateLimit({ capacity: 120, refillPerSec: 40 }));
   const roomFrom = (req, res) => {
     const src = req.method === "GET" ? req.query : req.body || {};
@@ -5007,6 +5115,7 @@ function createApiRouter(broadcastToRoom) {
   router.use("/companion", createCompanionRouter());
   router.use("/social/instagram", createInstagramRadarRouter());
   router.use("/social/publisher", createMetaPublisherRouter());
+  router.use("/diag", createDiagRouter());
   router.get("/health", (req, res) => {
     res.json({ status: "ok", engine: "SGX Live Engine", timestamp: Date.now() });
   });

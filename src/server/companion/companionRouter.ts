@@ -289,6 +289,12 @@ async function mockAnswer(send: (e: string, d: unknown) => void, q: string, ctx:
 
 /* ---------- router ---------- */
 
+/** Read-only numbers for the diagnostics endpoint (no user data). */
+export function companionSnapshot() {
+  rollDay();
+  return { mode: companionMode(), enabled: settings.enabled, day, dailyCapUsd: dailyCap(), spentUsd: Number(spentUsd.toFixed(4)), people: userDay.size, active, ...stats };
+}
+
 export function createCompanionRouter(): Router {
   const router = Router();
 

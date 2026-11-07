@@ -194,6 +194,11 @@ const publicPost = (p: IgPost) => ({
   username: p.username,
 });
 
+/** Read-only state for the diagnostics endpoint (counts only, no posts). */
+export function radarSnapshot() {
+  return { status: state.status, lastSync: state.lastSync ? new Date(state.lastSync).toISOString() : null, lastError: state.lastError, candidates: state.posts.size, failures: state.failures };
+}
+
 let timer: NodeJS.Timeout | null = null;
 
 export function createInstagramRadarRouter(): Router {

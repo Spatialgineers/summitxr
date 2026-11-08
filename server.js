@@ -4896,7 +4896,18 @@ async function publishFacebook(p) {
   const t = await fbToken();
   let id;
   if (p.kind === "REEL") {
-    id = (await graph2("POST", `${page}/videos`, { file_url: p.mediaUrls[0], description: p.caption }, t)).id;
+    const start = await graph2("POST", `${page}/video_reels`, { upload_phase: "start" }, t);
+    const videoId = String(start.video_id || "");
+    if (!videoId) throw new Error("Facebook no abri\xF3 la subida del reel");
+    const up = await fetch(`https://rupload.facebook.com/video-upload/${GRAPH_VERSION2}/${videoId}`, {
+      method: "POST",
+      headers: { Authorization: `OAuth ${t}`, file_url: p.mediaUrls[0] },
+      signal: AbortSignal.timeout(12e4)
+    });
+    const upBody = await up.json().catch(() => ({}));
+    if (!up.ok || upBody?.error || upBody?.success === false) throw new Error(upBody?.error?.message || upBody?.debug_info?.message || `Subida del reel: HTTP ${up.status}`);
+    await graph2("POST", `${page}/video_reels`, { upload_phase: "finish", video_id: videoId, video_state: "PUBLISHED", description: p.caption }, t);
+    id = videoId;
   } else if (p.kind === "IMAGE") {
     id = (await graph2("POST", `${page}/photos`, { url: p.mediaUrls[0], caption: p.caption }, t)).post_id;
   } else {
@@ -4910,7 +4921,7 @@ async function publishFacebook(p) {
     });
     id = (await graph2("POST", `${page}/feed`, params, t)).id;
   }
-  return { id, permalink: `https://www.facebook.com/${id}` };
+  return { id, permalink: p.kind === "REEL" ? `https://www.facebook.com/reel/${id}` : `https://www.facebook.com/${id}` };
 }
 function validate(p) {
   if (!["REEL", "IMAGE", "CAROUSEL"].includes(p.kind)) return "Tipo inv\xE1lido";

@@ -4,7 +4,9 @@ Publica en Instagram (Reels, imágenes y carruseles) y en la página de Facebook
 
 - **Dónde está:** Admin → Redes sociales → "Publicador · Instagram y Facebook".
 - **Cómo se usa:**
-  1. Claude sube cada semana como un **paquete listo** (`public/social/batches/`). Lo eliges en "Paquetes listos", revisas la lista y tocas **"Cargar y aprobar"**. También puedes pegar un JSON en "Importar una semana" o crear un post a mano con "+ Nuevo post".
+  1. Claude sube cada semana como un **paquete listo** (`public/social/batches/`). Lo eliges en "Paquetes listos" y tocas **"Cargar al calendario"**.
+  2. Cada post dice **qué día y a qué hora** publicarlo. Arriba sale **"Toca publicar hoy"** con los posts del día.
+  3. Ese día, toca **"Publicar ahora"** y sale en Instagram y Facebook al momento, con tu sesión de admin. No hay robot ni horario automático (se puede encender con `SOCIAL_AUTOPUBLISH=1`, que necesita el usuario robot).
   2. Revisa cada post: miniatura, caption, fecha y redes.
   3. Toca **"Aprobar la semana"**. Ese es tu único clic.
   4. El servidor revisa cada minuto y publica cada post a su hora en Instagram y Facebook. Cuando sale, el post pasa a **Publicado** con sus enlaces "ver post". Si algo falla, pasa a **Falló** con el error de Meta y el botón "Reintentar ahora".

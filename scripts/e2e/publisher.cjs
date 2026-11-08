@@ -56,7 +56,7 @@ const owner = { Authorization: 'Bearer owner' };
   await p.waitForSelector('.sgx-pub', { timeout: 20000 }).catch(() => {});
   await p.waitForFunction(() => /Instagram ✅/.test(document.querySelector('.sgx-pub__server')?.textContent || ''), null, { timeout: 15000 }).catch(() => {});
   const srv = await p.$eval('.sgx-pub__server', (e) => e.textContent).catch(() => '');
-  check('panel: server ready in mock mode', /Instagram ✅ · Facebook ✅ · Base de datos ✅/.test(srv) && /modo de prueba/.test(srv), srv.slice(0, 120));
+  check('panel: server ready in mock mode', /Instagram ✅ · Facebook ✅/.test(srv) && !/Base de datos|Revisar/.test(srv) && /modo de prueba/.test(srv), srv.slice(0, 120));
 
   const prNow = new Date(Date.now() - 4 * 3600e3 - 60e3).toISOString().slice(0, 16);
   const tags = '#SpatialgineersSummit #RoadToSummit #Spatialgineers';
@@ -73,18 +73,19 @@ const owner = { Authorization: 'Bearer owner' };
   await p.fill('.sgx-pub__import textarea', JSON.stringify(week));
   await p.click('.sgx-pub__import button');
   await p.waitForSelector('.sgx-pub__post', { timeout: 10000 }).catch(() => {});
+  await p.waitForFunction(() => document.querySelectorAll('.sgx-pub__post.is-draft').length >= 3, null, { timeout: 10000 }).catch(() => {});
   const drafts = await p.$$eval('.sgx-pub__post.is-draft', (l) => l.length);
   check('import: 2 posts in as drafts (+ the broken doc shown as a draft)', drafts === 3, String(drafts));
   check('broken doc listed under "Sin fecha" without crashing', /Sin fecha/.test(await p.$eval('.sgx-pub', (e) => e.textContent)));
   await p.click('.sgx-pub__post:has-text("Doc roto") button:has-text("Borrar")');
   await p.waitForTimeout(800);
 
-  for (const btn of await p.$$('.sgx-pub__week header button')) await btn.click();
-  await p.waitForTimeout(1000);
-  const approved = await p.$$eval('.sgx-pub__post.is-approved, .sgx-pub__post.is-publishing, .sgx-pub__post.is-published', (l) => l.length);
-  check('"Aprobar la semana" approves every draft', approved === 2, String(approved));
-
-  await p.click('.sgx-pub__server button');
+  check('no approve buttons anymore', (await p.$$('button:has-text("Aprobar")')).length === 0);
+  const dueTxt = await p.$eval('.sgx-pub__due', (e) => e.textContent).catch(() => '');
+  check('"Toca publicar hoy" lists the due post (not the future one)', /Teaser powered by/.test(dueTxt) && !/Carrusel pase/.test(dueTxt), dueTxt.slice(0, 120));
+  await p.waitForTimeout(6000);
+  check('nothing publishes by itself (no auto schedule)', (await p.$$('.sgx-pub__post.is-published')).length === 0);
+  await p.click('.sgx-pub__post:has-text("Teaser powered by") button:has-text("Publicar ahora")');
   await p.waitForSelector('.sgx-pub__post.is-published', { timeout: 20000 }).catch(() => {});
   const pub = await p.$$eval('.sgx-pub__post.is-published', (l) => l.map((x) => x.textContent));
   check('due post published to IG + FB with links', pub.length === 1 && /Teaser powered by/.test(pub[0]) && (pub[0].match(/ver post/g) || []).length === 2, pub.join('|').slice(0, 160));
@@ -99,10 +100,10 @@ const owner = { Authorization: 'Bearer owner' };
   // Paquetes listos: pick the bundled test batch, load and approve in one go.
   await p.selectOption('.sgx-pub__batches select', 'test_powered_by.json');
   await p.waitForSelector('.sgx-pub__batches li', { timeout: 10000 }).catch(() => {});
-  await p.click('.sgx-pub__batches button:has-text("Cargar y aprobar")');
+  await p.click('.sgx-pub__batches button:has-text("Cargar al calendario")');
   await p.waitForSelector('.sgx-pub__post:has-text("TEST · Teaser Powered by")', { timeout: 10000 }).catch(() => {});
   const testCls = await p.$eval('.sgx-pub__post:has-text("TEST · Teaser Powered by")', (e) => e.className).catch(() => '');
-  check('paquete listo: cargado y aprobado de una', /is-(approved|publishing|published)/.test(testCls), testCls);
+  check('paquete listo: cargado al calendario como pendiente', /is-draft/.test(testCls), testCls);
   await p.screenshot({ path: `${OUT}/publisher_admin.png`, fullPage: true });
 
   await p.setViewportSize({ width: 390, height: 844 });

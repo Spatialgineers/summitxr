@@ -5007,7 +5007,7 @@ function publisherSnapshot() {
 var timer2 = null;
 function createMetaPublisherRouter() {
   const router = Router3();
-  if (!timer2 && process.env.SOCIAL_PUBLISHER !== "off") {
+  if (!timer2 && process.env.SOCIAL_AUTOPUBLISH === "1") {
     timer2 = setInterval(() => void runSoon(), TICK_MS);
     timer2.unref?.();
     setTimeout(() => void runSoon(), 5e3).unref?.();

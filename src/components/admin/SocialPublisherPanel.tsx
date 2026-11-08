@@ -21,7 +21,7 @@ interface ServerStatus { mode: string; instagram: boolean; facebook: boolean; da
 const HASHTAGS = '#SpatialgineersSummit #RoadToSummit #Spatialgineers';
 const KIND_LABEL: Record<Kind, string> = { REEL: 'Reel', IMAGE: 'Imagen', CAROUSEL: 'Carrusel' };
 const STATUS_LABEL: Record<Status, string> = {
-  draft: 'Borrador', approved: 'Aprobado · programado', publishing: 'Publicando…',
+  draft: 'Pendiente', approved: 'Pendiente', publishing: 'Publicando…',
   published: 'Publicado', failed: 'Falló', missed: 'No salió (pasó la hora)',
 };
 
@@ -31,6 +31,8 @@ const toPrInput = (iso: string) => {
   return Number.isFinite(t) ? new Date(t - 4 * 3600_000).toISOString().slice(0, 16) : '';
 };
 const fromPrInput = (local: string) => new Date(`${local}:00-04:00`).toISOString();
+/** End of today in Puerto Rico (UTC-4), as epoch ms. */
+const endOfTodayPr = () => { const d = new Date(Date.now() - 4 * 3600_000); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 23, 59, 59) + 4 * 3600_000; };
 const validIso = (iso: unknown): iso is string => typeof iso === 'string' && Number.isFinite(Date.parse(iso));
 const prLabel = (iso: string) => !validIso(iso) ? 'sin fecha' : new Date(iso).toLocaleString('es-PR', { timeZone: 'America/Puerto_Rico', weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
 const weekKey = (iso: string) => {
@@ -114,7 +116,7 @@ export function SocialPublisherPanel() {
     const docId = id || `${weekKey(data.publishAt)}_${slug(data.title)}`;
     try {
       await setDoc(doc(db, 'social_posts', docId), { ...data, status: 'draft', results: {}, week: weekKey(data.publishAt), updatedAt: serverTimestamp() });
-      setEdit(null); setMsg('Guardado como borrador.');
+      setEdit(null); setMsg('Guardado.');
     } catch (e) { setMsg(`No se pudo guardar: ${(e as Error).message}`); }
     setBusy(false);
   };
@@ -176,7 +178,7 @@ export function SocialPublisherPanel() {
     setBusy(true);
     try {
       const n = await importList(preview, approve);
-      setMsg(approve ? `${n} post(s) cargados y aprobados. Salen solos a su hora.` : `${n} post(s) cargados como borrador.`);
+      setMsg(approve ? `${n} post(s) cargados y aprobados. Salen solos a su hora.` : `${n} post(s) en el calendario. Publica cada uno el día que toca con "Publicar ahora".`);
       setBatch('');
     } catch (e) { setMsg(`No se cargó nada: ${(e as Error).message}`); }
     setBusy(false);
@@ -212,13 +214,11 @@ export function SocialPublisherPanel() {
         <strong>Servidor:</strong>{' '}
         {!server ? 'consultando…' : (
           <>
-            Instagram {server.instagram ? '✅' : '❌'} · Facebook {server.facebook ? '✅' : '❌'} · Base de datos {['bot', 'service', 'emulator'].includes(server.database) ? '✅' : '❌'}
+            Instagram {server.instagram ? '✅' : '❌'} · Facebook {server.facebook ? '✅' : '❌'}
             {server.mode === 'mock' && ' · modo de prueba'}
-            {server.lastError && <span className="sgx-pub__err"> · {server.lastError}</span>}
           </>
         )}
-        {server && !ready && <span className="sgx-pub__hint"> Falta configurar el servidor: mira docs/PUBLICADOR_REDES.md.</span>}
-        <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy} onClick={() => api('run', 'POST').then(() => setMsg('Revisado.'))}>Revisar ahora</button>
+        {server && !(server.instagram && server.facebook) && <span className="sgx-pub__hint"> Falta el token de Meta o un ID: mira docs/PUBLICADOR_REDES.md.</span>}
       </div>
 
       {batches.length > 0 && (
@@ -233,8 +233,7 @@ export function SocialPublisherPanel() {
             <>
               <ul>{preview.map((x, i) => <li key={i}><strong>{prLabel(typeof x.publishAt === 'string' && !/[zZ]|[+-]\d\d:\d\d$/.test(x.publishAt) ? fromPrInput(x.publishAt.slice(0, 16)) : String(x.publishAt))}</strong> · {String(x.kind)} · {String(x.title)}</li>)}</ul>
               <div className="sgx-pub__actions">
-                <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy} onClick={() => loadBatch(true)}>Cargar y aprobar</button>
-                <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" disabled={busy} onClick={() => loadBatch(false)}>Solo cargar (borrador)</button>
+                <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy} onClick={() => loadBatch(false)}>Cargar al calendario</button>
               </div>
             </>
           )}
@@ -264,36 +263,38 @@ export function SocialPublisherPanel() {
             <label><input type="checkbox" checked={edit.networks.fb} onChange={(e) => setEdit({ ...edit, networks: { ...edit.networks, fb: e.target.checked } })} /> Facebook</label>
           </div>
           <div className="sgx-pub__actions">
-            <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy} onClick={save}>Guardar borrador</button>
+            <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy} onClick={save}>Guardar</button>
             <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => setEdit(null)}>Cancelar</button>
           </div>
         </div>
       )}
 
+      {(() => {
+        const due = posts.filter((p) => p.status !== 'published' && p.status !== 'publishing' && p.publishAt && Date.parse(p.publishAt) <= endOfTodayPr());
+        return due.length > 0 && (
+          <div className="sgx-pub__due" role="status">
+            <strong>Toca publicar hoy:</strong> {due.map((p) => `${p.title} (${prLabel(p.publishAt)})`).join(' · ')}
+          </div>
+        );
+      })()}
+
       {weeks.length === 0 && <p className="sgx-pub__empty">No hay posts todavía. Crea uno o importa la semana.</p>}
       {weeks.map(([week, list]) => {
-        const drafts = list.filter((p) => p.status === 'draft');
         return (
           <section key={week} className="sgx-pub__week">
             <header>
               <h4>{week === 'sin-fecha' ? 'Sin fecha' : `Semana del ${new Date(`${week}T12:00:00Z`).toLocaleDateString('es-PR', { day: 'numeric', month: 'long' })}`}</h4>
-              {drafts.length > 0 && (
-                <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy}
-                  onClick={() => window.confirm(`¿Aprobar ${drafts.length} post(s) de esta semana? Salen solos a su hora en Instagram y Facebook.`) && setStatus(drafts.map((p) => p.id), 'approved')}>
-                  Aprobar la semana ({drafts.length})
-                </button>
-              )}
             </header>
             <ul>
               {list.map((p) => (
-                <li key={p.id} className={`sgx-pub__post is-${p.status}`}>
+                <li key={p.id} className={`sgx-pub__post is-${p.status}${p.status !== 'published' && p.publishAt && Date.parse(p.publishAt) <= endOfTodayPr() ? ' is-due' : ''}`}>
                   <div className="sgx-pub__thumb">
                     {!p.mediaUrls[0] ? null : p.kind === 'REEL'
                       ? <video src={p.mediaUrls[0]} muted playsInline preload="metadata" />
                       : <img src={p.mediaUrls[0]} alt="" loading="lazy" />}
                   </div>
                   <div className="sgx-pub__body">
-                    <p className="sgx-pub__meta"><strong>{prLabel(p.publishAt)}</strong> · {KIND_LABEL[p.kind]} · {[p.networks.ig && 'IG', p.networks.fb && 'FB'].filter(Boolean).join(' + ')} · <span className="sgx-pub__status">{STATUS_LABEL[p.status]}</span></p>
+                    <p className="sgx-pub__meta"><strong>Publicar: {prLabel(p.publishAt)}</strong> · {KIND_LABEL[p.kind]} · {[p.networks.ig && 'IG', p.networks.fb && 'FB'].filter(Boolean).join(' + ')} · <span className="sgx-pub__status">{STATUS_LABEL[p.status]}</span></p>
                     <p className="sgx-pub__title">{p.title}</p>
                     <details><summary>Caption</summary><pre>{p.caption}</pre></details>
                     {(['ig', 'fb'] as const).map((n) => p.results?.[n] && (
@@ -304,11 +305,6 @@ export function SocialPublisherPanel() {
                     ))}
                     <div className="sgx-pub__actions">
                       {p.status !== 'published' && p.status !== 'publishing' && <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy} onClick={() => publishNow(p)}>Publicar ahora</button>}
-                      {p.status === 'draft' && <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy} onClick={() => setStatus([p.id], 'approved')}>Aprobar</button>}
-                      {p.status === 'approved' && <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" disabled={busy} onClick={() => setStatus([p.id], 'draft')}>Quitar aprobación</button>}
-                      {(p.status === 'failed' || p.status === 'missed') && <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy}
-                        onClick={() => updateDoc(doc(db, 'social_posts', p.id), { status: 'approved', publishAt: new Date().toISOString(), updatedAt: serverTimestamp() })}>Reintentar ahora</button>}
-                      {(p.status === 'draft' || p.status === 'approved') && <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => setEdit({ ...p })}>Editar</button>}
                       {p.status !== 'publishing' && <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => window.confirm('¿Borrar este post del Publicador? (No borra nada ya publicado en las redes.)') && deleteDoc(doc(db, 'social_posts', p.id))}>Borrar</button>}
                     </div>
                   </div>

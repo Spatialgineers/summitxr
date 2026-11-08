@@ -335,7 +335,8 @@ let timer: NodeJS.Timeout | null = null;
 
 export function createMetaPublisherRouter(): Router {
   const router = Router();
-  if (!timer && process.env.SOCIAL_PUBLISHER !== 'off') {
+  // Automatic publishing is off by default: the team publishes with "Publicar ahora" on the day.
+  if (!timer && process.env.SOCIAL_AUTOPUBLISH === '1') {
     timer = setInterval(() => void runSoon(), TICK_MS);
     timer.unref?.();
     setTimeout(() => void runSoon(), 5_000).unref?.();

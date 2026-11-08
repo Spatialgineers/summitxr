@@ -998,7 +998,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           )}
 
           {activeSubpage === 'SOCIAL' && (
-            <AdminSection title="Publicador · Instagram y Facebook" desc="Carga los posts de la semana, apruébalos de un clic y el servidor los publica solos a su hora (hora de Puerto Rico).">
+            <AdminSection title="Publicador · Instagram y Facebook" desc="El calendario de posts: cada uno dice qué día y a qué hora publicarlo (hora de Puerto Rico). Ese día, toca Publicar ahora y sale en Instagram y Facebook.">
               <PanelBoundary name="Publicador"><SocialPublisherPanel /></PanelBoundary>
             </AdminSection>
           )}

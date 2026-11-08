@@ -119,6 +119,7 @@ export const AdminRosterPanel: React.FC = () => {
   const isSuper = !!user?.email && SUPER.includes(user.email.toLowerCase());
   const [list, setList] = useState<AdminDoc[]>([]);
   const [email, setEmail] = useState('');
+  const [uid, setUid] = useState('');
   const [role, setRole] = useState<(typeof ROLES)[number]>('OPERATOR');
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -137,12 +138,19 @@ export const AdminRosterPanel: React.FC = () => {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(target)) { setMsg('Escribe un email válido.'); return; }
     setBusy(true); setMsg(null);
     try {
-      // The person must have opened the app once with that email (their player doc holds the uid).
-      const snap = await getDocs(query(collection(db, 'players'), where('email', '==', target), limit(1)));
-      if (snap.empty) { setMsg('Esa persona tiene que entrar una vez a la app con Google usando ese email; luego vuelve a intentarlo.'); return; }
-      const p = snap.docs[0];
-      await setDoc(doc(db, 'admins', p.id), { email: target, role, name: (p.data() as any).nickname || '', addedBy: user?.email || '', addedAt: serverTimestamp() });
-      setEmail('');
+      const directUid = uid.trim();
+      if (directUid) {
+        // Accounts with no player doc (e.g. the server's robot user): the UID comes from Firebase → Authentication → Users.
+        if (!/^[A-Za-z0-9]{20,128}$/.test(directUid)) { setMsg('El UID no parece válido: cópialo de Firebase → Authentication → Users.'); return; }
+        await setDoc(doc(db, 'admins', directUid), { email: target, role, name: 'Robot del servidor', addedBy: user?.email || '', addedAt: serverTimestamp() });
+      } else {
+        // The person must have opened the app once with that email (their player doc holds the uid).
+        const snap = await getDocs(query(collection(db, 'players'), where('email', '==', target), limit(1)));
+        if (snap.empty) { setMsg('Esa persona tiene que entrar una vez a la app con Google usando ese email; luego vuelve a intentarlo. (Para el robot del servidor, pega también su UID.)'); return; }
+        const p = snap.docs[0];
+        await setDoc(doc(db, 'admins', p.id), { email: target, role, name: (p.data() as any).nickname || '', addedBy: user?.email || '', addedAt: serverTimestamp() });
+      }
+      setEmail(''); setUid('');
       setMsg(`${target} ahora es admin (${role}).`);
       refresh();
     } catch (e: any) { setMsg(`No se pudo añadir: ${e?.message || e}`); } finally { setBusy(false); }
@@ -164,6 +172,7 @@ export const AdminRosterPanel: React.FC = () => {
         <>
           <div className="sgx-roster__add">
             <input type="email" placeholder="email@empresa.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input type="text" placeholder="UID (solo para el robot)" aria-label="UID de Firebase (opcional)" value={uid} onChange={(e) => setUid(e.target.value)} />
             <select value={role} onChange={(e) => setRole(e.target.value as (typeof ROLES)[number])}>
               {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
             </select>

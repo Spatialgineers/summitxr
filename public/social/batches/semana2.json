@@ -1,0 +1,66 @@
+[
+  {
+    "title": "Speakers: envía tu perfil",
+    "kind": "REEL",
+    "publishAt": "2026-11-19T18:30",
+    "mediaUrls": [
+      "https://video.wixstatic.com/video/fe81a7_5ece992f3ad543789266563321f274cb/file"
+    ],
+    "caption": "¿Te ves en el escenario del Summit? Forja tu pase y envía tu perfil en el Portal de speakers. Cierra el 21 de noviembre. Link en bio.\n\n#SpatialgineersSummit #RoadToSummit #Spatialgineers"
+  },
+  {
+    "title": "Carrusel: el SGX Guild",
+    "kind": "CAROUSEL",
+    "publishAt": "2026-11-20T18:30",
+    "mediaUrls": [
+      "https://summit.spatialgineers.com/social/s2/guild_1.jpg",
+      "https://summit.spatialgineers.com/social/s2/guild_2.jpg",
+      "https://summit.spatialgineers.com/social/s2/guild_3.jpg",
+      "https://summit.spatialgineers.com/social/s2/guild_4.jpg",
+      "https://summit.spatialgineers.com/social/s2/guild_5.jpg",
+      "https://summit.spatialgineers.com/social/s2/guild_6.jpg"
+    ],
+    "caption": "El SGX Guild es donde se forma el talento creativo de Puerto Rico: trials, rangos y proyectos reales en los 6 pilares. Ser parte es un privilegio.\n\n#SpatialgineersSummit #RoadToSummit #Spatialgineers"
+  },
+  {
+    "title": "Hoy cierra el Portal de speakers",
+    "kind": "IMAGE",
+    "publishAt": "2026-11-21T10:30",
+    "mediaUrls": [
+      "https://summit.spatialgineers.com/social/s2/cierre_1.jpg"
+    ],
+    "caption": "HOY cierra el Portal de speakers. Si te ves en el escenario del Summit, este es el día. Link en bio.\n\n#SpatialgineersSummit #RoadToSummit #Spatialgineers"
+  },
+  {
+    "title": "Prensa: acredítate",
+    "kind": "REEL",
+    "publishAt": "2026-11-22T18:30",
+    "mediaUrls": [
+      "https://video.wixstatic.com/video/fe81a7_07dadd5f7a4c4a2a9a91130add56d9a9/file"
+    ],
+    "caption": "¿Cubres tecnología, cultura o negocios? Hay 10 cupos de prensa para el Spatialgineers Summit 2026. Acredítate antes del 1 de diciembre. Link en bio.\n\n#SpatialgineersSummit #RoadToSummit #Spatialgineers"
+  },
+  {
+    "title": "Sponsors: 5 paquetes",
+    "kind": "REEL",
+    "publishAt": "2026-11-23T18:30",
+    "mediaUrls": [
+      "https://video.wixstatic.com/video/fe81a7_3919b9995ea14c62b0a4e748ec3468ed/file"
+    ],
+    "caption": "Tu marca dentro del Summit: en el núcleo 3D, los juegos, la app y la transmisión. 5 paquetes, solicitudes hasta el 28 de noviembre. Link en bio.\n\n#SpatialgineersSummit #RoadToSummit #Spatialgineers"
+  },
+  {
+    "title": "Carrusel: hay un lugar para ti",
+    "kind": "CAROUSEL",
+    "publishAt": "2026-11-24T18:30",
+    "mediaUrls": [
+      "https://summit.spatialgineers.com/social/s2/roles_1.jpg",
+      "https://summit.spatialgineers.com/social/s2/roles_2.jpg",
+      "https://summit.spatialgineers.com/social/s2/roles_3.jpg",
+      "https://summit.spatialgineers.com/social/s2/roles_4.jpg",
+      "https://summit.spatialgineers.com/social/s2/roles_5.jpg",
+      "https://summit.spatialgineers.com/social/s2/roles_6.jpg"
+    ],
+    "caption": "Hay un lugar para ti en el Summit: Creador, speaker, sponsor o prensa. Cada uno tiene su portal. ¿Cuál es el tuyo?\n\n#SpatialgineersSummit #RoadToSummit #Spatialgineers"
+  }
+]

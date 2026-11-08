@@ -1,4 +1,14 @@
 [
-  { "file": "test_powered_by.json", "label": "Prueba · Teaser Powered by (1 reel)" },
-  { "file": "semana1.json", "label": "Semana 1 · 11–17 nov (5 reels + 2 carruseles)" }
+  {
+    "file": "semana1.json",
+    "label": "Semana 1 · 11–17 nov (HD: 5 reels + 2 carruseles)"
+  },
+  {
+    "file": "semana2.json",
+    "label": "Semana 2 · 19–24 nov (3 reels, 2 carruseles, 1 post) · el 18 va a mano"
+  },
+  {
+    "file": "test_powered_by.json",
+    "label": "Prueba · Teaser Powered by"
+  }
 ]

@@ -4767,6 +4767,7 @@ async function dbToken() {
     }
     state2.lastError = `bot sign-in: ${b?.error?.message || r?.status || "network"}`;
   }
+  if (state2.dbAuth === "denied") return null;
   const m = await fetch("http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token", {
     headers: { "Metadata-Flavor": "Google" },
     signal: AbortSignal.timeout(3e3)
@@ -4960,6 +4961,11 @@ async function tick() {
     state2.lastError = null;
   } catch (err) {
     state2.lastError = String(err?.message || err);
+    if (/ 40[13]$/.test(state2.lastError)) {
+      state2.dbAuth = "denied";
+      state2.lastError = "La base de datos rechaz\xF3 al servidor (403). Configura el usuario robot: SOCIAL_BOT_EMAIL y SOCIAL_BOT_PASSWORD (docs/PUBLICADOR_REDES.md, paso 3).";
+      tokenCache = { token: "", exp: 0 };
+    }
   }
 }
 function runSoon() {

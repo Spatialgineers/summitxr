@@ -57,7 +57,7 @@ const env = () => ({
 const state = {
   lastTick: 0,
   lastError: null as string | null,
-  dbAuth: 'none' as 'bot' | 'service' | 'emulator' | 'none',
+  dbAuth: 'none' as 'bot' | 'service' | 'emulator' | 'none' | 'denied',
   running: null as Promise<void> | null,
   published: 0,
 };
@@ -83,6 +83,7 @@ export async function dbToken(): Promise<string | null> {
     }
     state.lastError = `bot sign-in: ${b?.error?.message || r?.status || 'network'}`;
   }
+  if (state.dbAuth === 'denied') return null; // the service account was refused: don't keep retrying it
   const m = await fetch('http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token', {
     headers: { 'Metadata-Flavor': 'Google' }, signal: AbortSignal.timeout(3000),
   }).catch(() => null);
@@ -289,6 +290,13 @@ async function tick() {
     state.lastError = null;
   } catch (err) {
     state.lastError = String((err as Error)?.message || err);
+    // Signed in but Firestore says no: the account has no access (e.g. the
+    // Cloud Run service account belongs to another project). Use the bot user.
+    if (/ 40[13]$/.test(state.lastError)) {
+      state.dbAuth = 'denied';
+      state.lastError = 'La base de datos rechazó al servidor (403). Configura el usuario robot: SOCIAL_BOT_EMAIL y SOCIAL_BOT_PASSWORD (docs/PUBLICADOR_REDES.md, paso 3).';
+      tokenCache = { token: '', exp: 0 };
+    }
   }
 }
 

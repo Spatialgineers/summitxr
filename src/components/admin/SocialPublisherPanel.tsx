@@ -182,7 +182,7 @@ export function SocialPublisherPanel() {
     setBusy(false);
   };
 
-  const ready = server && server.instagram && server.facebook && server.database !== 'none';
+  const ready = server && server.instagram && server.facebook && ['bot', 'service', 'emulator'].includes(server.database);
 
   return (
     <div className="sgx-pub">
@@ -190,7 +190,7 @@ export function SocialPublisherPanel() {
         <strong>Servidor:</strong>{' '}
         {!server ? 'consultando…' : (
           <>
-            Instagram {server.instagram ? '✅' : '❌'} · Facebook {server.facebook ? '✅' : '❌'} · Base de datos {server.database !== 'none' ? '✅' : '❌'}
+            Instagram {server.instagram ? '✅' : '❌'} · Facebook {server.facebook ? '✅' : '❌'} · Base de datos {['bot', 'service', 'emulator'].includes(server.database) ? '✅' : '❌'}
             {server.mode === 'mock' && ' · modo de prueba'}
             {server.lastError && <span className="sgx-pub__err"> · {server.lastError}</span>}
           </>

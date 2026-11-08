@@ -68,6 +68,18 @@ export function createDiagRouter(): Router {
       radar: radarSnapshot(),
       publisher: publisherSnapshot(),
     };
+    // Meta: which permissions the server token really has (names only, never the token).
+    try {
+      const t = process.env.IG_GRAPH_TOKEN || '';
+      if (t) {
+        const v = process.env.IG_GRAPH_VERSION || 'v23.0';
+        const r = await fetch(`https://graph.facebook.com/${v}/me/permissions?access_token=${encodeURIComponent(t)}`, { signal: AbortSignal.timeout(8000) });
+        const b: any = await r.json().catch(() => ({}));
+        out.metaPermissions = Array.isArray(b?.data)
+          ? { granted: b.data.filter((x: any) => x.status === 'granted').map((x: any) => x.permission), declined: b.data.filter((x: any) => x.status !== 'granted').map((x: any) => x.permission) }
+          : { error: String(b?.error?.message || r.status).slice(0, 200) };
+      } else out.metaPermissions = { error: 'sin IG_GRAPH_TOKEN' };
+    } catch (e) { out.metaPermissions = { error: String((e as Error).message) }; }
     const token = await dbToken().catch(() => null);
     if (!token) {
       out.database = 'sin acceso (configura SOCIAL_BOT_EMAIL/PASSWORD o la cuenta de servicio)';

@@ -1,6 +1,6 @@
 # Correos automáticos con Google Apps Script (gratis, desde info@)
 
-El script vive en la cuenta **info@spatialgineers.com**. Cada minuto lee Firestore y envía estos correos, cada uno **una sola vez por persona**:
+El script vive en la cuenta **info@spatialgineers.com**. Cada 5 minutos lee Firestore y envía estos correos, cada uno **una sola vez por persona**:
 
 | Correo | Cuándo sale |
 |---|---|
@@ -42,13 +42,13 @@ Las reglas de este cambio añaden `mail_log`, que es lo que deja al admin ver la
 ## Paso 4 · Enciéndelo
 
 1. Escoge la función **`setup`** y pulsa **▶ Ejecutar**.
-2. En el registro de ejecución debe decir: *"Listo: el mailer revisa Firestore cada minuto…"*.
+2. En el registro de ejecución debe decir: *"Listo: el mailer revisa Firestore cada 5 minutos…"*.
 
-Desde ese momento, cada pase nuevo recibe su confirmación en un minuto o menos. **Los inscritos de antes de este momento no reciben la confirmación**, para no llenarles el correo con algo viejo. Las invitaciones, Holo Cards y recordatorios sí les llegan a todos.
+Desde ese momento, cada pase nuevo recibe su confirmación en 5 minutos o menos. **Los inscritos de antes de este momento no reciben la confirmación**, para no llenarles el correo con algo viejo. Las invitaciones, Holo Cards y recordatorios sí les llegan a todos.
 
 ## Paso 5 · Comprueba con un pase real
 
-Forja un pase en summit.spatialgineers.com con un correo tuyo. En ~1 minuto llega la confirmación, y en el admin aparece ✉ Confirmación junto a ese inscrito.
+Forja un pase en summit.spatialgineers.com con un correo tuyo. En ~5 minutos llega la confirmación, y en el admin aparece ✉ Confirmación junto a ese inscrito.
 
 ---
 

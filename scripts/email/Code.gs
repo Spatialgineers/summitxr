@@ -36,12 +36,12 @@ const CONFIG = {
 /** Run once: installs the every-minute trigger and starts from now (older registrations are not emailed). */
 function setup() {
   ScriptApp.getProjectTriggers().filter((t) => t.getHandlerFunction() === 'processQueue').forEach((t) => ScriptApp.deleteTrigger(t));
-  ScriptApp.newTrigger('processQueue').timeBased().everyMinutes(1).create();
+  ScriptApp.newTrigger('processQueue').timeBased().everyMinutes(5).create();
   const p = PropertiesService.getScriptProperties();
   const now = new Date().toISOString();
   ['CURSOR_CONFIRM', 'CURSOR_INVITE', 'CURSOR_HOLO'].forEach((k) => { if (!p.getProperty(k)) p.setProperty(k, now); });
   fsFetch_(fsBase_() + '/ticket_inquiries?pageSize=1'); // proves Firestore access now, not at the first trigger
-  Logger.log('Listo: el mailer revisa Firestore cada minuto. Cuota de hoy: ' + MailApp.getRemainingDailyQuota());
+  Logger.log('Listo: el mailer revisa Firestore cada 5 minutos. Cuota de hoy: ' + MailApp.getRemainingDailyQuota());
 }
 
 /** The trigger. Safe to run by hand. */

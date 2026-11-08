@@ -1,7 +1,7 @@
 /**
  * Spatialgineers Summit 2026 · SGX mailer (Google Apps Script, runs as info@spatialgineers.com)
  *
- * Every minute it reads Firestore and sends, once per person:
+ * Every 5 minutes it reads Firestore and sends, once per person:
  *   - confirm  : "Tu SGX Pass está forjado"        → every new registration (ticket_inquiries)
  *   - invite   : "Estás invitado al Día 3"         → registrations the team marks INVITED in the admin
  *   - holo     : "Tu Holo Card está lista"         → speakers / sponsors / press approved in the admin (credential_grants)
@@ -26,14 +26,14 @@ const CONFIG = {
   REMIND_DAY1_UNTIL: '2026-12-11T10:00:00-04:00',
   REMIND_DAY3_AT: '2026-12-12T10:00:00-04:00',
   REMIND_DAY3_UNTIL: '2026-12-13T10:00:00-04:00',
-  MAX_PER_RUN: 40,      // emails per minute at most
+  MAX_PER_RUN: 40,      // emails per run (every 5 minutes) at most
   QUOTA_RESERVE: 25,    // keep this many of the daily Gmail quota for the team
   TEST_TO: '',          // while testing: every email goes here instead of to the person
 };
 
 /* ======================= entry points ======================= */
 
-/** Run once: installs the every-minute trigger and starts from now (older registrations are not emailed). */
+/** Run once: installs the every-5-minutes trigger and starts from now (older registrations are not emailed). */
 function setup() {
   ScriptApp.getProjectTriggers().filter((t) => t.getHandlerFunction() === 'processQueue').forEach((t) => ScriptApp.deleteTrigger(t));
   ScriptApp.newTrigger('processQueue').timeBased().everyMinutes(5).create();
@@ -133,7 +133,7 @@ function sendReminders_(budget, kind, fromIso, untilIso) {
       const reg = decodeFields_(docs[i].fields);
       if (!isEmail_(reg.email) || reg.status === 'DECLINED') continue;
       if (kind === 'remind3' && reg.status !== 'INVITED' && reg.status !== 'CONFIRMED') continue;
-      if (!sendOnce_(budget, kind + '_' + id, reg.email, TEMPLATES[kind](Object.assign({ id: id }, reg)))) return; // out of budget: same page next minute
+      if (!sendOnce_(budget, kind + '_' + id, reg.email, TEMPLATES[kind](Object.assign({ id: id }, reg)))) return; // out of budget: same page next run
     }
     token = (page && page.nextPageToken) || '';
     if (!token) { p.setProperty('DONE_' + kind, new Date().toISOString()); p.deleteProperty('PAGE_' + kind); return; }

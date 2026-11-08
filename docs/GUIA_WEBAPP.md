@@ -105,7 +105,7 @@ El SGX Pass es el perfil del Creador y su llave de la app. La información está
    │  nombre)     │   │  - head SEO de /bienvenida y /prensa         │
    └──────▲───────┘   │  - estáticos de dist/ (br/gzip)              │
           │           └──────────────────────────────────────────────┘
-          │ REST (cuenta info@, cada minuto)
+          │ REST (cuenta info@, cada 5 minutos)
    ┌──────┴──────────────┐
    │ Apps Script mailer  │ → Gmail (confirmación, invitación, Holo Card, recordatorios)
    └─────────────────────┘
@@ -1229,7 +1229,7 @@ Pruebas: `scripts/rules-test/` (175 casos más la ventana del Día 3) y `scripts
 
 **Archivos:** `scripts/email/Code.gs` y `appsscript.json`. Configuración en `docs/EMAIL_SETUP.md`.
 
-Un proyecto de Google Apps Script ("SGX Mailer") en la cuenta **info@spatialgineers.com** lee Firestore por REST **cada minuto** y manda cada correo **una sola vez por persona**:
+Un proyecto de Google Apps Script ("SGX Mailer") en la cuenta **info@spatialgineers.com** lee Firestore por REST **cada 5 minutos** y manda cada correo **una sola vez por persona**:
 
 | Tipo (`kind`) | Asunto | Disparador |
 |---|---|---|

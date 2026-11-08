@@ -71,7 +71,8 @@ export async function dbToken(): Promise<string | null> {
   const e = env();
   if (e.botEmail && e.botPassword) {
     const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebaseConfig.apiKey}`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      // The web API key is usually restricted to the site's referrer: send it, as the browser would.
+      method: 'POST', headers: { 'Content-Type': 'application/json', Referer: `${process.env.PUBLIC_SITE_URL || 'https://summit.spatialgineers.com'}/` },
       body: JSON.stringify({ email: e.botEmail, password: e.botPassword, returnSecureToken: true }),
       signal: AbortSignal.timeout(8000),
     }).catch(() => null);
@@ -81,7 +82,9 @@ export async function dbToken(): Promise<string | null> {
       state.dbAuth = 'bot';
       return tokenCache.token;
     }
-    state.lastError = `bot sign-in: ${b?.error?.message || r?.status || 'network'}`;
+    state.lastError = `El robot no pudo entrar: ${b?.error?.message || r?.status || 'sin red'} (revisa SOCIAL_BOT_EMAIL/PASSWORD y que Email/Password esté activo en Firebase Authentication)`;
+    state.dbAuth = 'none';
+    return null; // the bot is configured: don't fall back to the service account and hide this error
   }
   if (state.dbAuth === 'denied') return null; // the service account was refused: don't keep retrying it
   const m = await fetch('http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token', {
@@ -114,7 +117,7 @@ export async function listPosts(token: string): Promise<SocialPost[]> {
   for (let i = 0; i < 10; i++) {
     const qs = new URLSearchParams({ pageSize: '300', ...(pageToken ? { pageToken } : {}) });
     const r = await fetch(`${FIRESTORE_DOCS}/social_posts?${qs}`, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(8000) });
-    if (!r.ok) throw new Error(`firestore list ${r.status}`);
+    if (!r.ok) { const t = await r.text().catch(() => ''); throw new Error(`firestore list ${r.status}${/PERMISSION_DENIED/.test(t) ? ' (sin permiso)' : ''}`); }
     const b: any = await r.json();
     for (const d of b.documents || []) {
       const f = fromFirestore({ mapValue: { fields: d.fields || {} } }) as any;
@@ -292,9 +295,12 @@ async function tick() {
     state.lastError = String((err as Error)?.message || err);
     // Signed in but Firestore says no: the account has no access (e.g. the
     // Cloud Run service account belongs to another project). Use the bot user.
-    if (/ 40[13]$/.test(state.lastError)) {
-      state.dbAuth = 'denied';
-      state.lastError = 'La base de datos rechazó al servidor (403). Configura el usuario robot: SOCIAL_BOT_EMAIL y SOCIAL_BOT_PASSWORD (docs/PUBLICADOR_REDES.md, paso 3).';
+    if (/ 40[13]( \(sin permiso\))?$/.test(state.lastError)) {
+      const wasBot = state.dbAuth === 'bot';
+      state.dbAuth = wasBot ? 'none' : 'denied';
+      state.lastError = wasBot
+        ? 'La base de datos rechazó al robot (403): falta su doc en admins/{uid} o las reglas no están publicadas.'
+        : 'La base de datos rechazó al servidor (403). Configura el usuario robot: SOCIAL_BOT_EMAIL y SOCIAL_BOT_PASSWORD (docs/PUBLICADOR_REDES.md, paso 3).';
       tokenCache = { token: '', exp: 0 };
     }
   }
@@ -344,6 +350,47 @@ export function createMetaPublisherRouter(): Router {
   router.post('/run', requireAdmin, async (_req, res) => {
     await runSoon();
     res.json({ ok: true, lastError: state.lastError });
+  });
+
+  // "Publicar ahora": the signed-in admin sends the post; the server publishes it to
+  // Meta right away and returns the results (the panel saves them with the admin's
+  // own session). No database access needed here, so no robot user.
+  const nowBusy = new Set<string>();
+  router.post('/publish-now', requireAdmin, async (req, res) => {
+    const b = req.body || {};
+    const post: SocialPost = {
+      id: String(b.id || '').slice(0, 128), kind: b.kind, caption: String(b.caption || ''),
+      mediaUrls: Array.isArray(b.mediaUrls) ? b.mediaUrls.filter((u: unknown) => typeof u === 'string').slice(0, 10) : [],
+      publishAt: new Date().toISOString(),
+      networks: { ig: !!b.networks?.ig, fb: !!b.networks?.fb },
+      status: 'publishing', results: b.results && typeof b.results === 'object' ? b.results : {},
+    };
+    if (!/^[\w-]{1,128}$/.test(post.id)) { res.status(400).json({ error: 'BAD_ID' }); return; }
+    const bad = validate(post);
+    if (bad) { res.status(400).json({ error: bad }); return; }
+    if (nowBusy.has(post.id)) { res.status(409).json({ error: 'Ya se está publicando' }); return; }
+    nowBusy.add(post.id);
+    try {
+      const results: SocialPost['results'] = {};
+      for (const net of ['ig', 'fb'] as Net[]) {
+        if (!post.networks[net]) continue;
+        const prev = (post.results as any)[net];
+        if (prev?.id) { results[net] = prev; continue; } // already out on this network: never post twice
+        try {
+          const r = env().mock
+            ? { id: `mock_${net}_${post.id}`, permalink: `https://example.com/${net}/${post.id}` }
+            : await (net === 'ig' ? publishInstagram(post) : publishFacebook(post));
+          results[net] = { ...r, at: new Date().toISOString() };
+          state.published++;
+        } catch (err) {
+          results[net] = { error: String((err as Error)?.message || err).slice(0, 300), at: new Date().toISOString() };
+        }
+      }
+      const ok = (['ig', 'fb'] as Net[]).filter((n) => post.networks[n]).every((n) => results[n]?.id);
+      res.json({ status: ok ? 'published' : 'failed', results });
+    } finally {
+      nowBusy.delete(post.id);
+    }
   });
 
   return router;

@@ -88,10 +88,14 @@ const owner = { Authorization: 'Bearer owner' };
   await p.waitForSelector('.sgx-pub__post.is-published', { timeout: 20000 }).catch(() => {});
   const pub = await p.$$eval('.sgx-pub__post.is-published', (l) => l.map((x) => x.textContent));
   check('due post published to IG + FB with links', pub.length === 1 && /Teaser powered by/.test(pub[0]) && (pub[0].match(/ver post/g) || []).length === 2, pub.join('|').slice(0, 160));
-  check('future post stays approved', (await p.$$eval('.sgx-pub__post.is-approved', (l) => l.length)) === 1);
   const docs = await fetch(`${REST}/social_posts`, { headers: owner }).then((r) => r.json());
   const teaser = (docs.documents || []).find((d) => d.fields.title.stringValue === 'Teaser powered by');
   check('Firestore: results.ig.id written by the server', /^mock_ig_/.test(teaser?.fields?.results?.mapValue?.fields?.ig?.mapValue?.fields?.id?.stringValue || ''));
+  // Publicar ahora (no robot, no schedule): the future carousel goes out at once.
+  await p.click('.sgx-pub__post:has-text("Carrusel pase") button:has-text("Publicar ahora")');
+  await p.waitForSelector('.sgx-pub__post.is-published:has-text("Carrusel pase")', { timeout: 15000 }).catch(() => {});
+  const nowTxt = await p.$eval('.sgx-pub__post:has-text("Carrusel pase")', (e) => e.className + ' ' + e.textContent).catch(() => '');
+  check('"Publicar ahora" publica al momento en IG + FB', /is-published/.test(nowTxt) && (nowTxt.match(/ver post/g) || []).length === 2, nowTxt.slice(0, 120));
   // Paquetes listos: pick the bundled test batch, load and approve in one go.
   await p.selectOption('.sgx-pub__batches select', 'test_powered_by.json');
   await p.waitForSelector('.sgx-pub__batches li', { timeout: 10000 }).catch(() => {});

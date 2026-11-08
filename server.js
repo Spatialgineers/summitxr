@@ -4754,8 +4754,9 @@ async function dbToken() {
   const e = env2();
   if (e.botEmail && e.botPassword) {
     const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebase_applet_config_default.apiKey}`, {
+      // The web API key is usually restricted to the site's referrer: send it, as the browser would.
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Referer: `${process.env.PUBLIC_SITE_URL || "https://summit.spatialgineers.com"}/` },
       body: JSON.stringify({ email: e.botEmail, password: e.botPassword, returnSecureToken: true }),
       signal: AbortSignal.timeout(8e3)
     }).catch(() => null);
@@ -4765,7 +4766,9 @@ async function dbToken() {
       state2.dbAuth = "bot";
       return tokenCache.token;
     }
-    state2.lastError = `bot sign-in: ${b?.error?.message || r?.status || "network"}`;
+    state2.lastError = `El robot no pudo entrar: ${b?.error?.message || r?.status || "sin red"} (revisa SOCIAL_BOT_EMAIL/PASSWORD y que Email/Password est\xE9 activo en Firebase Authentication)`;
+    state2.dbAuth = "none";
+    return null;
   }
   if (state2.dbAuth === "denied") return null;
   const m = await fetch("http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token", {
@@ -4797,7 +4800,10 @@ async function listPosts(token) {
   for (let i = 0; i < 10; i++) {
     const qs = new URLSearchParams({ pageSize: "300", ...pageToken ? { pageToken } : {} });
     const r = await fetch(`${FIRESTORE_DOCS}/social_posts?${qs}`, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(8e3) });
-    if (!r.ok) throw new Error(`firestore list ${r.status}`);
+    if (!r.ok) {
+      const t = await r.text().catch(() => "");
+      throw new Error(`firestore list ${r.status}${/PERMISSION_DENIED/.test(t) ? " (sin permiso)" : ""}`);
+    }
     const b = await r.json();
     for (const d of b.documents || []) {
       const f = fromFirestore({ mapValue: { fields: d.fields || {} } });
@@ -4961,9 +4967,10 @@ async function tick() {
     state2.lastError = null;
   } catch (err) {
     state2.lastError = String(err?.message || err);
-    if (/ 40[13]$/.test(state2.lastError)) {
-      state2.dbAuth = "denied";
-      state2.lastError = "La base de datos rechaz\xF3 al servidor (403). Configura el usuario robot: SOCIAL_BOT_EMAIL y SOCIAL_BOT_PASSWORD (docs/PUBLICADOR_REDES.md, paso 3).";
+    if (/ 40[13]( \(sin permiso\))?$/.test(state2.lastError)) {
+      const wasBot = state2.dbAuth === "bot";
+      state2.dbAuth = wasBot ? "none" : "denied";
+      state2.lastError = wasBot ? "La base de datos rechaz\xF3 al robot (403): falta su doc en admins/{uid} o las reglas no est\xE1n publicadas." : "La base de datos rechaz\xF3 al servidor (403). Configura el usuario robot: SOCIAL_BOT_EMAIL y SOCIAL_BOT_PASSWORD (docs/PUBLICADOR_REDES.md, paso 3).";
       tokenCache = { token: "", exp: 0 };
     }
   }
@@ -5011,6 +5018,56 @@ function createMetaPublisherRouter() {
   router.post("/run", requireAdmin, async (_req, res) => {
     await runSoon();
     res.json({ ok: true, lastError: state2.lastError });
+  });
+  const nowBusy = /* @__PURE__ */ new Set();
+  router.post("/publish-now", requireAdmin, async (req, res) => {
+    const b = req.body || {};
+    const post = {
+      id: String(b.id || "").slice(0, 128),
+      kind: b.kind,
+      caption: String(b.caption || ""),
+      mediaUrls: Array.isArray(b.mediaUrls) ? b.mediaUrls.filter((u) => typeof u === "string").slice(0, 10) : [],
+      publishAt: (/* @__PURE__ */ new Date()).toISOString(),
+      networks: { ig: !!b.networks?.ig, fb: !!b.networks?.fb },
+      status: "publishing",
+      results: b.results && typeof b.results === "object" ? b.results : {}
+    };
+    if (!/^[\w-]{1,128}$/.test(post.id)) {
+      res.status(400).json({ error: "BAD_ID" });
+      return;
+    }
+    const bad = validate(post);
+    if (bad) {
+      res.status(400).json({ error: bad });
+      return;
+    }
+    if (nowBusy.has(post.id)) {
+      res.status(409).json({ error: "Ya se est\xE1 publicando" });
+      return;
+    }
+    nowBusy.add(post.id);
+    try {
+      const results = {};
+      for (const net of ["ig", "fb"]) {
+        if (!post.networks[net]) continue;
+        const prev = post.results[net];
+        if (prev?.id) {
+          results[net] = prev;
+          continue;
+        }
+        try {
+          const r = env2().mock ? { id: `mock_${net}_${post.id}`, permalink: `https://example.com/${net}/${post.id}` } : await (net === "ig" ? publishInstagram(post) : publishFacebook(post));
+          results[net] = { ...r, at: (/* @__PURE__ */ new Date()).toISOString() };
+          state2.published++;
+        } catch (err) {
+          results[net] = { error: String(err?.message || err).slice(0, 300), at: (/* @__PURE__ */ new Date()).toISOString() };
+        }
+      }
+      const ok = ["ig", "fb"].filter((n) => post.networks[n]).every((n) => results[n]?.id);
+      res.json({ status: ok ? "published" : "failed", results });
+    } finally {
+      nowBusy.delete(post.id);
+    }
   });
   return router;
 }

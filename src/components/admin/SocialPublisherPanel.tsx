@@ -182,6 +182,28 @@ export function SocialPublisherPanel() {
     setBusy(false);
   };
 
+  /* Publicar ahora: uses the admin's own session; the server publishes and we save the result. */
+  const publishNow = async (p: Post) => {
+    if (!window.confirm(`¿Publicar "${p.title}" AHORA en ${[p.networks.ig && 'Instagram', p.networks.fb && 'Facebook'].filter(Boolean).join(' y ')}?`)) return;
+    setBusy(true); setMsg('Publicando… Instagram tarda 1–2 minutos con un video. No cierres esta página.');
+    try {
+      await updateDoc(doc(db, 'social_posts', p.id), { status: 'publishing', updatedAt: serverTimestamp() });
+      const token = await auth.currentUser?.getIdToken();
+      const r = await fetch('/api/social/publisher/publish-now', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify(p),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j?.error || `HTTP ${r.status}`);
+      await updateDoc(doc(db, 'social_posts', p.id), { status: j.status, results: j.results || {}, updatedAt: serverTimestamp() });
+      setMsg(j.status === 'published' ? '¡Publicado! Mira los enlaces "ver post".' : 'Algo falló: mira el error en rojo en la tarjeta.');
+    } catch (e) {
+      await updateDoc(doc(db, 'social_posts', p.id), { status: 'failed', results: { ...(p.results || {}), ig: { error: String((e as Error).message) } }, updatedAt: serverTimestamp() }).catch(() => {});
+      setMsg(`No se pudo publicar: ${(e as Error).message}`);
+    }
+    setBusy(false);
+  };
+
   const ready = server && server.instagram && server.facebook && ['bot', 'service', 'emulator'].includes(server.database);
 
   return (
@@ -281,6 +303,7 @@ export function SocialPublisherPanel() {
                       </p>
                     ))}
                     <div className="sgx-pub__actions">
+                      {p.status !== 'published' && p.status !== 'publishing' && <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy} onClick={() => publishNow(p)}>Publicar ahora</button>}
                       {p.status === 'draft' && <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy} onClick={() => setStatus([p.id], 'approved')}>Aprobar</button>}
                       {p.status === 'approved' && <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" disabled={busy} onClick={() => setStatus([p.id], 'draft')}>Quitar aprobación</button>}
                       {(p.status === 'failed' || p.status === 'missed') && <button type="button" className="sgx-btn sgx-btn--sm" disabled={busy}

@@ -35,7 +35,7 @@ const [P_IN, P_OUT, P_WRITE, P_READ] = (process.env.COMPANION_PRICES || '4,20,8,
 
 const MAX_ACTIVE = 25;
 // how often the admin's switch and cap are re-read (shorter only in local tests)
-const SETTINGS_TTL = IS_PRODUCTION ? 60_000 : Number(process.env.COMPANION_SETTINGS_TTL_MS || 60_000);
+const SETTINGS_TTL = IS_PRODUCTION ? 3 * 60_000 : Number(process.env.COMPANION_SETTINGS_TTL_MS || 60_000); // 1 Firestore read per refresh
 const HISTORY_CHARS = 8000;
 
 /* ---------- switch and daily cap from the admin (site_config/companion) ---------- */

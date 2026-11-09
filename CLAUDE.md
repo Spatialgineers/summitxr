@@ -38,6 +38,7 @@ Antes de cualquier cosa, lee `docs/GUIA_WEBAPP.md`. Es la guía maestra de la ap
 - **Procesos:** mata cada proceso por su PID. Nunca uses `pkill -f` con un patrón que también coincida con tu propio comando.
 - **Publicar:** el usuario publica desde Google AI Studio. Si AI Studio cambia código, esos cambios no llegan a GitHub; hay que pasarlos al repo a mano.
 - **Reglas de Firestore:** cuando cambien, el usuario tiene que publicarlas en la consola de Firebase.
+- **Cuota de Firestore:** el proyecto está en Blaze y fuera de la cuota gratis compartida de AI Studio (nov 2026). Un 429 "Free daily read units" ya no debería pasar; si pasa, revisa esa cuota primero. Mantén bajas las lecturas: nada de sondeos cada minuto (el mailer va cada 5 min).
 - **Antes de dar algo por hecho:** corre `npx tsc --noEmit -p .`, el build y las suites e2e afectadas (`scripts/e2e/*.cjs`).
 
 ## Documentos útiles
@@ -45,7 +46,7 @@ Antes de cualquier cosa, lee `docs/GUIA_WEBAPP.md`. Es la guía maestra de la ap
 - `docs/DIAGNOSTICO_CLAUDE.md`: `GET /api/diag`, diagnóstico de solo lectura con la llave `CLAUDE_DIAG_TOKEN` (léela del entorno; nunca la pidas en el chat).
 - `docs/GUIA_WEBAPP.md`: la guía maestra.
 - `docs/guia/`: la guía en PDF; se regenera con `node scripts/guide-pdf/build.cjs`.
-- `docs/ADMIN_GUIDE.md`, `docs/EMAIL_SETUP.md` (el mailer de Apps Script, todavía sin instalar), `docs/FIRESTORE_RULES.md` y `docs/HIGHBOT_COMPANION.md`.
+- `docs/ADMIN_GUIDE.md`, `docs/EMAIL_SETUP.md` (el mailer de Apps Script, instalado, cada 5 minutos), `docs/FIRESTORE_RULES.md` y `docs/HIGHBOT_COMPANION.md`.
 - `docs/campaign/YOUTUBE_KIT.md`: los videos de la campaña.
 
 ## Redes sociales

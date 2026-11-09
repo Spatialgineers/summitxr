@@ -18,11 +18,14 @@ import {
   Info
 } from 'lucide-react';
 import { SummitSession, SummitSpeaker, SummitPillarId } from '../../types/summit';
+import { getSavedAgendaIds, saveAgendaIds } from '../../lib/summitData';
 import { downloadICS, getGoogleCalendarUrl, SUMMIT_PILLARS } from '../../lib/summitData';
 import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
 
 interface SummitRunOfShowTimelineProps {
+  /** Called with the new count when a session is added to or removed from Mi agenda. */
+  onAgendaChange?: (count: number) => void;
   sessions: SummitSession[];
   speakers: SummitSpeaker[];
   onOpenSessionModal?: (session: SummitSession) => void;
@@ -38,9 +41,18 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
   onNavigateToNode,
   initialDay,
   onDayChange,
+  onAgendaChange,
 }) => {
   const { language } = useLanguage();
   const es = language === 'es';
+  // "Mi agenda" is the set of sessions picked here with the star (same storage as the Mi agenda view).
+  const [picked, setPicked] = useState<string[]>(() => getSavedAgendaIds());
+  const togglePick = (id: string) => {
+    const next = picked.includes(id) ? picked.filter((x) => x !== id) : [...picked, id];
+    setPicked(next);
+    saveAgendaIds(next);
+    onAgendaChange?.(next.length);
+  };
   const [selectedDay, setSelectedDay] = useState<1 | 2 | 3>(() => {
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search).get('day');
@@ -352,6 +364,15 @@ export const SummitRunOfShowTimeline: React.FC<SummitRunOfShowTimelineProps> = (
                       >
                         <Calendar className="w-3.5 h-3.5" />
                       </a>
+                      <button
+                        onClick={() => togglePick(session.id)}
+                        aria-pressed={picked.includes(session.id)}
+                        title={picked.includes(session.id) ? (es ? 'Quitar de mi agenda' : 'Remove from my agenda') : (es ? 'Añadir a mi agenda' : 'Add to my agenda')}
+                        className={`px-2 py-1 border text-[11px] font-mono font-bold transition-colors cursor-pointer ${picked.includes(session.id) ? 'border-[var(--sgx-primary)] bg-[var(--sgx-primary)] text-black' : 'border-slate-700 bg-slate-900/60 text-slate-300 hover:border-[var(--sgx-primary)]'}`}
+                        style={{ clipPath: 'polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px)' }}
+                      >
+                        {picked.includes(session.id) ? (es ? '★ En mi agenda' : '★ In my agenda') : (es ? '☆ Mi agenda' : '☆ My agenda')}
+                      </button>
                       <button
                         onClick={() => downloadICS(session, language)}
                         title={es ? 'Descargar archivo .ics' : 'Download .ics file'}

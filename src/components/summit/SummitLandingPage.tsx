@@ -832,8 +832,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
           <div className="space-y-6">
             <SummitSectionBanner
               sectionKey="AGENDA"
-              title={es ? 'Run of Show Oficial & Agenda de 3 Días' : 'Official Run of Show & 3-Day Agenda'}
-              subtitle={es ? 'Línea de tiempo minuto a minuto, presentaciones de artistas en Roblox, conversatorios de industria y show performativo.' : 'Minute-by-minute timeline, artist performances in Roblox, industry conversations and a live performance show.'}
+              title={es ? 'Programa del Summit · 3 días' : 'Summit program · 3 days'}
+              subtitle={es ? 'El programa completo minuto a minuto. Marca ☆ en las sesiones que quieres ver y quedan en Mi agenda, con su alerta al calendario.' : 'The full program, minute by minute. Tap ☆ on the sessions you want and they go to My agenda, with a calendar alert.'}
               pillarBadge="SGX.STAGE"
               pillarIconUrl={pillarIcon('STAGE')}
               additionalParams={{ view: agendaViewMode.toLowerCase() }}
@@ -851,7 +851,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  {es ? 'Línea de Tiempo (Run of Show)' : 'Timeline (Run of Show)'}
+                  {es ? 'Programa completo' : 'Full program'}
                 </button>
                 <button
                   onClick={() => {
@@ -864,7 +864,7 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  {es ? 'Mi Agenda & Alertas' : 'My Agenda & Alerts'}
+                  {es ? 'Mi agenda' : 'My agenda'}
                 </button>
               </div>
             </SummitSectionBanner>
@@ -881,6 +881,9 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               />
             ) : (
               <SummitAgendaBuilder
+                key="mine"
+                mineOnly
+                onOpenProgram={() => { setAgendaViewMode('TIMELINE'); syncSectionToUrl('AGENDA', { view: 'timeline' }); }}
                 sessions={sessions}
                 speakers={speakers}
                 onOpenSessionModal={(sess) => setSelectedSessionModal(sess)}

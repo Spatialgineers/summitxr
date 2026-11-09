@@ -1,5 +1,6 @@
 /* Agenda alerts: the ALERTAR menu downloads a real .ics with a 15-min VALARM,
-   Google Calendar gets a proper template link, and "my agenda" exports all saved sessions. */
+   Google Calendar gets a proper template link, and "my agenda" exports all saved sessions.
+   The program (Run of Show) and Mi agenda are one: the star in the program picks the sessions. */
 const { chromium } = require('playwright');
 const fs = require('fs');
 const OUT = require('path').join(__dirname, 'out'); fs.mkdirSync(OUT, { recursive: true });
@@ -17,8 +18,20 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
     const gcal = []; await ctx.route(/calendar\.google\.com|accounts\.google\.com/, (r) => { gcal.push(r.request().url()); r.fulfill({ status: 200, body: 'ok' }); });
     await p.goto(APP + '/?tab=agenda', { waitUntil: 'domcontentloaded' });
     await p.waitForTimeout(4000);
-    await p.click('button:has-text("Mi Agenda & Alertas")');
+    // Program and Mi agenda are one: pick a session with the star, then open Mi agenda.
+    const tabMine = p.getByRole('button', { name: 'Mi agenda', exact: true });
+    await tabMine.click();
+    await p.waitForTimeout(600);
+    check(`${name}: Mi agenda starts empty with a hint`, await p.getByText('Todavía no has escogido sesiones').first().waitFor({ timeout: 8000 }).then(() => true, () => false));
+    await p.getByRole('button', { name: 'Programa completo', exact: true }).click();
+    await p.waitForTimeout(600);
+    const star = p.locator('button:has-text("☆ Mi agenda")').first();
+    await star.waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
+    await star.click();
+    check(`${name}: star marks the session`, await p.locator('button:has-text("★ En mi agenda")').first().isVisible());
+    await tabMine.click();
     await p.waitForTimeout(800);
+    check(`${name}: Mi agenda shows only the picked session`, (await p.locator('button:has-text("ALERTAR")').count()) === 1);
     const alertBtn = p.locator('button:has-text("ALERTAR")').first();
     // under load the list renders later than the fixed waits above: wait for the button itself
     await alertBtn.waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
@@ -35,7 +48,7 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
     check(`${name}: .ics lines folded at 75 octets`, ics.split('\r\n').every((l) => Buffer.byteLength(l) <= 75));
     check(`${name}: button shows it is in the calendar`, await p.locator('button:has-text("EN TU CALENDARIO")').first().isVisible());
     // Google
-    await p.locator('button:has-text("ALERTAR")').first().click();
+    await p.locator('button:has-text("EN TU CALENDARIO")').first().click();
     await p.click('[role=menu] button:has-text("Google Calendar")');
     await p.waitForTimeout(1200);
     const gurl = gcal.find((u) => u.includes('calendar.google.com')) || '';
@@ -45,7 +58,7 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
     const ics2 = fs.readFileSync(await dl2.path(), 'utf8');
     const n = (ics2.match(/BEGIN:VEVENT/g) || []).length;
     check(`${name}: my-agenda .ics has every saved session with alarms`, n >= 1 && (ics2.match(/TRIGGER:-PT15M/g) || []).length === n, `(${n} events)`);
-    check(`${name}: alerts persist after reload`, await (async () => { await p.reload(); await p.waitForTimeout(3500); await p.click('button:has-text("Mi Agenda & Alertas")'); await p.waitForTimeout(600); return p.locator('button:has-text("EN TU CALENDARIO")').first().isVisible(); })());
+    check(`${name}: alerts persist after reload`, await (async () => { await p.reload(); await p.waitForTimeout(3500); await p.getByRole('button', { name: 'Mi agenda', exact: true }).click(); await p.waitForTimeout(600); return p.locator('button:has-text("EN TU CALENDARIO")').first().isVisible(); })());
     const ow = await p.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     check(`${name}: no horizontal overflow`, ow <= 1, `(${ow}px)`);
     check(`${name}: no page errors`, errs.length === 0, errs.join(' | '));

@@ -1124,9 +1124,9 @@ const STORAGE_KEY_CUSTOM_SPONSORS = 'sgx_custom_sponsors_data_v2026_10_1';
 export function getSavedAgendaIds(): string[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_AGENDA);
-    return raw ? JSON.parse(raw) : ['d1_01', 'd1_14', 'd2_01', 'd3_01', 'd3_06'];
+    return raw ? JSON.parse(raw) : []; // Mi agenda starts empty: only what the visitor picks
   } catch {
-    return ['d1_01', 'd1_14', 'd2_01', 'd3_01', 'd3_06'];
+    return [];
   }
 }
 

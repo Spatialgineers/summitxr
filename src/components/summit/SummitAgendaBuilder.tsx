@@ -41,6 +41,10 @@ interface SummitAgendaBuilderProps {
   speakers: SummitSpeaker[];
   onOpenSessionModal?: (session: SummitSession) => void;
   onTriggerNotification?: (session: SummitSession) => void;
+  /** Mi agenda: only the sessions picked in the program (no toggle). */
+  mineOnly?: boolean;
+  /** Opens the full program (Run of Show) to pick sessions. */
+  onOpenProgram?: () => void;
 }
 
 export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
@@ -48,12 +52,14 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
   speakers,
   onOpenSessionModal,
   onTriggerNotification,
+  mineOnly = false,
+  onOpenProgram,
 }) => {
   const { t, language } = useLanguage();
   const es = language === 'es';
-  const [selectedDay, setSelectedDay] = useState<1 | 2 | 3 | 'ALL'>(1);
+  const [selectedDay, setSelectedDay] = useState<1 | 2 | 3 | 'ALL'>(mineOnly ? 'ALL' : 1);
   const [selectedPillar, setSelectedPillar] = useState<SummitPillarId | 'ALL'>('ALL');
-  const [onlyMyAgenda, setOnlyMyAgenda] = useState<boolean>(false);
+  const [onlyMyAgenda, setOnlyMyAgenda] = useState<boolean>(mineOnly);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => getSavedAgendaIds());
   // Sessions whose alert went to the visitor's calendar (an .ics with a 15-min alarm, or Google Calendar).
@@ -184,7 +190,7 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
             <span>{isOfflineMode ? t('offline_badge', 'MODO OFFLINE (CACHE LOCAL)') : t('offline_ready', 'ONLINE • CACHE SYNC OK')}</span>
           </div>
 
-          <button
+          {!mineOnly && <button
             onClick={() => setOnlyMyAgenda(!onlyMyAgenda)}
             className={`px-3 py-1.5 text-xs font-bold font-mono transition-all flex items-center space-x-1.5 ${
               onlyMyAgenda 
@@ -195,7 +201,13 @@ export const SummitAgendaBuilder: React.FC<SummitAgendaBuilderProps> = ({
           >
             <Bookmark className="w-3.5 h-3.5" />
             <span>{t('filter_my_agenda', 'MI AGENDA')} ({bookmarkedIds.length})</span>
-          </button>
+          </button>}
+          {mineOnly && bookmarkedIds.length === 0 && (
+            <div className="w-full p-4 border border-dashed border-slate-700 text-sm text-slate-300 font-mono">
+              {es ? 'Todavía no has escogido sesiones. Ve al programa completo y marca ☆ Mi agenda en las que quieras ver.' : "You haven't picked any sessions yet. Open the full program and tap ☆ My agenda on the ones you want."}
+              {onOpenProgram && <button type="button" onClick={onOpenProgram} className="ml-2 underline text-[var(--sgx-primary)] cursor-pointer">{es ? 'Ver programa completo' : 'See full program'}</button>}
+            </div>
+          )}
 
           <button
             data-guide="alertas-agenda"

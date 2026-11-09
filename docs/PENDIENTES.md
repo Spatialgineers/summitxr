@@ -5,4 +5,5 @@
 3. **Infinite Galleries:** integrarla como webapp para presentar a la artista invitada. Falta que Danelson pase el enlace y los datos de la artista.
 4. **Campaña:** semanas 3 (25 nov–1 dic) y 4 (2–8 dic) como paquetes del Publicador, con los videos a 1080×1920 nativos.
 5. **Contenido extra** que haga falta para esas semanas.
-6. **QA completo:** tsc, build y todas las e2e (`scripts/e2e/*.cjs`), más una pasada en el teléfono, para que todo funcione sin tropiezos antes del evento.
+6. **Agenda:** unir el modal de Run of Show y el de Mi agenda en uno solo. Hoy muestran el programa completo dos veces; debe quedar un programa con la opción de marcar y ver "mis sesiones".
+7. **QA completo:** tsc, build y todas las e2e (`scripts/e2e/*.cjs`), más una pasada en el teléfono, para que todo funcione sin tropiezos antes del evento.

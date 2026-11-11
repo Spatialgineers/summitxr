@@ -6,6 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { loc } from '../../lib/localize';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { VisitCounterChip } from './VisitCounterChip';
 import { navigateToSection, navigateToPillar } from '../../immersion/navigation';
 import { createPilotOrbit, type PilotCardInfo, type PilotOrbit } from '../../identity/pilotOrbit3D';
@@ -813,8 +814,32 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     scene.add(innerSwarmPoints);
 
     // 4. Pure Neutral White Studio Lighting so GLB models preserve 100% of their original native colors & materials
-    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.9);
+    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.65);
     scene.add(ambientLight);
+
+    // Soft studio reflections: the metal of the logo, pillars and podiums picks up highlights
+    // instead of looking flat. Built once (a tiny prefiltered cube map), no per-frame cost.
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envMap = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = envMap;
+    scene.environmentIntensity = 0.3; // low on purpose: the brand blue and yellow must stay true
+    pmrem.dispose();
+
+    // Contact shadow: one soft dark blob under each sculpture grounds it on its podium (no shadow maps).
+    const shadowCanvas = document.createElement('canvas');
+    shadowCanvas.width = shadowCanvas.height = 128;
+    const sctx = shadowCanvas.getContext('2d');
+    if (sctx) {
+      const g = sctx.createRadialGradient(64, 64, 4, 64, 64, 64);
+      g.addColorStop(0, 'rgba(0,0,0,0.85)');
+      g.addColorStop(0.55, 'rgba(0,0,0,0.35)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      sctx.fillStyle = g;
+      sctx.fillRect(0, 0, 128, 128);
+    }
+    const shadowTex = new THREE.CanvasTexture(shadowCanvas);
+    const shadowMat = new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false, opacity: 0.9 });
+    const shadowGeo = new THREE.PlaneGeometry(11.5, 11.5);
 
     const hemiLight = new THREE.HemisphereLight(0xFFF9E2, 0x1A2233, 1.1);
     hemiLight.position.set(0, 90, 0);
@@ -1068,6 +1093,11 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       pad.rotation.x = -Math.PI / 2;
       pad.position.y = 1.95;
       podium.add(pad);
+      const blob = new THREE.Mesh(shadowGeo, shadowMat);
+      blob.rotation.x = -Math.PI / 2;
+      blob.position.y = 1.93;
+      blob.renderOrder = -1;
+      podium.add(blob);
       pGroup.add(podium);
 
       // Energy Beam connecting Central SGX Logo to this Pillar GLB
@@ -1460,8 +1490,21 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
     const fxTargetB = new THREE.Vector3();
     const fxMouse = new THREE.Vector2();
 
+    // Skip the frame while the page is hidden or a full-screen panel covers the core (saves battery).
+    let coverCheck = 0;
+    let covered = false;
+    const isCovered = () => {
+      if (document.hidden) return true;
+      const el = document.querySelector('.sgx-forge, [role="dialog"][aria-modal="true"]') as HTMLElement | null;
+      if (!el) return false;
+      const r = el.getBoundingClientRect();
+      return r.width >= window.innerWidth * 0.95 && r.height >= window.innerHeight * 0.95 && getComputedStyle(el).backgroundColor !== 'rgba(0, 0, 0, 0)' && !/rgba\([^)]*,\s*0?\.[0-8]\d*\)/.test(getComputedStyle(el).backgroundColor);
+    };
+
     const animate = (timestamp?: number) => {
       reqId = requestAnimationFrame(animate);
+      if (coverCheck++ % 20 === 0) covered = isCovered();
+      if (covered) { if (timer) timer.update(timestamp); else lastTime = timestamp ?? performance.now(); return; }
       let delta = 0.016;
       let elapsed = 0;
 
@@ -1738,6 +1781,10 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       domeMat.dispose();
       holoMat.dispose();
       post?.dispose();
+      envMap.dispose();
+      shadowTex.dispose();
+      shadowMat.dispose();
+      shadowGeo.dispose();
       floorFx.dispose();
       ceilingFx.dispose();
       coreShell.dispose();

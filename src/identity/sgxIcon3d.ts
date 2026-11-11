@@ -7,7 +7,8 @@ import { BOLT_POINTS } from './pilotAvatar';
    once per page and is baked into shared geometries: callers make their own
    (tinted) materials and must not dispose these geometries. */
 
-export const SGX_ICON_GLB_URL = 'https://cdn.spatialgineers.com/3D%20Branding/SGX%20Icon.glb';
+// Draco-compressed copy of the CDN's SGX Icon.glb (1.98 MB → 276 KB); the same file the 3D core loads.
+export const SGX_ICON_GLB_URL = '/models/sgx-icon.glb';
 
 export interface SgxIconGeometry {
   /** whole icon, centered, 1 unit across */
@@ -42,8 +43,14 @@ function fit(geos: THREE.BufferGeometry[], by: 'width' | 'height') {
 
 export function loadSgxIcon(): Promise<SgxIconGeometry | null> {
   if (!pending) {
-    pending = import('three/examples/jsm/loaders/GLTFLoader.js')
-      .then(({ GLTFLoader }) => new GLTFLoader().loadAsync(SGX_ICON_GLB_URL))
+    pending = Promise.all([import('three/examples/jsm/loaders/GLTFLoader.js'), import('three/examples/jsm/loaders/DRACOLoader.js')])
+      .then(([{ GLTFLoader }, { DRACOLoader }]) => {
+        const draco = new DRACOLoader();
+        draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+        const loader = new GLTFLoader();
+        loader.setDRACOLoader(draco);
+        return loader.loadAsync(SGX_ICON_GLB_URL).finally(() => draco.dispose());
+      })
       .then((gltf) => {
         gltf.scene.updateMatrixWorld(true);
         const meshes: THREE.Mesh[] = [];

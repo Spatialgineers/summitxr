@@ -16,6 +16,7 @@ const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard').th
 const StagePage = lazy(() => import('./components/stage/StagePage').then((m) => ({ default: m.StagePage })));
 const AudiencePWA = lazy(() => import('./components/audience/AudiencePWA').then((m) => ({ default: m.AudiencePWA })));
 const AnalyticsDashboard = lazy(() => import('./components/analytics/AnalyticsDashboard').then((m) => ({ default: m.AnalyticsDashboard })));
+const SgxQuickTour = lazy(() => import('./companion/SgxQuickTour').then((m) => ({ default: m.SgxQuickTour })));
 const CompanionDock = lazy(() => import('./companion/CompanionDock').then((m) => ({ default: m.CompanionDock })));
 const DatabaseSchemaViewer = lazy(() => import('./components/schema/DatabaseSchemaViewer').then((m) => ({ default: m.DatabaseSchemaViewer })));
 import { 
@@ -1125,7 +1126,7 @@ export default function App() {
 
       {/* Your Highbot companion: the floating head and its quick chat */}
       {!['stage', 'multiview', 'admin', 'analytics', 'schema'].includes(currentPage) && (
-        <Suspense fallback={null}><CompanionDock /></Suspense>
+        <Suspense fallback={null}><CompanionDock />{currentPage === 'summit' && <SgxQuickTour />}</Suspense>
       )}
 
       {/* SGX Immersion Engine: quests, energy cells, terminal, HUD and FX */}

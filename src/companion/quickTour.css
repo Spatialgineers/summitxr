@@ -1,0 +1,12 @@
+/* The 60-second tour card: bottom left, mirror of the Highbot dock. Never blocks the page. */
+.sgx-tour60 { position: fixed; left: 14px; bottom: 84px; z-index: 94; display: flex; gap: 10px; width: min(360px, calc(100vw - 28px)); padding: 12px; background: rgba(5, 5, 5, .96); border: 1px solid #FDCC0D; box-shadow: 0 12px 36px rgba(0, 0, 0, .7); color: #e5e7eb; font: 13px/1.45 'Share Tech Mono', monospace; }
+.sgx-tour60__face { flex: none; width: 56px; height: 56px; overflow: hidden; border-radius: 50%; border: 1px solid rgba(0, 221, 255, .6); background: #0d0f13; }
+.sgx-tour60__body { position: relative; min-width: 0; flex: 1; display: grid; gap: 6px; }
+.sgx-tour60__body strong { font: 800 14px Orbitron, sans-serif; color: #FDCC0D; text-transform: uppercase; }
+.sgx-tour60__body p { margin: 0; }
+.sgx-tour60__count { position: absolute; top: 0; right: 0; color: #00DDFF; font-size: 12px; }
+.sgx-tour60__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.sgx-tour60__actions .sgx-btn { min-height: 40px; padding: 6px 12px; }
+.sgx-tour60__bar { display: block; height: 3px; background: #00DDFF; transform-origin: left; animation: sgx-tour60-bar linear forwards; }
+@keyframes sgx-tour60-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .sgx-tour60__bar { animation: none; } }

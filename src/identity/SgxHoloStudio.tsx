@@ -9,6 +9,7 @@ import { usePassQr } from './usePassQr';
 import { SgxRoleRequests } from './SgxRoleRequests';
 import { SgxPilotGlyph } from './SgxPilotGlyph';
 import { ROLE_COPY, useHoloCredentials, type CredentialRole, type HoloCredential } from './credentials';
+import { canRecordHoloVideo, recordHoloVideo } from './holoCardVideo';
 import { CARD_H, CARD_W, drawCardBack, drawCardFront, loadImage, renderFormat, svgElementToImage, useHoloAssets, type CardArt, type HoloFormat } from './holoCardCanvas';
 
 /* HOLO CARD STUDIO. Your Holo Card is your SGX Pass: same name, pilot, QR
@@ -178,6 +179,33 @@ export const SgxHoloStudio: React.FC<Props> = ({ onClose }) => {
     }
   };
 
+  // The card as a 6-second video for stories, made on this device.
+  const [recording, setRecording] = useState(false);
+  const video = async () => {
+    if (review || recording) return;
+    const c = draw('story', 1);
+    if (!c) return;
+    setRecording(true);
+    setBanner(es ? 'Grabando tu video (6 segundos)…' : 'Recording your video (6 seconds)…');
+    try {
+      const { blob, ext } = await recordHoloVideo(c, accent);
+      const name = `sgx-holo-card-${cred?.role}.${ext}`;
+      const file = new File([blob], name, { type: blob.type });
+      if ((navigator as any).canShare?.({ files: [file] })) {
+        try { await (navigator as any).share({ files: [file], text: '#SpatialgineersSummit #RoadToSummit #Spatialgineers' }); } catch { /* share cancelled: the download below still runs */ }
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name; a.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 4000);
+      exported();
+      setBanner(es ? 'Video listo. Súbelo a tus stories con #SpatialgineersSummit #RoadToSummit #Spatialgineers.' : 'Video ready. Post it to your stories with #SpatialgineersSummit #RoadToSummit #Spatialgineers.');
+    } catch {
+      setBanner(es ? 'Este navegador no pudo grabar el video. Descarga la imagen.' : 'This browser could not record the video. Download the image.');
+    }
+    setRecording(false);
+  };
+
   const share = async () => {
     if (review) return;
     const c = draw(format, format === 'badge' ? 2 : 1);
@@ -268,6 +296,9 @@ export const SgxHoloStudio: React.FC<Props> = ({ onClose }) => {
           <div className="sgx-hstudio__actions">
             <span className="sgx-glow"><button type="button" className="sgx-btn" disabled={review} onClick={download}>{es ? 'Descargar PNG' : 'Download PNG'}</button></span>
             <button type="button" className="sgx-btn sgx-btn--ground" disabled={review} onClick={share}>{es ? 'Compartir' : 'Share'}</button>
+            {canRecordHoloVideo() && (
+              <button type="button" className="sgx-btn sgx-btn--ground" disabled={review || recording} onClick={video}>{recording ? (es ? 'Grabando…' : 'Recording…') : (es ? 'Video para stories' : 'Video for stories')}</button>
+            )}
           </div>
           {banner && <p className="sgx-hstudio__banner" role="status">{banner}</p>}
         </div>

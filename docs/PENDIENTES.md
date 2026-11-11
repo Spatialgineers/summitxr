@@ -12,6 +12,6 @@
 ## En curso · ideas para elevar la app (11 nov)
 - ✅ **Tu Estudio 3D** (`/estudio-3d`, `src/identity/studioRoom/`): cuarto 3D donde el Highbot camina (joystick o teclado), con computadora, pared de Holo Cards de contactos, sellos de pilares y portal al núcleo. Nivel 1 (solo). Falta probarlo en un teléfono real.
 - ⏳ **Nivel 2 del Estudio:** ver a otros Creadores en tiempo real (salas de 30–50, con prueba de carga).
-- ⏳ **Núcleo en vivo:** durante el evento, encender el pilar de la sesión actual y mostrar "EN VIVO ahora".
-- ⏳ **Recorrido guiado de 60 s** con el Highbot la primera vez.
-- ⏳ **Holo Card en video** para compartir en stories.
+- ✅ **Núcleo en vivo** (`src/lib/summitLive.ts`, barra `#sgx-live-bar` en `SummitExperienceHub.tsx`): durante el evento, una barra "EN VIVO · Ahora: <sesión>" sobre el núcleo, con botón al pilar de esa sesión y a la transmisión de YouTube (Días 1 y 2). Si el Creador no ha escogido pilar, se enciende el de la sesión. Se revisa cada 30 s, sin lecturas a Firestore. Para probarla: `localStorage.sgx_now` con una hora del evento.
+- ✅ **Recorrido de 60 s** (`src/companion/SgxQuickTour.tsx`): en la primera visita, sin pase y en el núcleo, el Highbot ofrece un recorrido de 5 paradas (núcleo, programa, pilares, Tu Estudio 3D, "Forja tu pase"), 12 s cada una. No bloquea la página. Se guarda en `localStorage.sgx_tour60_done`; se puede relanzar con el evento `sgx:start_tour60`.
+- ✅ **Holo Card en video** (`src/identity/holoCardVideo.ts`, botón "Video para stories" en el Holo Studio): graba en el dispositivo un video de 6 s a 1080×1920 (MP4 donde el navegador lo permite; si no, WebM). No se sube nada. Falta probarlo en iPhone y Android reales.

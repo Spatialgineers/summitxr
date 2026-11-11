@@ -34,6 +34,9 @@ import { PILLAR_BY_KEY, PillarKey, bi } from '../../lib/sgxPillars';
 import { navigateToPillar } from '../../immersion/navigation';
 import { useOptionalSgxIdentity } from '../../identity/SgxIdentityContext';
 import { REACTOR_MISSIONS } from '../../identity/reactor';
+import { loadAllSessions } from '../../lib/summitData';
+import { liveSession } from '../../lib/summitLive';
+import { SGX_YOUTUBE } from '../../lib/sgxLinks';
 // three.js and the core arrive after the page shell has painted.
 const SgxOrbitalCore3D = lazy(() => import('./SgxOrbitalCore3D').then((m) => ({ default: m.SgxOrbitalCore3D })));
 
@@ -473,8 +476,48 @@ export const SummitExperienceHub: React.FC<SummitExperienceHubProps> = ({
 
   const activeStation = pillarStations.find((s) => s.id === activePillarId) || pillarStations[0];
 
+  // During the event: what is on air right now, checked every 30 seconds.
+  const [live, setLive] = useState(() => liveSession(loadAllSessions()));
+  useEffect(() => {
+    const t = window.setInterval(() => setLive(liveSession(loadAllSessions())), 30000);
+    return () => window.clearInterval(t);
+  }, []);
+  // Days 1 and 2 are all on YouTube Live, so every session there has a stream.
+  const liveUrl = live ? (live.streamUrl || (live.day < 3 ? SGX_YOUTUBE : '')) : '';
+  const livePillar = live?.pillarId ? (live.pillarId.replace('SGX.', '') as SgxCorePillarId) : null;
+  // Until the Creador picks a pillar, the core lights the one that is on air.
+  useEffect(() => {
+    if (livePillar && !pillarChosen) setActivePillarId(livePillar);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [livePillar]);
+
   return (
     <div id="summit-experience-hub" className="w-full h-full flex-1 min-h-0 flex flex-col overflow-hidden">
+      {live && (
+        <div id="sgx-live-bar" role="status" className="flex-none flex flex-wrap items-center gap-x-3 gap-y-1.5 px-3 py-2 bg-[#050505] border-b border-[#FDCC0D]/60 font-mono text-xs text-white">
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#dc2626] font-bold tracking-widest">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" aria-hidden />{es ? 'EN VIVO' : 'LIVE'}
+          </span>
+          <span className="min-w-0 flex-1 truncate">
+            {es ? 'Ahora: ' : 'Now: '}<strong>{es ? live.title : (live.titleEn || live.title)}</strong>
+            <span className="text-slate-400"> · {live.startTime} – {live.endTime}</span>
+          </span>
+          {livePillar && (
+            <button type="button" onClick={() => handleDockPillar(livePillar)} className="px-2.5 py-1 border border-[#00DDFF]/70 hover:bg-[#1A1A1A] cursor-pointer">
+              {es ? `Ver SGX.${livePillar[0]}${livePillar.slice(1).toLowerCase()}` : `See SGX.${livePillar[0]}${livePillar.slice(1).toLowerCase()}`}
+            </button>
+          )}
+          {liveUrl ? (
+            <a href={liveUrl} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1 bg-[#FDCC0D] text-black font-bold">
+              {es ? 'Ver la transmisión' : 'Watch the stream'}
+            </a>
+          ) : (
+            <button type="button" onClick={() => onSelectSection('AGENDA')} className="px-2.5 py-1 bg-[#FDCC0D] text-black font-bold cursor-pointer">
+              {es ? 'Ver el programa' : 'See the program'}
+            </button>
+          )}
+        </div>
+      )}
       <LazyBoundary fallback={<LazyFallback fullScreen label={es ? 'Cargando núcleo 3D…' : 'Loading the 3D core…'} />}>
       <SgxOrbitalCore3D
         activePillarId={activePillarId}

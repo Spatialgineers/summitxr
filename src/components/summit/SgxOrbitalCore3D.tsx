@@ -66,7 +66,8 @@ export interface SgxOrbitalPillarNode {
   physicsLabel: string;
 }
 
-export const SGX_CORE_LOGO_GLB_URL = 'https://cdn.spatialgineers.com/3D%20Branding/SGX%20Icon.glb';
+// Draco-compressed copy of the CDN's SGX Icon.glb (1.98 MB → 276 KB, half the triangles): the core loads it first.
+export const SGX_CORE_LOGO_GLB_URL = '/models/sgx-icon.glb';
 const SGX_GUILD_GLB_URL = 'https://cdn.spatialgineers.com/3D%20Branding/Sgxgs%201.glb';
 const GUILD_EGG_KEY = 'sgx_guild_egg_v1';
 const CORE_INTRO_KEY = 'sgx_core_intro_v1';
@@ -418,6 +419,8 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
   const viewportRef = useRef<HTMLDivElement>(null);
   const nodeMarkerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const { recordActivity, liteMode, setLiteMode } = usePilotProfile();
+  // Bumped when the browser drops the WebGL context (phones do it in the background): the scene rebuilds.
+  const [glEpoch, setGlEpoch] = useState(0);
 
   const [autoRotate, setAutoRotate] = useState<boolean>(true);
   const [cameraFocusedOnPillar, setCameraFocusedOnPillar] = useState<boolean>(false);
@@ -658,6 +661,11 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
       renderer.toneMapping = THREE.NeutralToneMapping;
       renderer.toneMappingExposure = 1.0;
       container.appendChild(renderer.domElement);
+      const canvas = renderer.domElement;
+      const onLost = (ev: Event) => { ev.preventDefault(); };
+      const onRestored = () => setGlEpoch((n) => n + 1);
+      canvas.addEventListener('webglcontextlost', onLost);
+      canvas.addEventListener('webglcontextrestored', onRestored);
     } catch (e) {
       console.warn('WebGL unavailable for SgxOrbitalCore3D:', e);
       return;
@@ -1778,7 +1786,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
         renderer.dispose();
       }
     };
-  }, [liteMode]);
+  }, [liteMode, glEpoch]);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;

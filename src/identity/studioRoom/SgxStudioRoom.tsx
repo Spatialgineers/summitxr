@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useLite } from '../../lib/lite';
@@ -73,6 +74,41 @@ export const SgxStudioRoom: React.FC<{ embedded?: boolean }> = ({ embedded = fal
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lite, es, accent, JSON.stringify(pilot), xpEarned, done, cardsKey, stampsKey, identity.holo?.image]);
 
+  // Like the core, the room is a fixed screen: it fills the window under the header, and the
+  // page behind it cannot scroll, so a drag always moves the Highbot and never the page.
+  const fixed = !lite && !failed;
+  const [inset, setInset] = useState({ top: 0, bottom: 0 });
+  useEffect(() => {
+    if (!fixed) return;
+    const measure = () => {
+      // the header and the section bar under it both stay on screen
+      const top = Math.max(0, ...Array.from(document.querySelectorAll('.sgx-hdr, .sgx-sechud')).map((el) => el.getBoundingClientRect().bottom));
+      const dock = document.querySelector('.sgx-dock');
+      const dr = dock && getComputedStyle(dock).display !== 'none' ? dock.getBoundingClientRect() : null;
+      setInset({ top: Math.round(top), bottom: dr ? Math.max(0, Math.round(window.innerHeight - dr.top + 6)) : 0 });
+    };
+    const root = document.documentElement;
+    const prev = { overflow: root.style.overflow, overscroll: root.style.overscrollBehavior, body: document.body.style.overflow };
+    const noWheel = (e: WheelEvent) => e.preventDefault();
+    window.addEventListener('wheel', noWheel, { passive: false });
+    window.scrollTo(0, 0);
+    root.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    root.style.overscrollBehavior = 'none';
+    measure();
+    const t = window.setTimeout(() => { window.scrollTo(0, 0); measure(); }, 400);
+    window.addEventListener('resize', measure);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('wheel', noWheel);
+      root.style.overflow = prev.overflow;
+      document.body.style.overflow = prev.body;
+      root.style.overscrollBehavior = prev.overscroll;
+    };
+  }, [fixed]);
+  const openTab = (tab: string) => window.dispatchEvent(new CustomEvent('sgx:studio_tab', { detail: { tab } }));
+
   const go = (s: StationId) => {
     // inside Tu Estudio the stations are its own tabs
     if (embedded && s !== 'portal' && s !== 'shelf') {
@@ -124,8 +160,9 @@ export const SgxStudioRoom: React.FC<{ embedded?: boolean }> = ({ embedded = fal
     );
   }
 
-  return (
-    <div className="sgx-room" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
+  // Portaled to the body: a page section with a transform would otherwise trap the fixed room.
+  return createPortal(
+    <div className="sgx-room sgx-room--fixed" style={{ top: inset.top, bottom: inset.bottom }} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
       <div ref={hostRef} className="sgx-room__canvas" aria-label={es ? 'Tu Estudio en 3D' : 'Your Studio in 3D'} />
       {!ready && <div className="sgx-room__loading" role="status">{es ? 'Abriendo tu Estudio…' : 'Opening your Studio…'}</div>}
 
@@ -137,6 +174,19 @@ export const SgxStudioRoom: React.FC<{ embedded?: boolean }> = ({ embedded = fal
       <p className="sgx-room__help">
         {es ? 'Arrastra para caminar (o flechas / WASD) · Agarra un objeto y tíralo al aro' : 'Drag to walk (or arrows / WASD) · Grab an object and throw it at the hoop'}
       </p>
+
+      <nav className="sgx-room__exit" aria-label={es ? 'Salir del cuarto' : 'Leave the room'}>
+        {embedded ? (
+          <>
+            <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => openTab('pass')}>{es ? 'Pase' : 'Pass'}</button>
+            <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => openTab('bot')}>{es ? 'Tu Highbot' : 'Your Highbot'}</button>
+            <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => openTab('reactor')}>Reactor</button>
+            <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => openTab('rolodex')}>Rolodex</button>
+          </>
+        ) : (
+          <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => navigateToSection('OVERVIEW')}>{es ? 'Volver al núcleo' : 'Back to the core'}</button>
+        )}
+      </nav>
 
       {near && (
         <div className="sgx-room__prompt" role="status">
@@ -150,7 +200,8 @@ export const SgxStudioRoom: React.FC<{ embedded?: boolean }> = ({ embedded = fal
           <i style={{ transform: `translate(${stick.dx}px, ${stick.dy}px)` }} />
         </div>
       )}
-    </div>
+    </div>,
+    document.body,
   );
 };
 

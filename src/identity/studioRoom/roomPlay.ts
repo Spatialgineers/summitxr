@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { playCyberBurstSound, playUiChirp } from '../../lib/cyberAudioEngine';
+import { createDrone, disposeObject } from '../../components/summit/drone/droneScene';
 
 /* The living part of Tu Estudio 3D: things to grab and throw, a holo hoop to
    score in, and the room's own motion (dust, a ring lamp, a small drone,
@@ -144,19 +145,13 @@ export function createRoomPlay(d: RoomPlayDeps): RoomPlay {
   lamp.add(ringA, ringB, core);
   scene.add(lamp);
 
-  // a small drone that patrols the room
-  const drone = new THREE.Group();
-  drone.add(new THREE.Mesh(keep(new THREE.BoxGeometry(0.34, 0.1, 0.34)), std(0x1a1f29, 0.4, 0.8)));
-  const eye = new THREE.Mesh(keep(new THREE.SphereGeometry(0.05, 10, 8)), glow(0x00ddff));
-  eye.position.set(0, -0.04, 0.17);
-  drone.add(eye);
-  const rotorGeo = keep(new THREE.CylinderGeometry(0.13, 0.13, 0.012, 14));
-  const rotorMat = glow(0xffffff, 0.22);
-  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([x, z]) => {
-    const r = new THREE.Mesh(rotorGeo, rotorMat);
-    r.position.set(x * 0.2, 0.07, z * 0.2);
-    drone.add(r);
-  });
+  // the SGX drone from the drone game patrols the room
+  const rig = createDrone();
+  const drone = rig.group;
+  drone.scale.setScalar(0.24);
+  rig.shield.visible = false;
+  rig.glow.intensity = 1.5; rig.glow.distance = 4;
+  keep({ dispose: () => disposeObject(drone) });
   scene.add(drone);
 
   // dust in the light
@@ -407,9 +402,11 @@ export function createRoomPlay(d: RoomPlayDeps): RoomPlay {
       core.rotation.set(t * 0.7, t * 0.9, 0);
       const a = t * 0.22;
       const px = Math.cos(a) * 4.2, pz = -0.4 + Math.sin(a) * 2.6;
-      drone.rotation.y = Math.atan2(px - drone.position.x, pz - drone.position.z);
+      drone.rotation.y = Math.atan2(px - drone.position.x, pz - drone.position.z) + Math.PI; // its nose is -z
       drone.position.set(px, 3.15 + Math.sin(t * 1.7) * 0.12, pz);
-      drone.rotation.z = Math.sin(t * 1.1) * 0.08;
+      rig.body.rotation.z = Math.sin(t * 1.1) * 0.1;
+      rig.body.rotation.x = 0.12;
+      rig.rotors.forEach((r, i) => { r.rotation.y = t * (i % 2 ? -34 : 34); });
       for (let i = 0; i < DUST; i++) {
         let y = dustPos[i * 3 + 1] + dt * (0.04 + (i % 5) * 0.012);
         if (y > d.room.h) y = 0;

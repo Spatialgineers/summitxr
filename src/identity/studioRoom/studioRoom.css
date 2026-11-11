@@ -4,7 +4,7 @@
 .sgx-room__loading { position: absolute; inset: 0; display: grid; place-items: center; font: 700 14px 'Share Tech Mono', monospace; letter-spacing: .12em; color: #00DDFF; background: #050505; text-transform: uppercase; }
 .sgx-room__hud { position: absolute; top: 10px; left: 10px; display: flex; gap: 12px; align-items: center; padding: 8px 12px; background: rgba(5, 5, 5, .8); border: 1px solid rgba(253, 204, 13, .5); font: 12px 'Share Tech Mono', monospace; color: #e5e7eb; pointer-events: none; }
 .sgx-room__hud strong { font: 800 13px Orbitron, sans-serif; color: #FDCC0D; text-transform: uppercase; }
-.sgx-room__help { position: absolute; top: 10px; right: 10px; margin: 0; padding: 8px 12px; max-width: 46%; background: rgba(5, 5, 5, .7); font: 11px 'Share Tech Mono', monospace; color: #9ca3af; pointer-events: none; text-align: right; }
+.sgx-room__help { position: absolute; top: 52px; left: 10px; margin: 0; padding: 6px 10px; max-width: min(560px, calc(100% - 20px)); background: rgba(5, 5, 5, .7); font: 11px 'Share Tech Mono', monospace; color: #9ca3af; pointer-events: none; text-align: left; }
 .sgx-room__prompt { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; padding: 10px 14px; max-width: calc(100% - 24px); background: rgba(5, 5, 5, .9); border: 1px solid #FDCC0D; font: 13px 'Share Tech Mono', monospace; color: #fff; }
 .sgx-room__prompt .sgx-btn { min-height: 44px; padding: 8px 14px; }
 .sgx-room__stick { position: fixed; width: 112px; height: 112px; margin: -56px 0 0 -56px; border-radius: 50%; border: 2px solid rgba(0, 221, 255, .55); background: rgba(0, 221, 255, .08); pointer-events: none; z-index: 5; }
@@ -15,5 +15,13 @@
 .sgx-room__lite-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 @media (max-width: 640px) {
   .sgx-room { height: calc(100dvh - 170px); }
-  .sgx-room__help { top: 52px; right: auto; left: 10px; max-width: calc(100% - 20px); text-align: left; font-size: 10px; padding: 5px 8px; }
+  .sgx-room__help { top: 92px; font-size: 10px; padding: 5px 8px; }
+}
+/* A fixed screen, like the core: under the header, over the page, nothing scrolls. */
+.sgx-room--fixed { position: fixed; left: 0; right: 0; width: auto; height: auto; min-height: 0; z-index: 45; border-left: 0; border-right: 0; overscroll-behavior: none; }
+.sgx-room__exit { position: absolute; top: 10px; right: 10px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.sgx-room__exit .sgx-btn { min-height: 36px; background: rgba(5, 5, 5, .85); }
+@media (max-width: 640px) {
+  .sgx-room__exit { top: 50px; left: 10px; right: 10px; justify-content: flex-start; }
+  .sgx-room__exit .sgx-btn { min-height: 34px; padding: 4px 9px; font-size: 0.7rem; }
 }

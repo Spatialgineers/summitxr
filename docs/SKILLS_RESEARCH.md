@@ -20,3 +20,9 @@ Licenses checked from each repo's LICENSE file. Nothing installed yet.
 - vercel-labs web-design-guidelines: fetches its rules remotely on every run.
 - Packs with no license we could verify.
 - CC BY-NC-ND lists: read only, never copy.
+
+## Skills de Scenario (3D "exótico") · 11 nov 2026
+- Repo público: https://github.com/scenario-labs/skills (licencia MIT). El que aplica a Tu Estudio 3D es `skills/scenario-walkable-room`.
+- **Lo que sirve sin su servicio** (`references/viewer.md`): three.js + Spark (splats por niveles de detalle) + Rapier (física); objetos que se agarran y se tiran, sonidos de impacto solo cuando el objeto venía en movimiento, objetos rígidos que empiezan dormidos, física cargada después de que el cuarto está en pantalla.
+- **Lo que sí necesita un generador** (Scenario u otro): el mundo en Gaussian splats a partir de una foto, y los objetos 3D a partir de recortes. Sin generador, el cuarto sigue siendo geometría hecha a mano.
+- Otros útiles del mismo repo: `scenario-3d-worlds`, `scenario-skyboxes`, `scenario-textures`, `scenario-3d`.

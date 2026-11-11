@@ -20,7 +20,7 @@ const STATION: Record<StationId, { es: string; en: string; goEs: string; goEn: s
   portal: { es: 'Portal al núcleo', en: 'Portal to the core', goEs: 'Volver al núcleo', goEn: 'Back to the core' },
 };
 
-export const SgxStudioRoom: React.FC = () => {
+export const SgxStudioRoom: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const { language } = useLanguage();
   const es = language === 'es';
   const lite = useLite();
@@ -31,6 +31,8 @@ export const SgxStudioRoom: React.FC = () => {
   const [seen, setSeen] = useState<StationId[]>([]);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [hoops, setHoops] = useState(0);
+  const holding = useRef(false);
   const [stick, setStick] = useState<{ x: number; y: number; dx: number; dy: number } | null>(null);
 
   const accent = identity.affinity ? PILLAR_ACCENT[identity.affinity] : '#FDCC0D';
@@ -59,7 +61,11 @@ export const SgxStudioRoom: React.FC = () => {
     }, (s) => {
       setNear(s);
       if (s) setSeen((prev) => (prev.includes(s) ? prev : [...prev, s]));
-    }, () => setReady(true));
+    }, () => {
+      setReady(true);
+      // the room counts as visited from the page and from the Studio tab alike
+      window.dispatchEvent(new CustomEvent('sgx:quest_complete', { detail: { questId: 'q_studio3d' } }));
+    }, setHoops);
     if (!room) { setFailed(true); return; }
     roomRef.current = room;
     return () => { room.dispose(); roomRef.current = null; };
@@ -68,6 +74,12 @@ export const SgxStudioRoom: React.FC = () => {
   }, [lite, es, accent, JSON.stringify(pilot), xpEarned, done, cardsKey, stampsKey, identity.holo?.image]);
 
   const go = (s: StationId) => {
+    // inside Tu Estudio the stations are its own tabs
+    if (embedded && s !== 'portal' && s !== 'shelf') {
+      const tab = s === 'computer' ? 'reactor' : 'rolodex';
+      window.dispatchEvent(new CustomEvent('sgx:studio_tab', { detail: { tab } }));
+      return;
+    }
     if (s === 'computer') window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'reactor' } }));
     else if (s === 'wall') window.dispatchEvent(new CustomEvent(isForged ? 'sgx:open_hangar' : 'sgx:open_forge', { detail: { tab: 'rolodex' } }));
     else if (s === 'shelf') window.dispatchEvent(new CustomEvent('sgx:open_avatar'));
@@ -77,10 +89,13 @@ export const SgxStudioRoom: React.FC = () => {
   // Floating joystick: press anywhere on the room and drag.
   const down = (e: React.PointerEvent) => {
     if ((e.target as HTMLElement).closest('button')) return;
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch { /* the pointer is already gone */ }
+    // a press on a prop picks it up; anywhere else is the joystick
+    if (roomRef.current?.grab(e.clientX, e.clientY)) { holding.current = true; return; }
     setStick({ x: e.clientX, y: e.clientY, dx: 0, dy: 0 });
   };
   const move = (e: React.PointerEvent) => {
+    if (holding.current) { roomRef.current?.dragTo(e.clientX, e.clientY); return; }
     if (!stick) return;
     let dx = e.clientX - stick.x, dy = e.clientY - stick.y;
     const len = Math.hypot(dx, dy), max = 56;
@@ -88,7 +103,10 @@ export const SgxStudioRoom: React.FC = () => {
     setStick({ ...stick, dx, dy });
     roomRef.current?.setMove(dx / max, -dy / max);
   };
-  const up = () => { setStick(null); roomRef.current?.setMove(0, 0); };
+  const up = () => {
+    if (holding.current) { holding.current = false; roomRef.current?.drop(); return; }
+    setStick(null); roomRef.current?.setMove(0, 0);
+  };
 
   if (lite || failed) {
     return (
@@ -114,9 +132,10 @@ export const SgxStudioRoom: React.FC = () => {
       <div className="sgx-room__hud">
         <strong>{es ? 'Tu Estudio 3D' : 'Your 3D Studio'}</strong>
         <span>{es ? `Estaciones ${seen.length}/4` : `Stations ${seen.length}/4`}</span>
+        <span id="sgx-room-hoops">{es ? `Canastas ${hoops}` : `Hoops ${hoops}`}</span>
       </div>
       <p className="sgx-room__help">
-        {es ? 'Arrastra para caminar · en teclado: flechas o WASD' : 'Drag to walk · on a keyboard: arrows or WASD'}
+        {es ? 'Arrastra para caminar (o flechas / WASD) · Agarra un objeto y tíralo al aro' : 'Drag to walk (or arrows / WASD) · Grab an object and throw it at the hoop'}
       </p>
 
       {near && (

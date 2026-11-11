@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { createRoomPlay } from './roomPlay';
+import { WALK_LEG } from '../highbot3d';
 import { buildHighbot3D, type Pilot3D } from '../highbot3d';
 import { studioEnvironment, studioRenderer } from '../highbotStudio';
 import type { PilotConfig } from '../pilotAvatar';
@@ -35,11 +37,15 @@ export interface RoomData {
 export interface StudioRoom {
   /** Joystick vector, each axis -1..1 (x right, y forward). */
   setMove: (x: number, y: number) => void;
+  /** Pick up the prop under the pointer. False when there is none there. */
+  grab: (clientX: number, clientY: number) => boolean;
+  dragTo: (clientX: number, clientY: number) => void;
+  drop: () => void;
   dispose: () => void;
 }
 
 const W = 12, D = 9, H = 4.2;
-const SPEED = 3.4;
+const SPEED = 2.7;
 const STATIONS: Array<{ id: StationId; x: number; z: number; r: number }> = [
   { id: 'computer', x: -4.1, z: -1.4, r: 1.7 },
   { id: 'wall', x: 0, z: -3.3, r: 1.9 },
@@ -67,7 +73,7 @@ function canvasTex(w: number, h: number, draw: (c: CanvasRenderingContext2D) => 
   return t;
 }
 
-export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: StationId | null) => void, onReady?: () => void): StudioRoom | null {
+export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: StationId | null) => void, onReady?: () => void, onScore?: (total: number) => void): StudioRoom | null {
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
@@ -319,6 +325,8 @@ export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: 
   const body = new THREE.Group();
   bot.add(body);
   let avatar: Pilot3D | null = null;
+  let legLen = 0.5;
+  body.rotation.order = 'YXZ';
   let alive = true;
   buildHighbot3D(data.pilot, { envMap: env }).then((p) => {
     if (!alive) { p.dispose(); return; }
@@ -329,6 +337,9 @@ export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: 
     p.group.position.y = -bb.min.y * k;
     body.add(p.group);
     avatar = p;
+    // the stride comes from the real leg: hip height above the floor
+    const hip = p.group.getObjectByName('hip joint left');
+    if (hip) { p.group.updateWorldMatrix(true, true); const hy = hip.getWorldPosition(new THREE.Vector3()).y; if (hy > 0.15 && hy < 1.5) legLen = hy; }
     p.wave?.();
     onReady?.();
   }).catch(() => onReady?.());
@@ -356,12 +367,16 @@ export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: 
   resize();
 
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+  const play = createRoomPlay({
+    scene, camera, dom: renderer.domElement, keep, accent, bot, solids: SOLIDS, shadowTex,
+    room: { w: W, d: D, h: H, front: 5.6 }, reduce, onScore: (n) => onScore?.(n),
+  });
   const camPos = new THREE.Vector3(0, 2.7, 7);
   const look = new THREE.Vector3(0, 1.1, 0);
   camera.position.copy(camPos);
   let near: StationId | null = null;
   let heading = Math.PI;
-  let walk = 0;
+  let walk = 0, walkAmt = 0;
   let last = performance.now();
   let raf = 0;
   const frame = (now: number) => {
@@ -386,18 +401,25 @@ export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: 
         const dx = nx - sx, dz = nz - sz, d = Math.hypot(dx, dz), min = r + 0.42;
         if (d < min && d > 1e-4) { nx = sx + (dx / d) * min; nz = sz + (dz / d) * min; }
       }
+      // the stride advances with the ground really covered (not with time), so a foot on
+      // the floor stays put, and a Highbot pushing against a wall does not walk on the spot
+      const covered = Math.hypot(nx - bot.position.x, nz - bot.position.z);
+      walk += (covered * Math.PI * 2) / (4 * legLen * Math.sin(WALK_LEG));
       bot.position.x = nx; bot.position.z = nz;
       heading = Math.atan2(mx, mz);
-      walk += dt * 9;
     }
     // turn the short way round
     let dr = heading - body.rotation.y;
     dr = Math.atan2(Math.sin(dr), Math.cos(dr));
     body.rotation.y += dr * Math.min(1, dt * 10);
-    const stride = moving && !reduce ? 1 : 0;
-    body.position.y = Math.abs(Math.sin(walk)) * 0.07 * stride;
-    body.rotation.z = Math.sin(walk) * 0.05 * stride;
+    walkAmt += ((moving ? 1 : 0) - walkAmt) * Math.min(1, dt * 9);
+    // standing still, the legs come back together instead of freezing mid-step
+    if (!moving && walkAmt < 0.02) walk = 0;
+    body.rotation.x = 0.07 * walkAmt;
+    body.rotation.z = reduce ? 0 : Math.sin(walk) * 0.025 * walkAmt;
+    avatar?.setWalk?.(walkAmt, walk);
     avatar?.update(t);
+    play.update(dt, t);
 
     // which station is close
     let hit: StationId | null = null;
@@ -417,6 +439,7 @@ export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: 
 
   return {
     setMove: (x, y) => { joy.x = x; joy.y = y; },
+    grab: play.grab, dragTo: play.dragTo, drop: play.drop,
     dispose: () => {
       alive = false;
       cancelAnimationFrame(raf);

@@ -149,7 +149,6 @@ export const SGX_PILLARS: SgxPillar[] = [
       { day: 3, time: '10:00 AM–4:00 PM', label: { es: 'SGX Showcase en Chroma Space Studios: todos los pilares (demos en vivo y networking)', en: 'SGX Showcase at Chroma Space Studios: every pillar (live demos and networking)' } },
     ],
     modules: [
-      { kind: 'section', key: 'STUDIO_3D', icon: Box, label: { es: 'Tu Estudio 3D', en: 'Your 3D Studio' }, desc: { es: 'El cuarto de tu Highbot: camina por tu estudio, tu computadora, tus sellos y las Holo Cards de los Creadores con los que conectaste.', en: 'Your Highbot\'s room: walk around your studio, your computer, your stamps and the Holo Cards of the Creators you connected with.' } },
       { kind: 'section', key: 'VISITS', icon: Radar, label: { es: 'Radar de visitas', en: 'Visit radar' }, desc: { es: 'Desde dónde nos visitan, en vivo: mapa de PR, contadores y leaderboards.', en: 'Where our visitors come from, live: PR map, counters and leaderboards.' } },
       { kind: 'section', key: 'CREDENTIAL_GENERATOR', icon: BadgeCheck, label: { es: 'SGX Pass', en: 'SGX Pass' }, desc: { es: 'Tu Holo Card, tu QR de networking y tu entrada del Día 3.', en: 'Your Holo Card, your networking QR and your Day 3 entrance.' } },
       { kind: 'section', key: 'PASS_SCANNER', icon: ScanLine, label: { es: 'Escáner de pases & Rolodex', en: 'Pass scanner & Rolodex' }, desc: { es: 'Escanea un SGX Pass: quedan en los dos Rolodex (+50 XP).', en: 'Scan an SGX Pass: you land in both Rolodexes (+50 XP).' } },
@@ -172,6 +171,7 @@ export const SGX_PILLARS: SgxPillar[] = [
       { day: 3, time: '1:00–2:00 PM', label: { es: 'Networking con votación gamificada', en: 'Networking with gamified voting' } },
     ],
     modules: [
+      { kind: 'section', key: 'STUDIO_3D', icon: Box, label: { es: 'Tu Estudio 3D', en: 'Your 3D Studio' }, desc: { es: 'El cuarto de tu Highbot: camina por tu estudio, tu computadora, tus sellos y las Holo Cards de los Creadores con los que conectaste.', en: 'Your Highbot\'s room: walk around your studio, your computer, your stamps and the Holo Cards of the Creators you connected with.' } },
       { kind: 'section', key: 'ENTREPRENEUR_MATCH', icon: Zap, label: { es: 'SGX.Match', en: 'SGX.Match' }, desc: { es: 'Conecta con creadores y marcas de todos los pilares.', en: 'Connect with creators and brands from every pillar.' } },
       { kind: 'section', key: 'NETWORKING', icon: MessageSquare, label: { es: 'Foros & chat', en: 'Forums & chat' }, desc: { es: 'Salas por tema, preguntas para speakers y código.', en: 'Topic rooms, questions for speakers and code.' } },
       { kind: 'section', key: 'GUILD', icon: Award, label: { es: 'SGX Guild Initiates', en: 'SGX Guild Initiates' }, desc: { es: 'Los 8 Initiates activos y sus portafolios.', en: 'The 8 active Initiates and their portfolios.' } },

@@ -88,7 +88,7 @@ export const SgxPassHost: React.FC<{ quiet?: boolean }> = ({ quiet = false }) =>
       const d = (e as CustomEvent<{ tab?: HangarTab; tier?: PassTier; edit?: boolean }>).detail || {};
       switch (e.type) {
         case 'sgx:open_forge': setHangar(null); setForge({ tier: d.tier || 'DIGITAL' }); break;
-        case 'sgx:open_hangar': setForge(null); if (d.tab === 'reactor') setReactor(true); else setHangar(d.tab || 'pass'); break;
+        case 'sgx:open_hangar': setForge(null); if (d.tab === 'reactor') setReactor(true); else setHangar(d.tab || 'room'); break;
         case 'sgx:open_passport': setForge(null); setReactor(true); break;
         case 'sgx:open_profile_drawer': setForge(null); setHangar(forgedRef.current ? 'pass' : 'reactor'); break;
         case 'sgx:open_tour': setForge(null); setReactor(true); break;

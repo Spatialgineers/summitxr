@@ -1360,7 +1360,7 @@ Las capturas van a `scripts/e2e/out/`. Hay que correr `visitor.cjs` antes que `a
 ---
 
 ### Novedades del 11 de noviembre
-- **Tu Estudio 3D** (`/estudio-3d`): el cuarto del Highbot. Se entra desde el núcleo ("Entrar a Tu Estudio 3D") o desde SGX.System. Código en `src/identity/studioRoom/`.
+- **Tu Estudio 3D:** el cuarto del Highbot es el primer tab de Tu Estudio ("Estudio 3D"). Se entra desde el núcleo ("Entrar a Tu Estudio 3D"), desde SGX.Synthesize o por `/estudio-3d`. Tiene objetos para agarrar y tirar, un aro con marcador y el Highbot camina con pasos reales. Código en `src/identity/studioRoom/` (`roomScene.ts`, `roomPlay.ts`).
 - **Núcleo en vivo:** durante el evento aparece la barra "EN VIVO · Ahora: <sesión>" sobre el núcleo (`src/lib/summitLive.ts`). Usa las horas del programa en hora de Puerto Rico.
 - **Recorrido de 60 segundos:** el Highbot lo ofrece en la primera visita (`src/companion/SgxQuickTour.tsx`) y termina en "Forja tu pase".
 - **Holo Card en video:** botón "Video para stories" en el Holo Studio (`src/identity/holoCardVideo.ts`); 6 s, 1080×1920, grabado en el dispositivo.

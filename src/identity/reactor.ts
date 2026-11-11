@@ -112,7 +112,7 @@ export const REACTOR_MISSIONS: ReactorMission[] = [
     es: { title: 'Terminal de mando', hint: 'Ábrela con Ctrl+K o la tecla /.' },
     en: { title: 'Command terminal', hint: 'Open it with Ctrl+K or the / key.' },
     go: { event: 'sgx:open_terminal' } },
-  { id: 'm_system_studio3d', pillar: 'SYSTEM', xp: 80, secret: true, trigger: { visit: ['STUDIO_3D'] },
+  { id: 'm_syn_studio3d', pillar: 'SYNTHESIZE', xp: 80, secret: true, trigger: { quest: 'q_studio3d' },
     es: { title: 'Entra a tu Estudio 3D', hint: 'Camina con tu Highbot por su cuarto.' },
     en: { title: 'Enter your 3D Studio', hint: 'Walk your Highbot around its room.' },
     go: { section: 'STUDIO_3D' } },

@@ -26,7 +26,7 @@ const STEPS: Step[] = [
   { go: () => navigateToPillar('spark'),
     es: ['Los pilares', 'Cada pilar tiene su página, con sus módulos y sus misiones. Cada misión que completas te da XP.'],
     en: ['The pillars', 'Each pillar has its own page, with its modules and missions. Every mission you complete gives you XP.'] },
-  { go: () => navigateToSection('STUDIO_3D'),
+  { go: () => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'room' } })),
     es: ['Tu Estudio 3D', 'Este es mi cuarto. Camina conmigo hasta la computadora, los sellos de los pilares y la pared de Holo Cards de los Creadores con los que conectes.'],
     en: ['Your 3D Studio', 'This is my room. Walk with me to the computer, the pillar stamps and the wall of Holo Cards from the Creators you connect with.'] },
   { go: () => navigateToSection('OVERVIEW'),

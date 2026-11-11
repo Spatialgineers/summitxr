@@ -2296,7 +2296,7 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           </div>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); navigateToSection('STUDIO_3D'); }}
+            onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'room' } })); }}
             className="px-3 py-1.5 bg-[#050505]/90 hover:bg-[#1A1A1A] border border-[#00DDFF]/70 text-white font-bold cursor-pointer"
             style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
           >

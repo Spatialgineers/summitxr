@@ -30,9 +30,16 @@ export interface Pilot3D {
   wave?: () => void;
   /** The companion's state of mind; poses blend smoothly between moods. */
   setMood?: (m: HighbotMood) => void;
+  /** Walking: amount 0..1 and the phase of the stride in radians. The caller advances the
+      phase by distance covered, so the feet do not slide. */
+  setWalk?: (amount: number, phase: number) => void;
 }
 
 export type HighbotMood = 'idle' | 'thinking' | 'talking' | 'pointing';
+
+/** How far the legs and arms swing at a full walk (radians). */
+export const WALK_LEG = 0.62;
+const WALK_ARM = 0.5;
 
 export const HIGHBOT_URL = '/characters/highbot/highbot.glb';
 const SCALE = 1.6;
@@ -552,6 +559,7 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
   let clock = 0;
   let lastT = -1;
   let mood: HighbotMood = 'idle';
+  let wk = 0, ph = 0;
   // blend weights of each mood, eased toward the current one
   const mw = { thinking: 0, talking: 0, pointing: 0 };
 
@@ -566,11 +574,13 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
     const { thinking: th, talking: tk, pointing: pt } = mw;
 
     const body = joints.body;
-    if (body) body.position.y = rest.get(body)!.p.y + Math.sin(t * 2.1) * 0.012 + tk * Math.sin(t * 5.2) * 0.008;
+    // walking: the body is lowest with the legs apart and highest as they pass
+    const stride = Math.sin(ph);
+    if (body) body.position.y = rest.get(body)!.p.y + (Math.sin(t * 2.1) * 0.012 + tk * Math.sin(t * 5.2) * 0.008) * (1 - wk) + wk * (Math.abs(Math.cos(ph)) - 0.6) * 0.035;
     // arms swing gently in opposition; talking, the left one gestures forward
     const swing = Math.sin(t * 1.5) * 0.1;
     pose(joints['shoulder left'],
-      swing * (1 - tk) + tk * (-0.55 - Math.sin(t * 3.4) * 0.28),
+      (swing * (1 - tk) + tk * (-0.55 - Math.sin(t * 3.4) * 0.28)) * (1 - wk) - wk * stride * WALK_ARM,
       0,
       0.05 + Math.sin(t * 1.1) * 0.03 + tk * 0.18);
     // the right one waves when asked, points, or comes up to the chin to think
@@ -583,17 +593,17 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
       if (w >= 2.2) waveAt = -1;
       const rest0 = Math.max(0, 1 - pt - th);
       pose(joints['shoulder right'],
-        -swing * rest0 + pt * -1.4 + th * -1.05,
+        -swing * rest0 * (1 - wk) + wk * stride * WALK_ARM * rest0 + pt * -1.4 + th * -1.05,
         0,
         (-0.05 - Math.sin(t * 1.1) * 0.03) * rest0 + pt * (-0.42 + Math.sin(t * 2) * 0.03) + th * 0.32);
     }
     // weight shift on the hips, look-around from the neck (a nod while talking, a tilt while thinking)
-    pose(joints['hip joint left'], Math.sin(t * 1.5 + Math.PI) * 0.04, 0, 0);
-    pose(joints['hip joint right'], Math.sin(t * 1.5) * 0.04, 0, 0);
+    pose(joints['hip joint left'], Math.sin(t * 1.5 + Math.PI) * 0.04 * (1 - wk) + wk * stride * WALK_LEG, 0, 0);
+    pose(joints['hip joint right'], Math.sin(t * 1.5) * 0.04 * (1 - wk) - wk * stride * WALK_LEG, 0, 0);
     const look = Math.max(0, 1 - pt - th * 0.6);
     pose(joints.neck,
       Math.sin(t * 0.9) * 0.06 * (1 - th) - th * 0.16 + tk * Math.sin(t * 7) * 0.05,
-      Math.sin(t * 0.6) * 0.32 * look - pt * 0.38,
+      Math.sin(t * 0.6) * 0.32 * look * (1 - wk) - pt * 0.38 + wk * stride * 0.06,
       Math.sin(t * 0.75) * 0.06 + th * 0.2);
     gear.update(t);
     // the eyes breathe, a little; slow pulse when thinking, a flicker when talking
@@ -616,6 +626,7 @@ export async function buildHighbot3D(raw: PilotConfig, opts: Highbot3DOptions = 
     ready: Promise.resolve(),
     wave: () => { waveAt = clock; },
     setMood: (m: HighbotMood) => { mood = m; },
+    setWalk: (amount: number, phase: number) => { wk = Math.min(1, Math.max(0, amount)); ph = phase; },
     dispose: () => {
       group.remove(model);
       disposables.forEach((d) => d.dispose());

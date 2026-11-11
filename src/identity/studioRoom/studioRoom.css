@@ -15,5 +15,5 @@
 .sgx-room__lite-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 @media (max-width: 640px) {
   .sgx-room { height: calc(100dvh - 170px); }
-  .sgx-room__help { display: none; }
+  .sgx-room__help { top: 52px; right: auto; left: 10px; max-width: calc(100% - 20px); text-align: left; font-size: 10px; padding: 5px 8px; }
 }

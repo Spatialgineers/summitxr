@@ -21,6 +21,7 @@ import './SgxStudio.css';
 import { DEADLINE_COPY } from '../lib/summitDeadlines';
 
 const SgxPilot3D = lazy(() => import('./SgxPilot3D').then((m) => ({ default: m.SgxPilot3D })));
+const SgxStudioRoom = lazy(() => import('./studioRoom/SgxStudioRoom').then((m) => ({ default: m.SgxStudioRoom })));
 const CompanionStudio = lazy(() => import('../companion/CompanionStudio').then((m) => ({ default: m.CompanionStudio })));
 
 /* TU ESTUDIO: the one screen for "me". It replaces the profile modal,
@@ -28,7 +29,7 @@ const CompanionStudio = lazy(() => import('../companion/CompanionStudio').then((
    did behind it: Reactor missions per pillar, Rolodex, Day 3 and telemetry.
    The Pass tab is the same board as the SGX Pass section (SgxPassBoard). */
 
-export type HangarTab = 'pass' | 'bot' | 'reactor' | 'stars' | 'rolodex' | 'day3' | 'log';
+export type HangarTab = 'room' | 'pass' | 'bot' | 'reactor' | 'stars' | 'rolodex' | 'day3' | 'log';
 
 interface Props {
   onClose: () => void;
@@ -121,6 +122,8 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   };
 
   const tabs: { id: HangarTab; label: string }[] = [
+    // the Highbot's room comes first: it is the way into everything else in the Studio
+    ...(asPage ? [{ id: 'room' as HangarTab, label: es ? 'Estudio 3D' : '3D Studio' }] : []),
     { id: 'pass', label: es ? 'Pase' : 'Pass' },
     { id: 'bot', label: es ? 'Tu Highbot' : 'Your Highbot' },
     { id: 'reactor', label: `Reactor ${done}/${missions.length}` },
@@ -171,7 +174,10 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
               </>
             )}
           </div>}
-          {!isForged && tab !== 'reactor' && tab !== 'log' && tab !== 'bot' ? (
+          {tab === 'room' && (
+            <Suspense fallback={null}><SgxStudioRoom embedded /></Suspense>
+          )}
+          {!isForged && tab !== 'reactor' && tab !== 'log' && tab !== 'bot' && tab !== 'room' ? (
             <div className="sgx-hangar__empty">
               <h3>{es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass'}</h3>
               <p>{es ? 'Tu Holo Card, tu QR de networking y tu entrada del Día 3. Toma un minuto.' : 'Your Holo Card, your networking QR and your Day 3 entrance. It takes a minute.'}</p>

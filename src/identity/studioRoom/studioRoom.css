@@ -1,0 +1,19 @@
+/* Tu Estudio 3D */
+.sgx-room { position: relative; width: 100%; height: calc(100dvh - 190px); min-height: 420px; background: #050505; border: 1px solid rgba(0, 221, 255, .25); overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+.sgx-room__canvas { position: absolute; inset: 0; }
+.sgx-room__loading { position: absolute; inset: 0; display: grid; place-items: center; font: 700 14px 'Share Tech Mono', monospace; letter-spacing: .12em; color: #00DDFF; background: #050505; text-transform: uppercase; }
+.sgx-room__hud { position: absolute; top: 10px; left: 10px; display: flex; gap: 12px; align-items: center; padding: 8px 12px; background: rgba(5, 5, 5, .8); border: 1px solid rgba(253, 204, 13, .5); font: 12px 'Share Tech Mono', monospace; color: #e5e7eb; pointer-events: none; }
+.sgx-room__hud strong { font: 800 13px Orbitron, sans-serif; color: #FDCC0D; text-transform: uppercase; }
+.sgx-room__help { position: absolute; top: 10px; right: 10px; margin: 0; padding: 8px 12px; max-width: 46%; background: rgba(5, 5, 5, .7); font: 11px 'Share Tech Mono', monospace; color: #9ca3af; pointer-events: none; text-align: right; }
+.sgx-room__prompt { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; padding: 10px 14px; max-width: calc(100% - 24px); background: rgba(5, 5, 5, .9); border: 1px solid #FDCC0D; font: 13px 'Share Tech Mono', monospace; color: #fff; }
+.sgx-room__prompt .sgx-btn { min-height: 44px; padding: 8px 14px; }
+.sgx-room__stick { position: fixed; width: 112px; height: 112px; margin: -56px 0 0 -56px; border-radius: 50%; border: 2px solid rgba(0, 221, 255, .55); background: rgba(0, 221, 255, .08); pointer-events: none; z-index: 5; }
+.sgx-room__stick i { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: rgba(253, 204, 13, .85); box-shadow: 0 0 16px rgba(253, 204, 13, .6); }
+.sgx-room--lite { height: auto; min-height: 0; padding: 24px; display: grid; gap: 12px; touch-action: auto; }
+.sgx-room--lite h2 { margin: 0; font: 900 22px Orbitron, sans-serif; color: #FDCC0D; }
+.sgx-room--lite p { margin: 0; color: #cbd5e1; }
+.sgx-room__lite-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 640px) {
+  .sgx-room { height: calc(100dvh - 170px); }
+  .sgx-room__help { display: none; }
+}

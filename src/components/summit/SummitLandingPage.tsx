@@ -63,10 +63,11 @@ const SummitSponsorshipMatrix = lazy(() => import('./SummitSponsorshipMatrix').t
 const SummitContentAuditModal = lazy(() => import('./SummitContentAuditModal').then((m) => ({ default: m.SummitContentAuditModal })));
 const SummitAnalyticsView = lazy(() => import('../analytics/SummitAnalyticsView').then((m) => ({ default: m.SummitAnalyticsView })));
 const SgxModelsViewer = lazy(() => import('./SgxModelsViewer').then((m) => ({ default: m.SgxModelsViewer })));
+const SgxStudioRoom = lazy(() => import('../../identity/studioRoom/SgxStudioRoom').then((m) => ({ default: m.SgxStudioRoom })));
 const PilotBuilderModal = lazy(() => import('../../identity/PilotBuilderModal').then((m) => ({ default: m.PilotBuilderModal })));
 
 /** Menu modules that used to open as dialogs: each is its own page now. */
-const MODULE_PAGES: SummitSectionKey[] = ['AVATAR_STUDIO', 'REWARDS', 'PASS_SCANNER', 'TERMINAL', 'MODELS_3D', 'SPONSOR', 'SPEAKER_PORTAL'];
+const MODULE_PAGES: SummitSectionKey[] = ['AVATAR_STUDIO', 'REWARDS', 'PASS_SCANNER', 'TERMINAL', 'MODELS_3D', 'STUDIO_3D', 'SPONSOR', 'SPEAKER_PORTAL'];
 const SgxHangar = lazy(() => import('../../identity/SgxHangar').then((m) => ({ default: m.SgxHangar })));
 const SummitVisitRadar = lazy(() => import('./SummitVisitRadar').then((m) => ({ default: m.SummitVisitRadar })));
 const SummitEmbedsHub = lazy(() => import('./SummitEmbedsHub').then((m) => ({ default: m.SummitEmbedsHub })));
@@ -615,6 +616,11 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
         {activeSection === 'TERMINAL' && (
           <SgxModulePage sectionKey="TERMINAL">
             <CommandTerminal inline onClose={leaveModule} />
+          </SgxModulePage>
+        )}
+        {activeSection === 'STUDIO_3D' && (
+          <SgxModulePage sectionKey="STUDIO_3D">
+            <LazyBoundary fallback={<LazyFallback />}><SgxStudioRoom /></LazyBoundary>
           </SgxModulePage>
         )}
         {activeSection === 'MODELS_3D' && (

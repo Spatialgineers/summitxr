@@ -2033,6 +2033,7 @@ var SGX_PILLARS = [
       { day: 3, time: "10:00 AM\u20134:00 PM", label: { es: "SGX Showcase en Chroma Space Studios: todos los pilares (demos en vivo y networking)", en: "SGX Showcase at Chroma Space Studios: every pillar (live demos and networking)" } }
     ],
     modules: [
+      { kind: "section", key: "STUDIO_3D", icon: Box, label: { es: "Tu Estudio 3D", en: "Your 3D Studio" }, desc: { es: "El cuarto de tu Highbot: camina por tu estudio, tu computadora, tus sellos y las Holo Cards de los Creadores con los que conectaste.", en: "Your Highbot's room: walk around your studio, your computer, your stamps and the Holo Cards of the Creators you connected with." } },
       { kind: "section", key: "VISITS", icon: Radar, label: { es: "Radar de visitas", en: "Visit radar" }, desc: { es: "Desde d\xF3nde nos visitan, en vivo: mapa de PR, contadores y leaderboards.", en: "Where our visitors come from, live: PR map, counters and leaderboards." } },
       { kind: "section", key: "CREDENTIAL_GENERATOR", icon: BadgeCheck, label: { es: "SGX Pass", en: "SGX Pass" }, desc: { es: "Tu Holo Card, tu QR de networking y tu entrada del D\xEDa 3.", en: "Your Holo Card, your networking QR and your Day 3 entrance." } },
       { kind: "section", key: "PASS_SCANNER", icon: ScanLine, label: { es: "Esc\xE1ner de pases & Rolodex", en: "Pass scanner & Rolodex" }, desc: { es: "Escanea un SGX Pass: quedan en los dos Rolodex (+50 XP).", en: "Scan an SGX Pass: you land in both Rolodexes (+50 XP)." } },
@@ -2098,6 +2099,7 @@ var SECTION_TO_SLUG = {
   PASS_SCANNER: "escaner",
   TERMINAL: "terminal",
   MODELS_3D: "modelos-3d",
+  STUDIO_3D: "estudio-3d",
   SPONSOR: "patrocina",
   SPEAKER_PORTAL: "portal-speakers",
   PRESS: "prensa",
@@ -3340,6 +3342,16 @@ var REACTOR_MISSIONS = [
     go: { event: "sgx:open_terminal" }
   },
   {
+    id: "m_system_studio3d",
+    pillar: "SYSTEM",
+    xp: 80,
+    secret: true,
+    trigger: { visit: ["STUDIO_3D"] },
+    es: { title: "Entra a tu Estudio 3D", hint: "Camina con tu Highbot por su cuarto." },
+    en: { title: "Enter your 3D Studio", hint: "Walk your Highbot around its room." },
+    go: { section: "STUDIO_3D" }
+  },
+  {
     id: "m_system_radar",
     pillar: "SYSTEM",
     xp: 60,
@@ -3399,6 +3411,7 @@ var REACTOR_MISSIONS = [
 var PLACE = {
   PILLARS_MANIFESTO: ["Manifiesto", "Manifesto"],
   MAP_360: ["Tour 360\xB0", "360\xB0 tour"],
+  STUDIO_3D: ["Tu Estudio 3D", "Your 3D Studio"],
   SPONSORS_HUB: ["Partners", "Partners"],
   EMBEDS_GAMES: ["Juegos", "Games"],
   AGENDA: ["Agenda", "Agenda"],

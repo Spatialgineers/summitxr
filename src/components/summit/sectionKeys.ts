@@ -21,6 +21,7 @@ export type SummitSectionKey =
   | 'PASS_SCANNER'
   | 'TERMINAL'
   | 'MODELS_3D'
+  | 'STUDIO_3D'
   | 'SPONSOR'
   | 'SPEAKER_PORTAL'
   // press room: accreditation form + press kit (/prensa)

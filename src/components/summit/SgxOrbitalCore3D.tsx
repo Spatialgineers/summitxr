@@ -2294,6 +2294,14 @@ export const SgxOrbitalCore3D: React.FC<SgxOrbitalCore3DProps> = ({
           <div className="px-3 py-1.5 bg-[#050505]/85 backdrop-blur-md border border-[#32527B]/70 pointer-events-none hidden sm:block">
             {es ? 'Toca un pilar 3D' : 'Tap a 3D pillar'}
           </div>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); navigateToSection('STUDIO_3D'); }}
+            className="px-3 py-1.5 bg-[#050505]/90 hover:bg-[#1A1A1A] border border-[#00DDFF]/70 text-white font-bold cursor-pointer"
+            style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)' }}
+          >
+            {es ? 'Entrar a Tu Estudio 3D' : 'Enter Your 3D Studio'}
+          </button>
 
           {!drawerOpen && !noSelection && (
             <button

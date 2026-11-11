@@ -112,6 +112,10 @@ export const REACTOR_MISSIONS: ReactorMission[] = [
     es: { title: 'Terminal de mando', hint: 'Ábrela con Ctrl+K o la tecla /.' },
     en: { title: 'Command terminal', hint: 'Open it with Ctrl+K or the / key.' },
     go: { event: 'sgx:open_terminal' } },
+  { id: 'm_system_studio3d', pillar: 'SYSTEM', xp: 80, secret: true, trigger: { visit: ['STUDIO_3D'] },
+    es: { title: 'Entra a tu Estudio 3D', hint: 'Camina con tu Highbot por su cuarto.' },
+    en: { title: 'Enter your 3D Studio', hint: 'Walk your Highbot around its room.' },
+    go: { section: 'STUDIO_3D' } },
   { id: 'm_system_radar', pillar: 'SYSTEM', xp: 60, trigger: { visit: ['VISITS'] },
     es: { title: 'Lee el radar', hint: 'Mira desde dónde nos visitan, en vivo.' },
     en: { title: 'Read the radar', hint: 'See where visitors come from, live.' },
@@ -175,6 +179,7 @@ export function isDay3Open(now = Date.now(), rehearsal = false): boolean {
 const PLACE: Record<string, [string, string]> = {
   PILLARS_MANIFESTO: ['Manifiesto', 'Manifesto'],
   MAP_360: ['Tour 360°', '360° tour'],
+  STUDIO_3D: ['Tu Estudio 3D', 'Your 3D Studio'],
   SPONSORS_HUB: ['Partners', 'Partners'],
   EMBEDS_GAMES: ['Juegos', 'Games'],
   AGENDA: ['Agenda', 'Agenda'],

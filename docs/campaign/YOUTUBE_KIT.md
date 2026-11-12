@@ -9,12 +9,13 @@ Visibilidad recomendada:
 
 | Video | Formato | Visibilidad | Portal |
 |---|---|---|---|
-| Recorrido completo | 16:9, 3:36, con capítulos | Público | `/bienvenida` |
-| Recorrido completo vertical | 9:16, 3:36 | Público (Short) | — |
+| Recorrido completo | 16:9, ~3:35, con capítulos (versión 12 nov, HD) | Público | `/bienvenida` |
+| Recorrido completo vertical | 9:16, ~3:35 (versión 12 nov, HD) | Público (Short) | — |
 | Creadores (visitante) | 9:16, ~1 min | Público (Short) | `/bienvenida/visitante` |
 | Speakers | 9:16, ~45 s | Público (Short) | `/bienvenida/speaker` |
 | Sponsors | 9:16, ~55 s | Público (Short) | `/bienvenida/sponsor` |
-| SGX Pass | 9:16, ~1 min | Público (Short) | `/bienvenida` |
+| SGX Pass | 9:16, ~1 min (versión 12 nov, con Tu Estudio 3D) | Público (Short) | `/bienvenida` |
+| Tu Estudio 3D | 9:16, ~27 s | Público (Short) | `/estudio-3d` |
 | Cómo se construyó la app | 9:16, ~1 min | Público (Short) | `/bienvenida` |
 | Prensa | 9:16, ~56 s | Público (Short) | `/bienvenida/prensa` |
 | Equipo | 9:16, ~55 s | **No listado** (enseña el admin) | `/bienvenida/equipo` |
@@ -115,17 +116,31 @@ Contacto: info@spatialgineers.com
 
 ## 5. SGX Pass
 
-**Título:** El SGX Pass: tu Holo Card, tus misiones y tu entrada al Día 3 #Shorts
+**Título:** El SGX Pass y Tu Estudio 3D: tu Holo Card, tus misiones y tu entrada al Día 3 #Shorts
 
 **Descripción:**
 ```
-Qué es el SGX Pass y todo lo que abre: Holo Card con QR, misiones del Reactor, XP y Tienda, networking con QR, tu Highbot con IA y la entrada al Día 3 en Chroma Space Studios.
+Forja tu SGX Pass en un minuto y entra a Tu Estudio: el cuarto 3D de tu Highbot. En el pedestal está Mi SGX Pass (tu Holo Card con QR, tu rol y tus solicitudes), en la repisa tus misiones y trofeos, en la pared tus conexiones, y en la cápsula tu Highbot con IA. El Día 3, en Chroma Space Studios, tu QR es tu entrada.
 
 👉 https://summit.spatialgineers.com/bienvenida
 
 #SpatialgineersSummit #SGXPass
 ```
 **Tags:** SGX Pass, Spatialgineers Summit 2026, Holo Card, networking QR, gamificación
+
+## 5b. Tu Estudio 3D (nuevo)
+
+**Título:** Mi Highbot tiene casa: Tu Estudio 3D #Shorts
+
+**Descripción:**
+```
+Tu Estudio es el cuarto 3D de tu Highbot dentro de la app del Spatialgineers Summit 2026: caminas con él, tiras lo que encuentres al aro, y cada estación abre una parte de tu SGX Pass. El cuarto crece contigo: un trofeo por cada pilar sellado y una luz por cada misión.
+
+👉 https://summit.spatialgineers.com/estudio-3d
+
+#SpatialgineersSummit #RoadToSummit #Spatialgineers
+```
+**Tags:** Spatialgineers Summit 2026, Tu Estudio 3D, Highbot, webapp 3D, Three.js, Puerto Rico
 
 ## 6. Cómo se construyó la app
 

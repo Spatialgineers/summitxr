@@ -439,5 +439,14 @@ export function createRoomPlay(d: RoomPlayDeps): RoomPlay {
     }
   };
 
+  // recording helper (off unless localStorage.sgx_room_debug is set): where each prop is on screen
+  try {
+    if (localStorage.getItem('sgx_room_debug')) {
+      (window as unknown as { __sgxRoomProps?: () => Array<{ x: number; y: number }> }).__sgxRoomProps = () => {
+        const b = d.dom.getBoundingClientRect();
+        return props.map((p) => { const v = p.pos.clone().project(camera); return { x: b.left + (v.x + 1) / 2 * b.width, y: b.top + (1 - v.y) / 2 * b.height }; });
+      };
+    }
+  } catch { /* storage blocked */ }
   return { update, grab, dragTo, drop };
 }

@@ -232,17 +232,15 @@ async function liveQuestion(index = 0) {
     await tryDo('paquetes', async () => { await go(p, '/sponsors', 5000); await p.evaluate(() => { const h = [...document.querySelectorAll('h2,h3')].find((x) => /Paquete/i.test(x.textContent || '')); h?.scrollIntoView(); }); await p.waitForTimeout(1500); await shot(p, 'm06c-paquetes'); });
     await tryDo('guia speaker', async () => { await go(p, '/portal-speakers', 5000); const g = p.locator('text=/Guía del speaker/i').first(); await g.click(); await p.waitForTimeout(1200); await g.scrollIntoViewIfNeeded(); await shot(p, 'm14b-guia-speaker'); });
     await tryDo('agenda mi', async () => { await go(p, '/agenda', 5000); await p.click('button:has-text("Mi Agenda")'); await p.waitForTimeout(2500); await shot(p, 'm11b-mi-agenda'); });
-    // Tu Estudio
-    await go(p, '/pase', 7000);
+    // Tu Estudio: the 3D room, each station a panel over it
+    const sheet = (tab) => p.evaluate((t) => window.dispatchEvent(new CustomEvent('sgx:studio_tab', { detail: { tab: t } })), tab);
+    await go(p, '/pase', 12000);
     await shot(p, 'e00-estudio-top');
-    await p.evaluate(() => { const t = document.querySelector('[data-guide="estudio-pass"]'); t?.parentElement?.scrollIntoView({ block: 'start' }); }); await p.waitForTimeout(800);
-    await shot(p, 'e01-estudio-pase');
-    for (const [tab, name] of [['bot', 'e02-estudio-highbot'], ['reactor', 'e03-estudio-reactor'], ['stars', 'e04-estudio-red'], ['rolodex', 'e05-estudio-rolodex'], ['day3', 'e06-estudio-dia3'], ['log', 'e07-estudio-telemetria']]) {
-      await tryDo(name, async () => { await p.click(`[data-guide="estudio-${tab}"]`); await settle(p, 3500); await p.evaluate(() => { const t = document.querySelector('[data-guide="estudio-pass"]'); t?.parentElement?.scrollIntoView({ block: 'start' }); }); await p.waitForTimeout(600); await shot(p, name); });
+    for (const [tab, name] of [['pass', 'e01-estudio-pase'], ['bot', 'e02-estudio-highbot'], ['reactor', 'e03-estudio-reactor'], ['stars', 'e04-estudio-red'], ['rolodex', 'e05-estudio-rolodex'], ['day3', 'e06-estudio-dia3'], ['log', 'e07-estudio-telemetria']]) {
+      await tryDo(name, async () => { await sheet(tab); await settle(p, 3500); await shot(p, name); });
     }
     await tryDo('holo studio', async () => {
-      await p.click('[data-guide="estudio-pass"]'); await p.waitForTimeout(1500);
-      await p.evaluate(() => { const t = document.querySelector('[data-guide="estudio-pass"]'); t?.parentElement?.scrollIntoView({ block: 'start' }); });
+      await sheet('pass'); await p.waitForTimeout(1500);
       await p.getByRole('button', { name: /Post 4:5/ }).first().click(); await settle(p, 2500);
       await p.getByRole('button', { name: /Post 4:5/ }).first().evaluate((el) => el.scrollIntoView({ block: 'start' }));
       await p.waitForTimeout(800); await shot(p, 'e08-holo-studio');

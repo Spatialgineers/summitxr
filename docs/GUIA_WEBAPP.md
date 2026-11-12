@@ -226,7 +226,7 @@ Notas:
 | `?pase=<token>` | cualquier ruta | Es el QR del SGX Pass de otra persona: abre "añadir este contacto" (`parsePassQr`, `src/identity/sgxIdentity.ts`) |
 | `?checkin=<código>` | `/` | El QR de la puerta de Chroma: hace el check-in del Día 3 (`SgxPassHost.tsx`) |
 | `?checkinTest=1` | con `checkin` | Ensayo local: abre la ventana del Día 3 sin dar el sello ni el XP |
-| `?estudio=pass\|day3\|reactor\|red` | `/` | Abre Tu Estudio en esa pestaña (lo usan los botones de los correos y el atajo de la PWA). `?hangar=` también funciona. |
+| `?estudio=pass\|day3\|reactor\|red` | `/` | Abre Tu Estudio en ese panel del cuarto (o pestaña en Modo Ligero) (lo usan los botones de los correos y el atajo de la PWA). `?hangar=` también funciona. |
 | `?day=1\|2\|3`, `?subtab=`, `?view=` | agenda y otras | Día y vista |
 | `?pillar=<slug>` | `/`, `/pilares`, `/play`, `/stage` | Tema y pilar del motor en vivo |
 | `?embed=true` | cualquiera | Se salta el arranque y oculta la capa de inmersión |
@@ -396,7 +396,7 @@ Entrar a las seis estaciones cumple la quest "Los Seis Pilares".
 | Módulo | Qué es y qué se hace | Datos | Pase | XP / misión | Archivo |
 |---|---|---|---|---|---|
 | **05.1 Radar de visitas** (`/visitas`) | Desde dónde visitan la app, en vivo: mapa de PR por municipio (Leaflet), globo 3D con arcos hacia Chroma (globe.gl), contadores y leaderboards de regiones. Solo guarda la región aproximada, nunca la IP. La región se pide a `get.geojs.io` o `ipapi.co`. | `summit_visit_stats`, `summit_visit_regions`, `summit_visitors`, `summit_checkins` | No | "Lee el radar" 60 XP | `SummitVisitRadar.tsx`, `SgxVisitGlobe.tsx`, `visitRadarStore.ts`, `src/lib/visitTracker.ts`, `src/lib/prMunicipios.ts`, `public/data/*.geojson` |
-| **05.2 SGX Pass / Tu Estudio** (`/pase`) | Ver la sección 5 | local más Firestore | Sin pase invita a forjar | "Holo Card" 60 XP | `SgxHangar.tsx`, `SgxHoloStudio.tsx` |
+| **06.1 Tu Estudio · SGX Pass** (`/pase`, en Synthesize) | Ver la sección 5: es el cuarto 3D | local más Firestore | Sin pase invita a forjar | "Holo Card" 60 XP | `SgxHangar.tsx`, `SgxHoloStudio.tsx` |
 | **05.3 Escáner de pases & Rolodex** (`/escaner`) | Escanear con la cámara (jsQR), mostrar el QR propio y una libreta privada de contactos que se exporta como `.vcf` o CSV | `summit_pass_exchanges`, local | El intercambio pide pase | "Intercambia pases" 100 XP; +50 XP por cada contacto nuevo | `NetworkingQrScannerModal.tsx`, `src/identity/passNetwork.ts` |
 | **05.4 Terminal de mando** (`/terminal` o `Ctrl+K`) | Navegar escribiendo: busca secciones, pilares y comandos ("ayuda"). Acepta códigos secretos (`wepa`, `highgineer`, `lightningfingers`, `technocore`, `borikua`) y el código Konami. | local | No | "Terminal de mando" 40 XP; quests secretas | `src/immersion/CommandTerminal.tsx`, `quests.ts` |
 
@@ -502,19 +502,22 @@ Los formatos de redes llevan el título "SPATIALGINEERS SUMMIT 2026", la línea 
 
 Exportar cumple "Holo Card" (60 XP) y registra +150 XP de actividad, una vez.
 
-### Tu Estudio (`SgxHangar.tsx`)
+### Tu Estudio (`SgxHangar.tsx` + `studioRoom/`)
 
-Es la página personal del Creador (`/pase`), y el modal desde el chip. Su cabecera muestra el XP total, el XP para gastar y el rango.
+Es la página personal del Creador (`/pase`, módulo en **SGX.Synthesize**). **Es el cuarto 3D de su Highbot**: el Creador camina con él (arrastrar, o flechas/WASD), tira objetos al aro y entra a cada parte de su Estudio desde una estación. Cada estación abre un **panel encima del cuarto**: a la derecha en escritorio y desde abajo en el teléfono. Se cierra con "← Al cuarto" o Escape. El botón "☰ Estaciones" lleva directo a cada una, y tocar una Holo Card de la pared la abre.
 
-| Pestaña | Qué tiene |
-|---|---|
-| **Pase** | La Holo Card y su estudio, el QR, "Pase en PDF" (`passPdf.ts`, jspdf), "Copiar código", "Escanear pase", editar datos y "Tu rol en el Summit" |
-| **Tu Highbot** | El Highbot en 3D (se arrastra para girar), el chat con el Highbot (`CompanionStudio.tsx`) y las estadísticas en vivo (votos, reacciones, XP) con "Ir a SGX Live" |
-| **Reactor x/N** | Las misiones por pilar con sus sellos (sección 6) |
-| **Red N** | La constelación de contactos (`SgxConstellation.tsx`, `constellation.ts`): estrellas por pilar. Los seis pilares dan "Red completa". |
-| **Rolodex N** | Los pases escaneados ("te escaneó" / "escaneado"), "Escanear un pase" y "Exportar vCard" |
-| **Día 3** | "Tu pase es la llave del Día 3": el QR de entrada, "Hacer check-in" (o "Check-in abre el 13 de diciembre"), el sello "PRESENTE EN CHROMA", el bloque de networking (1:00–2:00 PM), premios y códigos de canje |
-| **Telemetría** | La bitácora de actividad, el leaderboard de creadores y el enlace al radar |
+| Estación | Panel | Qué tiene |
+|---|---|---|
+| **Pedestal** | **Mi SGX Pass** | Resumen (rol, solicitudes, Día 3, conexiones, XP); la Holo Card y su estudio (tarjeta 3D, post 4:5, story 9:16, PNG, compartir, video para stories); "Pase en PDF", "Copiar código", "Escanear pase", editar datos; **Tu rol en el Summit** (speaker, sponsor, prensa, Guild) con la fecha en que cierra cada solicitud; el **Día 3** (QR de entrada, check-in, sello "PRESENTE EN CHROMA", networking, códigos de canje); SGX Live; la **cuenta de Google** |
+| **Cápsula** | **Tu Highbot** | El chat con el Highbot (`CompanionStudio.tsx`) |
+| **Repisa de sellos y trofeos** | **Misiones y bitácora** → Reactor | Las misiones por pilar con sus sellos (sección 6) |
+| **Computadora** | **Misiones y bitácora** → Bitácora | La bitácora de actividad, el leaderboard de creadores y el enlace al radar |
+| **Pared de Holo Cards** | **Tus conexiones** → Rolodex / Red | Los pases escaneados ("te escaneó" / "escaneado"), "Escanear un pase", "Exportar vCard"; la constelación de contactos (`SgxConstellation.tsx`). Los seis pilares dan "Red completa". |
+| **Portal** | — | Vuelve al núcleo |
+
+**El cuarto refleja el progreso del Creador:** un trofeo en la repisa por cada pilar sellado, una luz en el zócalo por cada misión, el objeto de su rol oficial (micrófono con foco de speaker, cámara de prensa, bandera de sponsor o Guild), más luz de su color según su nivel, el logo de Spatialgineers flotando en el centro y el dron del juego patrullando. Los objetos (bolas, cubos, engranaje) tienen física propia (`roomPlay.ts`): el Highbot los empuja, se agarran y se tiran, y el aro lleva la cuenta de canastas.
+
+**En Modo Ligero** (o si el 3D no abre) Tu Estudio se ve como pestañas: Mi SGX Pass, Tu Highbot, Reactor, Bitácora, Rolodex y Red. `?estudio=pass|day3|reactor|red` abre el panel o la pestaña que toca (`day3` = Mi SGX Pass en su parte del Día 3). `/estudio-3d` es el mismo cuarto como página propia; ahí cada estación lleva a Tu Estudio.
 
 ### Constructor del Highbot
 
@@ -678,9 +681,9 @@ Se ven en el pase y en el Reactor.
 
 ### Leaderboards
 
-- **Creadores**: `pilot_leaderboard`, en Tu Estudio → Telemetría y en la Tienda.
+- **Creadores**: `pilot_leaderboard`, en Tu Estudio → computadora (Bitácora) y en la Tienda.
 - **Juegos**: `game_scores/{stack|pulse|bolt}/players/{uid}`, con top 10 y tu lugar (`src/lib/gameScores.ts`). El dron tiene su `DroneRanking`.
-- **Regiones**: en el Radar de visitas. **Constelaciones**: el tablero de `summit_constellations` en Tu Estudio → Red.
+- **Regiones**: en el Radar de visitas. **Constelaciones**: el tablero de `summit_constellations` en Tu Estudio → pared de Holo Cards (Red).
 - **SGX Live**: el puntaje del motor en vivo, con velocidad y rachas. El multiplicador es `1 + min(3, racha × 0.25)`.
 
 ### Networking
@@ -775,7 +778,7 @@ Resultados del 28 oct 2026, en una máquina de 4 vCPU con Node 22:
 
 ## 8. Highbot con Claude
 
-El Highbot es Highcoon en forma de robot: el compañero de cada Creador. Vive en Tu Estudio ("Tu Highbot") y flota como una cabecita en las demás páginas (`src/companion/CompanionDock.tsx`, `CompanionPanel.tsx`, `CompanionStudio.tsx`, `companionStore.ts`, `companionApi.ts`). Contesta con Claude a través del servidor (`POST /api/companion/chat`, por SSE con los eventos `text`, `action`, `done` y `error`).
+El Highbot es Highcoon en forma de robot: el compañero de cada Creador. Vive en la cápsula de Tu Estudio ("Tu Highbot") y flota como una cabecita en las demás páginas (`src/companion/CompanionDock.tsx`, `CompanionPanel.tsx`, `CompanionStudio.tsx`, `companionStore.ts`, `companionApi.ts`). Contesta con Claude a través del servidor (`POST /api/companion/chat`, por SSE con los eventos `text`, `action`, `done` y `error`).
 
 ### Quién puede chatear
 
@@ -1391,7 +1394,7 @@ Las capturas van a `scripts/e2e/out/`. Hay que correr `visitor.cjs` antes que `a
 | Término | Significado |
 |---|---|
 | **Creador** | Cada visitante de la app |
-| **Tu Estudio** | La página personal del Creador: pase, Highbot, Reactor, Red, Rolodex, Día 3, telemetría. En código: `SgxHangar` / `CREDENTIAL_GENERATOR`. |
+| **Tu Estudio** | La página personal del Creador: el cuarto 3D de su Highbot, con sus estaciones (Mi SGX Pass, Highbot, Reactor, Bitácora, Rolodex y Red). En código: `SgxHangar` + `studioRoom/` / `CREDENTIAL_GENERATOR`. |
 | **SGX Pass** | La credencial gratis del Summit; es lo mismo que la Holo Card. Se forja en la Forja. |
 | **Forja** | El flujo para crear o editar el pase (`SgxForge.tsx`) |
 | **Holo Card** | La tarjeta visual del pase, con frente, reverso, foil y formatos para compartir; cambia según el rol aprobado |

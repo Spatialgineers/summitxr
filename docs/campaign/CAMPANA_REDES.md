@@ -123,8 +123,8 @@ Cada pieza es un solo feature, grabado de la app real, con una frase gancho y un
 | 4 | Holo Card | "Tu pase es una carta 3D. Dale la vuelta." | Showcase |
 | 5 | Arena en vivo | "Tu voto cambia el escenario en segundos." | Stage |
 | 6 | Dron SGX | "Cruza San Juan por los anillos de los 6 pilares." | Spark |
-| 7 | Reactor + Tienda | "Misiones, XP y premios reales." | Spark |
-| 8 | Escáner + Rolodex | "Networking con un QR." | Synthesize |
+| 7 | Reactor + Tienda | "Misiones, XP y premios reales." (grabar desde la repisa de trofeos de Tu Estudio) | Spark |
+| 8 | Escáner + Rolodex | "Networking con un QR." (escaneas y la Holo Card aparece en la pared de tu Estudio) | Synthesize |
 | 9 | Recorrido 360° de Chroma | "Conoce la sede del Día 3 antes de llegar." | Showcase |
 | 10 | Terminal de mando | "Navega todo el Summit escribiendo." | System |
 | 11 | Sin descargar + offline | "Añádela a tu pantalla. Tu pase abre sin señal." | System |
@@ -207,6 +207,7 @@ Cada día sigue nuestro sistema de pilar del día. Todos los captions terminan c
 | mié 25 nov | 16 | STORY | Carrusel | El programa: 3 días, 3 actos (Framework y Guild · Industry Day · Showcase en Chroma). | Tres días, tres actos: el framework, la industria y el futuro. Así se vive el Spatialgineers Summit 2026, del 11 al 13 de diciembre. |
 | jue 26 nov | 15 | SHOWCASE | Micro-reel | Una marca dentro del núcleo 3D, el juego y la pantalla. Story: faltan 2 días para sponsors. | Así se ve tu marca dentro del Summit: no un logo en una esquina, sino parte de la experiencia. Quedan 2 días para solicitar tu paquete. |
 | vie 27 nov | 14 | SPARK | Orgánico | Tomas de drones del estudio, cerrando con el Dron SGX de la app. | Lo hacemos en la vida real y ahora lo puedes hacer tú: el Dron SGX te pone a volar por San Juan dentro de la app. |
+| vie 27 nov | Reel | **Tu Estudio 3D:** "Tu Highbot tiene casa" | visitante |
 | sáb 28 nov | 13 | STAGE | Post + story | Hoy cierran las solicitudes de sponsors. | HOY cierran las solicitudes de sponsors del Spatialgineers Summit 2026. Pago y materiales hasta el 30 de noviembre. Link en bio. |
 | dom 29 nov | 12 | SYSTEMS | Anuncio | Primer speaker confirmado, con la plantilla de speaker. Si aún no hay, los fundadores abren el Día 1. | CONFIRMADO: [Nombre], [rol] en [org], abre la conversación de [pilar] el 12 de diciembre. Gratis por YouTube Live. Link en bio. |
 | lun 30 nov | 11 | SYNTHESIZE | Reel | Corte de 60–90 s del recorrido completo. Story: hoy vencen pago y materiales. | Todo el Summit en una app: 6 pilares y más de 20 módulos, del pase al escenario. Recórrela antes del 11 de diciembre. |

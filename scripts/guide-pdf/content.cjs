@@ -195,9 +195,9 @@ const pages = [
     kicker: 'Tu Estudio', title: 'Tu pase es tu Holo Card',
     lead: 'En **Tu Estudio** (botón "Pase" o tu chip) ves tu XP total, el XP para gastar y tu rango. La **Holo Card** es tu pase: al frente tu Highbot y tus datos; al reverso, tu QR.',
     phones: [
-      { img: 'e00-estudio-top', cap: 'Tu XP, tu rango y las pestañas de Tu Estudio.' },
-      { img: 'e01-estudio-pase', cap: 'La Holo Card: tarjeta 3D, post 4:5 o story 9:16; descargar o compartir.' },
-      { img: 'e02-estudio-highbot', cap: 'Tu Highbot en 3D y su chat.' },
+      { img: 'e00-estudio-top', cap: 'Tu Estudio es el cuarto 3D de tu Highbot: cada estación abre una parte de tu pase.' },
+      { img: 'e01-estudio-pase', cap: 'Mi SGX Pass (pedestal): resumen, Holo Card, tu rol con sus fechas, Día 3 y cuenta.' },
+      { img: 'e02-estudio-highbot', cap: 'La cápsula: el chat con tu Highbot.' },
     ],
     bullets2: [
       'La tarjeta cambia sola al rol aprobado: **Speaker, Sponsor, Initiate o Prensa**.',
@@ -207,9 +207,9 @@ const pages = [
   {
     kicker: 'Tu Estudio', title: 'Red, Rolodex y Día 3',
     phones: [
-      { img: 'e04-estudio-red', cap: 'Red: tus contactos como una constelación de estrellas por pilar.' },
-      { img: 'e05-estudio-rolodex', cap: 'Rolodex: los pases que escaneaste o que te escanearon; exporta vCard.' },
-      { img: 'e06-estudio-dia3', cap: 'Día 3: tu QR de entrada y el check-in en Chroma.' },
+      { img: 'e04-estudio-red', cap: 'Pared de Holo Cards → Red: tus contactos como una constelación por pilar.' },
+      { img: 'e05-estudio-rolodex', cap: 'Pared de Holo Cards → Rolodex: los pases escaneados; exporta vCard.' },
+      { img: 'e06-estudio-dia3', cap: 'Mi SGX Pass → Día 3: tu QR de entrada y el check-in en Chroma.' },
     ],
     bullets2: [
       'Un escaneo guarda a **las dos personas**, en el Rolodex de ambas (+50 XP por contacto).',
@@ -225,7 +225,7 @@ const pages = [
     lead: 'El **Reactor de misiones** agrupa las misiones por pilar; cada una trae un botón que te lleva a donde se hace. Completa las de un pilar y queda **sellado** en tu pase.',
     phones: [
       { img: 'r01-reactor', cap: 'El Reactor: misiones por pilar, XP de cada una y su atajo.' },
-      { img: 'e07-estudio-telemetria', cap: 'Telemetría: tu bitácora de XP y el ranking de Creadores.' },
+      { img: 'e07-estudio-telemetria', cap: 'La computadora → Bitácora: tu XP y el ranking de Creadores.' },
       { img: 'm10-tienda', cap: 'Tienda del Reactor: gastar XP no baja tu rango.' },
     ],
     bullets2: [

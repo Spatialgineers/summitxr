@@ -317,8 +317,8 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
               </div>
               <p className="sgx-hangar__note">
                 {es
-                  ? 'Cuando escaneas el pase de alguien, tú quedas en su Rolodex y esa persona en el tuyo. También puedes mostrar tu QR desde la pestaña Pase.'
-                  : "When you scan someone's pass, you land in their Rolodex and they land in yours. You can also show your QR from the Pass tab."}
+                  ? 'Cuando escaneas el pase de alguien, tú quedas en su Rolodex y esa persona en el tuyo. También puedes mostrar tu QR desde Mi SGX Pass.'
+                  : "When you scan someone's pass, you land in their Rolodex and they land in yours. You can also show your QR from My SGX Pass."}
               </p>
               {identity.contacts.length === 0 ? (
                 <div className="sgx-hangar__empty sgx-hangar__empty--sm">{es ? 'Tu Rolodex está vacío. El Día 3 se llena solo.' : 'Your Rolodex is empty. Day 3 fills it up.'}</div>

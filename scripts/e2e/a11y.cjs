@@ -78,9 +78,9 @@ async function keyboard(p, vpName) {
   // modals close with Escape and take focus
   await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } })));
   await p.waitForSelector('#sgx-studio-page', { timeout: 20000 }); await p.waitForTimeout(600);
-  check(`${vpName} keyboard: Studio tabs are reachable`, await p.evaluate(() => !!document.querySelector('#sgx-studio-page [role=tab]')));
+  check(`${vpName} keyboard: Studio parts are reachable (tabs, panel or station menu)`, await p.evaluate(() => !!document.querySelector(':is(#sgx-studio-page, .sgx-sheet) [role=tab], .sgx-sheet button, .sgx-room__menu')));
   await p.keyboard.press('Escape'); await p.waitForTimeout(500);
-  check(`${vpName} keyboard: Studio is a page (no dialog to trap focus)`, !(await p.$('#sgx-studio-page [role=dialog]')));
+  check(`${vpName} keyboard: Studio is a page (no dialog to trap focus)`, !(await p.$(':is(#sgx-studio-page, .sgx-sheet) [role=dialog]')));
 }
 
 (async () => {

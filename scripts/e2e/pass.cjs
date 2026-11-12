@@ -51,8 +51,9 @@ async function openForgeToName(p) {
   // 2. edit details: one form, no ceremony, same code
   await a.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } })));
   await a.waitForSelector("#sgx-studio-page", { timeout: 20000 }); await a.waitForTimeout(1200);
-  await a.click('#sgx-studio-page button:has-text("Editar mi pase")');
-  await a.waitForTimeout(800);
+  await a.click(':is(#sgx-studio-page, .sgx-sheet) button:has-text("Editar mi pase")');
+  // wait for the form itself, not a fixed time (the 3D room makes the page heavier without a GPU)
+  await a.waitForFunction(() => /Edita tus datos/i.test(document.querySelector('.sgx-forge')?.innerText || ''), null, { timeout: 10000 }).catch(() => {});
   check('edit opens one form', await a.evaluate(() => /Edita tus datos/i.test(document.querySelector('.sgx-forge')?.innerText || '')));
   check('edit shows no step-by-step forge', !(await a.$('.sgx-forge__pillars')) && !(await a.$('.sgx-forge__steps:not([hidden])')));
   const org = a.locator('.sgx-forge input[autocomplete=organization]');
@@ -70,7 +71,7 @@ async function openForgeToName(p) {
   const bp = await ctxB.newPage();
   await openForgeToName(bp);
   await bp.$eval('.sgx-forge form', (f) => f.requestSubmit());
-  await bp.waitForTimeout(2500);
+  await bp.waitForFunction(() => (document.querySelector('.sgx-forge__error')?.textContent || '').length > 0, null, { timeout: 12000 }).catch(() => {});
   const msg = await bp.evaluate(() => document.querySelector('.sgx-forge__error')?.textContent || '');
   check('second pass with the same email is refused', /ya tiene un SGX Pass/.test(msg), msg.slice(0, 80));
   check('stays on the details step', !(await bp.$('.sgx-forge__pillars')));

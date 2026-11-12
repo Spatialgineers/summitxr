@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SUMMIT_DEADLINES as D } from '../lib/summitDeadlines';
+import { SUMMIT_DEADLINES as D, isClosed, type DeadlineKey } from '../lib/summitDeadlines';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { playUiChirp } from '../lib/cyberAudioEngine';
@@ -19,6 +19,9 @@ const ROLES: { role: Exclude<CredentialRole, 'visitor'>; es: [string, string]; e
   { role: 'sponsor', es: ['Sponsor', 'Pon tu marca dentro del Summit.'], en: ['Sponsor', 'Put your brand inside the Summit.'] },
   { role: 'press', es: ['Prensa', `Cubre el Summit: acreditación antes del ${D.pressAccreditation.day.es}.`], en: ['Press', `Cover the Summit: accreditation before ${D.pressAccreditation.day.en}.`] },
 ];
+
+/** The date each request closes (the Guild has none). */
+const DEADLINE: Partial<Record<CredentialRole, DeadlineKey>> = { speaker: 'speakerProfiles', sponsor: 'sponsorApplications', press: 'pressAccreditation' };
 
 const fire = (name: string, detail?: unknown) => window.dispatchEvent(new CustomEvent(name, { detail }));
 
@@ -64,8 +67,13 @@ export const SgxRoleRequests: React.FC<{ credentials: HoloCredential[]; current:
                 <span className="sgx-roles__chip is-ok">{es ? 'Aprobado' : 'Approved'}</span>
               ) : st === 'review' ? (
                 <span className="sgx-roles__chip">{es ? 'En revisión' : 'In review'}</span>
+              ) : DEADLINE[r.role] && isClosed(DEADLINE[r.role]!) ? (
+                <span className="sgx-roles__chip is-closed">{es ? `Cerró el ${D[DEADLINE[r.role]!].short.es}` : `Closed ${D[DEADLINE[r.role]!].short.en}`}</span>
               ) : (
-                <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => ask(r.role)}>{es ? 'Solicitar' : 'Apply'}</button>
+                <span className="sgx-roles__ask">
+                  {DEADLINE[r.role] && <small>{es ? `Hasta el ${D[DEADLINE[r.role]!].short.es}` : `Until ${D[DEADLINE[r.role]!].short.en}`}</small>}
+                  <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => ask(r.role)}>{es ? 'Solicitar' : 'Apply'}</button>
+                </span>
               )}
             </li>
           );

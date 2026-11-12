@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronLeft, HelpCircle, Share2 } from 'lucide-react';
 import type { SummitSectionKey } from './sectionKeys';
 import { SGX_PILLARS, findPillar, moduleCode } from '../../lib/sgxPillars';
@@ -28,6 +28,18 @@ interface SgxSectionHudBarProps {
   stationSlug?: string;
 }
 
+/* Where you came from, inside the app: the back button returns there (a pillar page,
+   another module…) instead of always to the core. One trail for the whole session. */
+const trail: string[] = [];
+const here = () => window.location.pathname + window.location.search;
+function placeName(path: string, es: boolean): string {
+  const u = new URL(path, window.location.origin);
+  if (u.pathname === '/' || u.pathname === '') return es ? 'Núcleo' : 'Core';
+  const m = u.pathname.match(/^\/pilar\/([^/]+)/);
+  if (m) return findPillar(m[1])?.name || (es ? 'Atrás' : 'Back');
+  return es ? 'Atrás' : 'Back';
+}
+
 // Official order: Story, Showcase, Spark, Stage, System, Synthesize.
 const PILLAR_ORDER: string[] = SGX_PILLARS.map((p) => p.id);
 
@@ -49,12 +61,34 @@ export const SgxSectionHudBar: React.FC<SgxSectionHudBarProps> = ({
   const station = stationSlug ? findPillar(stationSlug) : undefined;
   const code = moduleCode(activeSection) || '00';
 
+  // keep the trail in step with every move (forward adds a step, going back removes one)
+  const [prev, setPrev] = useState<string | null>(null);
+  useEffect(() => {
+    const now = here();
+    if (trail[trail.length - 1] !== now) {
+      if (trail[trail.length - 2] === now) trail.pop();
+      else trail.push(now);
+    }
+    if (trail.length > 30) trail.splice(0, trail.length - 30);
+    setPrev(trail.length >= 2 ? trail[trail.length - 2] : null);
+  }, [activeSection, stationSlug]);
+
+  // leaving to the core ends the trail: the next trip starts fresh
+  useEffect(() => () => { trail.length = 0; }, []);
+
+  const back = () => {
+    if (!prev) { onBack(); return; }
+    // the app follows the URL: put the previous place back and let it re-read it
+    window.history.pushState(window.history.state, '', prev);
+    window.dispatchEvent(new PopStateEvent('popstate', { state: window.history.state }));
+  };
+
   return (
     <div className="sgx-sechud">
       <div className="sgx-sechud__inner">
-        <button type="button" className="sgx-sechud__back" onClick={onBack} data-sgx-hover>
+        <button type="button" className="sgx-sechud__back" onClick={back} data-sgx-hover aria-label={es ? `Volver a ${prev ? placeName(prev, es) : 'Núcleo'}` : `Back to ${prev ? placeName(prev, es) : 'Core'}`}>
           <ChevronLeft className="w-4 h-4" />
-          <span>{es ? 'Núcleo' : 'Core'}</span>
+          <span>{prev ? placeName(prev, es) : (es ? 'Núcleo' : 'Core')}</span>
         </button>
 
         <div className="sgx-sechud__crumb" aria-live="polite">

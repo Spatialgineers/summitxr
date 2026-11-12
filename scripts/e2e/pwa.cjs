@@ -81,11 +81,11 @@ const check = (n, c, extra = '') => { c ? pass++ : fail++; console.log(c ? 'PASS
   await p.waitForTimeout(2500);
   check('offline: pass still on the device', await p.evaluate((c) => JSON.parse(localStorage.getItem('sgx_identity_v1') || '{}').pass?.code === c, code), code);
   // the QR is on the back of the Holo Card
-  await p.click('#sgx-studio-page button:has-text("Reverso")').catch(() => {});
+  await p.click(':is(#sgx-studio-page, .sgx-sheet) button:has-text("Reverso")').catch(() => {});
   await p.waitForTimeout(1500);
   const qr = await p.evaluate(() => {
-    const imgs = Array.from(document.querySelectorAll('#sgx-studio-page img')).filter((i) => /^data:image/.test(i.src) && i.naturalWidth > 50);
-    const canv = Array.from(document.querySelectorAll('#sgx-studio-page canvas')).filter((c) => c.width > 50);
+    const imgs = Array.from(document.querySelectorAll(':is(#sgx-studio-page, .sgx-sheet) img')).filter((i) => /^data:image/.test(i.src) && i.naturalWidth > 50);
+    const canv = Array.from(document.querySelectorAll(':is(#sgx-studio-page, .sgx-sheet) canvas')).filter((c) => c.width > 50);
     return imgs.length + canv.length;
   });
   check('offline: QR / card drawn', qr > 0, `(${qr})`);

@@ -154,8 +154,10 @@ async function context(b, vp, id) {
 
     // Tu Estudio → Tu Highbot: the chat lives there and the floating head steps aside
     await p.goto(`${APP}/pase`, { waitUntil: 'domcontentloaded' });
-    await p.waitForSelector('[data-guide="estudio-bot"]', { timeout: 20000 }).catch(() => {});
-    await p.click('[data-guide="estudio-bot"]');
+    // Tu Estudio is the 3D room: the Highbot capsule (or its classic tab in Lite Mode) opens the chat
+    await p.waitForSelector('#sgx-studio-page', { timeout: 20000 }).catch(() => {});
+    await p.waitForTimeout(800);
+    await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:studio_tab', { detail: { tab: 'bot' } })));
     await p.waitForSelector('.sgx-companion-studio', { timeout: 15000 }).catch(() => {});
     check(`${name}: Studio tab shows your Highbot and the chat`, !!(await p.$('.sgx-companion-studio .sgx-companion--studio')));
     check(`${name}: the conversation carries over`, (await p.$$('.sgx-companion--studio .sgx-companion__msg.is-me')).length >= 2);

@@ -44,7 +44,7 @@ export const SgxPassSection: React.FC = () => {
     <SgxPassBoard
       actions={(
         <>
-          <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => fire('sgx:open_hangar', { tab: 'pass' })}>{es ? 'Abrir Estudio' : 'Open Studio'}</button></span>
+          <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={() => fire('sgx:open_hangar', { tab: 'room' })}>{es ? 'Abrir Estudio' : 'Open Studio'}</button></span>
           <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => fire('sgx:open_hangar', { tab: 'reactor' })}>Reactor</button>
           <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => fire('sgx:open_qr_scanner')}>{es ? 'Escanear pase' : 'Scan pass'}</button>
           <button type="button" className="sgx-btn sgx-btn--ground" onClick={() => fire('sgx:open_hangar', { tab: 'day3' })}>{es ? 'Día 3' : 'Day 3'}</button>

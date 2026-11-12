@@ -1025,8 +1025,8 @@ export const SummitLandingPage: React.FC<SummitLandingPageProps> = ({
               subtitle={language === 'es'
                 ? 'Tu SGX Pass es tu Holo Card: al frente, tú; al reverso, el programa y tu QR de entrada al Día 3. Una sola tarjeta para registrarte, entrar y compartir como tarjeta 3D, post o story.'
                 : 'Your SGX Pass is your Holo Card: you on the front; the program and your Day 3 entrance QR on the back. One card to register, get in and share as a 3D card, post or story.'}
-              pillarBadge="SGX.SYSTEM"
-              pillarIconUrl={pillarIcon('SYSTEM')}
+              pillarBadge="SGX.SYNTHESIZE"
+              pillarIconUrl={pillarIcon('SYNTHESIZE')}
             />
             <div id="sgx-studio-page">
               <SgxHangar asPage initialTab={takeStudioTab()} onClose={() => {}} onForge={() => window.dispatchEvent(new CustomEvent('sgx:open_forge', { detail: { tier: 'DIGITAL' } }))} />

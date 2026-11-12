@@ -2034,7 +2034,6 @@ var SGX_PILLARS = [
     ],
     modules: [
       { kind: "section", key: "VISITS", icon: Radar, label: { es: "Radar de visitas", en: "Visit radar" }, desc: { es: "Desde d\xF3nde nos visitan, en vivo: mapa de PR, contadores y leaderboards.", en: "Where our visitors come from, live: PR map, counters and leaderboards." } },
-      { kind: "section", key: "CREDENTIAL_GENERATOR", icon: BadgeCheck, label: { es: "SGX Pass", en: "SGX Pass" }, desc: { es: "Tu Holo Card, tu QR de networking y tu entrada del D\xEDa 3.", en: "Your Holo Card, your networking QR and your Day 3 entrance." } },
       { kind: "section", key: "PASS_SCANNER", icon: ScanLine, label: { es: "Esc\xE1ner de pases & Rolodex", en: "Pass scanner & Rolodex" }, desc: { es: "Escanea un SGX Pass: quedan en los dos Rolodex (+50 XP).", en: "Scan an SGX Pass: you land in both Rolodexes (+50 XP)." } },
       { kind: "section", key: "TERMINAL", icon: Terminal, label: { es: "Terminal de mando", en: "Command terminal" }, desc: { es: "Navega toda la plataforma escribiendo. Ctrl+K.", en: "Navigate the whole platform by typing. Ctrl+K." } }
     ]
@@ -2060,6 +2059,7 @@ var SGX_PILLARS = [
       { day: 3, time: "1:00\u20132:00 PM", label: { es: "Networking con votaci\xF3n gamificada", en: "Networking with gamified voting" } }
     ],
     modules: [
+      { kind: "section", key: "CREDENTIAL_GENERATOR", icon: BadgeCheck, label: { es: "Tu Estudio \xB7 SGX Pass", en: "Your Studio \xB7 SGX Pass" }, desc: { es: "Tu Holo Card, tu QR de networking y tu entrada del D\xEDa 3.", en: "Your Holo Card, your networking QR and your Day 3 entrance." } },
       { kind: "section", key: "STUDIO_3D", icon: Box, label: { es: "Tu Estudio 3D", en: "Your 3D Studio" }, desc: { es: "El cuarto de tu Highbot: camina por tu estudio, tu computadora, tus sellos y las Holo Cards de los Creadores con los que conectaste.", en: "Your Highbot's room: walk around your studio, your computer, your stamps and the Holo Cards of the Creators you connected with." } },
       { kind: "section", key: "ENTREPRENEUR_MATCH", icon: Zap, label: { es: "SGX.Match", en: "SGX.Match" }, desc: { es: "Conecta con creadores y marcas de todos los pilares.", en: "Connect with creators and brands from every pillar." } },
       { kind: "section", key: "NETWORKING", icon: MessageSquare, label: { es: "Foros & chat", en: "Forums & chat" }, desc: { es: "Salas por tema, preguntas para speakers y c\xF3digo.", en: "Topic rooms, questions for speakers and code." } },
@@ -2108,11 +2108,11 @@ var SECTION_TO_SLUG = {
 
 // src/companion/destinations.ts
 var STUDIO = [
-  { id: "tu-highbot", kind: "studio", tab: "bot", label: "Tu Estudio \xB7 Tu Highbot", desc: "Donde vive el Highbot del Creador para conversar." },
+  { id: "tu-highbot", kind: "studio", tab: "bot", label: "Tu Estudio \xB7 C\xE1psula del Highbot", desc: "La c\xE1psula del cuarto 3D: donde el Creador conversa con su Highbot." },
   { id: "reactor", kind: "studio", tab: "reactor", label: "Tu Estudio \xB7 Reactor de misiones", desc: "Las misiones por pilar; cada pilar completo sella el SGX Pass." },
   { id: "red", kind: "studio", tab: "stars", label: "Tu Estudio \xB7 Red (constelaci\xF3n)", desc: "Los contactos del Creador como mapa de estrellas." },
   { id: "rolodex", kind: "studio", tab: "rolodex", label: "Tu Estudio \xB7 Rolodex", desc: "Los pases escaneados, con exportar a contactos." },
-  { id: "dia-3", kind: "studio", tab: "day3", label: "Tu Estudio \xB7 D\xEDa 3", desc: "Check-in y sellos del D\xEDa 3 en Chroma Space Studios." }
+  { id: "dia-3", kind: "studio", tab: "day3", label: "Tu Estudio \xB7 Mi SGX Pass \xB7 D\xEDa 3", desc: "La parte del D\xEDa 3 dentro de Mi SGX Pass: QR de entrada y check-in en Chroma Space Studios." }
 ];
 function build() {
   const out = [
@@ -3944,7 +3944,7 @@ var EVENT = `## Spatialgineers Summit 2026: lo esencial
 
 ## El SGX Pass y la experiencia en la app
 - El SGX Pass es la credencial gratis del Summit y ES la Holo Card del Creador. Se "forja" en un minuto (nombre, email, pilar favorito, su Highbot). Da el QR de networking, la entrada del D\xEDa 3, las misiones y el XP. Un pase por email.
-- Tu Estudio es la p\xE1gina personal: Pase, Tu Highbot, Reactor (misiones por pilar), Red (constelaci\xF3n de contactos), Rolodex, D\xEDa 3 y Telemetr\xEDa. Con Google se guarda el progreso en la cuenta.
+- Tu Estudio es el cuarto 3D del Highbot del Creador (en SGX.Synthesize, y en /pase). El Creador camina con su Highbot y cada estaci\xF3n abre un panel encima del cuarto: el pedestal "Mi SGX Pass" (su Holo Card, su rol y las solicitudes de speaker, sponsor, prensa o Guild con sus fechas, el D\xEDa 3 con su QR y la cuenta de Google), la c\xE1psula del Highbot (hablar con \xE9l), la repisa de sellos y trofeos (misiones del Reactor por pilar), la computadora (bit\xE1cora y ranking) y la pared de Holo Cards (Rolodex y Red). Hay un bot\xF3n "Estaciones" para ir directo, objetos para tirar al aro, y el cuarto cambia con el progreso: un trofeo por pilar sellado, una luz por misi\xF3n, el objeto de su rol y m\xE1s color seg\xFAn su nivel. En Modo Ligero, Tu Estudio se ve como pesta\xF1as. Con Google se guarda el progreso en la cuenta.
 - XP: se gana jugando, votando en vivo (+25 XP por voto, una vez por pregunta), completando misiones y escaneando pases. La Tienda del Reactor deja gastar XP sin bajar de rango.
 - Networking: escanear el QR del pase de otra persona los guarda en el Rolodex de ambos; completar los seis pilares en la Red da un sello secreto.
 - Encuestas: solo aceptan votos mientras el equipo las tiene abiertas.

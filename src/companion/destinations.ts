@@ -16,11 +16,11 @@ export type CompanionDestination = { id: string; label: string; desc: string } &
 );
 
 const STUDIO: CompanionDestination[] = [
-  { id: 'tu-highbot', kind: 'studio', tab: 'bot', label: 'Tu Estudio · Tu Highbot', desc: 'Donde vive el Highbot del Creador para conversar.' },
+  { id: 'tu-highbot', kind: 'studio', tab: 'bot', label: 'Tu Estudio · Cápsula del Highbot', desc: 'La cápsula del cuarto 3D: donde el Creador conversa con su Highbot.' },
   { id: 'reactor', kind: 'studio', tab: 'reactor', label: 'Tu Estudio · Reactor de misiones', desc: 'Las misiones por pilar; cada pilar completo sella el SGX Pass.' },
   { id: 'red', kind: 'studio', tab: 'stars', label: 'Tu Estudio · Red (constelación)', desc: 'Los contactos del Creador como mapa de estrellas.' },
   { id: 'rolodex', kind: 'studio', tab: 'rolodex', label: 'Tu Estudio · Rolodex', desc: 'Los pases escaneados, con exportar a contactos.' },
-  { id: 'dia-3', kind: 'studio', tab: 'day3', label: 'Tu Estudio · Día 3', desc: 'Check-in y sellos del Día 3 en Chroma Space Studios.' },
+  { id: 'dia-3', kind: 'studio', tab: 'day3', label: 'Tu Estudio · Mi SGX Pass · Día 3', desc: 'La parte del Día 3 dentro de Mi SGX Pass: QR de entrada y check-in en Chroma Space Studios.' },
 ];
 
 function build(): CompanionDestination[] {

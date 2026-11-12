@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { playCyberBurstSound, playUiChirp } from '../../lib/cyberAudioEngine';
 import { createDrone, disposeObject } from '../../components/summit/drone/droneScene';
+import { loadSgxIcon } from '../sgxIcon3d';
 
 /* The living part of Tu Estudio 3D: things to grab and throw, a holo hoop to
    score in, and the room's own motion (dust, a ring lamp, a small drone,
@@ -141,8 +142,18 @@ export function createRoomPlay(d: RoomPlayDeps): RoomPlay {
   lamp.position.set(0, d.room.h - 0.75, -0.6);
   const ringA = new THREE.Mesh(keep(new THREE.TorusGeometry(0.7, 0.025, 8, 48)), glow(accent));
   const ringB = new THREE.Mesh(keep(new THREE.TorusGeometry(0.5, 0.02, 8, 40)), glow(0xfdcc0d));
-  const core = new THREE.Mesh(keep(new THREE.IcosahedronGeometry(0.2, 0)), keep(new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true })));
+  // the Spatialgineers logo floats in the middle of the rings
+  const core = new THREE.Group();
   lamp.add(ringA, ringB, core);
+  let logoAlive = true;
+  keep({ dispose: () => { logoAlive = false; core.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh) m.geometry.dispose(); }); } });
+  void loadSgxIcon().then((icon) => {
+    if (!icon || !logoAlive) return;
+    const gear = new THREE.Mesh(icon.gear.clone(), std(0x32527b, 0.3, 0.85, 0x32527b, 0.35));
+    const bolt = new THREE.Mesh(icon.bolt.clone(), std(0xfdcc0d, 0.3, 0.6, 0xfdcc0d, 0.9));
+    core.add(gear, bolt);
+    core.scale.setScalar(0.85);
+  });
   scene.add(lamp);
 
   // the SGX drone from the drone game patrols the room
@@ -399,7 +410,8 @@ export function createRoomPlay(d: RoomPlayDeps): RoomPlay {
     if (!d.reduce) {
       ringA.rotation.set(t * 0.5, t * 0.3, 0);
       ringB.rotation.set(-t * 0.4, 0, t * 0.6 + flash * 6);
-      core.rotation.set(t * 0.7, t * 0.9, 0);
+      core.rotation.set(0, Math.sin(t * 0.5) * 0.6, 0);
+      core.position.y = Math.sin(t * 1.2) * 0.06;
       const a = t * 0.22;
       const px = Math.cos(a) * 4.2, pz = -0.4 + Math.sin(a) * 2.6;
       drone.rotation.y = Math.atan2(px - drone.position.x, pz - drone.position.z) + Math.PI; // its nose is -z

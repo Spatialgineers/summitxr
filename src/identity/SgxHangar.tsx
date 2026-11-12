@@ -1,4 +1,7 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useLite } from '../lib/lite';
+import { useHoloCredentials, ROLE_COPY } from './credentials';
 import { configFromSeed } from './pilotAvatar';
 import { useLanguage } from '../context/LanguageContext';
 import { rankLabel, usePilotProfile } from '../context/PilotProfileContext';
@@ -63,6 +66,15 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   const { user, logout } = useAuth();
   const googleEmail = user && !user.isAnonymous ? user.email : null;
   const [tab, setTab] = useState<HangarTab>(reactorOnly ? 'reactor' : initialTab);
+  const lite = useLite();
+  // As a page, Tu Estudio IS the 3D room: each part of it opens as a panel over the room.
+  // In Lite Mode (no 3D) it keeps the classic tabs.
+  const immersive = asPage && !reactorOnly && !lite;
+  // Day 3 now lives inside Mi SGX Pass; without the room there is no 'room' view
+  const view: HangarTab = tab === 'day3' ? 'pass' : (tab === 'room' && !immersive ? 'pass' : tab);
+  const { credentials } = useHoloCredentials();
+  const official = (['speaker', 'sponsor', 'press', 'initiate'] as const).find((r) => credentials.some((c) => c.role === r && c.status === 'official'));
+  const inReview = credentials.filter((c) => c.role !== 'visitor' && c.status === 'review').length;
   const [copied, setCopied] = useState(false);
   const [checkinMsg, setCheckinMsg] = useState('');
   const qr = usePassQr();
@@ -70,6 +82,19 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   const done = missions.filter((m) => isDone(m.id)).length;
 
   useEffect(() => { if (!reactorOnly) setTab(initialTab); }, [initialTab, reactorOnly]);
+  // 'day3' opens Mi SGX Pass at its Day 3 part
+  useEffect(() => {
+    if (tab !== 'day3') return;
+    const t = window.setTimeout(() => document.getElementById('sgx-pass-day3')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+    return () => window.clearTimeout(t);
+  }, [tab]);
+  // Escape closes the panel and leaves you in the room
+  useEffect(() => {
+    if (!immersive || view === 'room') return;
+    const k = (e: KeyboardEvent) => { if (e.key === 'Escape') setTab('room'); };
+    window.addEventListener('keydown', k);
+    return () => window.removeEventListener('keydown', k);
+  }, [immersive, view]);
   useEffect(() => {
     if (reactorOnly) return;
     const onTab = (e: Event) => { const t = (e as CustomEvent<{ tab?: HangarTab }>).detail?.tab; if (t) setTab(t); };
@@ -122,62 +147,29 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
   };
 
   const tabs: { id: HangarTab; label: string }[] = [
-    // the Highbot's room comes first: it is the way into everything else in the Studio
-    ...(asPage ? [{ id: 'room' as HangarTab, label: es ? 'Estudio 3D' : '3D Studio' }] : []),
-    { id: 'pass', label: es ? 'Pase' : 'Pass' },
+    { id: 'pass', label: es ? 'Mi SGX Pass' : 'My SGX Pass' },
     { id: 'bot', label: es ? 'Tu Highbot' : 'Your Highbot' },
     { id: 'reactor', label: `Reactor ${done}/${missions.length}` },
-    { id: 'stars', label: `${es ? 'Red' : 'Network'} ${identity.contacts.length}` },
+    { id: 'log', label: es ? 'Bitácora' : 'Log' },
     { id: 'rolodex', label: `Rolodex ${identity.contacts.length}` },
-    { id: 'day3', label: es ? 'Día 3' : 'Day 3' },
-    { id: 'log', label: es ? 'Telemetría' : 'Telemetry' },
+    { id: 'stars', label: `${es ? 'Red' : 'Network'} ${identity.contacts.length}` },
   ];
+  // the panels over the room, grouped the way the stations are
+  const SHEETS: Array<{ ids: HangarTab[]; es: string; en: string }> = [
+    { ids: ['pass'], es: 'Mi SGX Pass', en: 'My SGX Pass' },
+    { ids: ['bot'], es: 'Tu Highbot', en: 'Your Highbot' },
+    { ids: ['reactor', 'log'], es: 'Misiones y bitácora', en: 'Missions and log' },
+    { ids: ['rolodex', 'stars'], es: 'Tus conexiones', en: 'Your connections' },
+  ];
+  const sheet = SHEETS.find((g) => g.ids.includes(view)) || SHEETS[0];
 
   const scan = () => { onClose(); window.setTimeout(() => window.dispatchEvent(new CustomEvent('sgx:open_qr_scanner')), 80); };
 
   const Shell = (asPage ? PageShell : SgxDialog) as React.FC<any>;
-  return (
-    <Shell
-      onClose={onClose}
-      size="lg"
-      className="sgx-studio"
-      icon={<img src="/brand/sgx-bolt.svg" alt="" />}
-      title={reactorOnly ? (es ? 'Reactor de misiones' : 'Mission reactor') : (es ? 'Tu Estudio' : 'Your Studio')}
-      kicker={reactorOnly ? `${done}/${missions.length} ${es ? 'misiones · toca una para ir' : 'missions · tap one to go'}` : isForged ? `${identity.pass!.fullName} · ${identity.callsign}` : (es ? 'Sin pase todavía' : 'No pass yet')}
-      headerExtra={(
-        <div className="sgx-hangar__xp">
-          <span><b>{profile.totalXp.toLocaleString('es-PR')}</b> XP</span>
-          <span className="sgx-hangar__xp-sub">{xpBalance.toLocaleString('es-PR')} {es ? 'para gastar' : 'to spend'} · {rankLabel(profile.level, es)}</span>
-        </div>
-      )}
-      toolbar={reactorOnly ? undefined : (
-        <nav className="sgx-studio__tabs" role="tablist" aria-label={es ? 'Secciones de tu Estudio' : 'Studio sections'}>
-          {tabs.map((t) => (
-            <button key={t.id} type="button" role="tab" data-guide={`estudio-${t.id}`} aria-selected={tab === t.id} className={tab === t.id ? 'is-on' : ''} onClick={() => { playUiChirp(560); setTab(t.id); }}>
-              {t.label}
-            </button>
-          ))}
-        </nav>
-      )}
-    >
-          {/* Account: same Google sign-in the old profile drawer had. */}
-          {!reactorOnly && <div className={`sgx-hangar__account ${googleEmail ? 'is-linked' : ''}`}>
-            {googleEmail ? (
-              <>
-                <p>{es ? 'Cuenta conectada' : 'Account connected'} · <strong>{googleEmail}</strong></p>
-                <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => { playUiChirp(420); logout(); }}>{es ? 'Cerrar sesión' : 'Sign out'}</button>
-              </>
-            ) : (
-              <>
-                <p>{es ? 'Inicia sesión con Google para guardar tu progreso en tu cuenta.' : 'Sign in with Google to save your progress to your account.'}</p>
-                <GoogleSignInButton variant="compact" buttonText={es ? 'Iniciar con Google' : 'Sign in with Google'} />
-              </>
-            )}
-          </div>}
-          {tab === 'room' && (
-            <Suspense fallback={null}><SgxStudioRoom embedded /></Suspense>
-          )}
-          {!isForged && tab !== 'reactor' && tab !== 'log' && tab !== 'bot' && tab !== 'room' ? (
+
+  const panels = (
+    <>
+                    {!isForged && view !== 'reactor' && view !== 'log' && view !== 'bot' && view !== 'room' ? (
             <div className="sgx-hangar__empty">
               <h3>{es ? 'Forja tu SGX Pass' : 'Forge your SGX Pass'}</h3>
               <p>{es ? 'Tu Holo Card, tu QR de networking y tu entrada del Día 3. Toma un minuto.' : 'Your Holo Card, your networking QR and your Day 3 entrance. It takes a minute.'}</p>
@@ -185,8 +177,16 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
             </div>
           ) : null}
 
-          {isForged && tab === 'pass' && (
+          {isForged && view === 'pass' && (
             <div className="sgx-studio__pass">
+              {/* Mi SGX Pass: everything about you in one place, at a glance first */}
+              <dl className="sgx-dossier">
+                <div><dt>{es ? 'Rol' : 'Role'}</dt><dd>{official ? (es ? ROLE_COPY[official].label[0] : ROLE_COPY[official].label[1]).toUpperCase() : (es ? 'CREADOR' : 'CREATOR')}</dd></div>
+                <div><dt>{es ? 'Solicitudes' : 'Requests'}</dt><dd>{inReview ? (es ? `${inReview} en revisión` : `${inReview} in review`) : (es ? 'Ninguna abierta' : 'None open')}</dd></div>
+                <div><dt>{es ? 'Día 3' : 'Day 3'}</dt><dd>{identity.stamps['chroma:checkin'] ? (es ? 'Presente' : 'Present') : identity.pass?.tier === 'SHOWCASE' ? (es ? 'Solicitado' : 'Requested') : (es ? 'Digital' : 'Digital')}</dd></div>
+                <div><dt>{es ? 'Conexiones' : 'Connections'}</dt><dd>{identity.contacts.length}</dd></div>
+                <div><dt>XP</dt><dd>{profile.totalXp.toLocaleString('es-PR')} · LV {profile.level}</dd></div>
+              </dl>
               {/* Same board as the SGX Pass section: tap the card to see the back with the event and your QR. */}
               <SgxPassBoard
                 onClose={onClose}
@@ -202,7 +202,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                 <SgxPilotGlyph seed={identity.avatar.seed} config={identity.avatar.pilot} accent={identity.affinity ? PILLAR_ACCENT[identity.affinity] : '#FDCC0D'} size={300} />
               </div>
               <div className="sgx-studio__extras">
-                <section className="sgx-panel sgx-studio__avatar3d" aria-label={es ? 'Tu Highbot en 3D' : 'Your Highbot in 3D'}>
+                {!immersive && <section className="sgx-panel sgx-studio__avatar3d" aria-label={es ? 'Tu Highbot en 3D' : 'Your Highbot in 3D'}>
                   <div>
                     <h3 className="sgx-panel__title">{es ? 'Tu Highbot' : 'Your Highbot'}</h3>
                     <p className="sgx-studio__text">{es ? 'El mismo de tu Holo Card, en 3D. Arrástralo para girarlo; también aparece junto al núcleo.' : 'The one on your Holo Card, in 3D. Drag to turn it; it also appears next to the core.'}</p>
@@ -214,7 +214,7 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
                       label={es ? 'Tu Highbot en 3D. Arrastra para girarlo.' : 'Your Highbot in 3D. Drag to turn it.'}
                     />
                   </Suspense>
-                </section>
+                </section>}
                 <section className="sgx-panel sgx-studio__live">
                   <h3 className="sgx-panel__title">SGX Live</h3>
                   <p className="sgx-studio__text">
@@ -240,13 +240,13 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
             </div>
           )}
 
-          {tab === 'bot' && (
+          {view === 'bot' && (
             <Suspense fallback={<div className="sgx-studio__wait">{es ? 'Despertando a tu Highbot…' : 'Waking up your Highbot…'}</div>}>
               <CompanionStudio />
             </Suspense>
           )}
 
-          {tab === 'reactor' && (
+          {view === 'reactor' && (
             <div className="sgx-hangar__reactor">
               <div className="sgx-hangar__reactor-top">
                 <p>{es ? 'Cada pilar tiene sus misiones. Complétalas todas y el pilar queda sellado en tu pase.' : 'Every pillar has its missions. Finish them all and the pillar is stamped on your pass.'}</p>
@@ -303,11 +303,11 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
             </div>
           )}
 
-          {isForged && tab === 'stars' && (
+          {isForged && view === 'stars' && (
             <SgxConstellation onScan={scan} />
           )}
 
-          {isForged && tab === 'rolodex' && (
+          {isForged && view === 'rolodex' && (
             <div className="sgx-hangar__rolodex">
               <div className="sgx-hangar__actions">
                 <span className="sgx-glow"><button type="button" className="sgx-btn" onClick={scan}>
@@ -341,8 +341,8 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
             </div>
           )}
 
-          {isForged && tab === 'day3' && (
-            <div className="sgx-hangar__day3">
+          {isForged && view === 'pass' && (
+            <div className="sgx-hangar__day3" id="sgx-pass-day3">
               <div className="sgx-hangar__bigqr">
                 {qr && <img src={qr} alt={es ? 'QR de tu pase' : 'Your pass QR'} />}
                 <code>{identity.pass!.code}</code>
@@ -379,7 +379,21 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
             </div>
           )}
 
-          {tab === 'log' && (
+          {/* Cuenta: the Google sign-in, last part of Mi SGX Pass */}
+          {!reactorOnly && view === 'pass' && <div className={`sgx-hangar__account ${googleEmail ? 'is-linked' : ''}`}>
+            {googleEmail ? (
+              <>
+                <p>{es ? 'Cuenta conectada' : 'Account connected'} · <strong>{googleEmail}</strong></p>
+                <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => { playUiChirp(420); logout(); }}>{es ? 'Cerrar sesión' : 'Sign out'}</button>
+              </>
+            ) : (
+              <>
+                <p>{es ? 'Inicia sesión con Google para guardar tu progreso en tu cuenta.' : 'Sign in with Google to save your progress to your account.'}</p>
+                <GoogleSignInButton variant="compact" buttonText={es ? 'Iniciar con Google' : 'Sign in with Google'} />
+              </>
+            )}
+          </div>}
+          {view === 'log' && (
             <div className="sgx-hangar__log">
               <section>
                 <h4>{es ? 'Bitácora' : 'Log'}</h4>
@@ -411,6 +425,56 @@ export const SgxHangar: React.FC<Props> = ({ onClose, onForge, initialTab = 'pas
               </section>
             </div>
           )}
+    </>
+  );
+
+  return (
+    <Shell
+      onClose={onClose}
+      size="lg"
+      className="sgx-studio"
+      icon={<img src="/brand/sgx-bolt.svg" alt="" />}
+      title={reactorOnly ? (es ? 'Reactor de misiones' : 'Mission reactor') : (es ? 'Tu Estudio' : 'Your Studio')}
+      kicker={reactorOnly ? `${done}/${missions.length} ${es ? 'misiones · toca una para ir' : 'missions · tap one to go'}` : isForged ? `${identity.pass!.fullName} · ${identity.callsign}` : (es ? 'Sin pase todavía' : 'No pass yet')}
+      headerExtra={(
+        <div className="sgx-hangar__xp">
+          <span><b>{profile.totalXp.toLocaleString('es-PR')}</b> XP</span>
+          <span className="sgx-hangar__xp-sub">{xpBalance.toLocaleString('es-PR')} {es ? 'para gastar' : 'to spend'} · {rankLabel(profile.level, es)}</span>
+        </div>
+      )}
+      toolbar={reactorOnly || immersive ? undefined : (
+        <nav className="sgx-studio__tabs" role="tablist" aria-label={es ? 'Secciones de tu Estudio' : 'Studio sections'}>
+          {tabs.map((t) => (
+            <button key={t.id} type="button" role="tab" data-guide={`estudio-${t.id}`} aria-selected={view === t.id} className={view === t.id ? 'is-on' : ''} onClick={() => { playUiChirp(560); setTab(t.id); }}>
+              {t.label}
+            </button>
+          ))}
+        </nav>
+      )}
+    >
+      {immersive ? (
+        <>
+          <Suspense fallback={null}><SgxStudioRoom embedded /></Suspense>
+          {view !== 'room' && createPortal(
+            <aside className="sgx-sheet sgx-studio" role="region" aria-label={es ? sheet.es : sheet.en}>
+              <header className="sgx-sheet__head">
+                <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => { playUiChirp(420); setTab('room'); }}>← {es ? 'Al cuarto' : 'To the room'}</button>
+                <strong>{es ? sheet.es : sheet.en}</strong>
+                {sheet.ids.length > 1 && (
+                  <nav role="tablist" className="sgx-sheet__tabs">
+                    {sheet.ids.map((id) => {
+                      const t = tabs.find((x) => x.id === id)!;
+                      return <button key={id} type="button" role="tab" aria-selected={view === id} className={view === id ? 'is-on' : ''} onClick={() => { playUiChirp(560); setTab(id); }}>{t.label}</button>;
+                    })}
+                  </nav>
+                )}
+              </header>
+              <div className="sgx-sheet__body">{panels}</div>
+            </aside>,
+            document.body,
+          )}
+        </>
+      ) : panels}
     </Shell>
   );
 };

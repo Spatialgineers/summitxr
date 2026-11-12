@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { createRoomPlay } from './roomPlay';
+import { loadSgxIcon } from '../sgxIcon3d';
 import { WALK_LEG } from '../highbot3d';
 import { buildHighbot3D, type Pilot3D } from '../highbot3d';
 import { studioEnvironment, studioRenderer } from '../highbotStudio';
@@ -11,7 +12,9 @@ import type { PilotConfig } from '../pilotAvatar';
    pillar stamps and a portal back to the core. Plain three.js, no physics:
    the room is a box and the furniture is a handful of circles to walk around. */
 
-export type StationId = 'computer' | 'wall' | 'shelf' | 'portal';
+export type StationId = 'computer' | 'wall' | 'shelf' | 'capsule' | 'pass' | 'portal';
+/** The Creador's role on the Summit, as their pass shows it. */
+export type RoomRole = 'visitor' | 'speaker' | 'sponsor' | 'press' | 'initiate';
 
 export interface RoomCard {
   name: string;
@@ -32,6 +35,10 @@ export interface RoomData {
   cards: RoomCard[];
   myHolo?: string;
   es: boolean;
+  /** Official role: it puts its own object in the room. */
+  role?: RoomRole;
+  /** Creador level: the room gets brighter and more colorful as it climbs. */
+  level?: number;
 }
 
 export interface StudioRoom {
@@ -41,6 +48,8 @@ export interface StudioRoom {
   grab: (clientX: number, clientY: number) => boolean;
   dragTo: (clientX: number, clientY: number) => void;
   drop: () => void;
+  /** The Holo Card under the pointer: -1 is your own, 0+ a contact, null none. */
+  pickCard: (clientX: number, clientY: number) => number | null;
   dispose: () => void;
 }
 
@@ -51,9 +60,11 @@ const STATIONS: Array<{ id: StationId; x: number; z: number; r: number }> = [
   { id: 'wall', x: 0, z: -3.3, r: 1.9 },
   { id: 'shelf', x: 4.7, z: 0.6, r: 1.6 },
   { id: 'portal', x: 4.3, z: -3.2, r: 1.35 },
+  { id: 'capsule', x: -4.6, z: 0.6, r: 1.2 },
+  { id: 'pass', x: 4.0, z: 3.0, r: 1.25 },
 ];
 /** Things the Highbot walks around: [x, z, radius]. */
-const SOLIDS: Array<[number, number, number]> = [[-5.1, -1.4, 1.15], [-3.7, -1.4, 0.45], [5.5, 0.6, 0.75], [4.5, -3.6, 0.6], [-5.3, 2.6, 0.7]];
+const SOLIDS: Array<[number, number, number]> = [[-5.1, -1.4, 1.15], [-3.7, -1.4, 0.45], [5.5, 0.6, 0.75], [4.5, -3.6, 0.6], [-5.3, 2.6, 0.7], [-5.3, 0.6, 0.5], [4.6, 3.0, 0.45]];
 
 function text(ctx: CanvasRenderingContext2D, s: string, x: number, y: number, font: string, color: string, max?: number) {
   ctx.font = font; ctx.fillStyle = color;
@@ -87,6 +98,8 @@ export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: 
   host.appendChild(renderer.domElement);
   renderer.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none';
 
+  // furniture as circles on the floor; the role object adds one, so each room gets its own copy
+  const solids: Array<[number, number, number]> = SOLIDS.map((c) => [...c] as [number, number, number]);
   const scene = new THREE.Scene();
   scene.fog = new THREE.Fog(0x050505, 14, 30);
   const env = studioEnvironment(renderer);
@@ -228,6 +241,7 @@ export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: 
 
   /* ---- back wall: Holo Cards of the Creadores you connected with ---- */
   const cardGeo = keep(new THREE.PlaneGeometry(1.5, 0.94));
+  const cardHits: Array<{ m: THREE.Mesh; index: number }> = [];
   const slots = 8;
   const loader = new THREE.TextureLoader();
   for (let i = 0; i < slots; i++) {
@@ -262,6 +276,8 @@ export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: 
     const m = new THREE.Mesh(cardGeo, mat);
     m.position.set(x, y, -D / 2 + 0.03);
     scene.add(m);
+    if (i === 0) cardHits.push({ m, index: -1 });
+    else if (card) cardHits.push({ m, index: i - 1 });
   }
   const wallTitle = new THREE.Mesh(keep(new THREE.PlaneGeometry(5, 0.4)), keep(new THREE.MeshBasicMaterial({ transparent: true, map: keep(canvasTex(1000, 80, (c) => {
     c.textAlign = 'center';
@@ -309,6 +325,150 @@ export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: 
   portalLabel.position.y = 2.5;
   portal.add(portalLabel);
 
+  /* ---- things that move every frame (capsule scan, pass card) ---- */
+  const anims: Array<(t: number) => void> = [];
+  const label = (s: string, color: string, w = 1.7) => new THREE.Mesh(keep(new THREE.PlaneGeometry(w, w * 0.18)), keep(new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, map: keep(canvasTex(510, 92, (c) => {
+    c.textAlign = 'center';
+    text(c, s, 255, 64, '700 42px monospace', color, 490);
+  })) })));
+
+  /* ---- left wall: the Highbot's capsule (chat and editor) ---- */
+  const capsule = new THREE.Group();
+  capsule.position.set(-5.3, 0, 0.6);
+  scene.add(capsule);
+  const cBase = new THREE.Mesh(keep(new THREE.CylinderGeometry(0.62, 0.7, 0.16, 32)), std(0x161a21, 0.4, 0.8));
+  cBase.position.y = 0.08;
+  const cTop = cBase.clone();
+  cTop.position.y = 2.42;
+  const glass = new THREE.Mesh(keep(new THREE.CylinderGeometry(0.55, 0.55, 2.2, 32, 1, true)), keep(new THREE.MeshStandardMaterial({ color: 0x9fe8ff, transparent: true, opacity: 0.12, roughness: 0.05, metalness: 0.2, side: THREE.DoubleSide, depthWrite: false })));
+  glass.position.y = 1.26;
+  const cRing = new THREE.Mesh(keep(new THREE.TorusGeometry(0.58, 0.02, 6, 40)), glow(accent));
+  cRing.rotation.x = Math.PI / 2;
+  // a hologram of the SGX bolt turns inside the capsule
+  const holo = new THREE.Group();
+  holo.position.y = 1.3;
+  void loadSgxIcon().then((icon) => {
+    if (!icon || !alive) return;
+    const g = icon.boltAlone.clone();
+    keep(g);
+    const m = new THREE.Mesh(g, keep(new THREE.MeshBasicMaterial({ color: accent, transparent: true, opacity: 0.75 })));
+    m.scale.setScalar(0.7);
+    holo.add(m);
+  });
+  const capLabel = label(es ? 'TU HIGHBOT' : 'YOUR HIGHBOT', '#00DDFF', 1.3);
+  capLabel.position.set(0.05, 2.75, 0);
+  capLabel.rotation.y = Math.PI / 2;
+  capsule.add(cBase, cTop, glass, cRing, holo, capLabel);
+  const capLight = new THREE.PointLight(accent, 1.4, 3, 1.8);
+  capLight.position.y = 1.3;
+  capsule.add(capLight);
+  anims.push((t) => {
+    cRing.position.y = 0.25 + ((t * 0.45) % 1) * 2.05;
+    holo.rotation.set(0, t * 0.9, 0);
+  });
+
+  /* ---- front right: the pedestal with your SGX Pass ---- */
+  const ped = new THREE.Group();
+  ped.position.set(4.6, 0, 3.0);
+  scene.add(ped);
+  box(0.75, 0.95, 0.75, dark, 0, 0.475, 0, ped);
+  box(0.8, 0.04, 0.8, glow(accent), 0, 0.97, 0, ped);
+  const passMat = (() => {
+    if (data.myHolo) {
+      const t = keep(new THREE.TextureLoader().load(data.myHolo));
+      t.colorSpace = THREE.SRGBColorSpace;
+      return keep(new THREE.MeshBasicMaterial({ map: t, side: THREE.DoubleSide }));
+    }
+    return keep(new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: keep(canvasTex(480, 300, (c) => {
+      c.fillStyle = '#0a0d13'; c.fillRect(0, 0, 480, 300);
+      c.strokeStyle = data.accent; c.lineWidth = 6; c.strokeRect(3, 3, 474, 294);
+      text(c, 'SGX PASS', 36, 70, '900 44px sans-serif', '#FDCC0D');
+      text(c, (data.callsign || (es ? 'CREADOR' : 'CREATOR')).toUpperCase(), 36, 160, '900 40px sans-serif', '#ffffff', 410);
+      text(c, 'SPATIALGINEERS SUMMIT 2026', 36, 262, '400 18px monospace', '#9ca3af');
+    })) }));
+  })();
+  const passCard = new THREE.Mesh(keep(new THREE.PlaneGeometry(0.95, 0.6)), passMat);
+  passCard.position.y = 1.55;
+  ped.add(passCard);
+  const pedLabel = label(es ? 'MI SGX PASS' : 'MY SGX PASS', '#FDCC0D', 1.3);
+  pedLabel.position.y = 2.15;
+  ped.add(pedLabel);
+  anims.push((t) => {
+    passCard.rotation.y = Math.sin(t * 0.7) * 0.6 - 0.4;
+    passCard.position.y = 1.55 + Math.sin(t * 1.4) * 0.05;
+    pedLabel.rotation.y = -0.4;
+  });
+
+  /* ---- your progress, in the room ---- */
+  // a trophy on the shelf for every pillar you stamped; an empty plinth for the rest
+  data.stamps.forEach((s, i) => {
+    const z = -0.5 + i * 0.44;
+    const plinth = box(0.22, 0.08, 0.22, dark, W / 2 - 0.3, 1.17, z);
+    if (!s.earned) { plinth.scale.y = 0.6; return; }
+    const mat = keep(new THREE.MeshStandardMaterial({ color: s.color, emissive: s.color, emissiveIntensity: 0.6, roughness: 0.3, metalness: 0.9 }));
+    const cup = new THREE.Mesh(keep(new THREE.CylinderGeometry(0.11, 0.05, 0.2, 14)), mat);
+    cup.position.set(W / 2 - 0.3, 1.36, z);
+    const stem = new THREE.Mesh(keep(new THREE.CylinderGeometry(0.025, 0.025, 0.1, 8)), mat);
+    stem.position.set(W / 2 - 0.3, 1.24, z);
+    scene.add(cup, stem);
+  });
+  // one light on the baseboard for every mission you completed
+  const ledGeo = keep(new THREE.BoxGeometry(0.16, 0.05, 0.03));
+  const ledOn = glow(accent), ledOff = glow(0x1f2530);
+  const total = Math.max(1, data.missionsTotal);
+  for (let i = 0; i < total; i++) {
+    const led = new THREE.Mesh(ledGeo, i < data.missionsDone ? ledOn : ledOff);
+    led.position.set(-W / 2 + 0.5 + (i / Math.max(1, total - 1)) * (W - 1), 0.32, -D / 2 + 0.03);
+    scene.add(led);
+  }
+  // your level: the higher it is, the more your color fills the room
+  const lvl = Math.min(1, Math.max(0, (data.level || 0) / 8));
+  const moodLight = new THREE.PointLight(accent, 1 + lvl * 7, 12, 1.6);
+  moodLight.position.set(0, 0.6, -1);
+  scene.add(moodLight);
+  // your role brings its own object, next to your pass
+  if (data.role && data.role !== 'visitor') {
+    const prop = new THREE.Group();
+    prop.position.set(3.4, 0, 3.7);
+    scene.add(prop);
+    solids.push([3.4, 3.7, 0.35]);
+    const metal = std(0x2b313c, 0.35, 0.85);
+    if (data.role === 'speaker') {
+      box(0.04, 1.45, 0.04, metal, 0, 0.72, 0, prop);
+      box(0.4, 0.03, 0.4, metal, 0, 0.015, 0, prop);
+      const head = new THREE.Mesh(keep(new THREE.CapsuleGeometry(0.07, 0.12, 4, 12)), std(0x111318, 0.6, 0.6));
+      head.position.y = 1.55; head.rotation.x = 0.5;
+      prop.add(head);
+      const spot = new THREE.SpotLight(0xfff2c4, 18, 6, 0.35, 0.6, 1.5);
+      spot.position.set(0, 4, 0.5);
+      spot.target = head;
+      prop.add(spot);
+    } else if (data.role === 'press') {
+      [0, 2.1, 4.2].forEach((a) => {
+        const leg = box(0.03, 1.3, 0.03, metal, Math.sin(a) * 0.25, 0.62, Math.cos(a) * 0.25, prop);
+        leg.rotation.set(Math.cos(a) * 0.2, 0, -Math.sin(a) * 0.2);
+      });
+      box(0.34, 0.22, 0.2, std(0x15181e, 0.5, 0.6), 0, 1.36, 0, prop);
+      const lens = new THREE.Mesh(keep(new THREE.CylinderGeometry(0.07, 0.08, 0.18, 16)), std(0x0b0d11, 0.2, 0.9));
+      lens.rotation.x = Math.PI / 2; lens.position.set(0, 1.36, -0.18);
+      prop.add(lens);
+      box(0.04, 0.04, 0.02, glow(0xdc2626), 0.12, 1.45, -0.1, prop);
+    }
+    // sponsors, press and Guild initiates also get a banner with their role
+    const word = { speaker: 'SPEAKER', sponsor: 'SPONSOR', press: es ? 'PRENSA' : 'PRESS', initiate: 'SGX GUILD' }[data.role];
+    const banner = new THREE.Mesh(keep(new THREE.PlaneGeometry(0.8, 2)), keep(new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: keep(canvasTex(240, 600, (c) => {
+      c.fillStyle = '#05080f'; c.fillRect(0, 0, 240, 600);
+      c.fillStyle = '#FDCC0D'; c.fillRect(0, 0, 240, 16); c.fillRect(0, 584, 240, 16);
+      c.save(); c.translate(150, 300); c.rotate(-Math.PI / 2); c.textAlign = 'center';
+      text(c, word, 0, 0, '900 82px sans-serif', '#FDCC0D');
+      c.restore();
+      text(c, 'SUMMIT 2026', 22, 560, '700 26px monospace', '#00DDFF');
+    })) })));
+    banner.position.set(data.role === 'speaker' || data.role === 'press' ? 0.75 : 0, 1.5, 0.2);
+    banner.rotation.y = -0.5;
+    prop.add(banner);
+  }
+
   /* ---- the Highbot ---- */
   const bot = new THREE.Group();
   bot.position.set(0, 0, 1.2);
@@ -347,7 +507,10 @@ export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: 
   /* ---- input: keyboard here, the joystick comes from the React layer ---- */
   const keys = new Set<string>();
   const joy = { x: 0, y: 0 };
-  const kd = (e: KeyboardEvent) => { if (/^(Arrow|Key[WASD])/.test(e.code)) { keys.add(e.code); e.preventDefault(); } };
+  const kd = (e: KeyboardEvent) => {
+    // typing in a panel over the room (the Highbot chat, a form) never walks the Highbot
+    if ((e.target as HTMLElement | null)?.closest?.('input, textarea, select, [contenteditable="true"]')) return;
+    if (/^(Arrow|Key[WASD])/.test(e.code)) { keys.add(e.code); e.preventDefault(); } };
   const ku = (e: KeyboardEvent) => keys.delete(e.code);
   const blur = () => keys.clear();
   window.addEventListener('keydown', kd);
@@ -368,7 +531,7 @@ export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: 
 
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
   const play = createRoomPlay({
-    scene, camera, dom: renderer.domElement, keep, accent, bot, solids: SOLIDS, shadowTex,
+    scene, camera, dom: renderer.domElement, keep, accent, bot, solids, shadowTex,
     room: { w: W, d: D, h: H, front: 5.6 }, reduce, onScore: (n) => onScore?.(n),
   });
   const camPos = new THREE.Vector3(0, 2.7, 7);
@@ -397,7 +560,7 @@ export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: 
       let nz = bot.position.z + mz * SPEED * dt;
       nx = THREE.MathUtils.clamp(nx, -W / 2 + 0.6, W / 2 - 0.6);
       nz = THREE.MathUtils.clamp(nz, -D / 2 + 0.7, 5.2);
-      for (const [sx, sz, r] of SOLIDS) {
+      for (const [sx, sz, r] of solids) {
         const dx = nx - sx, dz = nz - sz, d = Math.hypot(dx, dz), min = r + 0.42;
         if (d < min && d > 1e-4) { nx = sx + (dx / d) * min; nz = sz + (dz / d) * min; }
       }
@@ -419,6 +582,7 @@ export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: 
     body.rotation.z = reduce ? 0 : Math.sin(walk) * 0.025 * walkAmt;
     avatar?.setWalk?.(walkAmt, walk);
     avatar?.update(t);
+    for (const f of anims) f(t);
     play.update(dt, t);
 
     // which station is close
@@ -440,6 +604,13 @@ export function createStudioRoom(host: HTMLElement, data: RoomData, onNear: (s: 
   return {
     setMove: (x, y) => { joy.x = x; joy.y = y; },
     grab: play.grab, dragTo: play.dragTo, drop: play.drop,
+    pickCard: (cx, cy) => {
+      const b = renderer.domElement.getBoundingClientRect();
+      const rc = new THREE.Raycaster();
+      rc.setFromCamera(new THREE.Vector2(((cx - b.left) / b.width) * 2 - 1, -((cy - b.top) / b.height) * 2 + 1), camera);
+      const hit = rc.intersectObjects(cardHits.map((c) => c.m), false)[0];
+      return hit ? cardHits.find((c) => c.m === hit.object)!.index : null;
+    },
     dispose: () => {
       alive = false;
       cancelAnimationFrame(raf);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { navigateToPillar, navigateToSection } from '../immersion/navigation';
 import { PILLAR_ACCENT } from '../identity/sgxIdentity';
@@ -43,13 +43,15 @@ export const SgxQuickTour: React.FC = () => {
   const sgx = useOptionalSgxIdentity();
   const [offer, setOffer] = useState(false);
   const [step, setStep] = useState<number | null>(null);
+  const forgedRef = useRef(false);
+  forgedRef.current = !!sgx?.isForged;
 
   // First visit, on the core, without a pass: offer the tour after the page settles.
   useEffect(() => {
     if (done() || sgx?.isForged) return;
     const t = window.setTimeout(() => {
       const { page, summitSection } = getAppRouteAndSectionFromUrl();
-      if (page === 'summit' && (!summitSection || summitSection === 'OVERVIEW') && !done()) setOffer(true);
+      if (!forgedRef.current && page === 'summit' && (!summitSection || summitSection === 'OVERVIEW') && !done()) setOffer(true);
     }, 6000);
     return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -73,7 +75,19 @@ export const SgxQuickTour: React.FC = () => {
   const close = () => { markDone(); setOffer(false); setStep(null); };
   const forge = () => { close(); window.dispatchEvent(new CustomEvent('sgx:open_forge', { detail: { tier: 'DIGITAL' } })); };
 
-  if (!offer && step === null) return null;
+  // the offer is for a first look at the core: it goes away once you forge a pass or move on
+  useEffect(() => {
+    if (!offer) return;
+    const away = () => {
+      const { page, summitSection } = getAppRouteAndSectionFromUrl();
+      if (page !== 'summit' || (summitSection && summitSection !== 'OVERVIEW')) setOffer(false);
+    };
+    window.addEventListener('popstate', away);
+    const t = window.setInterval(away, 1000);
+    return () => { window.removeEventListener('popstate', away); window.clearInterval(t); };
+  }, [offer]);
+
+  if (step === null && (!offer || sgx?.isForged)) return null;
 
   const accent = sgx?.identity.affinity ? PILLAR_ACCENT[sgx.identity.affinity] : '#FDCC0D';
   const face = (

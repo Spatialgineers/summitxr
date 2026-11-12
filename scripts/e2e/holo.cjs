@@ -42,17 +42,17 @@ const S = (v) => ({ stringValue: v });
   await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'pass' } })));
   await p.waitForSelector("#sgx-studio-page", { timeout: 20000 }); await p.waitForTimeout(1200);
   // the Holo Card lives in the Studio: drawn, and it turns over to the event + QR
-  const inkOf = () => p.evaluate(() => { const c = document.querySelector('#sgx-studio-page .sgx-hstudio__preview canvas'); if (!c) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4000) if (d[i] > 0) n++; return n; });
+  const inkOf = () => p.evaluate(() => { const c = document.querySelector(':is(#sgx-studio-page, .sgx-sheet) .sgx-hstudio__preview canvas'); if (!c) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4000) if (d[i] > 0) n++; return n; });
   check('hangar shows the Holo Card', (await inkOf()) > 50);
-  await (await p.$('#sgx-studio-page .sgx-hstudio__preview canvas')).screenshot({ path: `${OUT}/c_hangar_front.png` });
-  await p.click('#sgx-studio-page .sgx-hstudio__preview canvas'); await p.waitForTimeout(900);
-  check('hangar card flips to the back', !!(await p.$('#sgx-studio-page .sgx-hstudio__flip:has-text("Frente"), #sgx-studio-page .sgx-hstudio__flip:has-text("Front")')));
-  await (await p.$('#sgx-studio-page .sgx-hstudio__preview canvas')).screenshot({ path: `${OUT}/c_hangar_back.png` });
+  await (await p.$(':is(#sgx-studio-page, .sgx-sheet) .sgx-hstudio__preview canvas')).screenshot({ path: `${OUT}/c_hangar_front.png` });
+  await p.click(':is(#sgx-studio-page, .sgx-sheet) .sgx-hstudio__preview canvas'); await p.waitForTimeout(900);
+  check('hangar card flips to the back', !!(await p.$(':is(#sgx-studio-page, .sgx-sheet) .sgx-hstudio__flip:has-text("Frente"), :is(#sgx-studio-page, .sgx-sheet) .sgx-hstudio__flip:has-text("Front")')));
+  await (await p.$(':is(#sgx-studio-page, .sgx-sheet) .sgx-hstudio__preview canvas')).screenshot({ path: `${OUT}/c_hangar_back.png` });
   
   // studio: the pass IS the Holo Card (one card, on the Studio page)
   await p.evaluate(() => window.dispatchEvent(new CustomEvent('sgx:open_credential_generator')));
-  await p.waitForSelector('#sgx-studio-page .sgx-hstudio__preview canvas', { timeout: 20000 }); await p.waitForTimeout(2500);
-  const Q = '#sgx-studio-page';
+  await p.waitForSelector(':is(#sgx-studio-page, .sgx-sheet) .sgx-hstudio__preview canvas', { timeout: 20000 }); await p.waitForTimeout(2500);
+  const Q = ':is(#sgx-studio-page, .sgx-sheet)';
   const filled = await p.evaluate((q) => { const c = document.querySelector(`${q} .sgx-hstudio__preview canvas`); if (!c) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4000) if (d[i] > 0) n++; return n; }, Q);
   check('Holo Card links open the pass on the Studio page (no popup)', filled > 50 && !(await p.$('[role=dialog] .sgx-hstudio')), `(samples ${filled})`);
   await p.screenshot({ path: `${OUT}/c_studio.png` });

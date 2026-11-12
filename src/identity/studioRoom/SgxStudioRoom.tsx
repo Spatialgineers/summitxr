@@ -4,7 +4,10 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useLite } from '../../lib/lite';
 import { SGX_PILLARS, pillarInk } from '../../lib/sgxPillars';
 import { navigateToSection } from '../../immersion/navigation';
+import { playUiChirp } from '../../lib/cyberAudioEngine';
 import { useSgxIdentity } from '../SgxIdentityContext';
+import { useHoloCredentials } from '../credentials';
+import { usePilotProfile } from '../../context/PilotProfileContext';
 import { PILLAR_ACCENT } from '../sgxIdentity';
 import { configFromSeed, normalizePilot, type PilotConfig } from '../pilotAvatar';
 import { createStudioRoom, type StationId, type StudioRoom } from './roomScene';
@@ -14,18 +17,28 @@ import './studioRoom.css';
    Creador's pass data, draws the joystick and the station prompt, and sends
    each station to the part of the app that already does that job. */
 
-const STATION: Record<StationId, { es: string; en: string; goEs: string; goEn: string }> = {
-  computer: { es: 'Tu computadora', en: 'Your computer', goEs: 'Abrir el Reactor de misiones', goEn: 'Open the mission Reactor' },
-  wall: { es: 'Pared de Holo Cards', en: 'Holo Card wall', goEs: 'Ver mis contactos', goEn: 'See my contacts' },
-  shelf: { es: 'Sellos de los pilares', en: 'Pillar stamps', goEs: 'Editar mi Highbot', goEn: 'Edit my Highbot' },
-  portal: { es: 'Portal al núcleo', en: 'Portal to the core', goEs: 'Volver al núcleo', goEn: 'Back to the core' },
+/** Each station opens one part of Tu Estudio (a panel over the room). */
+const STATION: Record<StationId, { es: string; en: string; goEs: string; goEn: string; tab: string | null }> = {
+  pass: { es: 'Mi SGX Pass', en: 'My SGX Pass', goEs: 'Abrir mi pase', goEn: 'Open my pass', tab: 'pass' },
+  capsule: { es: 'Cápsula del Highbot', en: 'Highbot capsule', goEs: 'Hablar con mi Highbot', goEn: 'Talk to my Highbot', tab: 'bot' },
+  shelf: { es: 'Sellos y trofeos', en: 'Stamps and trophies', goEs: 'Ver mis misiones', goEn: 'See my missions', tab: 'reactor' },
+  computer: { es: 'Tu computadora', en: 'Your computer', goEs: 'Ver bitácora y ranking', goEn: 'See log and ranking', tab: 'log' },
+  wall: { es: 'Pared de Holo Cards', en: 'Holo Card wall', goEs: 'Ver mis conexiones', goEn: 'See my connections', tab: 'rolodex' },
+  portal: { es: 'Portal al núcleo', en: 'Portal to the core', goEs: 'Volver al núcleo', goEn: 'Back to the core', tab: null },
 };
+const STATION_IDS = Object.keys(STATION) as StationId[];
 
 export const SgxStudioRoom: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const { language } = useLanguage();
   const es = language === 'es';
   const lite = useLite();
   const { identity, xpEarned, missions, isDone, isForged } = useSgxIdentity();
+  const { credentials } = useHoloCredentials();
+  const { profile } = usePilotProfile();
+  // the official role on the pass (a request in review does not count yet)
+  const role = (['speaker', 'sponsor', 'press', 'initiate'] as const).find((r) => credentials.some((c) => c.role === r && c.status === 'official')) || 'visitor';
+  const level = profile.level || 1;
+  const [menu, setMenu] = useState(false);
   const hostRef = useRef<HTMLDivElement | null>(null);
   const roomRef = useRef<StudioRoom | null>(null);
   const [near, setNear] = useState<StationId | null>(null);
@@ -59,6 +72,8 @@ export const SgxStudioRoom: React.FC<{ embedded?: boolean }> = ({ embedded = fal
       stamps: SGX_PILLARS.map((p) => ({ label: p.name, color: pillarInk(p.key), earned: !!identity.stamps[`pillar:${p.key}`] })),
       cards: identity.contacts.slice(0, 7).map((c) => ({ name: c.name, callsign: c.callsign, org: c.organization, color: c.pillar ? PILLAR_ACCENT[c.pillar] : '#00DDFF' })),
       myHolo: identity.holo?.image,
+      role,
+      level,
     }, (s) => {
       setNear(s);
       if (s) setSeen((prev) => (prev.includes(s) ? prev : [...prev, s]));
@@ -72,7 +87,7 @@ export const SgxStudioRoom: React.FC<{ embedded?: boolean }> = ({ embedded = fal
     return () => { room.dispose(); roomRef.current = null; };
     // the scene is rebuilt only when what it shows changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lite, es, accent, JSON.stringify(pilot), xpEarned, done, cardsKey, stampsKey, identity.holo?.image]);
+  }, [lite, es, accent, JSON.stringify(pilot), xpEarned, done, cardsKey, stampsKey, identity.holo?.image, role, level]);
 
   // Like the core, the room is a fixed screen: it fills the window under the header, and the
   // page behind it cannot scroll, so a drag always moves the Highbot and never the page.
@@ -85,6 +100,8 @@ export const SgxStudioRoom: React.FC<{ embedded?: boolean }> = ({ embedded = fal
       const top = Math.max(0, ...Array.from(document.querySelectorAll('.sgx-hdr, .sgx-sechud')).map((el) => el.getBoundingClientRect().bottom));
       const dock = document.querySelector('.sgx-dock');
       const dr = dock && getComputedStyle(dock).display !== 'none' ? dock.getBoundingClientRect() : null;
+      document.documentElement.style.setProperty('--sgx-room-top', `${Math.round(top)}px`);
+      document.documentElement.style.setProperty('--sgx-room-pad-bottom', `${dr ? Math.max(0, Math.round(window.innerHeight - dr.top + 6)) : 0}px`);
       setInset({ top: Math.round(top), bottom: dr ? Math.max(0, Math.round(window.innerHeight - dr.top + 6)) : 0 });
     };
     const root = document.documentElement;
@@ -110,16 +127,13 @@ export const SgxStudioRoom: React.FC<{ embedded?: boolean }> = ({ embedded = fal
   const openTab = (tab: string) => window.dispatchEvent(new CustomEvent('sgx:studio_tab', { detail: { tab } }));
 
   const go = (s: StationId) => {
-    // inside Tu Estudio the stations are its own tabs
-    if (embedded && s !== 'portal' && s !== 'shelf') {
-      const tab = s === 'computer' ? 'reactor' : 'rolodex';
-      window.dispatchEvent(new CustomEvent('sgx:studio_tab', { detail: { tab } }));
-      return;
-    }
-    if (s === 'computer') window.dispatchEvent(new CustomEvent('sgx:open_hangar', { detail: { tab: 'reactor' } }));
-    else if (s === 'wall') window.dispatchEvent(new CustomEvent(isForged ? 'sgx:open_hangar' : 'sgx:open_forge', { detail: { tab: 'rolodex' } }));
-    else if (s === 'shelf') window.dispatchEvent(new CustomEvent('sgx:open_avatar'));
-    else navigateToSection('OVERVIEW');
+    const tab = STATION[s].tab;
+    if (!tab) { navigateToSection('OVERVIEW'); return; }
+    // inside Tu Estudio each station opens its panel over the room; from the standalone page,
+    // it opens Tu Estudio on that panel
+    if (embedded) { openTab(tab); return; }
+    window.dispatchEvent(new CustomEvent(isForged || tab === 'reactor' || tab === 'log' || tab === 'bot' ? 'sgx:open_hangar' : 'sgx:open_forge', { detail: { tab } }));
+    return;
   };
 
   // Floating joystick: press anywhere on the room and drag.
@@ -128,6 +142,15 @@ export const SgxStudioRoom: React.FC<{ embedded?: boolean }> = ({ embedded = fal
     try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch { /* the pointer is already gone */ }
     // a press on a prop picks it up; anywhere else is the joystick
     if (roomRef.current?.grab(e.clientX, e.clientY)) { holding.current = true; return; }
+    // a tap on a Holo Card on the wall opens it: yours goes to your pass, a contact to your connections
+    const card = roomRef.current?.pickCard(e.clientX, e.clientY);
+    if (card != null) {
+      playUiChirp(720);
+      const tab = card < 0 ? 'pass' : 'rolodex';
+      if (embedded) openTab(tab);
+      else window.dispatchEvent(new CustomEvent(isForged ? 'sgx:open_hangar' : 'sgx:open_forge', { detail: { tab } }));
+      return;
+    }
     setStick({ x: e.clientX, y: e.clientY, dx: 0, dy: 0 });
   };
   const move = (e: React.PointerEvent) => {
@@ -152,7 +175,7 @@ export const SgxStudioRoom: React.FC<{ embedded?: boolean }> = ({ embedded = fal
           ? (es ? 'El Modo Ligero está activo y el cuarto 3D no se carga. Apágalo en los ajustes para entrar.' : 'Lite Mode is on, so the 3D room does not load. Turn it off in settings to enter.')
           : (es ? 'Este dispositivo no pudo abrir el cuarto 3D.' : 'This device could not open the 3D room.')}</p>
         <div className="sgx-room__lite-actions">
-          {(Object.keys(STATION) as StationId[]).map((s) => (
+          {STATION_IDS.map((s) => (
             <button key={s} type="button" className="sgx-btn" onClick={() => go(s)}>{es ? STATION[s].goEs : STATION[s].goEn}</button>
           ))}
         </div>
@@ -162,30 +185,28 @@ export const SgxStudioRoom: React.FC<{ embedded?: boolean }> = ({ embedded = fal
 
   // Portaled to the body: a page section with a transform would otherwise trap the fixed room.
   return createPortal(
-    <div className="sgx-room sgx-room--fixed" style={{ top: inset.top, bottom: inset.bottom }} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
-      <div ref={hostRef} className="sgx-room__canvas" aria-label={es ? 'Tu Estudio en 3D' : 'Your Studio in 3D'} />
+    <div className="sgx-room sgx-room--fixed" style={{ top: inset.top, bottom: 0, ['--sgx-room-pad-bottom' as string]: `${inset.bottom}px` }} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
+      <div ref={hostRef} className="sgx-room__canvas" role="img" aria-label={es ? 'Tu Estudio en 3D' : 'Your Studio in 3D'} />
       {!ready && <div className="sgx-room__loading" role="status">{es ? 'Abriendo tu Estudio…' : 'Opening your Studio…'}</div>}
 
       <div className="sgx-room__hud">
         <strong>{es ? 'Tu Estudio 3D' : 'Your 3D Studio'}</strong>
-        <span>{es ? `Estaciones ${seen.length}/4` : `Stations ${seen.length}/4`}</span>
+        <span>{es ? `Estaciones ${seen.length}/${STATION_IDS.length}` : `Stations ${seen.length}/${STATION_IDS.length}`}</span>
         <span id="sgx-room-hoops">{es ? `Canastas ${hoops}` : `Hoops ${hoops}`}</span>
       </div>
       <p className="sgx-room__help">
         {es ? 'Arrastra para caminar (o flechas / WASD) · Agarra un objeto y tíralo al aro' : 'Drag to walk (or arrows / WASD) · Grab an object and throw it at the hoop'}
       </p>
 
-      <nav className="sgx-room__exit" aria-label={es ? 'Salir del cuarto' : 'Leave the room'}>
-        {embedded ? (
-          <>
-            <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => openTab('pass')}>{es ? 'Pase' : 'Pass'}</button>
-            <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => openTab('bot')}>{es ? 'Tu Highbot' : 'Your Highbot'}</button>
-            <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => openTab('reactor')}>Reactor</button>
-            <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => openTab('rolodex')}>Rolodex</button>
-          </>
-        ) : (
-          <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => navigateToSection('OVERVIEW')}>{es ? 'Volver al núcleo' : 'Back to the core'}</button>
-        )}
+      <nav className={`sgx-room__exit ${menu ? 'is-open' : ''}`} aria-label={es ? 'Estaciones del cuarto' : 'Room stations'}>
+        <button type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground sgx-room__menu" aria-expanded={menu} onClick={() => setMenu((m) => !m)}>
+          {menu ? '✕' : '☰'} {es ? 'Estaciones' : 'Stations'}
+        </button>
+        {menu && STATION_IDS.map((id) => (
+          <button key={id} type="button" className="sgx-btn sgx-btn--sm sgx-btn--ground" onClick={() => { setMenu(false); go(id); }}>
+            {es ? STATION[id].es : STATION[id].en}
+          </button>
+        ))}
       </nav>
 
       {near && (

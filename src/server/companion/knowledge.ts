@@ -105,7 +105,7 @@ const EVENT = `## Spatialgineers Summit 2026: lo esencial
 
 ## El SGX Pass y la experiencia en la app
 - El SGX Pass es la credencial gratis del Summit y ES la Holo Card del Creador. Se "forja" en un minuto (nombre, email, pilar favorito, su Highbot). Da el QR de networking, la entrada del Día 3, las misiones y el XP. Un pase por email.
-- Tu Estudio es la página personal: Pase, Tu Highbot, Reactor (misiones por pilar), Red (constelación de contactos), Rolodex, Día 3 y Telemetría. Con Google se guarda el progreso en la cuenta.
+- Tu Estudio es el cuarto 3D del Highbot del Creador (en SGX.Synthesize, y en /pase). El Creador camina con su Highbot y cada estación abre un panel encima del cuarto: el pedestal "Mi SGX Pass" (su Holo Card, su rol y las solicitudes de speaker, sponsor, prensa o Guild con sus fechas, el Día 3 con su QR y la cuenta de Google), la cápsula del Highbot (hablar con él), la repisa de sellos y trofeos (misiones del Reactor por pilar), la computadora (bitácora y ranking) y la pared de Holo Cards (Rolodex y Red). Hay un botón "Estaciones" para ir directo, objetos para tirar al aro, y el cuarto cambia con el progreso: un trofeo por pilar sellado, una luz por misión, el objeto de su rol y más color según su nivel. En Modo Ligero, Tu Estudio se ve como pestañas. Con Google se guarda el progreso en la cuenta.
 - XP: se gana jugando, votando en vivo (+25 XP por voto, una vez por pregunta), completando misiones y escaneando pases. La Tienda del Reactor deja gastar XP sin bajar de rango.
 - Networking: escanear el QR del pase de otra persona los guarda en el Rolodex de ambos; completar los seis pilares en la Red da un sello secreto.
 - Encuestas: solo aceptan votos mientras el equipo las tiene abiertas.

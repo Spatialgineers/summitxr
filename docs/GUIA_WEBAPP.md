@@ -1360,7 +1360,26 @@ Las capturas van a `scripts/e2e/out/`. Hay que correr `visitor.cjs` antes que `a
 ---
 
 ### Novedades del 11 de noviembre
-- **Tu Estudio 3D:** el cuarto del Highbot es el primer tab de Tu Estudio ("Estudio 3D"). Se entra desde el núcleo ("Entrar a Tu Estudio 3D"), desde SGX.Synthesize o por `/estudio-3d`. Tiene objetos para agarrar y tirar, un aro con marcador y el Highbot camina con pasos reales. Código en `src/identity/studioRoom/` (`roomScene.ts`, `roomPlay.ts`).
+- **Tu Estudio = el cuarto 3D** (`/pase`, módulo en SGX.Synthesize): ya no hay pestañas. Cada estación abre un panel encima del cuarto (a la derecha en escritorio, desde abajo en el teléfono). El botón "Estaciones" lleva directo a cada una, y Escape o "← Al cuarto" lo cierra:
+  - pedestal → **Mi SGX Pass**;
+  - cápsula → **Tu Highbot** (chat);
+  - repisa de sellos y trofeos → **Reactor**;
+  - computadora → **Bitácora** y ranking;
+  - pared de Holo Cards → **Rolodex** y **Red**; tocar una Holo Card la abre;
+  - portal → núcleo.
+
+  En Modo Ligero, Tu Estudio vuelve a las pestañas. `/estudio-3d` sigue como página propia del cuarto, y en ella las estaciones llevan a Tu Estudio. Código: `src/identity/SgxHangar.tsx` (paneles) y `src/identity/studioRoom/` (`roomScene.ts`, `roomPlay.ts`, `SgxStudioRoom.tsx`).
+- **Mi SGX Pass como expediente:** arriba, un resumen (rol, solicitudes, Día 3, conexiones y XP). Debajo, en orden:
+  - la Holo Card y sus formatos;
+  - tu rol, con las solicitudes de speaker, sponsor, prensa y Guild y la fecha en que cierra cada una (o "Cerró el…");
+  - el **Día 3**, que ya no es pestaña: `?estudio=day3` abre el pase en esa parte;
+  - la cuenta de Google.
+- **El cuarto refleja tu progreso:**
+  - un trofeo en la repisa por cada pilar sellado;
+  - una luz en el zócalo por cada misión;
+  - el objeto de tu rol oficial (micrófono con foco para speaker, cámara para prensa, bandera para sponsor y Guild);
+  - más luz de tu color según tu nivel.
+- **Impacto en el contenido ya grabado:** ver `docs/campaign/IMPACTO_ESTUDIO_3D.md`.
 - **Núcleo en vivo:** durante el evento aparece la barra "EN VIVO · Ahora: <sesión>" sobre el núcleo (`src/lib/summitLive.ts`). Usa las horas del programa en hora de Puerto Rico.
 - **Recorrido de 60 segundos:** el Highbot lo ofrece en la primera visita (`src/companion/SgxQuickTour.tsx`) y termina en "Forja tu pase".
 - **Holo Card en video:** botón "Video para stories" en el Holo Studio (`src/identity/holoCardVideo.ts`); 6 s, 1080×1920, grabado en el dispositivo.

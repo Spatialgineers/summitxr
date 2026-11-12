@@ -2,6 +2,18 @@
 
 **Fecha:** 12 nov 2026.
 
+> **Estado (12 nov, tarde):**
+> - **Ya rehecho, en HD:**
+>   - video SGX Pass (57 s, en Wix y en el post de hoy);
+>   - reel nuevo "Tu Estudio 3D" (26 s, paquete del 27 nov);
+>   - carruseles "Tu pase es una llave" y repaso;
+>   - guía MD (y su generador del PDF);
+>   - kit de YouTube, plan y calendario.
+> - **En proceso:**
+>   - recorrido completo 9:16 y 16:9, regrabado entero en HD con voz nueva (Tu Estudio en Synthesize);
+>   - video de Creadores, regrabado en HD con voz nueva;
+>   - guía PDF.
+
 **Qué cambió en la app:**
 1. **Tu Estudio es el cuarto 3D.** Ya no hay fila de pestañas. Cada estación abre su panel encima del cuarto:
    - pedestal → Mi SGX Pass;

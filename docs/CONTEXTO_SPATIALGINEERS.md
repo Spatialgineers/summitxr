@@ -23,7 +23,7 @@ Este brief es para cualquier agente o asistente (Claude, ChatGPT, Gemini, Muse, 
 
 ## 2. Reglas de marca (para todo agente)
 - El evento es **"Spatialgineers Summit"**. Nunca "SGX Summit".
-- Los visitantes son **"Creadores"** y su espacio es **"Tu Estudio"**.
+- Los visitantes son **"Creadores"** y su espacio es **"Tu Estudio"**: el cuarto 3D de su Highbot (en SGX.Synthesize, `/pase`), donde cada estación abre una parte de su SGX Pass (Mi SGX Pass, Highbot, Reactor, Bitácora, Rolodex y Red).
 - El auspicio se organiza en **"Paquete 1–5"**. Nunca "Tier" ni "nivel".
 - **Nada de lenguaje de pilotos, aviación o espacio:** ni "piloto", "despegar", "galaxia", "cósmico", "nave", 🚀 ni "cuántico". "Computación espacial" sí se permite.
 - Nunca se menciona "The High Creators Group" ni a Marcos Berríos.

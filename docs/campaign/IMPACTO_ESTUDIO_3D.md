@@ -13,6 +13,14 @@
 >   - recorrido completo 9:16 y 16:9, regrabado entero en HD con voz nueva (Tu Estudio en Synthesize);
 >   - video de Creadores, regrabado en HD con voz nueva;
 >   - guía PDF.
+>
+> **HD:** el arreglo de grabación nativa a 1080×1920 entró el 8 nov. Lo grabado antes de esa fecha salió agrandado y se está regrabando:
+> - el recorrido completo (9:16 y 16:9);
+> - Creadores;
+> - "Cómo se construyó la app" 16:9;
+> - Equipo.
+>
+> Speakers, Sponsors, Prensa, "Cómo se construyó" 9:16 y los micro-reels ya eran HD. El promo reel del 28 oct quedó **retirado**: no es HD y su voz usa lenguaje espacial ("estación espacial"), que la marca no permite.
 
 **Qué cambió en la app:**
 1. **Tu Estudio es el cuarto 3D.** Ya no hay fila de pestañas. Cada estación abre su panel encima del cuarto:

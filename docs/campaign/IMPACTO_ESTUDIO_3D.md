@@ -10,7 +10,7 @@
 >   - guía MD (y su generador del PDF);
 >   - kit de YouTube, plan y calendario.
 > - **En proceso:**
->   - recorrido completo 9:16 y 16:9, regrabado entero en HD con voz nueva (Tu Estudio en Synthesize);
+>   - recorrido completo 16:9 (el **9:16 ya está**: 3:34, HD, voz nueva, Tu Estudio en Synthesize; en Wix: https://video.wixstatic.com/video/fe81a7_e75e4e1f92b34a1dab4499eadb60d6aa/file);
 >   - video de Creadores, regrabado en HD con voz nueva;
 >   - guía PDF.
 >

@@ -9,7 +9,8 @@
 >   - carruseles "Tu pase es una llave" y repaso;
 >   - guía MD (y su generador del PDF);
 >   - kit de YouTube, plan y calendario.
-> - **En proceso:**
+> - **Hecho (HD, 12 nov tarde):** Creadores (en Wix: https://video.wixstatic.com/video/fe81a7_653b79bfbc90493f8ae0f67e5fd2cc5e/file), "Cómo se construyó" 16:9, Equipo y guía PDF regenerada.
+> - **Antes en proceso:**
 >   - recorrido completo 16:9 (16:9 en Wix: https://video.wixstatic.com/video/fe81a7_a16fcd5861ce42cf89e94bc5cb1a1dd9/file; el **9:16 ya está**: 3:34, HD, voz nueva, Tu Estudio en Synthesize; en Wix: https://video.wixstatic.com/video/fe81a7_e75e4e1f92b34a1dab4499eadb60d6aa/file);
 >   - video de Creadores, regrabado en HD con voz nueva;
 >   - guía PDF.

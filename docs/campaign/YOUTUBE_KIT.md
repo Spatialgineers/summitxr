@@ -47,16 +47,16 @@ Forja tu SGX Pass gratis: https://summit.spatialgineers.com/bienvenida
 Capítulos
 0:00 El Spatialgineers Summit 2026
 0:26 Forja tu SGX Pass
-0:36 El núcleo 3D y el Menú
+0:33 El núcleo 3D y el Menú
 0:49 SGX.Story: Manifiesto, Radar social y Avatar Studio
-1:05 SGX.Showcase: 360°, Partners, Modelos 3D y Patrocina
-1:28 SGX.Spark: juegos, Arena en vivo, Reactor y Tienda
-1:53 SGX.Stage: agenda, transmisión, speakers y escenario
-2:21 SGX.System: Radar de visitas, Tu Estudio, Escáner y Terminal
-2:51 SGX.Synthesize: SGX.Match, Foros y SGX Guild
-3:07 Tu Highbot con IA
+1:03 SGX.Showcase: 360°, Partners, Modelos 3D y Patrocina
+1:24 SGX.Spark: juegos, Arena en vivo, Reactor y Tienda
+1:49 SGX.Stage: agenda, transmisión, speakers y escenario
+2:16 SGX.System: Radar de visitas, Escáner y Terminal
+2:32 SGX.Synthesize: SGX.Match, Foros, SGX Guild y Tu Estudio 3D
+3:04 Tu Highbot con IA
 3:13 El Centro de mando
-3:24 Forja tu pase
+3:21 Forja tu pase
 
 Contacto: info@spatialgineers.com
 Instagram: https://instagram.com/spatialgineers
